@@ -22,14 +22,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "optionalInt",
-      "kind": "Field",
-      "detail": "int",
-      "sortText": "A",
-      "insertText": "optionalInt",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "reduce(function () func, any|error initial)(any|error)",
       "kind": "Function",
       "detail": "Function",

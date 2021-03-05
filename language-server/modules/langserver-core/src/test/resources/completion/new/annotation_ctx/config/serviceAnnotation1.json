@@ -1,32 +1,16 @@
 {
   "position": {
-    "line": 3,
-    "character": 24
+    "line": 13,
+    "character": 1
   },
-  "source": "listener_decl/source/source8.bal",
+  "source": "annotation_ctx/source/serviceAnnotation1.bal",
   "items": [
     {
-      "label": "test",
-      "kind": "Variable",
-      "detail": "none",
-      "sortText": "B",
-      "insertText": "test",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "mod",
+      "label": "module1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "N",
-      "insertText": "mod",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lang.object",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "object",
+      "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -40,11 +24,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -63,11 +47,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -86,11 +70,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -109,11 +93,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -132,11 +116,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -155,11 +139,11 @@
         {
           "range": {
             "start": {
-              "line": 1,
+              "line": 0,
               "character": 0
             },
             "end": {
-              "line": 1,
+              "line": 0,
               "character": 0
             }
           },
@@ -280,12 +264,31 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "new",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "new ",
-      "insertTextFormat": "Snippet"
+      "label": "serviceAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "serviceAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "serviceAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "serviceAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "display {\n\tlabel: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
     }
   ]
 }
