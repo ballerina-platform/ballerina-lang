@@ -152,5 +152,9 @@ public enum Flag {
     /**
      * Indicates flagged parameter is a included record parameter.
      */
-    INCLUDED;
+    INCLUDED,
+    /**
+     * Indicates flagged variable is a field.
+     */
+    FIELD;
 }
