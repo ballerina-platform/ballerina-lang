@@ -65,6 +65,12 @@
         </OR>
     </Match>
     <Match>
+        <Class name="org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil" />
+        <OR>
+            <Bug pattern="BC_UNCONFIRMED_CAST" />
+        </OR>
+    </Match>
+    <Match>
         <Class name="org.ballerinalang.langserver.signature.SignatureHelpUtil" />
         <OR>
             <Bug pattern="BC_UNCONFIRMED_CAST" />

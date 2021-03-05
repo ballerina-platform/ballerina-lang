@@ -321,3 +321,11 @@ public isolated function fromString(string s) returns xml|error = @java:Method {
     'class: "org.ballerinalang.langlib.xml.FromString",
     name: "fromString"
 } external;
+
+# Selects all the items in a sequence that are of type xml:Text
+# + x - the xml value
+# + return - an xml sequence consisting of selected text items
+public isolated function text(xml x) returns Text = @java:Method {
+    'class: "org.ballerinalang.langlib.xml.Text",
+    name: "text"
+} external;
