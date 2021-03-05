@@ -1,0 +1,5 @@
+[plugin]
+class = "io.ballerina.openapi.Validator"
+
+[[Dependency]]
+path = "./libs/platform-io-1.3.0-java.txt"

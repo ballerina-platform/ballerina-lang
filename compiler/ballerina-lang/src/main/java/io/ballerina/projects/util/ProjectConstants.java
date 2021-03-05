@@ -29,6 +29,7 @@ public class ProjectConstants {
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
+    public static final String COMPILER_PLUGIN_TOML = "Compiler-plugin.toml";
     public static final String CLOUD_TOML = "Cloud.toml";
     public static final String CONFIGURATION_TOML = "Config.toml";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
@@ -37,6 +38,7 @@ public class ProjectConstants {
     public static final String PACKAGE_MD_FILE_NAME = "Package.md";
     public static final String PACKAGE_JSON = "package.json";
     public static final String BALA_JSON = "bala.json";
+    public static final String COMPILER_PLUGIN_JSON = "compiler-plugin.json";
     public static final String DEPENDENCY_GRAPH_JSON = "dependency-graph.json";
 
     public static final String SOURCE_DIR_NAME = "src";
