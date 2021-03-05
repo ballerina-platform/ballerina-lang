@@ -300,37 +300,38 @@ public class AnnotationDesugar {
             if (!annotation.annotationName.value.equals("strand")) {
                 continue;
             }
-            if (annotation.expr != null) {
-                List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) annotation.expr).fields;
-                for (RecordLiteralNode.RecordField field : fields) {
-                    if (field.getKind() != NodeKind.RECORD_LITERAL_KEY_VALUE) {
-                        continue;
-                    }
-                    BLangRecordLiteral.BLangRecordKeyValueField keyValue =
-                            (BLangRecordLiteral.BLangRecordKeyValueField) field;
-                    BLangExpression expr = keyValue.key.expr;
-                    if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
-                        continue;
-                    }
-                    BLangIdentifier variableName = ((BLangSimpleVarRef) expr).variableName;
-                    if (variableName.value.equals("name")) {
-                        if (keyValue.valueExpr.getKind() != NodeKind.LITERAL) {
-                            continue;
-                        }
-                        function.symbol.strandName = ((BLangLiteral) keyValue.valueExpr).value.toString();
-                        continue;
-                    }
-                    if (variableName.value.equals("thread")) {
-                        if (keyValue.valueExpr.getKind() != NodeKind.LITERAL) {
-                            continue;
-                        }
-                        Object value = ((BLangLiteral) keyValue.valueExpr).value;
-                        if ("any".equals(value)) {
-                            function.symbol.schedulerPolicy = SchedulerPolicy.ANY;
-                        }
-                    }
-
+            if (annotation.expr == null) {
+                continue;
+            }
+            List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) annotation.expr).fields;
+            for (RecordLiteralNode.RecordField field : fields) {
+                if (field.getKind() != NodeKind.RECORD_LITERAL_KEY_VALUE) {
+                    continue;
                 }
+                BLangRecordLiteral.BLangRecordKeyValueField keyValue =
+                        (BLangRecordLiteral.BLangRecordKeyValueField) field;
+                BLangExpression expr = keyValue.key.expr;
+                if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                    continue;
+                }
+                BLangIdentifier variableName = ((BLangSimpleVarRef) expr).variableName;
+                if (variableName.value.equals("name")) {
+                    if (keyValue.valueExpr.getKind() != NodeKind.LITERAL) {
+                        continue;
+                    }
+                    function.symbol.strandName = ((BLangLiteral) keyValue.valueExpr).value.toString();
+                    continue;
+                }
+                if (variableName.value.equals("thread")) {
+                    if (keyValue.valueExpr.getKind() != NodeKind.LITERAL) {
+                        continue;
+                    }
+                    Object value = ((BLangLiteral) keyValue.valueExpr).value;
+                    if ("any".equals(value)) {
+                        function.symbol.schedulerPolicy = SchedulerPolicy.ANY;
+                    }
+                }
+
             }
         }
     }

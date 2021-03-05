@@ -1294,7 +1294,7 @@ public class Desugar extends BLangNodeVisitor {
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         if (annAttachmentNode.expr == null && annAttachmentNode.annotationSymbol.attachedType != null) {
             BType attachedType = annAttachmentNode.annotationSymbol.attachedType.type;
-            if (!(attachedType.tag == TypeTags.FINITE)) {
+            if (attachedType.tag != TypeTags.FINITE) {
                 annAttachmentNode.expr = ASTBuilderUtil.createEmptyRecordLiteral(annAttachmentNode.pos,
                         attachedType.tag == TypeTags.ARRAY ? ((BArrayType) attachedType).eType : attachedType);
             }
