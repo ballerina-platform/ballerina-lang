@@ -20,14 +20,20 @@ package io.ballerina.projects;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import com.moandjiezana.toml.Toml;
+import io.ballerina.projects.internal.model.CompilerPluginToml;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
+
+import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_TOML;
 
 /**
  * This class knows how to create a bala containing jballerina platform libs.
@@ -42,6 +48,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
         this.backend = backend;
         this.packageContext = backend.packageContext();
         this.target = getTargetPlatform(packageContext.getResolution()).code();
+        this.compilerPluginToml = readCompilerPluginToml();
     }
 
 
@@ -90,6 +97,36 @@ public class JBallerinaBalaWriter extends BalaWriter {
         return Optional.of(newPlatformLibs);
     }
 
+    @Override
+    protected void addCompilerPluginLibs(ZipOutputStream balaOutputStream)
+            throws IOException {
+        if (this.compilerPluginToml.isPresent()) {
+            List<String> compilerPluginDependencies = this.compilerPluginToml.get().getCompilerPluginDependencies();
+
+            if (!compilerPluginDependencies.isEmpty()) {
+
+                // Iterate through compiler plugin dependencies and add them to bala
+                // organization would be
+                // -- Bala Root
+                //   - compiler-plugin/
+                //     - libs
+                //       - java-library1.jar
+                //       - java-library2.jar
+
+                // Iterate jars and create directories for each target
+                for (String compilerPluginLib : compilerPluginDependencies) {
+                    Path libPath = this.packageContext.project().sourceRoot().resolve(compilerPluginLib);
+                    // null check is added for spot bug with the toml validation filename cannot be null
+                    String fileName = Optional.ofNullable(libPath.getFileName())
+                            .map(p -> p.toString()).orElse("annon");
+                    Path entryPath = Paths.get("compiler-plugin").resolve("libs").resolve(fileName);
+                    // create a zip entry for each file
+                    putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
+                }
+            }
+        }
+    }
+
     private CompilerBackend.TargetPlatform getTargetPlatform(PackageResolution pkgResolution) {
         ResolvedPackageDependency resolvedPackageDependency = new ResolvedPackageDependency(
                 this.packageContext.project().currentPackage(), PackageDependencyScope.DEFAULT);
@@ -102,5 +139,21 @@ public class JBallerinaBalaWriter extends BalaWriter {
             }
         }
         return AnyTarget.ANY;
+    }
+
+    private Optional<CompilerPluginToml> readCompilerPluginToml() {
+        Path compilerPluginTomlPath = backend.packageContext().project().sourceRoot().resolve(COMPILER_PLUGIN_TOML);
+        if (compilerPluginTomlPath.toFile().exists()) {
+            Toml toml;
+            try (InputStream inputStream = new FileInputStream(compilerPluginTomlPath.toFile())) {
+                toml = new Toml().read(inputStream);
+            } catch (IllegalStateException e) {
+                throw new ProjectException("invalid '" + COMPILER_PLUGIN_TOML + "' due to " + e.getMessage());
+            } catch (IOException e) {
+                throw new ProjectException("cannot read '" + COMPILER_PLUGIN_TOML + "' due to " + e.getMessage());
+            }
+            return Optional.ofNullable(toml.to(CompilerPluginToml.class));
+        }
+        return Optional.empty();
     }
 }
