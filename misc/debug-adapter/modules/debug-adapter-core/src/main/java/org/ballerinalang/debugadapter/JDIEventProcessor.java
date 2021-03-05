@@ -261,7 +261,7 @@ public class JDIEventProcessor {
             int nextStepPoint = firstLocation.get().lineNumber();
             do {
                 List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
-                if (!locations.isEmpty()) {
+                if (!locations.isEmpty() && (locations.get(0).lineNumber() > firstLocation.get().lineNumber())) {
                     BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(locations.get(0));
                     bpReq.enable();
                 }
