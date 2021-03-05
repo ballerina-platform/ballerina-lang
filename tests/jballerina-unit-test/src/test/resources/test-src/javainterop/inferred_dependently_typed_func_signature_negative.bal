@@ -38,3 +38,21 @@ stream<record {| int x; |}, error> stm = queryWithMultipleInferTypedescs("");
 ClassWithMethodWithMultipleInferTypedescs cl = new;
 stream<record {| int x; |}, error> stm2 = cl.queryWithMultipleInferTypedescs();
 stream<record {| int x; |}, error> stm3 = cl.queryWithMultipleInferTypedescs(rowType = OpenRecord);
+
+function func1(typedesc<string[]> t = <>) returns t|int[] = external;
+
+function func2(typedesc<any> t = <>) returns t|int[] = external;
+
+function func3(typedesc<any|error> t = <>) returns t|MyError = external;
+
+function func4(typedesc<[boolean, json]|string> t = <>) returns t|int[] = external;
+
+function func5(typedesc<map<int>|map<boolean>> t = <>) returns t|record {} = external;
+
+function func6(int x, typedesc<int> t = <>) returns t|int:Signed16|boolean = external;
+
+function func7(typedesc<xml:Element|xml:Comment> t = <>) returns t|xml = external;
+
+function func8(typedesc<string> t = <>) returns string:Char|t = external;
+
+type MyError error<record {|int code;|}>;

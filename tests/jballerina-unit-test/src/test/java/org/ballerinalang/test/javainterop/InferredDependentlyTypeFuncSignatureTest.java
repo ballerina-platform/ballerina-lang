@@ -35,6 +35,8 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 public class InferredDependentlyTypeFuncSignatureTest {
 
     private CompileResult result;
+    private static final String INVALID_RETURN_TYPE_ERROR = "invalid return type: members of a dependently-typed " +
+            "union type with an inferred typedesc parameter should have disjoint basic types";
 
     @BeforeClass
     public void setup() {
@@ -79,6 +81,14 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 "typedesc default", 28, 1);
         validateError(negativeResult, index++, "cannot have more than one defaultable parameter with an inferred " +
                 "typedesc default", 32, 5);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 42, 51);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 44, 46);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 46, 52);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 48, 65);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 50, 64);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 52, 53);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 54, 66);
+        validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 56, 49);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }
