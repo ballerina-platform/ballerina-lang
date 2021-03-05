@@ -65,4 +65,6 @@ createBalo {
     jvmTarget = 'true'
 }
 
+test.enabled = false
+
 description = 'Ballerina - mysql'
