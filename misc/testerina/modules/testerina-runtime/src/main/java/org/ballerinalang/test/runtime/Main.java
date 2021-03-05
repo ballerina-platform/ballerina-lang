@@ -27,6 +27,7 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.wso2.ballerinalang.util.Lists;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -63,7 +64,6 @@ public class Main {
         String target = args[1];
         boolean report = Boolean.valueOf(args[2]);
         boolean coverage = Boolean.valueOf(args[3]);
-        String testSuiteMapString = args[4];
 
         if (report || coverage) {
             testReport = new TestReport();
@@ -76,41 +76,44 @@ public class Main {
         }
         out.println();
 
-        Gson gson = new Gson();
-        Map<String, TestSuite> testSuiteMap;
+        Path testSuiteCachePath = testCache.resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
 
-        testSuiteMap =
-                gson.fromJson(testSuiteMapString, new TypeToken<Map<String, TestSuite>>() { }.getType());
+        try (BufferedReader br = Files.newBufferedReader(testSuiteCachePath, StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            Map<String, TestSuite> testSuiteMap;
 
-        if (!testSuiteMap.isEmpty()) {
-            for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
-                String moduleName = entry.getKey();
-                TestSuite testSuite = entry.getValue();
+            testSuiteMap = gson.fromJson(br, new TypeToken<Map<String, TestSuite>>() { }.getType());
 
-                List<String> configList = new ArrayList<>();
-                configList.add(target);
-                configList.add(testSuite.getOrgName());
-                configList.add(testSuite.getPackageName());
-                configList.add("\"" + moduleName + "\"");
-                configList.addAll(Lists.of(Arrays.copyOfRange(args, 5, args.length)));
-                String[] configArgs = configList.toArray(new String[0]);
+            if (!testSuiteMap.isEmpty()) {
+                for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
+                    String moduleName = entry.getKey();
+                    TestSuite testSuite = entry.getValue();
 
-                LaunchUtils.initConfigurations(configArgs);
+                    List<String> configList = new ArrayList<>();
+                    configList.add(target);
+                    configList.add(testSuite.getOrgName());
+                    configList.add(testSuite.getPackageName());
+                    configList.add("\"" + moduleName + "\"");
+                    configList.addAll(Lists.of(Arrays.copyOfRange(args, 4, args.length)));
+                    String[] configArgs = configList.toArray(new String[0]);
 
-                out.println();
-                out.println("\t" + moduleName.toString());
+                    LaunchUtils.initConfigurations(configArgs);
 
-                testSuite.setModuleName(moduleName);
-                List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
-                classLoader = createClassLoader(testExecutionDependencies);
+                    out.println("\n\t" + (moduleName.equals(testSuite.getPackageName()) ?
+                            moduleName : testSuite.getPackageName() + TesterinaConstants.DOT + moduleName));
 
-                Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
-                result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
-                        classLoader);
-                exitStatus = (result == 1) ? result : exitStatus;
+                    testSuite.setModuleName(moduleName);
+                    List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
+                    classLoader = createClassLoader(testExecutionDependencies);
+
+                    Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
+                    result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
+                            classLoader);
+                    exitStatus = (result == 1) ? result : exitStatus;
+                }
+            } else {
+                exitStatus = 1;
             }
-        } else {
-            exitStatus = 1;
         }
 
         Runtime.getRuntime().exit(exitStatus);

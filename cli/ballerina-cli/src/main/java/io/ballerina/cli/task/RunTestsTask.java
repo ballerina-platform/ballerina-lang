@@ -19,6 +19,7 @@
 package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
+import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
@@ -207,13 +208,15 @@ public class RunTestsTask implements Task {
             moduleNamesList.add(resolvedModuleName);
         }
 
+        writeToTestSuiteJson(testSuiteMap, testsCachePath);
+
         int testResult;
 
         if (hasTests) {
             try {
                 testResult = runTestSuit(testsCachePath, target,
                         project.currentPackage().packageName().toString(),
-                        project.currentPackage().packageOrg().toString(), testSuiteMap);
+                        project.currentPackage().packageOrg().toString());
 
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
@@ -349,8 +352,7 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestSuit(Path testCachePath, Target target, String packageName, String orgName,
-                            Map<String, TestSuite> testSuiteMap) throws IOException,
+    private int runTestSuit(Path testCachePath, Target target, String packageName, String orgName) throws IOException,
             InterruptedException {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
@@ -387,10 +389,7 @@ public class RunTestsTask implements Task {
         cmdArgs.add(Boolean.toString(report));      // 2
         cmdArgs.add(Boolean.toString(coverage));    // 3
 
-        Gson gson = new Gson();
-        cmdArgs.add(gson.toJson(testSuiteMap));     // 4
-
-        cmdArgs.addAll(args);                       // 5
+        cmdArgs.addAll(args);                       // 4
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -450,4 +449,29 @@ public class RunTestsTask implements Task {
         dependencies.stream().map(Path::toString).forEach(cp::add);
         return cp.toString();
     }
+
+    /**
+     * Write the content of each test suite into a common json.
+     */
+    private static void writeToTestSuiteJson(Map<String, TestSuite> testSuiteMap, Path testsCachePath) {
+        if (!Files.exists(testsCachePath)) {
+            try {
+                Files.createDirectories(testsCachePath);
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException("couldn't create test suite : " + e.toString());
+            }
+        }
+
+        Path jsonFilePath = Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        File jsonFile = new File(jsonFilePath.toString());
+
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(testSuiteMap);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
+        }
+    }
+
 }

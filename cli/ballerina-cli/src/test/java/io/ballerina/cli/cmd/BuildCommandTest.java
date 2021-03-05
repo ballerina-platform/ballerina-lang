@@ -248,10 +248,6 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Running Tests\n\n" +
-                "\twinery\n" +
-                "\tNo tests found\n" +
-                "\n" +
                 "Creating bala\n" +
                 "\ttarget/bala/foo-winery-java11-0.1.0.bala\n" +
                 "\n" +
