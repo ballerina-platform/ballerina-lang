@@ -41,12 +41,13 @@ type AuthInfo record {|
 
 type Employee record {|
     readonly int id;
-    readonly string name;
+    readonly string name = "Default";
     readonly float salary?;
 |};
 
 type Person readonly & record {|
     readonly string name;
+    string address = "default address";
     int age?;
 |};
 
@@ -159,6 +160,7 @@ function testTableValues() {
 
     Person person1 = {
         name : "alice",
+        address: "London",
         age : 22
     };
 
@@ -170,7 +172,7 @@ function testTableValues() {
         name : "john",
         age : 25
     };
-    
+
     test:assertEquals(person1, people.get("alice"));
     test:assertEquals(person2, people.get("bob"));
     test:assertEquals(person3, people.get("john"));

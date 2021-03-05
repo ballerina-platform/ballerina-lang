@@ -18,8 +18,6 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
-import java.io.PrintStream;
-
 /**
  * Constants used by toml parser.
  *
@@ -27,7 +25,6 @@ import java.io.PrintStream;
  */
 public class ConfigTomlConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
-    public static final PrintStream STANDARD_ERR = System.err;
     public static final String INVALID_TOML_FILE = "invalid `" + CONFIG_FILE_NAME + "` file : ";
     public static final String INVALID_TOML_TYPE = "configurable variable '%s' is expected to be of type '%s', " +
             "but found '%s'";
@@ -52,6 +49,8 @@ public class ConfigTomlConstants {
             "provide the module name as '[%s]' ";
     public static final String CONSTRAINT_TYPE_NOT_SUPPORTED = "table constraint type '%s' in configurable variable" +
             " '%s' is not supported";
+    public static final String DEFAULT_FIELD_UNSUPPORTED = "defaultable readonly record field '%s' in configurable " +
+            "variable '%s' is not supported";
 
     private ConfigTomlConstants() {
     }
