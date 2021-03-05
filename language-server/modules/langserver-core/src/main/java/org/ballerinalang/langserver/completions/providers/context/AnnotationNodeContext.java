@@ -28,7 +28,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Module;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.AnnotationUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
@@ -93,19 +92,20 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     private List<LSCompletionItem> getAnnotationsInModule(BallerinaCompletionContext context, String alias,
                                                           Node attachedNode) {
         Optional<ModuleSymbol> moduleEntry = CommonUtil.searchModuleForAlias(context, alias);
-        if (moduleEntry.isEmpty()) {
-            List<LSCompletionItem> completionItems = new ArrayList<>();
-            // Import statement has not been added. Hence try resolving from the annotation cache
-            LSAnnotationCache.getInstance(context.languageServercontext())
-                    .getAnnotationsInModule(context, alias, attachedNode)
-                    .forEach((key, value) -> value.forEach(annotation -> {
-                        completionItems.add(AnnotationUtil.getAnnotationItem(annotation, context));
-                    }));
+        // TODO: Enable after annotation cache is supported
+//        if (moduleEntry.isEmpty()) {
+//            List<LSCompletionItem> completionItems = new ArrayList<>();
+//            // Import statement has not been added. Hence try resolving from the annotation cache
+//            LSAnnotationCache.getInstance(context.languageServercontext())
+//                    .getAnnotationsInModule(context, alias, attachedNode)
+//                    .forEach((key, value) -> value.forEach(annotation -> {
+//                        completionItems.add(AnnotationUtil.getAnnotationItem(annotation, context));
+//                    }));
+//
+//            return completionItems;
+//        }
 
-            return completionItems;
-        }
-
-        return moduleEntry.get().allSymbols().stream()
+        return moduleEntry.orElseThrow().allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
                         && this.matchingAnnotation((AnnotationSymbol) symbol, attachedNode))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, context))
