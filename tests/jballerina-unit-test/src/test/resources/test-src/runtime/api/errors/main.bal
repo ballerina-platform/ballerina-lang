@@ -14,14 +14,21 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jballerina.java;
+import testorg/runtime_api.errors;
+import ballerina/lang.test as test;
 
-public type Address record {
-    string city;
-    string country;
-    int postalCode;
-};
+public function main() {
 
-public function getRecord(string recordName) returns record{} = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
-} external;
+    error userError = errors:getError("UserError");
+    test:assertTrue(userError is errors:GenericError);
+
+    // check cast
+    errors:GenericError error1 = <errors:GenericError>userError;
+    errors:UserError error2 = <errors:UserError>userError;
+
+    // Negative Tests
+    error invalidError = trap errors:getError("UserError2");
+
+    test:assertValueEqual(invalidError.message(), "No such error: UserError2");
+}
+

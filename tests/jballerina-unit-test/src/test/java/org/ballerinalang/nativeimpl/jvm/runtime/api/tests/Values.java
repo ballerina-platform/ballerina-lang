@@ -19,10 +19,8 @@
 package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -34,7 +32,7 @@ import java.util.HashMap;
  *
  * @since 2.0.0
  */
-public class ValueCreatorMethods {
+public class Values {
 
     private static Module objectModule = new Module("testorg", "runtime_api.objects", "1.0.0");
     private static Module recordModule = new Module("testorg", "runtime_api.records", "1.0.0");

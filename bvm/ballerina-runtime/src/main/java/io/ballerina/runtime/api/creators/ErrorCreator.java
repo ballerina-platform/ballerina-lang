@@ -30,6 +30,7 @@ import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
+import io.ballerina.runtime.internal.values.ValueCreator;
 
 /**
  * Class @{@link ErrorCreator} provides APIs to create ballerina error instances.
@@ -152,8 +153,7 @@ public class ErrorCreator {
      */
     public static BError createError(Module module, String errorTypeName,
                                      BString message, BError cause, Object details) {
-        io.ballerina.runtime.internal.values.ValueCreator
-                valueCreator = io.ballerina.runtime.internal.values.ValueCreator.getValueCreator(module.toString());
+        ValueCreator valueCreator = ValueCreator.getValueCreator(module.toString());
         return valueCreator.createErrorValue(errorTypeName, message, cause, details);
     }
 

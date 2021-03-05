@@ -34,4 +34,10 @@ public class RuntimeAPITest {
         CompileResult result = BCompileUtil.compile("test-src/runtime/api/values");
         BRunUtil.invoke(result, "main");
     }
+
+    @Test
+    public void errorCreatorTest() {
+        CompileResult result = BCompileUtil.compile("test-src/runtime/api/errors");
+        BRunUtil.invoke(result, "main");
+    }
 }

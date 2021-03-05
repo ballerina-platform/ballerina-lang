@@ -35,5 +35,5 @@ public class Person {
 }
 
 public function getObject(string objectName) returns object{} = @java:Method {
-    'class: "org.ballerinalang.nativeimpl.jvm.tests.RuntimeAPIMethods"
+    'class: "org.ballerinalang.nativeimpl.jvm.runtime.api.tests.Values"
 } external;

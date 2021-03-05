@@ -16,27 +16,19 @@
 
 import testorg/runtime_api.records;
 import testorg/runtime_api.objects;
-import testorg/runtime_api.errors;
 import ballerina/lang.test as test;
 
 public function main() {
 
     objects:Person p = <objects:Person>objects:getObject("Person");
     records:Address address = <records:Address>records:getRecord("Address");
-    error userError = errors:getError("UserError");
 
     test:assertValueEqual(p.getPersonCity(), "Nugegoda");
     test:assertValueEqual(address.city, "Nugegoda");
-    test:assertTrue(userError is errors:GenericError);
-
-    // check cast
-    errors:GenericError error1 = <errors:GenericError>userError;
-    errors:UserError error2 = <errors:UserError>userError;
 
     // Negative Tests
     object{}|error invalidObject = trap objects:getObject("Person2");
     record{}|error invalidRecord = trap records:getRecord("Address2");
-    error invalidError = trap errors:getError("UserError2");
 
     test:assertTrue(invalidObject is error);
     test:assertTrue(invalidRecord is error);
@@ -46,6 +38,5 @@ public function main() {
 
     test:assertValueEqual(e1.message(), "No such object: Person2");
     test:assertValueEqual(e2.message(), "No such record: Address2");
-    test:assertValueEqual(invalidError.message(), "No such error: UserError2");
 }
 

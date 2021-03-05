@@ -518,7 +518,7 @@ public class JvmTypeGen {
                 recordTypeDefSet.add(optionalTypeDef);
             } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 objectTypeDefs.add(optionalTypeDef);
-            } else   if (bType.tag == TypeTags.ERROR) {
+            } else if (bType.tag == TypeTags.ERROR) {
                 errorTypeDefs.add(optionalTypeDef);
             }
         }
