@@ -301,6 +301,10 @@ public class JBallerinaBackend extends CompilerBackend {
         return jarResolver;
     }
 
+    public List<JarConflict> conflictedJars() {
+        return conflictedJars;
+    }
+
     // TODO Can we move this method to Module.displayName()
     private String getJarFileName(ModuleContext moduleContext) {
         String jarName;
@@ -332,13 +336,6 @@ public class JBallerinaBackend extends CompilerBackend {
             // Copy all the jars
             for (JarLibrary library : jarLibraries) {
                 copyJar(outStream, library, copiedEntries, serviceEntries);
-            }
-            // Print warnings for conflicted jars
-            if (!this.conflictedJars.isEmpty()) {
-                out.println("\tWarning: Detected conflicting jar files:");
-                for (JarConflict conflict : conflictedJars) {
-                    out.println(conflict.getWarning(packageContext.project().buildOptions().listConflictedClasses()));
-                }
             }
 
             // Copy merged spi services.
@@ -545,7 +542,7 @@ public class JBallerinaBackend extends CompilerBackend {
     /**
      * Inner class to represent jar conflict.
      */
-    private static class JarConflict {
+    public static class JarConflict {
         JarLibrary firstJarLibrary;
         JarLibrary secondJarLibrary;
         List<String> classes;
@@ -564,7 +561,7 @@ public class JBallerinaBackend extends CompilerBackend {
             classes.add(entry);
         }
 
-        String getWarning(boolean listClasses) {
+        public String getWarning(boolean listClasses) {
             String conflictedJarPkg1 = "";
             String conflictedJarPkg2 = "";
             if (firstJarLibrary.packageName().isPresent()) {
@@ -590,14 +587,18 @@ public class JBallerinaBackend extends CompilerBackend {
     private void addConflictedJars(JarLibrary jarLibrary, HashMap<String, JarLibrary> copiedEntries, String entryName) {
         if (entryName.endsWith(".class") && !entryName.equals("module-info.class")) {
             JarLibrary conflictingJar = copiedEntries.get(entryName);
-            JarConflict jarConflict = getJarConflict(conflictingJar);
 
-            // If jar conflict already exists
-            if (jarConflict != null) {
-                jarConflict.addClasses(entryName);
-            } else { // New jar conflict
-                this.conflictedJars.add(new JarConflict(conflictingJar, jarLibrary,
-                                                        new ArrayList<>(Collections.singletonList(entryName))));
+            // Ignore if conflicting jars has same name
+            if (jarLibrary.path().getFileName() != conflictingJar.path().getFileName()) {
+                JarConflict jarConflict = getJarConflict(conflictingJar);
+
+                // If jar conflict already exists
+                if (jarConflict != null) {
+                    jarConflict.addClasses(entryName);
+                } else { // New jar conflict
+                    this.conflictedJars.add(new JarConflict(conflictingJar, jarLibrary,
+                                                            new ArrayList<>(Collections.singletonList(entryName))));
+                }
             }
         }
     }
