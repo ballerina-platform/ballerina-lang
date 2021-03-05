@@ -16,7 +16,7 @@
                             "character": 4
                         }
                     },
-                    "newText": "'object:IntRange intRange = "
+                    "newText": "var objectResult = "
                 }
             ]
         }

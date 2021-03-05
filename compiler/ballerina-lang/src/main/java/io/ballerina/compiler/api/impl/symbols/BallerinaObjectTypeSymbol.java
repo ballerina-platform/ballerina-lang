@@ -136,9 +136,17 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
 
     @Override
     public String signature() {
+        /*
+            When the object type is distinct we need generate the actual finite type as the signature. To avoid this for
+            anonymous types currently returns `var`
+         */
+        if (Symbols.isFlagOn(getBType().flags, Flags.ANONYMOUS)) {
+            return "var";
+        }
+
         StringBuilder signature = new StringBuilder();
         StringJoiner qualifierJoiner = new StringJoiner(" ");
-        StringJoiner fieldJoiner = new StringJoiner(";");
+        StringJoiner fieldJoiner = new StringJoiner("");
         StringJoiner methodJoiner = new StringJoiner(" ");
 
         for (Qualifier typeQualifier : this.qualifiers()) {
@@ -151,7 +159,7 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         // this.getObjectTypeReference()
         //         .ifPresent(typeDescriptor -> fieldJoiner.add("*" + typeDescriptor.getSignature()));
         this.fieldDescriptors().values().forEach(
-                objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()));
+                objectFieldDescriptor -> fieldJoiner.add(objectFieldDescriptor.signature()).add(";"));
         this.methods().values().forEach(method -> methodJoiner.add(method.signature()).add(";"));
 
         return signature.append(fieldJoiner.toString())
