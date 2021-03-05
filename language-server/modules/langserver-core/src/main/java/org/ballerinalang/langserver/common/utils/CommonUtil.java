@@ -100,7 +100,6 @@ import java.util.function.Predicate;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
@@ -744,11 +743,11 @@ public class CommonUtil {
             String alias = moduleParts[1];
 
             pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
-            pkgPrefix = (preDeclaredLangLib) ? "'" + pkgPrefix : pkgPrefix;
+            pkgPrefix = (!preDeclaredLangLib && BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" + pkgPrefix : pkgPrefix;
 
             // See if an alias (ex: import project.module1 as mod1) is used
             List<ImportDeclarationNode> existingModuleImports = context.currentDocImports().stream()
-                    .filter(importDeclarationNode -> 
+                    .filter(importDeclarationNode ->
                             CodeActionModuleId.from(importDeclarationNode).moduleName().equals(moduleID.moduleName()))
                     .collect(Collectors.toList());
 
