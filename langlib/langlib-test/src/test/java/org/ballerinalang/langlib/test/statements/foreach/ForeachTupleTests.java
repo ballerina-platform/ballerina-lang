@@ -149,7 +149,7 @@ public class ForeachTupleTests {
     @Test
     public void testNegativeTupleForeach() {
         negative = BCompileUtil.compile("test-src/statements/foreach/foreach_tuples_negative.bal");
-        Assert.assertEquals(negative.getErrorCount(), 6);
+        Assert.assertEquals(negative.getErrorCount(), 7);
         int i = 0;
         BAssertUtil.validateError(negative, i++, "incompatible types: expected '(int|string)', found 'string'", 20, 13);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected '(int|string)', found 'int'", 23, 13);
@@ -159,7 +159,9 @@ public class ForeachTupleTests {
                 "found '[int,int,int...]'", 38, 13);
         BAssertUtil.validateError(negative, i++, "incompatible types: expected '([int,int...]|[int,int,int...]" +
                 "|int[2])', found '[int,int,int...]'", 45, 13);
-        BAssertUtil.validateError(negative, i, "invalid list binding pattern: expected an array or a tuple, " +
-                        "but found '([int,int...]|[int,int,int...])'", 52, 17);
+        BAssertUtil.validateError(negative, i++, "invalid list binding pattern: attempted to infer a list type, " +
+                "but found '([int,int...]|[int,int,int...]|int)'", 52, 17);
+        BAssertUtil.validateError(negative, i, "invalid list binding pattern; member variable " +
+                "count mismatch with member type count", 58, 17);
     }
 }

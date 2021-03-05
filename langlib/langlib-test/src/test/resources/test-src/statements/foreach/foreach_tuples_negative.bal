@@ -48,8 +48,13 @@ function testTupleForeachNegative4() {
 }
 
 function testTupleForeachNegative5() {
+    [[int, int...], [int, int, int...], int] x = [[1, 2], [3, 4, 5, 6], 12];
+    foreach var [a, ...b] in x {
+    }
+}
+
+function testTupleForeachNegative6() {
     [[int, int...], [int, int, int...]] x = [[1, 2], [3, 4, 5, 6]];
     foreach var [a] in x {
-
     }
 }
