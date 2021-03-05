@@ -19,7 +19,6 @@ import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -217,25 +216,6 @@ public class SymbolUtil {
             default:
                 return Optional.empty();
         }
-    }
-
-    /**
-     * Get the type of the symbol. For functions, this returns the return type of the function symbol.
-     *
-     * @param symbol symbol of which the type is required
-     * @return Optional type of the provided symbol
-     */
-    public static Optional<TypeSymbol> getReturnTypeDescriptor(Symbol symbol) {
-        if (symbol == null) {
-            return Optional.empty();
-        }
-
-        if (symbol.kind() == SymbolKind.FUNCTION || symbol.kind() == SymbolKind.METHOD) {
-            FunctionTypeSymbol functionTypeSymbol = ((FunctionSymbol) symbol).typeDescriptor();
-            return functionTypeSymbol.returnTypeDescriptor();
-        }
-
-        return SymbolUtil.getTypeDescriptor(symbol);
     }
 
     /**

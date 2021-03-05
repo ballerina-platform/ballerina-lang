@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -75,8 +76,12 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
             // same as variable), this assigns the highest rank to such variables and methods.
             if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
                 SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
+
                 Optional<TypeSymbol> completionItemType =
-                        SymbolUtil.getReturnTypeDescriptor(symbolCompletionItem.getSymbol());
+                        SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol());
+                if (completionItemType.isPresent() && completionItemType.get() instanceof FunctionTypeSymbol) {
+                    completionItemType = ((FunctionTypeSymbol) completionItemType.get()).returnTypeDescriptor();
+                }
 
                 // TODO: Remove the symbol equality check after #25607
                 if (symbolCompletionItem.getSymbol() != null && completionItemType.isPresent() &&
