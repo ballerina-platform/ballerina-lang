@@ -16,7 +16,7 @@
  *  under the License.
  */
 
-package org.ballerinalang.nativeimpl.jvm.tests;
+package org.ballerinalang.nativeimpl.jvm.runtime.api.tests;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.creators.ErrorCreator;
@@ -30,15 +30,14 @@ import io.ballerina.runtime.api.values.BString;
 import java.util.HashMap;
 
 /**
- * This class contains a set of utility methods required for runtime api testing.
+ * This class contains a set of utility methods required for runtime api @{@link ValueCreator} testing.
  *
  * @since 2.0.0
  */
-public class RuntimeAPIMethods {
+public class ValueCreatorMethods {
 
     private static Module objectModule = new Module("testorg", "runtime_api.objects", "1.0.0");
     private static Module recordModule = new Module("testorg", "runtime_api.records", "1.0.0");
-    private static Module errorModule = new Module("testorg", "runtime_api.errors", "1.0.0");
 
     public static BMap<BString, Object> getRecord(BString recordName) {
         HashMap<String, Object> address = new HashMap<>();
@@ -53,13 +52,4 @@ public class RuntimeAPIMethods {
         return ValueCreator.createObjectValue(objectModule, objectName.getValue(), StringUtils.fromString("Waruna"),
                                               14, address);
     }
-
-    public static BError getError(BString errorName) {
-        BMap<BString, Object> errorDetails = ValueCreator.createMapValue();
-        errorDetails.put(StringUtils.fromString("cause"), "Person age cannot be negative");
-        return ErrorCreator.createError(errorModule, errorName.getValue(), StringUtils.fromString("Invalid age"),
-                                        ErrorCreator.createError(StringUtils.fromString("Invalid data given")),
-                                        errorDetails);
-    }
-
 }
