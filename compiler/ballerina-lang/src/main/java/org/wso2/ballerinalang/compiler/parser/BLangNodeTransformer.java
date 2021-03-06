@@ -3276,6 +3276,16 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return xmlTextLiteral;
     }
 
+    private BLangNode createXMLTextLiteral(List<Node> expressionNode) {
+        BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
+        xmlTextLiteral.pos = getPosition(expressionNode.get(0));
+        for (Node node : expressionNode) {
+            xmlTextLiteral.textFragments.add(createExpression(node));
+        }
+        xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
+        return xmlTextLiteral;
+    }
+
     private BLangNode createXMLTextLiteral(Node expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
         xmlTextLiteral.pos = getPosition(expressionNode);
@@ -4034,8 +4044,37 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangXMLSequenceLiteral xmlSequenceLiteral = (BLangXMLSequenceLiteral) TreeBuilder.createXMLSequenceLiteralNode();
         xmlSequenceLiteral.pos = getPosition(expressionNode);
 
-        for (int index = 0; index < expressionNode.content().size(); index++) {
-            xmlSequenceLiteral.xmlItems.add(createXmlSingletonItem(expressionNode.content().get(index)));
+        Node lastNode = null;
+        List<Node> adjacentTextNodes = new ArrayList<>();
+        int xmlContentSize = expressionNode.content().size();
+
+        for (int index = 0; index < xmlContentSize; index++) {
+            Node childItem = expressionNode.content().get(index);
+            if (childItem.kind() == SyntaxKind.XML_TEXT || childItem.kind() == SyntaxKind.INTERPOLATION) {
+                adjacentTextNodes.add(childItem);
+                lastNode = childItem;
+                if (index != xmlContentSize - 1) {
+                    continue;
+                }
+            }
+            //handle previous node if it was of xml:Text or interpolation type
+            if (lastNode != null && (lastNode.kind() == SyntaxKind.XML_TEXT || lastNode.kind() == SyntaxKind.INTERPOLATION)) {
+                if (adjacentTextNodes.size() > 1) {
+                    //adjacent XML Text Literals (contains interpolated items and xml:Text items) should be
+                    // concatenated together
+                    xmlSequenceLiteral.xmlItems.add((BLangExpression) createXMLTextLiteral(adjacentTextNodes));
+                } else {
+                    xmlSequenceLiteral.xmlItems.add(createXmlSingletonItem(lastNode));
+                }
+                adjacentTextNodes.clear();
+                //identify if sequence ends with xml:Text type or interpolation type
+                if (lastNode.kind() == childItem.kind()) {
+                    continue;
+                }
+            }
+            //handle current node that is not of xml:Text type or interpolation type
+            xmlSequenceLiteral.xmlItems.add(createXmlSingletonItem(childItem));
+            lastNode = childItem;
         }
         return xmlSequenceLiteral;
     }

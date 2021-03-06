@@ -2728,55 +2728,11 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     private void populateXMLSequence(BLangXMLSequenceLiteral xmlSequenceLiteral, BIROperand toVarRef) {
-        if (xmlSequenceLiteral.type.tag == TypeTags.XML_TEXT) {
-            xmlSequenceLiteral.concatExpr.get(0).accept(this);
-            setScopeAndEmit(
-                    new BIRNonTerminator.XMLAccess(xmlSequenceLiteral.concatExpr.get(0).pos,
-                            InstructionKind.XML_SEQ_STORE, toVarRef, this.env.targetOperand));
-            return;
-        }
-        int indexOfFirstAdjacentXMLText = 0;
-        int xmlItemSize = xmlSequenceLiteral.xmlItems.size();
-        boolean isFirstAdjacentXMLText = true;
-        BLangExpression lastExpression = null;
-        Location childPosition;
-
-        for (int i = 0; i < xmlItemSize; i++) {
-            BLangExpression childItem = xmlSequenceLiteral.xmlItems.get(i);
-            if (childItem.type.tag == TypeTags.XML_TEXT) {
-                if (isFirstAdjacentXMLText) {
-                    isFirstAdjacentXMLText = false;
-                    indexOfFirstAdjacentXMLText = i;
-                }
-                lastExpression = childItem;
-                if (i != xmlItemSize - 1) {
-                    continue;
-                }
-            }
-            //handle previous item if it was of xml:Text type
-            if (lastExpression != null && lastExpression.type.tag == TypeTags.XML_TEXT) {
-                if (xmlSequenceLiteral.concatExpr.containsKey(indexOfFirstAdjacentXMLText)) {
-                    xmlSequenceLiteral.concatExpr.get(indexOfFirstAdjacentXMLText).accept(this);
-                    childPosition = xmlSequenceLiteral.concatExpr.get(indexOfFirstAdjacentXMLText).pos;
-                } else {
-                    lastExpression.accept(this);
-                    childPosition = lastExpression.pos;
-                }
-                BIROperand childOp = this.env.targetOperand;
-                setScopeAndEmit(new BIRNonTerminator.XMLAccess(childPosition, InstructionKind.XML_SEQ_STORE,
-                        toVarRef, childOp));
-                //identify if sequence ends with xml:Text type
-                if (lastExpression.type.tag == childItem.type.tag) {
-                    continue;
-                }
-                isFirstAdjacentXMLText = true;
-            }
-            //handle current item that is not of xml:Text type
-            childItem.accept(this);
+        for (BLangExpression xmlItem : xmlSequenceLiteral.xmlItems) {
+            xmlItem.accept(this);
             BIROperand childOp = this.env.targetOperand;
             setScopeAndEmit(
-                    new BIRNonTerminator.XMLAccess(childItem.pos, InstructionKind.XML_SEQ_STORE, toVarRef, childOp));
-            lastExpression = childItem;
+                    new BIRNonTerminator.XMLAccess(xmlItem.pos, InstructionKind.XML_SEQ_STORE, toVarRef, childOp));
         }
     }
 

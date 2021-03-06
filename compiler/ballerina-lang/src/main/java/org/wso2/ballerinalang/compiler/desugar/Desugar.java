@@ -6753,52 +6753,8 @@ public class Desugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
-        if (xmlSequenceLiteral.type.tag == TypeTags.XML_TEXT) {
-            xmlSequenceLiteral.concatExpr.put(0, rewriteExpr(constructStringTemplateConcatExpression
-                    (xmlSequenceLiteral.xmlItems)));
-            result = xmlSequenceLiteral;
-            return;
-        }
-
-        BLangExpression lastExpression = null;
-        List<BLangExpression> adjacentXMLTextLiterals = new ArrayList<>();
-        Integer adjacentXMLTextIndex = 0;
-        boolean isFirstAdjacentXMLText = true;
-        int xmlItemSize = xmlSequenceLiteral.xmlItems.size();
-
-        for (int i = 0; i < xmlItemSize; i++) {
-            BLangExpression childItem = xmlSequenceLiteral.xmlItems.get(i);
-            if (childItem.type.tag == TypeTags.XML_TEXT) {
-                if (isFirstAdjacentXMLText) {
-                    isFirstAdjacentXMLText = false;
-                    adjacentXMLTextIndex = i;
-                }
-                adjacentXMLTextLiterals.add(childItem);
-                lastExpression = childItem;
-                if (i != xmlItemSize - 1) {
-                    continue;
-                }
-            }
-            //handle previous item if it was of xml:Text type
-            if (lastExpression != null && lastExpression.type.tag == TypeTags.XML_TEXT) {
-                if (adjacentXMLTextLiterals.size() > 1) {
-                    //adjacent XML Text Literals (contains interpolated items and xml:Text items) should be
-                    // concatenated together before rewriting
-                    xmlSequenceLiteral.concatExpr.put(adjacentXMLTextIndex,
-                            rewriteExpr(constructStringTemplateConcatExpression(adjacentXMLTextLiterals)));
-                } else {
-                    rewriteExpr(lastExpression);
-                }
-                //identify if sequence ends with xml:Text type
-                if (lastExpression.type.tag == childItem.type.tag) {
-                    continue;
-                }
-                adjacentXMLTextLiterals.clear();
-                isFirstAdjacentXMLText = true;
-            }
-            //handle current item that is not of xml:Text type
-            rewriteExpr(childItem);
-            lastExpression = childItem;
+        for (BLangExpression xmlItem : xmlSequenceLiteral.xmlItems) {
+            rewriteExpr(xmlItem);
         }
         result = xmlSequenceLiteral;
     }
