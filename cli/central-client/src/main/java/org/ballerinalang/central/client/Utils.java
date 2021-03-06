@@ -25,6 +25,7 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
+import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
@@ -36,13 +37,20 @@ import java.io.PrintStream;
 import java.net.HttpURLConnection;
 import java.net.MalformedURLException;
 import java.net.ProtocolException;
+import java.net.URI;
 import java.net.URL;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.security.KeyManagementException;
 import java.security.NoSuchAlgorithmException;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Optional;
+import java.util.stream.Collectors;
 
 import javax.net.ssl.HttpsURLConnection;
 import javax.net.ssl.SSLContext;
@@ -86,16 +94,18 @@ public class Utils {
      *
      * @param conn               http connection
      * @param pkgPathInBalaCache package path in bala cache, <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>
-     * @param pkgNameWithOrg     package name with org, <org-name>/<pkg-name>
+     * @param pkgOrg             package org
+     * @param pkgName            package name
      * @param isNightlyBuild     is nightly build
      * @param newUrl             new redirect url
      * @param contentDisposition content disposition header
      * @param outStream          Output print stream
      * @param logFormatter       log formatter
      */
-    public static void createBalaInHomeRepo(HttpURLConnection conn, Path pkgPathInBalaCache, String pkgNameWithOrg,
-            boolean isNightlyBuild, String newUrl, String contentDisposition, PrintStream outStream,
-            LogFormatter logFormatter) throws CentralClientException {
+    public static void createBalaInHomeRepo(HttpURLConnection conn, Path pkgPathInBalaCache, String pkgOrg,
+                                            String pkgName, boolean isNightlyBuild, String newUrl,
+                                            String contentDisposition, PrintStream outStream, LogFormatter logFormatter)
+            throws CentralClientException {
         long responseContentLength = conn.getContentLengthLong();
         if (responseContentLength <= 0) {
             throw new CentralClientException(
@@ -110,18 +120,24 @@ public class Utils {
 
         String validPkgVersion = validatePackageVersion(pkgVersion, logFormatter);
         String balaFile = getBalaFileName(contentDisposition, uriParts[uriParts.length - 1]);
-        Path balaCacheWithPkgPath = pkgPathInBalaCache.resolve(validPkgVersion);
+        String platform = getPlatformFromBala(balaFile, pkgName, validPkgVersion);
+        Path balaCacheWithPkgPath = pkgPathInBalaCache.resolve(validPkgVersion).resolve(platform);
         //<user.home>.ballerina/bala_cache/<org-name>/<pkg-name>/<pkg-version>
 
-        Path balaPath = Paths.get(balaCacheWithPkgPath.toString(), balaFile);
-        if (balaPath.toFile().exists()) {
+        try {
+            if (Files.isDirectory(balaCacheWithPkgPath) && Files.list(balaCacheWithPkgPath).findAny().isPresent()) {
+                throw new PackageAlreadyExistsException(
+                        logFormatter.formatLog("package already exists in the home repository: " +
+                                balaCacheWithPkgPath.toString()));
+            }
+        } catch (IOException e) {
             throw new PackageAlreadyExistsException(
-                    logFormatter.formatLog("package already exists in the home repository: " + balaPath.toString()));
+                    logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()));
         }
 
         createBalaFileDirectory(balaCacheWithPkgPath, logFormatter);
-        writeBalaFile(conn, balaPath, pkgNameWithOrg + ":" + validPkgVersion, responseContentLength, outStream,
-                      logFormatter);
+        writeBalaFile(conn, balaCacheWithPkgPath.resolve(balaFile), pkgOrg + "/" + pkgName + ":"
+                        + validPkgVersion, responseContentLength, outStream, logFormatter);
         handleNightlyBuild(isNightlyBuild, balaCacheWithPkgPath, logFormatter);
     }
 
@@ -197,6 +213,13 @@ public class Utils {
         } catch (IOException e) {
             throw new CentralClientException(
                     logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
+        }
+        try {
+            extractBala(balaPath, Optional.of(balaPath.getParent()).get());
+            Files.delete(balaPath);
+        } catch (IOException e) {
+            throw new CentralClientException(
+                    logFormatter.formatLog("error occurred extracting the bala file: " + e.getMessage()));
         }
     }
 
@@ -342,5 +365,26 @@ public class Utils {
      */
     static List<String> getAsList(String arrayString) {
         return new Gson().fromJson(arrayString, new TypeToken<List<String>>() { }.getType());
+    }
+
+    private static String getPlatformFromBala(String balaName, String packageName, String version) {
+        return balaName.split(packageName + "-")[1].split("-" + version)[0];
+    }
+
+    private static void extractBala(Path balaFilePath, Path balaFileDestPath) throws IOException {
+        Files.createDirectories(balaFileDestPath);
+        URI zipURI = URI.create("jar:" + balaFilePath.toUri().toString());
+        try (FileSystem zipFileSystem = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
+            Path packageRoot = zipFileSystem.getPath("/");
+            List<Path> paths = Files.walk(packageRoot).filter(path -> path != packageRoot).collect(Collectors.toList());
+            for (Path path : paths) {
+                Path destPath = balaFileDestPath.resolve(packageRoot.relativize(path).toString());
+                // Handle overwriting existing bala
+                if (destPath.toFile().isDirectory()) {
+                    FileUtils.deleteDirectory(destPath.toFile());
+                }
+                Files.copy(path, destPath, StandardCopyOption.REPLACE_EXISTING);
+            }
+        }
     }
 }
