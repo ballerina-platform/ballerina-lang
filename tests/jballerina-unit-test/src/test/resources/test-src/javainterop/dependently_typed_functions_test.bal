@@ -695,6 +695,72 @@ function testArgsForDependentlyTypedFunctionViaRecordRestArg() {
     assert(true, r);
 }
 
+public type ClientActionOptions record {|
+    string mediaType?;
+    string header?;
+|};
+
+public type TargetType typedesc<int|string>;
+
+public client class ClientWithMethodWithIncludedRecordParam {
+    remote function post(*ClientActionOptions options, TargetType targetType = int)
+        returns @tainted targetType = @java:Method {
+                                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                                          name: "clientPost"
+                                      } external;
+                                      
+    function calculate(int i, *ClientActionOptions options, TargetType targetType = int)
+        returns @tainted targetType = @java:Method {
+                                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                                          name: "calculate"
+                                      } external;
+}
+
+function testDependentlyTypedFunctionWithIncludedRecordParam() {
+    ClientWithMethodWithIncludedRecordParam cl = new;
+    string p1 = cl->post(mediaType = "application/json", header = "active", targetType = string);
+    assert("application/json active", p1);
+
+    int p2 = cl->post(mediaType = "json", header = "active", targetType = int);
+    assert(10, p2);
+
+    int p3 = cl->post(mediaType = "xml", header = "active");
+    assert(9, p3);
+
+    string p4 = cl->post(mediaType = "json", targetType = string);
+    assert("json ", p4);
+
+    string p5 = cl->post(targetType = string);
+    assert(" ", p5);
+
+    int p6 = cl->post();
+    assert(0, p6);
+    
+    string p7 = cl.calculate(0, mediaType = "application/json", header = "active", targetType = string);
+    assert("application/json active0", p7);
+
+    int p8 = cl.calculate(101, mediaType = "json", header = "active", targetType = int);
+    assert(111, p8);
+
+    int p9 = cl.calculate(2, mediaType = "xml", header = "active");
+    assert(11, p9);
+
+    string p10 = cl.calculate(3, mediaType = "json", targetType = string);
+    assert("json 3", p10);
+
+    string p11 = cl.calculate(4, targetType = string);
+    assert(" 4", p11);
+
+    int p12 = cl.calculate(12);
+    assert(12, p12);
+
+    string p13 = cl->post(targetType = string, mediaType = "xml");
+    assert("xml ", p13);
+
+    string p14 = cl.calculate(5, targetType = string, mediaType = "json");
+    assert("json 5", p14);
+}
+
 // Util functions
 function assert(anydata expected, anydata actual) {
     if (expected != actual) {

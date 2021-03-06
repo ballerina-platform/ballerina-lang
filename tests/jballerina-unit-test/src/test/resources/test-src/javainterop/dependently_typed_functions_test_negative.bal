@@ -312,3 +312,38 @@ function testArgsForDependentlyTypedFunctionViaRecordRestArgNegative() {
     IJK i = {i: 1, j: string, k: int};
     string|boolean j = getWithMultipleTypedescs(...i);
 }
+
+public type ClientActionOptions record {|
+    string mediaType?;
+    string header?;
+|};
+
+public type TargetType typedesc<int|string>;
+
+public client class ClientWithMethodWithIncludedRecordParam {
+    remote function post(*ClientActionOptions options, TargetType targetType = int)
+        returns @tainted targetType = external;
+
+    function calculate(int i, *ClientActionOptions options, TargetType targetType = int)
+        returns @tainted targetType|error = external;
+}
+
+function testDependentlyTypedFunctionWithIncludedRecordParamNegative() {
+    ClientWithMethodWithIncludedRecordParam cl = new;
+    int p1 = cl->post(mediaType = "application/json", header = "active", targetType = string);
+    string p2 = cl->post(mediaType = "application/json", header = "active");
+    string p3 = cl->post();
+    string p4 = cl->post(targetType = int);
+    int p5 = cl->post(targetType = string);
+    int p6 = cl->post(mediaType = "application/json", header = "active", targetTypes = string);
+
+    int p7 = cl.calculate(0, mediaType = "application/json", header = "active", targetType = string);
+    string p8 = cl.calculate(1, mediaType = "application/json", header = "active");
+    string p9 = cl.calculate(2);
+    string p10 = cl.calculate(3, targetType = int);
+    string p11 = cl.calculate(4, targetType = string);
+    int p12 = cl.calculate(mediaType = "application/json", header = "active", targetType = string);
+    string p13 = cl.calculate(5, targetType = string);
+    int p14 = cl.calculate(6);
+    string p15 = cl.calculate(0, mediaType = "application/json", header = "active", targetType = string);
+}

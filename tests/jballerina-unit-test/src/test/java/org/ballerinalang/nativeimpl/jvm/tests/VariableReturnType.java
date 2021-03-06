@@ -46,6 +46,7 @@ import io.ballerina.runtime.internal.values.TupleValueImpl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG;
 import static io.ballerina.runtime.api.TypeTags.BYTE_TAG;
@@ -321,5 +322,36 @@ public class VariableReturnType {
 
     public static Object getWithMultipleTypedescs(long i, BTypedesc j, BTypedesc k, BTypedesc... l) {
         return true;
+    }
+
+    public static Object clientPost(BObject client, MapValue options, BTypedesc targetType) {
+        BString mediaType =
+                Optional.ofNullable(options.getStringValue(StringUtils.fromString("mediaType")))
+                        .orElse(StringUtils.fromString(""));
+        BString header =
+                Optional.ofNullable(options.getStringValue(StringUtils.fromString("header")))
+                        .orElse(StringUtils.fromString(""));
+
+        if (targetType.getDescribingType().getTag() == STRING_TAG) {
+            return mediaType.concat(StringUtils.fromString(" ")).concat(header);
+        }
+
+        return mediaType.length() + header.length();
+    }
+
+    public static Object calculate(BObject client, long i, MapValue options, BTypedesc targetType) {
+        BString mediaType =
+                Optional.ofNullable(options.getStringValue(StringUtils.fromString("mediaType")))
+                        .orElse(StringUtils.fromString(""));
+        BString header =
+                Optional.ofNullable(options.getStringValue(StringUtils.fromString("header")))
+                        .orElse(StringUtils.fromString(""));
+
+        if (targetType.getDescribingType().getTag() == STRING_TAG) {
+            return mediaType.concat(StringUtils.fromString(" ")).concat(header)
+                    .concat(StringUtils.fromString(Long.toString(i)));
+        }
+
+        return mediaType.length() + header.length() + i;
     }
 }
