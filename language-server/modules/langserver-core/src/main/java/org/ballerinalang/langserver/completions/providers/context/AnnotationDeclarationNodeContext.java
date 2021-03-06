@@ -60,10 +60,10 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
         if (this.onTypeDescriptorContext(context, node)) {
             Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
                     && this.isValidTypeDescForAnnotations((TypeDefinitionSymbol) symbol);
-            if (this.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
                 List<Symbol> filteredSymbols = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
-                
+
                 completionItemList.addAll(this.getCompletionItemList(filteredSymbols, context));
             } else {
                 List<Symbol> filteredSymbols = context.visibleSymbols(context.getCursorPosition()).stream()
@@ -99,7 +99,7 @@ public class AnnotationDeclarationNodeContext extends AbstractCompletionProvider
         SeparatedNodeList<Node> attachPoints = node.attachPoints();
         int cursor = context.getCursorPositionInTree();
 
-        return !annotationTag.isMissing() && attachPoints.isEmpty()
+        return !annotationTag.isMissing() && attachPoints.isEmpty() && node.onKeyword().isEmpty()
                 && annotationTag.textRange().endOffset() + 1 <= cursor;
     }
 

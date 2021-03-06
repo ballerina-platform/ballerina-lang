@@ -20,7 +20,6 @@ package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
-import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
@@ -463,7 +462,7 @@ public class RunTestsTask implements Task {
 
     private void cleanTempCache(Project project, Path cachesRoot) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            FileUtils.deleteDirectory(cachesRoot);
+            ProjectUtils.deleteDirectory(cachesRoot);
         }
     }
 

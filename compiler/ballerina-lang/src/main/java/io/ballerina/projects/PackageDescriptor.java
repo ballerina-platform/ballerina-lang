@@ -20,6 +20,7 @@ package io.ballerina.projects;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Uniquely describes a Ballerina package in terms of its name, organization,
@@ -33,18 +34,26 @@ public class PackageDescriptor {
     private final PackageName packageName;
     private final PackageOrg packageOrg;
     private final PackageVersion packageVersion;
+    private final String repository;
 
     private PackageDescriptor(PackageOrg packageOrg,
                               PackageName packageName,
-                              PackageVersion packageVersion) {
+                              PackageVersion packageVersion,
+                              String repository) {
         this.packageName = packageName;
         this.packageOrg = packageOrg;
         this.packageVersion = packageVersion;
+        this.repository = repository;
     }
 
     public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
                                          PackageVersion packageVersion) {
-        return new PackageDescriptor(packageOrg, packageName, packageVersion);
+        return new PackageDescriptor(packageOrg, packageName, packageVersion, null);
+    }
+
+    public static PackageDescriptor from(PackageOrg packageOrg, PackageName packageName,
+                                         PackageVersion packageVersion, String repository) {
+        return new PackageDescriptor(packageOrg, packageName, packageVersion, repository);
     }
 
     public PackageName name() {
@@ -57,6 +66,10 @@ public class PackageDescriptor {
 
     public PackageVersion version() {
         return packageVersion;
+    }
+
+    public Optional<String> repository() {
+        return Optional.ofNullable(repository);
     }
 
     public boolean isLangLibPackage() {

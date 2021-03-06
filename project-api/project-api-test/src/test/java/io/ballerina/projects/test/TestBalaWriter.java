@@ -31,10 +31,9 @@ import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.Target;
-import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.BeforeTest;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -58,21 +57,14 @@ import static org.mockito.Mockito.when;
  *
  * @since 2.0.0
  */
-public class TestBalaWriter {
+public class TestBalaWriter extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
-    private static final Path BALA_PATH = RESOURCE_DIRECTORY.resolve("tmpBalaDir");
+    private static final Path BALA_PATH = Paths.get("build").resolve("tmpBalaDir");
 
 
-    @BeforeMethod
+    @BeforeTest
     public void setUp() throws IOException {
         Files.createDirectory(Paths.get(String.valueOf(BALA_PATH)));
-
-        // Here package_a depends on package_b
-        // and package_b depends on package_c
-        // Therefore package_c is transitive dependency of package_a
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_b");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_e");
     }
 
     @Test
