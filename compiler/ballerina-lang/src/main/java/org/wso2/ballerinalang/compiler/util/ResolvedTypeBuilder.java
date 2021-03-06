@@ -425,7 +425,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
                 } else {
                     // If this is a named arg, from this point onward the order in which args are specified doesn't
                     // have to correspond to the order in which the params were specified.
-                    populateParamMapFromNamedArgs(params, requiredArgs, paramIndex, argIndex);
+                    populateParamMapFromNamedArgs(symbol, params, requiredArgs, paramIndex, argIndex);
                     return;
                 }
             }
@@ -439,13 +439,14 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
             BVarSymbol param = params.get(paramIndex);
             String paramName = param.name.value;
-            if (param.defaultableParam && !paramValueTypes.containsKey(paramName)) {
+            if (param.defaultableParam) {
                 paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
             }
         }
     }
 
-    private void populateParamMapFromNamedArgs(List<BVarSymbol> params, List<BLangExpression> requiredArgs,
+    private void populateParamMapFromNamedArgs(BInvokableSymbol symbol, List<BVarSymbol> params,
+                                               List<BLangExpression> requiredArgs,
                                                int currentParamIndex, int currentArgIndex) {
         for (int paramIndex = currentParamIndex; paramIndex < params.size(); paramIndex++) {
             BVarSymbol param = params.get(paramIndex);
@@ -456,14 +457,24 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
             }
 
             String name = param.name.value;
+            boolean argProvided = false;
 
             for (int argIndex = currentArgIndex; argIndex < requiredArgs.size(); argIndex++) {
                 BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) requiredArgs.get(argIndex);
 
                 if (name.equals(namedArg.name.value)) {
                     paramValueTypes.put(name, namedArg.type);
+                    argProvided = true;
                     break;
                 }
+            }
+
+            if (argProvided) {
+                continue;
+            }
+
+            if (param.defaultableParam) {
+                paramValueTypes.put(name, symbol.paramDefaultValTypes.get(name));
             }
         }
     }
