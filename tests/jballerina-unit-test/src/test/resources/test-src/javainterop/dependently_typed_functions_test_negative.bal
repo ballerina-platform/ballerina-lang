@@ -320,7 +320,7 @@ public type ClientActionOptions record {|
 
 public type TargetType typedesc<int|string>;
 
-public client class ClientWithMethodWithIncludedRecordParam {
+public client class ClientWithMethodWithIncludedRecordParamAndDefaultableParams {
     remote function post(*ClientActionOptions options, TargetType targetType = int)
         returns @tainted targetType = external;
 
@@ -328,8 +328,13 @@ public client class ClientWithMethodWithIncludedRecordParam {
         returns @tainted targetType|error = external;
 }
 
+public client class ClientWithMethodWithIncludedRecordParamAndRequiredParams {
+    remote function post(*ClientActionOptions options, TargetType targetType)
+        returns @tainted targetType = external;
+}
+
 function testDependentlyTypedFunctionWithIncludedRecordParamNegative() {
-    ClientWithMethodWithIncludedRecordParam cl = new;
+    ClientWithMethodWithIncludedRecordParamAndDefaultableParams cl = new;
     int p1 = cl->post(mediaType = "application/json", header = "active", targetType = string);
     string p2 = cl->post(mediaType = "application/json", header = "active");
     string p3 = cl->post();
@@ -346,4 +351,14 @@ function testDependentlyTypedFunctionWithIncludedRecordParamNegative() {
     string p13 = cl.calculate(5, targetType = string);
     int p14 = cl.calculate(6);
     string p15 = cl.calculate(0, mediaType = "application/json", header = "active", targetType = string);
+    string p16 = cl.calculate(0, {}, string);
+
+    ClientWithMethodWithIncludedRecordParamAndRequiredParams cl2 = new;
+    int p17 = cl2->post(mediaType = "application/json", header = "active", targetType = string);
+    string p18 = cl2->post(mediaType = "application/json", header = "active");
+    string p19 = cl2->post();
+    string p20 = cl2->post(targetType = int);
+    int p21 = cl2->post(targetType = string);
+    int p22 = cl2->post({}, string);
+    string p23 = cl2->post({}, int);
 }

@@ -154,21 +154,29 @@ public class DependentlyTypedFunctionsTest {
                 "typedesc<(int|string)> j; |})', found 'record {| |} & readonly'", 310, 47);
         validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(string|int|boolean)'",
                       313, 24);
-        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 333, 14);
-        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 334, 17);
-        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 335, 17);
-        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 336, 17);
-        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 337, 14);
-        validateError(errors, indx++, "undefined defaultable parameter 'targetTypes'", 338, 74);
-        validateError(errors, indx++, "incompatible types: expected 'int', found '(string|error)'", 340, 14);
-        validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 341, 17);
-        validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 342, 17);
-        validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 343, 18);
-        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 344, 18);
-        validateError(errors, indx++, "missing required parameter 'i' in call to 'calculate()'", 345, 15);
-        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 346, 18);
-        validateError(errors, indx++, "incompatible types: expected 'int', found '(int|error)'", 347, 15);
-        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 348, 18);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 338, 14);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 339, 17);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 340, 17);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 341, 17);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 342, 14);
+        validateError(errors, indx++, "undefined defaultable parameter 'targetTypes'", 343, 74);
+        validateError(errors, indx++, "incompatible types: expected 'int', found '(string|error)'", 345, 14);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 346, 17);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 347, 17);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 348, 18);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 349, 18);
+        validateError(errors, indx++, "missing required parameter 'i' in call to 'calculate()'", 350, 15);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 351, 18);
+        validateError(errors, indx++, "incompatible types: expected 'int', found '(int|error)'", 352, 15);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 353, 18);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 354, 18);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 357, 15);
+        validateError(errors, indx++, "missing required parameter 'targetType' in call to 'post()'", 358, 18);
+        validateError(errors, indx++, "missing required parameter 'targetType' in call to 'post()'", 359, 18);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 360, 18);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 361, 15);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 362, 15);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 363, 18);
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 

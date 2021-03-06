@@ -702,7 +702,7 @@ public type ClientActionOptions record {|
 
 public type TargetType typedesc<int|string>;
 
-public client class ClientWithMethodWithIncludedRecordParam {
+public client class ClientWithMethodWithIncludedRecordParamAndDefaultableParams {
     remote function post(*ClientActionOptions options, TargetType targetType = int)
         returns @tainted targetType = @java:Method {
                                           'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -716,8 +716,22 @@ public client class ClientWithMethodWithIncludedRecordParam {
                                       } external;
 }
 
+public client class ClientWithMethodWithIncludedRecordParamAndRequiredParams {
+    remote function post(*ClientActionOptions options, TargetType targetType)
+        returns @tainted targetType = @java:Method {
+                                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                                          name: "clientPost"
+                                      } external;
+
+    function calculate(int i, *ClientActionOptions options, TargetType targetType)
+        returns @tainted targetType|error = @java:Method {
+                                                 'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                                                 name: "calculate"
+                                             } external;
+}
+
 function testDependentlyTypedFunctionWithIncludedRecordParam() {
-    ClientWithMethodWithIncludedRecordParam cl = new;
+    ClientWithMethodWithIncludedRecordParamAndDefaultableParams cl = new;
     string p1 = cl->post(mediaType = "application/json", header = "active", targetType = string);
     assert("application/json active", p1);
 
@@ -759,6 +773,52 @@ function testDependentlyTypedFunctionWithIncludedRecordParam() {
 
     string p14 = cl.calculate(5, targetType = string, mediaType = "json");
     assert("json 5", p14);
+
+    string p15 = cl.calculate(6, {}, string);
+    assert(" 6", p15);
+
+    int p16 = cl.calculate(7, {}, int);
+    assert(7, p16);
+
+    int p17 = cl.calculate(8, {});
+    assert(8, p17);
+
+    ClientWithMethodWithIncludedRecordParamAndRequiredParams cl2 = new;
+    string p18 = cl2->post(mediaType = "application/json", header = "active", targetType = string);
+    assert("application/json active", p18);
+
+    int p19 = cl2->post(mediaType = "json", header = "active", targetType = int);
+    assert(10, p19);
+
+    int p20 = cl2->post({}, int);
+    assert(0, p20);
+
+    int p21 = cl2->post({mediaType: "application/json"}, int);
+    assert(16, p21);
+
+    string p22 = cl2->post({}, string);
+    assert(" ", p22);
+
+    string p23 = cl2->post({mediaType: "application/json"}, string);
+    assert("application/json ", p23);
+
+    string|error p24 = cl2.calculate(0, mediaType = "application/json", header = "active", targetType = string);
+    assert("application/json active0", checkpanic p24);
+
+    int|error p25 = cl2.calculate(1, mediaType = "json", header = "active", targetType = int);
+    assert(11, checkpanic p25);
+
+    int|error p26 = cl2.calculate(2, {header: "active"}, int);
+    assert(8, checkpanic p26);
+
+    int|error p27 = cl2.calculate(3, {mediaType: "application/json"}, int);
+    assert(19, checkpanic p27);
+
+    string|error p28 = cl2.calculate(4, {}, string);
+    assert(" 4", checkpanic p28);
+
+    string|error p29 = cl2.calculate(5, {mediaType: "application/json"}, string);
+    assert("application/json 5", checkpanic p29);
 }
 
 // Util functions
