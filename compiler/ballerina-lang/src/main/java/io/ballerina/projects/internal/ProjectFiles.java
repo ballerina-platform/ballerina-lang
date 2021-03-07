@@ -17,15 +17,15 @@
  */
 package io.ballerina.projects.internal;
 
-import io.ballerina.projects.BallerinaToml;
-import io.ballerina.projects.BallerinaTomlException;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
-import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageConfig;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
@@ -49,8 +49,8 @@ import static io.ballerina.projects.util.ProjectUtils.checkReadPermission;
 public class ProjectFiles {
     public static final PathMatcher BAL_EXTENSION_MATCHER =
             FileSystems.getDefault().getPathMatcher("glob:**.bal");
-    public static final PathMatcher BALR_EXTENSION_MATCHER =
-            FileSystems.getDefault().getPathMatcher("glob:**.balo");
+    public static final PathMatcher BALA_EXTENSION_MATCHER =
+            FileSystems.getDefault().getPathMatcher("glob:**.bala");
 
     private ProjectFiles() {
     }
@@ -58,14 +58,22 @@ public class ProjectFiles {
     public static PackageData loadSingleFileProjectPackageData(Path filePath) {
         DocumentData documentData = loadDocument(filePath);
         ModuleData defaultModule = ModuleData
-                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList());
-        return PackageData.from(filePath, defaultModule, Collections.emptyList());
+                .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null);
+        return PackageData.from(filePath, defaultModule, Collections.emptyList(),
+                null, null, null, null);
     }
 
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
         ModuleData defaultModule = loadModule(packageDirPath);
         List<ModuleData> otherModules = loadOtherModules(packageDirPath);
-        return PackageData.from(packageDirPath, defaultModule, otherModules);
+
+        DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
+        DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
+        DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
+        DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+
+        return PackageData.from(packageDirPath, defaultModule, otherModules,
+                ballerinaToml, dependenciesToml, cloudToml, packageMd);
     }
 
     private static List<ModuleData> loadOtherModules(Path packageDirPath) {
@@ -103,8 +111,10 @@ public class ProjectFiles {
         } else {
             testSrcDocs = Collections.emptyList();
         }
-        // TODO Read Module.md file. Do we need to? Balo creator may need to package Module.md
-        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs);
+
+        DocumentData moduleMd = loadDocument(moduleDirPath.resolve(ProjectConstants.MODULE_MD_FILE_NAME));
+        // TODO Read Module.md file. Do we need to? Bala creator may need to package Module.md
+        return ModuleData.from(moduleDirPath, moduleDirPath.toFile().getName(), srcDocs, testSrcDocs, moduleMd);
     }
 
     public static List<DocumentData> loadDocuments(Path dirPath) {
@@ -130,6 +140,10 @@ public class ProjectFiles {
     }
 
     public static DocumentData loadDocument(Path documentFilePath) {
+        if (Files.notExists(documentFilePath)) {
+            return null;
+        }
+
         String content;
         try {
             content = Files.readString(documentFilePath, Charset.defaultCharset());
@@ -150,18 +164,15 @@ public class ProjectFiles {
         return DocumentData.from(ProjectConstants.TEST_DIR_NAME + "/" + documentName, content);
     }
 
-    public static PackageManifest createPackageManifest(BallerinaToml ballerinaToml) {
-        return ballerinaToml.packageManifest();
-    }
-
-    public static BuildOptions createBuildOptions(Path projectPath, BuildOptions theirOptions) {
-        Path ballerinaTomlFilePath = projectPath.resolve(ProjectConstants.BALLERINA_TOML);
-        BallerinaToml ballerinaToml = BallerinaToml.from(ballerinaTomlFilePath);
-        if (ballerinaToml.diagnostics().hasErrors()) {
-            throw new BallerinaTomlException(ballerinaToml.getErrorMessage());
-        }
-
-        BuildOptions defaultBuildOptions = ballerinaToml.buildOptions();
+    public static BuildOptions createBuildOptions(PackageConfig packageConfig, BuildOptions theirOptions,
+                                                  Path projectDirPath) {
+        // Todo figure out how to pass the build options without a performance hit
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML,
+                packageConfig.ballerinaToml().map(t -> t.content()).orElse(""));
+        TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML,
+                packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
+        ManifestBuilder manifestBuilder = ManifestBuilder.from(ballerinaToml, dependenciesToml, projectDirPath);
+        BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = new BuildOptionsBuilder().build();
         }
@@ -217,17 +228,39 @@ public class ProjectFiles {
         checkReadPermission(filePath);
     }
 
-    public static void validateBalrProjectPath(Path balrPath) {
-        if (Files.notExists(balrPath)) {
-            throw new ProjectException("Given .balr file does not exist: " + balrPath);
+    public static void validateBalaProjectPath(Path balaPath) {
+        if (Files.notExists(balaPath)) {
+            throw new ProjectException("Given bala path does not exist: " + balaPath);
         }
 
-        if (!Files.isRegularFile(balrPath) || !ProjectFiles.BALR_EXTENSION_MATCHER.matches(balrPath)) {
-            throw new ProjectException("Invalid .balr file: " + balrPath);
+        if (!isValidBalaFile(balaPath) && !isValidBalaDir(balaPath)) {
+            throw new ProjectException("Invalid bala file: " + balaPath);
         }
 
-        if (!balrPath.toFile().canRead()) {
-            throw new ProjectException("insufficient privileges to balo: " + balrPath);
+        if (!balaPath.toFile().canRead()) {
+            throw new ProjectException("insufficient privileges to bala: " + balaPath);
         }
+    }
+
+    private static boolean isValidBalaDir(Path balaPath) {
+        if (Files.notExists(balaPath.resolve(ProjectConstants.DEPENDENCY_GRAPH_JSON))) {
+            return false;
+        }
+        if (Files.notExists(balaPath.resolve(ProjectConstants.PACKAGE_JSON))) {
+            return false;
+        }
+        if (Files.notExists(balaPath.resolve(ProjectConstants.BALA_JSON))) {
+            return false;
+        }
+        Path modulesRoot = balaPath.resolve(ProjectConstants.MODULES_ROOT);
+        File[] files = modulesRoot.toFile().listFiles();
+        if (files == null) {
+            return false;
+        }
+        return Files.isDirectory(modulesRoot) && files.length >= 1;
+    }
+
+    private static boolean isValidBalaFile(Path balaPath) {
+        return Files.isRegularFile(balaPath) && ProjectFiles.BALA_EXTENSION_MATCHER.matches(balaPath);
     }
 }

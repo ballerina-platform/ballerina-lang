@@ -46,7 +46,7 @@ public class BUnionType extends BType implements UnionType {
     private Boolean nullable;
     private String cachedToString;
     private int typeFlags;
-    private final boolean readonly;
+    private boolean readonly;
     protected IntersectionType immutableType;
     private boolean resolving = false;
     public boolean resolvingReadonly = false;
@@ -261,8 +261,14 @@ public class BUnionType extends BType implements UnionType {
         return false;
     }
 
-    public void addMember(Type type) {
+    private void addMember(Type type) {
         this.memberTypes.add(type);
+        setFlagsBasedOnMembers();
+    }
+
+    public void addMembers(Type... types) {
+        this.memberTypes.addAll(Arrays.asList(types));
+        setFlagsBasedOnMembers();
     }
 
     private void setFlagsBasedOnMembers() {
@@ -270,12 +276,15 @@ public class BUnionType extends BType implements UnionType {
             return;
         }
         this.resolving = true;
-        boolean nilable = false, isAnydata = true, isPureType = true;
+        this.resolvingReadonly = true;
+        boolean nilable = false, isAnydata = true, isPureType = true, readonly = true;
         for (Type memberType : memberTypes) {
             nilable |= memberType.isNilable();
             isAnydata &= memberType.isAnydata();
             isPureType &= memberType.isPureType();
+            readonly &= memberType.isReadOnly();
         }
+        this.resolvingReadonly = false;
         this.resolving = false;
         if (nilable) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.NILABLE);
@@ -286,6 +295,7 @@ public class BUnionType extends BType implements UnionType {
         if (isPureType) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
         }
+        this.readonly = readonly;
     }
 
     public List<Type> getMemberTypes() {
@@ -377,6 +387,15 @@ public class BUnionType extends BType implements UnionType {
         }
 
         BUnionType that = (BUnionType) o;
+
+        if (this.isCyclic || that.isCyclic) {
+            if (this.isCyclic != that.isCyclic) {
+                return false;
+            }
+
+            return super.equals(that);
+        }
+
         if (this.memberTypes.size() != that.memberTypes.size()) {
             return false;
         }
@@ -419,6 +438,10 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public boolean isReadOnly() {
+        if (this.resolvingReadonly) {
+            return true;
+        }
+
         return this.readonly;
     }
 
@@ -439,10 +462,7 @@ public class BUnionType extends BType implements UnionType {
 
     public void mergeUnionType(BUnionType unionType) {
         if (!unionType.isCyclic) {
-            for (Type member : unionType.getMemberTypes()) {
-                this.addMember(member);
-            }
-            setFlagsBasedOnMembers();
+            this.addMembers(unionType.getMemberTypes().toArray(new Type[0]));
             return;
         }
         this.isCyclic = true;

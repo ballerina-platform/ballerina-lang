@@ -38,6 +38,7 @@ public class BLangCompilerConstants {
     public static final String INTERNAL_VERSION = "0.1.0";
     public static final String ANNOTATIONS_VERSION = "1.0.0";
     public static final String ARRAY_VERSION = "1.1.0";
+    public static final String CONFIG_VERSION = "0.0.1";
     public static final String DECIMAL_VERSION = "1.0.0";
     public static final String ERROR_VERSION = "1.0.0";
     public static final String FLOAT_VERSION = "1.0.0";
@@ -56,8 +57,9 @@ public class BLangCompilerConstants {
     public static final String QUERY_VERSION = "0.0.1";
     public static final String RUNTIME_VERSION = "0.0.1";
     public static final String TRANSACTION_VERSION = "0.0.1";
-    public static final String TRANSACTION_INTERNAL_VERSION = "1.0.4";
+    public static final String TRANSACTION_INTERNAL_VERSION = "1.0.9";
     public static final String OBSERVE_INTERNAL_VERSION = "0.9.0";
+    public static final String OBSERVE_VERSION = "0.9.0";
 
     private BLangCompilerConstants() {
     }

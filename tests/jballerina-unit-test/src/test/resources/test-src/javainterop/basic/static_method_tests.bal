@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/lang.'value;
 import ballerina/test;
 
@@ -142,6 +142,11 @@ public function testStringCast() {
 public function testGetCurrentModule() {
      string moduleString =  getCurrentModule(4);
      test:assertEquals(moduleString, "$anon#.#0.0.0#4");
+}
+
+public function testGetDefaultValueWithBEnv() {
+     int defaultValue =  getDefaultValueWithBEnv();
+     test:assertEquals(defaultValue, 2021);
 }
 
 function hashCode(int receiver) returns int = @java:Method {
@@ -278,6 +283,10 @@ function getCurrentModule(int a) returns string  = @java:Method {
         'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
+function getDefaultValueWithBEnv(int a = 2021) returns int  = @java:Method {
+        'class: "org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
 public function returnNullString(boolean nullVal) returns string? = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
@@ -288,7 +297,7 @@ function getValue() returns MyType = @java:Method {
 
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
 
 

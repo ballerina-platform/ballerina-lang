@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function forkWithTimeoutTest1() returns map<anydata> {
     map<any> m = {};
@@ -519,5 +519,5 @@ function forkWithSameWorkerContent() returns string|error {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

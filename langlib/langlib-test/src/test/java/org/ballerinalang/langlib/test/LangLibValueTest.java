@@ -33,6 +33,7 @@ import org.testng.annotations.Test;
 
 import java.util.Arrays;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 
@@ -54,6 +55,12 @@ public class LangLibValueTest {
             Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
             Assert.fail("Compilation contains error");
         }
+    }
+
+    @Test void testNegativeCases() {
+        CompileResult negativeResult = BCompileUtil.compile("test-src/valuelib_test_negative.bal");
+        assertEquals(negativeResult.getErrorCount(), 1);
+        validateError(negativeResult, 0, "incompatible types: expected 'any', found 'Cloneable'", 21, 13);
     }
 
     @Test
@@ -186,8 +193,8 @@ public class LangLibValueTest {
                         "<CD><TITLE>Greatest Hits</TITLE><ARTIST>Dolly Parton</ARTIST></CD>" +
                         "</CATALOG>");
         Assert.assertEquals(array.getString(i++), "[\"str\",23,23.4,true]");
-        Assert.assertEquals(array.getString(i++), "error FirstError (\"Reason1\",message=\"Test passing error " +
-                "union to a function\")");
+        Assert.assertEquals(array.getString(i++), "error FirstError (\"Reason1\",error(\"ExampleError\")," +
+                "message=\"Test passing error union to a function\")");
         Assert.assertEquals(array.getString(i++), "object Student");
         Assert.assertEquals(array.getString(i++), "Rola from MMV");
         Assert.assertEquals(array.getString(i++), "[object Student,Rola from MMV]");
@@ -207,11 +214,16 @@ public class LangLibValueTest {
                         "</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD><CD><TITLE>Greatest Hits</TITLE>" +
                         "<ARTIST>Dolly Parton</ARTIST></CD></CATALOG>`," +
                         "\"varArr\":[\"str\",23,23.4,true],\"varErr\":error FirstError (\"Reason1\"," +
-                        "message=\"Test passing error union to a function\")," +
+                        "error(\"ExampleError\"),message=\"Test passing error union to a function\")," +
                         "\"varObj\":object Student,\"varObj2\":Rola from MMV," +
                         "\"varObjArr\":[object Student,Rola from MMV]," +
                         "\"varRecord\":{\"name\":\"Gima\",\"address\":{\"country\":\"Sri Lanka\"," +
                         "\"city\":\"Colombo\",\"street\":\"Palm Grove\"},\"age\":12}}");
+    }
+
+    @Test
+    public void testXMLToStringWithXMLTextContainingAngleBrackets() {
+        BRunUtil.invoke(compileResult, "testXMLWithAngleBrackets");
     }
 
     @Test
@@ -263,6 +275,7 @@ public class LangLibValueTest {
         BRunUtil.invokeFunction(file, "testXmlFromBalString");
         BRunUtil.invokeFunction(file, "testObjectFromString");
         BRunUtil.invokeFunction(file, "testFromBalStringOnCycles");
+        BRunUtil.invokeFunction(file, "testFromBalStringNegative");
     }
 
     @DataProvider(name = "mergeJsonFunctions")
@@ -311,6 +324,11 @@ public class LangLibValueTest {
         BRunUtil.invoke(compileResult, function);
     }
 
+    @Test
+    public void testAssigningCloneableToAnyOrError() {
+        BRunUtil.invokeFunction(compileResult, "testAssigningCloneableToAnyOrError");
+    }
+
     @DataProvider(name = "fromJsonWithTypeFunctions")
     public Object[][] fromJsonWithTypeFunctions() {
         return new Object[][] {
@@ -328,7 +346,9 @@ public class LangLibValueTest {
                 { "testFromJsonWithTypeArrayNegative" },
                 { "testFromJsonWithTypeTable" },
                 { "tesFromJsonWithTypeMapWithDecimal" },
-                { "testConvertJsonToAmbiguousType" }
+                { "testConvertJsonToAmbiguousType" },
+                { "testFromJsonWithTypeWithNullValues" },
+                { "testFromJsonWithTypeWithNullValuesNegative" }
         };
     }
 

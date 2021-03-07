@@ -18,7 +18,7 @@
 description = 'Lang Library Load Project'
 
 configurations {
-    distributionBalo {
+    distributionBala {
         transitive false
     }
 }
@@ -26,7 +26,7 @@ configurations {
 dependencies {
 
     testRuntime project(':ballerina-lang:annotations')
-    testRuntime project(':ballerina-lang:java')
+    testRuntime project(':ballerina-lang:jballerina.java')
     testRuntime project(':ballerina-lang:internal')
     testRuntime project(':ballerina-lang:array')
     testRuntime project(':ballerina-lang:decimal')
@@ -49,56 +49,56 @@ dependencies {
     testRuntime project(':ballerina-lang-test')
     testRuntime project(':ballerina-runtime')
 
-    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
-    testRuntime project(path: ':ballerina-lang:java', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
+    testRuntime project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBirJar')
+    distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:internal', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:array', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:array', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:decimal', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:decimal', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:error', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:error', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:future', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:future', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:integer', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:integer', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:map', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:map', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:object', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:object', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:stream', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:stream', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:table', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:table', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:string', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:string', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:typedesc', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:typedesc', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:value', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:value', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:xml', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:xml', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:bool', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:bool', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:runtime', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:runtime', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:runtime', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang-test', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang-test', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang-test', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:query', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:query', configuration: 'distributionBirJar')
-    distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:transaction', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:transaction', configuration: 'distributionBirJar')
 }
 
 task loadDistributionCache() {
-    dependsOn configurations.distributionBalo
+    dependsOn configurations.distributionBala
     doLast {
-        configurations.distributionBalo.each { artifact ->
+        configurations.distributionBala.each { artifact ->
             copy {
                 from zipTree( artifact.getPath() )
                 into "$buildDir/repo"

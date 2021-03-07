@@ -50,6 +50,7 @@ public class DisplayAnnotationTest {
     public void setup() {
         negative = BCompileUtil.compile("test-src/annotations/display_annot_negative.bal");
         result = BCompileUtil.compile("test-src/annotations/display_annot.bal");
+        Assert.assertEquals(result.getErrorCount(), 0, "Compilation contain errors");
     }
 
     @Test
@@ -65,7 +66,7 @@ public class DisplayAnnotationTest {
         BLangService service = (BLangService) result.getAST().getServices().get(0);
         BLangAnnotationAttachment attachment = service.getAnnotationAttachments().get(0);
         Assert.assertEquals(getActualExpressionFromAnnotationAttachmentExpr(attachment.expr).toString(),
-                " {iconPath: service.icon,label: service,misc: Other info}");
+                " {iconPath: service.icon,label: service,misc: <anydata> Other info}");
     }
 
     @Test
@@ -85,8 +86,8 @@ public class DisplayAnnotationTest {
     }
 
     @Test void testDisplayAnnotationNegative() {
-        BAssertUtil.validateError(negative, 0,
-                "cannot specify more than one annotation value for annotation 'display'", 17, 1);
+        BAssertUtil.validateError(negative, 0, "cannot specify more than one annotation value " +
+                "for annotation 'ballerina/lang.annotations:1.0.0:display'", 17, 1);
         Assert.assertEquals(negative.getErrorCount(), 1);
     }
 

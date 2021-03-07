@@ -43,6 +43,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
@@ -72,6 +73,11 @@ public class ErrorValue extends BError implements RefValue {
     private static final String INIT_FUNCTION_SUFFIX = "..<init>";
     private static final String START_FUNCTION_SUFFIX = ".<start>";
     private static final String STOP_FUNCTION_SUFFIX = ".<stop>";
+
+    public ErrorValue(BString message) {
+        this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TYPE_MAP),
+             message, null,  new MapValueImpl<>(PredefinedTypes.TYPE_ERROR_DETAIL));
+    }
 
     public ErrorValue(BString message, Object details) {
         this(new BErrorType(TypeConstants.ERROR, PredefinedTypes.TYPE_ERROR.getPackage(), TypeChecker.getType(details)),
@@ -103,7 +109,7 @@ public class ErrorValue extends BError implements RefValue {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
             return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent)
-                    + ")";
+                    + getCauseToString(linkParent) + ")";
         }
         return "error" + getModuleNameToString() + "(" + ((StringValue) message).informalStringValue(linkParent) +
                 getCauseToString(linkParent) + getDetailsToString(linkParent) + ")";
@@ -114,7 +120,7 @@ public class ErrorValue extends BError implements RefValue {
         CycleUtils.Node linkParent = new CycleUtils.Node(this, parent);
         if (isEmptyDetail()) {
             return "error" + getModuleNameToBalString() + "(" + ((StringValue) message)
-                    .informalStringValue(linkParent) + ")";
+                    .informalStringValue(linkParent) + getCauseToBalString(linkParent) + ")";
         }
         return "error" + getModuleNameToBalString() + "(" + ((StringValue) message).expressionStringValue(linkParent) +
                 getCauseToBalString(linkParent) + getDetailsToBalString(linkParent) + ")";

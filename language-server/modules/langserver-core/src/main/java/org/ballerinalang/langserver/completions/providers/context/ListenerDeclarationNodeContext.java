@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -43,6 +44,7 @@ import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -80,6 +82,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             completionItems.addAll(this.initializerItems(context, listenerNode.get()));
             this.sort(context, node, completionItems, ContextScope.INITIALIZER);
         }
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
@@ -128,7 +131,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     public boolean onPreValidation(BallerinaCompletionContext context, ListenerDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         Token listenerKeyword = node.listenerKeyword();
-        
+
         // Added +1 since the completion is valid after listener <cursor>
         return !listenerKeyword.isMissing() && listenerKeyword.textRange().endOffset() + 1 <= cursor;
     }
@@ -141,7 +144,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         because the type descriptor is optional as per the grammar
          */
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             String modulePrefix = QNameReferenceUtil.getAlias((QualifiedNameReferenceNode) nodeAtCursor);
             completionItems.addAll(listenersInModule(context, modulePrefix));
         } else {
@@ -165,7 +168,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<ModuleSymbol> moduleSymbol = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == MODULE && symbol.name().equals(modulePrefix))
+                .filter(symbol -> symbol.kind() == MODULE && symbol.getName().get().equals(modulePrefix))
                 .map(symbol -> (ModuleSymbol) symbol)
                 .findAny();
 
@@ -219,23 +222,19 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     private boolean withinTypeDescContext(BallerinaCompletionContext context, ListenerDeclarationNode node) {
-        Position position = context.getCursorPosition();
+        int cursor = context.getCursorPositionInTree();
         Token varName = node.variableName();
         Token listenerKW = node.listenerKeyword();
+        Optional<TypeDescriptorNode> tDesc = node.typeDescriptor();
 
         if (listenerKW.isMissing()) {
             return false;
         }
 
-        LineRange listenerKWRange = listenerKW.lineRange();
-
-        return listenerKWRange.endLine().offset() < position.getCharacter()
-                && (varName.isMissing()
-                || (varName.lineRange().startLine().line() == position.getLine()
-                && varName.lineRange().startLine().offset() > position.getCharacter())
-                || (varName.lineRange().startLine().line() > position.getLine())
-                || (varName.lineRange().endLine().offset() == position.getCharacter()
-                && node.typeDescriptor() == null));
+        return cursor >= listenerKW.textRange().startOffset() + 1
+                && ((tDesc.isEmpty() && varName.isMissing())
+                || (tDesc.isEmpty() && !varName.isMissing() && cursor <= varName.textRange().endOffset())
+                || (tDesc.isPresent() && cursor <= tDesc.get().textRange().endOffset()));
     }
 
     private boolean withinInitializerContext(BallerinaCompletionContext context, ListenerDeclarationNode node) {
@@ -270,7 +269,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             Stream<Symbol> objsAndClasses = Stream.concat(module.classes().stream(), module.typeDefinitions().stream());
             typeSymbol = objsAndClasses
                     .filter(type -> SymbolUtil.isListener(type)
-                            && type.name().equals(nameReferenceNode.identifier().text()))
+                            && Objects.equals(type.getName().orElse(null), nameReferenceNode.identifier().text()))
                     .map(symbol -> (ClassSymbol) symbol)
                     .findAny();
 
@@ -278,7 +277,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
             SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) typeDescriptor;
             typeSymbol = visibleSymbols.stream()
                     .filter(visibleSymbol -> SymbolUtil.isListener(visibleSymbol)
-                            && visibleSymbol.name().equals(nameReferenceNode.name().text()))
+                            && Objects.equals(visibleSymbol.getName().orElse(null), nameReferenceNode.name().text()))
                     .map(symbol -> (ClassSymbol) symbol)
                     .findAny();
         }

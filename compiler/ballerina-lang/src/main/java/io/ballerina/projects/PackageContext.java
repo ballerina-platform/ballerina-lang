@@ -41,12 +41,16 @@ class PackageContext {
     private final Project project;
     private final PackageId packageId;
     private final PackageManifest packageManifest;
-    private final BallerinaToml ballerinaToml;
+    private final TomlDocumentContext ballerinaTomlContext;
+    private final TomlDocumentContext dependenciesTomlContext;
+    private final TomlDocumentContext cloudTomlContext;
+    private final MdDocumentContext packageMdContext;
+
     private final CompilationOptions compilationOptions;
     private ModuleContext defaultModuleContext;
     /**
      * This variable holds the dependency graph cached in a project.
-     * At the moment, we cache the dependency graph in a balr file.
+     * At the moment, we cache the dependency graph in a bala file.
      */
     private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
 
@@ -61,14 +65,20 @@ class PackageContext {
     PackageContext(Project project,
                    PackageId packageId,
                    PackageManifest packageManifest,
-                   BallerinaToml ballerinaToml,
+                   TomlDocumentContext ballerinaTomlContext,
+                   TomlDocumentContext dependenciesTomlContext,
+                   TomlDocumentContext cloudTomlContext,
+                   MdDocumentContext packageMdContext,
                    CompilationOptions compilationOptions,
                    Map<ModuleId, ModuleContext> moduleContextMap,
                    DependencyGraph<PackageDescriptor> pkgDescDependencyGraph) {
         this.project = project;
         this.packageId = packageId;
         this.packageManifest = packageManifest;
-        this.ballerinaToml = ballerinaToml;
+        this.ballerinaTomlContext = ballerinaTomlContext;
+        this.dependenciesTomlContext = dependenciesTomlContext;
+        this.cloudTomlContext = cloudTomlContext;
+        this.packageMdContext = packageMdContext;
         this.compilationOptions = compilationOptions;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
         this.moduleContextMap = moduleContextMap;
@@ -76,6 +86,7 @@ class PackageContext {
         this.moduleCompilationMap = new HashMap<>();
         this.packageDependencies = Collections.emptySet();
         this.pkgDescDependencyGraph = pkgDescDependencyGraph;
+
     }
 
     static PackageContext from(Project project, PackageConfig packageConfig, CompilationOptions compilationOptions) {
@@ -85,7 +96,11 @@ class PackageContext {
         }
 
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
-                packageConfig.ballerinaToml(), compilationOptions,
+                packageConfig.ballerinaToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                packageConfig.dependenciesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                packageConfig.cloudToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                packageConfig.packageMd().map(c ->MdDocumentContext.from(c)).orElse(null),
+                compilationOptions,
                 moduleContextMap, packageConfig.packageDescDependencyGraph());
     }
 
@@ -113,8 +128,20 @@ class PackageContext {
         return packageManifest;
     }
 
-    Optional<BallerinaToml> ballerinaToml() {
-        return Optional.ofNullable(ballerinaToml);
+    Optional<TomlDocumentContext> ballerinaTomlContext() {
+        return Optional.ofNullable(ballerinaTomlContext);
+    }
+
+    Optional<TomlDocumentContext> dependenciesTomlContext() {
+        return Optional.ofNullable(dependenciesTomlContext);
+    }
+
+    Optional<TomlDocumentContext> cloudTomlContext() {
+        return Optional.ofNullable(cloudTomlContext);
+    }
+
+    Optional<MdDocumentContext> packageMdContext() {
+        return Optional.ofNullable(packageMdContext);
     }
 
     CompilationOptions compilationOptions() {

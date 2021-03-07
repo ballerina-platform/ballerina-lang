@@ -127,7 +127,7 @@ A typical project structure of a Ballerina project is like this:
   target/              # Compiled binaries and other artifacts end up here
       main.balx
       Ballerina.lock   # Generated during build, used to rebuild identical binary
-      module1.balo
+      module1.bala
       modules.can.include.dots.in.dir.name.bal
 ```
 

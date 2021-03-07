@@ -284,7 +284,7 @@ public class JvmConstants {
     public static final String LISTENER_REGISTRY_VARIABLE = "$listenerRegistry";
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
-    public static final String POPULATE_CONFIG_DATA_METHOD = "$populateConfigurationData";
+    public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
@@ -294,6 +294,7 @@ public class JvmConstants {
     public static final String SCHEDULER_START_METHOD = "start";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
+    public static final String CREATE_ERROR_VALUE = "createErrorValue";
 
     // strand data related constants
     public static final String STRAND = "strand";
@@ -311,6 +312,7 @@ public class JvmConstants {
     public static final String REPORT_ERROR_METHOD = "reportError";
     public static final String STOP_OBSERVATION_METHOD = "stopObservation";
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
+    public static final String DISPLAY_ANNOTATION = "display";
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
 
     // visibility flags

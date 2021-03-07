@@ -15,7 +15,9 @@
  */
 package org.ballerinalang.langserver.command.executors;
 
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.command.docs.DocAttachmentInfo;
@@ -78,7 +80,10 @@ public class AddDocumentationExecutor implements LSCommandExecutor {
 
         SyntaxTree syntaxTree = ctx.workspace().syntaxTree(filePath.get()).orElseThrow();
         NonTerminalNode node = CommonUtil.findNode(nodeRange, syntaxTree);
-        Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(node);
+        if (node.kind() == SyntaxKind.MODULE_PART) {
+            node = ((ModulePartNode) node).members().get(0);
+        }
+        Optional<DocAttachmentInfo> docAttachmentInfo = getDocumentationEditForNode(node, syntaxTree);
         if (docAttachmentInfo.isPresent()) {
             DocAttachmentInfo docs = docAttachmentInfo.get();
             Range range = new Range(docs.getDocStartPos(), docs.getDocStartPos());

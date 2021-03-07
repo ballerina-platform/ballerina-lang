@@ -1,0 +1,35 @@
+[
+  {
+    "description": "Define function.",
+    "code": "function printDetails(string name, int age = 18, string... modules) { string detailString = \"Name: \" + name + \", Age: \" + age.toString();\n if (modules.length() == 0) { println(detailString); return; } int index = 0; string moduleString = \"Module(s): \" + \", \".'join(...modules); println(detailString, \", \", moduleString); }"
+  },
+  {
+    "description": "Use function with one param.",
+    "code": "printDetails(\"Alice\");",
+    "stdout": "Name: Alice, Age: 18\n"
+  },
+  {
+    "description": "Use function with two params.",
+    "code": "printDetails(\"Bob\", 20);",
+    "stdout": "Name: Bob, Age: 20\n"
+  },
+  {
+    "description": "Use function with one rest param.",
+    "code": "printDetails(\"Corey\", 19, \"Math\");",
+    "stdout": "Name: Corey, Age: 19, Module(s): Math\n"
+  },
+  {
+    "description": "Use function with two rest params.",
+    "code": "printDetails(\"Diana\", 20, \"Math\", \"Physics\");",
+    "stdout": "Name: Diana, Age: 20, Module(s): Math, Physics\n"
+  },
+  {
+    "description": "Define string array.",
+    "code": "string[] modules = [\"Math\", \"Physics\"];"
+  },
+  {
+    "description": "Use function with arr rest param.",
+    "code": "printDetails(\"Diana\", 20, ...modules);",
+    "stdout": "Name: Diana, Age: 20, Module(s): Math, Physics\n"
+  }
+]

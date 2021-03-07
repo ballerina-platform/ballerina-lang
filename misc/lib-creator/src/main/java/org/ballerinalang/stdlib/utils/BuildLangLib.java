@@ -28,26 +28,37 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.FileSystemCache;
+import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
+import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
 import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 /**
- * Class providing utility methods to generate balo from package.
+ * Class providing utility methods to generate bala from package.
  *
  * @since 2.0.0
  */
@@ -92,14 +103,20 @@ public class BuildLangLib {
             }
 
             PackageManifest pkgDesc = pkg.manifest();
-            Path baloDirPath = pkgTargetPath.resolve("balo");
+            Path balaDirPath = pkgTargetPath.resolve("bala");
 
-            // Create balo cache directory
-            Path balrPath = baloDirPath.resolve(pkgDesc.org().toString())
+            // Create bala cache directory
+            Path balaPath = balaDirPath.resolve(pkgDesc.org().toString())
                     .resolve(pkgDesc.name().value())
-                    .resolve(pkgDesc.version().toString());
-            Files.createDirectories(balrPath);
-            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, balrPath);
+                    .resolve(pkgDesc.version().toString())
+                    .resolve("any");
+            Files.createDirectories(balaPath);
+            jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaPath);
+
+            Path balaFilePath = Files.list(balaPath).findAny().orElseThrow();
+            ProjectUtils.extractBala(balaFilePath, balaPath);
+            Files.delete(balaFilePath);
+
 
             // Create zip file
             Path zipFilePath = targetPath.resolve(pkgDesc.name().value() + ".zip");
@@ -133,7 +150,7 @@ public class BuildLangLib {
             //Generate docs
             out.println("Generating docs...");
             BallerinaDocGenerator.generateAPIDocs(project, targetPath.resolve(ProjectConstants.TARGET_API_DOC_DIRECTORY)
-                    .toString());
+                    .toString(), true);
 
         } catch (Exception e) {
             out.println("Unknown error building : " + projectDir.toString());

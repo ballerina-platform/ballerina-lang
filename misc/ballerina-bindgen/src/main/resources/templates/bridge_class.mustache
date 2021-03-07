@@ -7,8 +7,8 @@
 // E.g. $ ballerina bindgen {{className}}
 
 {{/unless}}
-import ballerina/java;{{#if importJavaArraysModule}}
-import ballerina/jarrays;{{/if}}
+import ballerina/jballerina.java;{{#if importJavaArraysModule}}
+import ballerinax/java.arrays as jarrays;{{/if}}
 {{#importedPackages}}
 import {{balPackageName}}.{{#escapeReservedWord this ""}}{{/escapeReservedWord}} as {{#replace this "." ""}}{{/replace}};{{/importedPackages}}
 
@@ -37,7 +37,7 @@ import {{balPackageName}}.{{#escapeReservedWord this ""}}{{/escapeReservedWord}}
     #
     # + return - The `string` form of the object instance.
     {{accessModifier}}function toString() returns string {
-        return java:jObjToString(self.jObj);
+        return java:toString(self.jObj) ?: "null";
     }{{#methodList}}{{#unless isStatic}}
 
     # The function that maps to the `{{javaMethodName}}` method of `{{className}}`.{{#if parameters}}

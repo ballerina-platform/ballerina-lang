@@ -307,7 +307,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         checkForUninitializedGlobalVars(pkgNode.globalVars);
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         this.globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
-        this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency);
+        this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency, pkgNode.globalVars);
         pkgNode.globalVariableDependencies = globalVariableRefAnalyzer.getGlobalVariablesDependsOn();
         checkUnusedImports(pkgNode.imports);
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
@@ -345,9 +345,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.currDependentSymbol.pop();
     }
 
-    private void checkForUninitializedGlobalVars(List<BLangSimpleVariable> globalVars) {
-        for (BLangSimpleVariable globalVar : globalVars) {
-            if (this.uninitializedVars.containsKey(globalVar.symbol)) {
+    private void checkForUninitializedGlobalVars(List<BLangVariable> globalVars) {
+        for (BLangVariable globalVar : globalVars) {
+            if (globalVar.getKind() == NodeKind.VARIABLE && this.uninitializedVars.containsKey(globalVar.symbol)) {
                 this.dlog.error(globalVar.pos, DiagnosticErrorCode.UNINITIALIZED_VARIABLE, globalVar.symbol);
             }
         }
@@ -1667,41 +1667,40 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         analyzeNode(bLangTupleVariable.typeNode, env);
+        this.currDependentSymbol.push(bLangTupleVariable.symbol);
+        analyzeNode(bLangTupleVariable.expr, env);
+        this.currDependentSymbol.pop();
     }
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        BLangVariable var = bLangTupleVariableDef.var;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-            return;
-        }
+        analyzeNode(bLangTupleVariableDef.var, env);
     }
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         analyzeNode(bLangRecordVariable.typeNode, env);
+        this.currDependentSymbol.push(bLangRecordVariable.symbol);
+        analyzeNode(bLangRecordVariable.expr, env);
+        this.currDependentSymbol.pop();
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        BLangVariable var = bLangRecordVariableDef.var;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-        }
+        analyzeNode(bLangRecordVariableDef.var, env);
     }
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         analyzeNode(bLangErrorVariable.typeNode, env);
+        this.currDependentSymbol.push(bLangErrorVariable.symbol);
+        analyzeNode(bLangErrorVariable.expr, env);
+        this.currDependentSymbol.pop();
     }
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        BLangVariable var = bLangErrorVariableDef.errorVariable;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-        }
+        analyzeNode(bLangErrorVariableDef.errorVariable, env);
     }
 
     @Override

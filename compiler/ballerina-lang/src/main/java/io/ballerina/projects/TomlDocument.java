@@ -17,30 +17,48 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
+import io.ballerina.toml.semantic.diagnostics.DiagnosticComparator;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
+import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
 import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.toml.syntax.tree.SyntaxTree;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.text.TextDocument;
 import io.ballerina.tools.text.TextDocuments;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
+import java.util.Set;
+import java.util.TreeSet;
 
 /**
  * Represents a generic TOML document in a Ballerina package.
  *
  * @since 2.0.0
  */
-public abstract class TomlDocument {
-    private final Path filePath;
+public class TomlDocument {
+    private final String fileName;
+    private final String content;
     private TextDocument textDocument;
     private SyntaxTree syntaxTree;
-    private TomlTableNode tomlAstNode;
+    private Toml toml;
 
-    protected TomlDocument(Path filePath) {
-        this.filePath = filePath;
+    protected TomlDocument(String fileName, String content) {
+        this.fileName = fileName;
+        this.content = content;
+    }
+
+    public static TomlDocument from(String fileName, String content) {
+        return new TomlDocument(fileName, content);
+    }
+
+    public Toml toml() {
+        if (toml != null) {
+            return toml;
+        }
+        parseToml();
+        return toml;
     }
 
     public SyntaxTree syntaxTree() {
@@ -52,47 +70,40 @@ public abstract class TomlDocument {
         return syntaxTree;
     }
 
-    public TomlTableNode tomlAstNode() {
-        if (tomlAstNode != null) {
-            return tomlAstNode;
-        }
-
-        parseToml();
-        return tomlAstNode;
-    }
-
     public TextDocument textDocument() {
         if (textDocument != null) {
             return textDocument;
         }
 
-        try {
-            textDocument = TextDocuments.from(Files.readString(filePath));
-        } catch (IOException e) {
-            throw new ProjectException("Failed to read file: " + filePath, e);
-        }
+        textDocument = TextDocuments.from(content);
         return textDocument;
     }
 
     private void parseToml() {
-        TextDocument textDocument = textDocument();
         try {
-            syntaxTree = SyntaxTree.from(textDocument, getFileName(filePath));
+            this.textDocument = TextDocuments.from(content);
+            this.syntaxTree = SyntaxTree.from(this.textDocument, this.fileName);
             TomlTransformer nodeTransformer = new TomlTransformer();
-            tomlAstNode = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
+            TomlTableNode transformedTable = (TomlTableNode) nodeTransformer
+                    .transform((DocumentNode) syntaxTree.rootNode());
+            transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree));
+            this.toml = new Toml(transformedTable);
         } catch (RuntimeException e) {
             // The toml parser throws runtime exceptions for some cases
-            throw new ProjectException("Failed to parse file: " + getFileName(filePath), e);
+            throw new ProjectException("Failed to parse file: " + fileName, e);
         }
     }
 
-    private String getFileName(Path filePath) {
-        final Path fileNamePath = filePath.getFileName();
-        if (fileNamePath != null) {
-            return fileNamePath.toString();
-        } else {
-            // This branch may never be executed.
-            throw new ProjectException("Failed to retrieve the TOML file name from the path: " + filePath);
+    private static Set<Diagnostic> reportSyntaxDiagnostics(SyntaxTree tree) {
+        Set<Diagnostic> diagnostics = new TreeSet<>(new DiagnosticComparator());
+        for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
+            TomlNodeLocation tomlNodeLocation = new TomlNodeLocation(syntaxDiagnostic.location().lineRange(),
+                                                                     syntaxDiagnostic.location().textRange());
+            TomlDiagnostic tomlDiagnostic = new TomlDiagnostic(tomlNodeLocation, syntaxDiagnostic.diagnosticInfo(),
+                                                               syntaxDiagnostic.message());
+            diagnostics.add(tomlDiagnostic);
         }
+
+        return diagnostics;
     }
 }

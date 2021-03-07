@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 string append = "";
 function simpleSyncSend() returns string {
@@ -575,11 +575,11 @@ public function testNoFailureForReceiveWithError() returns boolean {
             return error("w2 err");
         }
         string|E1|E2 v2 = <- w1;
-        return v1 == 100 && v2 == "hello";
+        return v1 === 100 && v2 === "hello";
     }
 
     record { boolean|E1|E2? w1; boolean|error? w2; } x = wait { w1, w2 };
-    return x.w1 == true && x.w2 == true;
+    return x.w1 === true && x.w2 === true;
 }
 
 public function testFailureForReceiveWithError() returns boolean {
@@ -605,11 +605,11 @@ public function testFailureForReceiveWithError() returns boolean {
             return error("w2 err");
         }
         string|E1|E2 v2 = <- w1;
-        return v1 == 100 && v2 is E2;
+        return v1 === 100 && v2 is E2;
     }
 
     record { boolean|E1|E2? w1; boolean|error? w2; } x = wait { w1, w2 };
-    return x.w1 is E2 && x.w2 == true;
+    return x.w1 is E2 && x.w2 === true;
 }
 
 function getFalse() returns boolean {
@@ -621,5 +621,5 @@ function getTrue() returns boolean {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

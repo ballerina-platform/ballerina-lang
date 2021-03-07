@@ -54,31 +54,37 @@ public class ListConstructorExprTest {
     public void diagnosticsTest() {
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, "invalid list constructor expression: " +
-                "types cannot be inferred for '[v1, v2, v3]'", 18, 24);
+                "types cannot be inferred for '[hello, 123, 34.56]'", 32, 24);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list constructor expression: types cannot be " +
+                "inferred for '[1, e]'", 35, 58);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list constructor expression: types cannot be " +
+                "inferred for '[1, p]'", 38, 35);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list constructor expression: types cannot be " +
+                "inferred for '[a, 4]'", 41, 23);
         BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
-                22, 31);
+                45, 31);
         BAssertUtil.validateError(resultNegative, i++, "tuple and expression size does not match",
-                23, 56);
+                46, 56);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '[record {| int id; string name;" +
                                           " int city; |},record {| anydata...; |},boolean,string]', found '[record {|" +
                                           " int id; string name; string city; |},record {| int id; string name; " +
-                                          "int age; |},int,string]'", 42, 40);
+                                          "int age; |},int,string]'", 65, 40);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'record {| int id; string name; " +
                                           "string age; |}', found 'record {| int id; string name; int age; |}'",
-                                  48, 13);
+                                  71, 13);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'float', found 'int'",
-                                  49, 16);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'readonly', found 'int[]'", 57,
+                                  72, 16);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'readonly', found 'int[]'", 80,
                                   23);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected 'readonly', found 'future'",
-                                  57, 28);
+                                  80, 28);
         BAssertUtil.validateError(resultNegative, i++, "incompatible types: expected '(readonly|int[])', " +
-                                          "found '[int,map<(boolean|int)>]'", 66, 25);
-        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(boolean[][]|readonly)'", 70, 31);
-        BAssertUtil.validateError(resultNegative, i++, "unknown type 'Foo'", 74, 5);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: 'int' cannot be cast to 'string'", 74, 23);
-        BAssertUtil.validateError(resultNegative, i++, "unknown type 'Foo'", 75, 14);
-        BAssertUtil.validateError(resultNegative, i++, "incompatible types: 'int' cannot be cast to 'string'", 75, 23);
+                                          "found '[int,map<(boolean|int)>]'", 89, 25);
+        BAssertUtil.validateError(resultNegative, i++, "ambiguous type '(boolean[][]|readonly)'", 93, 31);
+        BAssertUtil.validateError(resultNegative, i++, "unknown type 'Foo'", 97, 5);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: 'int' cannot be cast to 'string'", 97, 23);
+        BAssertUtil.validateError(resultNegative, i++, "unknown type 'Foo'", 98, 14);
+        BAssertUtil.validateError(resultNegative, i++, "incompatible types: 'int' cannot be cast to 'string'", 98, 23);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

@@ -67,6 +67,14 @@ public class TomlTableArrayNode extends TopLevelNode {
     }
 
     @Override
+    public void clearDiagnostics() {
+        super.diagnostics.clear();
+        for (TomlTableNode childTable : children) {
+            childTable.clearDiagnostics();
+        }
+    }
+
+    @Override
     public void accept(TomlNodeVisitor visitor) {
         visitor.visit(this);
     }

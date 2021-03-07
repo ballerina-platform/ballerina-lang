@@ -176,7 +176,7 @@ function testNonNilNonMappingJsonMerge() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'float' and 'json[]'";
+        <string> checkpanic mj.detail()[MESSAGE] == "Cannot merge JSON values of types 'float' and 'json[]'";
 }
 
 function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
@@ -185,7 +185,7 @@ function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'map<json>' and 'string'";
+        <string> checkpanic mj.detail()[MESSAGE] == "Cannot merge JSON values of types 'map<json>' and 'string'";
 }
 
 function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
@@ -194,7 +194,7 @@ function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'map<json>' and 'json[]'";
+        <string> checkpanic mj.detail()[MESSAGE] == "Cannot merge JSON values of types 'map<json>' and 'json[]'";
 }
 
 function testMappingJsonNoIntersectionMergeSuccess() returns boolean {
@@ -208,7 +208,7 @@ function testMappingJsonNoIntersectionMergeSuccess() returns boolean {
     }
 
     json mj = <json> (checkpanic mje);
-    return mj.one == "hello" && mj.two == "world" && mj.three == 1 && mj.x == 12.0 && mj.y == "test value";
+    return mj.one === "hello" && mj.two === "world" && mj.three === 1 && mj.x === 12.0 && mj.y === "test value";
 }
 
 function testMappingJsonWithIntersectionMergeFailure1() returns boolean {
@@ -221,14 +221,14 @@ function testMappingJsonWithIntersectionMergeFailure1() returns boolean {
     json|error mj = j1.mergeJson(j2);
 
     if (!(mj is error) || mj.message() != MERGE_JSON_ERROR_REASON ||
-            mj.detail()[MESSAGE].toString() != "JSON Merge failed for key 'two'") {
+            <string> checkpanic mj.detail()[MESSAGE] != "JSON Merge failed for key 'two'") {
         return false;
     }
 
     error err = <error> mj;
     error cause = <error> err.detail()["cause"];
     return cause.message() == MERGE_JSON_ERROR_REASON &&
-            cause.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'string' and 'int'" &&
+            <string> checkpanic cause.detail()[MESSAGE] == "Cannot merge JSON values of types 'string' and 'int'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
@@ -242,14 +242,14 @@ function testMappingJsonWithIntersectionMergeFailure2() returns boolean {
     json|error mj = j1.mergeJson(j2);
 
     if (!(mj is error) || mj.message() != MERGE_JSON_ERROR_REASON ||
-            mj.detail()[MESSAGE].toString() != "JSON Merge failed for key 'one'") {
+            <string> checkpanic mj.detail()[MESSAGE] != "JSON Merge failed for key 'one'") {
         return false;
     }
 
     error err = <error> mj;
     error cause = <error> err.detail()["cause"];
-    return cause.message() == MERGE_JSON_ERROR_REASON &&
-            cause.detail()[MESSAGE].toString() == "Cannot merge JSON values of types 'map<json>' and 'boolean'" &&
+    return cause.message() == MERGE_JSON_ERROR_REASON && <string> checkpanic
+            cause.detail()[MESSAGE] == "Cannot merge JSON values of types 'map<json>' and 'boolean'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
@@ -265,8 +265,8 @@ function testMappingJsonWithIntersectionMergeSuccess() returns boolean {
     } else {
         map<json> expMap = { a: "strings", b: "test", c: "value" };
         map<json> mj4 = <map<json>> (checkpanic mj.four);
-        return mj === j1 && mj.one == "hello" && mj.two == "world" && mj.three == 1 &&
-            mj4 == expMap && mj.five == 5 && j2 == j2Clone;
+        return mj === j1 && mj.one === "hello" && mj.two === "world" && mj.three === 1 &&
+            mj4 == expMap && mj.five === 5 && j2 == j2Clone;
     }
 }
 
@@ -276,7 +276,7 @@ function testMergeJsonSuccessForValuesWithNonIntersectingCyclicRefererences() re
     map<json> j2 = { x: { b: 2 } };
     j2["p"] = j2;
     var result = j1.mergeJson(j2);
-    return j1.x == <json> { a: 1, b: 2 } && j1.z === j1 && j2.p === j2;
+    return (checkpanic j1.x) == <json> { a: 1, b: 2 } && j1.z === j1 && j2.p === j2;
 }
 
 function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() returns boolean {
@@ -286,15 +286,17 @@ function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() retur
     j2["z"] = j2;
 
     var result = j1.mergeJson(j2);
-    if (result is json || result.detail()["message"].toString() != "JSON Merge failed for key 'z'") {
+    if (result is json || <string> checkpanic result.detail()["message"] != "JSON Merge failed for key 'z'") {
         return false;
     } else {
         error? cause = <error?>result.detail()["cause"];
-        if (cause is () || cause.detail()["message"].toString() != "Cannot merge JSON values with cyclic references") {
+        if (cause is () || <string> checkpanic cause.detail()["message"] !=
+            "Cannot merge JSON values withcyclic references") {
             return false;
         }
     }
-    return j1.x == <json> { a: 1 } && j2.x == <json> { b: 2 } && j1.z == j1 && j2.z == j2;
+    return (checkpanic j1.x) == <json> { a: 1 } && (checkpanic j2.x) == <json> { b: 2 }
+        && (checkpanic j1.z) == j1 && (checkpanic j2.z) == j2;
 }
 
 public type AnotherDetail record {
@@ -346,6 +348,7 @@ function testToString() returns string[] {
     () varNil = ();
     Address addr = {country : "Sri Lanka", city: "Colombo", street: "Palm Grove"};
     Person p = {name : "Gima", address: addr, age: 12};
+    var s = {...p};
     boolean varBool = true;
     decimal varDecimal = 345.2425341;
     map<any|error> varMap = {};
@@ -458,7 +461,7 @@ public function testCloneWithTypeOptionalFieldToMandotoryField() {
 
     error bbe = <error> b;
     assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
-    assert(bbe.detail()["message"].toString(), "'CRec' value cannot be converted to 'BRec'");
+    assert(<string> checkpanic bbe.detail()["message"], "'CRec' value cannot be converted to 'BRec'");
 }
 
 type Foo record {
@@ -483,7 +486,8 @@ function testCloneWithTypeAmbiguousTargetType() {
 
     error bbe = <error> bb;
     assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
-    assert(bbe.detail()["message"].toString(), "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
+    assert(<string> checkpanic bbe.detail()["message"],
+        "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
 }
 
 type StringOrNull string?;
@@ -505,7 +509,7 @@ function testCloneWithTypeForNilNegative() {
     assert(c2 is error, true);
 
     error c1e = <error> c1;
-    assert(c1e.detail()["message"].toString(), "cannot convert '()' to type 'string|int'");
+    assert(<string> checkpanic c1e.detail()["message"], "cannot convert '()' to type 'string|int'");
 }
 
 function testCloneWithTypeNumeric1() {
@@ -751,8 +755,6 @@ function testFromJsonWithTypeIntArray() {
     assert(intArr[1], 2);
 }
 
-type TableString table<string>;
-
 type TableFoo2 table<Foo2>;
 type TableFoo3 table<Foo3>;
 type TableFoo4 table<Foo4>;
@@ -760,15 +762,6 @@ type TableFoo5 table<Foo5>;
 type TableFoo6 table<Foo6>;
 
 function testFromJsonWithTypeTable() {
-
-    json j = [
-        "cake",
-        "buscuit"
-    ];
-
-    table<string>|error tabString = j.fromJsonWithType(TableString);
-    assert(tabString is error, true);
-
     json jj = [
         {x3: "abc"},
         {x3: "abc"}

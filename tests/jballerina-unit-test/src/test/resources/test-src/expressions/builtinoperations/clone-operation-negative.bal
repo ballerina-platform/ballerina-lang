@@ -18,14 +18,3 @@ public function cloneWithParams() {
     int a = 4;
     int x = a.clone(true);
 }
-
-public function cloneInvalidType() {
-    typedesc<int> a = int;
-    typedesc<int> x = a.clone();
-}
-
-public function cloneError() returns error {
-    error a = error("Test");
-    error b = a.clone();
-    return b;
-}

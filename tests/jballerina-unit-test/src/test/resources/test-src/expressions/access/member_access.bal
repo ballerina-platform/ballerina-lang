@@ -554,7 +554,7 @@ function testMemberAccessOnListConstruct() {
 }
 
 function testMemberAccessOnTableConstruct() {
-    Employee emp  = table key(name) [{name: "Sanjiva", registered: true, id: 1},
+    Employee? emp  = table key(name) [{name: "Sanjiva", registered: true, id: 1},
         {name: "James", registered: true, id: 2}]["James"];
     assertEquality(2, emp["id"]);
 }
@@ -567,7 +567,188 @@ function testMemberAccessOnQueryExperssion() {
     assertEquality(30, emp["age"]);
 }
 
+type StringRecord record {|
+    string...;
+|};
+
+type IntRecord record {|
+    int...;
+|};
+
+function testRestFieldAccessOnNilableRecordUnion() returns boolean {
+    StringRecord? f = {"x": "abc", "y": "def"};
+    var v1 = f["x"];
+    assertEquality("abc", v1);
+    var v2 = f["z"];
+    assertEquality((), v2);
+
+    StringRecord|IntRecord? fb1 = {"x": 100, "y": 200};
+    int|string? v3 = fb1["z"];
+    assertEquality((), v3);
+    int|string? v4 = fb1["y"];
+    assertEquality(200, v4);
+
+    StringRecord|IntRecord? fb2 = ();
+    var v5 = fb2["x"];
+    assertEquality((), v5);
+    return true;
+}
+
+function testAccessOnNilableMapUnion() returns boolean {
+    map<string>? f = {"x": "abc", "y": "def"};
+    var v1 = f["x"];
+    assertEquality("abc", v1);
+    var v2 = f["z"];
+    assertEquality((), v2);
+
+    map<string>|map<int>? fb1 = {"x": 100, "y": 200};
+    int|string? v3 = fb1["z"];
+    assertEquality((), v3);
+    int|string? v4 = fb1["y"];
+    assertEquality(200, v4);
+
+    map<int>|map<string>? fb2 = ();
+    var v5 = fb2["x"];
+    assertEquality((), v5);
+    return true;
+}
+
+type IntAndStringRecord record {|
+    int x;
+    string...;
+|};
+
+function testAccessOnNilableRecordMapUnion() returns boolean {
+    map<string>|IntRecord? r1 = {"x": "abc", "y": "def"};
+    var v1 = r1["x"];
+    assertEquality("abc", v1);
+    var v2 = r1["a"];
+    assertEquality((), v2);
+
+    map<string>|IntRecord? r2 = {"x": 111, "y": 222};
+    var v3 = r2["a"];
+    assertEquality((), v3);
+    var v4 = r2["y"];
+    assertEquality(222, v4);
+
+    IntAndStringRecord|map<string> r3 = {"a": "foo", "b": "bar"};
+    var v5 = r3["x"];
+    assertEquality((), v5);
+    var v6 = r3["b"];
+    assertEquality("bar", v6);
+
+    IntAndStringRecord|map<string> r4 = {"x": 1234, "y": "bar"};
+    var v7 = r4["x"];
+    assertEquality(1234, v7);
+    var v8 = r4["y"];
+    assertEquality("bar", v8);
+    var v9 = r4["a"];
+    assertEquality((), v9);
+    return true;
+}
+
+type RecordWithRecordTypedRestDesc record {|
+    boolean b;
+    IntAndStringRecord...;
+|};
+
+function testNestedAccessOnNilableUnion() returns boolean {
+    RecordWithRecordTypedRestDesc rec = {
+        b: true,
+        "rec1": {x: 2, "s1": "str1", "s2": "str2"},
+        "rec2": {x: 3, "s3": "str3", "s4": "str4"}
+    };
+
+    string? v1 = rec["rec2"]["s4"];
+    assertEquality("str4", v1);
+
+    string? v2 = rec["not_present"]["s4"];
+    assertEquality((), v2);
+
+    string? v3 = rec["rec2"]["not_present"];
+    assertEquality((), v3);
+    return true;
+}
+
+function testUnavailableFinalAccessInNestedAccess() {
+    map<map<int>> f = {b: {}}; // `b` is present, but `b` doesn't have `i`.
+    int? i = f["b"]["i"];
+    int? j = (f["b"])["i"];
+    int? k = ((f["b"]["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+}
+
+function testAvailableFinalAccessInNestedAccess() {
+    map<map<int>> f = {b: {i: 1234}}; // `b` is present, and has `i`.
+    int? i = f["b"]["i"];
+    int? j = (f["b"])["i"];
+    int? k = ((f["b"]["i"]));
+
+    assertEquality(1234, i);
+    assertEquality(1234, j);
+    assertEquality(1234, k);
+}
+
+function testUnavailableIntermediateAccessInNestedAccess() {
+    map<map<int>> f = {c: {}};
+    int? i = f["b"]["i"];
+    int? j = (f["b"])["i"];
+    int? k = ((f["b"]["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+}
+
+function testNilValuedFinalAccessInNestedAccess() {
+    map<map<int?>> f = {x: {i: (), j: 2}};
+    int? i = f["x"]["i"];
+    int? j = (f["x"])["i"];
+    int? k = ((f["x"]["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+
+    int? q = ((f["x"]["j"]));
+    assertEquality(2, q);
+}
+
+function testMemberAccessOnStrings() {
+    string a = "ABC"[0];
+    assertEquality("A", a);
+
+    string b = "EFG";
+    string c = b[1];
+    assertEquality("F", c);
+
+    string e = string `${"HIJ"}`;
+    string f = e[2];
+    assertEquality("J", f);
+
+    string:Char g = "K";
+    string h = g[0];
+    assertEquality("K", h);
+}
+
+function testInvalidMemberAccessOnStrings1() {
+    string a = "ABC";
+    string b = a[5];
+}
+
+function testInvalidMemberAccessOnStrings2() {
+    string:Char a = "K";
+    string b = a[3];
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

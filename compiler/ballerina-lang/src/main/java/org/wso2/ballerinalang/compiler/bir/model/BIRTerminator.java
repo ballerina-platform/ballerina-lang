@@ -91,7 +91,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
     public static class Call extends BIRTerminator implements BIRAssignInstruction {
         public boolean isVirtual;
         public boolean transactional;
-        public List<BIROperand> args;
+        public List<BIRArgument> args;
         public Name name;
         public PackageID calleePkg;
         public List<BIRAnnotationAttachment> calleeAnnotAttachments;
@@ -102,7 +102,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                     boolean isVirtual,
                     PackageID calleePkg,
                     Name name,
-                    List<BIROperand> args,
+                    List<BIRArgument> args,
                     BIROperand lhsOp,
                     BIRBasicBlock thenBB,
                     List<BIRAnnotationAttachment> calleeAnnotAttachments,
@@ -155,7 +155,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
                          boolean isVirtual,
                          PackageID calleePkg,
                          Name name,
-                         List<BIROperand> args,
+                         List<BIRArgument> args,
                          BIROperand lhsOp,
                          BIRBasicBlock thenBB,
                          List<BIRAnnotationAttachment> annotAttachments,
@@ -185,14 +185,14 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
      */
     public static class FPCall extends BIRTerminator {
         public BIROperand fp;
-        public List<BIROperand> args;
+        public List<BIRArgument> args;
         public boolean isAsync;
         public boolean transactional;
 
         public FPCall(Location pos,
                       InstructionKind kind,
                       BIROperand fp,
-                      List<BIROperand> args,
+                      List<BIRArgument> args,
                       BIROperand lhsOp,
                       boolean isAsync,
                       BIRBasicBlock thenBB) {
@@ -207,7 +207,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
         public FPCall(Location pos,
                       InstructionKind kind,
                       BIROperand fp,
-                      List<BIROperand> args,
+                      List<BIRArgument> args,
                       BIROperand lhsOp,
                       boolean isAsync,
                       boolean transactional,
@@ -226,7 +226,7 @@ public abstract class BIRTerminator extends BIRAbstractInstruction implements BI
             BIROperand[] operands = new BIROperand[args.size() + 1];
             operands[0] = fp;
             int i = 1;
-            for (BIROperand operand : args) {
+            for (BIRArgument operand : args) {
                 operands[i++] = operand;
             }
             return operands;

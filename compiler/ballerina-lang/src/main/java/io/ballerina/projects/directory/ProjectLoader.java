@@ -17,9 +17,13 @@
  */
 package io.ballerina.projects.directory;
 
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
 
@@ -35,16 +39,26 @@ import java.util.Optional;
 public class ProjectLoader {
 
     public static Project loadProject(Path path) {
-        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder());
+        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), new BuildOptionsBuilder().build());
+    }
+
+    public static Project loadProject(Path path, BuildOptions buildOptions) {
+        return loadProject(path, ProjectEnvironmentBuilder.getDefaultBuilder(), buildOptions);
+    }
+
+    public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+        return loadProject(path, projectEnvironmentBuilder, new BuildOptionsBuilder().build());
     }
 
     /**
      * Returns a project by deriving the type from the path provided.
      *
-     * @param path ballerina project or standalone file path
-     * @return project of applicable type
+     * @param path path of a .bal file or a .bala file
+     * @return 
+     * @throws ProjectException if an invalid path is provided
      */
-    public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder) {
+    public static Project loadProject(Path path, ProjectEnvironmentBuilder projectEnvironmentBuilder,
+                                      BuildOptions buildOptions) {
         Path absFilePath = Optional.of(path.toAbsolutePath()).get();
         Path projectRoot;
         if (!Files.exists(path)) {
@@ -57,7 +71,18 @@ public class ProjectLoader {
             } else {
                 projectRoot = absFilePath;
             }
-            return BuildProject.load(projectEnvironmentBuilder, projectRoot);
+            if (Files.exists(projectRoot.resolve(ProjectConstants.BALLERINA_TOML))) {
+                return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
+            } else if (Files.exists(projectRoot.resolve(ProjectConstants.PACKAGE_JSON))) {
+                projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+                return BalaProject.loadProject(projectEnvironmentBuilder, projectRoot);
+            } else {
+                throw new ProjectException("provided directory does not belong to any supported project types");
+            }
+        }
+        if (absFilePath.toString().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT)) {
+            projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            return BalaProject.loadProject(projectEnvironmentBuilder, absFilePath);
         }
 
         if (!ProjectPaths.isBalFile(absFilePath)) {
@@ -66,9 +91,14 @@ public class ProjectLoader {
 
         try {
             projectRoot = ProjectPaths.packageRoot(absFilePath);
-            return BuildProject.load(projectEnvironmentBuilder, projectRoot);
         } catch (ProjectException e) {
-            return SingleFileProject.load(projectEnvironmentBuilder, path);
+            return SingleFileProject.load(projectEnvironmentBuilder, path, buildOptions);
+        }
+        try {
+            return BuildProject.load(projectEnvironmentBuilder, projectRoot, buildOptions);
+        } catch (ProjectException e) {
+            projectEnvironmentBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+            return BalaProject.loadProject(projectEnvironmentBuilder, projectRoot);
         }
     }
 }

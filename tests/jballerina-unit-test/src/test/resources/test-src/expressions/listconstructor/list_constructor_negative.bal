@@ -14,8 +14,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type Person record {|
+   int id;
+   string name;
+|};
+
+type SampleError error<SampleErrorData>;
+
 function testIncompatibleListConstructorExprs1() {
     var [v1, v2, v3] = ["hello", 123, 34.56];
+
+    SampleError e = error SampleError("Sample Error", info = "Detail Info", fatal = true);
+    var [i, error(reason, info = info, fatal = fatal)] = [1, e];
+
+    Person p = {id:1, name:"ABC"};
+    var [j, {id:id, name:name}] = [1, p];
+
+    [int, int] a = [3, 4];
+    var [[k, l], m] = [a, 4];
 }
 
 function testIncompatibleListConstructorExprs2() {

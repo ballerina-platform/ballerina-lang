@@ -148,7 +148,7 @@ function testReferenceChains() returns Foo4 {
     return f;
 }
 
-function testTypeReferencingInBALOs() returns records:BClosedManager {
+function testTypeReferencingInBALAs() returns records:BClosedManager {
     records:BClosedManager m = {name:"John Doe", age:25, adr:{city:"Colombo", country:"Sri Lanka"}, company:"WSO2", dept:"Engineering"};
     return m;
 }
@@ -176,7 +176,7 @@ function testDefaultValueInit() returns ManagerRec {
     return mgr;
 }
 
-function testDefaultValueInitInBALOs() returns records:BClosedManager {
+function testDefaultValueInitInBALAs() returns records:BClosedManager {
     records:BClosedManager mgr = {};
     return mgr;
 }

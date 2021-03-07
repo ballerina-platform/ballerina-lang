@@ -20,7 +20,17 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorFieldBindingPatterns;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorMessageBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -42,6 +52,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCommitExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangElvisExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangErrorVarRef;
@@ -400,6 +411,22 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangMappingBindingPattern mappingBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangFieldBindingPattern fieldBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangRestBindingPattern restBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangErrorMatchPattern errorMatchPattern) {
         throw new AssertionError();
     }
@@ -421,6 +448,30 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangNamedArgMatchPattern namedArgMatchPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorBindingPattern errorBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorMessageBindingPattern errorMessageBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorCauseBindingPattern errorCauseBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorFieldBindingPatterns errorFieldBindingPatterns) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangSimpleBindingPattern simpleBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangNamedArgBindingPattern namedArgBindingPattern) {
         throw new AssertionError();
     }
 
@@ -751,6 +802,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangIgnoreExpr ignoreExpr) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangDynamicArgExpr dynamicParamExpr) {
         throw new AssertionError();
     }
 

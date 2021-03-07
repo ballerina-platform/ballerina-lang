@@ -1,50 +1,58 @@
 {
-    "line": 4,
-    "character": 1,
-    "expected": [
-        {
-            "title": "Optimize all imports",
+  "line": 4,
+  "character": 1,
+  "expected": [
+    {
+      "title": "Optimize all imports",
+      "kind": "quickfix",
+      "diagnostics": [],
+      "edit": {
+        "documentChanges": [
+          {
             "edits": [
-                {
-                    "range": {
-                        "start": {
-                            "line": 3,
-                            "character": 0
-                        },
-                        "end": {
-                            "line": 5,
-                            "character": 25
-                    }
+              {
+                "range": {
+                  "start": {
+                    "line": 3,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 5,
+                    "character": 25
+                  }
                 },
                 "newText": ""
-            },
-            {
+              },
+              {
                 "range": {
-                    "start": {
-                        "line": 7,
-                        "character": 0
-                    },
-                    "end": {
-                        "line": 8,
-                        "character": 20
-                    }
+                  "start": {
+                    "line": 7,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 8,
+                    "character": 20
+                  }
                 },
                 "newText": ""
-            },
-            {
+              },
+              {
                 "range": {
-                    "start": {
-                        "line": 3,
-                        "character": 0
-                    },
-                    "end": {
-                        "line": 3,
-                        "character": 0
-                    }
+                  "start": {
+                    "line": 3,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 0
+                  }
                 },
-                "newText": "import ballerina/lang\u0027object;\nimport ballerina/module1;\nimport ballerina/lang\u0027int  as i;\nimport ballerina/lang\u0027string  as s;\nimport wso2/twitter;"
-            }
+                "newText": "import ballerina/lang.'object;\nimport ballerina/module1;\nimport ballerina/lang.'int as i;\nimport ballerina/lang.'string as s;\nimport wso2/twitter;\n"
+              }
             ]
-        }
-    ]
+          }
+        ]
+      }
+    }
+  ]
 }

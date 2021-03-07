@@ -81,13 +81,13 @@ public class RemotePackageRepository implements PackageRepository {
         String orgName = resolutionRequest.orgName().value();
         String version = resolutionRequest.version().isPresent() ? resolutionRequest.version().get().toString() : null;
 
-        Path packagePathInBaloCache = this.fileSystemRepo.balo.resolve(orgName).resolve(packageName);
+        Path packagePathInBalaCache = this.fileSystemRepo.bala.resolve(orgName).resolve(packageName);
 
         // If environment is online pull from central
         if (!isOffline) {
             for (String supportedPlatform : SUPPORTED_PLATFORMS) {
                 try {
-                    this.client.pullPackage(orgName, packageName, version, packagePathInBaloCache, supportedPlatform,
+                    this.client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                                             RepoUtils.getBallerinaVersion(), true);
                 } catch (CentralClientException e) {
                     // ignore when get package fail
@@ -112,7 +112,8 @@ public class RemotePackageRepository implements PackageRepository {
         }
 
         try {
-            for (String version : this.client.getPackageVersions(orgName, packageName, JvmTarget.JAVA_11.code())) {
+            for (String version : this.client.getPackageVersions(orgName, packageName, JvmTarget.JAVA_11.code(),
+                                                                 RepoUtils.getBallerinaVersion())) {
                 packageVersions.add(PackageVersion.from(version));
             }
         } catch (ConnectionErrorException e) {

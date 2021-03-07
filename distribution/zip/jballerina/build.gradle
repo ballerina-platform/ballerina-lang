@@ -32,7 +32,7 @@ configurations {
     jar
     bir
     birJar
-    balo
+    bala
     bin
     balSource
     balxSource
@@ -58,9 +58,10 @@ dependencies {
 
     // Lang Libs
     balSource project(path: ':ballerina-lang:internal', configuration: 'balSource')
-    balSource project(path: ':ballerina-lang:java', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:jballerina.java', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:annotations', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:array', configuration: 'balSource')
+    balSource project(path: ':ballerina-lang:config', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:decimal', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:error', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:floatingpoint', configuration: 'balSource')
@@ -97,7 +98,7 @@ CopySpec copyJarSpec = copySpec {
     into(basePath + '/bre/lib')
 }
 
-CopySpec copyBaloSpec = copySpec {
+CopySpec copyBalaSpec = copySpec {
     from configurations.distBal
     into(basePath + '/lib')
 }
@@ -123,7 +124,7 @@ CopySpec copyResourceSpec = copySpec {
     into(basePath + '/bre')
 }
 
-//CopySpec copySrcBaloSpec = copySpec {
+//CopySpec copySrcBalaSpec = copySpec {
 //    from configurations.balSource.files
 //    into("$basePath/src")
 //}
@@ -131,17 +132,17 @@ CopySpec copyResourceSpec = copySpec {
 
 task createZip(type: Zip) {
     with copyJarSpec
-    with copyBaloSpec
+    with copyBalaSpec
     with copyBinSpec
     with copyStaticSpec
     with copyResourceSpec
-//    with copySrcBaloSpec
+//    with copySrcBalaSpec
     with copyBalxSpec
 }
 
 artifacts {
     jar configurations.dist.files
-//    balo configurations.distBal.files
+//    bala configurations.distBal.files
 //    source configurations.balSource.files
 //    sourceBalx configurations.balxSource.files
     doc configurations.balDoc.files

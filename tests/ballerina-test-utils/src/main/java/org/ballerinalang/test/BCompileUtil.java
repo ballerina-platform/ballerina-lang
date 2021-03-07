@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test;
 
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.NullBackend;
@@ -28,6 +29,7 @@ import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.FileSystemCache;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
@@ -37,7 +39,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
@@ -57,7 +58,9 @@ public class BCompileUtil {
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
 
         Path projectPath = Paths.get(sourceRoot.toString(), sourceFileName);
-        return ProjectLoader.loadProject(projectPath);
+
+        BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        return ProjectLoader.loadProject(projectPath, buildOptionsBuilder.taintCheck(Boolean.TRUE).build());
     }
 
     public static CompileResult compile(String sourceFilePath) {
@@ -107,7 +110,7 @@ public class BCompileUtil {
         return new CompileResult(currentPackage, jBallerinaBackend);
     }
 
-    public static CompileResult compileAndCacheBalo(String sourceFilePath) {
+    public static CompileResult compileAndCacheBala(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
         String sourceFileName = sourcePath.getFileName().toString();
         Path sourceRoot = testSourcesDirectory.resolve(sourcePath.getParent());
@@ -125,9 +128,23 @@ public class BCompileUtil {
             return new CompileResult(currentPackage, jBallerinaBackend);
         }
 
-        Path baloCachePath = baloCachePath(currentPackage.packageOrg().toString(),
+        Path balaCachePath = balaCachePath(currentPackage.packageOrg().toString(),
                 currentPackage.packageName().toString(), currentPackage.packageVersion().toString());
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALO, baloCachePath);
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, balaCachePath);
+        Path balaFilePath;
+        try {
+            balaFilePath = Files.list(balaCachePath).filter(path ->
+                    path.toString().endsWith(ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT)).findAny().orElseThrow();
+            String platform = getPlatformFromBala(balaFilePath.getFileName().toString(),
+                    currentPackage.packageName().toString(), currentPackage.packageVersion().toString());
+            if (Files.isDirectory(balaCachePath.resolve(platform))) {
+                ProjectUtils.deleteDirectory(balaCachePath.resolve(platform));
+            }
+            ProjectUtils.extractBala(balaFilePath, balaCachePath.resolve(platform));
+            Files.delete(balaFilePath);
+        } catch (IOException e) {
+            throw new RuntimeException("bala extraction failed " + project.sourceRoot() + ". ", e);
+        }
 
         CompileResult compileResult = new CompileResult(currentPackage, jBallerinaBackend);
         invokeModuleInit(compileResult);
@@ -140,21 +157,23 @@ public class BCompileUtil {
     }
 
     /**
-     * Copy the given balo to the distribution repository.
+     * Copy the given bala to the distribution repository.
      *
-     * @param srcPath Path of the source balo.
+     * @param srcPath Path of the source bala.
      * @param org     organization name
      * @param pkgName package name
-     * @param version Balo version
+     * @param version Bala version
      * @throws IOException is thrown if the file copy failed
      */
-    public static void copyBaloToDistRepository(Path srcPath,
+    public static void copyBalaToDistRepository(Path srcPath,
                                                 String org,
                                                 String pkgName,
                                                 String version) throws IOException {
-        String baloFileName = ProjectUtils.getBaloName(org, pkgName, version, null);
-        Path targetPath = baloCachePath(org, pkgName, version).resolve(baloFileName);
-        Files.copy(srcPath, targetPath, StandardCopyOption.REPLACE_EXISTING);
+        Path targetPath = balaCachePath(org, pkgName, version).resolve("any");
+        if (Files.isDirectory(targetPath)) {
+            ProjectUtils.deleteDirectory(targetPath);
+        }
+        ProjectUtils.extractBala(srcPath, targetPath);
     }
 
     public static ProjectEnvironmentBuilder getTestProjectEnvironmentBuilder() {
@@ -179,19 +198,19 @@ public class BCompileUtil {
         return project instanceof SingleFileProject;
     }
 
-    private static Path baloCachePath(String org,
+    private static Path balaCachePath(String org,
                                       String pkgName,
                                       String version) {
         try {
             Path distributionCache = testBuildDirectory.resolve(DIST_CACHE_DIRECTORY);
-            Path baloDirPath = distributionCache.resolve("balo")
+            Path balaDirPath = distributionCache.resolve("bala")
                     .resolve(org)
                     .resolve(pkgName)
                     .resolve(version);
-            Files.createDirectories(baloDirPath);
-            return baloDirPath;
+            Files.createDirectories(balaDirPath);
+            return balaDirPath;
         } catch (IOException e) {
-            throw new RuntimeException("error while creating the balo distribution cache directory at " +
+            throw new RuntimeException("error while creating the bala distribution cache directory at " +
                     testBuildDirectory, e);
         }
     }
@@ -231,5 +250,9 @@ public class BCompileUtil {
         public byte[] getActualBIR() {
             return actualBIRBinary;
         }
+    }
+
+    public static String getPlatformFromBala(String balaName, String packageName, String version) {
+        return balaName.split(packageName + "-")[1].split("-" + version)[0];
     }
 }

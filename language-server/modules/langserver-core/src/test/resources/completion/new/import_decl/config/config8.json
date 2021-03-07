@@ -42,7 +42,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'test;",
+      "insertText": "ballerina/lang.test;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -50,7 +50,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'array;",
+      "insertText": "ballerina/lang.array;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -62,19 +62,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/jballerina.java",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/lang.string",
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
       "insertText": "ballerina/lang.'string;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/java",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "ballerina/java",
       "insertTextFormat": "Snippet"
     },
     {
@@ -90,7 +90,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'value;",
+      "insertText": "ballerina/lang.value;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -162,7 +162,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'query;",
+      "insertText": "ballerina/lang.query;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -178,7 +178,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "C",
-      "insertText": "ballerina/lang.'runtime;",
+      "insertText": "ballerina/lang.runtime;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -190,6 +190,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "lsproject.module3",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "lsproject.module3",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "lsproject.module2",
       "kind": "Module",
       "detail": "Module",
@@ -198,11 +206,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lsproject.module3",
+      "label": "lsproject.hierarchy.module4",
       "kind": "Module",
       "detail": "Module",
       "sortText": "A",
-      "insertText": "lsproject.module3",
+      "insertText": "lsproject.hierarchy.module4",
       "insertTextFormat": "Snippet"
     }
   ]

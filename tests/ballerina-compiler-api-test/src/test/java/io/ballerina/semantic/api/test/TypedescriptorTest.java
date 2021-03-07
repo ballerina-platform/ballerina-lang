@@ -27,6 +27,7 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaNilTypeSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaStringTypeSymbol;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -64,13 +65,17 @@ import org.testng.annotations.Test;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
+import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ANYDATA;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
@@ -115,7 +120,6 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocume
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertFalse;
-import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
 
 /**
@@ -208,18 +212,18 @@ public class TypedescriptorTest {
         ClassSymbol clazz = (ClassSymbol) symbol;
         assertEquals(clazz.typeKind(), OBJECT);
 
-        List<ObjectFieldSymbol> fields = clazz.fieldDescriptors();
-        ObjectFieldSymbol field = fields.get(0);
+        Map<String, ClassFieldSymbol> fields = clazz.fieldDescriptors();
+        ObjectFieldSymbol field = fields.get("name");
         assertEquals(fields.size(), 1);
-        assertEquals(field.name(), "name");
+        assertEquals(field.getName().get(), "name");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
 
-        List<MethodSymbol> methods = clazz.methods();
-        MethodSymbol method = methods.get(0);
+        Map<String, MethodSymbol> methods = clazz.methods();
+        MethodSymbol method = methods.get("getName");
         assertEquals(fields.size(), 1);
-        assertEquals(method.name(), "getName");
+        assertEquals(method.getName().get(), "getName");
 
-        assertEquals(clazz.initMethod().get().name(), "init");
+        assertEquals(clazz.initMethod().get().getName().get(), "init");
     }
 
     @Test
@@ -229,10 +233,12 @@ public class TypedescriptorTest {
         assertEquals(type.typeKind(), RECORD);
         assertFalse(type.restTypeDescriptor().isPresent());
 
-        List<RecordFieldSymbol> fields = type.fieldDescriptors();
-        RecordFieldSymbol field = fields.get(0);
+        Map<String, RecordFieldSymbol> fields = type.fieldDescriptors();
         assertEquals(fields.size(), 1);
-        assertEquals(field.name(), "path");
+        assertTrue(fields.containsKey("path"));
+
+        RecordFieldSymbol field = fields.get("path");
+        assertEquals(field.getName().get(), "path");
         assertEquals(field.typeDescriptor().typeKind(), STRING);
     }
 
@@ -278,6 +284,8 @@ public class TypedescriptorTest {
         assertEquals(members.get(0).typeKind(), INT);
         assertEquals(members.get(1).typeKind(), STRING);
         assertEquals(members.get(2).typeKind(), FLOAT);
+
+        assertEquals(type.signature(), "int|string|float");
     }
 
     @Test(enabled = false)
@@ -295,6 +303,24 @@ public class TypedescriptorTest {
         assertEquals(members.get(2).typeKind(), DECIMAL);
     }
 
+    @Test(dataProvider = "UnionWithNilPos")
+    public void testUnionTypeWithNil(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), UNION);
+        assertEquals(type.signature(), signature);
+    }
+
+    @DataProvider(name = "UnionWithNilPos")
+    public Object[][] getUnionWithNilPos() {
+        return new Object[][]{
+                {204, 11, "int?"},
+                {205, 17, "int|float|()"},
+                {206, 11, "A?"},
+//                {207, 15, "A|B|()"}, TODO: Disabled due to /ballerina-lang/issues/27957
+        };
+    }
+
     @Test(dataProvider = "FiniteTypeDataProvider")
     public void testFiniteType(int line, int column, List<String> expSignatures) {
         Symbol symbol = getSymbol(line, column);
@@ -307,6 +333,9 @@ public class TypedescriptorTest {
             assertEquals(member.typeKind(), SINGLETON);
             assertEquals(member.signature(), expSignatures.get(i));
         }
+
+        String expSignature = members.stream().map(TypeSymbol::signature).collect(Collectors.joining("|"));
+        assertEquals(union.signature(), expSignature);
     }
 
     @DataProvider(name = "FiniteTypeDataProvider")
@@ -339,7 +368,7 @@ public class TypedescriptorTest {
         TypeSymbol type = symbol.typeDescriptor();
         assertEquals(type.typeKind(), XML);
         assertEquals(((XMLTypeSymbol) type).typeParameter().get().typeKind(), kind);
-        assertEquals(type.name(), name);
+        assertEquals(type.getName().get(), name);
     }
 
     @DataProvider(name = "XMLPosProvider")
@@ -359,7 +388,7 @@ public class TypedescriptorTest {
 
         TableTypeSymbol tableType = (TableTypeSymbol) type;
         assertEquals(tableType.rowTypeParameter().typeKind(), rowTypeKind);
-        assertEquals(tableType.rowTypeParameter().name(), rowTypeName);
+        assertEquals(tableType.rowTypeParameter().getName().get(), rowTypeName);
         assertEquals(tableType.keySpecifiers(), keySpecifiers);
         tableType.keyConstraintTypeParameter().ifPresent(t -> assertEquals(t.typeKind(), keyConstraintTypeKind));
         assertEquals(type.signature(), signature);
@@ -382,7 +411,7 @@ public class TypedescriptorTest {
 
         TypeSymbol type = ((TypeReferenceTypeSymbol) typeRef).typeDescriptor();
         assertEquals(type.typeKind(), kind);
-        assertEquals(type.name(), name);
+        assertEquals(type.getName().get(), name);
     }
 
     @DataProvider(name = "BuiltinTypePosProvider")
@@ -410,18 +439,13 @@ public class TypedescriptorTest {
 
         StreamTypeSymbol streamType = (StreamTypeSymbol) type;
         assertEquals(streamType.typeParameter().typeKind(), typeParamKind);
-
-        if (streamType.completionValueTypeParameter().isPresent()) {
-            assertEquals(streamType.completionValueTypeParameter().get().typeKind(), completionValueTypeKind);
-        } else {
-            assertNull(completionValueTypeKind);
-        }
+        assertEquals(streamType.completionValueTypeParameter().typeKind(), completionValueTypeKind);
     }
 
     @DataProvider(name = "StreamTypePosProvider")
     public Object[][] getStreamTypePos() {
         return new Object[][]{
-                {93, 19, TYPE_REFERENCE, null},
+                {93, 19, TYPE_REFERENCE, NEVER},
                 {94, 23, TYPE_REFERENCE, NIL},
                 {95, 45, RECORD, ERROR}
         };
@@ -435,7 +459,7 @@ public class TypedescriptorTest {
 
         for (TypeSymbol inclusion : typeInclusions) {
             assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), typeKind);
-            assertTrue(expTypes.contains(inclusion.name()));
+            assertTrue(expTypes.contains(inclusion.getName().get()));
         }
     }
 
@@ -456,7 +480,7 @@ public class TypedescriptorTest {
 
         for (TypeSymbol inclusion : typeInclusions) {
             assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
-            assertTrue(expTypes.contains(inclusion.name()));
+            assertTrue(expTypes.contains(inclusion.getName().get()));
         }
     }
 
@@ -469,7 +493,7 @@ public class TypedescriptorTest {
 
         for (TypeSymbol inclusion : typeInclusions) {
             assertEquals(((TypeReferenceTypeSymbol) inclusion).typeDescriptor().typeKind(), OBJECT);
-            assertTrue(expTypes.contains(inclusion.name()));
+            assertTrue(expTypes.contains(inclusion.getName().get()));
         }
     }
 
@@ -478,7 +502,7 @@ public class TypedescriptorTest {
         Optional<TypeSymbol> type =
                 model.type(LineRange.from("typedesc_test.bal", from(160, 37), from(160, 38)));
         assertEquals(type.get().typeKind(), TYPE_REFERENCE);
-        assertEquals(type.get().name(), "Colour");
+        assertEquals(type.get().getName().get(), "Colour");
 
         TypeSymbol enumType = ((TypeReferenceTypeSymbol) type.get()).typeDescriptor();
         assertEquals(enumType.typeKind(), UNION);
@@ -504,7 +528,7 @@ public class TypedescriptorTest {
         List<TypeSymbol> members = ((IntersectionTypeSymbol) type).memberTypeDescriptors();
 
         TypeSymbol mem1 = members.get(0);
-        assertEquals(mem1.name(), "Foo");
+        assertEquals(mem1.getName().get(), "Foo");
         assertEquals(((TypeReferenceTypeSymbol) mem1).typeDescriptor().typeKind(), RECORD);
 
         assertEquals(members.get(1).typeKind(), READONLY);
@@ -577,7 +601,39 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(198, 18);
         assertEquals(symbol.kind(), TYPE);
         assertEquals(((TypeSymbol) symbol).typeKind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) symbol).name(), "CancelledError");
+        assertEquals(((TypeReferenceTypeSymbol) symbol).getName().get(), "CancelledError");
+    }
+
+    @Test(dataProvider = "ConstantPosProvider")
+    public void testConstantTypeSignature(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        assertEquals(symbol.kind(), CONSTANT);
+        assertEquals(((ConstantSymbol) symbol).typeKind(), SINGLETON);
+        assertEquals(((ConstantSymbol) symbol).signature(), signature);
+    }
+
+    @DataProvider(name = "ConstantPosProvider")
+    public Object[][] getConstPos() {
+        return new Object[][]{
+                {16, 6, "3.14"},
+                {210, 6, "()"},
+        };
+    }
+
+    @Test(dataProvider = "SingletonPosProvider")
+    public void testSingletonTypeSignature(int line, int col, String signature) {
+        Symbol symbol = getSymbol(line, col);
+        assertEquals(symbol.kind(), TYPE_DEFINITION);
+        assertEquals(((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind(), SINGLETON);
+        assertEquals(((TypeDefinitionSymbol) symbol).typeDescriptor().signature(), signature);
+    }
+
+    @DataProvider(name = "SingletonPosProvider")
+    public Object[][] getSingletonTypePos() {
+        return new Object[][]{
+                {211, 5, "()"},
+                {213, 5, "3.14"},
+        };
     }
 
     private Symbol getSymbol(int line, int column) {
@@ -585,8 +641,8 @@ public class TypedescriptorTest {
     }
 
     private void validateParam(ParameterSymbol param, String name, ParameterKind kind, TypeDescKind typeKind) {
-        assertEquals(param.name().get(), name);
-        assertEquals(param.kind(), kind);
+        assertEquals(param.getName().get(), name);
+        assertEquals(param.paramKind(), kind);
         assertEquals(param.typeDescriptor().typeKind(), typeKind);
     }
 }

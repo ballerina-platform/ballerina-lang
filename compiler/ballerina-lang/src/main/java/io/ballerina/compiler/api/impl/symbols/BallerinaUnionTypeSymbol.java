@@ -35,6 +35,8 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
+
 /**
  * Represents an union type descriptor.
  *
@@ -49,13 +51,14 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
     private List<TypeSymbol> memberTypes;
+    private String signature;
 
     public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BUnionType unionType) {
-        super(context, TypeDescKind.UNION, moduleID, unionType);
+        super(context, TypeDescKind.UNION, unionType);
     }
 
     public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BFiniteType finiteType) {
-        super(context, TypeDescKind.UNION, moduleID, finiteType);
+        super(context, TypeDescKind.UNION, finiteType);
     }
 
     @Override
@@ -71,7 +74,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                 }
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID(), value, value.type));
+                    ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.type));
                 }
             }
 
@@ -83,6 +87,23 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
 
     @Override
     public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
+        BType type = this.getBType();
+        if (type.tag == TypeTags.UNION) {
+            this.signature = getSignatureForUnion(type);
+        } else if (type.tag == TypeTags.FINITE) {
+            this.signature = getSignatureForFiniteType();
+        } else {
+            throw new IllegalStateException("Invalid type kind: " + type.getClass().getName());
+        }
+
+        return this.signature;
+    }
+
+    private String getSignatureForUnion(BType type) {
         BUnionType unionType = (BUnionType) this.getBType();
         if (unionType.isCyclic && (unionType.tsymbol != null) && !unionType.tsymbol.getName().getValue().isEmpty()) {
             String typeStr;
@@ -99,10 +120,12 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         if (unionType.resolvingToString) {
             return "...";
         }
+
         List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
-        if (memberTypes.size() == 2 &&
-                memberTypes.get(1).typeKind() == TypeDescKind.NIL) {
-            return memberTypes.get(0).signature() + "?";
+        if (containsTwoElements(memberTypes) && containsNil(memberTypes)) {
+            TypeSymbol member1 = memberTypes.get(0);
+            return member1.typeKind() == NIL ?
+                    memberTypes.get(1).signature() + "?" : member1.signature() + "?";
         } else {
             StringJoiner joiner = new StringJoiner("|");
             unionType.resolvingToString = true;
@@ -112,5 +135,36 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             unionType.resolvingToString = false;
             return joiner.toString();
         }
+    }
+
+    private String getSignatureForFiniteType() {
+        List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
+        StringJoiner joiner = new StringJoiner("|");
+        for (TypeSymbol typeDescriptor : memberTypes) {
+            joiner.add(typeDescriptor.signature());
+        }
+        return joiner.toString();
+    }
+
+    private boolean containsNil(List<TypeSymbol> types) {
+        for (TypeSymbol type : types) {
+            if (type.typeKind() == NIL) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private boolean containsTwoElements(List<TypeSymbol> types) {
+        if (types.size() == 2) {
+            for (TypeSymbol type : types) {
+                BType internalType = ((AbstractTypeSymbol) type).getBType();
+                if (internalType.tag == TypeTags.FINITE && ((BFiniteType) internalType).getValueSpace().size() > 1) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return false;
     }
 }

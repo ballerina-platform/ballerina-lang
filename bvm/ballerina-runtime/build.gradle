@@ -34,6 +34,7 @@ dependencies {
     }
     implementation 'org.apache.commons:commons-lang3'
     implementation 'io.opentracing:opentracing-api'
+    implementation 'io.opentracing:opentracing-noop'
     implementation ('org.awaitility:awaitility') {
         exclude group: 'org.hamcrest', module: 'hamcrest-core'
     }

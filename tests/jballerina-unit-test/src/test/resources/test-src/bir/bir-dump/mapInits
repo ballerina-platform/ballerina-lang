@@ -1,8 +1,8 @@
-private mapInits function() -> (string | (), int | ()) {
-    %0(RETURN) (string | (), int | ());
-    %0(RETURN) (string | (), int | ());
+private mapInits function() -> (string|(), int|()) {
+    %0(RETURN) (string|(), int|());
+    %0(RETURN) (string|(), int|());
     %1(LOCAL) map<Employee>;
-    %2(TEMP) typeDesc<any | error>;
+    %2(TEMP) typeDesc<any|error{map<Cloneable>}>;
     %4(LOCAL) Person;
     %7(TEMP) string;
     %8(TEMP) string;
@@ -13,15 +13,15 @@ private mapInits function() -> (string | (), int | ()) {
     %13(TEMP) Employee;
     %16(TEMP) string;
     %18(TEMP) int;
-    %19(SYNTHETIC) string | ();
-    %20(SYNTHETIC) Employee | ();
+    %19(SYNTHETIC) string|();
+    %20(SYNTHETIC) Employee|();
     %25(TEMP) ();
     %26(TEMP) boolean;
     %27(SYNTHETIC) ();
     %33(SYNTHETIC) Employee;
     %37(TEMP) string;
-    %45(SYNTHETIC) int | ();
-    %46(SYNTHETIC) Employee | ();
+    %45(SYNTHETIC) int|();
+    %46(SYNTHETIC) Employee|();
     %53(SYNTHETIC) ();
     %59(SYNTHETIC) Employee;
     %63(TEMP) int;
@@ -49,7 +49,7 @@ private mapInits function() -> (string | (), int | ()) {
     }
     bb1 {
         %27 = %20;
-        %19 = <string | ()> %27;
+        %19 = <string|()> %27;
         GOTO bb8;
     }
     bb2 {
@@ -60,7 +60,7 @@ private mapInits function() -> (string | (), int | ()) {
         %33 = <Employee> %20;
         %16 = ConstLoad name;
         %37 = %33[%16];
-        %19 = <string | ()> %37;
+        %19 = <string|()> %37;
         GOTO bb7;
     }
     bb4 {
@@ -69,7 +69,7 @@ private mapInits function() -> (string | (), int | ()) {
     }
     bb5 {
         %25 = ConstLoad 0;
-        %19 = <string | ()> %25;
+        %19 = <string|()> %25;
         GOTO bb6;
     }
     bb6 {
@@ -87,7 +87,7 @@ private mapInits function() -> (string | (), int | ()) {
     }
     bb9 {
         %53 = %46;
-        %45 = <int | ()> %53;
+        %45 = <int|()> %53;
         GOTO bb16;
     }
     bb10 {
@@ -98,7 +98,7 @@ private mapInits function() -> (string | (), int | ()) {
         %59 = <Employee> %46;
         %37 = ConstLoad age;
         %63 = %59[%37];
-        %45 = <int | ()> %63;
+        %45 = <int|()> %63;
         GOTO bb15;
     }
     bb12 {
@@ -107,7 +107,7 @@ private mapInits function() -> (string | (), int | ()) {
     }
     bb13 {
         %25 = ConstLoad 0;
-        %45 = <int | ()> %25;
+        %45 = <int|()> %25;
         GOTO bb14;
     }
     bb14 {
@@ -117,7 +117,7 @@ private mapInits function() -> (string | (), int | ()) {
         GOTO bb16;
     }
     bb16 {
-        %0 = newArray (string | (), int | ())[%18];
+        %0 = newArray (string|(), int|())[%18];
         GOTO bb18;
     }
     bb17 {

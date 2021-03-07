@@ -62,7 +62,9 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, T node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+
         if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
@@ -80,23 +82,23 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                             || symbol.kind() == SymbolKind.CLASS;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
-            return this.getCompletionItemList(moduleContent, context);
+            completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+        } else {
+            /*
+            Covers the following
+            Ex: function test() {
+                    <cursor>
+                    i<cursor>
+                }
+             */
+            completionItems.addAll(getStaticCompletionItems(context));
+            completionItems.addAll(getStatementCompletionItems(context, node));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getTypeItems(context));
+            completionItems.addAll(this.getSymbolCompletions(context));
         }
+        this.sort(context, node, completionItems);
         
-        /*
-        Covers the following
-        Ex: function test() {
-                <cursor>
-                i<cursor>
-            }
-         */
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(getStaticCompletionItems(context));
-        completionItems.addAll(getStatementCompletionItems(context, node));
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getSymbolCompletions(context));
-
         return completionItems;
     }
 
@@ -137,6 +139,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STREAM.get()));
         Optional<Node> nodeBeforeCursor = this.nodeBeforeCursor(context, node);
         if (nodeBeforeCursor.isPresent()) {
             switch (nodeBeforeCursor.get().kind()) {
@@ -173,7 +176,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol)
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol ||
+                        symbol.kind() == SymbolKind.PARAMETER)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getTypeguardDestructedItems(visibleSymbols, context));
@@ -236,10 +240,12 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         return false;
                     }
                     TypeSymbol typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-                    return typeDesc.typeKind() == TypeDescKind.UNION && !capturedSymbols.contains(symbol.name());
+                    return typeDesc.typeKind() == TypeDescKind.UNION
+                            && !capturedSymbols.contains(symbol.getName().get());
                 })
                 .map(symbol -> {
-                    capturedSymbols.add(symbol.name());
+                    String symbolName = symbol.getName().get();
+                    capturedSymbols.add(symbolName);
                     List<TypeSymbol> errorTypes = new ArrayList<>();
                     List<TypeSymbol> resultTypes = new ArrayList<>();
                     List<TypeSymbol> members
@@ -255,7 +261,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     if (errorTypes.size() == 1) {
                         resultTypes.addAll(errorTypes);
                     }
-                    String symbolName = symbol.name();
                     String label = symbolName + " - typeguard " + symbolName;
                     String detail = "Destructure the variable " + symbolName + " with typeguard";
                     StringBuilder snippet = new StringBuilder();
@@ -267,7 +272,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         paramCounter++;
                     } else if (errorTypes.size() == 1) {
                         snippet.append("if (").append(symbolName).append(" is ")
-                                .append(errorTypes.get(0).signature()).append(") {")
+                                .append(CommonUtil.getModifiedTypeName(ctx, errorTypes.get(0))).append(") {")
                                 .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
                                 .append("}");
                         paramCounter++;
@@ -277,7 +282,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
                         TypeSymbol bType = members.get(value);
                         String placeHolder = "\t${" + (value + finalParamCounter) + "}";
-                        return "if (" + symbolName + " is " + bType.signature() + ") {"
+                        return "if (" + symbolName + " is " + CommonUtil.getModifiedTypeName(ctx, bType) + ") {"
                                 + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";
                     }).collect(Collectors.joining(" else ")) + " else {" + CommonUtil.LINE_SEPARATOR + "\t${"
                             + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";

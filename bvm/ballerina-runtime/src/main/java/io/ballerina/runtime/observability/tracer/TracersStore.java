@@ -20,6 +20,7 @@ package io.ballerina.runtime.observability.tracer;
 
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
 import io.opentracing.Tracer;
+import io.opentracing.noop.NoopTracerFactory;
 
 import java.io.PrintStream;
 import java.util.HashMap;
@@ -54,18 +55,22 @@ public class TracersStore {
      * @return trace implementations i.e: zipkin, jaeger
      */
     public Tracer getTracer(String serviceName) {
-        Tracer openTracer = null;
+        Tracer openTracer;
         if (store.containsKey(serviceName)) {
             openTracer = store.get(serviceName);
         } else {
             if (tracerProvider != null) {
                 try {
                     openTracer = tracerProvider.getTracer(serviceName);
-                    store.put(serviceName, openTracer);
                 } catch (Throwable e) {
-                    consoleError.println("error: error getting tracer for " + serviceName + " service. "
+                    openTracer = NoopTracerFactory.create();
+                    consoleError.println("error: tracing disabled as getting tracer for " + serviceName + " service. "
                             + e.getMessage());
                 }
+                store.put(serviceName, openTracer);
+            } else {
+                openTracer = NoopTracerFactory.create();
+                consoleError.println("error: tracing disabled as tracer provider had not been initialized");
             }
         }
         return openTracer;

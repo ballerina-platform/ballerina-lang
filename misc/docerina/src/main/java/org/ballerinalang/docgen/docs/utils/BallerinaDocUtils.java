@@ -18,33 +18,32 @@
 
 package org.ballerinalang.docgen.docs.utils;
 
+import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.docgen.docs.BallerinaDocConstants;
-import org.ballerinalang.docgen.generator.model.ModuleDoc;
 import org.commonmark.Extension;
 import org.commonmark.ext.gfm.tables.TablesExtension;
+import org.commonmark.node.AbstractVisitor;
 import org.commonmark.node.BlockQuote;
 import org.commonmark.node.FencedCodeBlock;
 import org.commonmark.node.Heading;
 import org.commonmark.node.HtmlBlock;
 import org.commonmark.node.ListBlock;
 import org.commonmark.node.Node;
+import org.commonmark.node.Paragraph;
+import org.commonmark.node.Text;
 import org.commonmark.node.ThematicBreak;
 import org.commonmark.parser.Parser;
+import org.commonmark.renderer.text.TextContentRenderer;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
-import java.nio.file.FileAlreadyExistsException;
 import java.nio.file.FileSystemNotFoundException;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.StandardCopyOption;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
@@ -141,11 +140,10 @@ public class BallerinaDocUtils {
         return debugEnabled;
     }
 
-    public static String getSummary(Path descriptionPath) throws IOException {
-        if (descriptionPath != null) {
-            String mdContent = new String(Files.readAllBytes(descriptionPath), "UTF-8");
-            Node document = BallerinaDocUtils.parseMD(mdContent);
-            ModuleDoc.SummaryVisitor summaryVisitor = new ModuleDoc.SummaryVisitor();
+    public static String getSummary(String description) {
+        if (description != null) {
+            Node document = BallerinaDocUtils.parseMD(description);
+            SummaryVisitor summaryVisitor = new SummaryVisitor();
             document.accept(summaryVisitor);
             return summaryVisitor.getSummary();
         }
@@ -160,37 +158,26 @@ public class BallerinaDocUtils {
     }
 
     /**
-     * Visits a folder recursively and copy folders and files to a target directory.
+     * Used to get a summary of a module or a package.
      */
-    static class RecursiveFileVisitor extends SimpleFileVisitor<Path> {
-        Path source;
-        Path target;
-
-        public RecursiveFileVisitor(Path aSource, Path aTarget) {
-            this.source = aSource;
-            this.target = aTarget;
+    public static class SummaryVisitor extends AbstractVisitor {
+        protected Node summary;
+        @Override
+        public void visit(Heading heading) {
+            if (heading.getFirstChild() instanceof Text
+                    && (StringUtils.equalsIgnoreCase(((Text) heading.getFirstChild()).getLiteral(), "module overview")
+                    || StringUtils.equalsIgnoreCase(((Text) heading.getFirstChild()).getLiteral(), "package overview"))
+                    && heading.getNext() instanceof Paragraph
+            ) {
+                summary = heading.getNext();
+            }
         }
 
-        @Override
-        public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
-            Path targetdir = target.resolve(source.relativize(dir).toString());
-            try {
-                Files.copy(dir, targetdir);
-            } catch (FileAlreadyExistsException e) {
-                if (!Files.isDirectory(targetdir)) {
-                    throw e;
-                }
+        public String getSummary() {
+            if (summary != null) {
+                return TextContentRenderer.builder().build().render(summary);
             }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
-            Files.copy(file, target.resolve(source.relativize(file).toString()), StandardCopyOption.REPLACE_EXISTING);
-            if (BallerinaDocUtils.isDebugEnabled()) {
-                out.println("File copied: " + file.toString());
-            }
-            return FileVisitResult.CONTINUE;
+            return "";
         }
     }
 }

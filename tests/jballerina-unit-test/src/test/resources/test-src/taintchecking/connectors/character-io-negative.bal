@@ -1,4 +1,3 @@
-import ballerina/io;
 import ballerina/lang.'int as ints;
 
 public function main (string... args) returns error? {

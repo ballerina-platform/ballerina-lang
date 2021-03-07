@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function workerDeclTest() {
     int a = 20;
@@ -134,5 +134,5 @@ function getName(handle thread) returns handle = @java:Method {
 } external;
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

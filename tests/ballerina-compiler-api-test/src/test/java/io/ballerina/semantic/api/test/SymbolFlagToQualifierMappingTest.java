@@ -115,7 +115,7 @@ public class SymbolFlagToQualifierMappingTest {
         Optional<Symbol> optionalSymbol = model.symbol(srcFile, LinePosition.from(51, 5));
         TypeDefinitionSymbol person = (TypeDefinitionSymbol) optionalSymbol.get();
         RecordTypeSymbol type = (RecordTypeSymbol) person.typeDescriptor();
-        RecordFieldSymbol field = type.fieldDescriptors().get(1);
+        RecordFieldSymbol field = type.fieldDescriptors().get("age");
         assertTrue(field.isOptional());
         assertFalse(field.hasDefaultValue());
     }

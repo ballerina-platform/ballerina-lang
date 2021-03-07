@@ -191,15 +191,16 @@ public class MethodCallExpressionEvaluator extends Evaluator {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
         return semanticContext.moduleSymbols()
                 .stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.CLASS && modifyName(symbol.name()).equals(className))
+                .filter(symbol -> symbol.kind() == SymbolKind.CLASS
+                        && modifyName(symbol.getName().get()).equals(className))
                 .findFirst()
                 .map(symbol -> (ClassSymbol) symbol);
     }
 
     private Optional<MethodSymbol> findObjectMethodInClass(ClassSymbol classDef, String methodName) {
-        return classDef.methods()
+        return classDef.methods().values()
                 .stream()
-                .filter(methodSymbol -> modifyName(methodSymbol.name()).equals(methodName))
+                .filter(methodSymbol -> modifyName(methodSymbol.getName().get()).equals(methodName))
                 .findFirst();
     }
 

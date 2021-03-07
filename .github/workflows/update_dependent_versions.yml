@@ -1,0 +1,24 @@
+name: Update Stdlib Repos on Version Change
+
+on:
+    push:
+        branches:
+            - master
+        paths:
+            - 'gradle.properties'
+
+jobs:
+    update-stdlibs:
+        name: Trigger Standard Library Module Updates
+        if: github.repository_owner == 'ballerina-platform'
+        runs-on: ubuntu-latest
+        steps:
+            -   run: |
+                    curl --request \
+                    POST 'https://api.github.com/repos/ballerina-platform/ballerina-standard-library/dispatches' \
+                    --header 'Accept: application/vnd.github.v3+json' \
+                    --header 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
+                    --header 'Content-Type: application/json' \
+                    --data-raw '{
+                        "event_type": "lang-version-update"
+                    }'

@@ -18,9 +18,11 @@ package org.ballerinalang.debugadapter.evaluation.utils;
 
 import com.sun.jdi.ClassObjectReference;
 import com.sun.jdi.ClassType;
+import com.sun.jdi.InvocationException;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.StringReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -34,6 +36,7 @@ import org.ballerinalang.debugadapter.variable.VariableFactory;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -48,6 +51,8 @@ public class EvaluationUtils {
     public static final String B_UNARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.unary";
     public static final String B_BINARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.binary";
     public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
+    public static final String B_TYPE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.TypeCreator";
+    public static final String B_VALUE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.ValueCreator";
     public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
     public static final String B_TYPE_UTILS_CLASS = "io.ballerina.runtime.api.utils.TypeUtils";
     public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.internal.XmlFactory";
@@ -56,9 +61,11 @@ public class EvaluationUtils {
     public static final String B_STRING_CLASS = "io.ballerina.runtime.api.values.BString";
     public static final String FROM_STRING_CLASS = "org.ballerinalang.langlib.xml.FromString";
     public static final String B_TYPE_CLASS = "io.ballerina.runtime.api.types.Type";
+    public static final String B_TYPE_ARRAY_CLASS = "io.ballerina.runtime.api.types.Type[]";
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
     private static final String B_LINK_CLASS = "io.ballerina.runtime.api.values.BLink";
+    private static final String B_ERROR_VALUE_CLASS = "io.ballerina.runtime.internal.values.ErrorValue";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     private static final String JAVA_LONG_CLASS = "java.lang.Long";
     private static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
@@ -87,6 +94,9 @@ public class EvaluationUtils {
     public static final String B_UNARY_NOT_METHOD = "unaryNot";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
+    public static final String CHECK_CAST_METHOD = "checkCast";
+    public static final String CREATE_UNION_TYPE_METHOD = "createUnionType";
+    public static final String CREATE_DECIMAL_VALUE_METHOD = "createDecimalValue";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
@@ -148,8 +158,10 @@ public class EvaluationUtils {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load JVM util function: " + methodName));
         }
-        methods = methods.stream().filter(method -> method.isPublic() && method.isStatic())
+        methods = methods.stream()
+                .filter(method -> method.isPublic() && method.isStatic())
                 .collect(Collectors.toList());
+
         if (methods.size() != 1) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load JVM util function: " + methodName));
@@ -200,6 +212,9 @@ public class EvaluationUtils {
      */
     public static Value getValueAsObject(SuspendedContext context, Value value) throws EvaluationException {
         BVariable bVar = VariableFactory.getVariable(context, value);
+        if (value instanceof ObjectReference) {
+            return value;
+        }
         return getValueAsObject(context, bVar);
     }
 
@@ -273,6 +288,58 @@ public class EvaluationUtils {
         args.add(null);
         runtimeMethod.setArgValues(args);
         return runtimeMethod.invoke();
+    }
+
+    /**
+     * Converts the user given string literal into an {@link io.ballerina.runtime.api.values.BString} instance.
+     *
+     * @param context suspended debug context
+     * @param val     string value
+     * @return {@link io.ballerina.runtime.api.values.BString} instance
+     */
+    public static Value getAsBString(SuspendedContext context, String val) throws EvaluationException {
+        return getAsBString(context, context.getAttachedVm().mirrorOf(val));
+    }
+
+    /**
+     * Converts the user given string literal into an {@link io.ballerina.runtime.api.values.BString} instance.
+     *
+     * @param context   suspended debug context
+     * @param stringRef JDI value reference of the string
+     * @return {@link io.ballerina.runtime.api.values.BString} instance
+     */
+    public static Value getAsBString(SuspendedContext context, StringReference stringRef) throws EvaluationException {
+        List<String> argTypeNames = Collections.singletonList(JAVA_STRING_CLASS);
+        RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, B_STRING_UTILS_CLASS, FROM_STRING_METHOD,
+                argTypeNames);
+        fromStringMethod.setArgValues(Collections.singletonList(stringRef));
+        return fromStringMethod.invoke();
+    }
+
+    /**
+     * Converts the user given string literal into a {@link com.sun.jdi.StringReference} instance.
+     *
+     * @param context suspended debug context
+     * @param val     string value
+     * @return {@link com.sun.jdi.StringReference} instance
+     */
+    public static Value getAsJString(SuspendedContext context, String val) throws EvaluationException {
+        return context.getAttachedVm().mirrorOf(val);
+    }
+
+    /**
+     * Checks if a given invocation exception is an instance of {@link io.ballerina.runtime.api.values.BError} and if
+     * so, returns it as a JDI value instance.
+     */
+    public static Optional<Value> getBError(Exception e) {
+        if (!(e instanceof InvocationException)) {
+            return Optional.empty();
+        }
+        String typeName = ((InvocationException) e).exception().referenceType().name();
+        if (typeName.equals(B_ERROR_VALUE_CLASS)) {
+            return Optional.ofNullable(((InvocationException) e).exception());
+        }
+        return Optional.empty();
     }
 
     private static boolean compare(List<String> list1, List<String> list2) {

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # The namespace URI bound to the `xml` prefix.
 public const string XML_NAMESPACE_URI = "http://www.w3.org/XML/1998/namespace";
@@ -320,4 +320,12 @@ public isolated function filter(xml<ItemType> x, @isolatedParam function(ItemTyp
 public isolated function fromString(string s) returns xml|error = @java:Method {
     'class: "org.ballerinalang.langlib.xml.FromString",
     name: "fromString"
+} external;
+
+# Selects all the items in a sequence that are of type xml:Text
+# + x - the xml value
+# + return - an xml sequence consisting of selected text items
+public isolated function text(xml x) returns Text = @java:Method {
+    'class: "org.ballerinalang.langlib.xml.Text",
+    name: "text"
 } external;

@@ -253,26 +253,26 @@
         <Bug pattern="UWF_FIELD_NOT_INITIALIZED_IN_CONSTRUCTOR"/>
     </Match>
     <Match>
-        <Class name="org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo"/>
+        <Class name="org.wso2.ballerinalang.compiler.packaging.repo.HomeBalaRepo"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.internal.BaloFiles" />
-        <Method name="loadPackageData" />
+        <Class name="io.ballerina.projects.internal.BalaFiles" />
+        <Method name="loadPackageDataFromBalaFile" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.internal.BaloFiles" />
+        <Class name="io.ballerina.projects.internal.BalaFiles" />
         <Method name="loadDocuments" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.internal.BaloFiles" />
+        <Class name="io.ballerina.projects.internal.BalaFiles" />
         <Method name="loadOtherModules" />
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.internal.BaloFiles" />
+        <Class name="io.ballerina.projects.internal.BalaFiles" />
         <Bug pattern="NP_NULL_ON_SOME_PATH_FROM_RETURN_VALUE" />
     </Match>
     <Match>
@@ -285,18 +285,28 @@
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE" />
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.internal.BaloFiles"/>
-        <Method name="createPackageManifest"/>
+        <Class name="io.ballerina.projects.internal.BalaFiles"/>
+        <Method name="createPackageManifestFromBalaFile"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.internal.BaloFiles"/>
+        <Class name="io.ballerina.projects.internal.BalaFiles"/>
         <Method name="createManifest"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.projects.internal.BaloFiles"/>
+        <Class name="io.ballerina.projects.internal.BalaFiles"/>
         <Method name="createPackageDependencyGraph"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.internal.BalaFiles"/>
+        <Method name="readPackageJson"/>
+        <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
+    </Match>
+    <Match>
+        <Class name="io.ballerina.projects.util.ProjectUtils"/>
+        <Method name="extractBala"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
 </FindBugsFilter>

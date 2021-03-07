@@ -77,9 +77,10 @@ public class DocumentationTest {
 
         ClassSymbol classSymbol = (ClassSymbol) symbol.get();
         classSymbol.fieldDescriptors().forEach(
-                field -> assertDescriptionOnly(field.documentation().get(), "Field name"));
+                (name, field) -> assertDescriptionOnly(field.documentation().get(), "Field name"));
         classSymbol.methods().forEach(
-                method -> assertDocumentation(method.documentation().get(), "Method getName", emptyMap, "string"));
+                (name, method) -> assertDocumentation(method.documentation().get(), "Method getName", emptyMap,
+                                                      "string"));
 
         assertDocumentation(classSymbol.initMethod().get().documentation().get(), "Method init",
                             Map.of("name", "Param name"), "error or nil");
@@ -100,7 +101,7 @@ public class DocumentationTest {
 
         List<ConstantSymbol> members = ((EnumSymbol) symbol.get()).members();
         for (ConstantSymbol member : members) {
-            assertDescriptionOnly(member.documentation().get(), "Enum member " + member.name());
+            assertDescriptionOnly(member.documentation().get(), "Enum member " + member.getName().get());
         }
     }
 
@@ -113,7 +114,7 @@ public class DocumentationTest {
 
         RecordTypeSymbol recordType = (RecordTypeSymbol) ((TypeDefinitionSymbol) symbol.get()).typeDescriptor();
         recordType.fieldDescriptors().forEach(
-                field -> assertDescriptionOnly(field.documentation().get(), "Field " + field.name()));
+                (name, field) -> assertDescriptionOnly(field.documentation().get(), "Field " + name));
     }
 
     @Test

@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -294,6 +296,24 @@ public class BIRTypeWriter implements TypeVisitor {
         buff.writeInt(bUnionType.getMemberTypes().size());
         for (BType memberType : bUnionType.getMemberTypes()) {
             writeTypeCpIndex(memberType);
+        }
+
+        if (tsymbol instanceof BEnumSymbol) {
+            buff.writeBoolean(true);
+            writeEnumSymbolInfo((BEnumSymbol) tsymbol);
+        } else {
+            buff.writeBoolean(false);
+        }
+    }
+
+    private void writeEnumSymbolInfo(BEnumSymbol symbol) {
+        writePackageIndex(symbol);
+
+        buff.writeInt(addStringCPEntry(symbol.name.value));
+
+        buff.writeInt(symbol.members.size());
+        for (BConstantSymbol member : symbol.members) {
+            buff.writeInt(addStringCPEntry(member.name.value));
         }
     }
 

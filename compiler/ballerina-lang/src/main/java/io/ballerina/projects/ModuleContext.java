@@ -66,6 +66,7 @@ class ModuleContext {
     private final boolean isDefaultModule;
     private final Map<DocumentId, DocumentContext> srcDocContextMap;
     private final Collection<DocumentId> testSrcDocIds;
+    private final MdDocumentContext moduleMdContext;
     private final Map<DocumentId, DocumentContext> testDocContextMap;
     private final Project project;
     private final CompilationCache compilationCache;
@@ -85,6 +86,7 @@ class ModuleContext {
                   boolean isDefaultModule,
                   Map<DocumentId, DocumentContext> srcDocContextMap,
                   Map<DocumentId, DocumentContext> testDocContextMap,
+                  MdDocumentContext moduleMd,
                   List<ModuleDescriptor> moduleDescDependencies) {
         this.project = project;
         this.moduleId = moduleId;
@@ -94,6 +96,7 @@ class ModuleContext {
         this.srcDocIds = Collections.unmodifiableCollection(srcDocContextMap.keySet());
         this.testDocContextMap = testDocContextMap;
         this.testSrcDocIds = Collections.unmodifiableCollection(testDocContextMap.keySet());
+        this.moduleMdContext = moduleMd;
         this.moduleDescDependencies = Collections.unmodifiableList(moduleDescDependencies);
 
         ProjectEnvironment projectEnvironment = project.projectEnvironmentContext();
@@ -113,7 +116,9 @@ class ModuleContext {
         }
 
         return new ModuleContext(project, moduleConfig.moduleId(), moduleConfig.moduleDescriptor(),
-                moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap, moduleConfig.dependencies());
+                moduleConfig.isDefaultModule(), srcDocContextMap, testDocContextMap,
+                moduleConfig.moduleMd().map(c ->MdDocumentContext.from(c)).orElse(null),
+                moduleConfig.dependencies());
     }
 
     ModuleId moduleId() {
@@ -250,7 +255,7 @@ class ModuleContext {
 
     void resolveDependencies(DependencyResolution dependencyResolution) {
         Set<ModuleDependency> moduleDependencies = new HashSet<>();
-        if (this.project.kind() == ProjectKind.BALR_PROJECT) {
+        if (this.project.kind() == ProjectKind.BALA_PROJECT) {
             for (ModuleDescriptor dependencyModDesc : moduleDescDependencies) {
                 // Dependencies loaded from cache should not contain test dependencies
                 addModuleDependency(dependencyModDesc.org(), dependencyModDesc.packageName(),
@@ -262,17 +267,38 @@ class ModuleContext {
             for (ModuleLoadRequest modLoadRequest : moduleLoadRequests) {
                 PackageOrg packageOrg;
                 if (modLoadRequest.orgName().isEmpty()) {
+                    if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                        // This is an invalid import in a single file project.
+                        continue;
+                    }
                     packageOrg = descriptor().org();
                 } else {
                     packageOrg = modLoadRequest.orgName().get();
                 }
 
-                addModuleDependency(packageOrg, modLoadRequest.packageName(), modLoadRequest.moduleName(),
+                addModuleDependency(packageOrg, modLoadRequest.moduleName(),
                         modLoadRequest.scope(), moduleDependencies, dependencyResolution);
             }
         }
 
         this.moduleDependencies = Collections.unmodifiableSet(moduleDependencies);
+    }
+
+    private void addModuleDependency(PackageOrg org,
+                                     ModuleName moduleName,
+                                     PackageDependencyScope scope,
+                                     Set<ModuleDependency> moduleDependencies,
+                                     DependencyResolution dependencyResolution) {
+        Optional<ModuleContext> resolvedModuleOptional = dependencyResolution.getModule(org, moduleName.toString());
+        if (resolvedModuleOptional.isEmpty()) {
+            return;
+        }
+
+        ModuleContext resolvedModule = resolvedModuleOptional.get();
+        ModuleDependency moduleDependency = new ModuleDependency(
+                new PackageDependency(resolvedModule.moduleId().packageId(), scope),
+                resolvedModule.moduleId());
+        moduleDependencies.add(moduleDependency);
     }
 
     private void addModuleDependency(PackageOrg org,
@@ -395,7 +421,7 @@ class ModuleContext {
         moduleContext.birBytes = moduleContext.compilationCache.getBir(moduleContext.moduleName());
     }
 
-    static void resolveDependenciesFromBALOInternal(ModuleContext moduleContext) {
+    static void resolveDependenciesFromBALAInternal(ModuleContext moduleContext) {
         // TODO implement
     }
 
@@ -412,5 +438,9 @@ class ModuleContext {
 
     static void loadPlatformSpecificCodeInternal(ModuleContext moduleContext, CompilerBackend compilerBackend) {
         // TODO implement
+    }
+
+    Optional<MdDocumentContext> moduleMdContext() {
+        return Optional.ofNullable(this.moduleMdContext);
     }
 }

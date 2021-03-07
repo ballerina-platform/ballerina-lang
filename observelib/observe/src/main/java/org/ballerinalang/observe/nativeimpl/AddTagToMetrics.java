@@ -26,11 +26,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
 import io.ballerina.runtime.observability.metrics.Tag;
-import org.ballerinalang.config.ConfigRegistry;
 
 import java.util.HashMap;
-
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_TRACING_ENABLED;
 
 /**
  * This function add tags to System Metrics.
@@ -40,8 +37,7 @@ public class AddTagToMetrics {
 
     public static Object addTagToMetrics(Environment env, BString tagKey, BString tagValue) {
 
-        boolean enabled = ConfigRegistry.getInstance().getAsBoolean(CONFIG_TRACING_ENABLED);
-        if (!enabled) {
+        if (!ObserveUtils.isMetricsEnabled()) {
             return null;
         }
 

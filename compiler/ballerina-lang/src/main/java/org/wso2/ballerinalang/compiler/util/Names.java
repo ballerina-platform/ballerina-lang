@@ -49,7 +49,7 @@ public class Names {
     public static final Name LANG = new Name("lang");
     public static final Name INTERNAL = new Name("__internal");
     public static final Name ANNOTATIONS = new Name("annotations");
-    public static final Name JAVA = new Name("java");
+    public static final Name JAVA = new Name("jballerina.java");
     public static final Name ARRAY = new Name("array");
     public static final Name DECIMAL = new Name("decimal");
     public static final Name ERROR = new Name("error");
@@ -149,6 +149,7 @@ public class Names {
     public static final Name INTERNAL_VERSION = new Name(BLangCompilerConstants.INTERNAL_VERSION);
     public static final Name ANNOTATIONS_VERSION = new Name(BLangCompilerConstants.ANNOTATIONS_VERSION);
     public static final Name ARRAY_VERSION = new Name(BLangCompilerConstants.ARRAY_VERSION);
+    public static final Name CONFIG_VERSION = new Name(BLangCompilerConstants.CONFIG_VERSION);
     public static final Name DECIMAL_VERSION = new Name(BLangCompilerConstants.DECIMAL_VERSION);
     public static final Name ERROR_VERSION = new Name(BLangCompilerConstants.ERROR_VERSION);
     public static final Name FLOAT_VERSION = new Name(BLangCompilerConstants.FLOAT_VERSION);
@@ -169,6 +170,7 @@ public class Names {
     public static final Name TRANSACTION_INTERNAL_VERSION =
             new Name(BLangCompilerConstants.TRANSACTION_INTERNAL_VERSION);
     public static final Name OBSERVE_INTERNAL_VERSION = new Name(BLangCompilerConstants.OBSERVE_INTERNAL_VERSION);
+    public static final Name OBSERVE_VERSION = new Name(BLangCompilerConstants.OBSERVE_VERSION);
 
     public CompilerContext context;
 

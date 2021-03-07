@@ -166,7 +166,9 @@ public class WebServer {
      * @throws InterruptedException if shutting down fails
      */
     public void shutdownGracefully() throws InterruptedException {
+        Utils.logInfo("Shutting down Web Server with port " + port + " gracefully");
         this.loopGroup.shutdownGracefully().sync();
+        Utils.logInfo("Shutting down Web Server with port " + port + " gracefully complete");
     }
 
     /**
@@ -175,7 +177,9 @@ public class WebServer {
      * @throws InterruptedException if shutting down fails
      */
     public void shutdownNow() throws InterruptedException {
+        Utils.logInfo("Shutting down Web Server with port " + port + " immediately");
         this.loopGroup.shutdownGracefully(0, 0, TimeUnit.SECONDS).sync();
+        Utils.logInfo("Shutting down Web Server with port " + port + " immediately complete");
     }
 
     /**

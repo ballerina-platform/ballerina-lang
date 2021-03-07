@@ -47,3 +47,7 @@ public type FileNotFoundError distinct error;
 public type EofError distinct error;
 
 public type Error FileNotFoundError|EofError;
+
+public enum Colour {
+   RED, GREEN, BLUE
+}

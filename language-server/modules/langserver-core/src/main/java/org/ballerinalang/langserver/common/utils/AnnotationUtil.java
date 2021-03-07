@@ -169,7 +169,8 @@ public class AnnotationUtil {
      * @return {@link Boolean} having the attachment point or not
      */
     public static boolean hasAttachment(AnnotationSymbol annotation, AnnotationAttachPoint attachPoint) {
-        return annotation.attachPoints().contains(attachPoint);
+        // Annotations without attachment points can applied to any construct
+        return annotation.attachPoints().isEmpty() || annotation.attachPoints().contains(attachPoint);
     }
 
     /**
@@ -185,7 +186,7 @@ public class AnnotationUtil {
             annotationStart.append(aliasComponent).append(PKG_DELIMITER_KEYWORD);
         }
         if (annotationSymbol.typeDescriptor().isPresent()) {
-            annotationStart.append(annotationSymbol.name());
+            annotationStart.append(annotationSymbol.getName().get());
             Optional<TypeSymbol> attachedType
                     = Optional.ofNullable(CommonUtil.getRawType(annotationSymbol.typeDescriptor().get()));
             Optional<TypeSymbol> resultType;
@@ -203,7 +204,8 @@ public class AnnotationUtil {
                 }
                 List<String> insertTexts = new ArrayList<>();
                 requiredFields.forEach(field -> {
-                    String fieldInsertionText = "\t" + getRecordFieldCompletionInsertText(field, 1);
+                    String fieldInsertionText = "\t" + 
+                            getRecordFieldCompletionInsertText(field, Collections.emptyList(), 1);
                     insertTexts.add(fieldInsertionText);
                 });
                 annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
@@ -213,7 +215,7 @@ public class AnnotationUtil {
                 annotationStart.append(LINE_SEPARATOR).append(CLOSE_BRACE_KEY);
             }
         } else {
-            annotationStart.append(annotationSymbol.name());
+            annotationStart.append(annotationSymbol.getName().get());
         }
 
         return annotationStart.toString();
@@ -238,7 +240,7 @@ public class AnnotationUtil {
      */
     private static String getAnnotationLabel(@Nonnull String aliasComponent, AnnotationSymbol annotation) {
         String pkgComponent = !aliasComponent.isEmpty() ? aliasComponent + PKG_DELIMITER_KEYWORD : "";
-        return pkgComponent + annotation.name();
+        return pkgComponent + annotation.getName().get();
     }
 
     /**

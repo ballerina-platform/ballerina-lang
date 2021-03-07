@@ -37,9 +37,9 @@ The optimizer phase performs data-flow and control-flow analysis by making multi
 BIR is a CFG. BIR is also a hybrid IR because it combines the properties of both graphical and linear IRs as illustrated in the above image. The simplest unit of a control-flow graph is called a basic block. A basic block contains a set of instructions that always execute together. The last instruction in a basic block usually connects with one or more basic blocks. Therefore the last instruction is called the terminator. You can read more about BIR in the [specification](bir-spec.md). 
 
 ### Compiled Package Archive (BALO)
-The optimizer phase emits a more efficient BIR by rewriting it based on the results of various analysis passes over the unoptimized BIR which is the output of the front-end phase. Both front-end and optimizer phases work on a single package at a time and produce the BIR of a package. Then the compiler stores the binary form of the BIR in the compiled package archive (balo) file. 
+The optimizer phase emits a more efficient BIR by rewriting it based on the results of various analysis passes over the unoptimized BIR which is the output of the front-end phase. Both front-end and optimizer phases work on a single package at a time and produce the BIR of a package. Then the compiler stores the binary form of the BIR in the compiled package archive (bala) file. 
  
-A balo file contains the binary form of BIR and other resources such as the package source code and package documentation. It is an archive file which can be stored in Ballerina package repositories. 
+A bala file contains the binary form of BIR and other resources such as the package source code and package documentation. It is an archive file which can be stored in Ballerina package repositories. 
 
 The back-end phase of the Ballerina compiler traverses the BIR stored in a compiled package archives and emits target-specific instructions to generate an executable program. There will most probably be more than one backend which target different machines.  
 

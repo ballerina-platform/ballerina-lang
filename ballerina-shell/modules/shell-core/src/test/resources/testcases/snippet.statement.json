@@ -1,0 +1,102 @@
+[
+  {
+    "name": "Assignment Statement",
+    "input": "var1 = 3;",
+    "accepted": true
+  },
+  {
+    "name": "Assignment Statement",
+    "input": "mp[\"age\"] = 32;",
+    "accepted": true
+  },
+  {
+    "name": "Compound Assignment Statement",
+    "input": "var1 += 3;",
+    "accepted": true
+  },
+  {
+    "name": "Compound Assignment Statement II",
+    "input": "var1 >>= 3;",
+    "accepted": true
+  },
+  {
+    "name": "Block Statement",
+    "input": "{ int var1 =4; };",
+    "accepted": true
+  },
+  {
+    "name": "Break Statement",
+    "input": "break;",
+    "accepted": true
+  },
+  {
+    "name": "Fail Statement",
+    "input": "fail x();",
+    "accepted": true
+  },
+  {
+    "name": "Continue Statement",
+    "input": "continue;",
+    "accepted": true
+  },
+  {
+    "name": "If Else Statement",
+    "input": "if (cond) { };",
+    "accepted": true
+  },
+  {
+    "name": "While Statement",
+    "input": "while (cond) { };",
+    "accepted": true
+  },
+  {
+    "name": "Return Statement",
+    "input": "return 10;",
+    "accepted": true
+  },
+  {
+    "name": "Lock Statement",
+    "input": "lock { amount += n; };",
+    "accepted": true
+  },
+  {
+    "name": "Fork Statement",
+    "input": "fork { worker abc returns int { } };",
+    "accepted": true
+  },
+  {
+    "name": "For Each Statement",
+    "input": "foreach var color in colors { };",
+    "accepted": true
+  },
+  {
+    "name": "Transaction Statement",
+    "input": "transaction { };",
+    "accepted": true
+  },
+  {
+    "name": "Rollback Statement",
+    "input": "rollback;",
+    "accepted": true
+  },
+  {
+    "name": "Retry Statement",
+    "input": "retry<Type> (args) { };",
+    "accepted": true
+  },
+  {
+    "name": "Match Statement",
+    "input": "match var1 { 0 => {} 1 => { } };",
+    "accepted": true
+  },
+  {
+    "name": "Do Statement",
+    "input": "do { };",
+    "accepted": true
+  },
+  {
+    "name": "Named worker",
+    "input": " @strand { thread:\"any\" } worker w1 { }",
+    "accepted": false
+  }
+]

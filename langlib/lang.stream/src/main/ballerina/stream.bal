@@ -42,7 +42,7 @@ type Type1 any|error;
 public isolated function filter(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns boolean func)
    returns stream<Type,ErrorType>  {
     FilterSupport itrObj = new(stm, func);
-    return internal:construct(internal:getElementType(typeof stm), itrObj);
+    return <stream<Type,ErrorType>>internal:construct(internal:getElementType(typeof stm), itrObj);
 }
 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.
@@ -59,10 +59,11 @@ public isolated function next(stream<Type, ErrorType> strm) returns record {| Ty
     var val = iteratorObj.next();
     if (val is ()) {
         return ();
-    } else if (val is error) {
+    } else if (val is ErrorType) {
         return val;
     } else {
-        return internal:setNarrowType(internal:getElementType(typeof strm), {value : val.value});
+        var td = internal:getElementType(typeof strm);
+        return internal:setNarrowType(td, {value : val.value});
     }
 }
 
@@ -72,9 +73,9 @@ public isolated function next(stream<Type, ErrorType> strm) returns record {| Ty
 # + func - a function to apply to each member
 # + return - new stream containing result of applying `func` to each member of `stm` in order
 public isolated function 'map(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns Type1 func)
-   returns stream<Type1,ErrorType> {
-    MapSupport  iteratorObj = new(stm, func);
-    return internal:construct(internal:getReturnType(func), iteratorObj);
+        returns stream<Type1,ErrorType> {
+    MapSupport iteratorObj = new(stm, func);
+    return <stream<Type,ErrorType>>internal:construct(internal:getReturnType(func), iteratorObj);
 }
 
 // Refer to issue https://github.com/ballerina-platform/ballerina-lang/issues/21527
@@ -93,7 +94,7 @@ public isolated function reduce(stream<Type,ErrorType> stm,
         var nextVal = next(stm);
         if (nextVal is ()) {
             return reducedValue;
-        } else if (nextVal is error) {
+        } else if (nextVal is ErrorType) {
             return nextVal;
         } else {
             var value = nextVal?.value;
@@ -114,7 +115,7 @@ public isolated function forEach(stream<Type,ErrorType> stm,
     while(true) {
         if (nextVal is ()) {
             return;
-        } else if (nextVal is error) {
+        } else if (nextVal is ErrorType) {
             return nextVal;
         } else {
             var value = nextVal.value;

@@ -1,0 +1,21 @@
+[
+  {
+    "description": "Define helper variables.",
+    "code": "int a = 10; int b = 0;"
+  },
+  {
+    "description": "Basic if statement.",
+    "code": "if (a == 10) { println(\"a == 10\"); }",
+    "stdout": "a == 10\n"
+  },
+  {
+    "description": "Basic if-else scenario.",
+    "code": "if (a < b) { println(\"a < b\"); } else { println(\"a >= b\"); }",
+    "stdout": "a >= b\n"
+  },
+  {
+    "description": "Basic if-else-if scenario.",
+    "code": "if (b < 0) { println(\"b < 0\"); } else if (b > 0) { println(\"b > 0\"); } else { println(\"b == 0\"); }",
+    "stdout": "b == 0\n"
+  }
+]

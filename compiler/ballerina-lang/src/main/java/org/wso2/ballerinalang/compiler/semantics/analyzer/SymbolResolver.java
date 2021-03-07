@@ -650,14 +650,6 @@ public class SymbolResolver extends BLangNodeVisitor {
             bSymbol = lookupMethodInModule(symTable.langInternalModuleSymbol, name, env);
         }
 
-        if (bSymbol == symTable.notFoundSymbol) {
-            bSymbol = lookupMethodInModule(symTable.langTransactionModuleSymbol, name, env);
-        }
-
-        if (bSymbol == symTable.notFoundSymbol) {
-            bSymbol = lookupMethodInModule(symTable.langQueryModuleSymbol, name, env);
-        }
-
         return bSymbol;
     }
 
@@ -1172,7 +1164,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangStreamType streamTypeNode) {
         BType type = resolveTypeNode(streamTypeNode.type, env);
         BType constraintType = resolveTypeNode(streamTypeNode.constraint, env);
-        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : null;
+        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : symTable.neverType;
         // If the constrained type is undefined, return noType as the type.
         if (constraintType == symTable.noType) {
             resultType = symTable.noType;
@@ -1205,9 +1197,11 @@ public class SymbolResolver extends BLangNodeVisitor {
         BTableType tableType = new BTableType(TypeTags.TABLE, constraintType, null);
         BTypeSymbol typeSymbol = type.tsymbol;
         tableType.tsymbol = Symbols.createTypeSymbol(SymTag.TYPE, Flags.asMask(EnumSet.noneOf(Flag.class)),
-                                                     typeSymbol.name, env.enclPkg.symbol.pkgID, tableType,
-                                                     env.scope.owner, tableTypeNode.pos, SOURCE);
+                typeSymbol.name, env.enclPkg.symbol.pkgID, tableType,
+                env.scope.owner, tableTypeNode.pos, SOURCE);
+        tableType.tsymbol.flags = typeSymbol.flags;
         tableType.constraintPos = tableTypeNode.constraint.pos;
+        tableType.isTypeInlineDefined = tableTypeNode.isTypeInlineDefined;
 
         if (tableTypeNode.tableKeyTypeConstraint != null) {
             tableType.keyTypeConstraint = resolveTypeNode(tableTypeNode.tableKeyTypeConstraint.keyType, env);
@@ -1223,6 +1217,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         markParameterizedType(tableType, constraintType);
+        tableTypeNode.tableType = tableType;
 
         resultType = tableType;
     }

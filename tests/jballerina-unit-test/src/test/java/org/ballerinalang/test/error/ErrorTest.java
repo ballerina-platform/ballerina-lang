@@ -273,6 +273,8 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e4'", 55, 34);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing arg within parenthesis", 56, 48);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing arg within parenthesis", 57, 32);
+        BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
+                "args 'other' when error detail type 'Bee' contains individual field descriptors", 95, 53);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 96, 32);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 97, 38);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -356,8 +358,8 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.1_1_0:slice(array.bal:126)\n\t" +
-                "   error_test:testStackTraceInNative(error_test.bal:277)");
+                "at ballerina.lang.array.1_1_0:slice(array.bal:132)\n\t" +
+                "   error_test:testStackTraceInNative(error_test.bal:278)");
     }
 
     @Test
@@ -390,9 +392,9 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:341}";
+                "lineNumber:342}";
         String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:345}";
+                "lineNumber:346}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);
@@ -421,5 +423,10 @@ public class ErrorTest {
     @Test
     public void testUnionErrorTypeDescriptionInferring() {
         BRunUtil.invoke(errorTestResult, "testUnionErrorTypeDescriptionInferring");
+    }
+
+    @Test
+    public void testErrorBindingPattern() {
+        BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
     }
 }

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # Requests cancellation of a future.
 # This sets the cancellation flag in the strand corresponding to `f`.

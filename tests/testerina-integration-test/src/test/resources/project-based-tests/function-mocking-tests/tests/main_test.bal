@@ -50,6 +50,11 @@ test:MockFunction mock2_intAdd = new();
 }
 test:MockFunction mock_intAdd3 = new();
 
+@test:Mock {
+    functionName : "foo"
+}
+test:MockFunction mock_foo = new();
+
 //
 //  MOCK FUNCTIONS
 //
@@ -88,6 +93,29 @@ public function mockStringAdd(string str1) returns (string) {
 
 public function mockFloatAdd(float a, float b) returns (float) {
     return a - b;
+}
+
+public function bar(any a) returns @tainted string {
+    return "bye";
+}
+
+//
+//  MOCK FUNCTIONS
+//
+
+@test:Mock {
+    functionName : "intAdd6"
+}
+function mockIntAdd6(int a, int b, int c) returns (int) {
+    return a - b - c;
+}
+
+@test:Mock {
+    functionName : "intSubtract7",
+    moduleName : "function_mocking.mock2"
+}
+function mockIntSubtract7(int a, int b, int c) returns (int) {
+    return a + b + c;
 }
 
 //
@@ -164,6 +192,12 @@ public function call_Test8() {
 }
 
 @test:Config {}
+public function call_Test9() {
+    test:when(mock_foo).call("bar");
+    test:assertEquals(foo("testing"), "bye");
+}
+
+@test:Config {}
 public function thenReturn_Test1() {
     test:when(mock_intAdd).thenReturn(5);
     test:assertEquals(intAdd(10, 4), 5);
@@ -204,4 +238,14 @@ public function callOriginal_Test1() {
 public function callOriginal_Test3() {
     test:when(mock2_intAdd).callOriginal();
     test:assertEquals(mock2:intAdd2(10, 5), 15);
+}
+
+@test:Config {}
+public function mockReplace_Test1() {
+    test:assertEquals(intAdd6(10, 3, 2), 5);
+}
+
+@test:Config {}
+public function mockReplace_Test2() {
+    test:assertEquals(mock2:intSubtract7(10, 3, 2), 15);
 }

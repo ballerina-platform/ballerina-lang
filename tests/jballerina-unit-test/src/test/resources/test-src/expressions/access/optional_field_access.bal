@@ -142,13 +142,13 @@ function testOptionalFieldAccessNilLiftingOnJson1() returns boolean {
     json j = ();
     json|error j2 = j?.a;
     json|error j3 = j?.a?.b;
-    return j2 == () && j3 == ();
+    return j2 is () && j3 is ();
 }
 
 function testOptionalFieldAccessNilLiftingOnJson2() returns boolean {
     json x = { c: 3, d: () };
     json j = { a: 1, b: x };
-    return j?.b?.d?.onNil == ();
+    return j?.b?.d?.onNil is ();
 }
 
 function testOptionalFieldAccessNilLiftingOnMapJson() returns boolean {
@@ -183,7 +183,7 @@ function testOptionalFieldAccessOnJsonMappingPositive() returns boolean {
     json|error j2 = j?.a;
     json|error j3 = j?.b;
     json|error j4 = j?.b?.c;
-    return j2 == 1 && j3 == x && j4 == 3;
+    return j2 === 1 && j3 === x && j4 === 3;
 }
 
 function testOptionalFieldAccessOnMapJsonPositive() returns boolean {
@@ -199,7 +199,7 @@ function testOptionalFieldAccessOnMapJsonPositive() returns boolean {
     map<json> m1 = { b: 1, c: "hello" };
     map<json> m2 = { e: 2.0 };
 
-    return j == 3 && j2 == m1 && j3 == 1 && j4 == m2 && j5 == 2.0;
+    return j === 3 && j2 == m1 && j3 === 1 && j4 == m2 && j5 === 2.0;
 }
 
 function testOptionalFieldAccessNilReturnOnMissingKey() returns boolean {
@@ -208,7 +208,7 @@ function testOptionalFieldAccessNilReturnOnMissingKey() returns boolean {
     json|error j2 = j?.x;
     json|error j3 = j?.y?.z;
     json|error j4 = j?.b?.d;
-    return j2 == () && j3 == () && j4 == ();
+    return j2 === () && j3 === () && j4 === ();
 }
 
 function testOptionalFieldAccessNilReturnOnMissingKeyInJsonMap() returns boolean {
@@ -217,7 +217,7 @@ function testOptionalFieldAccessNilReturnOnMissingKeyInJsonMap() returns boolean
     json j2 = j?.x;
     json|error j3 = j?.y?.z;
     json|error j4 = j?.b?.d;
-    return j2 == () && j3 == () && j4 == ();
+    return j2 === () && j3 === () && j4 === ();
 }
 
 function testOptionalFieldAccessOnLaxUnionPositive() returns boolean {
@@ -236,7 +236,7 @@ function testOptionalFieldAccessOnLaxUnionPositive() returns boolean {
     map<json> m1 = { b: 1, c: "hello" };
     map<json> m2 = { e: 2.0 };
 
-    return j == 3 && j2 == m1 && j3 == 1 && j4 == m2 && j5 == 2.0;
+    return j === 3 && j2 == m1 && j3 === 1 && j4 == m2 && j5 === 2.0;
 }
 
 function testOptionalFieldAccessNilReturnOnLaxUnion() returns boolean {
@@ -281,15 +281,19 @@ function testOptionalFieldAccessErrorLiftingOnLaxUnion() returns boolean {
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
-        return je.message() == "{ballerina}JSONOperationError" && je.detail()["message"].toString() == "JSON value is not a mapping";
+        var detailMessage = je.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        return je.message() == "{ballerina}JSONOperationError" && detailMessageString == "JSON value is not a mapping";
     }
     return false;
 }
 
 function assertKeyNotFoundError(json|error je, string key) returns boolean {
     if (je is error) {
+        var detailMessage = je.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
         return je.message() == "{ballerina}KeyNotFound" &&
-                                je.detail()["message"].toString() == "Key '" + key + "' not found in JSON mapping";
+                                detailMessageString == "Key '" + key + "' not found in JSON mapping";
     }
     return false;
 }
@@ -327,7 +331,7 @@ function testNilLiftingWithOptionalFieldAccessOnNillableTypeInvocation() returns
 
 function testJsonOptionalFieldAccessOnInvocation() returns boolean {
     json|error v = getJson()?.x?.y;
-    return v == 1;
+    return v === 1;
 }
 
 function getJson() returns json {
@@ -427,4 +431,116 @@ function testOptionalFieldAccessOnMethodCall() {
     if !(c2 is ()) {
         panic error("ASSERTION_ERROR_REASON", message = "expected '()', found '" + c2.toString() + "'");
     }
+}
+
+type Config record {|
+    StartUp b?;
+|};
+
+type StartUp record {|
+    int i?;
+|};
+
+function testUnavailableFinalAccessInNestedAccess() {
+    Config f = {b: {}}; // `b` is present, but `b` doesn't have `i`.
+    int? i = f?.b?.i;
+    int? j = f?.b["i"];
+    int? k = f["b"]["i"];
+    int? l = f["b"]?.i;
+    int? m = (f["b"])?.i;
+    int? n = ((f?.b))["i"];
+    int? o = (f["b"]?.i);
+    int? p = ((f?.b["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+    assertTrue(l is ());
+    assertTrue(m is ());
+    assertTrue(n is ());
+    assertTrue(o is ());
+    assertTrue(p is ());
+}
+
+function testAvailableFinalAccessInNestedAccess() {
+    Config f = {b: {i: 1234}}; // `b` is present, and has `i`.
+    int? i = f?.b?.i;
+    int? j = f?.b["i"];
+    int? k = f["b"]["i"];
+    int? l = f["b"]?.i;
+    int? m = (f["b"])?.i;
+    int? n = ((f?.b))["i"];
+    int? o = (f["b"]?.i);
+    int? p = ((f?.b["i"]));
+
+    assertEquality(1234, i);
+    assertEquality(1234, j);
+    assertEquality(1234, k);
+    assertEquality(1234, l);
+    assertEquality(1234, m);
+    assertEquality(1234, n);
+    assertEquality(1234, o);
+    assertEquality(1234, p);
+}
+
+function testUnavailableIntermediateAccessInNestedAccess() {
+    Config f = {};
+    int? i = f?.b?.i;
+    int? j = f?.b["i"];
+    int? k = f["b"]["i"];
+    int? l = f["b"]?.i;
+    int? m = (f["b"])?.i;
+    int? n = ((f?.b))["i"];
+    int? o = (f["b"]?.i);
+    int? p = ((f?.b["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+    assertTrue(l is ());
+    assertTrue(m is ());
+    assertTrue(n is ());
+    assertTrue(o is ());
+    assertTrue(p is ());
+}
+
+type RecordWithNilableFieldConfig record {
+    NilableFieldConfig? rec;
+};
+
+type NilableFieldConfig record {|
+    int? i = ();
+|};
+
+function testNilValuedFinalAccessInNestedAccess() {
+    RecordWithNilableFieldConfig f = {rec: {}};
+    int? i = f?.rec?.i;
+    int? j = f?.rec["i"];
+    int? k = f["rec"]["i"];
+    int? l = f["rec"]?.i;
+    int? m = (f["rec"])?.i;
+    int? n = ((f?.rec))["i"];
+    int? o = (f["rec"]?.i);
+    int? p = ((f?.rec["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+    assertTrue(l is ());
+    assertTrue(m is ());
+    assertTrue(n is ());
+    assertTrue(o is ());
+    assertTrue(p is ());
+}
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
 }

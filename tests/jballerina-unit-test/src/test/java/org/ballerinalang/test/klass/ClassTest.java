@@ -90,7 +90,7 @@ public class ClassTest {
         CompileResult negative = BCompileUtil.compile("test-src/klass/class-def-negative2.bal");
         int i = 0;
         String missingRecordField = "missing non-defaultable required record field ";
-        String missingRequiredParam = "missing required parameter '%s' in call to 'new'()";
+        String missingRequiredParam = "missing required parameter '%s' in call to 'new()'";
         BAssertUtil.validateError(negative, i++, missingRecordField + "'p'", 27, 14);
         BAssertUtil.validateError(negative, i++, missingRecordField + "'s'", 27, 14);
         BAssertUtil.validateError(negative, i++, missingRecordField + "'p'", 32, 19);

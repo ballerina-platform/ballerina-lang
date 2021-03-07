@@ -201,6 +201,13 @@ check {
     dependsOn createJavadoc
 }
 
+task jacocoMergeExec(type: JacocoMerge) {
+        destinationFile = file("$buildDir/jacoco/jacoco.exec")
+        executionData = fileTree("$buildDir/jacoco/").matching {
+            include "**.exec"
+        } as FileCollection
+}
+
 publishing {
     publications {
         mavenJava {
@@ -209,6 +216,7 @@ publishing {
     }
 }
 
+test.finalizedBy(jacocoMergeExec)
 //compileJava {
 //    doFirst {
 //        inputs.property("moduleName", moduleName)

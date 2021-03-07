@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public type ListenerConfiguration record {|
     string host = "0.0.0.0";
@@ -22,6 +22,24 @@ public type ListenerConfiguration record {|
     string? server = ();
     boolean webSocketCompressionEnabled = true;
 |};
+
+public type TestServiceConfig record {|
+    string host = "b7a.default";
+    string basePath = "";
+|};
+
+public annotation TestServiceConfig ServiceConfig on service;
+
+public type TestResourceConfig record {|
+    string[] methods = [];
+    string path = "";
+    string body = "";
+    string[] consumes = [];
+    string[] produces = [];
+    boolean transactionInfectable = true;
+|};
+
+public annotation TestResourceConfig ResourceConfig on object function;
 
 public class MockListener {
 

@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function getIntFromJsonInt(int|string x) returns int = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"

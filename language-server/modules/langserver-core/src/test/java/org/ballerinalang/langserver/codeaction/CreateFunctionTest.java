@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -28,14 +29,15 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class CreateFunctionTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "create-function";
     }
 
     @Override
-    @Test(dataProvider = "codeaction-data-provider", enabled = false)
-    public void test(String config, String source) throws IOException {
+    @Test(dataProvider = "codeaction-data-provider")
+    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
         super.test(config, source);
     }
 
@@ -45,6 +47,11 @@ public class CreateFunctionTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"undefinedFunctionCodeAction.json", "createUndefinedFunction.bal"},
                 {"undefinedFunctionCodeAction2.json", "createUndefinedFunction2.bal"},
+                {"undefinedFunctionCodeAction3.json", "createUndefinedFunction2.bal"},
+                {"undefinedFunctionCodeActionInRecord.json", "createUndefinedFunctionInRecord.bal"},
+                {"undefinedFunctionCodeActionInRecord2.json", "createUndefinedFunctionInRecord.bal"},
+                {"undefinedFunctionCodeActionInLet.json", "createUndefinedFunctionInLet.bal"},
+                {"undefinedFunctionCodeActionInLet2.json", "createUndefinedFunctionInLet.bal"}
         };
     }
 }

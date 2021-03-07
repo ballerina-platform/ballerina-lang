@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -28,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class TypeCastTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "type-cast";
@@ -35,7 +37,7 @@ public class TypeCastTest extends AbstractCodeActionTest {
 
     @Override
     @Test(dataProvider = "codeaction-data-provider")
-    public void test(String config, String source) throws IOException {
+    public void test(String config, String source) throws IOException, WorkspaceDocumentException {
         super.test(config, source);
     }
 
@@ -45,6 +47,8 @@ public class TypeCastTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"typeCast1.json", "typeCast.bal"},
                 {"typeCast2.json", "typeCast.bal"},
+                {"typeCast3.json", "typeCast.bal"},
+                {"typeCast4.json", "typeCast.bal"},
         };
     }
 }

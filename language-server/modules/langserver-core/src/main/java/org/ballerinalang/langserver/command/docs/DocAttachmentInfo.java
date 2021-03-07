@@ -19,7 +19,6 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 
-import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -36,21 +35,23 @@ public class DocAttachmentInfo implements Documentation {
     private final Map<String, String> parameters;
     private final String returnDesc;
     private final Position docStart;
+    private final String padding;
 
     public DocAttachmentInfo(String description, Map<String, String> parameters, String returnDesc,
-                             Position docStart) {
+                             Position docStart, String padding) {
         this.description = description;
         this.parameters = parameters;
         this.returnDesc = returnDesc;
         this.docStart = docStart;
+        this.padding = padding;
     }
 
-
-    public DocAttachmentInfo(String description, Position docStart) {
+    public DocAttachmentInfo(String description, Position docStart, String padding) {
         this.description = description;
         this.parameters = new HashMap<>();
         this.returnDesc = null;
         this.docStart = docStart;
+        this.padding = padding;
     }
 
     @Override
@@ -81,25 +82,25 @@ public class DocAttachmentInfo implements Documentation {
         }
         String returnValueDescription = (this.returnDesc != null) ?
                 other.returnDescription().orElse(this.returnDesc) : null;
-        return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, docStart);
+
+        return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, docStart, padding);
     }
 
     public String getDocumentationString() {
-        String offsetStr = String.join("", Collections.nCopies(docStart.getCharacter(), " "));
         String result = String.format("# %s%n", this.description.trim());
 
         if (!parameters.isEmpty()) {
             StringJoiner paramJoiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
             for (Map.Entry<String, String> parameter : this.parameters.entrySet()) {
-                paramJoiner.add(String.format("%s# + %s - %s", offsetStr, parameter.getKey(), parameter.getValue()));
+                paramJoiner.add(String.format("%s# + %s - %s", padding, parameter.getKey(), parameter.getValue()));
             }
-            result += String.format("#%n%s%n", paramJoiner.toString());
+            result += String.format("%s#%n%s%n", padding, paramJoiner.toString());
         }
 
         if (returnDesc != null) {
-            result += String.format("%s# + return - %s", offsetStr, this.returnDesc.trim());
+            result += String.format("%s# + return - %s%n", padding, this.returnDesc.trim());
         }
 
-        return result.trim() + CommonUtil.MD_LINE_SEPARATOR;
+        return result.trim() + CommonUtil.MD_LINE_SEPARATOR + padding;
     }
 }

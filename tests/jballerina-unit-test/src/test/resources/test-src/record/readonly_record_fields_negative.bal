@@ -248,3 +248,31 @@ function testNonReadOnlynessOfOpenRecordWithAllReadOnlyFields() {
     readonly rd6 = r6;
     readonly rd7 = localRecord;
 }
+
+type CommonResponse record {|
+    string mediaType?;
+    map<string|string[]> headers?;
+    anydata body?;
+|};
+public type Forbidden record {|
+    *CommonResponse;
+|};
+
+public type Unauthorized record {|
+    *CommonResponse;
+    readonly byte[] body;
+    readonly boolean valid;
+|};
+
+function testTypeReadOnlynessNegativeWithNonReadOnlyFieldsViaInclusion() {
+    Unauthorized|Forbidden? x = ();
+    readonly r1 = x;
+
+    Unauthorized? y = tryAuthenticate();
+    readonly r2 = y;
+    readonly z = tryAuthenticate();
+}
+
+function tryAuthenticate() returns Unauthorized? {
+    return {headers: {"h1": "v1"}, body: [1, 2, 3], valid: false};
+}

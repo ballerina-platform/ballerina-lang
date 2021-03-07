@@ -29,6 +29,7 @@ import io.ballerina.projects.internal.PackageConfigCreator;
 import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 /**
  * {@code SingleFileProject} represents a Ballerina standalone file.
@@ -42,9 +43,15 @@ public class SingleFileProject extends Project {
      * @return single file project
      */
     public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path filePath) {
+        final BuildOptionsBuilder buildOptionsBuilder = new BuildOptionsBuilder();
+        return load(environmentBuilder, filePath, buildOptionsBuilder.build());
+    }
+
+    public static SingleFileProject load(ProjectEnvironmentBuilder environmentBuilder, Path filePath,
+                                          BuildOptions buildOptions) {
         PackageConfig packageConfig = PackageConfigCreator.createSingleFileProjectConfig(filePath);
         SingleFileProject singleFileProject = new SingleFileProject(
-                environmentBuilder, filePath, new BuildOptionsBuilder().build());
+                environmentBuilder, filePath, buildOptions);
         singleFileProject.addPackage(packageConfig);
         return singleFileProject;
     }
@@ -76,5 +83,17 @@ public class SingleFileProject extends Project {
             throw new ProjectException("provided path does not belong to the project");
         }
         return this.currentPackage().getDefaultModule().documentIds().iterator().next();
+    }
+
+    @Override
+    public Optional<Path> documentPath(DocumentId documentId) {
+        if (this.currentPackage().getDefaultModule().documentIds().iterator().next().equals(documentId)) {
+            return Optional.of(sourceRoot.toAbsolutePath());
+        }
+        return Optional.empty();
+    }
+
+    @Override
+    public void save() {
     }
 }

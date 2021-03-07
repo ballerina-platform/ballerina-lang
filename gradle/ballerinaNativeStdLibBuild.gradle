@@ -21,7 +21,7 @@ configurations {
     dist {
         transitive false
     }
-    distributionBalo {
+    distributionBala {
         transitive false
     }
 
@@ -33,35 +33,35 @@ configurations {
         transitive false
     }
     interopImports
-    baloCreat {
+    balaCreat {
         transitive false
     }
 }
 
 dependencies {
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
 
-    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
-    //distributionBalo project(path: ':ballerina-lang-test', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:array', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:decimal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:error', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:future', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:integer', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:map', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:object', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:stream', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:table', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:string', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:typedesc', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:value', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:xml', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:bool', configuration: 'distributionBala')
+    //distributionBala project(path: ':ballerina-lang-test', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:query', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:transaction', configuration: 'distributionBala')
 }
 
 compileJava {
@@ -108,9 +108,9 @@ class BallerinaLangLibBuildTask extends JavaExec {
 }
 
 task createDistributionCache() {
-    dependsOn configurations.distributionBalo
+    dependsOn configurations.distributionBala
     doLast {
-        configurations.distributionBalo.each { artifact ->
+        configurations.distributionBala.each { artifact ->
             copy {
                 from zipTree(artifact.getPath())
                 into "$buildDir/repo"
@@ -154,7 +154,7 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
     errorOutput = System.err
     projectDir = project.buildDir.toString() + "/ballerina-src" // + modName
     distCache = project.buildDir.toString()
-    classpath = project.configurations.baloCreat
+    classpath = project.configurations.balaCreat
     skipBootstrap = 'true'
     minHeapSize = "512m"
     maxHeapSize = "2048m"
@@ -171,7 +171,7 @@ task ballerinaLangLibBuild(type: BallerinaLangLibBuildTask) {
 }
 
 artifacts {
-    distributionBalo file("$buildDir/ballerina-src/target/${project.ext.modName}.zip"), {
+    distributionBala file("$buildDir/ballerina-src/target/${project.ext.modName}.zip"), {
         builtBy(ballerinaLangLibBuild)
     }
     distributionBirJar file("$buildDir/ballerina-src/target/${project.ext.modName}.jar"), {

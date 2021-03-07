@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'xml;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 type ItemType 'xml:Element|'xml:Comment|'xml:ProcessingInstruction|'xml:Text;
 
@@ -482,6 +482,38 @@ public function testSubtypingWithDependentlyTypedMethods() {
     assert(false, <any> new Garply() is Corge);
     assert(false, <any> new Grault() is Garply);
     assert(false, <any> new Garply() is Grault);
+}
+
+function getWithDefaultableParams(int|string x, int|string y = 1, typedesc<int|string> z = int) returns z =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getWithDefaultableParams"
+    } external;
+
+function testDependentlyTypedFunctionWithDefaultableParams() {
+    int a = getWithDefaultableParams(1);
+    assert(2, a);
+
+    int b = getWithDefaultableParams("1");
+    assert(2, b);
+
+    string c = getWithDefaultableParams("hello", z = string);
+    assert("hello1", c);
+
+    string d = getWithDefaultableParams("hello", z = string, y = " world");
+    assert("hello world", d);
+
+    string e = getWithDefaultableParams(z = string, y = " world", x = "hello again");
+    assert("hello again world", e);
+
+    int f = getWithDefaultableParams(1, 2);
+    assert(3, f);
+
+    int g = getWithDefaultableParams(2, 2, int);
+    assert(4, g);
+
+    int h = getWithDefaultableParams(z = int, x = 101);
+    assert(102, h);
 }
 
 // Util functions

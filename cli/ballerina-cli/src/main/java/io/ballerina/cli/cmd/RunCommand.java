@@ -22,7 +22,7 @@ import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.TaskExecutor;
 import io.ballerina.cli.task.CleanTargetDirTask;
 import io.ballerina.cli.task.CompileTask;
-import io.ballerina.cli.task.CreateBaloTask;
+import io.ballerina.cli.task.CreateBalaTask;
 import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.cli.task.RunExecutableTask;
 import io.ballerina.cli.utils.FileUtils;
@@ -79,7 +79,10 @@ public class RunCommand implements BLauncherCmd {
             "when run is used with a source file or a module.")
     private Boolean observabilityIncluded;
 
-    private static final String runCmd = "ballerina run [--experimental] [--offline] \n" +
+    @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
+    private Boolean taintCheck;
+
+    private static final String runCmd = "bal run [--experimental] [--offline] [--taint-check]\n" +
             "                  <executable-jar | ballerina-file | . | package-path> [program-args] [(--key=value)...]";
 
     public RunCommand() {
@@ -144,7 +147,7 @@ public class RunCommand implements BLauncherCmd {
                 .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
-                .addTask(new CreateBaloTask(outStream), isSingleFileBuild) // create the BALO (build projects only)
+                .addTask(new CreateBalaTask(outStream), isSingleFileBuild) // create the BALA (build projects only)
 //                .addTask(new CopyResourcesTask(), isSingleFileBuild)
                 .addTask(new RunExecutableTask(args, outStream, errStream))
                 .build();
@@ -164,14 +167,14 @@ public class RunCommand implements BLauncherCmd {
         out.append("If a Ballerina source file is given, \n");
         out.append("run command compiles and runs it. \n");
         out.append("\n");
-        out.append("By default, 'ballerina run' executes the main function. \n");
+        out.append("By default, 'bal run' executes the main function. \n");
         out.append("If the main function is not there, it executes services. \n");
         out.append("\n");
     }
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  ballerina run {<balfile> | <project-path> | executable-jar}[--offline]\n" +
+        out.append("  bal run {<balfile> | <project-path> | executable-jar}[--offline]\n" +
                 "                 [(--key=value)...] "
                 + "[--] [args...] \n");
     }
@@ -188,6 +191,7 @@ public class RunCommand implements BLauncherCmd {
                 .skipTests(true)
                 .testReport(false)
                 .observabilityIncluded(observabilityIncluded)
+                .taintCheck(taintCheck)
                 .build();
     }
 }

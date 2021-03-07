@@ -41,9 +41,12 @@ import io.ballerina.toml.syntax.tree.TableArrayNode;
 import io.ballerina.toml.syntax.tree.TableNode;
 import io.ballerina.toml.syntax.tree.Token;
 import io.ballerina.toml.syntax.tree.ValueNode;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
 import org.apache.commons.text.StringEscapeUtils;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -62,10 +65,10 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     @Override
-    public TomlNode transform(DocumentNode modulePartNode) {
-        TomlTableNode rootTable = createRootTable();
+    public TomlNode transform(DocumentNode documentNode) {
+        TomlTableNode rootTable = createRootTable(documentNode);
 
-        NodeList<DocumentMemberDeclarationNode> members = modulePartNode.members();
+        NodeList<DocumentMemberDeclarationNode> members = documentNode.members();
         for (DocumentMemberDeclarationNode rootNode : members) {
             TomlNode transformedChild = rootNode.apply(this);
             addChildNodeToParent(rootTable, transformedChild);
@@ -73,23 +76,32 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return rootTable;
     }
 
-    private TomlTableNode createRootTable() {
-        TomlKeyNode tomlKeyNode = new TomlKeyNode(null);
-        return new TomlTableNode(tomlKeyNode, null);
+    private TomlTableNode createRootTable(DocumentNode modulePartNode) {
+        TomlNodeLocation location = getPosition(modulePartNode);
+        TomlKeyEntryNode root = new TomlKeyEntryNode(new TomlUnquotedKeyNode("__root", location));
+        List<TomlKeyEntryNode> tomlKeyEntryNodes = Collections.singletonList(root);
+        TomlKeyNode tomlKeyNode = new TomlKeyNode(tomlKeyEntryNodes, location);
+        return new TomlTableNode(tomlKeyNode, location);
     }
 
     private void addChildNodeToParent(TomlTableNode rootTable, TomlNode transformedChild) {
-        if (transformedChild.kind() == TomlType.TABLE) {
-            TomlTableNode tableChild = (TomlTableNode) transformedChild;
-            addChildTableToParent(rootTable, tableChild);
-        } else if (transformedChild.kind() == TomlType.TABLE_ARRAY) {
-            TomlTableArrayNode transformedArray = (TomlTableArrayNode) transformedChild;
-            addChildParentArrayToParent(rootTable, transformedArray);
-        } else if (transformedChild.kind() == TomlType.KEY_VALUE) {
-            TomlKeyValueNode transformedKeyValuePair = (TomlKeyValueNode) transformedChild;
-            addChildKeyValueToParent(rootTable, transformedKeyValuePair);
-        } else {
-            throw new UnsupportedOperationException();
+        switch (transformedChild.kind()) {
+            case TABLE:
+                TomlTableNode tableChild = (TomlTableNode) transformedChild;
+                addChildTableToParent(rootTable, tableChild);
+                break;
+            case TABLE_ARRAY:
+                TomlTableArrayNode transformedArray = (TomlTableArrayNode) transformedChild;
+                addChildParentArrayToParent(rootTable, transformedArray);
+                break;
+            case KEY_VALUE:
+                TomlKeyValueNode transformedKeyValuePair = (TomlKeyValueNode) transformedChild;
+                addChildKeyValueToParent(rootTable, transformedKeyValuePair);
+                break;
+            default:
+                TomlDiagnostic unexpectedNode =
+                        dlog.error(transformedChild.location(), DiagnosticErrorCode.ERROR_UNEXPECTED_TOP_LEVEL_NODE);
+                rootTable.addDiagnostic(unexpectedNode);
         }
     }
 
@@ -104,29 +116,49 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             String newTable = parentTables.get(i);
             TopLevelNode dottedParentNode = parentTable.entries().get(newTable);
             if (dottedParentNode != null) {
-                //TOOD fix
+                if (dottedParentNode.kind() == TomlType.TABLE) {
+                    parentTable = (TomlTableNode) dottedParentNode;
+                } else {
+                    TomlDiagnostic nodeExists =
+                            dlog.error(dottedParentNode.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE, newTable);
+                    parentTable.addDiagnostic(nodeExists);
+                }
             } else {
                 //create the table
                 TomlKeyEntryNode tomlKeyEntryNode = keys.get(i);
-                parentTable = createDottedKeyParentTable(parentTable, tomlKeyEntryNode);
+                parentTable =
+                        createDottedKeyParentTable(parentTable, tomlKeyEntryNode, transformedKeyValuePair.location());
             }
         }
-        if (keys.size() > 1) {
+        if (isDottedKey(keys)) {
             List<TomlKeyEntryNode> list = new ArrayList<>();
-            list.add(keys.get(keys.size() - 1));
-            TomlKeyNode newKey = new TomlKeyNode(list);
+            TomlKeyEntryNode childKeyEntry = keys.get(keys.size() - 1);
+            list.add(childKeyEntry);
+            TomlKeyNode newKey = new TomlKeyNode(list, childKeyEntry.location());
             transformedKeyValuePair = new TomlKeyValueNode(newKey, transformedKeyValuePair.value(),
                     transformedKeyValuePair.location());
         }
-        parentTable.entries().put(transformedKeyValuePair.key().name(), transformedKeyValuePair);
+        addChildToTableAST(parentTable, transformedKeyValuePair);
     }
 
-    private TomlTableNode createDottedKeyParentTable(TomlTableNode parentTable, TomlKeyEntryNode dottedKey) {
+    private void addChildToTableAST(TomlTableNode parentTable, TopLevelNode value) {
+        Map<String, TopLevelNode> entries = parentTable.entries();
+        String key = value.key().name();
+        if (entries.containsKey(key)) {
+            TomlDiagnostic nodeExists = dlog.error(value.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE, key);
+            parentTable.addDiagnostic(nodeExists);
+        } else {
+            entries.put(key, value);
+        }
+    }
+
+    private TomlTableNode createDottedKeyParentTable(TomlTableNode parentTable, TomlKeyEntryNode dottedKey,
+                                                     TomlNodeLocation location) {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(dottedKey);
-        TomlKeyNode newTableKey = new TomlKeyNode(list);
-        TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, null);
-        parentTable.entries().put(dottedKey.name().toString(), newTomlTableNode);
+        TomlKeyNode newTableKey = new TomlKeyNode(list, dottedKey.location());
+        TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, location);
+        addChildToTableAST(parentTable, newTomlTableNode);
         return newTomlTableNode;
     }
 
@@ -137,22 +169,18 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(tomlKeyEntryNode);
 
-        TomlTableArrayNode newTomlTableArray = new TomlTableArrayNode(new TomlKeyNode(list),
-                tableArrayChild.location(), tableArrayChild.children());
+        TomlTableArrayNode newTomlTableArray = new TomlTableArrayNode(new TomlKeyNode(list,
+                tomlKeyEntryNode.location()), tableArrayChild.location(), tableArrayChild.children());
         TopLevelNode topLevelNode = parentTable.entries().get(newTomlTableArray.key().name());
         if (topLevelNode == null) {
-            parentTable.entries().put(newTomlTableArray.key().name(), newTomlTableArray);
+            addChildToTableAST(parentTable, newTomlTableArray);
         } else {
-            //generated false?
-            if (topLevelNode instanceof TomlTableArrayNode) {
+            if (topLevelNode.kind() == TomlType.TABLE_ARRAY) {
                 ((TomlTableArrayNode) topLevelNode).addChild(newTomlTableArray.children().get(0));
-            } else if (topLevelNode instanceof TomlKeyValueNode) {
-                TomlDiagnostic nodeExists =
-                        dlog.error(newTomlTableArray.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE);
-                parentTable.addDiagnostic(nodeExists);
-
             } else {
-                throw new UnsupportedOperationException();
+                TomlDiagnostic nodeExists = dlog.error(newTomlTableArray.location(),
+                        DiagnosticErrorCode.ERROR_EXISTING_NODE, newTomlTableArray.key().name());
+                parentTable.addDiagnostic(nodeExists);
             }
         }
     }
@@ -162,7 +190,6 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     }
 
     private TomlTableNode getParentTable(TomlTableNode rootTable, TopLevelNode childNode) {
-        String tableLeadName = getLastKeyEntry(childNode).name().toString();
         List<String> parentTables = new ArrayList<>();
         for (int i = 0; i < (childNode.key().keys().size() - 1); i++) {
             parentTables.add(childNode.key().keys().get(i).name().toString());
@@ -176,20 +203,8 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
                 parentTable = (TomlTableNode) rootTableNode;
             } else {
                 TomlKeyEntryNode tomlKeyEntryNode = childNode.key().keys().get(i);
-                if (childNode instanceof TomlTableArrayNode) {
-                    parentTable = generateTable(parentTable.entries(), tomlKeyEntryNode, false);
-                } else {
-                    parentTable = generateTable(parentTable.entries(), tomlKeyEntryNode, true);
-                }
+                parentTable = generateTable(parentTable, tomlKeyEntryNode, childNode.location());
             }
-        }
-
-        TopLevelNode lastNode = parentTable.entries().get(tableLeadName);
-        if (lastNode instanceof TomlKeyValueNode) {
-            TomlDiagnostic nodeExists =
-                    dlog.error(childNode.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE);
-            //TODO revisit dotted.
-            parentTable.addDiagnostic(nodeExists);
         }
         return parentTable;
     }
@@ -200,36 +215,35 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         TomlKeyEntryNode lastKeyEntry = getLastKeyEntry(tableChild);
         List<TomlKeyEntryNode> entries = new ArrayList<>();
         entries.add(lastKeyEntry);
-        TomlTableNode newTableNode = new TomlTableNode(new TomlKeyNode(entries),
+        TomlTableNode newTableNode = new TomlTableNode(new TomlKeyNode(entries, lastKeyEntry.location()),
                 tableChild.generated(), tableChild.location(), tableChild.entries());
         if (topLevelNode == null) {
-            parentTable.entries().put(newTableNode.key().name(), newTableNode);
+            addChildToTableAST(parentTable, newTableNode);
         } else {
-            //generated false?
-            if (topLevelNode instanceof TomlTableNode) {
-                if (((TomlTableNode) topLevelNode).generated()) {
+            if (topLevelNode.kind() == TomlType.TABLE) {
+                TomlTableNode targetTable = (TomlTableNode) topLevelNode;
+                if (targetTable.generated()) {
                     parentTable.replaceGeneratedTable(newTableNode);
                 } else {
-                    TomlDiagnostic nodeExist = dlog.error(newTableNode.location(),
-                            DiagnosticErrorCode.ERROR_EXISTING_NODE);
-                    parentTable.addDiagnostic(nodeExist);
+                    TomlDiagnostic nodeExists = dlog.error(tableChild.location(),
+                            DiagnosticErrorCode.ERROR_EXISTING_NODE, newTableNode.key().name());
+                    parentTable.addDiagnostic(nodeExists);
                 }
-            } else if (topLevelNode instanceof TomlKeyValueNode) {
-                TomlDiagnostic nodeExist = dlog.error(newTableNode.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE);
-                parentTable.addDiagnostic(nodeExist);
             } else {
-                throw new UnsupportedOperationException();
+                TomlDiagnostic nodeExist = dlog.error(newTableNode.location(),
+                        DiagnosticErrorCode.ERROR_EXISTING_NODE, tableChild.key().name());
+                parentTable.addDiagnostic(nodeExist);
             }
         }
     }
 
-    private TomlTableNode generateTable(Map<String, TopLevelNode> childs, TomlKeyEntryNode parentString,
-                                        boolean isGenerated) {
+    private TomlTableNode generateTable(TomlTableNode parentTable, TomlKeyEntryNode parentString,
+                                        TomlNodeLocation location) {
         List<TomlKeyEntryNode> list = new ArrayList<>();
         list.add(parentString);
-        TomlKeyNode newTableKey = new TomlKeyNode(list); //TODO Revisit
-        TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, isGenerated, null);
-        childs.put(parentString.name().toString(), newTomlTableNode);
+        TomlKeyNode newTableKey = new TomlKeyNode(list, parentString.location());
+        TomlTableNode newTomlTableNode = new TomlTableNode(newTableKey, true, location);
+        addChildToTableAST(parentTable, newTomlTableNode);
         return newTomlTableNode;
     }
 
@@ -242,25 +256,28 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return tomlTableNode;
     }
 
-    private void addChildToTable(TableNode tableNode, TomlTableNode tomlTableNode) {
-        NodeList<KeyValueNode> children = tableNode.fields();
+    private void addChildToTable(TableNode stTableNode, TomlTableNode astTomlTableNode) {
+        NodeList<KeyValueNode> children = stTableNode.fields();
         for (KeyValueNode child : children) {
-            TomlNode transformedChild = child.apply(this); //todo dotted
-            if (transformedChild instanceof TopLevelNode) {
+            TomlNode transformedChild = child.apply(this);
+            if (transformedChild.kind() == TomlType.KEY_VALUE) {
                 TopLevelNode topLevelChild = (TopLevelNode) transformedChild;
-                checkExistingNodes(tomlTableNode, topLevelChild);
-                tomlTableNode.entries().put(topLevelChild.key().name(), topLevelChild);
-            } else {
-                throw new UnsupportedOperationException();
+                checkExistingNodes(astTomlTableNode, topLevelChild);
+                addChildKeyValueToParent(astTomlTableNode, (TomlKeyValueNode) transformedChild);
             }
         }
+    }
+
+    private boolean isDottedKey(List<TomlKeyEntryNode> keys) {
+        return keys.size() > 1;
     }
 
     private void checkExistingNodes(TomlTableNode tomlTableNode, TopLevelNode topLevelChild) {
         Map<String, TopLevelNode> childs = tomlTableNode.entries();
         String childName = topLevelChild.key().name();
         if (childs.get(childName) != null) {
-            TomlDiagnostic nodeExists = dlog.error(topLevelChild.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE);
+            TomlDiagnostic nodeExists = dlog.error(topLevelChild.location(), DiagnosticErrorCode.ERROR_EXISTING_NODE,
+                    childName);
             tomlTableNode.addDiagnostic(nodeExists);
         }
     }
@@ -271,23 +288,19 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         TomlKeyNode tomlKeyNode = getTomlKeyNode(identifierList);
         TomlTableArrayNode tomlTableArrayNode = new TomlTableArrayNode(tomlKeyNode, getPosition(tableArrayNode));
         TomlTableNode anonTable = addChildsToTableArray(tableArrayNode);
-        tomlTableArrayNode.addChild(anonTable);
+        tomlTableArrayNode.addChild(anonTable); //As Syntax tree follows a flat hierarchy and contains only one table
         return tomlTableArrayNode;
     }
 
     private TomlTableNode addChildsToTableArray(TableArrayNode tableArrayNode) {
         NodeList<KeyValueNode> children = tableArrayNode.fields();
         TomlNodeLocation position = getPosition(tableArrayNode);
-        TomlKeyNode anonKey = new TomlKeyNode(null);
+        TomlKeyNode anonKey = getTomlKeyNode(tableArrayNode.identifier());
         TomlTableNode anonTable = new TomlTableNode(anonKey, position);
         for (KeyValueNode child : children) {
-            TomlNode transformedChild = child.apply(this); //todo dotted
-            if (transformedChild instanceof TopLevelNode) {
-                TopLevelNode topLevelChild = (TopLevelNode) transformedChild;
-//                checkExistingNodes(tomlTableArray,topLevelChild);
-                anonTable.entries().put(topLevelChild.key().name(), topLevelChild);
-            } else {
-                throw new UnsupportedOperationException();
+            TomlNode transformedChild = child.apply(this);
+            if (transformedChild.kind() == TomlType.KEY_VALUE) {
+                addChildKeyValueToParent(anonTable, (TomlKeyValueNode) transformedChild);
             }
         }
         return anonTable;
@@ -310,8 +323,7 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
             TomlBasicValueNode transformedNode = (TomlBasicValueNode) node.apply(this);
             nodeList.add(new TomlKeyEntryNode(transformedNode));
         }
-
-        return new TomlKeyNode(nodeList);
+        return new TomlKeyNode(nodeList, getTomlNodeListLocation(nodeList));
     }
 
     private TomlValueNode transformValue(ValueNode valueToken) {
@@ -338,6 +350,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return new TomlNodeLocation(node.lineRange(), node.textRange());
     }
 
+    /**
+     * Transforms ST StringLiteralNode into AST string node.
+     *
+     * @param stringLiteralNode Syntax Tree representative for string nodes
+     * @return AST string value representative node
+     */
     @Override
     public TomlNode transform(StringLiteralNode stringLiteralNode) {
         boolean multilineString = isMultilineString(stringLiteralNode.startDoubleQuote());
@@ -367,6 +385,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return output.toString();
     }
 
+    /**
+     * Transforms ST LiteralStringLiteralNode into AST literal string node.
+     *
+     * @param literalStringLiteralNode Syntax Tree representative for literal string nodes
+     * @return AST Literal string value representative node
+     */
     @Override
     public TomlNode transform(LiteralStringLiteralNode literalStringLiteralNode) {
         boolean multilineString = isMultilineString(literalStringLiteralNode.startSingleQuote());
@@ -400,6 +424,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         return value;
     }
 
+    /**
+     * Transforms ST NumericLiteralNode into AST numerical node.
+     *
+     * @param numericLiteralNode Syntax Tree representative for numerical nodes
+     * @return AST Numerical Value representative node
+     */
     @Override
     public TomlNode transform(NumericLiteralNode numericLiteralNode) {
         String sign = "";
@@ -433,6 +463,12 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
         }
     }
 
+    /**
+     * Transforms ST BoolLiteralNode into AST TomlBooleanValue Node.
+     *
+     * @param boolLiteralNode Syntax Tree representative for boolean
+     * @return AST Boolean Value representative node
+     */
     @Override
     public TomlNode transform(BoolLiteralNode boolLiteralNode) {
         if (boolLiteralNode.value().kind() == SyntaxKind.TRUE_KEYWORD) {
@@ -445,5 +481,33 @@ public class TomlTransformer extends NodeTransformer<TomlNode> {
     @Override
     public TomlNode transform(IdentifierLiteralNode identifierLiteralNode) {
         return new TomlUnquotedKeyNode(identifierLiteralNode.value().text(), getPosition(identifierLiteralNode));
+    }
+
+    /**
+     * Gives Location of list of TomlNodes
+     * Should only call this method when the execution order is ensured.
+     *
+     * @param tomlNodes AST TomlNode key list
+     * @return TomlNodeLocation
+     */
+    private TomlNodeLocation getTomlNodeListLocation(List<? extends TomlNode> tomlNodes) {
+        if (tomlNodes.size() == 0) {
+            return null;
+        }
+        TomlNode firstNode = tomlNodes.get(0);
+        if (tomlNodes.size() == 1) {
+            return firstNode.location();
+        }
+        TomlNodeLocation firstKeyLocation = firstNode.location();
+        int length = 0;
+        for (TomlNode entryNode : tomlNodes) {
+            length += entryNode.location().textRange().length() + 1;
+        }
+        TextRange textRange = TextRange.from(firstKeyLocation.textRange().startOffset(), length - 1);
+        LineRange lineRange = LineRange.from(
+                firstKeyLocation.lineRange().filePath(),
+                firstKeyLocation.lineRange().startLine(),
+                tomlNodes.get(tomlNodes.size() - 1).location().lineRange().endLine());
+        return new TomlNodeLocation(lineRange, textRange);
     }
 }

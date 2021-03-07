@@ -24,21 +24,10 @@ import java.util.List;
 /**
  * Represents a Ballerina Package.
  */
-public class DocPackage {
-    @Expose
-    public boolean isSingleFile;
-    @Expose
-    public String sourceFileName;
-    @Expose
-    public String name = "";
-    @Expose
-    public String orgName;
-    @Expose
-    public String version;
+public class DocPackage extends DocPackageMetadata {
+
     @Expose
     public String description;
-    @Expose
-    public String summary;
     @Expose
     public List<Module> modules = new ArrayList<>();
 

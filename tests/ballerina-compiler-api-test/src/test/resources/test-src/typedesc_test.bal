@@ -198,3 +198,17 @@ public type UnKnownError distinct error;
 
 public type Error CancelledError |
 UnKnownError;
+
+type Baz "A"|();
+
+function testUnionsWithNil() {
+    int|() x = 10;
+    int|float|() y = 20;
+    "A"|() z = ();
+    "A"|"B"|() a = ();
+}
+
+const NIL = ();
+type Nil NIL;
+
+type Pi PI;

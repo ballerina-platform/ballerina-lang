@@ -318,7 +318,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_TUPLE_BINDING_PATTERN("BCE2588", "invalid.tuple.binding.pattern"),
     INVALID_TYPE_FOR_TUPLE_VAR_EXPRESSION("BCE2589", "invalid.type.for.tuple.var.expr"),
     INVALID_TUPLE_BINDING_PATTERN_DECL("BCE2590", "invalid.tuple.binding.pattern.decl"),
-    INVALID_TUPLE_BINDING_PATTERN_INFERENCE("BCE2591", "invalid.tuple.binding.pattern.inference"),
+    INVALID_LIST_BINDING_PATTERN_INFERENCE("BCE2591", "invalid.list.binding.pattern.inference"),
     MISMATCHING_ARRAY_LITERAL_VALUES("BCE2592", "mismatching.array.literal.values"),
     SEALED_ARRAY_TYPE_NOT_INITIALIZED("BCE2593", "sealed.array.type.not.initialized"),
     INVALID_LIST_INDEX_EXPR("BCE2594", "invalid.list.index.expr"),
@@ -351,7 +351,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ERROR_MATCH_PATTERN("BCE2618", "invalid.error.match.pattern"),
     DUPLICATE_VARIABLE_IN_BINDING_PATTERN("BCE2619", "duplicate.variable.in.binding.pattern"),
     INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN("BCE2620", "invalid.variable.reference.in.binding.pattern"),
-    MISSING_REQUIRED_ARG_BINDING_PATTERN_ERROR_MESSAGE("BCE2621", "missing.error.arg.binding.pattern.error.message"),
 
     INVALID_NAMESPACE_PREFIX("BCE2622", "invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("BCE2623", "mismatching.xml.start.end.tags"),
@@ -534,6 +533,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNKNOWN_DETAIL_ARG_TO_SEALED_ERROR_DETAIL_REC("BCE3709", "unknown.error.detail.arg.to.sealed.detail"),
     INVALID_ERROR_DETAIL_REST_ARG_TYPE("BCE3710", "invalid.error.detail.rest.arg"),
     UNDEFINED_ERROR_TYPE_DESCRIPTOR("BCE3711", "undefined.error.type.descriptor"),
+    INVALID_REST_DETAIL_ARG("BCE3712",
+            "invalid.error.constructor.rest.detail.arg.on.detail.type.with.individual.fields"),
 
     // Seal inbuilt function related codes
     INCOMPATIBLE_STAMP_TYPE("BCE3800", "incompatible.stamp.type"),
@@ -642,24 +643,26 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     INVALID_ISOLATED_QUALIFIER_ON_MODULE_NO_INIT_VAR_DECL(
             "BCE3961", "invalid.isolated.qualifier.on.module.no.init.var.decl"),
-
+    ONLY_A_SIMPLE_VARIABLE_CAN_BE_MARKED_AS_ISOLATED(
+            "BCE3962", "only.a.simple.variable.can.be.marked.as.isolated"),
     BINDING_PATTERN_NOT_YET_SUPPORTED_IN_MODULE_VAR_DECL(
-            "BCE3962", "binding.pattern.not.yet.supported.in.module.var.decl"),
+            "BCE3963", "binding.pattern.not.yet.supported.in.module.var.decl"),
 
     // Configurable var related error codes
-    CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR("BCE3963",
-            "configurable.variable.cannot.be.declared.with.var"),
-    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY("BCE3964",
-            "configurable.variable.must.be.anydata.and.readonly"),
-    ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE("BCE3965",
-            "only.simple.variables.are.allowed.to.be.configurable"),
-    CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED("BCE3966",
-            "configurable.variable.currently.not.supported"),
 
-    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3967", "remote.function.in.non.network.object"),
-    UNSUPPORTED_PATH_PARAM_TYPE("BCE3968", "unsupported.path.param.type"),
-    UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3969", "unsupported.rest.path.param.type"),
-    OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3970",
+    CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR(
+            "BCE3964", "configurable.variable.cannot.be.declared.with.var"),
+    CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY(
+            "BCE3965", "configurable.variable.must.be.anydata.and.readonly"),
+    ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE(
+            "BCE3966", "only.simple.variables.are.allowed.to.be.configurable"),
+    CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED(
+            "BCE3967", "configurable.variable.currently.not.supported"),
+
+    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3968", "remote.function.in.non.network.object"),
+    UNSUPPORTED_PATH_PARAM_TYPE("BCE3969", "unsupported.path.param.type"),
+    UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3970", "unsupported.rest.path.param.type"),
+    OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3971",
             "unsupported.resource.function.declaration.in.object.type"),
     SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3972",
             "error.service.absolute.path.or.literal.required.by.listener"),
@@ -684,7 +687,12 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3985", "multiple.receive.action.not.yet.supported"),
 
-    INVALID_READONLY_FIELD_TYPE("BCE3986", "invalid.readonly.field.type")
+    INVALID_READONLY_FIELD_TYPE("BCE3986", "invalid.readonly.field.type"),
+
+    CONTINUE_NOT_ALLOWED("BCE3987", "continue.not.allowed"),
+    BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed"),
+    TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3989", "type.does.not.support.xml.navigation.access"),
+    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3990", "xml.function.does.not.support.argument.type")
     ;
 
     private String diagnosticId;

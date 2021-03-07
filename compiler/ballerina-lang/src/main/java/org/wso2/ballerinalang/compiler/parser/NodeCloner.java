@@ -58,6 +58,8 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangWorker;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangJoinClause;
@@ -247,7 +249,7 @@ public class NodeCloner extends BLangNodeVisitor {
         return nodeCloner;
     }
 
-    synchronized BLangCompilationUnit cloneCUnit(BLangCompilationUnit source) {
+    public synchronized BLangCompilationUnit cloneCUnit(BLangCompilationUnit source) {
 
         source.cloneAttempt += 1;
         currentCloneAttempt = source.cloneAttempt;
@@ -777,6 +779,12 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangWildCardBindingPattern source) {
+        BLangWildCardBindingPattern clone = new BLangWildCardBindingPattern();
+        source.cloneRef = clone;
+    }
+
+    @Override
     public void visit(BLangErrorMatchPattern source) {
         BLangErrorMatchPattern clone = new BLangErrorMatchPattern();
         source.cloneRef = clone;
@@ -833,6 +841,13 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.matchPattern = clone(source.matchPattern);
         clone.fieldName = source.fieldName;
+    }
+
+    @Override
+    public void visit(BLangListBindingPattern source) {
+        BLangListBindingPattern clone = new BLangListBindingPattern();
+        source.cloneRef = clone;
+        clone.bindingPatterns = cloneList(source.bindingPatterns);
     }
 
     @Override
@@ -1577,6 +1592,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.lhsExpr = clone(source.lhsExpr);
         clone.rhsExpr = clone(source.rhsExpr);
+        clone.equalsKeywordPos = source.equalsKeywordPos;
     }
 
     @Override
@@ -1769,6 +1785,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.tableKeySpecifier = clone(source.tableKeySpecifier);
         clone.tableKeyTypeConstraint = clone(source.tableKeyTypeConstraint);
         clone.constraint = clone(source.constraint);
+        clone.isTypeInlineDefined = source.isTypeInlineDefined;
         cloneBLangType(source, clone);
     }
 

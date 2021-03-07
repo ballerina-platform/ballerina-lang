@@ -20,15 +20,8 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.engine.RuntimeStaticMethod;
 
-import java.util.Collections;
-import java.util.List;
-
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_STRING_UTILS_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.FROM_STRING_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getRuntimeMethod;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getAsBString;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
 
 /**
@@ -77,20 +70,5 @@ public class VMUtils {
         val = removeRedundantQuotes(val);
         Value bStringVal = getAsBString(context, val);
         return new BExpressionValue(context, bStringVal);
-    }
-
-    /**
-     * Converts the user given string literal into an {@link io.ballerina.runtime.api.values.BString} instance.
-     *
-     * @param context suspended debug context
-     * @param val     string value
-     * @return {@link io.ballerina.runtime.api.values.BString} instance
-     */
-    private static Value getAsBString(SuspendedContext context, String val) throws EvaluationException {
-        List<String> argTypeNames = Collections.singletonList(JAVA_STRING_CLASS);
-        RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, B_STRING_UTILS_CLASS, FROM_STRING_METHOD,
-                argTypeNames);
-        fromStringMethod.setArgValues(Collections.singletonList(context.getAttachedVm().mirrorOf(val)));
-        return fromStringMethod.invoke();
     }
 }

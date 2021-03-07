@@ -58,12 +58,12 @@ configurations {
         transitive false
     }
     zip
-    balo
+    bala
     resourceFiles
     staticFiles
     balx
     unzipped
-    distributionBalo
+    distributionBala
 }
 
 dependencies {
@@ -80,6 +80,7 @@ dependencies {
     dist 'org.jline:jline:3.11.0'
     dist 'org.wso2.orbit.org.antlr:antlr4-runtime:4.5.1.wso2v1'
     dist 'org.apache.commons:commons-text:1.9'
+    dist 'com.github.spullara.mustache.java:compiler:0.8.9'
 
     // Following dependencies are required for kraal library
     dist 'org.jetbrains.kotlin:kotlin-stdlib:1.3.31'
@@ -119,6 +120,8 @@ dependencies {
     dist project(':testerina:testerina-runtime')
     dist project(':toml-parser')
     docerina project(':docerina-gradle-plugin')
+    dist project(':ballerina-shell:shell-core')
+    dist project(':ballerina-shell:shell-cli')
 
     datamapperLib project(':ballerinalang-data-mapper')
 
@@ -134,17 +137,17 @@ dependencies {
     balSource project(path: ':jballerina', configuration: 'source')
 
     balxSource project(path: ':jballerina', configuration: 'sourceBalx')
-//    distBal project(path: ':jballerina', configuration: 'balo')
+//    distBal project(path: ':jballerina', configuration: 'bala')
     dist project(path: ':jballerina', configuration: 'jar')
     bin project(path: ':jballerina', configuration: 'bin')
     staticFiles project(path: ':jballerina', configuration: 'staticFiles')
     resourceFiles project(path: ':jballerina', configuration: 'resourceFiles')
 
-    distBal project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
+    distBal project(path: ':testerina:testerina-core', configuration: 'distributionBala')
     balSource project(path: ':testerina:testerina-core', configuration: 'balSource')
 
     // ballerinax module cache
-    balxBir project(path: ':ballerina-lang:java', configuration: 'bir')
+    balxBir project(path: ':ballerina-lang:jballerina.java', configuration: 'bir')
 
     balDoc project(path: ':ballerina-observability', configuration: 'balDoc')
     balDoc project(path: ':ballerina-observability-internal', configuration: 'balDoc')
@@ -153,8 +156,9 @@ dependencies {
     // Lang Libs
     balDoc project(path: ':ballerina-lang:internal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:annotations', configuration: 'balDoc')
-    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:jballerina.java', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:array', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:config', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:decimal', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:error', configuration: 'balDoc')
     balDoc project(path: ':ballerina-lang:floatingpoint', configuration: 'balDoc')
@@ -174,38 +178,39 @@ dependencies {
     balDoc project(path: ':ballerina-lang:transaction', configuration: 'balDoc')
 
     // ballerinax modules
-    balDoc project(path: ':ballerina-lang:java', configuration: 'balDoc')
+    balDoc project(path: ':ballerina-lang:jballerina.java', configuration: 'balDoc')
 
     // testerina modules
     balDoc project(path: ':testerina:testerina-core', configuration: 'balDoc')
 
-    distributionBalo project(path: ':ballerina-observability', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-observability-internal', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-observability', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-observability-internal', configuration: 'distributionBala')
 
-    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:bool', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:runtime', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:decimal', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:error', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:future', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:integer', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:map', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:object', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:query', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:stream', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:string', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:table', configuration: 'distributionBalo')
-//    distributionBalo project(path: ':ballerina-langlib:test', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:transaction', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:typedesc', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:xml', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:array', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:config', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:bool', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:runtime', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:decimal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:error', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:future', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:integer', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:map', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:object', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:query', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:stream', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:string', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:table', configuration: 'distributionBala')
+//    distributionBala project(path: ':ballerina-langlib:test', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:transaction', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:typedesc', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:value', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:xml', configuration: 'distributionBala')
 
-    distributionBalo project(path: ':testerina:testerina-core', configuration: 'distributionBalo')
+    distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
 }
 
 
@@ -225,7 +230,7 @@ def copyJarSpec = {
     }
 }
 
-def copyBaloSpec = {
+def copyBalaSpec = {
     path -> copySpec {
         from configurations.distBal
         into(path + 'lib')
@@ -256,7 +261,7 @@ def copyBalxSpec = {
 
 def copyToDistCache = {
     path -> copySpec {
-        from configurations.distributionBalo.collect { zipTree(it) }
+        from configurations.distributionBala.collect { zipTree(it) }
         into(path + 'repo')
     }
 }
@@ -282,7 +287,7 @@ def copyResourceSpec = {
     }
 }
 
-//def copySrcBaloSpec = {
+//def copySrcBalaSpec = {
 //    path -> copySpec {
 //        from configurations.balSource.files
 //        into("$path/src")
@@ -416,7 +421,7 @@ task createZip(type: Zip) {
     with copyJarSpec(basePath)
     with copyBirSpec(basePath)
 //    with copyBirJarSpec(basePath)
-    with copyBaloSpec(basePath)
+    with copyBalaSpec(basePath)
     with copyBalxSpec(basePath)
     with copyBinSpec(basePath)
     with copyLangServerLibsSpec(basePath)
@@ -429,7 +434,7 @@ task createZip(type: Zip) {
     with copyStaticSpec(basePath)
     with copyDocerinaUi(basePath)
     with copyResourceSpec(basePath)
-//    with copySrcBaloSpec(basePath)
+//    with copySrcBalaSpec(basePath)
     with copyKraalLib(basePath)
     with copyJaCoCoAgent(basePath)
     with copyToDistCache(basePath)
@@ -440,7 +445,7 @@ task updateBalHome(type: Copy) {
     with copyJarSpec(installDir)
     with copyBirSpec(installDir)
 //    with copyBirJarSpec(installDir)
-    with copyBaloSpec(installDir)
+    with copyBalaSpec(installDir)
     with copyBalxSpec(installDir)
     with copyBinSpec(installDir)
     with copyLangServerLibsSpec(installDir)
@@ -455,7 +460,7 @@ task updateBalHome(type: Copy) {
     with copyResourceSpec(installDir)
     with copyKraalLib(installDir)
     with copyJaCoCoAgent(installDir)
-//    with copySrcBaloSpec(installDir)
+//    with copySrcBalaSpec(installDir)
     into System.getenv('BAL_HOME')
 }
 
@@ -466,7 +471,7 @@ task createDistribution(type: Copy) {
     with copyJarSpec("")
     with copyBirSpec("")
 //    with copyBirJarSpec("")
-    with copyBaloSpec("")
+    with copyBalaSpec("")
     with copyBalxSpec("")
     with copyBinSpec("")
     with copyLangServerLibsSpec("")
@@ -479,7 +484,7 @@ task createDistribution(type: Copy) {
     with copyStaticSpec("")
     with copyDocerinaUi("")
     with copyResourceSpec("")
-//    with copySrcBaloSpec("")
+//    with copySrcBalaSpec("")
     with copyKraalLib("")
     with copyJaCoCoAgent("")
     with copyToDistCache("")
@@ -493,7 +498,7 @@ build {
 }
 
 artifacts {
-    balo configurations.distBal.files
+    bala configurations.distBal.files
     zip file: file("$buildDir/distributions/${project.name}-${project.version}.zip"), builtBy: createZip
     unzipped file: file("$buildDir/extracted-distributions/${project.name}-${project.version}"), builtBy: createDistribution
 }

@@ -22,6 +22,7 @@ import com.google.gson.JsonParser;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.LanguageServerContextImpl;
 import org.ballerinalang.langserver.workspace.BallerinaWorkspaceManager;
@@ -72,7 +73,7 @@ public class DataMapperTestUtils {
      * @return {@link JsonObject}   Code action response
      */
     public static JsonObject getCodeActionResponse(String source, JsonObject configJsonObject, Endpoint serviceEndpoint)
-            throws IOException {
+            throws IOException, WorkspaceDocumentException {
 
         // Read expected results
         Path sourcePath = sourcesPath.resolve("source").resolve(source);

@@ -57,7 +57,9 @@ public class ReadonlyRecordFieldTest {
                 {"testSubTypingWithReadOnlyFieldsPositiveComposite"},
                 {"testSubTypingWithReadOnlyFieldsNegativeComposite"},
                 {"testSubTypingMapAsRecordWithReadOnlyFields"},
-                {"testReadOnlyFieldsOfClassTypes"}
+                {"testReadOnlyFieldsOfClassTypes"},
+                {"testTypeReadOnlynessNegativeWithNonReadOnlyFieldsViaInclusion"},
+                {"testTypeReadOnlynessWithReadOnlyFieldsViaInclusion"}
         };
     }
 
@@ -107,6 +109,10 @@ public class ReadonlyRecordFieldTest {
                 "'OpenRecordWithFieldDescriptors'", 248, 20);
         validateError(result, index++, "incompatible types: expected 'readonly', found 'record {| readonly int x; int" +
                 "...; |}'", 249, 20);
+        validateError(result, index++, "incompatible types: expected 'readonly', found '(Unauthorized|Forbidden)?'",
+                      269, 19);
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'Unauthorized?'", 272, 19);
+        validateError(result, index++, "incompatible types: expected 'readonly', found 'Unauthorized?'", 273, 18);
         assertEquals(result.getErrorCount(), index);
     }
 }

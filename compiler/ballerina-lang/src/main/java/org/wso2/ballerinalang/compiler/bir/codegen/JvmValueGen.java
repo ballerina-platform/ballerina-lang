@@ -96,12 +96,12 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameS
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ABSTRACT_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ARRAY_LIST;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_OPTIONAL;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_RUNTIME_EXCEPTION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_MAPPING_INITIAL_VALUE_ENTRY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.COLLECTION;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_VALUE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_TO_STRING_METHOD;
@@ -119,6 +119,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.POPULATE_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_BUILDER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_CLASS_PREFIX;
@@ -202,8 +203,8 @@ class JvmValueGen {
                 }
             } else {
                 addDefaultableBooleanVarsToSignature(birFunc, jvmPackageGen.symbolTable.booleanType);
+                enrichWithDefaultableParamInits(birFunc, initMethodGen);
             }
-            enrichWithDefaultableParamInits(birFunc, initMethodGen);
         }
     }
 
@@ -228,26 +229,27 @@ class JvmValueGen {
         mv.visitLookupSwitchInsn(defaultCaseLabel, hashCodes, labels.toArray(new Label[0]));
         return labels;
     }
-
-    static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex) {
+    static void createDefaultCase(MethodVisitor mv, Label defaultCaseLabel, int nameRegIndex, String errorMessage) {
 
         mv.visitLabel(defaultCaseLabel);
-        mv.visitTypeInsn(NEW, BLANG_RUNTIME_EXCEPTION);
+        mv.visitTypeInsn(NEW, ERROR_VALUE);
         mv.visitInsn(DUP);
 
         // Create error message
         mv.visitTypeInsn(NEW, STRING_BUILDER);
         mv.visitInsn(DUP);
-        mv.visitLdcInsn("No such field or method: ");
+        mv.visitLdcInsn(errorMessage);
         mv.visitMethodInsn(INVOKESPECIAL, STRING_BUILDER, JVM_INIT_METHOD, String.format("(L%s;)V", STRING_VALUE),
                 false);
         mv.visitVarInsn(ALOAD, nameRegIndex);
         mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, "append",
                 String.format("(L%s;)L%s;", STRING_VALUE, STRING_BUILDER), false);
-        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD,
-                String.format("()L%s;", STRING_VALUE), false);
-        mv.visitMethodInsn(INVOKESPECIAL, BLANG_RUNTIME_EXCEPTION, JVM_INIT_METHOD,
-                String.format("(L%s;)V", STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKEVIRTUAL, STRING_BUILDER, JVM_TO_STRING_METHOD, String.format("()L%s;", STRING_VALUE)
+                , false);
+        mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString", String.format("(L%s;)L%s;", STRING_VALUE,
+                                                                                   B_STRING_VALUE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V", B_STRING_VALUE),
+                           false);
         mv.visitInsn(ATHROW);
     }
 
@@ -412,7 +414,7 @@ class JvmValueGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, funcNameRegIndex, "No such method: ");
         mv.visitMaxs(functions.size() + 10, functions.size() + 10);
         mv.visitEnd();
     }
@@ -451,7 +453,7 @@ class JvmValueGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such field: ");
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
@@ -514,7 +516,7 @@ class JvmValueGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such field: ");
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
@@ -1002,7 +1004,7 @@ class JvmValueGen {
 
             // field name as key
             mv.visitLdcInsn(decodeIdentifier(fieldName));
-            mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
+            mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
                                String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
 
             // field value as the map-entry value
@@ -1293,7 +1295,7 @@ class JvmValueGen {
 
             mv.visitVarInsn(ALOAD, keysVarIndex);
             mv.visitLdcInsn(fieldName);
-                mv.visitMethodInsn(INVOKESTATIC, JvmConstants.STRING_UTILS, "fromString",
+                mv.visitMethodInsn(INVOKESTATIC, STRING_UTILS, "fromString",
                                    String.format("(L%s;)L%s;", STRING_VALUE, B_STRING_VALUE), false);
             mv.visitMethodInsn(INVOKEINTERFACE, SET, "add", String.format("(L%s;)Z", OBJECT), true);
             mv.visitInsn(POP);
@@ -1338,7 +1340,7 @@ class JvmValueGen {
         String packageName = JvmCodeGenUtil.getPackageName(module.packageID);
         module.typeDefs.parallelStream().forEach(optionalTypeDef -> {
             BType bType = optionalTypeDef.type;
-            String className = getTypeValueClassName(packageName, optionalTypeDef.name.value);
+            String className = getTypeValueClassName(packageName, optionalTypeDef.internalName.value);
             AsyncDataCollector asyncDataCollector = new AsyncDataCollector(className);
             if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
                 BObjectType objectType = (BObjectType) bType;
@@ -1350,7 +1352,7 @@ class JvmValueGen {
                 byte[] bytes = this.createRecordValueClass(recordType, className, optionalTypeDef, stringConstantsGen
                         , asyncDataCollector);
                 jarEntries.put(className + ".class", bytes);
-                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.name.value);
+                String typedescClass = getTypeDescClassName(packageName, optionalTypeDef.internalName.value);
                 bytes = this.createRecordTypeDescClass(recordType, typedescClass, optionalTypeDef);
                 jarEntries.put(typedescClass + ".class", bytes);
             }

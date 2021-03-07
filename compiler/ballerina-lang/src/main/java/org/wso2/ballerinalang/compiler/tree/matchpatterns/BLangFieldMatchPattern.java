@@ -30,7 +30,6 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
  * @since 2.0.0
  */
 public class BLangFieldMatchPattern extends BLangMatchPattern implements FieldMatchPatternNode {
-
     public BLangIdentifier fieldName;
     public BLangMatchPattern matchPattern;
 

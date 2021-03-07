@@ -22,11 +22,11 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
 
-    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:java', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:array', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:value', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:array', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:value', configuration: 'distributionBala')
 }
 
 description = 'ballerina/lang.runtime Implementation'

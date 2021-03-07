@@ -17,14 +17,9 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.toml.semantic.TomlType;
-import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
-import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
-import io.ballerina.toml.semantic.ast.TomlStringValueNode;
-import io.ballerina.toml.semantic.ast.TomlValueNode;
+import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -38,6 +33,12 @@ public class PackageManifest {
     private final PackageDescriptor packageDesc;
     private final List<Dependency> dependencies;
     private final Map<String, Platform> platforms;
+    private final DiagnosticResult diagnostics;
+    private final List<String> license;
+    private final List<String> authors;
+    private final List<String> keywords;
+    private final String repository;
+    private final List<String> exported;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
@@ -46,23 +47,66 @@ public class PackageManifest {
     private PackageManifest(PackageDescriptor packageDesc,
                             List<Dependency> dependencies,
                             Map<String, Platform> platforms,
-                            Map<String, TopLevelNode> otherEntries) {
+                            Map<String, TopLevelNode> otherEntries,
+                            DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.platforms = Collections.unmodifiableMap(platforms);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
+        this.diagnostics = diagnostics;
+        this.license = Collections.emptyList();
+        this.authors = Collections.emptyList();
+        this.keywords = Collections.emptyList();
+        this.exported = Collections.emptyList();
+        this.repository = "";
+    }
+
+    private PackageManifest(PackageDescriptor packageDesc,
+                            List<Dependency> dependencies,
+                            Map<String, Platform> platforms,
+                            Map<String, TopLevelNode> otherEntries,
+                            DiagnosticResult diagnostics,
+                            List<String> license,
+                            List<String> authors,
+                            List<String> keywords,
+                            List<String> exported,
+                            String repository) {
+        this.packageDesc = packageDesc;
+        this.dependencies = Collections.unmodifiableList(dependencies);
+        this.platforms = Collections.unmodifiableMap(platforms);
+        this.otherEntries = Collections.unmodifiableMap(otherEntries);
+        this.diagnostics = diagnostics;
+        this.license = license;
+        this.authors = authors;
+        this.keywords = keywords;
+        this.exported = exported;
+        this.repository = repository;
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
         return new PackageManifest(packageDesc, Collections.emptyList(),
-                Collections.emptyMap(), Collections.emptyMap());
+                Collections.emptyMap(), Collections.emptyMap(), new DefaultDiagnosticResult(Collections.EMPTY_LIST));
+    }
+
+    public static PackageManifest from(PackageDescriptor packageDesc,
+                                       List<Dependency> dependencies,
+                                       Map<String, Platform> platforms) {
+        return new PackageManifest(packageDesc, dependencies, platforms, Collections.emptyMap(),
+                new DefaultDiagnosticResult(Collections.EMPTY_LIST));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
                                        List<Dependency> dependencies,
                                        Map<String, Platform> platforms,
-                                       Map<String, TopLevelNode> otherEntries) {
-        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries);
+                                       Map<String, TopLevelNode> otherEntries,
+                                       DiagnosticResult diagnostics,
+                                       List<String> license,
+                                       List<String> authors,
+                                       List<String> keywords,
+                                       List<String> exported,
+                                       String repository) {
+        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries, diagnostics, license, authors,
+                                   keywords, exported, repository);
     }
 
     public PackageName name() {
@@ -95,45 +139,27 @@ public class PackageManifest {
     }
 
     public List<String> license() {
-        return getOtherEntry("license");
+        return license;
     }
 
     public List<String> authors() {
-        return getOtherEntry("authors");
+        return authors;
     }
 
     public List<String> keywords() {
-        return getOtherEntry("keywords");
+        return keywords;
+    }
+
+    public List<String> exported() {
+        return exported;
     }
 
     public String repository() {
-        TopLevelNode entryNode = getValue("repository");
-        if (entryNode == null || entryNode.kind() == TomlType.NONE) {
-            return null;
-        }
-        TomlValueNode valueNode = ((TomlKeyValueNode) entryNode).value();
-        if (valueNode.kind() == TomlType.NONE) {
-            return null;
-        }
-        TomlStringValueNode stringValueNode = (TomlStringValueNode) valueNode;
-        return stringValueNode.getValue();
+        return repository;
     }
 
-    private List<String> getOtherEntry(String key) {
-        List<String> elements = new ArrayList<>();
-        TopLevelNode entryNode = getValue(key);
-        if (entryNode == null || entryNode.kind() == TomlType.NONE) {
-            return elements;
-        }
-        TomlValueNode valueNode = ((TomlKeyValueNode) entryNode).value();
-        if (valueNode.kind() == TomlType.NONE) {
-            return elements;
-        }
-        TomlArrayValueNode arrayValueNode = (TomlArrayValueNode) valueNode;
-        for (TomlValueNode value: arrayValueNode.elements()) {
-            elements.add(((TomlStringValueNode) value).getValue());
-        }
-        return elements;
+    public DiagnosticResult diagnostics() {
+        return diagnostics;
     }
 
     /**
@@ -145,11 +171,20 @@ public class PackageManifest {
         private final PackageName packageName;
         private final PackageOrg packageOrg;
         private final PackageVersion semanticVersion;
+        public String repository;
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.semanticVersion = semanticVersion;
+        }
+
+        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
+                          String repository) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.semanticVersion = semanticVersion;
+            this.repository = repository;
         }
 
         public PackageName name() {
@@ -162,6 +197,10 @@ public class PackageManifest {
 
         public PackageVersion version() {
             return semanticVersion;
+        }
+
+        public String repository() {
+            return repository;
         }
     }
 

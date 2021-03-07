@@ -134,6 +134,7 @@ public class SymbolTable {
     public final BType pathParamAllowedType = BUnionType.create(null,
             intType, stringType, floatType, booleanType, decimalType);
     public final BIntersectionType anyAndReadonly;
+    public BUnionType anyAndReadonlyOrError;
 
     public final BType errorIntersectionType = new BErrorType(null, null);
 
@@ -186,6 +187,7 @@ public class SymbolTable {
     public BPackageSymbol langAnnotationModuleSymbol;
     public BPackageSymbol langJavaModuleSymbol;
     public BPackageSymbol langArrayModuleSymbol;
+    public BPackageSymbol langConfigModuleSymbol;
     public BPackageSymbol langDecimalModuleSymbol;
     public BPackageSymbol langErrorModuleSymbol;
     public BPackageSymbol langFloatModuleSymbol;
@@ -283,6 +285,12 @@ public class SymbolTable {
                 ImmutableTypeCloner.getImmutableIntersectionType((SelectivelyImmutableReferenceType) this.anyType,
                         this, names);
         initializeType(this.anyAndReadonly, this.anyAndReadonly.effectiveType.name.getValue(), BUILTIN);
+
+        defineReadonlyCompoundType();
+    }
+
+    private void defineReadonlyCompoundType() {
+        anyAndReadonlyOrError = BUnionType.create(null, anyAndReadonly, errorType);
     }
 
     public BType getTypeFromTag(int tag) {
@@ -381,6 +389,7 @@ public class SymbolTable {
                                                 Map.entry(Names.STREAM, this.langStreamModuleSymbol),
                                                 Map.entry(Names.STRING, this.langStringModuleSymbol),
                                                 Map.entry(Names.TABLE, this.langTableModuleSymbol),
+                                                Map.entry(Names.TRANSACTION, this.langTransactionModuleSymbol),
                                                 Map.entry(Names.TYPEDESC, this.langTypedescModuleSymbol),
                                                 Map.entry(Names.XML, this.langXmlModuleSymbol));
     }
@@ -402,6 +411,32 @@ public class SymbolTable {
     private void defineType(BType type, BTypeSymbol tSymbol) {
         type.tsymbol = tSymbol;
         rootScope.define(tSymbol.name, tSymbol);
+    }
+
+    public void updateBuiltinSubtypeOwners() {
+        updateIntSubtypeOwners();
+        updateStringSubtypeOwners();
+        updateXMLSubtypeOwners();
+    }
+
+    public void updateIntSubtypeOwners() {
+        this.signed8IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.unsigned8IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.signed16IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.unsigned16IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.signed32IntType.tsymbol.owner = this.langIntModuleSymbol;
+        this.unsigned32IntType.tsymbol.owner = this.langIntModuleSymbol;
+    }
+
+    public void updateStringSubtypeOwners() {
+        this.charStringType.tsymbol.owner = this.langStringModuleSymbol;
+    }
+
+    public void updateXMLSubtypeOwners() {
+        this.xmlElementType.tsymbol.owner = this.langXmlModuleSymbol;
+        this.xmlCommentType.tsymbol.owner = this.langXmlModuleSymbol;
+        this.xmlPIType.tsymbol.owner = this.langXmlModuleSymbol;
+        this.xmlTextType.tsymbol.owner = this.langXmlModuleSymbol;
     }
 
     public void defineOperators() {
@@ -761,7 +796,7 @@ public class SymbolTable {
         futureType.constraint = anyOrErrorType;
 
         pureType = BUnionType.create(null, anydataType, errorType);
-        streamType = new BStreamType(TypeTags.STREAM, pureType, null, null);
+        streamType = new BStreamType(TypeTags.STREAM, pureType, neverType, null);
         tableType = new BTableType(TypeTags.TABLE, pureType, null);
 
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);

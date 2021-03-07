@@ -9,6 +9,7 @@
       "label": "source",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "source",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "type",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "type ",
       "insertTextFormat": "Snippet"
     },
@@ -23,6 +25,7 @@
       "label": "class",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "class ",
       "insertTextFormat": "Snippet"
     },
@@ -30,6 +33,7 @@
       "label": "object function",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "object function",
       "insertTextFormat": "Snippet"
     },
@@ -37,6 +41,7 @@
       "label": "service remote function",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "service remote function",
       "insertTextFormat": "Snippet"
     },
@@ -44,6 +49,7 @@
       "label": "parameter",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "parameter",
       "insertTextFormat": "Snippet"
     },
@@ -51,6 +57,7 @@
       "label": "parameter",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "parameter",
       "insertTextFormat": "Snippet"
     },
@@ -58,6 +65,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -65,6 +73,7 @@
       "label": "object field",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "object field",
       "insertTextFormat": "Snippet"
     },
@@ -72,6 +81,7 @@
       "label": "record field",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "record field",
       "insertTextFormat": "Snippet"
     },
@@ -79,6 +89,7 @@
       "label": "source annotation",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "source annotation",
       "insertTextFormat": "Snippet"
     },
@@ -86,6 +97,7 @@
       "label": "source external",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "source external",
       "insertTextFormat": "Snippet"
     },
@@ -93,6 +105,7 @@
       "label": "source var",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "source var",
       "insertTextFormat": "Snippet"
     },
@@ -100,6 +113,7 @@
       "label": "source const",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "source const",
       "insertTextFormat": "Snippet"
     },
@@ -107,6 +121,7 @@
       "label": "source listener",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "source listener",
       "insertTextFormat": "Snippet"
     },
@@ -114,6 +129,7 @@
       "label": "source worker",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "source worker",
       "insertTextFormat": "Snippet"
     }

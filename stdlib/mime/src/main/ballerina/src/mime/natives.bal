@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/io;
-import ballerina/java;
+import ballerina/jballerina.java;
 import ballerina/lang.'int as langint;
 
 # Key name for `boundary` parameter in MediaType. This is needed for composite type media types.
@@ -457,7 +457,6 @@ public class Entity {
     # + return - All header names as a `string[]`
     public function getHeaderNames() returns @tainted string[] {
         return self.headerNames.clone();
-        //return self.headerNames.clone();
     }
 
     # Adds the given header value against the given header. Panic if an illegal header is passed.

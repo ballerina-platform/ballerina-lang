@@ -134,6 +134,7 @@ public class TestProcessor {
         testSuite.setSourceRootPath(module.project().sourceRoot().toString());
         addUtilityFunctions(module, testSuite);
         processAnnotations(module, testSuite);
+        testSuite.sort();
         return testSuite;
     }
 
@@ -147,10 +148,10 @@ public class TestProcessor {
         Map<Document, SyntaxTree> syntaxTreeMap = getTestSyntaxTreeMap(module);
         List<FunctionSymbol> functionSymbolList = getFunctionSymbolList(syntaxTreeMap, module);
         for (FunctionSymbol functionSymbol : functionSymbolList) {
-            String functionName = functionSymbol.name();
+            String functionName = functionSymbol.getName().get();
             List<AnnotationSymbol> annotations = functionSymbol.annotations();
             for (AnnotationSymbol annotationSymbol : annotations) {
-                String annotationName = annotationSymbol.name();
+                String annotationName = annotationSymbol.getName().get();
                 if (annotationName.contains(BEFORE_SUITE_ANNOTATION_NAME)) {
                     suite.addBeforeSuiteFunction(functionName);
                 } else if (annotationName.contains(AFTER_SUITE_ANNOTATION_NAME)) {
@@ -200,7 +201,7 @@ public class TestProcessor {
                                 NodeList<AnnotationNode> annotations = optionalMetadataNode.get().annotations();
                                 for (AnnotationNode annotation : annotations) {
                                     if ((annotation.toString().trim()).contains(
-                                            TEST_PREFIX + annotationSymbol.name())) {
+                                            TEST_PREFIX + annotationSymbol.getName().get())) {
                                         return annotation;
                                     }
                                 }
@@ -230,9 +231,9 @@ public class TestProcessor {
                                       syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().offset()));
             for (Symbol symbol : symbols) {
                 if (symbol.kind() == SymbolKind.FUNCTION && symbol instanceof FunctionSymbol &&
-                        !functionNamesList.contains(symbol.name())) {
+                        !functionNamesList.contains(symbol.getName().get())) {
                     functionSymbolList.add((FunctionSymbol) symbol);
-                    functionNamesList.add(symbol.name());
+                    functionNamesList.add(symbol.getName().get());
                 }
             }
         }
@@ -273,8 +274,8 @@ public class TestProcessor {
         }
         List<FunctionSymbol> functionSymbolList = getFunctionSymbolList(syntaxTreeMap, module);
         for (FunctionSymbol functionSymbol : functionSymbolList) {
-            String functionName = functionSymbol.name();
-            Location pos = functionSymbol.location();
+            String functionName = functionSymbol.getName().get();
+            Location pos = functionSymbol.getLocation().get();
             List<Qualifier> qualifiers = functionSymbol.qualifiers();
             boolean isUtility = true;
             for (Qualifier qualifier : qualifiers) {
@@ -284,7 +285,7 @@ public class TestProcessor {
                     break;
                 }
             }
-            if (pos != null && isUtility) {
+            if (isUtility) {
                 // Remove the duplicated annotations.
                 String className = pos.lineRange().filePath().replace(ProjectConstants.BLANG_SOURCE_EXT, "")
                         .replace("/", ProjectConstants.DOT);
@@ -421,7 +422,7 @@ public class TestProcessor {
                                 if (SyntaxKind.BOOLEAN_LITERAL == valueExpr.kind()) {
                                     if (getStringValue(valueExpr).startsWith(Boolean.FALSE.toString())) {
                                         shouldSkip.set(true);
-                                        continue;
+                                        break;
                                     }
                                 }
                             }

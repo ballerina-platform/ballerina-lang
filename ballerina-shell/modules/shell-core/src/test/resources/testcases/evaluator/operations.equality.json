@@ -1,0 +1,64 @@
+[
+  {
+    "description": "Define types.",
+    "code": "type Employee record { string name; int id; }; type Person record { string name; };"
+  },
+  {
+    "description": "Define employee.",
+    "code": "final Employee moduleEmployee = {name: \"John\", id: 2102};"
+  },
+  {
+    "description": "Define module ref getter.",
+    "code": "function getModuleEmployee() returns Employee { return moduleEmployee; }"
+  },
+  {
+    "description": "Equality ==.",
+    "code": "int i1 = 1; int i2 = 1; i1 == i2",
+    "expr": "true"
+  },
+  {
+    "description": "Inequality !=.",
+    "code": "int i3 = 2; i1 != i3;",
+    "expr": "true"
+  },
+  {
+    "description": "Deep equality.",
+    "code": "[string|int, float, boolean] t1 = [1, 1.0, false]; [int, float|string, boolean] t2 = [1, 1.0, false]; t1 == t2",
+    "expr": "true"
+  },
+  {
+    "description": "Deep inequality.",
+    "code": "[int, float|string, boolean] t3 = [11, 1.0, true]; t1 != t3",
+    "expr": "true"
+  },
+  {
+    "description": "Deep inequality in records.",
+    "code": "Employee e1 = {name: \"Jane\", id: 1100}; Employee e2 = {name: \"Jane\", id: 1100}; e1 != e2",
+    "expr": "false"
+  },
+  {
+    "description": "Deep equality in records.",
+    "code": "Employee e3 = {name: \"Anne\", id: 1100}; e1 == e3",
+    "expr": "false"
+  },
+  {
+    "description": "Reference equality ===.",
+    "code": "Employee e4 = getModuleEmployee(); Person e5 = getModuleEmployee(); e4 === e5",
+    "expr": "true"
+  },
+  {
+    "description": "Reference equality ===.",
+    "code": "e4 = {name: \"John\", id: 2102}; e4 !== e5",
+    "expr": "true"
+  },
+  {
+    "description": "Reference inequality for simple types.",
+    "code": "float f1 = 1.1; float f2 = 1.1; f1 === f2",
+    "expr": "true"
+  },
+  {
+    "description": "Reference equality for simple types.",
+    "code": "f2 = 12.1; f1 !== f2;",
+    "expr": "true"
+  }
+]

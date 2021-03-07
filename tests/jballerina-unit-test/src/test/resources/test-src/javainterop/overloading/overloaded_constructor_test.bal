@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function testOverloadedConstructorsWithOneParam() returns [handle, handle] {
     handle bufferStrValue = java:fromString("string buffer value");

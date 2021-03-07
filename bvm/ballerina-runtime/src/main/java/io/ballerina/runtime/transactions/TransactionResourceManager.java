@@ -18,13 +18,18 @@
 package io.ballerina.runtime.transactions;
 
 import com.atomikos.icatch.jta.UserTransactionManager;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.configurable.ConfigurableMap;
+import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import org.ballerinalang.config.ConfigRegistry;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -35,6 +40,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -52,8 +58,10 @@ import javax.transaction.xa.XAResource;
 import javax.transaction.xa.Xid;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
+import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_ID;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_NAME;
 import static io.ballerina.runtime.transactions.TransactionConstants.TRANSACTION_PACKAGE_VERSION;
+import static java.util.Objects.isNull;
 import static javax.transaction.xa.XAResource.TMNOFLAGS;
 import static javax.transaction.xa.XAResource.TMSUCCESS;
 
@@ -76,10 +84,7 @@ public class TransactionResourceManager {
     private static final String ATOMIKOS_LOG_BASE_PROPERTY = "com.atomikos.icatch.log_base_dir";
     private static final String ATOMIKOS_LOG_NAME_PROPERTY = "com.atomikos.icatch.log_base_name";
     private static final String ATOMIKOS_REGISTERED_PROPERTY = "com.atomikos.icatch.registered";
-    private static final String CONFIG_TRANSACTION_MANAGER_ENABLED = "b7a.transaction.manager.enabled";
-    private static final String CONFIG_TRANSACTION_LOG_BASE = "b7a.transaction.log.base";
 
-    private static final ConfigRegistry CONFIG_REGISTRY = ConfigRegistry.getInstance();
     private static final Logger log = LoggerFactory.getLogger(TransactionResourceManager.class);
     private Map<String, List<BallerinaTransactionContext>> resourceRegistry;
     private Map<String, Transaction> trxRegistry;
@@ -158,8 +163,13 @@ public class TransactionResourceManager {
      * @return boolean whether the atomikos transaction manager should be enabled or not
      */
     public boolean getTransactionManagerEnabled() {
-        boolean transactionManagerEnabled = CONFIG_REGISTRY.getAsBoolean(CONFIG_TRANSACTION_MANAGER_ENABLED);
-        return transactionManagerEnabled;
+        VariableKey managerEnabledKey = new VariableKey(TRANSACTION_PACKAGE_ID, "managerEnabled");
+        Object keyVal = ConfigurableMap.get(managerEnabledKey);
+        if (isNull(keyVal)) {
+            return false;
+        } else {
+            return (boolean) keyVal;
+        }
     }
 
     /**
@@ -168,11 +178,13 @@ public class TransactionResourceManager {
      * @return string log directory name
      */
     private String getTransactionLogDirectory() {
-        String transactionLogDirectory = CONFIG_REGISTRY.getAsString(CONFIG_TRANSACTION_LOG_BASE);
-        if (transactionLogDirectory != null) {
-            return transactionLogDirectory;
+        VariableKey logKey = new VariableKey(TRANSACTION_PACKAGE_ID, "logBase");
+        Object transactionLogBase = ConfigurableMap.get(logKey);
+        if (isNull(transactionLogBase)) {
+            return "transaction_log_dir";
+        } else {
+            return ((BString) transactionLogBase).getValue();
         }
-        return "transaction_log_dir";
     }
 
     /**
@@ -273,7 +285,6 @@ public class TransactionResourceManager {
      * @return the status of the commit operation
      */
     public boolean notifyCommit(String transactionId, String transactionBlockId) {
-        Strand strand = Scheduler.getStrand();
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean commitSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -312,12 +323,15 @@ public class TransactionResourceManager {
                 }
             }
         }
-        invokeCommittedFunction(strand, transactionId, transactionBlockId);
+        return commitSuccess;
+    }
+
+    public void cleanTransaction(String transactionId, String transactionBlockId) {
+        String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         removeContextsFromRegistry(combinedId, transactionId);
         failedResourceParticipantSet.remove(transactionId);
         failedLocalParticipantSet.remove(transactionId);
         localParticipants.remove(transactionId);
-        return commitSuccess;
     }
 
     /**
@@ -325,11 +339,9 @@ public class TransactionResourceManager {
      *
      * @param transactionId      the global transaction id
      * @param transactionBlockId the block id of the transaction
-     * @param error the cause of abortion
      * @return the status of the abort operation
      */
-    public boolean notifyAbort(String transactionId, String transactionBlockId, Object error) {
-        Strand strand = Scheduler.getStrand();
+    public boolean notifyAbort(String transactionId, String transactionBlockId) {
         String combinedId = generateCombinedTransactionId(transactionId, transactionBlockId);
         boolean abortSuccess = true;
         List<BallerinaTransactionContext> txContextList = resourceRegistry.get(combinedId);
@@ -373,7 +385,6 @@ public class TransactionResourceManager {
 
         // todo: Temporaraly disabling abort functions as there is no clear way to separate rollback and full abort.
 
-        invokeAbortedFunction(strand, transactionId, transactionBlockId, error);
         removeContextsFromRegistry(combinedId, transactionId);
         failedResourceParticipantSet.remove(transactionId);
         failedLocalParticipantSet.remove(transactionId);
@@ -455,19 +466,58 @@ public class TransactionResourceManager {
     }
 
     /**
-     * This method rollbacks the given transaction.
+     * This method notify the given transaction to abort.
      * @param transactionBlockId The transaction blockId
-     * @param error The error which caused rolling back.
      */
-    public void rollbackTransaction(String transactionBlockId, Object error) {
-        Scheduler.getStrand().currentTrxContext.rollbackTransaction(transactionBlockId, error);
+    public void notifyTransactionAbort(String transactionBlockId) {
+        Scheduler.getStrand().currentTrxContext.notifyAbortAndClearTransaction(transactionBlockId);
+    }
+
+    /**
+     * This method retrieves the list of rollback handlers.
+     * @return Array of rollback handlers
+     */
+    public BArray getRegisteredRollbackHandlerList() {
+        List<BFunctionPointer> abortFunctions =
+                abortedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
+        if (abortFunctions != null && !abortFunctions.isEmpty()) {
+            Collections.reverse(abortFunctions);
+            return ValueCreator.createArrayValue(abortFunctions.toArray(),
+                    TypeCreator.createArrayType(abortFunctions.get(0).getType()));
+        } else {
+            return getNillArray();
+        }
+    }
+
+    /**
+     * This method retrieves the list of commit handlers.
+     * @return Array of commit handlers
+     */
+    public BArray getRegisteredCommitHandlerList() {
+        List<BFunctionPointer> commitFunctions =
+                committedFuncRegistry.get(Scheduler.getStrand().currentTrxContext.getGlobalTransactionId());
+        if (commitFunctions != null && !commitFunctions.isEmpty()) {
+            Collections.reverse(commitFunctions);
+            return ValueCreator.createArrayValue(commitFunctions.toArray(),
+                    TypeCreator.createArrayType(commitFunctions.get(0).getType()));
+        } else {
+            return getNillArray();
+        }
+    }
+
+    private BArray getNillArray() {
+        return ValueCreator.createArrayValue(TypeCreator.createArrayType(PredefinedTypes.TYPE_NULL));
     }
 
     /**
      * This method marks the current transaction context as non-transactional.
      */
     public void setContextNonTransactional() {
-        Scheduler.getStrand().currentTrxContext.setTransactional(false);
+        //todo check possibility of currentTrxContext being null when this get called
+        TransactionLocalContext localContext = Scheduler.getStrand().currentTrxContext;
+        if (localContext != null) {
+            localContext.setTransactional(false);
+        }
     }
 
     /**
@@ -530,10 +580,6 @@ public class TransactionResourceManager {
         }
     }
 
-    void rollbackTransaction(String transactionId, String transactionBlockId, Object error) {
-        notifyAbort(transactionId, transactionBlockId, error);
-    }
-
     private void removeContextsFromRegistry(String transactionCombinedId, String gTransactionId) {
         resourceRegistry.remove(transactionCombinedId);
         if (transactionManagerEnabled) {
@@ -545,31 +591,6 @@ public class TransactionResourceManager {
 
     private String generateCombinedTransactionId(String transactionId, String transactionBlockId) {
         return transactionId + ":" + transactionBlockId;
-    }
-
-    private void invokeCommittedFunction(Strand strand, String transactionId, String transactionBlockId) {
-        List<BFunctionPointer> fpValueList = committedFuncRegistry.get(transactionId);
-        if (fpValueList != null) {
-            Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true};
-            for (int i = fpValueList.size(); i > 0; i--) {
-                BFunctionPointer fp = fpValueList.get(i - 1);
-                //TODO: Replace fp.getFunction().apply
-                fp.getFunction().apply(args);
-            }
-        }
-    }
-
-    private void invokeAbortedFunction(Strand strand, String transactionId, String transactionBlockId, Object error) {
-        List<BFunctionPointer> fpValueList = abortedFuncRegistry.get(transactionId);
-        //TODO: Need to pass the retryManager to get the willRetry value.
-        if (fpValueList != null) {
-            Object[] args = {strand, strand.currentTrxContext.getInfoRecord(), true, error, true, false, true};
-            for (int i = fpValueList.size(); i > 0; i--) {
-                BFunctionPointer fp = fpValueList.get(i - 1);
-                //TODO: Replace fp.getFunction().apply
-                fp.getFunction().apply(args);
-            }
-        }
     }
 
     public void notifyResourceFailure(String gTransactionId) {

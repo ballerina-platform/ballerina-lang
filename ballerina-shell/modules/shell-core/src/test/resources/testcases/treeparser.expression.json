@@ -1,0 +1,212 @@
+[
+  {
+    "name": "Binary Expression",
+    "input": "var1 == var2;",
+    "expected": [
+      "BinaryExpressionNode"
+    ]
+  },
+  {
+    "name": "Braced Expression",
+    "input": "(var1 == var2);",
+    "expected": [
+      "BracedExpressionNode"
+    ]
+  },
+  {
+    "name": "Check Expression",
+    "input": "check func1(10);",
+    "expected": [
+      "CheckExpressionNode"
+    ]
+  },
+  {
+    "name": "Field Access Expression",
+    "input": "abc.value;",
+    "expected": [
+      "FieldAccessExpressionNode"
+    ]
+  },
+  {
+    "name": "Function Call Expression",
+    "input": "func1(arg1);",
+    "expected": [
+      "FunctionCallExpressionNode"
+    ]
+  },
+  {
+    "name": "Method Call Expression",
+    "input": "abs.method(arg1);",
+    "expected": [
+      "MethodCallExpressionNode"
+    ]
+  },
+  {
+    "name": "Mapping Constructor Expression",
+    "input": "{ line: \"str\", country: \"abc\" };",
+    "expected": [
+      "MappingConstructorExpressionNode"
+    ]
+  },
+  {
+    "name": "Typeof Expression",
+    "input": "typeof var1;",
+    "expected": [
+      "TypeofExpressionNode"
+    ]
+  },
+  {
+    "name": "Unary Expression",
+    "input": "! var1;",
+    "expected": [
+      "UnaryExpressionNode"
+    ]
+  },
+  {
+    "name": "Object Constructor Expression",
+    "input": "object { public string city; };",
+    "expected": [
+      "ObjectConstructorExpressionNode"
+    ]
+  },
+  {
+    "name": "Type Test Expression",
+    "input": "var1 is Type;",
+    "expected": [
+      "TypeTestExpressionNode"
+    ]
+  },
+  {
+    "name": "Action",
+    "input": "abc->method(arg1);",
+    "expected": [
+      "RemoteMethodCallActionNode"
+    ]
+  },
+  {
+    "name": "Nil Literal",
+    "input": "();",
+    "expected": [
+      "NilLiteralNode"
+    ]
+  },
+  {
+    "name": "Basic Literal",
+    "input": "4;",
+    "expected": [
+      "BasicLiteralNode"
+    ]
+  },
+  {
+    "name": "Trap Expression",
+    "input": "trap func1(10);",
+    "expected": [
+      "TrapExpressionNode"
+    ]
+  },
+  {
+    "name": "List Constructor Expression",
+    "input": "[1, 2, 3, 4];",
+    "expected": [
+      "ListConstructorExpressionNode"
+    ]
+  },
+  {
+    "name": "Type Cast Expression",
+    "input": "<float> v1;",
+    "expected": [
+      "TypeCastExpressionNode"
+    ]
+  },
+  {
+    "name": "Table Constructor Expression",
+    "input": "table [ {id: 1, name: \"J\"}, {id: 2, name: \"B\"} ];",
+    "expected": [
+      "TableConstructorExpressionNode"
+    ]
+  },
+  {
+    "name": "Let Expression",
+    "input": "let int x = 2 in x*2;",
+    "expected": [
+      "LetExpressionNode"
+    ]
+  },
+  {
+    "name": "Template Expression",
+    "input": "string `INSERT INTO Details VALUES (${p.name}, ${p.age})`;",
+    "expected": [
+      "TemplateExpressionNode"
+    ]
+  },
+  {
+    "name": "Annonymous Function Expression",
+    "input": "function(int arg1) { };",
+    "expected": [
+      "ExplicitAnonymousFunctionExpressionNode"
+    ]
+  },
+  {
+    "name": "New Expression",
+    "input": "new Abc(arg1);",
+    "expected": [
+      "ExplicitNewExpressionNode"
+    ]
+  },
+  {
+    "name": "Query Expression",
+    "input": "from var student in studentList select { name: student.firstName };",
+    "expected": [
+      "QueryExpressionNode"
+    ]
+  },
+  {
+    "name": "Start Action",
+    "input": "start func1(arg1);",
+    "expected": [
+      "StartActionNode"
+    ]
+  },
+  {
+    "name": "Flush Action",
+    "input": "flush worker1;",
+    "expected": [
+      "FlushActionNode"
+    ]
+  },
+  {
+    "name": "Optional Field Access Expression",
+    "input": "abc?.value;",
+    "expected": [
+      "OptionalFieldAccessExpressionNode"
+    ]
+  },
+  {
+    "name": "Conditional Expression",
+    "input": "cond ? func1() : func2();",
+    "expected": [
+      "ConditionalExpressionNode"
+    ]
+  },
+  {
+    "name": "Transactional Expression",
+    "input": "transactional;",
+    "expected": [
+      "TransactionalExpressionNode"
+    ]
+  },
+  {
+    "name": "Byte Array Expression",
+    "input": "base16 `112233`;",
+    "expected": [
+      "ByteArrayLiteralNode"
+    ]
+  },
+  {
+    "name": "XML Navigate Expression",
+    "input": "bookXML/**/<fname>;",
+    "expected": [
+      "XMLStepExpressionNode"
+    ]
+  }
+]

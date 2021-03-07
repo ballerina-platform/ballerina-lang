@@ -1,6 +1,0 @@
-[package]
-org="testorg"
-name="project_two"
-version="1.0.0"
-
-[dependencies]

@@ -69,6 +69,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeSet;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -114,6 +115,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BOOLEAN_V
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BYTE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_OBJECT_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_RECORD_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CREATE_TYPES_METHOD;
@@ -227,7 +229,7 @@ public class JvmTypeGen {
             BType bType = typeDef.type;
             if (bType.tag == TypeTags.RECORD || bType.tag == TypeTags.ERROR || bType.tag == TypeTags.OBJECT
                     || bType.tag == TypeTags.UNION) {
-                String name = typeDef.name.value;
+                String name = typeDef.internalName.value;
                 generateTypeField(cw, name);
                 generateTypedescField(cw, name);
             }
@@ -278,7 +280,7 @@ public class JvmTypeGen {
 
         // Create the type
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            String name = optionalTypeDef.name.value;
+            String name = optionalTypeDef.internalName.value;
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.RECORD) {
                 createRecordType(mv, (BRecordType) bType);
@@ -326,7 +328,7 @@ public class JvmTypeGen {
                 continue;
             }
 
-            fieldName = getTypeFieldName(optionalTypeDef.name.value);
+            fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             String methodName = String.format("$populate%s", fieldName);
             funcNames.add(methodName);
 
@@ -505,30 +507,26 @@ public class JvmTypeGen {
                                      PackageID moduleId, String typeOwnerClass, SymbolTable symbolTable,
                                      AsyncDataCollector asyncDataCollector) {
 
-        List<BIRTypeDefinition> recordTypeDefs = new ArrayList<>();
+        // due to structural type same name can appear twice, need to remove duplicates
+        Set<BIRTypeDefinition> recordTypeDefSet = new TreeSet<>(NAME_HASH_COMPARATOR);
         List<BIRTypeDefinition> objectTypeDefs = new ArrayList<>();
+        List<BIRTypeDefinition> errorTypeDefs = new ArrayList<>();
 
-        int i = 0;
         for (BIRTypeDefinition optionalTypeDef : typeDefs) {
             BType bType = optionalTypeDef.type;
             if (bType.tag == TypeTags.RECORD) {
-                recordTypeDefs.add(i, optionalTypeDef);
-                i += 1;
+                recordTypeDefSet.add(optionalTypeDef);
+            } else if (bType.tag == TypeTags.OBJECT && Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
+                objectTypeDefs.add(optionalTypeDef);
+            } else if (bType.tag == TypeTags.ERROR) {
+                errorTypeDefs.add(optionalTypeDef);
             }
         }
 
-        i = 0;
-        for (BIRTypeDefinition optionalTypeDef : typeDefs) {
-            BType bType = optionalTypeDef.type;
-            if (bType.tag == TypeTags.OBJECT &&
-                    Symbols.isFlagOn(bType.tsymbol.flags, Flags.CLASS)) {
-                objectTypeDefs.add(i, optionalTypeDef);
-                i += 1;
-            }
-        }
-
+        ArrayList<BIRTypeDefinition> recordTypeDefs = new ArrayList<>(recordTypeDefSet);
         generateRecordValueCreateMethod(cw, recordTypeDefs, moduleId, typeOwnerClass, asyncDataCollector);
         generateObjectValueCreateMethod(cw, objectTypeDefs, moduleId, typeOwnerClass, symbolTable, asyncDataCollector);
+        generateErrorValueCreateMethod(cw, errorTypeDefs, typeOwnerClass, symbolTable);
     }
 
     private void generateRecordValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> recordTypeDefs,
@@ -553,11 +551,11 @@ public class JvmTypeGen {
         int i = 0;
 
         for (BIRTypeDefinition optionalTypeDef : recordTypeDefs) {
-            String fieldName = getTypeFieldName(optionalTypeDef.name.value);
+            String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            String className = getTypeValueClassName(moduleId, optionalTypeDef.name.value);
+            String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
@@ -585,7 +583,7 @@ public class JvmTypeGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex);
+        createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such record: ");
         mv.visitMaxs(recordTypeDefs.size() + 10, recordTypeDefs.size() + 10);
         mv.visitEnd();
     }
@@ -622,11 +620,11 @@ public class JvmTypeGen {
         int i = 0;
 
         for (BIRTypeDefinition optionalTypeDef : objectTypeDefs) {
-            String fieldName = getTypeFieldName(optionalTypeDef.name.value);
+            String fieldName = getTypeFieldName(optionalTypeDef.internalName.value);
             Label targetLabel = targetLabels.get(i);
             mv.visitLabel(targetLabel);
             mv.visitVarInsn(ALOAD, 0);
-            String className = getTypeValueClassName(moduleId, optionalTypeDef.name.value);
+            String className = getTypeValueClassName(moduleId, optionalTypeDef.internalName.value);
             mv.visitTypeInsn(NEW, className);
             mv.visitInsn(DUP);
             mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
@@ -689,8 +687,50 @@ public class JvmTypeGen {
             i += 1;
         }
 
-        createDefaultCase(mv, defaultCaseLabel, var1Index);
+        createDefaultCase(mv, defaultCaseLabel, var1Index, "No such object: ");
         mv.visitMaxs(objectTypeDefs.size() + 100, objectTypeDefs.size() + 100);
+        mv.visitEnd();
+    }
+
+    private void generateErrorValueCreateMethod(ClassWriter cw, List<BIRTypeDefinition> errorTypeDefs,
+                                                String typeOwnerClass, SymbolTable symbolTable) {
+
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, CREATE_ERROR_VALUE,
+                                          String.format("(L%s;L%s;L%s;L%s;)L%s;", STRING_VALUE, B_STRING_VALUE, BERROR,
+                                                        OBJECT, BERROR), null, null);
+        mv.visitCode();
+        BIRVarToJVMIndexMap indexMap = new BIRVarToJVMIndexMap();
+        indexMap.addIfNotExists("self", symbolTable.anyType);
+        int errorNameIndex = indexMap.addIfNotExists("errorTypeName", symbolTable.stringType);
+        int messageIndex = indexMap.addIfNotExists("message", symbolTable.stringType);
+        int causeIndex = indexMap.addIfNotExists("cause", symbolTable.errorType);
+        int detailsIndex = indexMap.addIfNotExists("details", symbolTable.anyType);
+        Label defaultCaseLabel = new Label();
+
+        // sort the fields before generating switch case
+        errorTypeDefs.sort(NAME_HASH_COMPARATOR);
+
+        List<Label> labels = createLabelsForSwitch(mv, errorNameIndex, errorTypeDefs, defaultCaseLabel);
+        List<Label> targetLabels = createLabelsForEqualCheck(mv, errorNameIndex, errorTypeDefs, labels,
+                                                             defaultCaseLabel);
+        int i = 0;
+        for (BIRTypeDefinition errorDefinition : errorTypeDefs) {
+            String fieldName = getTypeFieldName(errorDefinition.internalName.value);
+            Label targetLabel = targetLabels.get(i);
+            mv.visitLabel(targetLabel);
+            mv.visitTypeInsn(NEW, ERROR_VALUE);
+            mv.visitInsn(DUP);
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
+            mv.visitVarInsn(ALOAD, messageIndex);
+            mv.visitVarInsn(ALOAD, causeIndex);
+            mv.visitVarInsn(ALOAD, detailsIndex);
+            mv.visitMethodInsn(INVOKESPECIAL, ERROR_VALUE, JVM_INIT_METHOD,
+                               String.format("(L%s;L%s;L%s;L%s;)V", TYPE, B_STRING_VALUE, BERROR, OBJECT), false);
+            mv.visitInsn(ARETURN);
+            i += 1;
+        }
+        createDefaultCase(mv, defaultCaseLabel, errorNameIndex, "No such error: ");
+        mv.visitMaxs(errorTypeDefs.size() + 100, errorTypeDefs.size() + 100);
         mv.visitEnd();
     }
 
@@ -710,8 +750,7 @@ public class JvmTypeGen {
         mv.visitInsn(DUP);
 
         // Load type name
-        BTypeSymbol typeSymbol = recordType.tsymbol;
-        String name = typeSymbol.name.getValue();
+        String name = getFullName(recordType);
         mv.visitLdcInsn(name);
 
         // Load package path
@@ -739,6 +778,18 @@ public class JvmTypeGen {
         // initialize the record type
         mv.visitMethodInsn(INVOKESPECIAL, RECORD_TYPE_IMPL, JVM_INIT_METHOD,
                            String.format("(L%s;L%s;JZI)V", STRING_VALUE, MODULE), false);
+    }
+
+    private String getFullName(BRecordType recordType) {
+        String fullName;
+
+        if (recordType.shouldPrintShape()) {
+            fullName = recordType.toString();
+        } else {
+            // for non-shape values toString gives the org name + name, we only need the name
+            fullName = recordType.tsymbol.name.value;
+        }
+        return fullName;
     }
 
     /**

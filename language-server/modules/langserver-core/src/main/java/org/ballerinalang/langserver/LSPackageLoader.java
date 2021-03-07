@@ -40,9 +40,24 @@ public class LSPackageLoader {
     private static final LanguageServerContext.Key<LSPackageLoader> LS_PACKAGE_LOADER_KEY =
             new LanguageServerContext.Key<>();
 
-    private List<Package> distRepoPackages;
+    private final List<Package> distRepoPackages;
+    
+    public static LSPackageLoader getInstance(LanguageServerContext context) {
+        LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
+        if (lsPackageLoader == null) {
+            lsPackageLoader = new LSPackageLoader(context);
+        }
+
+        return lsPackageLoader;
+    }
+
+    private LSPackageLoader(LanguageServerContext context) {
+        distRepoPackages = this.getPackagesFromDistRepo();
+        context.put(LS_PACKAGE_LOADER_KEY, this);
+    }
 
     private List<Package> getPackagesFromDistRepo() {
+        // Note: Here we skip the langlib packages
         DefaultEnvironment environment = new DefaultEnvironment();
         // Creating a Ballerina distribution instance
         BallerinaDistribution ballerinaDistribution = BallerinaDistribution.from(environment);
@@ -52,9 +67,8 @@ public class LSPackageLoader {
         List<Package> packages = new ArrayList<>();
         pkgMap.forEach((key, value) -> value.forEach(nameEntry -> {
             String[] components = nameEntry.split(":");
-            if (components.length != 2
-                    || components[0].equals("lang.__internal")
-                    || components[0].equals("lang.annotations")) {
+            if (components.length != 2 || components[0].equals("lang.annotations")
+                    || components[0].equals("lang.__internal")) {
                 return;
             }
             String nameComponent = components[0];
@@ -74,24 +88,11 @@ public class LSPackageLoader {
 
     /**
      * Get the distribution repo packages.
+     * Here the distRepoPackages does not contain the langlib packages 
      *
      * @return {@link List} of distribution repo packages
      */
     public List<Package> getDistributionRepoPackages() {
         return this.distRepoPackages;
-    }
-
-    public static LSPackageLoader getInstance(LanguageServerContext context) {
-        LSPackageLoader lsPackageLoader = context.get(LS_PACKAGE_LOADER_KEY);
-        if (lsPackageLoader == null) {
-            lsPackageLoader = new LSPackageLoader(context);
-        }
-
-        return lsPackageLoader;
-    }
-
-    private LSPackageLoader(LanguageServerContext context) {
-        distRepoPackages = this.getPackagesFromDistRepo();
-        context.put(LS_PACKAGE_LOADER_KEY, this);
     }
 }

@@ -27,17 +27,11 @@ import io.ballerina.runtime.observability.metrics.spi.MetricProvider;
 import io.ballerina.runtime.observability.tracer.BallerinaTracingObserver;
 import io.ballerina.runtime.observability.tracer.TracersStore;
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
-import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.observe.noop.NoOpMetricProvider;
 import org.ballerinalang.observe.noop.NoOpTracerProvider;
 
 import java.io.PrintStream;
 import java.util.ServiceLoader;
-
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_METRICS_PROVIDER;
-import static io.ballerina.runtime.observability.ObservabilityConstants.CONFIG_OBSERVABILITY_TRACING_PROVIDER;
-import static org.ballerinalang.observe.Constants.DEFAULT_METRIC_PROVIDER_NAME;
-import static org.ballerinalang.observe.Constants.DEFAULT_TRACING_PROVIDER_NAME;
 
 /**
  * Java inter-op functions called by the ballerina observability internal module.
@@ -45,23 +39,11 @@ import static org.ballerinalang.observe.Constants.DEFAULT_TRACING_PROVIDER_NAME;
 public class NativeFunctions {
     private static final PrintStream errStream = System.err;
 
-    public static boolean isMetricsEnabled() {
-        return ObserveUtils.isMetricsEnabled();
-    }
-
-    public static boolean isTracingEnabled() {
-        return ObserveUtils.isTracingEnabled();
-    }
-
-    public static BError enableMetrics() {
-        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-
+    public static BError enableMetrics(BString providerName) {
         // Loading the proper Metrics Provider
-        String providerName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_METRICS_PROVIDER,
-                DEFAULT_METRIC_PROVIDER_NAME);
         MetricProvider selectedProvider = null;
         for (MetricProvider providerFactory : ServiceLoader.load(MetricProvider.class)) {
-            if (providerName.equalsIgnoreCase(providerFactory.getName())) {
+            if (providerName.getValue().equalsIgnoreCase(providerFactory.getName())) {
                 selectedProvider = providerFactory;
                 break;
             }
@@ -81,20 +63,16 @@ public class NativeFunctions {
         }
     }
 
-    public static BError enableTracing() {
-        ConfigRegistry configRegistry = ConfigRegistry.getInstance();
-
+    public static BError enableTracing(BString providerName) {
         // Loading the proper tracing Provider
-        String tracerName = configRegistry.getConfigOrDefault(CONFIG_OBSERVABILITY_TRACING_PROVIDER,
-                DEFAULT_TRACING_PROVIDER_NAME);
         TracerProvider selectedProvider = null;
         for (TracerProvider providerFactory : ServiceLoader.load(TracerProvider.class)) {
-            if (tracerName.equalsIgnoreCase(providerFactory.getName())) {
+            if (providerName.getValue().equalsIgnoreCase(providerFactory.getName())) {
                 selectedProvider = providerFactory;
             }
         }
         if (selectedProvider == null) {
-            errStream.println("error: tracer provider " + tracerName + " not found");
+            errStream.println("error: tracer provider " + providerName + " not found");
             selectedProvider = new NoOpTracerProvider();
         }
 

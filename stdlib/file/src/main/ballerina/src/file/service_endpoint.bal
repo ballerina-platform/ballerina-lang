@@ -15,7 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as lang;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 ///////////////////////////////////
 /// Direcotry Listener Endpoint ///

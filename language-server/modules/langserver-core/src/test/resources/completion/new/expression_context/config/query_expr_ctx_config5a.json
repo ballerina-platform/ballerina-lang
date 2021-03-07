@@ -9,6 +9,7 @@
       "label": "from",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "from ",
       "insertTextFormat": "Snippet"
     },
@@ -16,6 +17,7 @@
       "label": "from clause",
       "kind": "Snippet",
       "detail": "Snippet",
+      "sortText": "O",
       "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     }

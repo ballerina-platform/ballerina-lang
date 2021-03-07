@@ -1,4 +1,4 @@
-import ballerina/java;
+import ballerina/jballerina.java;
 string append = "";
 function singleFlush () returns string {
     @strand{thread:"any"}
@@ -206,9 +206,9 @@ function flushInDefaultError() returns error? {
        error err = error("err", message = "err msg");
               return err;
      }
-     a = <- default;
+     a = <- function;
      b = a + b;
-     b -> default;
+     b -> function;
      return ;
    }
    int a = 10;
@@ -223,9 +223,9 @@ function flushInDefault() returns int {
    worker w2 {
      int a = 0;
      int b = 15;
-     a = <- default;
+     a = <- function;
      b = a + b;
-     b -> default;
+     b -> function;
    }
    int a = 10;
     a -> w2;
@@ -235,5 +235,5 @@ function flushInDefault() returns int {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

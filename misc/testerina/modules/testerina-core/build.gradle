@@ -31,7 +31,7 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-parser')
 //    implementation project(':ballerina-runtime-api')
-    implementation project(':ballerina-lang:java')
+    implementation project(':ballerina-lang:jballerina.java')
     implementation 'org.testng:testng'
     implementation 'com.google.guava:guava:23.0'
 

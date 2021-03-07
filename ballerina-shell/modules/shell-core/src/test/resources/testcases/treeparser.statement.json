@@ -1,0 +1,135 @@
+[
+  {
+    "name": "Assignment Statement",
+    "input": "var1 = 3;",
+    "expected": [
+      "AssignmentStatementNode"
+    ]
+  },
+  {
+    "name": "Compound Assignment Statement",
+    "input": "var1 += 3;",
+    "expected": [
+      "CompoundAssignmentStatementNode"
+    ]
+  },
+  {
+    "name": "Compound Assignment Statement II",
+    "input": "var1 >>= 3;",
+    "expected": [
+      "CompoundAssignmentStatementNode"
+    ]
+  },
+  {
+    "name": "Block Statement",
+    "input": "{ int var1 =4; };",
+    "expected": [
+      "BlockStatementNode"
+    ]
+  },
+  {
+    "name": "Break Statement",
+    "input": "break;",
+    "expected": [
+      "BreakStatementNode"
+    ]
+  },
+  {
+    "name": "Fail Statement",
+    "input": "fail x();",
+    "expected": [
+      "FailStatementNode"
+    ]
+  },
+  {
+    "name": "Continue Statement",
+    "input": "continue;",
+    "expected": [
+      "ContinueStatementNode"
+    ]
+  },
+  {
+    "name": "If Else Statement",
+    "input": "if (cond) { };",
+    "expected": [
+      "IfElseStatementNode"
+    ]
+  },
+  {
+    "name": "While Statement",
+    "input": "while (cond) { };",
+    "expected": [
+      "WhileStatementNode"
+    ]
+  },
+  {
+    "name": "Return Statement",
+    "input": "return 10;",
+    "expected": [
+      "ReturnStatementNode"
+    ]
+  },
+  {
+    "name": "Lock Statement",
+    "input": "lock { amount += n; };",
+    "expected": [
+      "LockStatementNode"
+    ]
+  },
+  {
+    "name": "Fork Statement",
+    "input": "fork { worker abc returns int { } };",
+    "expected": [
+      "ForkStatementNode"
+    ]
+  },
+  {
+    "name": "For Each Statement",
+    "input": "foreach var color in colors { };",
+    "expected": [
+      "ForEachStatementNode"
+    ]
+  },
+  {
+    "name": "Transaction Statement",
+    "input": "transaction { };",
+    "expected": [
+      "TransactionStatementNode"
+    ]
+  },
+  {
+    "name": "Rollback Statement",
+    "input": "rollback;",
+    "expected": [
+      "RollbackStatementNode"
+    ]
+  },
+  {
+    "name": "Retry Statement",
+    "input": "retry<Type> (args) { };",
+    "expected": [
+      "RetryStatementNode"
+    ]
+  },
+  {
+    "name": "Match Statement",
+    "input": "match var1 { 0 => {} 1 => { } };",
+    "expected": [
+      "MatchStatementNode"
+    ]
+  },
+  {
+    "name": "Do Statement",
+    "input": "do { };",
+    "expected": [
+      "DoStatementNode"
+    ]
+  },
+  {
+    "name": "Panic Statement",
+    "input": "panic error(\"Record is nil\");",
+    "expected": [
+      "PanicStatementNode"
+    ]
+  }
+]

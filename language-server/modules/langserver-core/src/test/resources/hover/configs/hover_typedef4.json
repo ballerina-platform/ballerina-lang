@@ -1,4 +1,7 @@
 {
+  "source": {
+    "file": "hover.bal"
+  },
   "position": {
     "line": 128,
     "character": 12

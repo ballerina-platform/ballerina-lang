@@ -14,40 +14,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
+import ballerina/observe;
 
 function init() {
-    if (externIsMetricsEnabled()) {
-        var err = externEnableMetrics();
+    if (observe:isMetricsEnabled()) {
+        var err = externEnableMetrics(observe:getMetricsProvider());
         if (err is error) {
             externPrintError("failed to enable metrics");
         }
     }
 
-    if (externIsTracingEnabled()) {
-        var err = externEnableTracing();
+    if (observe:isTracingEnabled()) {
+        var err = externEnableTracing(observe:getTracingProvider());
         if (err is error) {
             externPrintError("failed to enable tracing");
         }
     }
 }
 
-function externIsMetricsEnabled() returns boolean = @java:Method {
-    'class: "org.ballerinalang.observe.NativeFunctions",
-    name: "isMetricsEnabled"
-} external;
-
-function externIsTracingEnabled() returns boolean = @java:Method {
-    'class: "org.ballerinalang.observe.NativeFunctions",
-    name: "isTracingEnabled"
-} external;
-
-function externEnableMetrics() returns error? = @java:Method {
+function externEnableMetrics(string provider) returns error? = @java:Method {
     'class: "org.ballerinalang.observe.NativeFunctions",
     name: "enableMetrics"
 } external;
 
-function externEnableTracing() returns error? = @java:Method {
+function externEnableTracing(string provider) returns error? = @java:Method {
     'class: "org.ballerinalang.observe.NativeFunctions",
     name: "enableTracing"
 } external;

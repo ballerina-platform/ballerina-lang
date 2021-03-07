@@ -72,4 +72,12 @@ public class TomlArrayValueNode extends TomlValueNode {
         }
         return tomlDiagnostics;
     }
+
+    @Override
+    public void clearDiagnostics() {
+        super.diagnostics.clear();
+        for (TomlValueNode child : elements) {
+            child.clearDiagnostics();
+        }
+    }
 }

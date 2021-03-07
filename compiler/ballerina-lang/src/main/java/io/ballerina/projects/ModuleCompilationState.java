@@ -168,8 +168,8 @@ enum ModuleCompilationState {
         void resolveDependencies(ModuleContext moduleContext) {
             parse(moduleContext);
             // TODO We need to use the dependencies declared in the package descriptor
-            ModuleContext.resolveDependenciesFromBALOInternal(moduleContext);
-            moduleContext.setCompilationState(DEPENDENCIES_RESOLVED_FROM_BALO);
+            ModuleContext.resolveDependenciesFromBALAInternal(moduleContext);
+            moduleContext.setCompilationState(DEPENDENCIES_RESOLVED_FROM_BALA);
         }
 
         @Override
@@ -196,8 +196,8 @@ enum ModuleCompilationState {
 
         @Override
         void resolveDependencies(ModuleContext moduleContext) {
-            ModuleContext.resolveDependenciesFromBALOInternal(moduleContext);
-            moduleContext.setCompilationState(DEPENDENCIES_RESOLVED_FROM_BALO);
+            ModuleContext.resolveDependenciesFromBALAInternal(moduleContext);
+            moduleContext.setCompilationState(DEPENDENCIES_RESOLVED_FROM_BALA);
         }
 
         @Override
@@ -216,7 +216,7 @@ enum ModuleCompilationState {
             moduleContext.setCompilationState(PLATFORM_LIBRARY_LOADED);
         }
     },
-    DEPENDENCIES_RESOLVED_FROM_BALO {
+    DEPENDENCIES_RESOLVED_FROM_BALA {
         @Override
         void parse(ModuleContext moduleContext) {
             // Do nothing

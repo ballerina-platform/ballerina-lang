@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 # Built-in subtype that allows signed integers that can be represented in 32 bits using two's complement.
 # This allows an int between -2^31 and 2^31 - 1 inclusive.

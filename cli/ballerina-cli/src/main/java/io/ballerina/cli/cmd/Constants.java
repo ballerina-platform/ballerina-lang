@@ -37,4 +37,5 @@ public class Constants {
     static final String SEARCH_COMMAND = "search";
     static final String CLEAN_COMMAND = "clean";
     static final String UNINSTALL_COMMAND = "uninstall";
+    static final String SHELL_COMMAND = "shell";
 }

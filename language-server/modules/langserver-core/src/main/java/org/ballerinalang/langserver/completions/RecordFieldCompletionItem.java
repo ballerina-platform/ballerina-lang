@@ -18,6 +18,7 @@
 package org.ballerinalang.langserver.completions;
 
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.AbstractLSCompletionItem;
 import org.eclipse.lsp4j.CompletionItem;
@@ -30,10 +31,11 @@ import org.eclipse.lsp4j.CompletionItem;
 public class RecordFieldCompletionItem extends AbstractLSCompletionItem {
     private final RecordFieldSymbol fieldSymbol;
 
-    public RecordFieldCompletionItem(BallerinaCompletionContext lsContext, RecordFieldSymbol fieldSymbol,
+    public RecordFieldCompletionItem(BallerinaCompletionContext context, RecordFieldSymbol fieldSymbol,
                                      CompletionItem completionItem) {
-        super(lsContext, completionItem);
+        super(context, completionItem, CompletionItemType.RECORD_FIELD);
         this.fieldSymbol = fieldSymbol;
+        completionItem.setDetail(CommonUtil.getModifiedTypeName(context, fieldSymbol.typeDescriptor()));
     }
 
     public RecordFieldSymbol getFieldSymbol() {

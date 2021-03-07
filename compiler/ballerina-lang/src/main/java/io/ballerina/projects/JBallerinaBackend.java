@@ -28,6 +28,10 @@ import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
+import org.ballerinalang.maven.Dependency;
+import org.ballerinalang.maven.MavenResolver;
+import org.ballerinalang.maven.Utils;
+import org.ballerinalang.maven.exceptions.MavenResolverException;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.bir.codegen.CodeGenerator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.InteropValidator;
@@ -41,6 +45,7 @@ import org.wso2.ballerinalang.util.Lists;
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
@@ -73,6 +78,7 @@ import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 // TODO move this class to a separate Java package. e.g. io.ballerina.projects.platform.jballerina
 //    todo that, we would have to move PackageContext class into an internal package.
 public class JBallerinaBackend extends CompilerBackend {
+
     private static final String JAR_FILE_EXTENSION = ".jar";
     private static final String TEST_JAR_FILE_NAME_SUFFIX = "-testable";
     private static final String JAR_FILE_NAME_SUFFIX = "";
@@ -137,6 +143,11 @@ public class JBallerinaBackend extends CompilerBackend {
                     diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
+        // add plugin diagnostics
+        diagnostics.addAll(this.packageContext.getPackageCompilation().pluginDiagnostics());
+        // add ballerina toml diagnostics
+        diagnostics.addAll(this.packageContext.manifest().diagnostics().diagnostics());
+
         this.diagnosticResult = new DefaultDiagnosticResult(diagnostics);
         codeGenCompleted = true;
     }
@@ -157,8 +168,8 @@ public class JBallerinaBackend extends CompilerBackend {
             case EXEC:
                 generatedArtifact = emitExecutable(filePath);
                 break;
-            case BALO:
-                generatedArtifact = emitBalo(filePath);
+            case BALA:
+                generatedArtifact = emitBala(filePath);
                 break;
             default:
                 throw new RuntimeException("Unexpected output type: " + outputType);
@@ -167,8 +178,8 @@ public class JBallerinaBackend extends CompilerBackend {
         return new EmitResult(true, diagnosticResult, generatedArtifact);
     }
 
-    private Path emitBalo(Path filePath) {
-        JBallerinaBaloWriter writer = new JBallerinaBaloWriter(this);
+    private Path emitBala(Path filePath) {
+        JBallerinaBalaWriter writer = new JBallerinaBalaWriter(this);
         return writer.write(filePath);
     }
 
@@ -196,10 +207,16 @@ public class JBallerinaBackend extends CompilerBackend {
 
         List<PlatformLibrary> platformLibraries = new ArrayList<>();
         for (Map<String, Object> dependency : javaPlatform.dependencies()) {
-            String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
             String artifactId = (String) dependency.get(JarLibrary.KEY_ARTIFACT_ID);
             String version = (String) dependency.get(JarLibrary.KEY_VERSION);
             String groupId = (String) dependency.get(JarLibrary.KEY_GROUP_ID);
+
+            String dependencyFilePath = (String) dependency.get(JarLibrary.KEY_PATH);
+            // If dependencyFilePath does not exists, resolve it using MavenResolver
+            if (dependencyFilePath == null || dependencyFilePath.isEmpty()) {
+                dependencyFilePath = getPlatformLibPath(groupId, artifactId, version);
+            }
+
             // If the path is relative we will covert to absolute relative to Ballerina.toml file
             Path jarPath = Paths.get(dependencyFilePath);
             if (!jarPath.isAbsolute()) {
@@ -467,11 +484,32 @@ public class JBallerinaBackend extends CompilerBackend {
     }
 
     /**
+     * Get platform lib path for given maven dependency.
+     *
+     * @param groupId    group id
+     * @param artifactId artifact id
+     * @param version    version
+     * @return platform lib path
+     */
+    private String getPlatformLibPath(String groupId, String artifactId, String version) {
+        String targetRepo =
+                this.packageContext.project().sourceRoot().toString() + File.separator + "target" + File.separator
+                        + "platform-libs";
+        MavenResolver resolver = new MavenResolver(targetRepo);
+        try {
+            Dependency dependency = resolver.resolve(groupId, artifactId, version, false);
+            return Utils.getJarPath(targetRepo, dependency);
+        } catch (MavenResolverException e) {
+            throw new ProjectException("cannot resolve " + artifactId + ": " + e.getMessage());
+        }
+    }
+
+    /**
      * Enum to represent output types.
      */
     public enum OutputType {
         EXEC("exec"),
-        BALO("balo"),
+        BALA("bala"),
         ;
 
         private String value;
@@ -480,7 +518,6 @@ public class JBallerinaBackend extends CompilerBackend {
             this.value = value;
         }
     }
-
 
     JvmTarget jdkVersion() {
         return jdkVersion;

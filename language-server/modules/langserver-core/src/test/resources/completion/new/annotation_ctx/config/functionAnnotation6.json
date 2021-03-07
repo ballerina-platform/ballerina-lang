@@ -9,22 +9,23 @@
       "label": "readonly",
       "kind": "Keyword",
       "detail": "Keyword",
+      "sortText": "P",
       "insertText": "readonly ",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "foo",
       "kind": "Field",
-      "detail": "Field",
-      "sortText": "120",
+      "detail": "string",
+      "sortText": "G",
       "insertText": "foo: \"${1}\"",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "bar",
       "kind": "Field",
-      "detail": "Field",
-      "sortText": "120",
+      "detail": "int",
+      "sortText": "G",
       "insertText": "bar: ${1:0}",
       "insertTextFormat": "Snippet"
     },
@@ -32,7 +33,7 @@
       "label": "Add All Attributes",
       "kind": "Property",
       "detail": "none",
-      "sortText": "110",
+      "sortText": "Q",
       "insertText": "foo: \"\",\nbar: 0",
       "insertTextFormat": "Snippet"
     }

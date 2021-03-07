@@ -21,6 +21,7 @@ package org.ballerinalang.plugin.gradle.doc;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.io.PrintStream;
+import java.nio.file.Path;
 
 /**
  * Generates Ballerina API docs for a given ballerina package.
@@ -30,6 +31,6 @@ public class DocerinaGen {
     private static final PrintStream out = System.out;
 
     public static void main(String[] args) {
-        BallerinaDocGenerator.mergeApiDocs(args[0]);
+        BallerinaDocGenerator.mergeApiDocs(Path.of(args[0]));
     }
 }

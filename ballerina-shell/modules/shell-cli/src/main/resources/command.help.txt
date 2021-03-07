@@ -1,0 +1,15 @@
+Ballerina Shell Help
+
+Type a Ballerina language expression, statement, or declaration.
+Or type one of the following commands:
+
+/exit           - Exit the terminal shell.
+/debug          - Toggle debug mode. You will see debug messages.
+/reset          - Reset REPL state.
+                  All previous code snippets will be removed from REPL memory.
+/imports        - List the available imports.
+/vars           - List the declared variables and their values.
+/dclns          - List the user defined module level declarations.
+/help           - Get this message.
+/help <TOPIC>   - Get help on <TOPIC>. eg: /help var
+/help topics    - See all available topic names.

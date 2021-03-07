@@ -727,7 +727,7 @@ public class ObjectTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected '(PersonRec|EmployeeRec)', found 'string'", 71, 24);
         BAssertUtil.validateError(resultNegative, i++,
-                "missing required parameter 'i' in call to 'new'()", 114, 38);
+                "missing required parameter 'i' in call to 'new()'", 114, 38);
         BAssertUtil.validateError(resultNegative, i++,
                 "positional argument not allowed after named arguments", 114, 53);
         BAssertUtil.validateError(resultNegative, i++,

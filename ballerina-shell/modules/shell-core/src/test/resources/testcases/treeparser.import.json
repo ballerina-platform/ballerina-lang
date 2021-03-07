@@ -1,0 +1,30 @@
+[
+  {
+    "name": "Import Statement",
+    "input": "import ballerina/abc;",
+    "expected": [
+      "ImportDeclarationNode"
+    ]
+  },
+  {
+    "name": "Import Statement With Prefix",
+    "input": "import abc/abc as pqr;",
+    "expected": [
+      "ImportDeclarationNode"
+    ]
+  },
+  {
+    "name": "Import Statement Underscore Import",
+    "input": "import hello as _;",
+    "expected": [
+      "ImportDeclarationNode"
+    ]
+  },
+  {
+    "name": "Import Statement Module",
+    "input": "import org/lang.'string;",
+    "expected": [
+      "ImportDeclarationNode"
+    ]
+  }
+]

@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 function waitTest1() returns int {
     future<int> f1 = @strand{thread:"any"} start add_1(5, 2);
@@ -388,5 +388,5 @@ function funcWithPanic() {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

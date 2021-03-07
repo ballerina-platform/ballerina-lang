@@ -222,25 +222,12 @@ public class SymbolEnv {
     }
 
     public static SymbolEnv createOnFailEnv(BLangOnFailClause node, SymbolEnv env) {
-        SymbolEnv symbolEnv = new SymbolEnv(node, new Scope(env.scope.owner));
-        env.copyTo(symbolEnv);
-        symbolEnv.envCount = env.envCount + 1;
-        symbolEnv.enclEnv = env;
-        symbolEnv.enclInvokable = env.enclInvokable;
-        symbolEnv.node = node;
-        symbolEnv.enclPkg = env.enclPkg;
-        return symbolEnv;
-    }
-
-    public static SymbolEnv createBlockEnv(BLangBlockStmt block, SymbolEnv env) {
-        // Create a scope for the block node if one doesn't exists
-        Scope scope = block.scope;
+        Scope scope = node.body.scope;
         if (scope == null) {
             scope = new Scope(env.scope.owner);
-            block.scope = scope;
+            node.body.scope = scope;
         }
-
-        SymbolEnv symbolEnv = new SymbolEnv(block, scope);
+        SymbolEnv symbolEnv = new SymbolEnv(node, scope);
         env.copyTo(symbolEnv);
         symbolEnv.envCount = env.envCount + 1;
         symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
@@ -256,6 +243,21 @@ public class SymbolEnv {
         }
 
         SymbolEnv symbolEnv = new SymbolEnv(pattern, scope);
+        env.copyTo(symbolEnv);
+        symbolEnv.envCount = env.envCount + 1;
+        symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
+        return symbolEnv;
+    }
+
+    public static SymbolEnv createBlockEnv(BLangBlockStmt block, SymbolEnv env) {
+        // Create a scope for the block node if one doesn't exists
+        Scope scope = block.scope;
+        if (scope == null) {
+            scope = new Scope(env.scope.owner);
+            block.scope = scope;
+        }
+
+        SymbolEnv symbolEnv = new SymbolEnv(block, scope);
         env.copyTo(symbolEnv);
         symbolEnv.envCount = env.envCount + 1;
         symbolEnv.relativeEnvCount = env.relativeEnvCount + 1;
@@ -341,10 +343,6 @@ public class SymbolEnv {
         symbolEnv.envCount = 0;
         env.copyTo(symbolEnv);
         return symbolEnv;
-    }
-
-    public static SymbolEnv createStreamingInputEnv(BLangNode node, SymbolEnv env) {
-        return createEnv(node, env);
     }
 
     public static SymbolEnv createLockEnv(BLangNode node, SymbolEnv env) {

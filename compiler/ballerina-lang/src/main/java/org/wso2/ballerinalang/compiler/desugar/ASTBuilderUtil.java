@@ -54,6 +54,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckPanickedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstRef;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangDynamicArgExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
@@ -68,6 +69,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangRecordLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangServiceConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangTernaryExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeTestExpr;
@@ -925,5 +927,38 @@ public class ASTBuilderUtil {
         xmlTextLiteral.parent = parent;
         xmlTextLiteral.type = type;
         return xmlTextLiteral;
+    }
+
+    public static BLangDynamicArgExpr createDynamicParamExpression(BLangExpression condition,
+                                                                   BLangExpression conditionalArg) {
+        BLangDynamicArgExpr dynamicExpression = new BLangDynamicArgExpr();
+        dynamicExpression.condition = condition;
+        dynamicExpression.conditionalArgument = conditionalArg;
+        return dynamicExpression;
+    }
+
+    public static BLangTernaryExpr createTernaryExprNode(BType type, BLangExpression expr, BLangExpression thenExpr,
+                                                         BLangExpression elseExpr) {
+        BLangTernaryExpr ternaryExpr = (BLangTernaryExpr) TreeBuilder.createTernaryExpressionNode();
+        ternaryExpr.elseExpr = elseExpr;
+        ternaryExpr.thenExpr = thenExpr;
+        ternaryExpr.expr = expr;
+        ternaryExpr.type = type;
+        return ternaryExpr;
+    }
+
+    public static BLangIndexBasedAccess createMemberAccessExprNode(BType type, BLangExpression expr,
+                                                                   BLangExpression indexExpr) {
+        BLangIndexBasedAccess memberAccessExpr = (BLangIndexBasedAccess) TreeBuilder.createIndexBasedAccessNode();
+        memberAccessExpr.expr = expr;
+        memberAccessExpr.indexExpr = indexExpr;
+        memberAccessExpr.type = type;
+        return memberAccessExpr;
+    }
+
+    public static BLangExpression createIgnoreExprNode(BType type) {
+        BLangExpression ignoreExpr = (BLangExpression) TreeBuilder.createIgnoreExprNode();
+        ignoreExpr.type = type;
+        return ignoreExpr;
     }
 }

@@ -1,5 +1,5 @@
 import ballerina/lang.'int as ints;
-import ballerina/java;
+import ballerina/jballerina.java;
 
 int lockWithinLockInt1 = 0;
 
@@ -359,5 +359,5 @@ function nextInsideLock() returns [int, string] {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

@@ -295,6 +295,22 @@ types:
         type: s4
         repeat: expr
         repeat-expr: member_types_count
+      - id: is_enum_type
+        type: u1
+      - id: pkg_cp_index
+        type: s4
+        if: is_enum_type == 1
+      - id: enum_name
+        type: s4
+        if: is_enum_type == 1
+      - id: enum_members_size
+        type: s4
+        if: is_enum_type == 1
+      - id: enum_members
+        type: s4
+        repeat: expr
+        repeat-expr: enum_members_size
+        if: is_enum_type == 1
   type_tuple:
     seq:
       - id: tuple_types_count
@@ -463,6 +479,8 @@ types:
         type: s1
       - id: doc
         type: markdown
+      - id: annotation_attachments_content
+        type: annotation_attachments_content
       - id: type_cp_index
         type: s4
   type_definition_body:
@@ -1184,6 +1202,37 @@ types:
         type: operand
       - id: lhs_operand
         type: operand
+      - id: init_values_count
+        type: s4
+      - id: init_values
+        type: mapping_constructor
+        repeat: expr
+        repeat-expr: init_values_count
+  mapping_constructor:
+    seq:
+      - id: mapping_constructor_kind
+        type: u1
+        enum: mapping_constructor_body_kind
+      - id: mapping_constructor_body
+        type:
+          switch-on: mapping_constructor_kind
+          cases:
+            'mapping_constructor_body_kind::mapping_constructor_spread_field_kind': mapping_constructor_spread_field_body
+            'mapping_constructor_body_kind::mapping_constructor_key_value_kind': mapping_constructor_key_value_body
+    enums:
+      mapping_constructor_body_kind:
+        0: mapping_constructor_spread_field_kind
+        1: mapping_constructor_key_value_kind
+  mapping_constructor_key_value_body:
+    seq:
+      - id: key_operand
+        type: operand
+      - id: value_operand
+        type: operand
+  mapping_constructor_spread_field_body:
+    seq:
+      - id: expr_operand
+        type: operand
   instruction_type_cast:
     seq:
       - id: lhs_operand
@@ -1202,6 +1251,12 @@ types:
         type: operand
       - id: size_operand
         type: operand
+      - id: init_values_count
+        type: s4
+      - id: init_values
+        type: operand
+        repeat: expr
+        repeat-expr: init_values_count
   instruction_branch:
     seq:
       - id: branch_operand

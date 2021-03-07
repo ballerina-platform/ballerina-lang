@@ -86,7 +86,13 @@
                                       ]
                                     },
                                     {
-                                      "kind": "COLON_TOKEN"
+                                      "kind": "COLON_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "MAPPING_BINDING_PATTERN",
@@ -133,7 +139,13 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "COLON_TOKEN"
+                                                  "kind": "COLON_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "CAPTURE_BINDING_PATTERN",
@@ -349,7 +361,13 @@
                                       "value": "b"
                                     },
                                     {
-                                      "kind": "COLON_TOKEN"
+                                      "kind": "COLON_TOKEN",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "LIST_BINDING_PATTERN",
@@ -673,7 +691,13 @@
                                                   ]
                                                 },
                                                 {
-                                                  "kind": "COLON_TOKEN"
+                                                  "kind": "COLON_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "MAPPING_BINDING_PATTERN",
@@ -720,7 +744,13 @@
                                                               ]
                                                             },
                                                             {
-                                                              "kind": "COLON_TOKEN"
+                                                              "kind": "COLON_TOKEN",
+                                                              "trailingMinutiae": [
+                                                                {
+                                                                  "kind": "WHITESPACE_MINUTIAE",
+                                                                  "value": " "
+                                                                }
+                                                              ]
                                                             },
                                                             {
                                                               "kind": "CAPTURE_BINDING_PATTERN",
@@ -942,7 +972,13 @@
                                                   "value": "b"
                                                 },
                                                 {
-                                                  "kind": "COLON_TOKEN"
+                                                  "kind": "COLON_TOKEN",
+                                                  "trailingMinutiae": [
+                                                    {
+                                                      "kind": "WHITESPACE_MINUTIAE",
+                                                      "value": " "
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "LIST_BINDING_PATTERN",

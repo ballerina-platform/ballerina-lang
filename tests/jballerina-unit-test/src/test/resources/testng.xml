@@ -27,7 +27,6 @@
             <run>
                 <exclude name="brokenOnJBallerina"/>
                 <exclude name="brokenOnSpecDeviation"/>
-                <exclude name="brokenOnXMLLangLibChange"/>
                 <exclude name="brokenOnNewParser"/>
                 <exclude name="brokenOnErrorChange"/>
                 <exclude name="brokenOnClassChange"/>
@@ -128,7 +127,7 @@
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>
             <package name="org.ballerinalang.test.types.handle.*"/>
-            <package name="org.ballerinalang.test.balo.*"/>
+            <package name="org.ballerinalang.test.bala.*"/>
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
             <package name="org.ballerinalang.test.expressions.varref.*"/>
@@ -144,12 +143,13 @@
             <package name="org.ballerinalang.test.strand.*"/>
             <package name="org.ballerinalang.test.klass.*"/>
             <package name="org.ballerinalang.test.services.*"/>
+            <package name="org.ballerinalang.test.runtime.api.*"/>
         </packages>
 
         <classes>
             <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
             <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
-            <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
+            <class name="org.ballerinalang.test.bala.constant.SimpleConstantBalaNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest"></class>
@@ -194,6 +194,9 @@
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtConstPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.ListBindingPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.MappingBindingPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.ErrorBindingPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtMappingMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtTypeNarrowingTest"></class>
@@ -232,26 +235,9 @@
                     <exclude name="testAsyncNonNativeBasic11" />
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
-            <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
-
-
-            <!-- Disabled tests related to ProjectAPI change -->
-            <!-- ########################## START ############################# -->
-            <class name="org.ballerinalang.test.taintchecking.TaintedStatusPropagationTest">
-                <methods>
-                    <exclude name="testParameterStatusWithNativeInvocations"/>
-                    <exclude name="testParameterStatusWithNativeInvocationsNegative"/>
-                </methods>
-            </class>
-            <class name="org.ballerinalang.test.bir.BirVariableOptimizationTest">
-                <methods>
-                    <exclude name="testAttachedFunctions"/>
-                    <exclude name="testFunctions"/>
-                </methods>
-            </class>
-            <!-- ########################## END ############################# -->
-
+            <class name="org.ballerinalang.test.bala.record.OpenRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.bala.record.ClosedRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.ParserTestRunner"/>
         </classes>
     </test>
 </suite>

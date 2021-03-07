@@ -161,6 +161,11 @@ function testCyclicUserDefinedType() {
     assert(<int> i, 1);
 }
 
+function testCyclicUnionAgainstSubSetNegative() {
+    record {} x = {};
+    assert(false, x is record {| int|boolean|decimal|float|string|xml?...; |});
+}
+
 function assert(anydata expected, anydata actual) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

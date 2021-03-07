@@ -16,10 +16,10 @@
 
 import ballerina/lang.'value;
 
-type SMS error <record {| string message?; error cause?; string...; |}>;
-type SMA error <record {| string message?; error cause?; anydata...; |}>;
-type CMS error <record {| string message?; error cause?; string...; |}>;
-type CMA error <record {| string message?; error cause?; anydata...; |}>;
+type SMS error <record {| string message?; error cause?; string detail?; string...; |}>;
+type SMA error <record {| string message?; error cause?; boolean fatal?; string...; |}>;
+type CMS error <record {| string message?; error cause?; string detail?; string...; |}>;
+type CMA error <record {| string message?; error cause?; boolean fatal?; anydata...; |}>;
 const ERROR1 = "Some Error One";
 const ERROR2 = "Some Error Two";
 
@@ -163,6 +163,7 @@ type Bee record {|
     string message?;
     boolean fatal;
     error cause?;
+    string other?;
     anydata...;
 |};
 
@@ -190,3 +191,20 @@ function testSealedDetailDestructuring() returns [string, map<anydata|readonly>]
 }
 
 type simpleError record {| (value:Cloneable)...; |};
+
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type SampleError error<SampleErrorData>;
+
+function testErrorBindingPattern() returns [string, boolean, value:Cloneable] {
+    SampleError error(info=info,fatal=fatal) = error SampleError("Sample Error", info = "Detail Info",
+    fatal = true);
+    error error(data=transactionData) = error("TransactionError", data={"A":"a", "B":"b"});
+
+    return [info, fatal, transactionData];
+}

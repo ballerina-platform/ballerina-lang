@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.package internal;
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 public function testReturningTuple() returns [string, string] {
     Person p = new;
@@ -35,5 +35,5 @@ class Person {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

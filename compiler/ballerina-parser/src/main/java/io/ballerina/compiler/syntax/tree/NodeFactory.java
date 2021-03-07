@@ -2810,7 +2810,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
     public static ListMatchPatternNode createListMatchPatternNode(
             Token openBracket,
             SeparatedNodeList<Node> matchPatterns,
-            RestMatchPatternNode restMatchPattern,
             Token closeBracket) {
         Objects.requireNonNull(openBracket, "openBracket must not be null");
         Objects.requireNonNull(matchPatterns, "matchPatterns must not be null");
@@ -2819,7 +2818,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stListMatchPatternNode = STNodeFactory.createListMatchPatternNode(
                 openBracket.internalNode(),
                 matchPatterns.underlyingListNode().internalNode(),
-                getOptionalSTNode(restMatchPattern),
                 closeBracket.internalNode());
         return stListMatchPatternNode.createUnlinkedFacade();
     }
@@ -2841,8 +2839,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static MappingMatchPatternNode createMappingMatchPatternNode(
             Token openBraceToken,
-            SeparatedNodeList<FieldMatchPatternNode> fieldMatchPatterns,
-            RestMatchPatternNode restMatchPattern,
+            SeparatedNodeList<Node> fieldMatchPatterns,
             Token closeBraceToken) {
         Objects.requireNonNull(openBraceToken, "openBraceToken must not be null");
         Objects.requireNonNull(fieldMatchPatterns, "fieldMatchPatterns must not be null");
@@ -2851,7 +2848,6 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         STNode stMappingMatchPatternNode = STNodeFactory.createMappingMatchPatternNode(
                 openBraceToken.internalNode(),
                 fieldMatchPatterns.underlyingListNode().internalNode(),
-                getOptionalSTNode(restMatchPattern),
                 closeBraceToken.internalNode());
         return stMappingMatchPatternNode.createUnlinkedFacade();
     }
@@ -2952,21 +2948,71 @@ public abstract class NodeFactory extends AbstractNodeFactory {
         return stMarkdownParameterDocumentationLineNode.createUnlinkedFacade();
     }
 
-    public static DocumentationReferenceNode createDocumentationReferenceNode(
+    public static BallerinaNameReferenceNode createBallerinaNameReferenceNode(
             Token referenceType,
             Token startBacktick,
-            Node backtickContent,
+            Node nameReference,
             Token endBacktick) {
         Objects.requireNonNull(startBacktick, "startBacktick must not be null");
-        Objects.requireNonNull(backtickContent, "backtickContent must not be null");
+        Objects.requireNonNull(nameReference, "nameReference must not be null");
         Objects.requireNonNull(endBacktick, "endBacktick must not be null");
 
-        STNode stDocumentationReferenceNode = STNodeFactory.createDocumentationReferenceNode(
+        STNode stBallerinaNameReferenceNode = STNodeFactory.createBallerinaNameReferenceNode(
                 getOptionalSTNode(referenceType),
                 startBacktick.internalNode(),
-                backtickContent.internalNode(),
+                nameReference.internalNode(),
                 endBacktick.internalNode());
-        return stDocumentationReferenceNode.createUnlinkedFacade();
+        return stBallerinaNameReferenceNode.createUnlinkedFacade();
+    }
+
+    public static InlineCodeReferenceNode createInlineCodeReferenceNode(
+            Token startBacktick,
+            Token codeReference,
+            Token endBacktick) {
+        Objects.requireNonNull(startBacktick, "startBacktick must not be null");
+        Objects.requireNonNull(codeReference, "codeReference must not be null");
+        Objects.requireNonNull(endBacktick, "endBacktick must not be null");
+
+        STNode stInlineCodeReferenceNode = STNodeFactory.createInlineCodeReferenceNode(
+                startBacktick.internalNode(),
+                codeReference.internalNode(),
+                endBacktick.internalNode());
+        return stInlineCodeReferenceNode.createUnlinkedFacade();
+    }
+
+    public static MarkdownCodeBlockNode createMarkdownCodeBlockNode(
+            Token startLineHashToken,
+            Token startBacktick,
+            Token langAttribute,
+            NodeList<MarkdownCodeLineNode> codeLines,
+            Token endLineHashToken,
+            Token endBacktick) {
+        Objects.requireNonNull(startLineHashToken, "startLineHashToken must not be null");
+        Objects.requireNonNull(startBacktick, "startBacktick must not be null");
+        Objects.requireNonNull(codeLines, "codeLines must not be null");
+        Objects.requireNonNull(endLineHashToken, "endLineHashToken must not be null");
+        Objects.requireNonNull(endBacktick, "endBacktick must not be null");
+
+        STNode stMarkdownCodeBlockNode = STNodeFactory.createMarkdownCodeBlockNode(
+                startLineHashToken.internalNode(),
+                startBacktick.internalNode(),
+                getOptionalSTNode(langAttribute),
+                codeLines.underlyingListNode().internalNode(),
+                endLineHashToken.internalNode(),
+                endBacktick.internalNode());
+        return stMarkdownCodeBlockNode.createUnlinkedFacade();
+    }
+
+    public static MarkdownCodeLineNode createMarkdownCodeLineNode(
+            Token hashToken,
+            Token codeDescription) {
+        Objects.requireNonNull(hashToken, "hashToken must not be null");
+        Objects.requireNonNull(codeDescription, "codeDescription must not be null");
+
+        STNode stMarkdownCodeLineNode = STNodeFactory.createMarkdownCodeLineNode(
+                hashToken.internalNode(),
+                codeDescription.internalNode());
+        return stMarkdownCodeLineNode.createUnlinkedFacade();
     }
 
     public static OrderByClauseNode createOrderByClauseNode(

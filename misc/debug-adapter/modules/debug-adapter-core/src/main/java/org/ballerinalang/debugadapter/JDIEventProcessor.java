@@ -17,7 +17,6 @@
 package org.ballerinalang.debugadapter;
 
 import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.IncompatibleThreadStateException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
@@ -33,9 +32,13 @@ import com.sun.jdi.event.VMDisconnectEvent;
 import com.sun.jdi.request.BreakpointRequest;
 import com.sun.jdi.request.EventRequest;
 import com.sun.jdi.request.StepRequest;
-import org.eclipse.lsp4j.debug.Breakpoint;
+import org.ballerinalang.debugadapter.config.ClientConfigHolder;
+import org.ballerinalang.debugadapter.config.ClientLaunchConfigHolder;
+import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
+import org.ballerinalang.debugadapter.jdi.JdiProxyException;
+import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
+import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
-import org.eclipse.lsp4j.debug.ExitedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
 import org.slf4j.Logger;
@@ -48,24 +51,25 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.atomic.AtomicInteger;
 
+import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
+import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
 /**
  * JDI Event processor implementation.
  */
 public class JDIEventProcessor {
 
-    private Map<Long, ThreadReference> threadsMap = new HashMap<>();
-    private final DebugContext context;
-    private final Map<String, Breakpoint[]> breakpointsList = new HashMap<>();
-    private final AtomicInteger nextVariableReference = new AtomicInteger();
+    private final ExecutionContext context;
+    private final Map<String, Map<Integer, BalBreakpoint>> breakpoints = new HashMap<>();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    private static final String JBAL_STRAND_PREFIX = "jbal-strand-exec";
+    private static final String BALLERINA_ORG_PREFIX = "ballerina";
+    private static final String BALLERINAX_ORG_PREFIX = "ballerinax";
+    private static final String CONDITION_TRUE = "true";
 
-    JDIEventProcessor(DebugContext context) {
+    JDIEventProcessor(ExecutionContext context) {
         this.context = context;
     }
 
@@ -77,14 +81,21 @@ public class JDIEventProcessor {
             boolean vmAttached = true;
             while (vmAttached) {
                 try {
-                    EventSet eventSet = context.getDebuggee().eventQueue().remove();
+                    EventSet eventSet = context.getDebuggeeVM().eventQueue().remove();
                     EventIterator eventIterator = eventSet.eventIterator();
-                    while (eventIterator.hasNext()) {
+                    while (eventIterator.hasNext() && vmAttached) {
                         vmAttached = processEvent(eventSet, eventIterator.next());
                     }
                 } catch (Exception e) {
                     LOGGER.error(e.getMessage(), e);
                 }
+            }
+            // Tries terminating the debug server, only if there is no any termination requests received from the
+            // debug client.
+            if (!context.getAdapter().isTerminationRequestReceived()) {
+                // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or
+                // dead by now.
+                context.getAdapter().terminateServer(false);
             }
         });
     }
@@ -95,34 +106,56 @@ public class JDIEventProcessor {
             configureUserBreakPoints(evt.referenceType());
             eventSet.resume();
         } else if (event instanceof BreakpointEvent) {
-            populateMaps();
-            StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
-            stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
-            stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
-            stoppedEventArguments.setAllThreadsStopped(true);
-            context.getClient().stopped(stoppedEventArguments);
-            List<EventRequest> stepEventRequests = new ArrayList<>();
-            context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
-        } else if (event instanceof StepEvent) {
-            populateMaps();
-            if (((StepEvent) event).location().lineNumber() > 0) {
-                context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
+            String qualifiedClassName =
+                getQualifiedClassName(context, ((BreakpointEvent) event).location().declaringType());
+            Map<Integer, BalBreakpoint> breakpoints = this.breakpoints.get(qualifiedClassName);
+            int lineNumber = ((BreakpointEvent) event).location().lineNumber();
+
+            if (breakpoints != null && breakpoints.containsKey(lineNumber)
+                && breakpoints.get(lineNumber).getCondition() != null
+                && !evaluateBreakpointCondition(breakpoints.get(lineNumber).getCondition(),
+                ((BreakpointEvent) event).thread())) {
+                context.getDebuggeeVM().resume();
+                ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
+                continuedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
+                continuedEventArguments.setAllThreadsContinued(true);
+                context.getClient().continued(continuedEventArguments);
+            } else {
                 StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
-                stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
-                stoppedEventArguments.setThreadId(((StepEvent) event).thread().uniqueID());
+                stoppedEventArguments.setReason(StoppedEventArgumentsReason.BREAKPOINT);
+                stoppedEventArguments.setThreadId(((BreakpointEvent) event).thread().uniqueID());
                 stoppedEventArguments.setAllThreadsStopped(true);
                 context.getClient().stopped(stoppedEventArguments);
+            }
+            context.getEventManager().deleteEventRequests(stepEventRequests);
+        } else if (event instanceof StepEvent) {
+            StepEvent stepEvent = (StepEvent) event;
+            long threadId = stepEvent.thread().uniqueID();
+            if (isBallerinaSource(stepEvent.location())) {
+                if (isExternalLibSource(stepEvent.location())) {
+                    // If the current step-in event is related to an external source (i.e. lang library, standard
+                    // library, connector module), notifies the user and rolls back to the previous state.
+                    // Todo - add support for external libraries
+                    context.getAdapter().sendOutput("INFO: Stepping into ballerina internal modules " +
+                            "is not supported.", STDOUT);
+                    context.getAdapter().stepOut(threadId);
+                    return true;
+                }
+                // If the current step event is related to a ballerina source, suspends all threads and notifies the
+                // client that the debuggee is stopped.
+                StoppedEventArguments stoppedEventArguments = new StoppedEventArguments();
+                stoppedEventArguments.setReason(StoppedEventArgumentsReason.STEP);
+                stoppedEventArguments.setThreadId(stepEvent.thread().uniqueID());
+                stoppedEventArguments.setAllThreadsStopped(true);
+                context.getClient().stopped(stoppedEventArguments);
+                context.getEventManager().deleteEventRequests(stepEventRequests);
             } else {
-                long threadId = ((StepEvent) event).thread().uniqueID();
                 int stepType = ((StepRequest) event.request()).depth();
                 sendStepRequest(threadId, stepType);
             }
         } else if (event instanceof VMDisconnectEvent
                 || event instanceof VMDeathEvent
                 || event instanceof VMDisconnectedException) {
-            ExitedEventArguments exitedEventArguments = new ExitedEventArguments();
-            exitedEventArguments.setExitCode(0L);
-            context.getClient().exited(exitedEventArguments);
             return false;
         } else {
             eventSet.resume();
@@ -130,34 +163,43 @@ public class JDIEventProcessor {
         return true;
     }
 
-    void setBreakpointsList(String path, Breakpoint[] breakpointsList) {
-        Breakpoint[] breakpoints = breakpointsList.clone();
-        this.breakpointsList.put(getQualifiedClassName(path), breakpoints);
-        if (context.getDebuggee() != null) {
-            // Setting breakpoints to a already running debug session.
-            context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
-            context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
+    private boolean evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
+        try {
+            StackFrameProxyImpl frame = context.getAdapter().getAllThreads().get(threadReference.uniqueID()).frame(0);
+            SuspendedContext ctx = new SuspendedContext(context.getSourceProject(), context.getDebuggeeVM(),
+                    context.getAdapter().getAllThreads().get(threadReference.uniqueID()), frame);
+            ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
+            String condition = evaluator.evaluate(expression).toString();
+            return condition.equalsIgnoreCase(CONDITION_TRUE);
+        } catch (JdiProxyException e) {
+            LOGGER.error(e.getMessage(), e);
+            return false;
         }
     }
 
-    Map<Long, ThreadReference> getThreadsMap() {
-        if (context.getDebuggee() == null) {
-            return null;
+    /**
+     * Validates whether the given location is related to a ballerina source.
+     *
+     * @param location location
+     * @return true if the given step event is related to a ballerina source
+     */
+    private boolean isBallerinaSource(Location location) {
+        try {
+            String sourceName = location.sourceName();
+            int sourceLine = location.lineNumber();
+            return sourceName.endsWith(BAL_FILE_EXT) && sourceLine > 0;
+        } catch (AbsentInformationException e) {
+            return false;
         }
-        List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
-        Map<Long, ThreadReference> breakPointThreads = new HashMap<>();
+    }
 
-        // Filter thread references which are at breakpoint, suspended and whose thread status is running.
-        for (ThreadReference threadReference : threadReferences) {
-            if (threadReference.status() == ThreadReference.THREAD_STATUS_RUNNING
-                    && !threadReference.name().equals("Reference Handler")
-                    && !threadReference.name().equals("Signal Dispatcher")
-                    && threadReference.isSuspended()
-            ) {
-                breakPointThreads.put(threadReference.uniqueID(), threadReference);
-            }
+    void setBreakpoints(String path, Map<Integer, BalBreakpoint> breakpoints) {
+        this.breakpoints.put(getQualifiedClassName(path), breakpoints);
+        if (context.getDebuggeeVM() != null) {
+            // Setting breakpoints to a already running debug session.
+            context.getEventManager().deleteAllBreakpoints();
+            context.getDebuggeeVM().allClasses().forEach(this::configureUserBreakPoints);
         }
-        return breakPointThreads;
     }
 
     void sendStepRequest(long threadId, int stepType) {
@@ -166,43 +208,43 @@ public class JDIEventProcessor {
         } else if (stepType == StepRequest.STEP_INTO || stepType == StepRequest.STEP_OUT) {
             createStepRequest(threadId, stepType);
         }
-        context.getDebuggee().resume();
+        context.getDebuggeeVM().resume();
         // Notifies the debug client that the execution is resumed.
         ContinuedEventArguments continuedEventArguments = new ContinuedEventArguments();
         continuedEventArguments.setAllThreadsContinued(true);
         context.getClient().continued(continuedEventArguments);
     }
 
-    void restoreBreakpoints(boolean isContinue) {
-        if (context.getDebuggee() == null) {
+    void restoreBreakpoints(DebugInstruction instruction) {
+        if (context.getDebuggeeVM() == null || instruction == DebugInstruction.STEP_OVER) {
             return;
         }
-        context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
 
-        if (isContinue) {
-            context.getDebuggee().allClasses().forEach(this::configureUserBreakPoints);
+        context.getEventManager().deleteAllBreakpoints();
+        if (instruction == DebugInstruction.CONTINUE) {
+            context.getDebuggeeVM().allClasses().forEach(this::configureUserBreakPoints);
         }
-    }
-
-    private void populateMaps() {
-        nextVariableReference.set(1);
-        threadsMap = new HashMap<>();
-        List<ThreadReference> threadReferences = context.getDebuggee().allThreads();
-        threadReferences.forEach(threadReference -> threadsMap.put(threadReference.uniqueID(), threadReference));
     }
 
     private void configureUserBreakPoints(ReferenceType referenceType) {
         try {
-            String qualifiedClassName = getQualifiedClassName(context, referenceType);
-            if (!breakpointsList.containsKey(qualifiedClassName)) {
+            // Avoids setting break points if the server is running in 'no-debug' mode.
+            ClientConfigHolder configHolder = context.getAdapter().getClientConfigHolder();
+            if (configHolder instanceof ClientLaunchConfigHolder
+                    && ((ClientLaunchConfigHolder) configHolder).isNoDebugMode()) {
                 return;
             }
-            Breakpoint[] breakpoints = breakpointsList.get(qualifiedClassName);
-            for (Breakpoint bp : breakpoints) {
+
+            String qualifiedClassName = getQualifiedClassName(context, referenceType);
+            if (!breakpoints.containsKey(qualifiedClassName)) {
+                return;
+            }
+            Map<Integer, BalBreakpoint> breakpoints = this.breakpoints.get(qualifiedClassName);
+            for (BalBreakpoint bp : breakpoints.values()) {
                 List<Location> locations = referenceType.locationsOfLine(bp.getLine().intValue());
                 if (!locations.isEmpty()) {
                     Location loc = locations.get(0);
-                    BreakpointRequest bpReq = context.getDebuggee().eventRequestManager().createBreakpointRequest(loc);
+                    BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(loc);
                     bpReq.enable();
                 }
             }
@@ -212,7 +254,7 @@ public class JDIEventProcessor {
     }
 
     private void configureDynamicBreakPoints(long threadId) {
-        ThreadReference threadReference = getThreadsMap().get(threadId);
+        ThreadReferenceProxyImpl threadReference = context.getAdapter().getAllThreads().get(threadId);
         try {
             Location currentLocation = threadReference.frames().get(0).location();
             ReferenceType referenceType = currentLocation.declaringType();
@@ -230,17 +272,16 @@ public class JDIEventProcessor {
             }
 
             int nextStepPoint = firstLocation.get().lineNumber();
-            context.getDebuggee().eventRequestManager().deleteAllBreakpoints();
+            context.getEventManager().deleteAllBreakpoints();
             do {
                 List<Location> locations = referenceType.locationsOfLine(nextStepPoint);
                 if (!locations.isEmpty() && (locations.get(0).lineNumber() > firstLocation.get().lineNumber())) {
-                    BreakpointRequest bpReq = context.getDebuggee().eventRequestManager()
-                            .createBreakpointRequest(locations.get(0));
+                    BreakpointRequest bpReq = context.getEventManager().createBreakpointRequest(locations.get(0));
                     bpReq.enable();
                 }
                 nextStepPoint++;
             } while (nextStepPoint <= lastLocation.get().lineNumber());
-        } catch (IncompatibleThreadStateException | AbsentInformationException e) {
+        } catch (AbsentInformationException | JdiProxyException e) {
             LOGGER.error(e.getMessage());
             int stepType = ((StepRequest) this.stepEventRequests.get(0)).depth();
             sendStepRequest(threadId, stepType);
@@ -248,20 +289,39 @@ public class JDIEventProcessor {
     }
 
     private void createStepRequest(long threadId, int stepType) {
-        context.getDebuggee().eventRequestManager().deleteEventRequests(stepEventRequests);
-        ThreadReference threadReference = getThreadsMap().get(threadId);
-        StepRequest request = context.getDebuggee().eventRequestManager().createStepRequest(threadReference,
+        context.getEventManager().deleteEventRequests(stepEventRequests);
+        ThreadReferenceProxyImpl proxy = context.getAdapter().getAllThreads().get(threadId);
+        if (proxy == null || proxy.getThreadReference() == null) {
+            return;
+        }
+
+        StepRequest request = context.getEventManager().createStepRequest(proxy.getThreadReference(),
                 StepRequest.STEP_LINE, stepType);
         request.setSuspendPolicy(StepRequest.SUSPEND_ALL);
         // Todo - Replace with a class inclusive filter.
         request.addClassExclusionFilter("io.*");
         request.addClassExclusionFilter("com.*");
         request.addClassExclusionFilter("org.*");
-        request.addClassExclusionFilter("ballerina.*");
         request.addClassExclusionFilter("java.*");
         request.addClassExclusionFilter("$lambda$main$");
         stepEventRequests.add(request);
         request.addCountFilter(1);
+        stepEventRequests.add(request);
         request.enable();
+    }
+
+    /**
+     * Checks whether the given source location lies within an external module source (i.e. lang library, standard
+     * library, connector module).
+     *
+     * @param location source location
+     */
+    private static boolean isExternalLibSource(Location location) {
+        try {
+            String srcPath = location.sourcePath();
+            return srcPath.startsWith(BALLERINA_ORG_PREFIX) || srcPath.startsWith(BALLERINAX_ORG_PREFIX);
+        } catch (AbsentInformationException e) {
+            return false;
+        }
     }
 }

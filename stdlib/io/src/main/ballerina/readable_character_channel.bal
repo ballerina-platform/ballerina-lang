@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/java;
+import ballerina/jballerina.java;
 
 #Represents a channel, which could be used to read characters through a given ReadableByteChannel.
 public class ReadableCharacterChannel {

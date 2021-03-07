@@ -1,5 +1,5 @@
 NAME
-       The bal build tool
+       The Ballerina Tool
 
 SYNOPSIS
        bal <-v | --version>
@@ -49,3 +49,4 @@ BALLERINA COMMANDS
         openapi         Generate Ballerina sources for the given OpenAPI definition and vice versa.
         version         Print Ballerina version
         bindgen         Generate Ballerina bindings for Java APIs
+        shell           Run ballerina interactive REPL [EXPERIMENTAL]

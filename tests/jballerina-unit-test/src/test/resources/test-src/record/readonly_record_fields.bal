@@ -761,6 +761,90 @@ function testReadOnlyFieldsOfClassTypes() {
     assertEquality(212, rec2.c.i);
 }
 
+type CommonResponse record {|
+    string mediaType?;
+    map<string|string[]> headers?;
+    anydata body?;
+|};
+public type Forbidden record {|
+    *CommonResponse;
+|};
+
+public type Unauthorized record {|
+    *CommonResponse;
+    readonly byte[] body;
+    readonly boolean valid;
+|};
+
+function testTypeReadOnlynessNegativeWithNonReadOnlyFieldsViaInclusion() {
+    Unauthorized|Forbidden? x = tryAuthenticate(true);
+    assertFalse(<any> x is readonly);
+    Unauthorized u = {headers: {"h1": "v1"}, body: [1, 2, 3], valid: false};
+    assertEquality(u, x);
+
+    Forbidden f = {headers: {"h1": "v1", "h2": "v2"}, body: "invalid"};
+    assertFalse(<any> f is readonly);
+    var y = tryAuthenticate(false);
+    assertEquality(f, y);
+    x = y;
+    assertEquality(f, x);
+    y = x;
+    assertEquality(f, y);
+}
+
+function tryAuthenticate(boolean b) returns Unauthorized|Forbidden? {
+    if b {
+        return {headers: {"h1": "v1"}, body: [1, 2, 3], valid: false};
+    }
+    return {headers: {"h1": "v1", "h2": "v2"}, body: "invalid"};
+}
+
+type OpenRecordWithAllReadOnlyFields record {
+    readonly int i = 1;
+    readonly int j;
+};
+
+type ClosedRecordWithAllReadOnlyFields record {|
+    readonly int k;
+|};
+
+type IncludingRec1 record {|
+    *OpenRecordWithAllReadOnlyFields;
+    *ClosedRecordWithAllReadOnlyFields;
+    never...;
+|};
+
+type IncludingRec2 record {|
+    *ClosedRecordWithAllReadOnlyFields;
+    readonly int l;
+|};
+
+function testTypeReadOnlynessWithReadOnlyFieldsViaInclusion() {
+    IncludingRec1|IncludingRec2 w = {i: 1, j: 2, k: 3};
+    assertTrue(<any> w is readonly);
+    readonly r = w;
+    assertEquality(w, r);
+
+    IncludingRec1|IncludingRec2? x = getRecord(true);
+    assertEquality(w, x);
+
+    IncludingRec2 v = {k: 1, l: 2};
+    assertTrue(<any> v is readonly);
+    var y = getRecord(false);
+    assertEquality(v, y);
+    x = y;
+    assertEquality(v, x);
+    y = x;
+    assertEquality(v, y);
+}
+
+function getRecord(boolean b) returns IncludingRec1|IncludingRec2? {
+    if b {
+        return {i: 1, j: 2, k: 3};
+    }
+    return {k: 1, l: 2};
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(any|error actual) {

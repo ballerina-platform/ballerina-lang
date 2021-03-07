@@ -33,3 +33,26 @@ function wrongTypes() {
 function fun() returns int {
     return 1;
 }
+
+function invalidTypesWithAnonymousRecord() {
+    record {
+        byte i;
+        int j?;
+    } rec1 = let int v = 160 in {i: v};
+
+    record {
+        string i;
+        int j?;
+    } rec2 = let string v = "160" in {i: v, j: "invalid"};
+    
+    rec2.j = 2.0;
+}
+
+class FooClass {
+    public function init(int m) {
+    }
+}
+
+function testLetWithClass() {
+    FooClass foo = let int m = 5 in new (m, m);
+}

@@ -53,17 +53,21 @@ public class ObjectConstructorExpressionNodeContext
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ObjectConstructorExpressionNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         if (this.onSuggestObjectOnly(ctx, node)) {
-            return Arrays.asList(
+            completionItems.addAll(Arrays.asList(
                     new SnippetCompletionItem(ctx, Snippet.KW_OBJECT.get()),
                     new SnippetCompletionItem(ctx, Snippet.EXPR_OBJECT_CONSTRUCTOR.get())
-            );
+            ));
+        } else if (this.onSuggestTypeReferences(ctx, node)) {
+            completionItems.addAll(this.getTypeReferenceCompletions(ctx));
+        } else {
+            completionItems.addAll(this.getConstructorBodyCompletions(node, ctx));
         }
-        if (this.onSuggestTypeReferences(ctx, node)) {
-            return this.getTypeReferenceCompletions(ctx);
-        }
+        this.sort(ctx, node, completionItems);
 
-        return this.getConstructorBodyCompletions(node, ctx);
+        return completionItems;
     }
 
     private List<LSCompletionItem> getTypeReferenceCompletions(BallerinaCompletionContext ctx) {

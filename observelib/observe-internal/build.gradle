@@ -19,7 +19,7 @@ apply from: "$rootDir/gradle/ballerinaStdLibBuild.gradle"
 
 dependencies {
     implementation project(':ballerina-lang')
-    implementation project(':ballerina-lang:java')
+    implementation project(':ballerina-lang:jballerina.java')
     implementation project(':ballerina-lang:annotations')
     implementation project(':ballerina-runtime-api')
     implementation project(':ballerina-config')
@@ -28,7 +28,7 @@ dependencies {
     implementation 'io.opentracing:opentracing-api'
     implementation 'io.opentracing:opentracing-noop'
 
-    distributionBalo project(path: ':ballerina-observability', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-observability', configuration: 'distributionBala')
 }
 
 task updateVersion {
