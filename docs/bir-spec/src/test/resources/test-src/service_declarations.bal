@@ -22,16 +22,28 @@ service HelloWorld /foo/bar on new Listener() {
 
     public string greeting = "Hello World!";
 
-    resource function get greet/[int x]/hello/[float y]/[string... rest] () returns json => { output: self.greeting };
+    resource function get greet () returns json => { output: self.greeting };
 
-    remote function sayHello() return string => self.greeting;
+    remote function sayHello() returns string => self.greeting;
+}
 
-    function createError() returns @tainted error? => ();
+service on new Listener() {
+    resource function get greet () returns json => { output: "Hello World!" };
+}
+
+service / on new Listener() {
+    resource function get greet () returns json => { output: "Hello World!" };
+}
+
+service HelloWorld "GreetingService" on new Listener() {
+    resource function get greet () returns json => { output: "Hello World!" };
+
+    remote function sayHello() returns string => "Hello";
 }
 
 public class Listener {
 
-    public function start() returns error? {
+    public function 'start() returns error? {
     }
 
     public function gracefulStop() returns error? {
@@ -43,6 +55,6 @@ public class Listener {
     public function detach(service object {} s) returns error? {
     }
 
-    public function attach(service object {} s, string[]? name = ()) returns error? {
+    public function attach(service object {} s, string[]|string|() name = ()) returns error? {
     }
 }

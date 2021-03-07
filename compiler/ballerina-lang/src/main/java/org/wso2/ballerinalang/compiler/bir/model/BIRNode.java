@@ -854,6 +854,11 @@ public abstract class BIRNode {
         }
     }
 
+    /**
+     * Represents a service declaration.
+     *
+     * @since 2.0.0
+     */
     public static class BIRServiceDeclaration extends BIRDocumentableNode {
 
         public List<String> attachPoint;
