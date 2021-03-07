@@ -61,6 +61,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
 
     private Map<String, ClassFieldSymbol> fields;
     private Map<String, MethodSymbol> methods;
+    private Documentation docAttachment;
 
     protected BallerinaServiceDeclarationSymbol(String name, TypeSymbol typeDescriptor, ServiceAttachPoint attachPoint,
                                                 List<Qualifier> qualifiers, List<AnnotationSymbol> annots,
@@ -139,7 +140,12 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
 
     @Override
     public Optional<Documentation> documentation() {
-        return Optional.empty();
+        if (this.docAttachment != null) {
+            return Optional.of(this.docAttachment);
+        }
+
+        this.docAttachment = getDocAttachment(((BServiceSymbol) getInternalSymbol()).getAssociatedClassSymbol());
+        return Optional.ofNullable(this.docAttachment);
     }
 
     @Override
