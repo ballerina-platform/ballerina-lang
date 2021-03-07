@@ -87,7 +87,7 @@ BIRBinaryWriter {
         // Write annotations
         writeAnnotations(birbuf, typeWriter, birPackage.annotations);
         // Write service declarations
-        writeServiceDeclarations(birbuf, typeWriter, birPackage.serviceDecls);
+        writeServiceDeclarations(birbuf, birPackage.serviceDecls);
 
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -438,33 +438,36 @@ BIRBinaryWriter {
         }
     }
 
-    private void writeServiceDeclarations(ByteBuf buf, BIRTypeWriter typeWriter,
+    private void writeServiceDeclarations(ByteBuf buf,
                                           List<BIRNode.BIRServiceDeclaration> birServiceDeclList) {
         buf.writeInt(birServiceDeclList.size());
-        birServiceDeclList.forEach(service -> writeServiceDeclaration(buf, typeWriter, service));
+        birServiceDeclList.forEach(service -> writeServiceDeclaration(buf, service));
     }
 
-    private void writeServiceDeclaration(ByteBuf buf, BIRTypeWriter typeWriter,
-                                         BIRNode.BIRServiceDeclaration birServiceDecl) {
+    private void writeServiceDeclaration(ByteBuf buf, BIRNode.BIRServiceDeclaration birServiceDecl) {
         buf.writeInt(addStringCPEntry(birServiceDecl.generatedName.value));
         buf.writeInt(addStringCPEntry(birServiceDecl.associatedClassName.value));
         buf.writeLong(birServiceDecl.flags);
         buf.writeByte(birServiceDecl.origin.value());
         writePosition(buf, birServiceDecl.pos);
 
-        typeWriter.writeMarkdownDocAttachment(buf, birServiceDecl.markdownDocAttachment);
+        buf.writeBoolean(birServiceDecl.type != null);
+        if (birServiceDecl.type != null) {
+            writeType(buf, birServiceDecl.type);
+        }
 
-        writeType(buf, birServiceDecl.type);
-
-        if (birServiceDecl.attachPoint == null) {
-            buf.writeBoolean(false);
-        } else {
-            buf.writeBoolean(true);
+        buf.writeBoolean(birServiceDecl.attachPoint != null);
+        if (birServiceDecl.attachPoint != null) {
             buf.writeInt(birServiceDecl.attachPoint.size());
 
             for (String pathSegment : birServiceDecl.attachPoint) {
                 buf.writeInt(addStringCPEntry(pathSegment));
             }
+        }
+
+        buf.writeBoolean(birServiceDecl.attachPointLiteral != null);
+        if (birServiceDecl.attachPointLiteral != null) {
+            buf.writeInt(addStringCPEntry(birServiceDecl.attachPointLiteral));
         }
     }
 

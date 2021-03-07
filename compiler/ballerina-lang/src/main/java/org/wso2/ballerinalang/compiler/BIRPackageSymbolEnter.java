@@ -658,10 +658,13 @@ public class BIRPackageSymbolEnter {
         long flags = inputStream.readLong();
         byte origin = inputStream.readByte();
         Location pos = readPosition(inputStream);
-        byte[] docs = readDocBytes(inputStream);
-        BType type = readBType(inputStream);
-        List<String> attachPoint = null;
 
+        BType type = null;
+        if (inputStream.readBoolean()) {
+            type = readBType(inputStream);
+        }
+
+        List<String> attachPoint = null;
         if (inputStream.readBoolean()) {
             attachPoint = new ArrayList<>();
             int nSegments = inputStream.readInt();
@@ -670,10 +673,16 @@ public class BIRPackageSymbolEnter {
             }
         }
 
+        String attachPointLiteral = null;
+        if (inputStream.readBoolean()) {
+            attachPointLiteral = getStringCPEntryValue(inputStream);
+        }
+
         BSymbol classSymbol = this.env.pkgSymbol.scope.lookup(names.fromString(associatedClassName)).symbol;
         BServiceSymbol serviceDecl = new BServiceSymbol((BClassSymbol) classSymbol, flags,
                                                         names.fromString(serviceName), this.env.pkgSymbol.pkgID, type,
                                                         this.env.pkgSymbol, pos, SymbolOrigin.toOrigin(origin));
+        serviceDecl.setAttachPointStringLiteral(attachPointLiteral);
         serviceDecl.setAbsResourcePath(attachPoint);
         this.env.pkgSymbol.scope.define(names.fromString(serviceName), serviceDecl);
     }
