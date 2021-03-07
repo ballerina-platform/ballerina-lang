@@ -18,28 +18,16 @@
 
 package io.ballerina.runtime.internal.configurable;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
- * Singleton class that holds runtime configurable values.
+ * Class that represents the value for configurable variables.
  *
  * @since 2.0.0
  */
-public class ConfigurableMap {
-    private static Map<VariableKey, Object> configurableMap = new HashMap<>();
+public class ConfigValue {
 
-    private ConfigurableMap(){}
+    Object value;
 
-    public static Object get(VariableKey key) {
-        return configurableMap.get(key);
-    }
-
-    public static boolean containsKey(VariableKey key) {
-        return configurableMap.containsKey(key);
-    }
-
-    static void put(VariableKey key, Object value) {
-        configurableMap.put(key, value);
+    public ConfigValue(Object value) {
+        this.value = value;
     }
 }

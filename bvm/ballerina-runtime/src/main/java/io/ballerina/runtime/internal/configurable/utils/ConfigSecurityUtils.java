@@ -16,10 +16,11 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable;
+package io.ballerina.runtime.internal.configurable.utils;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlConfigConstants;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
@@ -33,14 +34,14 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.SECRET_FILE_NAME;
-
 /**
  * Singleton class that holds security functions related to configurable values.
  *
  * @since 2.0.0
  */
 public class ConfigSecurityUtils {
+
+    public static final String SECRET_FILE_NAME = "secret.txt";
 
     private static final Pattern encryptedFieldPattern = Pattern.compile("^@encrypted:\\{(.*)\\}$");
 
@@ -64,7 +65,7 @@ public class ConfigSecurityUtils {
         return value;
     }
 
-    static void handleEncryptedValues(String variableName, String value) {
+    public static void handleEncryptedValues(String variableName, String value) {
         Matcher encryptedStringMatcher = encryptedFieldPattern.matcher(value);
         if (!encryptedStringMatcher.find()) {
             return;
@@ -99,7 +100,7 @@ public class ConfigSecurityUtils {
 
     private static Path getSecretPath() {
         Map<String, String> envVariables = System.getenv();
-        return Paths.get(envVariables.getOrDefault(ConfigurableConstants.CONFIG_SECRET_ENV_VARIABLE,
+        return Paths.get(envVariables.getOrDefault(TomlConfigConstants.CONFIG_SECRET_ENV_VARIABLE,
                                                    Paths.get(RuntimeUtils.USER_DIR, SECRET_FILE_NAME).toString()));
     }
 }

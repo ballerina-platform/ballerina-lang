@@ -16,14 +16,14 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable;
+package io.ballerina.runtime.internal.configurable.providers.toml;
 
 /**
  * Constants used by toml parser.
  *
  * @since 2.0.0
  */
-public class ConfigurableConstants {
+public class TomlConfigConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
     public static final String INVALID_TOML_FILE = "invalid `" + CONFIG_FILE_NAME + "` file : ";
     public static final String INVALID_TOML_TYPE = "configurable variable '%s' is expected to be of type '%s', " +
@@ -34,7 +34,7 @@ public class ConfigurableConstants {
     public static final String SUBMODULE_DELIMITER = ".";
     public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
     public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
-    public static final String SECRET_FILE_NAME = "secret.txt";
+
     public static final String INVALID_ADDITIONAL_FIELD_IN_RECORD =
             "additional field '%s' provided for configurable variable '%s' of record '%s' is not supported";
     public static final String FIELD_TYPE_NOT_SUPPORTED =
@@ -50,6 +50,6 @@ public class ConfigurableConstants {
     public static final String CONSTRAINT_TYPE_NOT_SUPPORTED = "table constraint type '%s' in configurable variable" +
             " '%s' is not supported";
 
-    private ConfigurableConstants() {
+    private TomlConfigConstants() {
     }
 }

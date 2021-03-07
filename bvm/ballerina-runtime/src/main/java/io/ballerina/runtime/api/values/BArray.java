@@ -202,6 +202,25 @@ public interface BArray extends BRefValue, BCollection {
      */
     long[] getIntArray();
 
+
+    /**
+     * Get a copy of boolean array.
+     * @return int array
+     */
+    boolean[] getBooleanArray();
+
+    /**
+     * Get a copy of byte array.
+     * @return int array
+     */
+    byte[] getByteArray();
+
+    /**
+     * Get a copy of float array.
+     * @return int array
+     */
+    double[] getFloatArray();
+
     /**
      * Get {@code BType} of the array elements.
      * @return element type

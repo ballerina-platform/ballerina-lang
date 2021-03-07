@@ -16,7 +16,7 @@
 * under the License.
 */
 
-package org.ballerinalang.runtime.test;
+package io.ballerina.runtime.test;
 
 import io.ballerina.runtime.internal.util.CompatibilityChecker;
 import io.ballerina.runtime.internal.util.RuntimeUtils;

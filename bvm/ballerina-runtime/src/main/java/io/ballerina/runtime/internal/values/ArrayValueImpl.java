@@ -883,6 +883,21 @@ public class ArrayValueImpl extends AbstractArrayValue {
     }
 
     @Override
+    public boolean[] getBooleanArray() {
+        return Arrays.copyOf(booleanValues, size);
+    }
+
+    @Override
+    public byte[] getByteArray() {
+        return Arrays.copyOf(byteValues, size);
+    }
+
+    @Override
+    public double[] getFloatArray() {
+        return Arrays.copyOf(floatValues, size);
+    }
+
+    @Override
     public void serialize(OutputStream outputStream) {
         if (this.elementType.getTag() == TypeTags.BYTE_TAG) {
             try {
