@@ -20,7 +20,7 @@ package org.ballerinalang.langlib.config;
 
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.configurable.ConfigSecurityUtils;
+import io.ballerina.runtime.internal.configurable.utils.ConfigSecurityUtils;
 
 /**
  * This class contains the implementation of "decrypt" Ballerina functions in ballerina/config module.

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.configurables;
 
-import io.ballerina.runtime.internal.configurable.ConfigurableConstants;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlConfigConstants;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -265,20 +265,20 @@ public class ConfigurableTest extends BaseTest {
      */
     private Map<String, String> addEnvVariables(String configFilePath) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(ConfigurableConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        envVariables.put(TomlConfigConstants.CONFIG_ENV_VARIABLE, configFilePath);
         return envVariables;
     }
 
     private Map<String, String> addSecretEnvVariable(String secretFilePath) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(ConfigurableConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
+        envVariables.put(TomlConfigConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
         return envVariables;
     }
 
     private Map<String, String> addEnvVariables(String configFilePath, String secretFilePath) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(ConfigurableConstants.CONFIG_ENV_VARIABLE, configFilePath);
-        envVariables.put(ConfigurableConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
+        envVariables.put(TomlConfigConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        envVariables.put(TomlConfigConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
         return envVariables;
     }
 }

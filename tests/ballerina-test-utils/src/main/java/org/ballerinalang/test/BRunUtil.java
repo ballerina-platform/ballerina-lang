@@ -131,6 +131,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ANON_ORG;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConfigConstants.CONFIG_ENV_VARIABLE;
 import static org.ballerinalang.test.util.TestConstant.CONFIGURATION_CLASS_NAME;
 import static org.ballerinalang.test.util.TestConstant.MODULE_INIT_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
@@ -1372,8 +1373,8 @@ public class BRunUtil {
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
-        directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit", new Class[]{Path.class},
-                new Object[]{LaunchUtils.getConfigPath()});
+        directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit", new Class[]{},
+                new Object[]{});
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
 //        if (temp) {

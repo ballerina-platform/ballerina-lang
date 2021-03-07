@@ -85,6 +85,7 @@ public class BTestRunner {
     private static final String TEST_STOP_FUNCTION_NAME = ".<teststop>";
     private static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
     private static final String CONFIG_FILE_NAME = "Config.toml";
+    public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
 
     private PrintStream errStream;
     private PrintStream outStream;
@@ -532,8 +533,8 @@ public class BTestRunner {
         TesterinaFunction configInit = new TesterinaFunction(configClazz, "$configureInit", initScheduler);
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
-
-        Object response = configInit.directInvoke(new Class[]{Path.class}, new Object[]{getConfigPath(suite)});
+        System.getenv().put(CONFIG_ENV_VARIABLE, getConfigPath(suite).toString());
+        Object response = configInit.directInvoke(new Class[]{}, new Object[]{});
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
                     response.toString(), (Throwable) response);
