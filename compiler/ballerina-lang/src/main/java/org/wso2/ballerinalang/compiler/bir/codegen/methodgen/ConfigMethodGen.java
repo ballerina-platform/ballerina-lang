@@ -101,7 +101,7 @@ public class ConfigMethodGen {
     }
 
     private void generateConfigInit(ClassWriter cw, List<PackageID> imprtMods, PackageID packageID) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, "(L" + PATH + ";)V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, "()V", null, null);
         mv.visitCode();
 
         mv.visitTypeInsn(NEW, HASH_MAP);
@@ -113,10 +113,9 @@ public class ConfigMethodGen {
             generateInvokeConfiguration(mv, id);
         }
         generateInvokeConfiguration(mv, packageID);
-        mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables",
-                String.format("(L%s;L%s;)V", PATH, MAP), false);
+                String.format("(L%s;)V", MAP), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
