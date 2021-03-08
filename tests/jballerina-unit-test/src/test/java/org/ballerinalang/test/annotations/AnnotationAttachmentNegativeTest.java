@@ -37,7 +37,7 @@ public class AnnotationAttachmentNegativeTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 250);
+        Assert.assertEquals(compileResult.getErrorCount(), 253);
     }
 
     @Test
@@ -455,18 +455,23 @@ public class AnnotationAttachmentNegativeTest {
 
     @Test
     public void testInvalidAttachmentWithoutValue() {
-        validateError(compileResult, 246,
-                      "annotation value expected for annotation 'ballerina/lang.annotations:1.0.0:strand'",
-                      872, 5);
-        validateError(compileResult, 247, "annotation value expected for annotation 'v1'",
-                      878, 1);
+        validateError(compileResult, 246, "annotation value expected for annotation of " +
+                        "record type 'Annot' with required fields", 871, 1);
+        validateError(compileResult, 247, "annotation value expected for annotation of " +
+                        "record type 'Annot' with required fields", 874, 1);
+        validateError(compileResult, 248, "annotation value expected for annotation of " +
+                        "record type 'Annot' with required fields", 875, 22);
+        validateError(compileResult, 249, "annotation value expected for annotation of " +
+                "record type 'Annot' with required fields", 881, 1);
+        validateError(compileResult, 250, "annotation value expected for annotation of " +
+                "record type 'Annot' with required fields", 882, 1);
     }
 
     @Test
     public void testInvalidAttachmentCount() {
-        validateError(compileResult, 248, "cannot specify more than one annotation value for " +
-                              "annotation 'ballerina/lang.annotations:1.0.0:tainted'", 881, 1);
-        validateError(compileResult, 249,
-                      "cannot specify more than one annotation value for annotation 'v1'", 883, 1);
+        validateError(compileResult, 251, "cannot specify more than one annotation value for " +
+                              "annotation 'ballerina/lang.annotations:1.0.0:tainted'", 886, 1);
+        validateError(compileResult, 252,
+                      "cannot specify more than one annotation value for annotation 'v1'", 888, 1);
     }
 }

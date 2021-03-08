@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
-import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -29,7 +28,6 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -77,6 +75,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         if (rhsTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
+        
         if (rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
             // If RHS is a union and has error member type; skip code-action
             UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) rhsTypeSymbol.get();
@@ -86,15 +85,15 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
                 return Collections.emptyList();
             }
         }
+        
         Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
-        Optional<TypeSymbol> variableTypeSymbol = getVariableTypeSymbol(matchedNode, rhsTypeSymbol.get(), context);
-        if (expressionNode.isEmpty() || variableTypeSymbol.isEmpty() ||
-                expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
+        if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
         }
+        
         Position editPos = CommonUtil.toPosition(expressionNode.get().lineRange().startLine());
         List<TextEdit> edits = new ArrayList<>();
-        Optional<String> typeName = CodeActionUtil.getPossibleType(variableTypeSymbol.get(), edits, context);
+        Optional<String> typeName = CodeActionUtil.getPossibleType(rhsTypeSymbol.get(), edits, context);
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
@@ -126,30 +125,11 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
     }
 
-    protected Optional<TypeSymbol> getVariableTypeSymbol(Node matchedNode,
-                                                         TypeSymbol typeSymbol,
-                                                         CodeActionContext context) {
-        switch (matchedNode.kind()) {
-            case LOCAL_VAR_DECL:
-            case MODULE_VAR_DECL:
-                return Optional.of(typeSymbol);
-            case ASSIGNMENT_STATEMENT:
-                Optional<VariableSymbol> optVariableSymbol = getVariableSymbol(context, matchedNode);
-                if (optVariableSymbol.isEmpty()) {
-                    return Optional.empty();
-                }
-                return Optional.of(optVariableSymbol.get().typeDescriptor());
-            default:
-                return Optional.empty();
-        }
-    }
-
     protected Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
         AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
-        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
-        Document srcFile = context.currentDocument().orElseThrow();
-        Optional<Symbol> symbol = semanticModel.symbol(srcFile,
-                assignmentStmtNode.varRef().lineRange().startLine());
+        Optional<Symbol> symbol = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(assignmentStmtNode.varRef()));
+
         if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {
             return Optional.empty();
         }
