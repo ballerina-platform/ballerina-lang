@@ -2799,6 +2799,15 @@ public class BallerinaParser extends AbstractParser {
                 return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 1);
             case PUBLIC_KEYWORD:
                 return endOfModuleLevelNode(peekIndex + 1, isObject);
+            case FUNCTION_KEYWORD:
+                if (isObject) {
+                    return false;
+                }
+
+                // if function keyword follows by a identifier treat is as
+                // the function name. Only function def can have func-name
+                return peek(peekIndex + 1).kind == SyntaxKind.IDENTIFIER_TOKEN &&
+                        peek(peekIndex + 2).kind == SyntaxKind.OPEN_PAREN_TOKEN;
             default:
                 return false;
         }
