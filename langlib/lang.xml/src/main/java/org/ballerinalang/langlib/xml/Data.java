@@ -30,11 +30,9 @@ public class Data {
     private static BString empty = StringUtils.fromString("");
 
     public static BString data(BXml xmlValue) {
-        if (xmlValue.isEmpty()) {
-            return empty;
-        }
-
-        if (IsComment.isComment(xmlValue) || IsProcessingInstruction.isProcessingInstruction(xmlValue)) {
+        if (xmlValue.isEmpty()
+                || IsComment.isComment(xmlValue)
+                || IsProcessingInstruction.isProcessingInstruction(xmlValue)) {
             return empty;
         }
 
