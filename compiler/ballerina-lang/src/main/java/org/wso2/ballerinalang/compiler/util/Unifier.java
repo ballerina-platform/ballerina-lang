@@ -369,7 +369,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
             if (this.function != null && Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
                 BParameterizedType parameterizedType = (BParameterizedType) member;
-                BType paramConstraint = getParamConstrainTypeIfInferred(this.function, parameterizedType);
+                BType paramConstraint = getParamConstraintTypeIfInferred(this.function, parameterizedType);
                 if (paramConstraint != symbolTable.noType && !isDisjointMemberType(parameterizedType, originalType)) {
                     dlog.error(this.function.returnTypeNode.pos,
                                DiagnosticErrorCode.INVALID_DEPENDENTLY_TYPED_RETURN_TYPE_WITH_INFERRED_TYPEDESC_PARAM);
@@ -377,7 +377,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 }
             }
 
-            BType newMember = member.accept(this, null);
+            BType newMember = member.accept(this,
+                                            getExpectedTypeForInferredTypedescMember(originalType, expType, member));
             newMemberTypes.add(newMember);
 
             if (newMember != member) {
@@ -392,6 +393,56 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BUnionType type = BUnionType.create(null, newMemberTypes);
         setFlags(type, originalType.flags);
         return type;
+    }
+
+    private BType getExpectedTypeForInferredTypedescMember(BUnionType originalType, BType expType, BType member) {
+        if (expType == null || this.invocation == null || member.tag != TypeTags.PARAMETERIZED_TYPE) {
+            return null;
+        }
+
+        for (BVarSymbol param : ((BInvokableSymbol) this.invocation.symbol).params) {
+            if (!param.name.value.equals(((Name) member.name).value)) {
+                continue;
+            }
+
+            if (!Symbols.isFlagOn(param.flags, Flags.INFER)) {
+                return null;
+            }
+            break;
+        }
+
+        if (expType.tag != TypeTags.UNION) {
+            return expType;
+        }
+
+        LinkedHashSet<BType> types = new LinkedHashSet<>();
+        for (BType expMemType : ((BUnionType) expType).getMemberTypes()) {
+            boolean hasMatchWithOtherType = false;
+            for (BType origMemType : originalType.getMemberTypes()) {
+                if (origMemType == member) {
+                    continue;
+                }
+
+                if (hasSameBasicType(expMemType, origMemType)) {
+                    hasMatchWithOtherType = true;
+                    break;
+                }
+            }
+
+            if (!hasMatchWithOtherType) {
+                types.add(expMemType);
+            }
+        }
+
+        if (types.isEmpty()) {
+            return null;
+        }
+
+        if (types.size() == 1) {
+            return types.iterator().next();
+        }
+
+        return BUnionType.create(null, types);
     }
 
     @Override
@@ -665,7 +716,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 String.format("Param '%s' not found in function '%s'", sym.name, invokableSymbol.name));
     }
 
-    private BType getParamConstrainTypeIfInferred(BLangFunction function, BParameterizedType parameterizedType) {
+    private BType getParamConstraintTypeIfInferred(BLangFunction function, BParameterizedType parameterizedType) {
         String paramName = parameterizedType.paramSymbol.name.value;
 
         for (BLangSimpleVariable requiredParam : function.requiredParams) {
