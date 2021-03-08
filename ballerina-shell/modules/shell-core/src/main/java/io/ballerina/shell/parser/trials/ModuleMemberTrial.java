@@ -54,7 +54,8 @@ public class ModuleMemberTrial extends DualTreeParserTrial {
             // eg: `mp[a] = f()` (mp is a map) is also valid as `mp [a] = f()` (mp is a type) which is a var-dcln.
             // So, this will be passed down to be parsed by statement/expression trial.
             ModuleVariableDeclarationNode varNode = (ModuleVariableDeclarationNode) dclnNode;
-            assertIf(varNode.metadata().isPresent() || varNode.qualifiers().size() > 0,
+            assertIf(varNode.metadata().isPresent() || varNode.qualifiers().size() > 0
+                            || varNode.visibilityQualifier().isPresent(),
                     "meta data nor qualifiers not present - not accepted as module-dcln");
         }
         return dclnNode;

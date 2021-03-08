@@ -21,5 +21,18 @@
     "description": "Call function",
     "code": "p()",
     "stdout": "Hello\n"
+  },
+  {
+    "description": "Define public variable.",
+    "code": "public int v = 3;"
+  },
+  {
+    "description": "Define public function.",
+    "code": "public function f2() returns int { return v; }"
+  },
+  {
+    "description": "Use function.",
+    "code": "f2()",
+    "expr": "3"
   }
 ]
