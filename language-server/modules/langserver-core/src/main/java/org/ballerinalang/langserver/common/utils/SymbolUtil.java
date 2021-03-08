@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -61,8 +62,14 @@ public class SymbolUtil {
             case VARIABLE:
                 typeDescriptor = ((VariableSymbol) symbol).typeDescriptor();
                 break;
+            case PARAMETER:
+                typeDescriptor = ((ParameterSymbol) symbol).typeDescriptor();
+                break;
             case CLASS:
                 typeDescriptor = (ClassSymbol) symbol;
+                break;
+            case TYPE:
+                typeDescriptor = (TypeSymbol) symbol;
                 break;
             default:
                 return false;
@@ -200,6 +207,8 @@ public class SymbolUtil {
                 return Optional.ofNullable(((TypeDefinitionSymbol) symbol).typeDescriptor());
             case VARIABLE:
                 return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor());
+            case PARAMETER:
+                return Optional.ofNullable(((ParameterSymbol) symbol).typeDescriptor());
             case ANNOTATION:
                 return ((AnnotationSymbol) symbol).typeDescriptor();
             case FUNCTION:
@@ -213,6 +222,8 @@ public class SymbolUtil {
                 return Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
             case OBJECT_FIELD:
                 return Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
+            case TYPE:
+                return Optional.of((TypeSymbol) symbol);
             default:
                 return Optional.empty();
         }

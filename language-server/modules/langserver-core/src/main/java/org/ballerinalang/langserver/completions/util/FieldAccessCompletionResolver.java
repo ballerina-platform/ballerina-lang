@@ -43,7 +43,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,10 +61,10 @@ import javax.annotation.Nonnull;
  * @since 2.0.0
  */
 public class FieldAccessCompletionResolver extends NodeTransformer<Optional<TypeSymbol>> {
-    private final BallerinaCompletionContext context;
+    private final PositionedOperationContext context;
     private final boolean optionalFieldAccess;
 
-    public FieldAccessCompletionResolver(BallerinaCompletionContext context, boolean optionalFieldAccess) {
+    public FieldAccessCompletionResolver(PositionedOperationContext context, boolean optionalFieldAccess) {
         this.context = context;
         this.optionalFieldAccess = optionalFieldAccess;
     }
