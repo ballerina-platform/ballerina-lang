@@ -191,7 +191,8 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                 boolean isClient = SymbolUtil.isClient(objTypeDesc);
                 // If the object type desc is a client, then we avoid all the remote methods
                 List<MethodSymbol> methodSymbols = objTypeDesc.methods().values().stream()
-                        .filter(methodSymbol -> !isClient || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
+                        .filter(methodSymbol -> (!isClient || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
+                                && !methodSymbol.qualifiers().contains(Qualifier.RESOURCE))
                         .collect(Collectors.toList());
                 visibleEntries.addAll(methodSymbols);
                 break;

@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.common.utils;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
@@ -222,6 +223,8 @@ public class SymbolUtil {
                 return Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
             case OBJECT_FIELD:
                 return Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
+            case CLASS_FIELD:
+                return Optional.of(((ClassFieldSymbol) symbol).typeDescriptor());
             case TYPE:
                 return Optional.of((TypeSymbol) symbol);
             default:
