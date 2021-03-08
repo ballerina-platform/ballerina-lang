@@ -49,6 +49,7 @@ import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import org.ballerinalang.docgen.Generator;
@@ -241,7 +242,17 @@ public class Type {
             type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
                     Type.fromNode(memberType, semanticModel)).collect(Collectors.toList()));
             type.isTuple = true;
+        } else if (node instanceof TypedescTypeDescriptorNode) {
+            TypedescTypeDescriptorNode typeDescriptor = (TypedescTypeDescriptorNode) node;
+            Type elemType = null;
+            if (typeDescriptor.typedescTypeParamsNode().isPresent()) {
+                elemType = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel);
+            }
+            type.isTypeDesc = true;
+            type.elementType = elemType;
         } else {
+            type.name = node.toSourceCode();
+            type.generateUserDefinedTypeLink = false;
             type.category = "UNKNOWN";
         }
         return type;
