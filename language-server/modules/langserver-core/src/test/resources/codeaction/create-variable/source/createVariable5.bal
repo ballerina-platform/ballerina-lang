@@ -30,16 +30,16 @@ client class MySQLClient {
     }
 }
 
-public type ApplicationErrorData record {
-    string message;
-    error cause?;
-};
+Foo[] fooArr = [{v: "foo1"}, {v: "foo2"}];
+
+
+
 
 function queryBinaryType(MySQLClient mysqlClient) {
     Foo f = {};
     mysqlClient->query("Select * from Customers", Foo);
     var resultStream = mysqlClient->query("Select * from Customers", Foo);
-    <stream<Foo, ApplicationErrorData>>resultStream;
+    fooArr.toStream();
     <int>1.1;
     Address address = {city: "Colombo", country: "Sri Lanka"};
     {

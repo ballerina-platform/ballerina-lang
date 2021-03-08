@@ -197,7 +197,7 @@ public class LangLibFunctionTest {
         List<String> expFunctions = List.of("length", "iterator", "forEach", "map", "filter", "get", "slice", "strip",
                                             "elements", "children", "elementChildren", "clone", "cloneReadOnly",
                                             "cloneWithType", "isReadOnly", "toString", "toBalString", "toJson",
-                                            "toJsonString", "ensureType");
+                                            "toJsonString", "ensureType", "text");
 
 //        List<String> additionalFuncs = List.of("getName", "setName", "getChildren", "setChildren", "getAttributes");
 

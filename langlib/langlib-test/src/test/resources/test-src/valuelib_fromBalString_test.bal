@@ -16,6 +16,7 @@
 
 import ballerina/lang.'int as ints;
 import ballerina/lang.'string as strings;
+import ballerina/lang.'value as values;
 
 type UndergradStudent record {|
     readonly int id;
@@ -339,7 +340,7 @@ function assert(anydata|error actual, anydata|error expected) {
     }
 }
 
-isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
+isolated function isEqual(values:Cloneable actual, values:Cloneable expected) returns boolean {
     if (actual is anydata && expected is anydata) {
         return (actual == expected);
     } else if (actual is error && expected is error) {
