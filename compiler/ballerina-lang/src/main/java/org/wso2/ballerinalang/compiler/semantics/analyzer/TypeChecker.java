@@ -3725,10 +3725,11 @@ public class TypeChecker extends BLangNodeVisitor {
                                 binaryExpr);
                     }
 
-                    if (opSymbol == symTable.notFoundSymbol) {
+                    if (opSymbol == symTable.notFoundSymbol || (isBinaryComparisonOperator(binaryExpr.opKind) &&
+                            (!types.isOrderedType(lhsType) || !types.isOrderedType(rhsType)))) {
                         dlog.error(binaryExpr.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
                                 lhsType, rhsType);
-                    } else {
+                    } else if (opSymbol != symTable.notFoundSymbol) {
                         if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
                                 (couldHoldTableValues(lhsType, new ArrayList<>()) &&
                                         couldHoldTableValues(rhsType, new ArrayList<>()))) {
@@ -3742,6 +3743,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private boolean isBinaryComparisonOperator(OperatorKind operatorKind) {
+        return operatorKind == OperatorKind.LESS_THAN || operatorKind == OperatorKind.LESS_EQUAL
+                || operatorKind == OperatorKind.GREATER_THAN || operatorKind == OperatorKind.GREATER_EQUAL;
     }
 
     private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
@@ -5760,10 +5766,6 @@ public class TypeChecker extends BLangNodeVisitor {
             BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
             pos = keyLambdaFunction.function.pos;
             returnType = keyLambdaFunction.function.type.getReturnType();
-        }
-
-        if (!types.isOrderedType(returnType)) {
-            dlog.error(pos, DiagnosticErrorCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }
 
