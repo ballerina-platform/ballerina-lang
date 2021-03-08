@@ -331,7 +331,7 @@ public class CentralAPIClient {
                 conn.setRequestProperty(CONTENT_DISPOSITION, contentDisposition);
 
                 boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
-                createBalaInHomeRepo(conn, packagePathInBalaCache, org + "/" + name, isNightlyBuild, newUrl,
+                createBalaInHomeRepo(conn, packagePathInBalaCache, org, name, isNightlyBuild, newUrl,
                                      contentDisposition, outStream, logFormatter);
             } else {
                 try (BufferedReader reader = new BufferedReader(

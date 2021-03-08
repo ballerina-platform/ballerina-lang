@@ -97,8 +97,6 @@ task createDistributionCache() {
 
 ext.modName = project.projectDir.name
 
-
-
 task copyBallerinaProject(type: Copy) {
     from project.projectDir.toString() + "/src/main/ballerina/"
     into project.buildDir.toString() + "/ballerina-src"

@@ -39,7 +39,7 @@ public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAc
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FieldAccessExpressionNode node)
             throws LSCompletionException {
         ExpressionNode expression = node.expression();
-        List<LSCompletionItem> completionItems = getEntries(context, expression);
+        List<LSCompletionItem> completionItems = getEntries(context, expression, false);
         this.sort(context, node, completionItems);
 
         return completionItems;

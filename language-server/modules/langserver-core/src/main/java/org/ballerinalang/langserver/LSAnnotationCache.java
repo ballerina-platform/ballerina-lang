@@ -18,6 +18,7 @@ package org.ballerinalang.langserver;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
@@ -173,11 +174,12 @@ public class LSAnnotationCache {
      *
      * @param context         Language server context
      * @param alias           module alias
-     * @param attachmentPoint attachment point
+     * @param attachedNode attached node
      * @return {@link Map} of annotations
      */
     public Map<ModuleID, List<AnnotationSymbol>> getAnnotationsInModule(DocumentServiceContext context, String alias,
-                                                                        SyntaxKind attachmentPoint) {
+                                                                        Node attachedNode) {
+        SyntaxKind attachmentPoint = attachedNode.kind();
         Map<ModuleID, List<AnnotationSymbol>> annotations = getAnnotationMapForSyntaxKind(attachmentPoint, context);
         return annotations.entrySet().stream()
                 .filter(entry -> entry.getKey().modulePrefix().equals(alias))

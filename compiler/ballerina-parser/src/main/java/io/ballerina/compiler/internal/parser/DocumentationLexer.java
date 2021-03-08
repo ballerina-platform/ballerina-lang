@@ -153,29 +153,22 @@ public class DocumentationLexer extends AbstractLexer {
      * IdentifierEscape := IdentifierSingleEscape | NumericEscape
      * </code>
      *
-     * @param initialEscape Denotes whether <code>\</code> is at the beginning of the identifier
      */
-    private void processIdentifierEnd(boolean initialEscape) {
+    private void processIdentifierEnd() {
         while (!reader.isEOF()) {
-            int k = 1;
             int nextChar = reader.peek();
             if (isIdentifierFollowingChar(nextChar)) {
                 reader.advance();
-                initialEscape = false;
                 continue;
             }
 
-            if (nextChar != LexerTerminals.BACKSLASH && !initialEscape) {
+            if (nextChar != LexerTerminals.BACKSLASH) {
                 break;
-            }
-            if (initialEscape) {
-                k = 0;
-                initialEscape = false;
             }
 
             // IdentifierSingleEscape | NumericEscape
 
-            nextChar = reader.peek(k);
+            nextChar = reader.peek(1);
             switch (nextChar) {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
@@ -183,14 +176,14 @@ public class DocumentationLexer extends AbstractLexer {
                     break;
                 case 'u':
                     // NumericEscape
-                    if (reader.peek(k + 1) == LexerTerminals.OPEN_BRACE) {
+                    if (reader.peek(2) == LexerTerminals.OPEN_BRACE) {
                         processNumericEscape();
                     } else {
-                        reader.advance(k + 1);
+                        reader.advance(2);
                     }
                     continue;
                 default:
-                    reader.advance(k + 1);
+                    reader.advance(2);
                     continue;
             }
             break;
@@ -701,8 +694,11 @@ public class DocumentationLexer extends AbstractLexer {
         reader.mark();
         int nextChar = peek();
         if (isPossibleIdentifierStart(nextChar)) {
-            reader.advance();
-            processIdentifierEnd(nextChar == LexerTerminals.BACKSLASH);
+            if (nextChar != LexerTerminals.BACKSLASH) {
+                reader.advance();
+            }
+
+            processIdentifierEnd();
             STToken token;
             if (LexerTerminals.RETURN.equals(getLexeme())) {
                 token = getDocSyntaxToken(SyntaxKind.RETURN_KEYWORD);
@@ -783,6 +779,11 @@ public class DocumentationLexer extends AbstractLexer {
     private STToken readSingleBacktickContentToken() {
         reader.mark();
         int nextChar = peek();
+        if (nextChar == LexerTerminals.BACKSLASH) {
+            processIdentifierEnd();
+            return getDocIdentifierToken();
+        }
+
         reader.advance();
         switch (nextChar) {
             case LexerTerminals.BACKTICK:
@@ -798,7 +799,7 @@ public class DocumentationLexer extends AbstractLexer {
                 return getDocSyntaxToken(SyntaxKind.CLOSE_PAREN_TOKEN);
             default:
                 if (isPossibleIdentifierStart(nextChar)) {
-                    processIdentifierEnd(nextChar == LexerTerminals.BACKSLASH);
+                    processIdentifierEnd();
                     return getDocIdentifierToken();
                 }
 
