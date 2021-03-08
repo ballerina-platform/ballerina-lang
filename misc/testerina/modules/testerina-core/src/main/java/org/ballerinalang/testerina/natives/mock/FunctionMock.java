@@ -102,28 +102,30 @@ public class FunctionMock {
         String packageName;
         String version;
 
-        String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
-        // Set project info
-        try {
-            orgName = projectInfo[0];
-            packageName = projectInfo[1];
-            version = projectInfo[2];
-            className = "tests." + getMockClassName(orgName, packageName, version, originalFunction,
-                    originalClassName, mockFunctionName, mockFunctionClasses, getClassLoader());
-            className = getQualifiedClassName(orgName, packageName, version, className);
-        } catch (ClassNotFoundException e) {
-            return ErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR, MockConstants.TEST_PACKAGE_ID,
-                                                    StringUtils.fromString(e.getMessage()));
+        if (Thread.currentThread().getStackTrace().length >= 5) {
+            String[] projectInfo = Thread.currentThread().getStackTrace()[4].getClassName().split(Pattern.quote("."));
+            // Set project info
+            try {
+                orgName = projectInfo[0];
+                packageName = projectInfo[1];
+                version = projectInfo[2];
+                className = "tests." + getMockClassName(orgName, packageName, version, originalFunction,
+                        originalClassName, mockFunctionName, mockFunctionClasses, getClassLoader());
+                className = getQualifiedClassName(orgName, packageName, version, className);
+            } catch (ClassNotFoundException e) {
+                return ErrorCreator.createDistinctError(MockConstants.FUNCTION_CALL_ERROR,
+                        MockConstants.TEST_PACKAGE_ID, StringUtils.fromString(e.getMessage()));
+            }
+
+            List<Object> argsList = Arrays.asList(args);
+            StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, mockFunctionName);
+
+            return Executor.executeFunction(
+                    strand.scheduler, MOCK_STRAND_NAME, metadata, getClassLoader(), className, mockFunctionName,
+                    argsList.toArray());
+        } else {
+            return null;
         }
-
-        List<Object> argsList = Arrays.asList(args);
-
-
-        StrandMetadata metadata = new StrandMetadata(orgName, packageName, version, mockFunctionName);
-
-        return Executor.executeFunction(
-                strand.scheduler, MOCK_STRAND_NAME, metadata, getClassLoader(), className, mockFunctionName,
-                argsList.toArray());
     }
 
     private static String getMockClassName(String orgName, String packageName, String version,

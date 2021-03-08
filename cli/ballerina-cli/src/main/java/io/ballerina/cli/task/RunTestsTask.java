@@ -169,7 +169,6 @@ public class RunTestsTask implements Task {
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
         TestProcessor testProcessor = new TestProcessor(jarResolver);
-
         List<String> moduleNamesList = new ArrayList<>();
         Map<String, TestSuite> testSuiteMap = new HashMap<>();
 
@@ -201,7 +200,6 @@ public class RunTestsTask implements Task {
                 suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
             }
             suite.setReportRequired(report || coverage);
-
             String resolvedModuleName =
                     module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
             testSuiteMap.put(resolvedModuleName, suite);
@@ -210,14 +208,12 @@ public class RunTestsTask implements Task {
 
         writeToTestSuiteJson(testSuiteMap, testsCachePath);
 
-        int testResult;
-
         if (hasTests) {
+            int testResult;
             try {
                 testResult = runTestSuit(testsCachePath, target,
                         project.currentPackage().packageName().toString(),
                         project.currentPackage().packageOrg().toString());
-
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
                         ModuleStatus moduleStatus = loadModuleStatusFromFile(
@@ -228,7 +224,6 @@ public class RunTestsTask implements Task {
                         }
                         testReport.addModuleStatus(moduleName, moduleStatus);
                     }
-
                     try {
                         generateCoverage(project, jarResolver, jBallerinaBackend);
                         generateHtmlReport(project, this.out, testReport, target);
@@ -246,7 +241,6 @@ public class RunTestsTask implements Task {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("there are test failures");
             }
-
         }
 
         // Cleanup temp cache for SingleFileProject
@@ -366,7 +360,6 @@ public class RunTestsTask implements Task {
                     + "=destfile="
                     + target.getTestsCachePath().resolve(TesterinaConstants.COVERAGE_DIR)
                     .resolve(TesterinaConstants.EXEC_FILE_NAME).toString();
-
             if (!TesterinaConstants.DOT.equals(packageName) && this.includesInCoverage == null) {
                 // add user defined classes for generating the jacoco exec file
                 agentCommand += ",includes=" + orgName + ".*";
@@ -378,18 +371,18 @@ public class RunTestsTask implements Task {
         }
 
         cmdArgs.addAll(Lists.of("-cp", getClassPath()));
-
         if (isInDebugMode()) {
             cmdArgs.add(getDebugArgs(this.err));
         }
         cmdArgs.add(mainClassName);
 
-        cmdArgs.add(testCachePath.toString());      // 0
-        cmdArgs.add(target.path().toString());      // 1
-        cmdArgs.add(Boolean.toString(report));      // 2
-        cmdArgs.add(Boolean.toString(coverage));    // 3
-
-        cmdArgs.addAll(args);                       // 4
+        // Adds arguments to be read at the Test Runner
+        // Index [0 - 3...]
+        cmdArgs.add(testCachePath.toString());
+        cmdArgs.add(target.path().toString());
+        cmdArgs.add(Boolean.toString(report));
+        cmdArgs.add(Boolean.toString(coverage));
+        cmdArgs.addAll(args);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -445,9 +438,9 @@ public class RunTestsTask implements Task {
         List<Path> dependencies = new ArrayList<>();
         dependencies.add(ProjectUtils.getBallerinaRTJarPath());
         dependencies.addAll(ProjectUtils.testDependencies());
-        StringJoiner cp = new StringJoiner(File.pathSeparator);
-        dependencies.stream().map(Path::toString).forEach(cp::add);
-        return cp.toString();
+        StringJoiner classPath = new StringJoiner(File.pathSeparator);
+        dependencies.stream().map(Path::toString).forEach(classPath::add);
+        return classPath.toString();
     }
 
     /**
@@ -458,13 +451,12 @@ public class RunTestsTask implements Task {
             try {
                 Files.createDirectories(testsCachePath);
             } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("couldn't create test suite : " + e.toString());
+                throw LauncherUtils.createLauncherException("couldn't create test cache directories : " + e.toString());
             }
         }
 
         Path jsonFilePath = Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
         File jsonFile = new File(jsonFilePath.toString());
-
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
             Gson gson = new Gson();
             String json = gson.toJson(testSuiteMap);

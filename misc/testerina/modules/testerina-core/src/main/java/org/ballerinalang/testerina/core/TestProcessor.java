@@ -141,12 +141,10 @@ public class TestProcessor {
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
         testSuite.setSourceRootPath(module.project().sourceRoot().toString());
-
         if (jarResolver != null) {
             testSuite.addTestExecutionDependencies(
                     jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName()));
         }
-
         addUtilityFunctions(module, testSuite);
         processAnnotations(module, testSuite);
         testSuite.sort();

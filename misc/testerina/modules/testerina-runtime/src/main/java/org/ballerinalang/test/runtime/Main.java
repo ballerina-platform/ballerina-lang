@@ -60,60 +60,63 @@ public class Main {
         int exitStatus = 0;
         int result;
 
-        Path testCache = Paths.get(args[0]);
-        String target = args[1];
-        boolean report = Boolean.valueOf(args[2]);
-        boolean coverage = Boolean.valueOf(args[3]);
+        if (args.length >= 4) {
+            Path testCache = Paths.get(args[0]);
+            String target = args[1];
+            boolean report = Boolean.valueOf(args[2]);
+            boolean coverage = Boolean.valueOf(args[3]);
 
-        if (report || coverage) {
-            testReport = new TestReport();
-        }
-
-        out.println();
-        out.print("Running Tests");
-        if (coverage) {
-            out.print(" with Coverage");
-        }
-        out.println();
-
-        Path testSuiteCachePath = testCache.resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
-
-        try (BufferedReader br = Files.newBufferedReader(testSuiteCachePath, StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
-            Map<String, TestSuite> testSuiteMap;
-
-            testSuiteMap = gson.fromJson(br, new TypeToken<Map<String, TestSuite>>() { }.getType());
-
-            if (!testSuiteMap.isEmpty()) {
-                for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
-                    String moduleName = entry.getKey();
-                    TestSuite testSuite = entry.getValue();
-
-                    List<String> configList = new ArrayList<>();
-                    configList.add(target);
-                    configList.add(testSuite.getOrgName());
-                    configList.add(testSuite.getPackageName());
-                    configList.add("\"" + moduleName + "\"");
-                    configList.addAll(Lists.of(Arrays.copyOfRange(args, 4, args.length)));
-                    String[] configArgs = configList.toArray(new String[0]);
-
-                    LaunchUtils.initConfigurations(configArgs);
-
-                    out.println("\n\t" + (moduleName.equals(testSuite.getPackageName()) ?
-                            moduleName : testSuite.getPackageName() + TesterinaConstants.DOT + moduleName));
-
-                    testSuite.setModuleName(moduleName);
-                    List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
-                    classLoader = createClassLoader(testExecutionDependencies);
-
-                    Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
-                    result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
-                            classLoader);
-                    exitStatus = (result == 1) ? result : exitStatus;
-                }
-            } else {
-                exitStatus = 1;
+            if (report || coverage) {
+                testReport = new TestReport();
             }
+
+            out.println();
+            out.print("Running Tests");
+            if (coverage) {
+                out.print(" with Coverage");
+            }
+            out.println();
+
+            Path testSuiteCachePath = testCache.resolve(TesterinaConstants.TESTERINA_TEST_SUITE);
+
+            try (BufferedReader br = Files.newBufferedReader(testSuiteCachePath, StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                Map<String, TestSuite> testSuiteMap = gson.fromJson(br,
+                        new TypeToken<Map<String, TestSuite>>() { }.getType());
+
+                if (!testSuiteMap.isEmpty()) {
+                    for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
+                        String moduleName = entry.getKey();
+                        TestSuite testSuite = entry.getValue();
+
+                        List<String> configList = new ArrayList<>();
+                        configList.add(target);
+                        configList.add(testSuite.getOrgName());
+                        configList.add(testSuite.getPackageName());
+                        configList.add("\"" + moduleName + "\"");
+                        configList.addAll(Lists.of(Arrays.copyOfRange(args, 4, args.length)));
+                        String[] configArgs = configList.toArray(new String[0]);
+
+                        LaunchUtils.initConfigurations(configArgs);
+
+                        out.println("\n\t" + (moduleName.equals(testSuite.getPackageName()) ?
+                                moduleName : testSuite.getPackageName() + TesterinaConstants.DOT + moduleName));
+
+                        testSuite.setModuleName(moduleName);
+                        List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
+                        classLoader = createClassLoader(testExecutionDependencies);
+
+                        Path jsonTmpSummaryPath = testCache.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE);
+                        result = startTestSuit(Paths.get(testSuite.getSourceRootPath()), testSuite, jsonTmpSummaryPath,
+                                classLoader);
+                        exitStatus = (result == 1) ? result : exitStatus;
+                    }
+                } else {
+                    exitStatus = 1;
+                }
+            }
+        } else {
+            exitStatus = 1;
         }
 
         Runtime.getRuntime().exit(exitStatus);
@@ -148,7 +151,6 @@ public class Main {
     }
 
     public static URLClassLoader createClassLoader(List<String> jarFilePaths) {
-
         List<URL> urlList = new ArrayList<>();
 
         for (String jarFilePath : jarFilePaths) {
@@ -159,12 +161,9 @@ public class Main {
                 throw new RuntimeException("Failed to create classloader with all jar files", e);
             }
         }
-
-        URLClassLoader test = AccessController.doPrivileged(
+        return AccessController.doPrivileged(
                 (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(urlList.toArray(new URL[0]),
                         ClassLoader.getSystemClassLoader()));
-
-        return test;
     }
 
     public static ClassLoader getClassLoader() {
