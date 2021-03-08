@@ -63,7 +63,7 @@ public class PublicVariableBalaTest {
     @Test
     public void testModulePublicVariableAccessNegative() {
         CompileResult compileResultNegetive =
-                BCompileUtil.compile("test-src/bala/test_bala/globalvar/test_public_variable_negetive.bal");
+                BCompileUtil.compile("test-src/bala/test_bala/globalvar/test_public_variable_negative.bal");
         int index = 0;
         validateError(compileResultNegetive, index++, "attempt to refer to non-accessible symbol 'number'", 20, 20);
         validateError(compileResultNegetive, index++, "undefined symbol 'number'", 20, 20);
