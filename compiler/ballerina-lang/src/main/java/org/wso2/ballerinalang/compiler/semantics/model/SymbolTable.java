@@ -117,6 +117,18 @@ public class SymbolTable {
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
 
+    public final BType intArrayType = new BArrayType(intType);
+    public final BType floatArrayType = new BArrayType(floatType);
+    public final BType decimalArrayType = new BArrayType(decimalType);
+    public final BType booleanArrayType = new BArrayType(booleanType);
+
+    public final BType simpleTypeUnion = BUnionType.create(null, nilType, booleanType, intType, floatType,
+            decimalType, stringType);
+    public final BType arrayTypeOfSimpleTypeUnion = new BArrayType(simpleTypeUnion);
+    public final BType orderedType = BUnionType.create(null, simpleTypeUnion, arrayTypeOfSimpleTypeUnion);
+    public final BType orderedTupleType = new BTupleType(Lists.of(orderedType));
+    public final BType orderedArrayType = new BArrayType(orderedType);
+
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
     public final BMapType mapStringType = new BMapType(TypeTags.MAP, stringType, null);
@@ -562,44 +574,109 @@ public class SymbolTable {
 
         // Binary comparison operators <=, <, >=, >
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, orderedType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, intType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, orderedType, floatType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, floatType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, floatType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, floatType, floatType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, decimalType, decimalType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, orderedType, decimalType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, decimalType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, decimalType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, decimalType, intType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, floatType, decimalType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, decimalType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, stringType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, orderedType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, stringType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, booleanType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, orderedType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, booleanType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, booleanType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, orderedType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, orderedArrayType, orderedArrayType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, orderedTupleType, orderedTupleType, booleanType);
+
 
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, floatType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, decimalType, decimalType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedType, decimalType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, decimalType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, decimalType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, decimalType, intType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, floatType, decimalType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, decimalType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, stringType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, stringType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, booleanType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, booleanType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, booleanType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedArrayType, orderedArrayType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedTupleType, orderedTupleType, booleanType);
 
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, intType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, floatType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, decimalType, decimalType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedType, decimalType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, decimalType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, decimalType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, decimalType, intType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, floatType, decimalType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, decimalType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, stringType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, stringType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, booleanType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, booleanType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, booleanType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedArrayType, orderedArrayType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedTupleType, orderedTupleType, booleanType);
 
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, intType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, intType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, floatType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, decimalType, decimalType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedType, decimalType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, decimalType, orderedType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, decimalType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, decimalType, intType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, floatType, decimalType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, decimalType, floatType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, stringType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedType, stringType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, stringType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, booleanType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedType, booleanType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, booleanType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, booleanType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedType, orderedType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedArrayType, orderedArrayType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedTupleType, orderedTupleType, booleanType);
 
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType);
