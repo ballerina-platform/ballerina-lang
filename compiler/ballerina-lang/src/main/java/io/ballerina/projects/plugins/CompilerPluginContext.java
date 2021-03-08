@@ -17,11 +17,21 @@
  */
 package io.ballerina.projects.plugins;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * @since 2.0.0
  */
 public abstract class CompilerPluginContext {
+    protected final CompilerPlugin compilerPlugin;
+    protected final List<CodeAnalyzer> codeAnalyzers = new ArrayList<>();
+
+    protected CompilerPluginContext(CompilerPlugin compilerPlugin) {
+        this.compilerPlugin = compilerPlugin;
+    }
+
     public void addCodeAnalyzer(CodeAnalyzer codeAnalyzer) {
-        throw new UnsupportedOperationException();
+        codeAnalyzers.add(codeAnalyzer);
     }
 }
