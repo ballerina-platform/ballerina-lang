@@ -25,7 +25,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.configurable.ConfigurableMap;
+import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -164,7 +164,7 @@ public class TransactionResourceManager {
      */
     public boolean getTransactionManagerEnabled() {
         VariableKey managerEnabledKey = new VariableKey(TRANSACTION_PACKAGE_ID, "managerEnabled");
-        Object keyVal = ConfigurableMap.get(managerEnabledKey);
+        Object keyVal = ConfigMap.get(managerEnabledKey);
         if (isNull(keyVal)) {
             return false;
         } else {
@@ -179,7 +179,7 @@ public class TransactionResourceManager {
      */
     private String getTransactionLogDirectory() {
         VariableKey logKey = new VariableKey(TRANSACTION_PACKAGE_ID, "logBase");
-        Object transactionLogBase = ConfigurableMap.get(logKey);
+        Object transactionLogBase = ConfigMap.get(logKey);
         if (isNull(transactionLogBase)) {
             return "transaction_log_dir";
         } else {

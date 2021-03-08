@@ -19,13 +19,9 @@
 package io.ballerina.runtime.internal.launch;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.launch.LaunchListener;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.configurable.ConfigTomlParser;
-import io.ballerina.runtime.internal.configurable.ConfigurableConstants;
+import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
@@ -50,7 +46,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_C
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIG_FILE_NAME;
+import static io.ballerina.runtime.internal.configurable.ConfigConstants.CONFIG_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILE_NAME;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
@@ -129,17 +126,13 @@ public class LaunchUtils {
         }
     }
 
-    public static void initConfigurableVariables(Path filePath, Map<Module, VariableKey[]> configurationData) {
-        try {
-            ConfigTomlParser.populateConfigMap(filePath, configurationData);
-        } catch (TomlException exception) {
-            throw ErrorCreator.createError(StringUtils.fromString(exception.getMessage()));
-        }
+    public static void initConfigurableVariables(Path configFilePath, Map<Module, VariableKey[]> configurationData) {
+        ConfigMap.initialize(configFilePath, configurationData);
     }
 
     public static Path getConfigPath() {
         Map<String, String> envVariables = System.getenv();
-        return Paths.get(envVariables.getOrDefault(ConfigurableConstants.CONFIG_ENV_VARIABLE,
-                Paths.get(RuntimeUtils.USER_DIR, CONFIG_FILE_NAME).toString()));
+        return Paths.get(envVariables.getOrDefault(CONFIG_ENV_VARIABLE, Paths.get(RuntimeUtils.USER_DIR,
+                                                                                  CONFIG_FILE_NAME).toString()));
     }
 }
