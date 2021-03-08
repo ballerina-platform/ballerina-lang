@@ -20,20 +20,16 @@ package io.ballerina.projects;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import com.moandjiezana.toml.Toml;
-import io.ballerina.projects.internal.model.CompilerPluginToml;
+import io.ballerina.projects.internal.model.CompilerPluginTomlModel;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
-
-import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_TOML;
 
 /**
  * This class knows how to create a bala containing jballerina platform libs.
@@ -141,18 +137,13 @@ public class JBallerinaBalaWriter extends BalaWriter {
         return AnyTarget.ANY;
     }
 
-    private Optional<CompilerPluginToml> readCompilerPluginToml() {
-        Path compilerPluginTomlPath = backend.packageContext().project().sourceRoot().resolve(COMPILER_PLUGIN_TOML);
-        if (compilerPluginTomlPath.toFile().exists()) {
-            Toml toml;
-            try (InputStream inputStream = new FileInputStream(compilerPluginTomlPath.toFile())) {
-                toml = new Toml().read(inputStream);
-            } catch (IllegalStateException e) {
-                throw new ProjectException("invalid '" + COMPILER_PLUGIN_TOML + "' due to " + e.getMessage());
-            } catch (IOException e) {
-                throw new ProjectException("cannot read '" + COMPILER_PLUGIN_TOML + "' due to " + e.getMessage());
-            }
-            return Optional.ofNullable(toml.to(CompilerPluginToml.class));
+    private Optional<CompilerPluginTomlModel> readCompilerPluginToml() {
+        Optional<io.ballerina.projects.CompilerPluginToml> compilerPluginToml = backend.packageContext().project()
+                .currentPackage().compilerPluginToml();
+
+        if (compilerPluginToml.isPresent()) {
+            TomlDocument tomlDocument = compilerPluginToml.get().compilerPluginTomlContext().tomlDocument();
+            return Optional.of(CompilerPluginTomlModel.from(tomlDocument));
         }
         return Optional.empty();
     }

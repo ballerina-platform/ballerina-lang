@@ -128,11 +128,13 @@ public class PackageConfigCreator {
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig cloudToml = packageData.cloudToml()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
+        DocumentConfig compilerPluginToml = packageData.compilerPluginToml()
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig packageMd = packageData.packageMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
 
         return PackageConfig.from(packageId, packageData.packagePath(), packageManifest, ballerinaToml,
-                dependenciesToml, cloudToml, packageMd, moduleConfigs, packageDependencyGraph);
+                dependenciesToml, cloudToml, compilerPluginToml, packageMd, moduleConfigs, packageDependencyGraph);
     }
 
     private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,
