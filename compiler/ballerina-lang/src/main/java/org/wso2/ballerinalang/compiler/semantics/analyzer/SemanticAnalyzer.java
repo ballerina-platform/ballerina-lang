@@ -2561,12 +2561,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         typeChecker.checkExpr(constPatternExpr, env);
         if (constPatternExpr instanceof BLangSimpleVarRef) {
             BLangSimpleVarRef constRef = (BLangSimpleVarRef) constPatternExpr;
-            if (!(constRef.symbol != null && constRef.symbol.kind == SymbolKind.CONSTANT)) {
+            if (constRef.symbol.kind != SymbolKind.CONSTANT) {
                 dlog.error(constMatchPattern.pos, DiagnosticErrorCode.VARIABLE_SHOULD_BE_DECLARED_AS_CONSTANT,
                         constRef.variableName);
             }
         }
-        constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern, constMatchPattern.expr);
+        constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern, constPatternExpr);
     }
 
     @Override
@@ -2952,7 +2952,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             if (attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 final BLangSimpleVarRef attachVarRef = (BLangSimpleVarRef) attachExpr;
-                if (attachVarRef.symbol != null && !Symbols.isFlagOn(attachVarRef.symbol.flags, Flags.LISTENER)) {
+                if (attachVarRef.symbol != null && attachVarRef.symbol != symTable.notFoundSymbol &&
+                        !Symbols.isFlagOn(attachVarRef.symbol.flags, Flags.LISTENER)) {
                     dlog.error(attachVarRef.pos, DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT);
                 }
             } else if (attachExpr.getKind() != NodeKind.TYPE_INIT_EXPR) {

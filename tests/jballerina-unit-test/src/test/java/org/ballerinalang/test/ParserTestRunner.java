@@ -72,17 +72,13 @@ public class ParserTestRunner {
         hashSet.add("minutiae_test_05_with_no_newlines.bal");
         hashSet.add("import_decl_source_13.bal");
         hashSet.add("ambiguity_source_29.bal");
-        hashSet.add("worker_decl_source_02.bal");
         hashSet.add("typed_binding_patterns_source_16.bal");
         hashSet.add("forEach_stmt_source_07.bal");
         hashSet.add("do_stmt_source_07.bal");
         hashSet.add("match_stmt_source_13.bal");
-        hashSet.add("match_stmt_source_07.bal");
         hashSet.add("match_stmt_source_10.bal");
         hashSet.add("match_stmt_source_08.bal");
         hashSet.add("match_stmt_source_12.bal");
-        hashSet.add("match_stmt_source_03.bal");
-        hashSet.add("match_stmt_source_06.bal");
         hashSet.add("match_stmt_source_09.bal");
         hashSet.add("match_stmt_source_11.bal");
         return hashSet;
