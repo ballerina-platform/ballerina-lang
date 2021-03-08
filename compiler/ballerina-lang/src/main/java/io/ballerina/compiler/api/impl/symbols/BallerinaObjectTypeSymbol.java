@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -41,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Represents an object type descriptor.
@@ -107,13 +107,8 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.getBType().tsymbol).attachedFuncs) {
             if (attachedFunc instanceof BResourceFunction) {
                 BResourceFunction resFn = (BResourceFunction) attachedFunc;
-                StringJoiner stringJoiner = new StringJoiner("/");
-
-                for (Name name : resFn.resourcePath) {
-                    stringJoiner.add(name.value);
-                }
-
-                methods.put(resFn.accessor.value + " " + stringJoiner.toString(),
+                String resPath = resFn.resourcePath.stream().map(p -> p.value).collect(Collectors.joining("/"));
+                methods.put(resFn.accessor.value + " " + resPath,
                             symbolFactory.createResourceMethodSymbol(attachedFunc.symbol));
             } else {
                 methods.put(attachedFunc.funcName.value,

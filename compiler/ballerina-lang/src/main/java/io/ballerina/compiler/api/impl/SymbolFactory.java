@@ -260,6 +260,12 @@ public class SymbolFactory {
         return createMethodSymbol(invokableSymbol, name);
     }
 
+    /**
+     * Given a symbol for a resource method, returns a public resource method symbol instance.
+     *
+     * @param invokableSymbol The internal symbol for the method
+     * @return The generated public symbol for the method
+     */
     public BallerinaResourceMethodSymbol createResourceMethodSymbol(BInvokableSymbol invokableSymbol) {
         String name = getMethodName(invokableSymbol, (BObjectTypeSymbol) invokableSymbol.owner);
         TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(invokableSymbol.type);
