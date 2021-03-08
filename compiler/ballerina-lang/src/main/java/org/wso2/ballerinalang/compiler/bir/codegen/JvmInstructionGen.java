@@ -666,6 +666,22 @@ public class JvmInstructionGen {
                     String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
             return;
+        } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
+            if (opcode == IFLT) {
+                this.mv.visitJumpInsn(IF_ICMPLT, label1);
+            } else if (opcode == IFGT) {
+                this.mv.visitJumpInsn(IF_ICMPGT, label1);
+            } else if (opcode == IFLE) {
+                this.mv.visitJumpInsn(IF_ICMPLE, label1);
+            } else {
+                this.mv.visitJumpInsn(IF_ICMPGE, label1);
+            }
+        } else {
+            String compareFuncName = this.getCompareFuncName(opcode);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName,
+                    String.format("(L%s;L%s;)Z", OBJECT, OBJECT), false);
+            this.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
         }
 
         this.mv.visitInsn(ICONST_0);
@@ -689,6 +705,21 @@ public class JvmInstructionGen {
                 return "checkDecimalLessThan";
             case IFLE:
                 return "checkDecimalLessThanOrEqual";
+            default:
+                throw new BLangCompilerException(String.format("Opcode: '%s' is not a comparison opcode.", opcode));
+        }
+    }
+
+    private String getCompareFuncName(int opcode) {
+        switch (opcode) {
+            case IFGT:
+                return "compareValueGreaterThan";
+            case IFGE:
+                return "compareValueGreaterThanOrEqual";
+            case IFLT:
+                return "compareValueLessThan";
+            case IFLE:
+                return "compareValueLessThanOrEqual";
             default:
                 throw new BLangCompilerException(String.format("Opcode: '%s' is not a comparison opcode.", opcode));
         }

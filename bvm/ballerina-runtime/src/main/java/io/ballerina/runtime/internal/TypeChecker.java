@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
@@ -64,6 +65,7 @@ import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.RefValue;
 import io.ballerina.runtime.internal.values.StreamValue;
 import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.TypedescValue;
 import io.ballerina.runtime.internal.values.TypedescValueImpl;
 import io.ballerina.runtime.internal.values.XmlSequence;
@@ -80,6 +82,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.PrimitiveIterator;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -3002,6 +3005,150 @@ public class TypeChecker {
             }
         }
         return true;
+    }
+
+    public static boolean compareValueLessThan(Object lhsValue, Object rhsValue) {
+        return compareValues(lhsValue, rhsValue, false) < 0;
+    }
+
+    public static boolean compareValueLessThanOrEqual(Object lhsValue, Object rhsValue) {
+        return compareValues(lhsValue, rhsValue, false) <= 0;
+    }
+
+    public static boolean compareValueGreaterThan(Object lhsValue, Object rhsValue) {
+        return compareValues(lhsValue, rhsValue, false) > 0;
+    }
+
+    public static boolean compareValueGreaterThanOrEqual(Object lhsValue, Object rhsValue) {
+        return compareValues(lhsValue, rhsValue, false) >= 0;
+    }
+
+    public static int compareValues(Object lhsValue, Object rhsValue, boolean isAscending) {
+        int lhsTypeTag = TypeChecker.getType(lhsValue).getTag();
+        int rhsTypeTag = TypeChecker.getType(rhsValue).getTag();
+        // () should come last irrespective of the sort direction.
+        if (lhsValue == null) {
+            if (rhsValue == null) {
+                return 0;
+            }
+            if (isAscending) {
+                return 1;
+            }
+            return -1;
+        }
+        if (rhsValue == null) {
+            if (isAscending) {
+                return -1;
+            }
+            return 1;
+        }
+        if (TypeTags.isStringTypeTag(lhsTypeTag) && TypeTags.isStringTypeTag(rhsTypeTag))  {
+            return codePointCompare(lhsValue.toString(), rhsValue.toString());
+        }
+        if (lhsTypeTag == TypeTags.BOOLEAN_TAG && rhsTypeTag == TypeTags.BOOLEAN_TAG)  {
+            return Boolean.compare((boolean) lhsValue, (boolean) rhsValue);
+        }
+        if (TypeTags.isIntegerTypeTag(lhsTypeTag) && TypeTags.isIntegerTypeTag(rhsTypeTag)) {
+            return Long.compare((long) lhsValue, (long) rhsValue);
+        }
+        if (lhsTypeTag == TypeTags.BYTE_TAG && rhsTypeTag == TypeTags.BYTE_TAG) {
+            return Integer.compare((int) lhsValue, (int) rhsValue);
+        }
+        if (lhsTypeTag == TypeTags.FLOAT_TAG && rhsTypeTag == TypeTags.FLOAT_TAG) {
+            // NaN should be placed last or one before the last when () is present irrespective of the sort direction.
+            if (Double.isNaN((double) lhsValue)) {
+                if (Double.isNaN((double) rhsValue)) {
+                    return 0;
+                }
+                if (isAscending) {
+                    return 1;
+                }
+                return -1;
+            }
+            if (Double.isNaN((double) rhsValue)) {
+                if (isAscending) {
+                    return -1;
+                }
+                return 1;
+            }
+            // -0.0 = +0.0
+            if ((double) lhsValue == 0 && (double) rhsValue == 0) {
+                return 0;
+            }
+            return Double.compare((double) lhsValue, (double) rhsValue);
+        }
+        if (lhsTypeTag == TypeTags.DECIMAL_TAG && rhsTypeTag == TypeTags.DECIMAL_TAG) {
+            if (checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue)) {
+                return 0;
+            }
+            if (checkDecimalGreaterThan((DecimalValue) lhsValue, (DecimalValue) rhsValue)) {
+                return 1;
+            }
+            return -1;
+        }
+        if ((lhsTypeTag == TypeTags.ARRAY_TAG && rhsTypeTag == TypeTags.ARRAY_TAG) ||
+                (lhsTypeTag == TypeTags.TUPLE_TAG && rhsTypeTag == TypeTags.TUPLE_TAG)) {
+            int lengthVal1;
+            int lengthVal2;
+            if (lhsTypeTag == TypeTags.ARRAY_TAG) {
+                lengthVal1 = ((BArray) lhsValue).size();
+                lengthVal2 = ((BArray) rhsValue).size();
+            } else {
+                lengthVal1 = ((TupleValueImpl) lhsValue).size();
+                lengthVal2 = ((TupleValueImpl) rhsValue).size();
+            }
+
+            if (lengthVal1 == 0) {
+                if (lengthVal2 == 0) {
+                    return 0;
+                }
+                return -1;
+            }
+            if (lengthVal2 == 0) {
+                return 1;
+            }
+            int len = Math.min(lengthVal1, lengthVal2);
+            int c = 0;
+            for (int i = 0; i < len; i++) {
+                if (lhsTypeTag == TypeTags.ARRAY_TAG) {
+                    c = compareValues(((BArray) lhsValue).get(i), ((BArray) rhsValue).get(i), isAscending);
+                } else {
+                    c = compareValues(((TupleValueImpl) lhsValue).get(i), ((TupleValueImpl) rhsValue).get(i),
+                            isAscending);
+                }
+                if (c != 0) {
+                    break;
+                } else {
+                    if (i == len - 1 && lengthVal1 < lengthVal2) {
+                        return -1;
+                    }
+                }
+            }
+            return c;
+        }
+        throw ErrorUtils.createOperationNotSupportedError(TypeChecker.getType(lhsValue),
+                TypeChecker.getType(rhsValue));
+    }
+
+    private static int codePointCompare(String str1, String str2) {
+        PrimitiveIterator.OfInt iterator1 = str1.codePoints().iterator();
+        PrimitiveIterator.OfInt iterator2 = str2.codePoints().iterator();
+        while (iterator1.hasNext()) {
+            if (!iterator2.hasNext()) {
+                return 1;
+            }
+            Integer codePoint1 = iterator1.next();
+            Integer codePoint2 = iterator2.next();
+
+            int cmp = codePoint1.compareTo(codePoint2);
+            if (cmp != 0) {
+                return cmp;
+            }
+        }
+        if (iterator2.hasNext()) {
+            return -1;
+        }
+        return 0;
     }
 
     private TypeChecker() {

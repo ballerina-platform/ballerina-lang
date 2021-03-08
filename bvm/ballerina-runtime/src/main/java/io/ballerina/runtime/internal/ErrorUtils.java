@@ -123,5 +123,10 @@ public class ErrorUtils {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
     }
+
+    public static BError createOperationNotSupportedError(Type lhsType, Type rhsType) {
+        throw createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.UNSUPPORTED_COMPARISON_OPERATION, lhsType, rhsType));
+    }
 }
 
