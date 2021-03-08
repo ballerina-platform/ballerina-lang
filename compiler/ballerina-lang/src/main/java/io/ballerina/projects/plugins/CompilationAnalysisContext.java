@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.plugins;
 
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
