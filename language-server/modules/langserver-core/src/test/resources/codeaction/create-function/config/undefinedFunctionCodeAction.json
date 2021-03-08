@@ -9,10 +9,16 @@
         "command": "CREATE_FUNC",
         "arguments": [
           {
-            "key": "node.position",
+            "key": "node.range",
             "value": {
-              "line": 3,
-              "character": 3
+              "start": {
+                "line": 3,
+                "character": 3
+              },
+              "end": {
+                "line": 3,
+                "character": 23
+              }
             }
           }
         ]

@@ -22,16 +22,15 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
-import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.LSAnnotationCache;
 import org.ballerinalang.langserver.common.utils.AnnotationUtil;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -56,19 +55,9 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, AnnotationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        SyntaxKind attachedNode = this.getParentSyntaxKind(node);
+        Node attachedNode = this.getAttached(node);
 
-        if (attachedNode == SyntaxKind.FUNCTION_DEFINITION) {
-            NodeList<Token> qualifierList = ((FunctionDefinitionNode) node.parent().parent()).qualifierList();
-            for (Token qualifier : qualifierList) {
-                if (qualifier.kind() == SyntaxKind.RESOURCE_KEYWORD) {
-                    attachedNode = SyntaxKind.RESOURCE_KEYWORD;
-                    break;
-                }
-            }
-        }
-
-        if (this.onQualifiedNameIdentifier(context, node.annotReference())) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, node.annotReference())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) node.annotReference();
             completionItems.addAll(this.getAnnotationsInModule(context, qNameRef.modulePrefix().text(), attachedNode));
         } else {
@@ -91,56 +80,57 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
         return completionItems;
     }
 
-    private List<LSCompletionItem> getCurrentModuleAnnotations(BallerinaCompletionContext ctx, SyntaxKind kind) {
+    private List<LSCompletionItem> getCurrentModuleAnnotations(BallerinaCompletionContext ctx, Node attachedNode) {
         List<Symbol> visibleSymbols = ctx.visibleSymbols(ctx.getCursorPosition());
         return visibleSymbols.stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
-                        && this.matchingAnnotation((AnnotationSymbol) symbol, kind)
-                        && !CommonUtil.isLangLib(symbol.getModule().get().id()))
+                        && this.matchingAnnotation((AnnotationSymbol) symbol, attachedNode))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, ctx))
                 .collect(Collectors.toList());
     }
 
     private List<LSCompletionItem> getAnnotationsInModule(BallerinaCompletionContext context, String alias,
-                                                          SyntaxKind kind) {
+                                                          Node attachedNode) {
         Optional<ModuleSymbol> moduleEntry = CommonUtil.searchModuleForAlias(context, alias);
-        if (moduleEntry.isEmpty()) {
-            List<LSCompletionItem> completionItems = new ArrayList<>();
-            // Import statement has not been added. Hence try resolving from the annotation cache
-            LSAnnotationCache.getInstance(context.languageServercontext()).getAnnotationsInModule(context, alias, kind)
-                    .forEach((key, value) -> value.forEach(annotation -> {
-                        completionItems.add(AnnotationUtil.getAnnotationItem(annotation, context));
-                    }));
+        // TODO: Enable after annotation cache is supported
+//        if (moduleEntry.isEmpty()) {
+//            List<LSCompletionItem> completionItems = new ArrayList<>();
+//            // Import statement has not been added. Hence try resolving from the annotation cache
+//            LSAnnotationCache.getInstance(context.languageServercontext())
+//                    .getAnnotationsInModule(context, alias, attachedNode)
+//                    .forEach((key, value) -> value.forEach(annotation -> {
+//                        completionItems.add(AnnotationUtil.getAnnotationItem(annotation, context));
+//                    }));
+//
+//            return completionItems;
+//        }
 
-            return completionItems;
-        }
-
-        return moduleEntry.get().allSymbols().stream()
+        return moduleEntry.orElseThrow().allSymbols().stream()
                 .filter(symbol -> symbol.kind() == SymbolKind.ANNOTATION
-                        && this.matchingAnnotation((AnnotationSymbol) symbol, kind))
+                        && this.matchingAnnotation((AnnotationSymbol) symbol, attachedNode))
                 .map(symbol -> AnnotationUtil.getAnnotationItem((AnnotationSymbol) symbol, context))
                 .collect(Collectors.toList());
     }
 
-    private SyntaxKind getParentSyntaxKind(AnnotationNode node) {
+    private Node getAttached(AnnotationNode node) {
         if (node.parent().kind() == SyntaxKind.METADATA) {
-            return node.parent().parent().kind();
+            return node.parent().parent();
         }
 
-        return node.parent().kind();
+        return node.parent();
     }
 
-    private boolean matchingAnnotation(AnnotationSymbol symbol, SyntaxKind kind) {
-        switch (kind) {
+    private boolean matchingAnnotation(AnnotationSymbol symbol, Node attachedNode) {
+        if (symbol.attachPoints().isEmpty()) {
+            return true;
+        }
+        switch (attachedNode.kind()) {
             case SERVICE_DECLARATION:
-//            case SERVICE_CONSTRUCTOR_EXPRESSION:
-//                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.SERVICE);
-            case RESOURCE_KEYWORD:
-                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.RESOURCE)
-                        || AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FUNCTION);
+                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.SERVICE);
             case EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
             case IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
             case FUNCTION_DEFINITION:
+            case RESOURCE_ACCESSOR_DEFINITION:
                 return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FUNCTION);
             case METHOD_DECLARATION:
             case OBJECT_METHOD_DEFINITION:
@@ -181,6 +171,11 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
             case DEFAULTABLE_PARAM:
             case REST_PARAM:
                 return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.PARAMETER);
+            case OBJECT_CONSTRUCTOR:
+                return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.SERVICE)
+                        && ((ObjectConstructorExpressionNode) attachedNode).objectTypeQualifiers()
+                        .stream()
+                        .anyMatch(token -> token.kind() == SyntaxKind.SERVICE_KEYWORD);
             default:
                 return false;
         }

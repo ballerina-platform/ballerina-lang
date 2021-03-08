@@ -2971,7 +2971,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
                 type.tsymbol);
-        if (funcSymbol == symTable.notFoundSymbol) {
+        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.kind != SymbolKind.FUNCTION) {
             BSymbol langLibMethodSymbol = getLangLibMethod(iExpr, type);
             if (langLibMethodSymbol == symTable.notFoundSymbol) {
                 dlog.error(iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD, invocationIdentifier, type);
@@ -5654,6 +5654,8 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(iExpr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL, iExpr.name.value);
             return symTable.semanticError;
         }
+
+        BType restType = null;
         if (vararg != null && !iExpr.restArgs.isEmpty()) {
             // We reach here if args are provided for the rest param as both individual rest args and a vararg.
             // Thus, the rest param type is the original rest param type which is an array type.
@@ -5665,6 +5667,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             checkTypeParamExpr(vararg, this.env, listTypeRestArg, iExpr.langLibInvocation);
             iExpr.restArgs.add(vararg);
+            restType = this.resultType;
         } else if (vararg != null) {
             iExpr.restArgs.add(vararg);
             if (mappingTypeRestArg != null) {
@@ -5676,11 +5679,15 @@ public class TypeChecker extends BLangNodeVisitor {
             } else {
                 checkTypeParamExpr(vararg, this.env, listTypeRestArg, iExpr.langLibInvocation);
             }
+            restType = this.resultType;
         } else if (!iExpr.restArgs.isEmpty()) {
             if (listTypeRestArg.tag == TypeTags.ARRAY) {
                 BType elementType = ((BArrayType) listTypeRestArg).eType;
                 for (BLangExpression restArg : iExpr.restArgs) {
                     checkTypeParamExpr(restArg, this.env, elementType, true);
+                    if (restType != symTable.semanticError && this.resultType == symTable.semanticError) {
+                        restType = this.resultType;
+                    }
                 }
             } else {
                 BTupleType tupleType = (BTupleType) listTypeRestArg;
@@ -5693,13 +5700,17 @@ public class TypeChecker extends BLangNodeVisitor {
                     BLangExpression restArg = iExpr.restArgs.get(j);
                     BType memType = j < tupleMemCount ? tupleMemberTypes.get(j) : tupleRestType;
                     checkTypeParamExpr(restArg, this.env, memType, true);
+                    if (restType != symTable.semanticError && this.resultType == symTable.semanticError) {
+                        restType = this.resultType;
+                    }
                 }
             }
         }
 
         BType retType = typeParamAnalyzer.getReturnTypeParams(env, bInvokableType.getReturnType());
-        if (Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE)
-                && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
+        if (restType != symTable.semanticError &&
+                Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE) &&
+                Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
             retType = unifier.build(retType, expType, iExpr, types, dlog);
         }
 
@@ -6771,22 +6782,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 return symTable.semanticError;
             }
 
-            if (varRefType.tag == TypeTags.UNION) {
-                Set<BType> memTypes = ((BUnionType) varRefType).getMemberTypes();
-                if (memTypes.contains(symTable.xmlTextType) || memTypes.contains(symTable.xmlType)) {
-                    indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
-                    dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
-                            indexBasedAccessExpr.expr.type);
-                    return symTable.semanticError;
-                }
-            }
             indexBasedAccessExpr.originalType = symTable.stringType;
             actualType = symTable.stringType;
-
-            if (TypeTags.isXMLTypeTag(varRefType.tag)) {
-                indexBasedAccessExpr.originalType = varRefType;
-                actualType = varRefType;
-            }
         } else if (TypeTags.isXMLTypeTag(varRefType.tag)) {
             if (indexBasedAccessExpr.lhsVar) {
                 indexExpr.type = symTable.semanticError;
@@ -6801,7 +6798,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // Note: out of range member access returns empty xml value unlike lists
             // hence, this needs to be set to xml type
             indexBasedAccessExpr.originalType = varRefType;
-            if (varRefType.tag == TypeTags.XML) {
+            if (varRefType.tag == TypeTags.XML || varRefType.tag == TypeTags.XML_TEXT) {
                 actualType = varRefType;
             } else {
                 actualType = BUnionType.create(null, varRefType, symTable.xmlNeverType);

@@ -264,6 +264,51 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "typeAnnotation2",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "typeAnnotation2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "deprecated",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "deprecated",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "display {\n\tlabel: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "untainted",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "untainted",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "builtinSubtype",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "builtinSubtype",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
       "label": "typeAnnotation1",
       "kind": "Property",
       "detail": "Annotation",
@@ -273,11 +318,20 @@
       "additionalTextEdits": []
     },
     {
-      "label": "typeAnnotation2",
+      "label": "tainted",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "typeAnnotation2",
+      "insertText": "tainted",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "typeParam",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "typeParam",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },

@@ -255,84 +255,112 @@ public class SortingUtil {
         return Optional.empty();
     }
 
+    /**
+     * Sets the sorting text to provided completion items using the default sorting.
+     *
+     * @param context Completion context
+     * @param completionItems Completion items to be set sorting texts
+     */
     public static void toDefaultSorting(BallerinaCompletionContext context, List<LSCompletionItem> completionItems) {
         for (LSCompletionItem item : completionItems) {
-            int rank;
-            CompletionItemKind completionItemKind = item.getCompletionItem().getKind();
-            if (completionItemKind == null) {
-                // TODO: Added for failsafe
-                rank = 17;
-            } else {
-                switch (item.getType()) {
-                    case SYMBOL:
-                        switch (completionItemKind) {
-                            case Constant:
-                                rank = 1;
-                                break;
-                            case Variable:
-                                rank = 2;
-                                break;
-                            case Function:
-                                rank = 3;
-                                break;
-                            case Method:
-                                rank = 4;
-                                break;
-                            case Constructor:
-                                rank = 5;
-                                break;
-                            case EnumMember:
-                                rank = 8;
-                                break;
-                            case Enum:
-                                rank = 9;
-                                break;
-                            case Class:
-                                rank = 10;
-                                break;
-                            case Interface:
-                                rank = 11;
-                                break;
-                            case Struct:
-                                rank = 12;
-                                break;
-                            case TypeParameter:
-                                rank = 13;
-                                break;
-                            case Module:
-                                rank = 14;
-                                break;
-                            default:
-                                rank = 17;
-                        }
-                        break;
-                    case SNIPPET:
-                        switch (completionItemKind) {
-                            case TypeParameter:
-                                rank = 13;
-                                break;
-                            case Snippet:
-                                rank = 15;
-                                break;
-                            case Keyword:
-                                rank = 16;
-                                break;
-                            default:
-                                rank = 17;
-                        }
-                        break;
-                    case OBJECT_FIELD:
-                        rank = 6;
-                        break;
-                    case RECORD_FIELD:
-                        rank = 7;
-                        break;
-                    default:
-                        rank = 17;
-                        break;
-                }
-            }
+            int rank = SortingUtil.toRank(item);
             item.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
         }
+    }
+
+    /**
+     * Calculates the rank of a given completion item with rank offset 0.
+     *
+     * @param completionItem Completion item
+     * @return rank
+     * @see #toRank(LSCompletionItem, int)
+     */
+    public static int toRank(LSCompletionItem completionItem) {
+        return toRank(completionItem, 0);
+    }
+
+    /**
+     * Calculates the rank of a given completion item.
+     *
+     * @param completionItem Completion item
+     * @param rankOffset     Number to offset the rank by
+     * @return Rank
+     */
+    public static int toRank(LSCompletionItem completionItem, int rankOffset) {
+        int rank = -1;
+        CompletionItemKind completionItemKind = completionItem.getCompletionItem().getKind();
+        switch (completionItem.getType()) {
+            case SYMBOL:
+                if (completionItemKind != null) {
+                    switch (completionItemKind) {
+                        case Constant:
+                            rank = 1;
+                            break;
+                        case Variable:
+                            rank = 2;
+                            break;
+                        case Function:
+                            rank = 3;
+                            break;
+                        case Method:
+                            rank = 4;
+                            break;
+                        case Constructor:
+                            rank = 5;
+                            break;
+                        case EnumMember:
+                            rank = 8;
+                            break;
+                        case Enum:
+                            rank = 9;
+                            break;
+                        case Class:
+                            rank = 10;
+                            break;
+                        case Interface:
+                            rank = 11;
+                            break;
+                        case Struct:
+                            rank = 12;
+                            break;
+                        case TypeParameter:
+                            rank = 13;
+                            break;
+                        case Module:
+                            rank = 14;
+                            break;
+                    }
+                }
+                break;
+            case SNIPPET:
+                if (completionItemKind != null) {
+                    switch (completionItemKind) {
+                        case TypeParameter:
+                            rank = 13;
+                            break;
+                        case Snippet:
+                            rank = 15;
+                            break;
+                        case Keyword:
+                            rank = 16;
+                            break;
+                    }
+                }
+                break;
+            case OBJECT_FIELD:
+                rank = 6;
+                break;
+            case RECORD_FIELD:
+                rank = 7;
+                break;
+        }
+
+        if (rank == -1) {
+            rank = 17;
+        } else {
+            rank = rankOffset + rank;
+        }
+
+        return rank;
     }
 }

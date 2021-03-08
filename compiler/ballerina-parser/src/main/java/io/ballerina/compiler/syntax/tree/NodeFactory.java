@@ -1088,6 +1088,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ModuleVariableDeclarationNode createModuleVariableDeclarationNode(
             MetadataNode metadata,
+            Token visibilityQualifier,
             NodeList<Token> qualifiers,
             TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
@@ -1099,6 +1100,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stModuleVariableDeclarationNode = STNodeFactory.createModuleVariableDeclarationNode(
                 getOptionalSTNode(metadata),
+                getOptionalSTNode(visibilityQualifier),
                 qualifiers.underlyingListNode().internalNode(),
                 typedBindingPattern.internalNode(),
                 getOptionalSTNode(equalsToken),

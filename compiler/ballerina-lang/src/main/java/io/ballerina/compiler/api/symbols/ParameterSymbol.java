@@ -23,16 +23,7 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public interface ParameterSymbol extends Annotatable, Qualifiable {
-
-    /**
-     * Get the parameter name.
-     *
-     * @return {@link Optional} name of the field
-     * @deprecated This method will be removed in a later version. Use getName() instead.
-     */
-    @Deprecated
-    Optional<String> name();
+public interface ParameterSymbol extends Symbol, Annotatable, Qualifiable {
 
     /**
      * Get the parameter name.
@@ -54,14 +45,6 @@ public interface ParameterSymbol extends Annotatable, Qualifiable {
      * @return {@link String} signature
      */
     String signature();
-
-    /**
-     * Get the kind of the parameter.
-     *
-     * @return {@link ParameterKind} of the param
-     */
-    @Deprecated
-    ParameterKind kind();
 
     /**
      * Get the kind of the parameter.

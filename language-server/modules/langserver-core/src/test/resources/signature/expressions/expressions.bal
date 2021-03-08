@@ -402,3 +402,7 @@ function testConcat() {
 function testQNameReference() {
     module1:function3()
 }
+
+function testQNameReference2() {
+    module1:TestClass1 cls = new module1:TestClass1()
+}
