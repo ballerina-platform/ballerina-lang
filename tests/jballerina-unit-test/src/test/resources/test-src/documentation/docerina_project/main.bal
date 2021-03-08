@@ -1,5 +1,10 @@
 import docerina_project.world as prj;
 
+# Test inline record with typedesc
+# + rowType - Typedesc with empty record
+public function testTypeDesc(typedesc<record {}>? rowType) {
+}
+
 # Represents log level types.
 #
 # + DEBUG - DEBUG log level

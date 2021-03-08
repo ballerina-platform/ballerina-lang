@@ -603,6 +603,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BindingPatternNode bindingPatternNode = typedBindingPattern.bindingPattern();
         BLangVariable variable = getBLangVariableNode(bindingPatternNode);
 
+        if (modVarDeclrNode.visibilityQualifier().isPresent()) {
+            markVariableWithFlag(variable, Flag.PUBLIC);
+        }
+
         initializeBLangVariable(variable, typedBindingPattern.typeDescriptor(), modVarDeclrNode.initializer(),
                 modVarDeclrNode.qualifiers());
 
@@ -1529,11 +1533,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         }
 
         // change default worker name
-        String workerName = namedWorkerDeclNode.workerName().text();
+        String workerName;
+        if (namedWorkerDeclNode.workerName().isMissing()) {
+            workerName = missingNodesHelper.getNextMissingNodeName(packageID);
+        } else {
+            workerName = namedWorkerDeclNode.workerName().text();
+        }
+
         if (workerName.startsWith(IDENTIFIER_LITERAL_PREFIX)) {
             bLFunction.defaultWorkerName.originalValue = workerName;
             workerName = IdentifierUtils.unescapeUnicodeCodepoints(workerName.substring(1));
         }
+
         bLFunction.defaultWorkerName.value = workerName;
         bLFunction.defaultWorkerName.pos = getPosition(namedWorkerDeclNode.workerName());
 
@@ -2760,7 +2771,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         for (Token qualifier : qualifiers) {
             SyntaxKind kind = qualifier.kind();
             if (kind == SyntaxKind.FINAL_KEYWORD) {
-                markVariableAsFinal(var);
+                markVariableWithFlag(var, Flag.FINAL);
             } else if (qualifier.kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
                 var.flagSet.add(Flag.CONFIGURABLE);
                 // Initializer is always present for configurable, hence get directly
@@ -2960,6 +2971,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (requiredParameter.paramName().isPresent()) {
             simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
         }
+        simpleVar.flagSet.add(Flag.REQUIRED_PARAM);
         simpleVar.pos = trimLeft(simpleVar.pos, getPosition(requiredParameter.typeName()));
         return simpleVar;
     }
@@ -2984,7 +2996,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                         defaultableParameter.annotations());
 
         simpleVar.setInitialExpression(createExpression(defaultableParameter.expression()));
-
+        simpleVar.flagSet.add(Flag.DEFAULTABLE_PARAM);
         simpleVar.pos = getPosition(defaultableParameter);
         return simpleVar;
     }
@@ -3000,6 +3012,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         bLSimpleVar.typeNode = bLArrayType;
         bLArrayType.pos = getPosition(restParameter.typeName());
 
+        bLSimpleVar.flagSet.add(Flag.REST_PARAM);
         bLSimpleVar.pos = getPosition(restParameter);
         return bLSimpleVar;
     }
@@ -3566,7 +3579,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         onFailClause.pos = pos;
 
         onFailClause.isDeclaredWithVar = isDeclaredWithVar;
-        markVariableAsFinal(variableDefinitionNode.getVariable());
+        markVariableWithFlag(variableDefinitionNode.getVariable(), Flag.FINAL);
         onFailClause.variableDefinitionNode = variableDefinitionNode;
         BLangBlockStmt blockNode = (BLangBlockStmt) transform(onFailClauseNode.blockStatement());
         blockNode.pos = getPosition(onFailClauseNode);
@@ -5052,7 +5065,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLIdentifer.originalValue = value;
             bLIdentifer.setLiteral(true);
         } else {
-            bLIdentifer.setValue(value);
+            bLIdentifer.setValue(IdentifierUtils.unescapeUnicodeCodepoints(value));
             bLIdentifer.setLiteral(false);
         }
         bLIdentifer.pos = pos;
@@ -5118,6 +5131,9 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 value = getIntegerLiteral(literal, textValue, sign);
                 originalValue = textValue;
                 bLiteral = (BLangNumericLiteral) TreeBuilder.createNumericLiteralExpression();
+                if (literalTokenKind == SyntaxKind.HEX_INTEGER_LITERAL_TOKEN && withinByteRange(value)) {
+                    typeTag = TypeTags.BYTE;
+                }
             } else if (literalTokenKind == SyntaxKind.DECIMAL_FLOATING_POINT_LITERAL_TOKEN) {
                 //TODO: Check effect of mapping negative(-) numbers as unary-expr
                 typeTag = NumericLiteralSupport.isDecimalDiscriminated(textValue) ? TypeTags.DECIMAL : TypeTags.FLOAT;
@@ -5145,7 +5161,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 type == SyntaxKind.TEMPLATE_STRING || type == SyntaxKind.IDENTIFIER_TOKEN) {
             String text = textValue;
             if (type == SyntaxKind.STRING_LITERAL) {
-                text = text.substring(1, text.length() - 1);
+                if (text.length() > 1 && text.charAt(text.length() - 1) == '"') {
+                    text = text.substring(1, text.length() - 1);
+                } else {
+                    // Missing end quote case
+                    text = text.substring(1);
+                }
             }
             String originalText = text; // to log the errors
             Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
@@ -5678,35 +5699,47 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return str;
     }
 
-    private void markVariableAsFinal(BLangVariable variable) {
-        // Set the final flag to the variable.
-        variable.flagSet.add(Flag.FINAL);
+    private void markVariableWithFlag(BLangVariable variable, Flag flag) {
+        // Set the flag to the variable.
+        variable.flagSet.add(flag);
 
         switch (variable.getKind()) {
             case TUPLE_VARIABLE:
-                // If the variable is a tuple variable, we need to set the final flag to the all member variables.
+                // If the variable is a tuple variable, we need to set the flag to the all member variables.
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-                tupleVariable.memberVariables.forEach(this::markVariableAsFinal);
+                for (BLangVariable var : tupleVariable.memberVariables) {
+                    markVariableWithFlag(var, flag);
+                }
                 if (tupleVariable.restVariable != null) {
-                    markVariableAsFinal(tupleVariable.restVariable);
+                    markVariableWithFlag(tupleVariable.restVariable, flag);
                 }
                 break;
             case RECORD_VARIABLE:
-                // If the variable is a record variable, we need to set the final flag to the all the variables in
+                // If the variable is a record variable, we need to set the flag to the all the variables in
                 // the record.
                 BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
-                recordVariable.variableList.stream().map(BLangRecordVariable.BLangRecordVariableKeyValue::getValue)
-                        .forEach(this::markVariableAsFinal);
+                for (BLangRecordVariableKeyValue keyValue : recordVariable.variableList) {
+                    markVariableWithFlag(keyValue.getValue(), flag);
+                }
                 if (recordVariable.restParam != null) {
-                    markVariableAsFinal((BLangVariable) recordVariable.restParam);
+                    markVariableWithFlag((BLangVariable) recordVariable.restParam, flag);
                 }
                 break;
             case ERROR_VARIABLE:
                 BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
-                markVariableAsFinal(errorVariable.message);
-                errorVariable.detail.forEach(entry -> markVariableAsFinal(entry.valueBindingPattern));
+                BLangSimpleVariable message = errorVariable.message;
+                if (message != null) {
+                    markVariableWithFlag(message, flag);
+                }
+
+                BLangVariable cause = errorVariable.cause;
+                if (cause != null) {
+                    markVariableWithFlag(cause, flag);
+                }
+
+                errorVariable.detail.forEach(entry -> markVariableWithFlag(entry.valueBindingPattern, flag));
                 if (errorVariable.restDetail != null) {
-                    markVariableAsFinal(errorVariable.restDetail);
+                    markVariableWithFlag(errorVariable.restDetail, flag);
                 }
                 break;
         }
@@ -5820,6 +5853,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return userDefinedType;
     }
 
+    private boolean withinByteRange(Object num) {
+        if (num instanceof Long) {
+            return (Long) num <= 255 && (Long) num >= 0;
+        }
+        return false;
+    }
+
     private class SimpleVarBuilder {
         private BLangIdentifier name;
         private BLangType type;
@@ -5837,7 +5877,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             bLSimpleVar.setTypeNode(this.type);
             bLSimpleVar.flagSet.addAll(this.flags);
             if (this.isFinal) {
-                markVariableAsFinal(bLSimpleVar);
+                markVariableWithFlag(bLSimpleVar, Flag.FINAL);
             }
             bLSimpleVar.setInitialExpression(this.expr);
             bLSimpleVar.pos = pos;

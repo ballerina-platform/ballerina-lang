@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+import java.util.Map;
 
 import static org.ballerinalang.compiler.CompilerOptionName.COMPILER_PHASE;
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_API_INITIATED_COMPILATION;
@@ -41,6 +42,7 @@ public class EnvironmentBuilder {
     private PackageRepository ballerinaCentralRepo;
     private Path ballerinaHome;
     private Path userHome;
+    private Map<String, PackageRepository> customRepositories;
 
     public static EnvironmentBuilder getBuilder() {
         return new EnvironmentBuilder();
@@ -85,10 +87,11 @@ public class EnvironmentBuilder {
             // Creating a Ballerina user home instance
             BallerinaUserHome ballerinaUserHome = getBallerinaUserHome(environment);
             ballerinaCentralRepo = ballerinaUserHome.remotePackageRepository();
+            customRepositories = ballerinaUserHome.customRepositories();
         }
 
         PackageResolver packageResolver = new DefaultPackageResolver(distributionRepository,
-                ballerinaCentralRepo, packageCache);
+                ballerinaCentralRepo, packageCache, customRepositories);
         environment.addService(PackageResolver.class, packageResolver);
 
         CompilerContext compilerContext = populateCompilerContext();

@@ -201,7 +201,7 @@ type SampleErrorData record {
 
 type SampleError error<SampleErrorData>;
 
-function testErrorBindingPattern() returns [string, boolean, anydata|readonly] {
+function testErrorBindingPattern() returns [string, boolean, value:Cloneable] {
     SampleError error(info=info,fatal=fatal) = error SampleError("Sample Error", info = "Detail Info",
     fatal = true);
     error error(data=transactionData) = error("TransactionError", data={"A":"a", "B":"b"});

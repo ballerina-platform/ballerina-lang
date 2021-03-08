@@ -171,11 +171,20 @@ public class PackageManifest {
         private final PackageName packageName;
         private final PackageOrg packageOrg;
         private final PackageVersion semanticVersion;
+        public String repository;
 
         public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion) {
             this.packageName = packageName;
             this.packageOrg = packageOrg;
             this.semanticVersion = semanticVersion;
+        }
+
+        public Dependency(PackageName packageName, PackageOrg packageOrg, PackageVersion semanticVersion,
+                          String repository) {
+            this.packageName = packageName;
+            this.packageOrg = packageOrg;
+            this.semanticVersion = semanticVersion;
+            this.repository = repository;
         }
 
         public PackageName name() {
@@ -188,6 +197,10 @@ public class PackageManifest {
 
         public PackageVersion version() {
             return semanticVersion;
+        }
+
+        public String repository() {
+            return repository;
         }
     }
 
