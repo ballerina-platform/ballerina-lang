@@ -54,6 +54,7 @@ import static io.ballerina.runtime.internal.scheduling.State.YIELD;
 public class Strand {
 
     private static AtomicInteger nextStrandId = new AtomicInteger(0);
+    private static final String CURRENT_TRANSACTIONAL_CONTEXT_PROPERTY = "currentTrxContext";
 
     private int id;
     private String name;
@@ -77,7 +78,7 @@ public class Strand {
     WaitContext waitContext;
     ItemGroup strandGroup;
 
-    private Map<String, Object> globalProps;
+    public Map<String, Object> globalProps;
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     private State state;
@@ -180,6 +181,7 @@ public class Strand {
             this.trxContexts.push(this.currentTrxContext);
         }
         this.currentTrxContext = ctx;
+        globalProps.putIfAbsent(CURRENT_TRANSACTIONAL_CONTEXT_PROPERTY, this.currentTrxContext);
     }
 
     public ErrorValue handleFlush(ChannelDetails[] channels) throws Throwable {
