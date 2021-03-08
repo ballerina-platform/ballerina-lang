@@ -7977,7 +7977,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangExpression pushExpr = addConversionExprIfRequired(valueExpr, restParamType.eType);
             BLangExpressionStmt expressionStmt = createExpressionStmt(pos, foreachBody);
             BLangInvocation pushInvocation = createLangLibInvocationNode(PUSH_LANGLIB_METHOD, arrayVarRef,
-                                                                         new ArrayList<>() {{ add(pushExpr); }},
+                                                                         List.of(pushExpr),
                                                                          restParamType, pos);
             pushInvocation.restArgs.add(pushInvocation.requiredArgs.remove(1));
             expressionStmt.expr = pushInvocation;
