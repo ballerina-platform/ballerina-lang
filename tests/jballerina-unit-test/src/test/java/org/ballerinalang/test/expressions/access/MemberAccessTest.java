@@ -59,7 +59,8 @@ public class MemberAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 42, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'a|b'", 43, 12);
         validateError(negativeResult, i++, "invalid operation: type 'int[]?' does not support member access", 53, 9);
-        validateError(negativeResult, i++, "invalid operation: type 'Employee[3]?' does not support member access", 54, 9);
+        validateError(negativeResult, i++, "invalid operation: type 'Employee[3]?' does not support " +
+                "member access", 54, 9);
         validateError(negativeResult, i++, "invalid operation: type '(int[]|Employee[3])?' does not " +
                         "support member access", 55, 9);
         validateError(negativeResult, i++, "list index out of range: index: '4'", 60, 12);

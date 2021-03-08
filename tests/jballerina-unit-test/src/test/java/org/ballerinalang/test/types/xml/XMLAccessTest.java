@@ -261,8 +261,8 @@ public class XMLAccessTest {
                 "use a grouping expression (parenthesis) " +
                 "if you intend to invoke the method on the result of the navigation expression.";
 
-        String navIndexingMessage = "member access operations are not yet supported within XML navigation expressions, " +
-                "use a grouping expression (parenthesis) " +
+        String navIndexingMessage = "member access operations are not yet supported within XML navigation " +
+                "expressions, use a grouping expression (parenthesis) " +
                 "if you intend to member-access the result of the navigation expression.";
         int i = 0;
         BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 14);
