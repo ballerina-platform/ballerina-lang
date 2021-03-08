@@ -1293,8 +1293,15 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        annAttachmentNode.expr = rewrite(annAttachmentNode.expr, env);
+        if (annAttachmentNode.expr == null && annAttachmentNode.annotationSymbol.attachedType != null) {
+            BType attachedType = annAttachmentNode.annotationSymbol.attachedType.type;
+            if (attachedType.tag != TypeTags.FINITE) {
+                annAttachmentNode.expr = ASTBuilderUtil.createEmptyRecordLiteral(annAttachmentNode.pos,
+                        attachedType.tag == TypeTags.ARRAY ? ((BArrayType) attachedType).eType : attachedType);
+            }
+        }
         if (annAttachmentNode.expr != null) {
+            annAttachmentNode.expr = rewrite(annAttachmentNode.expr, env);
             for (AttachPoint point : annAttachmentNode.annotationSymbol.points) {
                 if (!point.source) {
                     annAttachmentNode.expr = visitCloneReadonly(annAttachmentNode.expr, annAttachmentNode.expr.type);
