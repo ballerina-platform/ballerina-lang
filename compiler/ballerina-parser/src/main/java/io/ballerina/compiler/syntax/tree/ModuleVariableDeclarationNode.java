@@ -37,24 +37,28 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         return optionalChildInBucket(0);
     }
 
+    public Optional<Token> visibilityQualifier() {
+        return optionalChildInBucket(1);
+    }
+
     public NodeList<Token> qualifiers() {
-        return new NodeList<>(childInBucket(1));
+        return new NodeList<>(childInBucket(2));
     }
 
     public TypedBindingPatternNode typedBindingPattern() {
-        return childInBucket(2);
+        return childInBucket(3);
     }
 
     public Optional<Token> equalsToken() {
-        return optionalChildInBucket(3);
-    }
-
-    public Optional<ExpressionNode> initializer() {
         return optionalChildInBucket(4);
     }
 
+    public Optional<ExpressionNode> initializer() {
+        return optionalChildInBucket(5);
+    }
+
     public Token semicolonToken() {
-        return childInBucket(5);
+        return childInBucket(6);
     }
 
     @Override
@@ -71,6 +75,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
     protected String[] childNames() {
         return new String[]{
                 "metadata",
+                "visibilityQualifier",
                 "qualifiers",
                 "typedBindingPattern",
                 "equalsToken",
@@ -80,6 +85,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
     public ModuleVariableDeclarationNode modify(
             MetadataNode metadata,
+            Token visibilityQualifier,
             NodeList<Token> qualifiers,
             TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
@@ -87,6 +93,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
             Token semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
+                visibilityQualifier,
                 qualifiers.underlyingListNode(),
                 typedBindingPattern,
                 equalsToken,
@@ -97,6 +104,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
 
         return NodeFactory.createModuleVariableDeclarationNode(
                 metadata,
+                visibilityQualifier,
                 qualifiers,
                 typedBindingPattern,
                 equalsToken,
@@ -116,6 +124,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
     public static class ModuleVariableDeclarationNodeModifier {
         private final ModuleVariableDeclarationNode oldNode;
         private MetadataNode metadata;
+        private Token visibilityQualifier;
         private NodeList<Token> qualifiers;
         private TypedBindingPatternNode typedBindingPattern;
         private Token equalsToken;
@@ -125,6 +134,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         public ModuleVariableDeclarationNodeModifier(ModuleVariableDeclarationNode oldNode) {
             this.oldNode = oldNode;
             this.metadata = oldNode.metadata().orElse(null);
+            this.visibilityQualifier = oldNode.visibilityQualifier().orElse(null);
             this.qualifiers = oldNode.qualifiers();
             this.typedBindingPattern = oldNode.typedBindingPattern();
             this.equalsToken = oldNode.equalsToken().orElse(null);
@@ -135,6 +145,12 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         public ModuleVariableDeclarationNodeModifier withMetadata(
                 MetadataNode metadata) {
             this.metadata = metadata;
+            return this;
+        }
+
+        public ModuleVariableDeclarationNodeModifier withVisibilityQualifier(
+                Token visibilityQualifier) {
+            this.visibilityQualifier = visibilityQualifier;
             return this;
         }
 
@@ -174,6 +190,7 @@ public class ModuleVariableDeclarationNode extends ModuleMemberDeclarationNode {
         public ModuleVariableDeclarationNode apply() {
             return oldNode.modify(
                     metadata,
+                    visibilityQualifier,
                     qualifiers,
                     typedBindingPattern,
                     equalsToken,

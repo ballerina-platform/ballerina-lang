@@ -30,22 +30,23 @@ import org.testng.annotations.Test;
 import static org.ballerinalang.test.BAssertUtil.validateError;
 
 /**
- * Test cases for interop functions with variable return types through typedesc refs.
+ * Test cases for dependently-typed interop functions.
  *
  * @since 2.0.0
  */
-public class VariableReturnTypeTest {
+public class DependentlyTypedFunctionsTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
-        result = BCompileUtil.compile("test-src/javainterop/variable_return_type_test.bal");
+        result = BCompileUtil.compile("test-src/javainterop/dependently_typed_functions_test.bal");
     }
 
     @Test
     public void testNegatives() {
-        CompileResult errors = BCompileUtil.compile("test-src/javainterop/variable_return_type_negative.bal");
+        CompileResult errors =
+                BCompileUtil.compile("test-src/javainterop/dependently_typed_functions_test_negative.bal");
         int indx = 0;
         validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 28, 16);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'float'", 30, 13);
@@ -102,7 +103,80 @@ public class VariableReturnTypeTest {
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 199, 13);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 200, 13);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 201, 13);
-
+        validateError(errors, indx++, "incompatible types: expected 'future<int>', found 'future<(int|string|error)>'",
+                      209, 21);
+        validateError(errors, indx++,
+                      "incompatible types: expected '(int|string|error)', found 'future<(int|string|error)>'",
+                      210, 26);
+        validateError(errors, indx++,
+                      "incompatible types: expected 'future<(int|string)>', found 'future<(int|string|error)>'",
+                      211, 28);
+        validateError(errors, indx++, "incompatible types: expected 'future<int>', found 'future<(int|error)>'",
+                      213, 21);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'future<(string|error)>'",
+                      214, 16);
+        validateError(errors, indx++,
+                      "incompatible types: expected 'future<(string|error)>', found 'future<(int|error)>'",
+                      215, 30);
+        validateError(errors, indx++, "incompatible types: expected '(int|error)', found '(string|error)'", 246, 19);
+        validateError(errors, indx++, "incompatible types: expected '(string|error)', found '(int|error)'", 249, 22);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(j|boolean)'", 252, 24);
+        validateError(errors, indx++, "incompatible types: expected '([int,typedesc<(int|string)>,int...]|record {| " +
+                "int i; typedesc<(int|string)> j; |})', found '[int]'", 252, 44);
+        validateError(errors, indx++, "missing required parameter 'j' in call to 'getWithRestParam()'", 254, 24);
+        validateError(errors, indx++, "incompatible types: expected '(int|boolean)', found '(string|boolean)'", 257,
+                      21);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(int|boolean)'", 260,
+                      24);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(j|k|boolean)'", 263,
+                      24);
+        validateError(errors, indx++, "incompatible types: expected '([typedesc<(int|string)>,typedesc<int>," +
+                "typedesc<int>...]|record {| typedesc<(int|string)> j; typedesc<int> k; |})', found " +
+                "'[typedesc<string>]'", 263, 55);
+        validateError(errors, indx++, "incompatible types: expected '(int|error)', found '(string|error)'", 268, 19);
+        validateError(errors, indx++, "incompatible types: expected '(int|error)', found '(y|error)'", 271, 19);
+        validateError(errors, indx++, "incompatible types: expected '([typedesc<(int|string)>]|record {| typedesc<" +
+                "(int|string)> y; |})', found 'typedesc<int>[]'", 271, 39);
+        validateError(errors, indx++, "incompatible types: expected '([(int|string),typedesc<(int|string)>]|record {|" +
+                " (int|string) x; typedesc<(int|string)> y; |})', found 'int[1]'", 274, 29);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', " +
+                "found '(string|int|boolean)'", 277, 24);
+        validateError(errors, indx++, "incompatible types: expected '(byte|boolean)', found '(j|k|boolean)'", 280, 22);
+        validateError(errors, indx++, "incompatible types: expected '([typedesc<(int|string)>,typedesc<int>," +
+                "typedesc<int>...]|record {| typedesc<(int|string)> j; typedesc<int> k; |})', found " +
+                "'typedesc<byte>[1]'", 280, 53);
+        validateError(errors, indx++, "incompatible types: expected '(string|error)', found '(int|error)'", 301, 22);
+        validateError(errors, indx++, "incompatible types: expected '(int|error)', found '(string|error)'", 304, 19);
+        validateError(errors, indx++, "incompatible types: expected '(int|boolean)', found '(string|boolean)'", 307,
+                      21);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(j|boolean)'", 310, 24);
+        validateError(errors, indx++, "incompatible types: expected '([typedesc<(int|string)>,int...]|record {| " +
+                "typedesc<(int|string)> j; |})', found 'record {| |} & readonly'", 310, 47);
+        validateError(errors, indx++, "incompatible types: expected '(string|boolean)', found '(string|int|boolean)'",
+                      313, 24);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 338, 14);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 339, 17);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 340, 17);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 341, 17);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 342, 14);
+        validateError(errors, indx++, "undefined defaultable parameter 'targetTypes'", 343, 74);
+        validateError(errors, indx++, "incompatible types: expected 'int', found '(string|error)'", 345, 14);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 346, 17);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 347, 17);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(int|error)'", 348, 18);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 349, 18);
+        validateError(errors, indx++, "missing required parameter 'i' in call to 'calculate()'", 350, 15);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 351, 18);
+        validateError(errors, indx++, "incompatible types: expected 'int', found '(int|error)'", 352, 15);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 353, 18);
+        validateError(errors, indx++, "incompatible types: expected 'string', found '(string|error)'", 354, 18);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 357, 15);
+        validateError(errors, indx++, "missing required parameter 'targetType' in call to 'post()'", 358, 18);
+        validateError(errors, indx++, "missing required parameter 'targetType' in call to 'post()'", 359, 18);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 360, 18);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 361, 15);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 362, 15);
+        validateError(errors, indx++, "incompatible types: expected 'string', found 'int'", 363, 18);
         Assert.assertEquals(errors.getErrorCount(), indx);
     }
 
@@ -141,7 +215,7 @@ public class VariableReturnTypeTest {
                 {"testSimpleTypes"},
                 {"testUnionTypes"},
                 {"testArrayTypes"},
-//                {"testXML"},
+                {"testXML"},
                 {"testStream"},
                 {"testTable"},
                 {"testFunctionPointers"},
@@ -151,7 +225,12 @@ public class VariableReturnTypeTest {
                 {"testObjectExternFunctions"},
                 {"testDependentlyTypedMethodsWithObjectTypeInclusion"},
                 {"testSubtypingWithDependentlyTypedMethods"},
-                {"testDependentlyTypedFunctionWithDefaultableParams"}
+                {"testDependentlyTypedFunctionWithDefaultableParams"},
+                {"testStartActionWithDependentlyTypedFunctions"},
+                {"testArgsForDependentlyTypedFunctionViaTupleRestArg"},
+                {"testArgsForDependentlyTypedFunctionViaArrayRestArg"},
+                {"testArgsForDependentlyTypedFunctionViaRecordRestArg"},
+                {"testDependentlyTypedFunctionWithIncludedRecordParam"}
         };
     }
 
