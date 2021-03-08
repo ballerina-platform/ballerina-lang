@@ -5163,23 +5163,23 @@ public class TypeChecker extends BLangNodeVisitor {
                         fieldEntry.getKey(), fieldEntry.getValue().type, argField.type);
             }
         }
-        if (recordType.fields.size() > checkedFieldNames.size()) {
-            for (Map.Entry<String, BField> fieldEntry : recordType.fields.entrySet()) {
-                if (!checkedFieldNames.contains(fieldEntry.getKey())) {
-                    BField field = fieldEntry.getValue();
-                    if (targetErrorDetailRec.sealed) {
-                        dlog.error(errorConstructorExpr.pos,
-                                DiagnosticErrorCode.UNKNOWN_DETAIL_ARG_TO_CLOSED_ERROR_DETAIL_REC,
-                                fieldEntry.getKey(), targetErrorDetailRec);
-                        detailedErrorReported = true;
-                    } else if (!types.isAssignable(field.type, targetErrorDetailRec.restFieldType)) {
-                        dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_REST_ARG_TYPE,
-                                fieldEntry.getKey(), targetErrorDetailRec);
-                        detailedErrorReported = true;
-                    }
+
+        for (Map.Entry<String, BField> fieldEntry : recordType.fields.entrySet()) {
+            if (!checkedFieldNames.contains(fieldEntry.getKey())) {
+                BField field = fieldEntry.getValue();
+                if (targetErrorDetailRec.sealed) {
+                    dlog.error(errorConstructorExpr.pos,
+                            DiagnosticErrorCode.UNKNOWN_DETAIL_ARG_TO_CLOSED_ERROR_DETAIL_REC,
+                            fieldEntry.getKey(), targetErrorDetailRec);
+                    detailedErrorReported = true;
+                } else if (!types.isAssignable(field.type, targetErrorDetailRec.restFieldType)) {
+                    dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_REST_ARG_TYPE,
+                            fieldEntry.getKey(), targetErrorDetailRec);
+                    detailedErrorReported = true;
                 }
             }
         }
+
         if (!detailedErrorReported) {
             dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.INVALID_ERROR_CONSTRUCTOR_DETAIL,
                     errorConstructorExpr);
