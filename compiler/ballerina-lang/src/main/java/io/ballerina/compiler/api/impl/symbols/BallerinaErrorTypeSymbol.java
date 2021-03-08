@@ -98,7 +98,7 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
         }
 
         ModuleID moduleID = this.getModule().get().id();
-        if ("lang.annotations".equals(moduleID.moduleName()) && "ballerina".equals(moduleID.orgName())) {
+        if (moduleID.moduleName().startsWith("lang") && "ballerina".equals(moduleID.orgName())) {
             this.signature = definitionName;
         } else {
             this.signature = moduleID.orgName() + Names.ORG_NAME_SEPARATOR + moduleID.moduleName() +
