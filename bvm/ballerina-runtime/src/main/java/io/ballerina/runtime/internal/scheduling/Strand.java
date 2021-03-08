@@ -102,6 +102,11 @@ public class Strand {
         //TODO: improve by using a copy on write map #26710
         if (properties != null) {
             this.globalProps = properties;
+            Object currentContext = globalProps.get(CURRENT_TRANSACTIONAL_CONTEXT_PROPERTY);
+            if (currentContext != null) {
+                this.trxContexts.push(currentTrxContext);
+                this.currentTrxContext = createTrxContextBranch((TransactionLocalContext)currentContext, name);
+            }
         } else if (parent != null) {
             this.globalProps = new HashMap<>(parent.globalProps);
         } else {
@@ -126,6 +131,7 @@ public class Strand {
                         currentTrxContext.getInfoRecord());
         String currentTrxBlockId = currentTrxContext.getCurrentTransactionBlockId();
         trxCtx.addCurrentTransactionBlockId(currentTrxBlockId + "_" + strandName);
+        globalProps.putIfAbsent(CURRENT_TRANSACTIONAL_CONTEXT_PROPERTY, trxCtx);
         return trxCtx;
     }
 
