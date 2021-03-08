@@ -38,4 +38,14 @@ public abstract class CompilerPlugin {
      * @param pluginContext the context to which compiler plugin tasks can be added
      */
     public abstract void init(CompilerPluginContext pluginContext);
+
+    @Override
+    public final int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }
