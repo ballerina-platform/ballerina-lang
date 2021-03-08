@@ -240,7 +240,8 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i++,
                                   "incompatible types: expected 'int', found '(0|1|2|S1|S2)'", 157, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "invalid list member access expression: value space '(3|4|5|6)' out of range", 158, 19);
+                                  "invalid list member access expression: value space '(3|4|5|6)' " +
+                                          "out of range", 158, 19);
         BAssertUtil.validateError(resultNegative, i, "list index out of range: index: '-1'", 165, 19);
     }
 

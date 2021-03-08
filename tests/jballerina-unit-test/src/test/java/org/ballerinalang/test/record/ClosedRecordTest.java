@@ -265,8 +265,8 @@ public class ClosedRecordTest {
                 18, 27);
         BAssertUtil.validateError(result, indx++, "missing error detail arg for error detail field 'message'",
                 18, 27);
-        BAssertUtil.validateError(result, indx, "unknown error detail arg 'bar' passed to closed error detail type 'FooErrData'",
-                18, 27);
+        BAssertUtil.validateError(result, indx, "unknown error detail arg 'bar' passed to closed error " +
+                "detail type 'FooErrData'", 18, 27);
     }
 
     @Test
