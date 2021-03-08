@@ -75,6 +75,11 @@ function testRuntimeCastError() {
 function testTupleTypes() {
     [int, Person, float] tup1 = getTuple(int, Person);
     assert(<[int, Person, float]>[150, expPerson, 12.34], tup1);
+
+    [int, Person, boolean...] tup2 = getTupleWithRestDesc(int, Person);
+    assert(<[int, Person, boolean...]>[150, expPerson, true, true], tup2);
+    tup2[4] = false;
+    assert(5, tup2.length());
 }
 
 function testArrayTypes() {
@@ -199,7 +204,6 @@ function testFunctionAssignment() {
     assert("incompatible types: 'string' cannot be cast to 'int'", <string> checkpanic err.detail()["message"]);
 }
 
-
 // Interop functions
 function getValue(typedesc<int|float|decimal|string|boolean> td = <>) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -224,6 +228,10 @@ function getTuple(typedesc<int|string> td1, typedesc<record {}> td2, typedesc<fl
     name: "getTuple",
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
+
+function getTupleWithRestDesc(typedesc<int|string> td1, typedesc<record {}> td2, typedesc<float|boolean> td3 = <>)
+        returns [td1, td2, td3...] =
+            @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType" } external;
 
 function getArray(typedesc<anydata> td = <>) returns td[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -281,8 +289,6 @@ function getValue2(typedesc<int|string> aTypeVar = <>) returns aTypeVar = @java:
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
 
-
-// Util functions
 function assert(anydata expected, anydata actual) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

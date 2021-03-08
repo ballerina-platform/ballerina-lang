@@ -152,6 +152,25 @@ public class VariableReturnType {
         return arr;
     }
 
+    public static ArrayValue getTupleWithRestDesc(BTypedesc td1, BTypedesc td2, BTypedesc td3) {
+        List<Type> memTypes = new ArrayList<>();
+        Type memType1 = td1.getDescribingType();
+        memTypes.add(memType1);
+        Type memType2 = td2.getDescribingType();
+        memTypes.add(memType2);
+        Type restType = td3.getDescribingType();
+        BTupleType tupleType = new BTupleType(memTypes, restType, 0, false);
+
+        ArrayValue arr = new TupleValueImpl(tupleType);
+        arr.add(0, getValue(memType1));
+        arr.add(1, getValue(memType2));
+        Object value = getValue(restType);
+        arr.add(2, value);
+        arr.add(3, value);
+
+        return arr;
+    }
+
     public static MapValue getRecord(BTypedesc td) {
         BRecordType recType = (BRecordType) td.getDescribingType();
         MapValueImpl person = new MapValueImpl(recType);
