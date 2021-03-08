@@ -26,17 +26,14 @@ import io.ballerina.toml.syntax.tree.SyntaxKind;
  *
  * @since 2.0.0
  */
-public abstract class CodeAnalysisContext {
+public interface CodeAnalysisContext {
 
     /**
      * Add a code analysis task to be triggered once the compilation is completed.
      *
      * @param analysisTask the analysis task to be executed
      */
-    public void addCompilationAnalysisTask(AnalysisTask<CompilationAnalysisContext> analysisTask) {
-        throw new UnsupportedOperationException();
-
-    }
+    void addCompilationAnalysisTask(AnalysisTask<CompilationAnalysisContext> analysisTask);
 
     /**
      * Add a code analysis task to be triggered once the semantic analysis of a syntax node with
@@ -45,8 +42,5 @@ public abstract class CodeAnalysisContext {
      * @param analysisTask the analysis task to be executed
      * @param syntaxKinds  the list of {@code SyntaxKind}s of syntax nodes on which the analysis task is triggered
      */
-    public void addSyntaxNodeAnalysisTask(AnalysisTask<SyntaxNodeAnalysisContext> analysisTask,
-                                          SyntaxKind... syntaxKinds) {
-        throw new UnsupportedOperationException();
-    }
+    void addSyntaxNodeAnalysisTask(AnalysisTask<SyntaxNodeAnalysisContext> analysisTask, SyntaxKind... syntaxKinds);
 }
