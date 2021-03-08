@@ -1207,6 +1207,37 @@ types:
         type: operand
       - id: lhs_operand
         type: operand
+      - id: init_values_count
+        type: s4
+      - id: init_values
+        type: mapping_constructor
+        repeat: expr
+        repeat-expr: init_values_count
+  mapping_constructor:
+    seq:
+      - id: mapping_constructor_kind
+        type: u1
+        enum: mapping_constructor_body_kind
+      - id: mapping_constructor_body
+        type:
+          switch-on: mapping_constructor_kind
+          cases:
+            'mapping_constructor_body_kind::mapping_constructor_spread_field_kind': mapping_constructor_spread_field_body
+            'mapping_constructor_body_kind::mapping_constructor_key_value_kind': mapping_constructor_key_value_body
+    enums:
+      mapping_constructor_body_kind:
+        0: mapping_constructor_spread_field_kind
+        1: mapping_constructor_key_value_kind
+  mapping_constructor_key_value_body:
+    seq:
+      - id: key_operand
+        type: operand
+      - id: value_operand
+        type: operand
+  mapping_constructor_spread_field_body:
+    seq:
+      - id: expr_operand
+        type: operand
   instruction_type_cast:
     seq:
       - id: lhs_operand
@@ -1225,6 +1256,12 @@ types:
         type: operand
       - id: size_operand
         type: operand
+      - id: init_values_count
+        type: s4
+      - id: init_values
+        type: operand
+        repeat: expr
+        repeat-expr: init_values_count
   instruction_branch:
     seq:
       - id: branch_operand

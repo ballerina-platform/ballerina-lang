@@ -2970,7 +2970,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
                 type.tsymbol);
-        if (funcSymbol == symTable.notFoundSymbol) {
+        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.kind != SymbolKind.FUNCTION) {
             BSymbol langLibMethodSymbol = getLangLibMethod(iExpr, type);
             if (langLibMethodSymbol == symTable.notFoundSymbol) {
                 dlog.error(iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD, invocationIdentifier, type);

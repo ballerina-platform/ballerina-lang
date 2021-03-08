@@ -16735,7 +16735,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Reach here for something like: "{foo:bar". This could be anything.
-        STNode qualifiedNameRef = STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondNameRef);
+        STNode qualifiedNameRef = STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
         switch (peek().kind) {
             case COMMA_TOKEN:
                 // {foo:bar, --> map-literal or binding pattern
@@ -16752,7 +16752,7 @@ public class BallerinaParser extends AbstractParser {
             case OPEN_BRACKET_TOKEN:
                 // "{ foo:bar[" Can be (TBP) or (map-literal with member-access) or (statement starts with
                 // member-access)
-                return parseMemberRhsInStmtStartWithBrace(identifier, colon, secondNameRef);
+                return parseMemberRhsInStmtStartWithBrace(identifier, colon, secondIdentifier, secondNameRef);
             case QUESTION_MARK_TOKEN:
                 // var-decl
                 STNode typeDesc = parseComplexTypeDescriptor(qualifiedNameRef,
@@ -16768,7 +16768,7 @@ public class BallerinaParser extends AbstractParser {
             case PIPE_TOKEN:
             case BITWISE_AND_TOKEN:
             default:
-                return parseMemberWithExprInRhs(identifier, colon, secondNameRef, secondNameRef);
+                return parseMemberWithExprInRhs(identifier, colon, secondIdentifier, secondNameRef);
         }
     }
 
@@ -17162,9 +17162,10 @@ public class BallerinaParser extends AbstractParser {
         return parseStmtStartsWithTypedBPOrExprRhs(null, lbpOrListCons);
     }
 
-    private STNode parseMemberRhsInStmtStartWithBrace(STNode identifier, STNode colon, STNode secondIdentifier) {
+    private STNode parseMemberRhsInStmtStartWithBrace(STNode identifier, STNode colon, STNode secondIdentifier,
+                                                      STNode secondNameRef) {
         STNode typedBPOrExpr =
-                parseTypedBindingPatternOrMemberAccess(secondIdentifier, false, true, ParserRuleContext.AMBIGUOUS_STMT);
+                parseTypedBindingPatternOrMemberAccess(secondNameRef, false, true, ParserRuleContext.AMBIGUOUS_STMT);
         if (isExpression(typedBPOrExpr.kind)) {
             return parseMemberWithExprInRhs(identifier, colon, secondIdentifier, typedBPOrExpr);
         }
@@ -17179,10 +17180,9 @@ public class BallerinaParser extends AbstractParser {
         // the rest of the type-desc.
         STTypedBindingPatternNode typedBP = (STTypedBindingPatternNode) typedBPOrExpr;
         STNode qualifiedNameRef = STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
-        STNode typeDesc = mergeQualifiedNameWithTypeDesc(qualifiedNameRef, typedBP.typeDescriptor);
-
-        STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(typeDesc, typedBP.bindingPattern);
-        return parseVarDeclRhs(annots, varDeclQualifiers, typedBindingPattern, false);
+        STNode newTypeDesc = mergeQualifiedNameWithTypeDesc(qualifiedNameRef, typedBP.typeDescriptor);
+        STNode newTypeBP = STNodeFactory.createTypedBindingPatternNode(newTypeDesc, typedBP.bindingPattern);
+        return parseVarDeclRhs(annots, varDeclQualifiers, newTypeBP, false);
     }
 
     /**
@@ -17398,7 +17398,7 @@ public class BallerinaParser extends AbstractParser {
                 STQualifiedNameReferenceNode qualifiedName = (STQualifiedNameReferenceNode) ambiguousNode;
                 STNode fieldName = STNodeFactory.createSimpleNameReferenceNode(qualifiedName.modulePrefix);
                 return STNodeFactory.createFieldBindingPatternFullNode(fieldName, qualifiedName.colon,
-                        getBindingPattern(qualifiedName.identifier));
+                        createCaptureOrWildcardBP(qualifiedName.identifier));
             case BRACKETED_LIST:
             case LIST_BP_OR_LIST_CONSTRUCTOR:
                 STAmbiguousCollectionNode innerList = (STAmbiguousCollectionNode) ambiguousNode;
@@ -17506,6 +17506,15 @@ public class BallerinaParser extends AbstractParser {
                 STSpecificFieldNode field = (STSpecificFieldNode) ambiguousNode;
                 return STNodeFactory.createSpecificFieldNode(field.readonlyKeyword, field.fieldName, field.colon,
                         getExpression(field.valueExpr));
+            case ERROR_CONSTRUCTOR:
+                STErrorConstructorExpressionNode errorCons = (STErrorConstructorExpressionNode) ambiguousNode;
+                // We have skipped the validation top of function args when ambiguous. Ref: parseErrorConstructorExpr
+                // Hence, do the validation here.
+                STNode errorArgs = getErrorArgList(errorCons.arguments);
+                return STNodeFactory.createErrorConstructorExpressionNode(errorCons.errorKeyword,
+                        errorCons.typeReference, errorCons.openParenToken, errorArgs, errorCons.closeParenToken);
+            case IDENTIFIER_TOKEN:
+                return STNodeFactory.createSimpleNameReferenceNode(ambiguousNode);
             case SIMPLE_NAME_REFERENCE:
             case QUALIFIED_NAME_REFERENCE:
             default:

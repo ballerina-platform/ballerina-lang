@@ -16,12 +16,14 @@
  */
 package org.ballerinalang.test.annotations;
 
+import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangExternalFunctionBody;
@@ -366,5 +368,90 @@ public class AnnotationAttachmentTest {
         element = listConstructorExpr.exprs.get(1);
         Assert.assertEquals(element.getKind(), NodeKind.LITERAL);
         Assert.assertEquals(((BLangLiteral) element).value, "test");
+    }
+
+    @Test
+    public void testAnnotWithEmptyMapConstructorOnType() {
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                compileResult.getAST().getTypeDefinitions().get(9).getAnnotationAttachments();
+        validateEmptyMapConstructorExprInAnnot(attachments, "v16", "A");
+    }
+
+    @Test
+    public void testAnnotWithEmptyMapConstructorOnFunction() {
+        BLangFunction function = getFunction("myFunction1");
+        validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v17", "A");
+        validateEmptyMapConstructorExprInAnnot(function.requiredParams.get(0).annAttachments, "v19", "A");
+    }
+
+    @Test
+    public void testAnnotWithEmptyMapConstructorOnService() {
+        List<BLangAnnotationAttachment> attachments = (List<BLangAnnotationAttachment>)
+                compileResult.getAST().getClassDefinitions().stream()
+                        .filter(classNode -> classNode.getName().getValue().equals("$anonType$_7"))
+                        .findFirst()
+                        .get().getAnnotationAttachments();
+        validateEmptyMapConstructorExprInAnnot(attachments, "v20", "A");
+    }
+
+    @Test
+    public void testAnnotWithEmptyMapConstructorOnResource() {
+        BLangFunction function = getFunction("$anonType$_7.$get$res");
+        validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v18", "A");
+        validateEmptyMapConstructorExprInAnnot(function.requiredParams.get(0).annAttachments, "v19", "A");
+    }
+
+    @Test
+    public void testAnnotWithEmptyMapConstructorOnFunction2() {
+        BLangFunction function = getFunction("myFunction2");
+        validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v21", "map");
+        validateEmptyMapConstructorExprInAnnot(function.requiredParams.get(0).annAttachments, "v22", "map");
+    }
+
+    @Test
+    public void testAnnotWithEmptyMapConstructorOnFunction3() {
+        BLangFunction function = getFunction("myFunction3");
+        validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v23", "A");
+    }
+
+    @Test
+    public void testAnnotWithEmptyMapConstructorOnFunction4() {
+        BLangFunction function = getFunction("myFunction4");
+        validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v17", "A");
+        validateEmptyMapConstructorExprInAnnot(function.requiredParams.get(0).annAttachments, "v19", "A");
+    }
+
+    @Test
+    public void testAnnotWithEmptyMapConstructorOnFunction5() {
+        BLangFunction function = getFunction("myFunction5");
+        validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v23", "A");
+    }
+
+    @Test
+    public void testAnnotWithEmptyMapConstructorOnFunction6() {
+        BLangFunction function = getFunction("myFunction6");
+        validateEmptyMapConstructorExprInAnnot(function.annAttachments, "v24", "C");
+    }
+
+    public void validateEmptyMapConstructorExprInAnnot(List<BLangAnnotationAttachment> attachments,
+                                                       String annotationName, String typeName) {
+        int i = 0;
+        for (BLangAnnotationAttachment attachment : attachments) {
+            Assert.assertEquals(attachment.annotationName.getValue(), annotationName);
+            BLangExpression expression = ((BLangInvocation) attachment.expr).expr;
+            Assert.assertEquals(expression.getKind(), NodeKind.RECORD_LITERAL_EXPR);
+            BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+            Assert.assertEquals(recordLiteral.getFields().size(), 0);
+            Assert.assertTrue(recordLiteral.type.tag == TypeTags.RECORD_TYPE_TAG
+                    || recordLiteral.type.tag == TypeTags.MAP_TAG);
+            if (recordLiteral.type.tag == TypeTags.RECORD_TYPE_TAG) {
+                Assert.assertEquals(recordLiteral.type.tsymbol.name.value, typeName);
+            } else {
+                Assert.assertEquals(recordLiteral.type.tag, TypeTags.MAP_TAG);
+                Assert.assertEquals(((BMapType) recordLiteral.type).constraint.tag, TypeTags.INT_TAG);
+            }
+            i++;
+        }
+        Assert.assertEquals(attachments.size(), i);
     }
 }

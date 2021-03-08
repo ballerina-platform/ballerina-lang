@@ -57,6 +57,9 @@ public class OpenRecordNegativeTest {
         validateError(result, indx++,
                       "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
                       59, 26);
+        validateError(result, indx++,
+                "undefined field 'toValue' in record 'Teacher'",
+                68, 27);
         assertEquals(result.getErrorCount(), indx);
     }
 
