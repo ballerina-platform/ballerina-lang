@@ -1981,13 +1981,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     private void addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
-        BType type = variable.type;
-        if (type == null) {
-            // Type can be null when the rest binding pattern is `..._`.
-            return;
-        }
-
-        BType typeIntersection = types.getTypeIntersection(type, symTable.errorType, env);
+        BType typeIntersection = types.getTypeIntersection(variable.type, symTable.errorType, env);
         if (typeIntersection != null &&
                 typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
             unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
