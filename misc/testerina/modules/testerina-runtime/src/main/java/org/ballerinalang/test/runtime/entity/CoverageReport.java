@@ -69,7 +69,6 @@ public class CoverageReport {
 
     private final String title;
     private final Path coverageDir;
-    private String includesInCoverage;
     private Path executionDataFile;
     private Path classesDirectory;
     private ExecFileLoader execFileLoader;
@@ -111,18 +110,19 @@ public class CoverageReport {
         }
 
         if (!filteredPathList.isEmpty()) {
-            addCompiledSources(filteredPathList, orgName, packageName, version, includesInCoverage);
+            addCompiledSources(filteredPathList, orgName, packageName, version, false,
+                    includesInCoverage);
             execFileLoader.load(executionDataFile.toFile());
             final CoverageBuilder coverageBuilder = analyzeStructure();
-            // Create testerina coverage report
+            // Create Testerina coverage report
             createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
             // Add additional dependency jars for Coverage XML if included
             if (includesInCoverage != null) {
                 addCompiledSources(getDependencyJarList(jBallerinaBackend), orgName, packageName, version,
-                        includesInCoverage);
+                       true, includesInCoverage);
                 execFileLoader.load(executionDataFile.toFile());
                 final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
-                // Create XML coverage report for Codecov
+                // Create XML coverage report for code coverage
                 createXMLReport(getPartialCoverageModifiedBundle(xmlCoverageBuilder));
             } else {
                 createXMLReport(getPartialCoverageModifiedBundle(coverageBuilder));
@@ -135,7 +135,7 @@ public class CoverageReport {
     }
 
     private void addCompiledSources(List<Path> pathList, String orgName, String packageName, String version,
-                                    String includesInCoverage) throws
+                                    boolean enableIncludesFilter, String includesInCoverage) throws
             IOException {
         if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
@@ -143,7 +143,7 @@ public class CoverageReport {
                 try {
                     // Creates coverage folder with each class per module
                     CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir, orgName, packageName, version,
-                            includesInCoverage);
+                            enableIncludesFilter, includesInCoverage);
                 } catch (NoSuchFileException e) {
                     if (Files.exists(coverageDir.resolve(BIN_DIR))) {
                         CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());

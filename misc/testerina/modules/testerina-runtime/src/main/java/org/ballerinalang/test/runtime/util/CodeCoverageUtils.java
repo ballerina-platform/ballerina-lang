@@ -61,7 +61,8 @@ public class CodeCoverageUtils {
      * @throws NoSuchFileException if source file doesnt exist
      */
     public static void unzipCompiledSource(Path source, Path destination, String orgName, String moduleName,
-                                           String version, String includesInCoverage) throws NoSuchFileException {
+                                           String version, boolean enableIncludesFilter,
+                                           String includesInCoverage) throws NoSuchFileException {
         String destJarDir = destination.resolve(source.getFileName()).toString();
 
         try (JarFile jarFile = new JarFile(source.toFile())) {
@@ -69,7 +70,8 @@ public class CodeCoverageUtils {
             while (enu.hasMoreElements()) {
                 JarEntry entry = enu.nextElement();
                 File file = new File(destJarDir, entry.getName());
-                if (isRequiredFile(entry.getName(), orgName, moduleName, version, includesInCoverage)) {
+                if (isRequiredFile(entry.getName(), orgName, moduleName, version, enableIncludesFilter,
+                        includesInCoverage)) {
                     if (!file.exists()) {
                         Files.createDirectories(file.getParentFile().toPath());
                     }
@@ -161,7 +163,7 @@ public class CodeCoverageUtils {
     }
 
     private static boolean isRequiredFile(String path, String orgName, String moduleName, String version,
-                                          String includesInCoverage) {
+                                          boolean enableIncludesFilter, String includesInCoverage) {
         if (path.contains("$_init") || path.contains("META-INF") || path.contains("/tests/")) {
             return false;
         } else if (path.contains("Frame") && path.contains("module")) {
@@ -173,10 +175,17 @@ public class CodeCoverageUtils {
             return false;
         } else if (path.contains("module-info.class")) {
             return false;
-        } else if (!isIncluded(path, includesInCoverage)) {
+        } else if (enableIncludesFilter && !isIncluded(path, includesInCoverage)) {
             return false;
         }
         return true;
+    }
+
+    private static String normalizeRegexPattern(String pattern) {
+        if (TesterinaConstants.WILDCARD.equals(pattern)) {
+            pattern = TesterinaConstants.DOT.concat(pattern);
+        }
+        return pattern;
     }
 
     private static boolean isIncluded(String path, String includesInCoverage) {
@@ -185,7 +194,7 @@ public class CodeCoverageUtils {
             List<String> includedPackages = Arrays.asList(includesInCoverage.split(":"));
             for (String packageName : includedPackages) {
                 packageName = packageName.replace(".", "/");
-                Pattern pattern = Pattern.compile(packageName);
+                Pattern pattern = Pattern.compile(normalizeRegexPattern(packageName));
                 Matcher matcherStr = pattern.matcher(path);
                 if (matcherStr.find()) {
                     isIncluded = true;
