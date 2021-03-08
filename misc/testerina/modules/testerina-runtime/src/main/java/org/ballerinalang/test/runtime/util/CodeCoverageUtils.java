@@ -181,15 +181,16 @@ public class CodeCoverageUtils {
 
     private static boolean isIncluded(String path, String includesInCoverage) {
         boolean isIncluded = false;
-        //logic
-        List<String> includedPackages = Arrays.asList(includesInCoverage.split(":"));
-        for (String packageName : includedPackages) {
-            packageName = packageName.replace(".", "/");
-            Pattern pattern = Pattern.compile(packageName);
-            Matcher matcherStr = pattern.matcher(path);
-            if (matcherStr.find()) {
-                isIncluded = true;
-                break;
+        if (includesInCoverage != null) {
+            List<String> includedPackages = Arrays.asList(includesInCoverage.split(":"));
+            for (String packageName : includedPackages) {
+                packageName = packageName.replace(".", "/");
+                Pattern pattern = Pattern.compile(packageName);
+                Matcher matcherStr = pattern.matcher(path);
+                if (matcherStr.find()) {
+                    isIncluded = true;
+                    break;
+                }
             }
         }
         return isIncluded;

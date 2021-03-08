@@ -116,13 +116,17 @@ public class CoverageReport {
             final CoverageBuilder coverageBuilder = analyzeStructure();
             // Create testerina coverage report
             createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
-            // Add additional dependency jars for Coverage XML
-            addCompiledSources(getDependencyJarList(jBallerinaBackend), orgName, packageName, version,
-                    includesInCoverage);
-            execFileLoader.load(executionDataFile.toFile());
-            final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
-            // Create XML coverage report for Codecov
-            createXMLReport(getPartialCoverageModifiedBundle(xmlCoverageBuilder));
+            // Add additional dependency jars for Coverage XML if included
+            if (includesInCoverage != null) {
+                addCompiledSources(getDependencyJarList(jBallerinaBackend), orgName, packageName, version,
+                        includesInCoverage);
+                execFileLoader.load(executionDataFile.toFile());
+                final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
+                // Create XML coverage report for Codecov
+                createXMLReport(getPartialCoverageModifiedBundle(xmlCoverageBuilder));
+            } else {
+                createXMLReport(getPartialCoverageModifiedBundle(coverageBuilder));
+            }
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
         } else {
             String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
