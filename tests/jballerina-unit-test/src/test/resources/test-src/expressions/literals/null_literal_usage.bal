@@ -23,7 +23,7 @@ function testNullAssignment() returns json {
 
 function testNullInField() returns string? {
     json j = {name:"John", age:25, location:null};
-    string? l = j.location == null ? () : <string> checkpanic j.location;
+    string? l = j.location === null ? () : <string> checkpanic j.location;
     return l;
 }
 
@@ -74,7 +74,7 @@ function testNullWithTypeGuard() returns boolean {
     json|xml val = j;
 
     if (val is json) {
-        if (val.location == null) {
+        if (val.location === null) {
             return true;
         }
     }
@@ -101,6 +101,6 @@ function testNullInArray() returns json {
 
 function testNullInNestedTernaryExpr() returns json {
     json j1 = {name:"John", age:25, location:null};
-    json j2 = (j1.location == null ? "then" : "else") == "" ? null : null;
+    json j2 = (j1.location === null ? "then" : "else") == "" ? null : null;
     return j2;
 }

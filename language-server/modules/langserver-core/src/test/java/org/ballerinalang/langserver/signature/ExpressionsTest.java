@@ -46,9 +46,7 @@ public class ExpressionsTest extends AbstractSignatureHelpTest {
         return Arrays.asList("exprTableConstructor.json",
                 "exprXMLAttributes.json",
                 "exprFunctionConstructorDirect.json",
-                "exprNewImplicit.json",
-                "exprFunctionConstructorIndirect.json",
-                "exprNewExplicit.json");
+                "exprFunctionConstructorIndirect.json");
     }
 
     @Override

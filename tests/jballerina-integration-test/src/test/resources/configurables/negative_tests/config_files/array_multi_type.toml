@@ -1,0 +1,4 @@
+[testOrg.main]
+intVar = 4
+stringVar = "string"
+intArr = [11, "test", 33.34]

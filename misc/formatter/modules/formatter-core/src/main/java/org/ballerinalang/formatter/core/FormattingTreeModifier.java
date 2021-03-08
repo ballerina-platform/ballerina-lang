@@ -24,6 +24,7 @@ import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.AsyncSendActionNode;
+import io.ballerina.compiler.syntax.tree.BallerinaNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
 import io.ballerina.compiler.syntax.tree.BinaryExpressionNode;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
@@ -44,7 +45,6 @@ import io.ballerina.compiler.syntax.tree.ContinueStatementNode;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.DistinctTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.DoStatementNode;
-import io.ballerina.compiler.syntax.tree.DocumentationReferenceNode;
 import io.ballerina.compiler.syntax.tree.DoubleGTTokenNode;
 import io.ballerina.compiler.syntax.tree.ElseBlockNode;
 import io.ballerina.compiler.syntax.tree.EnumDeclarationNode;
@@ -86,6 +86,7 @@ import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.InlineCodeReferenceNode;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
@@ -106,6 +107,8 @@ import io.ballerina.compiler.syntax.tree.MappingBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.MappingMatchPatternNode;
+import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
+import io.ballerina.compiler.syntax.tree.MarkdownCodeLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationLineNode;
 import io.ballerina.compiler.syntax.tree.MarkdownDocumentationNode;
 import io.ballerina.compiler.syntax.tree.MarkdownParameterDocumentationLineNode;
@@ -1287,6 +1290,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ModuleVariableDeclarationNode transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         MetadataNode metadata = formatNode(moduleVariableDeclarationNode.metadata().orElse(null), 0, 1);
+        Token visibilityQual = formatToken(moduleVariableDeclarationNode.visibilityQualifier().orElse(null), 1, 0);
         NodeList<Token> qualifierList = formatNodeList(moduleVariableDeclarationNode.qualifiers(), 1, 0, 1, 0);
         TypedBindingPatternNode typedBindingPatternNode =
                 formatNode(moduleVariableDeclarationNode.typedBindingPattern(),
@@ -1303,6 +1307,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return moduleVariableDeclarationNode.modify()
                 .withMetadata(metadata)
+                .withVisibilityQualifier(visibilityQual)
                 .withQualifiers(qualifierList)
                 .withTypedBindingPattern(typedBindingPatternNode)
                 .withEqualsToken(equalsToken)
@@ -1633,11 +1638,7 @@ public class FormattingTreeModifier extends TreeModifier {
         if (markdownDocumentationLineNode.documentElements().isEmpty()) {
             hashToken = formatToken(markdownDocumentationLineNode.hashToken(), env.trailingWS, env.trailingNL);
         } else {
-            if (markdownDocumentationLineNode.documentElements().get(0).kind() == SyntaxKind.DEPRECATION_LITERAL) {
-                hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 1, 0);
-            } else {
-                hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 0, 0);
-            }
+            hashToken = formatToken(markdownDocumentationLineNode.hashToken(), 1, 0);
         }
 
         NodeList<Node> documentElements = formatNodeList(markdownDocumentationLineNode.documentElements(),
@@ -1654,7 +1655,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token hashToken = formatToken(markdownParameterDocumentationLineNode.hashToken(), 1, 0);
         Token plusToken = formatToken(markdownParameterDocumentationLineNode.plusToken(), 1, 0);
         Token parameterName = formatToken(markdownParameterDocumentationLineNode.parameterName(), 1, 0);
-        Token minusToken = formatToken(markdownParameterDocumentationLineNode.minusToken(), 0, 0);
+        Token minusToken = formatToken(markdownParameterDocumentationLineNode.minusToken(), 1, 0);
         NodeList<Node> documentElements = formatNodeList(markdownParameterDocumentationLineNode.documentElements(),
                 0, 0, env.trailingWS, env.trailingNL);
 
@@ -1668,17 +1669,63 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     @Override
-    public DocumentationReferenceNode transform(DocumentationReferenceNode documentationReferenceNode) {
-        Token referenceType = formatToken(documentationReferenceNode.referenceType().orElse(null), 1, 0);
-        Token startBacktick = formatToken(documentationReferenceNode.startBacktick(), 0, 0);
-        Node backtickContent = formatNode(documentationReferenceNode.backtickContent(), 0, 0);
-        Token endBacktick = formatToken(documentationReferenceNode.endBacktick(), env.trailingWS, env.trailingNL);
+    public BallerinaNameReferenceNode transform(BallerinaNameReferenceNode ballerinaNameReferenceNode) {
+        Token referenceType = formatToken(ballerinaNameReferenceNode.referenceType().orElse(null), 1, 0);
+        Token startBacktick = formatToken(ballerinaNameReferenceNode.startBacktick(), 0, 0);
+        Node backtickContent = formatNode(ballerinaNameReferenceNode.nameReference(), 0, 0);
+        Token endBacktick = formatToken(ballerinaNameReferenceNode.endBacktick(), env.trailingWS, env.trailingNL);
 
-        return documentationReferenceNode.modify()
+        return ballerinaNameReferenceNode.modify()
                 .withReferenceType(referenceType)
                 .withStartBacktick(startBacktick)
-                .withBacktickContent(backtickContent)
+                .withNameReference(backtickContent)
                 .withEndBacktick(endBacktick)
+                .apply();
+    }
+
+    @Override
+    public InlineCodeReferenceNode transform(InlineCodeReferenceNode inlineCodeReferenceNode) {
+        Token startBacktick = formatToken(inlineCodeReferenceNode.startBacktick(), 0, 0);
+        Token codeReference = formatToken(inlineCodeReferenceNode.codeReference(), 0, 0);
+        Token endBacktick = formatToken(inlineCodeReferenceNode.endBacktick(), env.trailingWS, env.trailingNL);
+
+        return inlineCodeReferenceNode.modify()
+                .withStartBacktick(startBacktick)
+                .withCodeReference(codeReference)
+                .withEndBacktick(endBacktick)
+                .apply();
+    }
+
+    @Override
+    public MarkdownCodeBlockNode transform(MarkdownCodeBlockNode markdownCodeBlockNode) {
+        Token startLineHash = formatToken(markdownCodeBlockNode.startLineHashToken(), 1, 0);
+        boolean hasLangAttribute = markdownCodeBlockNode.langAttribute().isPresent();
+        Token startBacktick = formatToken(markdownCodeBlockNode.startBacktick(), 0, hasLangAttribute ? 0 : 1);
+        Token langAttribute = formatToken(markdownCodeBlockNode.langAttribute().orElse(null), 0, 1);
+        NodeList<MarkdownCodeLineNode> codeLines = formatNodeList(markdownCodeBlockNode.codeLines(), 0, 1, 0, 1);
+        Token endLineHash = formatToken(markdownCodeBlockNode.endLineHashToken(), 1, 0);
+        Token endBacktick = formatToken(markdownCodeBlockNode.endBacktick(), env.trailingWS, env.trailingNL);
+
+        return markdownCodeBlockNode.modify()
+                .withStartLineHashToken(startLineHash)
+                .withStartBacktick(startBacktick)
+                .withLangAttribute(langAttribute)
+                .withCodeLines(codeLines)
+                .withEndLineHashToken(endLineHash)
+                .withEndBacktick(endBacktick)
+                .apply();
+    }
+
+    @Override
+    public MarkdownCodeLineNode transform(MarkdownCodeLineNode markdownCodeLineNode) {
+        Token codeDescription = markdownCodeLineNode.codeDescription();
+        boolean hasDescription = !codeDescription.text().isEmpty();
+        Token hashToken = formatToken(markdownCodeLineNode.hashToken(), hasDescription ? 1 : 0, 0);
+        codeDescription = formatToken(codeDescription, env.trailingWS, env.trailingNL);
+
+        return markdownCodeLineNode.modify()
+                .withHashToken(hashToken)
+                .withCodeDescription(codeDescription)
                 .apply();
     }
 

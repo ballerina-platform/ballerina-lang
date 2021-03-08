@@ -85,13 +85,15 @@ public class CentralAPIClient {
     /**
      * Get package with version.
      *
-     * @param orgNamePath     The organization name of the package. (required)
-     * @param packageNamePath The name of the package. (required)
-     * @param version         The version or version range of the module. (required)
+     * @param orgNamePath       The organization name of the package. (required)
+     * @param packageNamePath   The name of the package. (required)
+     * @param version           The version or version range of the module. (required)
+     * @param supportedPlatform The ballerina platform. (required)
+     * @param ballerinaVersion  The ballerina version. (required)
      * @return PackageJsonSchema
      */
-    public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform)
-            throws CentralClientException {
+    public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform,
+            String ballerinaVersion) throws CentralClientException {
         initializeSsl();
         String url = PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
         // append version to url if available
@@ -100,12 +102,9 @@ public class CentralAPIClient {
         }
 
         String pkg = orgNamePath + "/" + packageNamePath + ":" + version;
-        HttpURLConnection conn = createHttpUrlConnection(url);
+        HttpURLConnection conn = createHttpUrlConnection(url, supportedPlatform, ballerinaVersion);
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.GET);
-
-        // set implementation version
-        conn.setRequestProperty(BALLERINA_PLATFORM, supportedPlatform);
 
         // status code and meaning
         //// 302 - module found
@@ -160,21 +159,20 @@ public class CentralAPIClient {
     /**
      * Get the package versions.
      *
-     * @param orgNamePath     The organization name of the package. (required)
-     * @param packageNamePath The name of the package. (required)
+     * @param orgNamePath       The organization name of the package. (required)
+     * @param packageNamePath   The name of the package. (required)
+     * @param supportedPlatform The ballerina platform. (required)
+     * @param ballerinaVersion  The ballerina version. (required)
      * @return PackageJsonSchema
      */
-    public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform)
-            throws CentralClientException {
+    public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform,
+            String ballerinaVersion) throws CentralClientException {
         initializeSsl();
         String url = PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
 
-        HttpURLConnection conn = createHttpUrlConnection(url);
+        HttpURLConnection conn = createHttpUrlConnection(url, supportedPlatform, ballerinaVersion);
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.GET);
-
-        // Set headers
-        conn.setRequestProperty(BALLERINA_PLATFORM, supportedPlatform);
 
         // status code and meaning
         //// 200 - list of versions
@@ -220,19 +218,18 @@ public class CentralAPIClient {
      * Pushing a package to registry.
      */
     public void pushPackage(Path balaPath, String org, String name, String version, String accessToken,
-            String ballerinaVersion) throws CentralClientException {
+            String supportedPlatform, String ballerinaVersion) throws CentralClientException {
         final int noOfBytes = 64;
         final int bufferSize = 1024 * noOfBytes;
 
         initializeSsl();
-        HttpURLConnection conn = createHttpUrlConnection(PACKAGES);
+        HttpURLConnection conn = createHttpUrlConnection(PACKAGES, supportedPlatform, ballerinaVersion);
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.POST);
 
         // Set headers
         conn.setRequestProperty(AUTHORIZATION, "Bearer " + accessToken);
         conn.setRequestProperty(CONTENT_TYPE, APPLICATION_OCTET_STREAM);
-        conn.setRequestProperty(USER_AGENT, ballerinaVersion);
 
         conn.setDoOutput(true);
         conn.setChunkedStreamingMode(bufferSize);
@@ -308,14 +305,12 @@ public class CentralAPIClient {
         }
 
         initializeSsl();
-        HttpURLConnection conn = createHttpUrlConnection(url);
+        HttpURLConnection conn = createHttpUrlConnection(url, supportedPlatform, ballerinaVersion);
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.GET);
 
         // Set headers
-        conn.setRequestProperty(BALLERINA_PLATFORM, supportedPlatform);
         conn.setRequestProperty(ACCEPT_ENCODING, IDENTITY);
-        conn.setRequestProperty(USER_AGENT, ballerinaVersion);
         conn.setRequestProperty(ACCEPT, APPLICATION_OCTET_STREAM);
 
         try {
@@ -336,7 +331,7 @@ public class CentralAPIClient {
                 conn.setRequestProperty(CONTENT_DISPOSITION, contentDisposition);
 
                 boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
-                createBalaInHomeRepo(conn, packagePathInBalaCache, org + "/" + name, isNightlyBuild, newUrl,
+                createBalaInHomeRepo(conn, packagePathInBalaCache, org, name, isNightlyBuild, newUrl,
                                      contentDisposition, outStream, logFormatter);
             } else {
                 try (BufferedReader reader = new BufferedReader(
@@ -360,13 +355,14 @@ public class CentralAPIClient {
     /**
      * Search packages in registry.
      */
-    public PackageSearchResult searchPackage(String query, String ballerinaVersion) throws CentralClientException {
+    public PackageSearchResult searchPackage(String query, String supportedPlatform, String ballerinaVersion)
+            throws CentralClientException {
         initializeSsl();
-        HttpURLConnection conn = createHttpUrlConnection(PACKAGES + "/?q=" + query);
+        HttpURLConnection conn = createHttpUrlConnection(PACKAGES + "/?q=" + query,
+                                                         supportedPlatform,
+                                                         ballerinaVersion);
         conn.setInstanceFollowRedirects(false);
-
         setRequestMethod(conn, Utils.RequestMethod.GET);
-        conn.setRequestProperty(USER_AGENT, ballerinaVersion);
 
         // Handle response
         int statusCode = getStatusCode(conn);
@@ -402,22 +398,34 @@ public class CentralAPIClient {
     }
 
     /**
-     * Create http URL connection.
+     * Create http URL connection and set required headers.
      *
-     * @param paths resource paths
+     * @param paths             resource paths
+     * @param supportedPlatform supported platform
+     * @param ballerinaVersion  ballerina version
      * @return http URL connection
      */
-    protected HttpURLConnection createHttpUrlConnection(String paths) throws ConnectionErrorException {
+    protected HttpURLConnection createHttpUrlConnection(String paths, String supportedPlatform, String ballerinaVersion)
+            throws ConnectionErrorException {
         URL url = convertToUrl(this.baseUrl + "/" + paths);
         try {
             // set proxy if exists.
             if (this.proxy == null) {
-                return (HttpURLConnection) url.openConnection();
+                return setRequiredHeaders((HttpURLConnection) url.openConnection(), supportedPlatform,
+                                          ballerinaVersion);
             } else {
-                return (HttpURLConnection) url.openConnection(this.proxy);
+                return setRequiredHeaders((HttpURLConnection) url.openConnection(this.proxy), supportedPlatform,
+                                          ballerinaVersion);
             }
         } catch (IOException e) {
             throw new ConnectionErrorException("Creating connection to '" + url + "' failed:" + e.getMessage());
         }
+    }
+
+    private HttpURLConnection setRequiredHeaders(HttpURLConnection conn, String supportedPlatform,
+            String ballerinaVersion) {
+        conn.setRequestProperty(BALLERINA_PLATFORM, supportedPlatform);
+        conn.setRequestProperty(USER_AGENT, ballerinaVersion);
+        return conn;
     }
 }

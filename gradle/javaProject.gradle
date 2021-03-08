@@ -209,13 +209,9 @@ task jacocoMergeExec(type: JacocoMerge) {
 }
 
 publishing {
-    def artifactCodeCoverageReport = file("$buildDir/jacoco/jacoco.exec")
     publications {
         mavenJava {
             from components.java
-        }
-        CodeCov(MavenPublication) {
-            artifact source: artifactCodeCoverageReport
         }
     }
 }

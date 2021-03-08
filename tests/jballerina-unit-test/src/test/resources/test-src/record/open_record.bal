@@ -608,3 +608,13 @@ function assert(anydata expected, anydata actual) {
         panic error(reason);
     }
 }
+
+type Teacher record {
+    int toJson = 44;
+};
+
+function testLangFuncOnRecord() returns json{
+    Teacher p = {};
+    json toJsonResult = p.toJson();
+    return toJsonResult;
+}

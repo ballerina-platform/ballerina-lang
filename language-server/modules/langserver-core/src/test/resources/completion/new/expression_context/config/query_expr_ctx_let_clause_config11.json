@@ -384,6 +384,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "is",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "is",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -418,41 +426,17 @@
     {
       "label": "test",
       "kind": "Variable",
-      "detail": "$CompilationError$",
+      "detail": "int",
       "sortText": "B",
       "insertText": "test",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "c1",
+      "label": "personList",
       "kind": "Variable",
-      "detail": "$CompilationError$",
+      "detail": "$CompilationError$[]",
       "sortText": "B",
-      "insertText": "c1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c2",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "c2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c3",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "c3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "outputNameString",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "outputNameString",
+      "insertText": "personList",
       "insertTextFormat": "Snippet"
     },
     {
@@ -461,22 +445,6 @@
       "detail": "$CompilationError$",
       "sortText": "B",
       "insertText": "person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "onConflictError",
-      "kind": "Variable",
-      "detail": "error",
-      "sortText": "B",
-      "insertText": "onConflictError",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "customerList",
-      "kind": "Variable",
-      "detail": "$CompilationError$[]",
-      "sortText": "B",
-      "insertText": "customerList",
       "insertTextFormat": "Snippet"
     },
     {
@@ -496,11 +464,43 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "personList",
+      "label": "outputNameString",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "outputNameString",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "test",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "test",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "customerList",
       "kind": "Variable",
       "detail": "$CompilationError$[]",
       "sortText": "B",
-      "insertText": "personList",
+      "insertText": "customerList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c3",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "c3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "onConflictError",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "B",
+      "insertText": "onConflictError",
       "insertTextFormat": "Snippet"
     },
     {
@@ -515,6 +515,22 @@
       },
       "sortText": "C",
       "insertText": "testIterableOperation()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c1",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "c1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c2",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "c2",
       "insertTextFormat": "Snippet"
     }
   ]

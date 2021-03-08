@@ -16,6 +16,11 @@
 
 [int, int] [a, b];
 
+function init() {
+    a = 1;
+    b = 2;
+}
+
 public function main() {
     int x = a;
 }

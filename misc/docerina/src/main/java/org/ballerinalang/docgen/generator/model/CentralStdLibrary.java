@@ -28,10 +28,7 @@ import java.util.List;
  */
 public class CentralStdLibrary {
     @Expose
-    public String releaseName = "";
+    public String releaseVersion = "";
     @Expose
-    public List<DocPackageMetadata> stdLibs = new ArrayList<>();
-    @Expose
-    public List<DocPackage> langLibs = new ArrayList<>();
-
+    public List<DocPackageMetadata> packages = new ArrayList<>();
 }

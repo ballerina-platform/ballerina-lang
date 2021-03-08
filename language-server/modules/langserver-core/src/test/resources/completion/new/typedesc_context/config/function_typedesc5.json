@@ -264,19 +264,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap2",
+      "label": "Thread",
       "kind": "TypeParameter",
-      "detail": "Map",
+      "detail": "Union",
       "sortText": "M",
-      "insertText": "TestMap2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap3",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -285,6 +277,14 @@
       "detail": "Map",
       "sortText": "M",
       "insertText": "TestMap1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "M",
+      "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -307,11 +307,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
+      "label": "TestMap3",
       "kind": "TypeParameter",
-      "detail": "Union",
+      "detail": "Map",
       "sortText": "M",
-      "insertText": "Thread",
+      "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -379,19 +379,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map",
-      "kind": "TypeParameter",
-      "detail": "type ",
-      "sortText": "Q",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -408,14 +408,6 @@
       "detail": "Snippet",
       "sortText": "O",
       "insertText": "record {|${1}|}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {

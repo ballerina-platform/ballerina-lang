@@ -43,7 +43,7 @@ public class TokensUtil {
      */
     public static Token findTokenAtPosition(DocumentServiceContext context, Position position)
             throws TokenOrSymbolNotFoundException {
-        Optional<Document> document = context.workspace().document(context.filePath());
+        Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
             throw new TokenOrSymbolNotFoundException("Couldn't find a valid document!");
         }

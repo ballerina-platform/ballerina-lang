@@ -1,0 +1,4 @@
+[main.testUser]
+username.structure = "Jane"
+password = "password"
+scopes = ["write"]

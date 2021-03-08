@@ -46,7 +46,12 @@ public class Configurable {
         if (ConfigurableMap.containsKey(key)) {
             return ConfigurableMap.get(key);
         }
+        configVarName = (moduleName.getValue().equals(".")) ? configVarName :
+                StringUtils.fromString(moduleName + ":" + configVarName);
         throw createError(StringUtils
                 .fromString("Value not provided for required configurable variable '" + configVarName + "'"));
+    }
+
+    private Configurable() {
     }
 }

@@ -114,7 +114,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "O",
-      "insertText": "if (${1:true}) {\n\t${2}\n}",
+      "insertText": "if ${1:true} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -122,7 +122,7 @@
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "O",
-      "insertText": "while (${1:true}) {\n\t${2}\n}",
+      "insertText": "while ${1:true} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -195,6 +195,14 @@
       "detail": "Statement",
       "sortText": "O",
       "insertText": "panic ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream<> streamName = new;",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "stream<${1}> ${2:streamName} = new;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -456,11 +464,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lsproject.module2",
+      "label": "lsproject.module1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module2",
+      "insertText": "module1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -474,7 +482,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module2;\n"
+          "newText": "import lsproject.module1;\n"
         }
       ]
     },
@@ -502,11 +510,11 @@
       ]
     },
     {
-      "label": "lsproject.module1",
+      "label": "lsproject.module2",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module1",
+      "insertText": "module2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -520,9 +528,17 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module1;\n"
+          "newText": "import lsproject.module2;\n"
         }
       ]
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "StrandData",
@@ -533,14 +549,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -608,19 +616,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map",
-      "kind": "TypeParameter",
-      "detail": "type ",
-      "sortText": "Q",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -637,14 +645,6 @@
       "detail": "Snippet",
       "sortText": "O",
       "insertText": "record {|${1}|}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -670,7 +670,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n"
         }
       },
       "sortText": "C",
@@ -684,7 +684,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n"
         }
       },
       "sortText": "C",
@@ -698,7 +698,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerinals/lsproject.module3:0.1.0_  \n  \n  \n"
         }
       },
       "sortText": "C",
