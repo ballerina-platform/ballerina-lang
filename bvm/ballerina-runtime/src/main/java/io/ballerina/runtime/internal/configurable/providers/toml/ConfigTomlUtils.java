@@ -25,7 +25,7 @@ import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
 
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
 
 /**
  * Util methods required for configurable variables.

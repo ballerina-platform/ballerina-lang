@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable;
+package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
@@ -31,6 +31,9 @@ import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.configurable.ConfigSecurityUtils;
+import io.ballerina.runtime.internal.configurable.ConfigurableMap;
+import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -58,17 +61,17 @@ import java.util.Map;
 import static io.ballerina.runtime.internal.configurable.ConfigUtils.getEffectiveTomlType;
 import static io.ballerina.runtime.internal.configurable.ConfigUtils.getTomlTypeString;
 import static io.ballerina.runtime.internal.configurable.ConfigUtils.isPrimitiveType;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONSTRAINT_TYPE_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.DEFAULT_MODULE;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.FIELD_TYPE_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_ADDITIONAL_FIELD_IN_RECORD;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_BYTE_RANGE;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_MODULE_STRUCTURE;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_TYPE;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.REQUIRED_FIELD_NOT_PROVIDED;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.SUBMODULE_DELIMITER;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.TABLE_KEY_NOT_PROVIDED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.CONSTRAINT_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.DEFAULT_MODULE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.FIELD_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.INVALID_ADDITIONAL_FIELD_IN_RECORD;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.INVALID_BYTE_RANGE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.INVALID_MODULE_STRUCTURE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.INVALID_TOML_TYPE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.REQUIRED_FIELD_NOT_PROVIDED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.SUBMODULE_DELIMITER;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.TABLE_KEY_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 
 /**

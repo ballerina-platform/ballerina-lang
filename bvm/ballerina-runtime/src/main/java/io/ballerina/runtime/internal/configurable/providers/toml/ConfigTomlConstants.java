@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable;
+package io.ballerina.runtime.internal.configurable.providers.toml;
 
 /**
  * Constants used by toml parser.
