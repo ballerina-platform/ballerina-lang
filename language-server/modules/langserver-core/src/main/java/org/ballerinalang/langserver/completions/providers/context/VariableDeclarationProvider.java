@@ -16,9 +16,11 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -31,7 +33,9 @@ import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -50,6 +54,45 @@ public abstract class VariableDeclarationProvider<T extends Node> extends Abstra
 
     public VariableDeclarationProvider(Class<T> attachmentPoint) {
         super(attachmentPoint);
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, T node, List<LSCompletionItem> completionItems) {
+        Optional<Symbol> symbolAtCursor = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(node));
+
+        Optional<TypeSymbol> typeSymbolAtCursor = symbolAtCursor.flatMap(SymbolUtil::getTypeDescriptor);
+
+        if (typeSymbolAtCursor.isEmpty()) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+
+        TypeSymbol typeSymbol = typeSymbolAtCursor.get();
+        completionItems.forEach(completionItem -> {
+            int rank = SortingUtil.toRank(completionItem, 1);
+
+            // If a completion item is a symbol and is assignable to the variable at left hand side (and is not the 
+            // same as variable), this assigns the highest rank to such variables and methods.
+            if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
+
+                Optional<TypeSymbol> completionItemType =
+                        SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol());
+                if (completionItemType.isPresent() && completionItemType.get() instanceof FunctionTypeSymbol) {
+                    completionItemType = ((FunctionTypeSymbol) completionItemType.get()).returnTypeDescriptor();
+                }
+
+                // TODO: Remove the symbol equality check after #25607
+                if (symbolCompletionItem.getSymbol() != null && completionItemType.isPresent() &&
+                        !symbolCompletionItem.getSymbol().equals(symbolAtCursor.get()) &&
+                        completionItemType.get().assignableTo(typeSymbol)) {
+                    rank = 1;
+                }
+            }
+
+            completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        });
     }
 
     protected List<LSCompletionItem> initializerContextCompletions(BallerinaCompletionContext context,

@@ -104,4 +104,7 @@ public class ProjectConstants {
 
     public static final String BALLERINA_OFFLINE_FLAG = "ballerina.offline.flag";
     public static final String BALA_DOCS_DIR = "docs";
+    public static final String REPOSITORIES_DIR = "repositories";
+    public static final String LOCAL_REPOSITORY_NAME = "local";
+    public static final String CENTRAL_REPOSITORY_CACHE_NAME = "central.ballerina.io";
 }
