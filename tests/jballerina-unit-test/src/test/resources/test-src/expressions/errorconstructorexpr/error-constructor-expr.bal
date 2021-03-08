@@ -125,6 +125,31 @@ function testErrorConstructorExpr9() {
     assertEquals(true, e.cause() is ());
 }
 
+type AppError distinct error<record { int code; }>;
+type CodeError distinct error<record { int no; }>;
+type AppCodeError AppError & CodeError;
+
+function testContextuallyExpectedErrorCtor() {
+    AppError e = error("message", code = 2);
+    error eDash = e;
+    assertEquals(eDash is AppError, true);
+
+    AppCodeError ace = error("message", code = 3, no = 1);
+    assertEquals(ace.message(), "message");
+    assertEquals(ace.detail().code, 3);
+    assertEquals(ace.detail().no, 1);
+
+    var eTuple = getError(error("message", code = 22));
+    assertEquals(eTuple[0].detail().code, 22);
+    assertEquals(eTuple[1].detail().no, 2);
+    assertEquals(eTuple[2][0].detail().code, 0);
+    assertEquals(eTuple[2][0].detail().no, 0);
+}
+
+function getError(AppError ae) returns [AppError, CodeError, AppCodeError[]] {
+    return [ae, error("msg", no = 2), [error("m", code = 0, no = 0)]];
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

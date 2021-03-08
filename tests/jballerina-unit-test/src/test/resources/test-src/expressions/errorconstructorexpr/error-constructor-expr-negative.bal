@@ -37,3 +37,7 @@ function testErrorTypeRefNegative() {
     MyError2 me2 = error MyError2("Message", c = 2); // invalid arg type in error detail field 'c', expected "
                                                      //                   "'string', found 'int'
 }
+
+type Error error<record { int i; string j; }>;
+Error e = error("msg", i = 1, j = 2, k = error("msg"));
+Error e2 = error("msg", i = 1);
