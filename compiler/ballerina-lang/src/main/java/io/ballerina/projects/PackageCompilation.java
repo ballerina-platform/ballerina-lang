@@ -60,11 +60,11 @@ public class PackageCompilation {
 
     private DiagnosticResult diagnosticResult;
     private volatile boolean compiled;
+    private CompilerPluginManager compilerPluginManager;
 
-    private PackageCompilation(PackageContext rootPackageContext,
-                               PackageResolution packageResolution) {
+    private PackageCompilation(PackageContext rootPackageContext) {
         this.rootPackageContext = rootPackageContext;
-        this.packageResolution = packageResolution;
+        this.packageResolution = rootPackageContext.getResolution();
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
@@ -90,14 +90,21 @@ public class PackageCompilation {
     }
 
     static PackageCompilation from(PackageContext rootPackageContext) {
-        PackageCompilation compilation = new PackageCompilation(rootPackageContext,
-                rootPackageContext.getResolution());
+        PackageCompilation compilation = new PackageCompilation(rootPackageContext);
 
         // Compile modules in the dependency graph
         compilation.compileModules();
 
-        // Now the modules are compiled
-        // TODO Run the compiler plugin necessary tasks.
+        // Now the modules are compiled, initialize the compiler plugin manager
+        CompilerPluginManager compilerPluginManager = CompilerPluginManager.from(compilation);
+        compilation.setCompilerPluginManager(compilerPluginManager);
+
+        // Run the CodeAnalyzer tasks.
+        CodeAnalyzerManager codeAnalyzerManager = compilerPluginManager.getCodeAnalyzerManager();
+        // At the moment, we run SyntaxNodeAnalysis and CompilationAnalysis tasks at the same time.
+        // We can run SyntaxNodeAnalysis for each module compilation in the future.
+        List<Diagnostic> reportedDiagnostics = codeAnalyzerManager.runCodeAnalyzerTasks();
+        addCompilerPluginDiagnostics(compilation, reportedDiagnostics);
         return compilation;
     }
 
@@ -120,6 +127,10 @@ public class PackageCompilation {
         }
 
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
+    }
+
+    CompilerPluginManager compilerPluginManager() {
+        return compilerPluginManager;
     }
 
     // TODO Remove this method. We should not expose BLangPackage from this class
@@ -180,7 +191,18 @@ public class PackageCompilation {
         diagnostics.addAll(diagnosticResult.allDiagnostics);
     }
 
+    private void setCompilerPluginManager(CompilerPluginManager compilerPluginManager) {
+        this.compilerPluginManager = compilerPluginManager;
+    }
+
     List<Diagnostic> pluginDiagnostics() {
         return pluginDiagnostics;
+    }
+
+    private static void addCompilerPluginDiagnostics(PackageCompilation compilation,
+                                                     List<Diagnostic> reportedDiagnostics) {
+        List<Diagnostic> allDiagnostics = new ArrayList<>(compilation.diagnosticResult.diagnostics());
+        allDiagnostics.addAll(reportedDiagnostics);
+        compilation.diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
     }
 }
