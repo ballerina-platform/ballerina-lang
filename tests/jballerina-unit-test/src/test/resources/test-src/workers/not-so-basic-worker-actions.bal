@@ -1,7 +1,7 @@
 import ballerina/jballerina.java;
 
 function forkWithTimeoutTest1() returns map<anydata> {
-    map<any> m = {};
+    map<anydata> m = {};
     fork {
         @strand{thread:"any"}
         worker w1 {
@@ -20,20 +20,20 @@ function forkWithTimeoutTest1() returns map<anydata> {
         }
     }
     @strand{thread:"any"}
-    worker w3 returns map<any> {
-        map<any> results = wait {w1, w2};
+    worker w3 returns map<anydata> {
+        map<anydata> results = wait {w1, w2};
         m["x"] = 25;
         return m;
     }
 
-    future<map<any>> f = @strand{thread:"any"} start timeoutFunction1(1000, m);
+    future<map<anydata>> f = @strand{thread:"any"} start timeoutFunction1(1000, m);
     map<anydata> waitedResult = (wait w3 | f);
     var result = waitedResult.clone();
     return result;
 }
 
 function forkWithTimeoutTest2() returns map<anydata> {
-    map<any> m = {};
+    map<anydata> m = {};
     fork {
         @strand{thread:"any"}
         worker w1 {
@@ -48,20 +48,20 @@ function forkWithTimeoutTest2() returns map<anydata> {
     }
     map<any> results = wait {w1, w2};
     @strand{thread:"any"}
-    worker w3 returns map<any> {
+    worker w3 returns map<anydata> {
         sleep(1000);
         m["x"] = 25;
         return m;
     }
 
-    future<map<any>> f = @strand{thread:"any"} start timeoutFunction1(5000, m);
+    future<map<anydata>> f = @strand{thread:"any"} start timeoutFunction1(5000, m);
     map<anydata> waitedResult = (wait w3 | f);
     var result = waitedResult.clone();
     return result;
 }
 
 // Function used to provide timeout functionality
-function timeoutFunction1(int milliSeconds, map<any> m) returns map<any> {
+function timeoutFunction1(int milliSeconds, map<anydata> m) returns map<anydata> {
     sleep(milliSeconds);
     m["x"] = 15;
     return m;

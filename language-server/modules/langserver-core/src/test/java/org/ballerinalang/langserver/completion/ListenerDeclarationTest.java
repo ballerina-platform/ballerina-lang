@@ -32,13 +32,6 @@ public class ListenerDeclarationTest extends CompletionTestNew {
     }
 
     @Override
-    public Object[][] testSubset() {
-        return new Object[][] {
-                {"config6.json", "listener_decl"}
-        };
-    }
-
-    @Override
     public String getTestResourceDir() {
         return "listener_decl";
     }

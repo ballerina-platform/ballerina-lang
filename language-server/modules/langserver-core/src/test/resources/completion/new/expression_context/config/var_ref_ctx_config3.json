@@ -15,7 +15,7 @@
           "value": ""
         }
       },
-      "sortText": "B",
+      "sortText": "A",
       "insertText": "TEST_INT_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -29,7 +29,7 @@
           "value": ""
         }
       },
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
     },
@@ -37,7 +37,7 @@
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
-      "sortText": "B",
+      "sortText": "C",
       "insertText": "listener1",
       "insertTextFormat": "Snippet"
     },
@@ -48,10 +48,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "D",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
     },
@@ -62,10 +62,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "D",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
     },
@@ -79,7 +79,7 @@
           "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function3 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `float[]` param3: param3 Parameter Description  \n  \n**Returns** `int`   \n- Return Value Description  \n  \n"
         }
       },
-      "sortText": "C",
+      "sortText": "A",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -94,10 +94,10 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
         }
       },
-      "sortText": "C",
+      "sortText": "D",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",
       "command": {

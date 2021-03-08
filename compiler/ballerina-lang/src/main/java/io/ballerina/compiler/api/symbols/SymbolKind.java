@@ -38,5 +38,6 @@ public enum SymbolKind {
     RECORD_FIELD,
     OBJECT_FIELD,
     CLASS_FIELD,
-    ENUM
+    ENUM,
+    PARAMETER
 }

@@ -1222,51 +1222,38 @@
         },
         {
           "kind": "MODULE_VAR_DECL",
-          "hasDiagnostics": true,
           "children": [
+            {
+              "kind": "PUBLIC_KEYWORD",
+              "leadingMinutiae": [
+                {
+                  "kind": "END_OF_LINE_MINUTIAE",
+                  "value": "\n"
+                }
+              ],
+              "trailingMinutiae": [
+                {
+                  "kind": "WHITESPACE_MINUTIAE",
+                  "value": " "
+                }
+              ]
+            },
             {
               "kind": "LIST",
               "children": []
             },
             {
               "kind": "TYPED_BINDING_PATTERN",
-              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "FUNCTION_TYPE_DESC",
-                  "hasDiagnostics": true,
                   "children": [
                     {
                       "kind": "LIST",
                       "children": []
                     },
                     {
-                      "kind": "FUNCTION_KEYWORD",
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_QUALIFIER_NOT_ALLOWED"
-                      ],
-                      "leadingMinutiae": [
-                        {
-                          "kind": "END_OF_LINE_MINUTIAE",
-                          "value": "\n"
-                        },
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "PUBLIC_KEYWORD"
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
+                      "kind": "FUNCTION_KEYWORD"
                     },
                     {
                       "kind": "FUNCTION_SIGNATURE",

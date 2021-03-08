@@ -179,3 +179,19 @@ function refAndNilEqualityCheck() {
         // do nothing
     }
 }
+
+function readonlyEquality() returns boolean {
+    map<int> & readonly immutableMarks = {
+        math: 80,
+        physics: 85,
+        chemistry: 75
+    };
+    readonly readonlyMarks = immutableMarks;
+
+    map<int> marks = {
+        math: 80,
+        physics: 85,
+        chemistry: 75
+    };
+    return readonlyMarks != marks;
+}
