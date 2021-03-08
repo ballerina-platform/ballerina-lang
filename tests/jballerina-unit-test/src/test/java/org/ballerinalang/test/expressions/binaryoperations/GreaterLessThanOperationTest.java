@@ -26,6 +26,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -135,19 +136,76 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 8);
-        BAssertUtil.validateError(resultNegative, 0, "operator '>' not defined for 'json' and 'json'", 7, 12);
-        BAssertUtil.validateError(resultNegative, 1, "operator '>=' not defined for 'json' and 'json'", 16, 12);
-        BAssertUtil.validateError(resultNegative, 2, "operator '<' not defined for 'json' and 'json'", 26, 12);
-        BAssertUtil.validateError(resultNegative, 3, "operator '<=' not defined for 'json' and 'json'", 35, 12);
-        BAssertUtil.validateError(resultNegative, 4, "operator '>' not defined for 'int' and 'string'", 41, 12);
-        BAssertUtil.validateError(resultNegative, 5, "operator '>=' not defined for 'int' and 'string'", 47, 12);
-        BAssertUtil.validateError(resultNegative, 6, "operator '<' not defined for 'int' and 'string'", 53, 12);
-        BAssertUtil.validateError(resultNegative, 7, "operator '<=' not defined for 'int' and 'string'", 59, 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 28);
+        int index = 0;
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'json' and 'json'", 26, 12);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'json' and 'json'", 35, 12);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'int' and 'string'", 41, 12);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'int' and 'string'", 47, 12);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'int' and 'string'", 53, 12);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'int' and 'string'", 59, 12);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'Person' and 'Person'",
+                72, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'Person' and 'Person'",
+                73, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'Person' and 'Person'",
+                74, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'Person' and 'Person'",
+                75, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '(Person|int)' and " +
+                        "'(Person|int)'", 81, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '(Person|int)' and '" +
+                "(Person|int)'", 82, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '(Person|int)' and '" +
+                "(Person|int)'", 83, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '(Person|int)' and '" +
+                "(Person|int)'", 84, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'Person[]' and 'Person[]'",
+                90, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'Person[]' and 'Person[]'",
+                91, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'Person[]' and 'Person[]'",
+                92, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'Person[]' and 'Person[]'",
+                93, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '[Person,int]' and " +
+                "'[Person,int]'", 99, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '[Person,int]' and " +
+                "'[Person,int]'", 100, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '[Person,int]' and " +
+                "'[Person,int]'", 101, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '[Person,int]' and " +
+                "'[Person,int]'", 102, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '[int,Person...]' and " +
+                "'[int,Person...]'", 108, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '[int,Person...]' and " +
+                "'[int,Person...]'", 109, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '[int,Person...]' and " +
+                "'[int,Person...]'", 110, 18);
+        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for '[int,Person...]' and " +
+                "'[int,Person...]'", 111, 18);
     }
 
     @Test(description = "Test decimal greater than, less than expression")
     public void testDecimalComparison() {
         BRunUtil.invoke(result, "testDecimalComparison");
+    }
+
+    @Test(dataProvider = "FunctionList")
+    public void testArrayFunctions(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "FunctionList")
+    public Object[] testFunctions() {
+        return new Object[]{
+                "testStringComparison",
+                "testBooleanComparison",
+                "testArrayComparison",
+                "testTupleComparison",
+                "testUnionComparison"
+        };
     }
 }
