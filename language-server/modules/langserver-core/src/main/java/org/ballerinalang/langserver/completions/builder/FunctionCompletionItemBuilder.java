@@ -17,12 +17,14 @@
  */
 package org.ballerinalang.langserver.completions.builder;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -32,6 +34,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.apache.commons.lang3.tuple.ImmutablePair;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.Command;
@@ -48,6 +51,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
+
+import javax.annotation.Nullable;
 
 /**
  * This class is being used to build function type completion item.
@@ -108,20 +113,7 @@ public final class FunctionCompletionItemBuilder {
         setMeta(item, initMethod, ctx);
         String functionName;
         if (mode == InitializerBuildMode.EXPLICIT) {
-            functionName = typeDesc.getName().get();
-//            Optional<BLangIdentifier> moduleAlias = ctx.get(DocumentServiceKeys.CURRENT_DOC_IMPORTS_KEY).stream()
-//                    .filter(pkg -> pkg.symbol != null && pkg.symbol.pkgID == typeDesc.pkgID)
-//                    .map(BLangImportPackage::getAlias)
-//                    .findAny();
-//            String moduleAlias = typeDesc.moduleID().modulePrefix()
-//            if (nodeAtCursor.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE && moduleAlias.isPresent()) {
-//                /*
-//                Handles the following case
-//                (1) ... = new <cursor>
-//                (1) ... = new m<cursor> // blocked by #25210
-//                 */
-//                functionName = moduleAlias.get().getValue() + ":" + functionName;
-//            }
+            functionName = getQualifiedFunctionName(typeDesc.getName().get(), ctx, initMethod);
         } else {
             functionName = "new";
         }
@@ -264,6 +256,26 @@ public final class FunctionCompletionItemBuilder {
         }
 
         return new ImmutablePair<>(insertText.toString(), signature.toString());
+    }
+
+    private static String getQualifiedFunctionName(String functionName, BallerinaCompletionContext ctx,
+                                                   @Nullable FunctionSymbol functionSymbol) {
+        if (functionSymbol == null) {
+            return functionName;
+        }
+        boolean onQNameRef = QNameReferenceUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor());
+        Optional<ModuleSymbol> module = functionSymbol.getModule();
+        if (module.isEmpty() || onQNameRef || functionName.equals(SyntaxKind.NEW_KEYWORD.stringValue())) {
+            return functionName;
+        }
+        ModuleID moduleID = module.get().id();
+        String modulePrefix = CommonUtil.getModulePrefix(ctx, moduleID.orgName(), moduleID.moduleName());
+
+        if (modulePrefix.isEmpty()) {
+            return functionName;
+        }
+
+        return modulePrefix + SyntaxKind.COLON_TOKEN.stringValue() + functionName;
     }
 
     /**

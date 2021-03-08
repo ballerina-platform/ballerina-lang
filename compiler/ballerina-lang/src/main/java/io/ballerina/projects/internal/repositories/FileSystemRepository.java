@@ -32,13 +32,8 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -87,12 +82,12 @@ public class FileSystemRepository implements PackageRepository {
                 resolutionRequest.version().get().toString() : "0.0.0";
 
         //First we will check for a bala that match any platform
-        String balaName = ProjectUtils.getBalaName(orgName, packageName, version, null);
-        Path balaPath = this.bala.resolve(orgName).resolve(packageName).resolve(version).resolve(balaName);
+        Path balaPath = this.bala.resolve(
+                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
         if (!Files.exists(balaPath)) {
             //If bala for any platform not exist check for specific platform
-            String javaBalaName = ProjectUtils.getBalaName(orgName, packageName, version, JvmTarget.JAVA_11.code());
-            balaPath = this.bala.resolve(orgName).resolve(packageName).resolve(version).resolve(javaBalaName);
+            balaPath = this.bala.resolve(
+                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, JvmTarget.JAVA_11.code()));
             if (!Files.exists(balaPath)) {
                 return Optional.empty();
             }
@@ -110,17 +105,13 @@ public class FileSystemRepository implements PackageRepository {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = resolutionRequest.packageName().value();
         String orgName = resolutionRequest.orgName().value();
-
-        // Here we dont rely on directories we check for available balas
-        String globFilePart = orgName + "-" + packageName + "-*.bala";
-        String glob = "glob:**/" + orgName + "/" + packageName + "/*/" + globFilePart;
-        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
         List<Path> versions = new ArrayList<>();
         try {
-            Files.walkFileTree(bala.resolve(orgName).resolve(packageName)
-                    , new SearchModules(pathMatcher, versions));
+            Path balaPackagePath = bala.resolve(orgName).resolve(packageName);
+            if (Files.exists(balaPackagePath)) {
+                versions.addAll(Files.list(balaPackagePath).collect(Collectors.toList()));
+            }
         } catch (IOException e) {
-            // in any error we should report to the top
             throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
         }
 
@@ -175,38 +166,12 @@ public class FileSystemRepository implements PackageRepository {
     private List<PackageVersion> pathToVersions(List<Path> versions) {
         return versions.stream()
                 .map(path -> {
-                    String version = Optional.ofNullable(path.getParent())
+                    String version = Optional.ofNullable(path)
                             .map(parent -> parent.getFileName())
                             .map(file -> file.toString())
                             .orElse("0.0.0");
                     return PackageVersion.from(version);
                 })
                 .collect(Collectors.toList());
-    }
-
-    private static class SearchModules extends SimpleFileVisitor<Path> {
-
-        private final PathMatcher pathMatcher;
-        private final List<Path> versions;
-
-        public SearchModules(PathMatcher pathMatcher, List<Path> versions) {
-            this.pathMatcher = pathMatcher;
-            this.versions = versions;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path path,
-                                         BasicFileAttributes attrs) throws IOException {
-            if (pathMatcher.matches(path)) {
-                versions.add(path);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc)
-                throws IOException {
-            return FileVisitResult.CONTINUE;
-        }
     }
 }
