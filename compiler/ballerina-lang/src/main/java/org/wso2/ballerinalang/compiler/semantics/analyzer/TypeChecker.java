@@ -2182,7 +2182,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Check type compatibility
         if (expType.tag == TypeTags.ARRAY && isArrayOpenSealedType((BArrayType) expType)) {
-            dlog.error(varRefExpr.pos, DiagnosticErrorCode.SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
             return;
 
         }
@@ -5169,7 +5169,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     BField field = fieldEntry.getValue();
                     if (targetErrorDetailRec.sealed) {
                         dlog.error(errorConstructorExpr.pos,
-                                DiagnosticErrorCode.UNKNOWN_DETAIL_ARG_TO_SEALED_ERROR_DETAIL_REC,
+                                DiagnosticErrorCode.UNKNOWN_DETAIL_ARG_TO_CLOSED_ERROR_DETAIL_REC,
                                 fieldEntry.getKey(), targetErrorDetailRec);
                         detailedErrorReported = true;
                     } else if (!types.isAssignable(field.type, targetErrorDetailRec.restFieldType)) {
