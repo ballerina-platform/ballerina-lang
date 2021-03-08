@@ -104,8 +104,9 @@ public class Strand {
             this.globalProps = properties;
             Object currentContext = globalProps.get(CURRENT_TRANSACTIONAL_CONTEXT_PROPERTY);
             if (currentContext != null) {
-                this.trxContexts.push(currentTrxContext);
-                this.currentTrxContext = createTrxContextBranch((TransactionLocalContext)currentContext, name);
+                TransactionLocalContext branchedContext =
+                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
+                setCurrentTransactionContext(branchedContext);
             }
         } else if (parent != null) {
             this.globalProps = new HashMap<>(parent.globalProps);
@@ -131,7 +132,6 @@ public class Strand {
                         currentTrxContext.getInfoRecord());
         String currentTrxBlockId = currentTrxContext.getCurrentTransactionBlockId();
         trxCtx.addCurrentTransactionBlockId(currentTrxBlockId + "_" + strandName);
-        globalProps.putIfAbsent(CURRENT_TRANSACTIONAL_CONTEXT_PROPERTY, trxCtx);
         return trxCtx;
     }
 
