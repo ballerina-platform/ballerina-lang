@@ -956,22 +956,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         errorType.pos = getPosition(errorTypeDescriptorNode);
         if (typeParam.isPresent()) {
             TypeParameterNode typeNode = typeParam.get();
-            BLangType detail = null;
+            BLangType detail;
             if (isAnonymousTypeNode(typeNode)) {
                 detail = deSugarTypeAsUserDefType(createTypeNode(typeNode));
             } else {
                 detail = createTypeNode(typeNode);
             }
-
-            if (detail != null) {
-                errorType.detailType = detail;
-                NonTerminalNode parent = errorTypeDescriptorNode.parent();
-                if (parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
-                    parent = parent.parent();
-                }
-                if (parent.kind() != SyntaxKind.TYPE_DEFINITION) {
-                    return deSugarTypeAsUserDefType(errorType);
-                }
+            errorType.detailType = detail;
+            NonTerminalNode parent = errorTypeDescriptorNode.parent();
+            if (parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
+                parent = parent.parent();
+            }
+            if (parent.kind() != SyntaxKind.TYPE_DEFINITION) {
+                return deSugarTypeAsUserDefType(errorType);
             }
         }
 
