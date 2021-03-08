@@ -175,6 +175,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void xmlGetContentOverASequence() {
+        BRunUtil.invoke(compileResult, "testXmlGetContentOverASequence");
+    }
+
+    @Test
     public void testCreateElement() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testCreateElement");
         assertEquals((returns[0]).stringValue(), "<elem>hello world</elem>");

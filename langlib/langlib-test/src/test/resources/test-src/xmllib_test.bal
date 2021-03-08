@@ -499,3 +499,15 @@ function testData() {
     xml x = xml `<elem>&lt;</elem>`;
     assertEquals((x/*).data(), "<");
 }
+
+function testXmlGetContentOverASequence() {
+    xml a = xml `<elem><!--Hello--></elem>`;
+    xml c = a/*;
+    xml k = c.get(0);
+    if (k is 'xml:Comment) {
+        string s = k.getContent();
+        assertEquals(s, "Hello");
+    } else {
+        panic error("Assert false");
+    }
+}
