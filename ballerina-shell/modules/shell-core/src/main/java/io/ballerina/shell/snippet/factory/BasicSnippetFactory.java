@@ -136,7 +136,7 @@ public class BasicSnippetFactory extends SnippetFactory {
                 qualifiers = NodeFactory.createNodeList(varNode.finalKeyword().get());
             }
             dclnNode = NodeFactory.createModuleVariableDeclarationNode(
-                    NodeFactory.createMetadataNode(null, varNode.annotations()),
+                    NodeFactory.createMetadataNode(null, varNode.annotations()), null,
                     qualifiers, varNode.typedBindingPattern(),
                     varNode.equalsToken().orElse(null), varNode.initializer().orElse(null),
                     varNode.semicolonToken()
