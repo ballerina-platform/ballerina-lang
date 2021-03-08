@@ -228,7 +228,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
-        return isDistinctSymbol(symbol, foundSym);
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
+            return false;
+        }
+        return !hasSameOwner(symbol, foundSym);
     }
 
     /**
