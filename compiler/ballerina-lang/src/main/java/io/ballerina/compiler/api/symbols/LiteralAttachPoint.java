@@ -30,5 +30,5 @@ public interface LiteralAttachPoint extends ServiceAttachPoint {
      *
      * @return The attach point literal
      */
-    String get();
+    String literal();
 }

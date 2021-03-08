@@ -35,7 +35,7 @@ public class BallerinaLiteralAttachPoint implements LiteralAttachPoint {
     }
 
     @Override
-    public String get() {
+    public String literal() {
         return this.literal;
     }
 

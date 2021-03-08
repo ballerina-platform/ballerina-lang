@@ -77,7 +77,7 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
 
                 ServiceAttachPoint attachPoint = symbol.attachPoint().get();
                 assertEquals(attachPoint.kind(), ServiceAttachPointKind.ABSOLUTE_RESOURCE_PATH);
-                assertEquals(((AbsResourcePathAttachPoint) attachPoint).get().toString(), "[foo, bar]");
+                assertEquals(((AbsResourcePathAttachPoint) attachPoint).segments().toString(), "[foo, bar]");
 
                 TypeSymbol type = symbol.typeDescriptor().get();
                 assertEquals(type.typeKind(), TypeDescKind.TYPE_REFERENCE);

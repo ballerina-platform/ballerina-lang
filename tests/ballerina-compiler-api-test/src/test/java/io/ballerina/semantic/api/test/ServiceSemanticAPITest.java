@@ -198,9 +198,9 @@ public class ServiceSemanticAPITest {
                 assertEquals(attachPoint.get().kind(), expVals[i][2]);
                 String attachPointStr;
                 if (attachPoint.get().kind() == ABSOLUTE_RESOURCE_PATH) {
-                    attachPointStr = ((AbsResourcePathAttachPoint) attachPoint.get()).get().toString();
+                    attachPointStr = ((AbsResourcePathAttachPoint) attachPoint.get()).segments().toString();
                 } else {
-                    attachPointStr = ((LiteralAttachPoint) attachPoint.get()).get();
+                    attachPointStr = ((LiteralAttachPoint) attachPoint.get()).literal();
                 }
                 assertEquals(attachPointStr, expVals[i][3]);
             } else {

@@ -31,14 +31,14 @@ import java.util.List;
  */
 public class BallerinaAbsResourcePathAttachPoint implements AbsResourcePathAttachPoint {
 
-    private List<String> resourcePath;
+    private final List<String> resourcePath;
 
     public BallerinaAbsResourcePathAttachPoint(List<String> resourcePath) {
         this.resourcePath = Collections.unmodifiableList(resourcePath);
     }
 
     @Override
-    public List<String> get() {
+    public List<String> segments() {
         return this.resourcePath;
     }
 

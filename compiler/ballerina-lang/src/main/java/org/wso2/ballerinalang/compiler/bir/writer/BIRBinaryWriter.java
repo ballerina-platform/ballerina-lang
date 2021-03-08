@@ -54,8 +54,7 @@ import java.util.stream.Collectors;
  *
  * @since 0.980.0
  */
-public class
-BIRBinaryWriter {
+public class BIRBinaryWriter {
 
     private final ConstantPool cp = new ConstantPool();
     private final BIRNode.BIRPackage birPackage;

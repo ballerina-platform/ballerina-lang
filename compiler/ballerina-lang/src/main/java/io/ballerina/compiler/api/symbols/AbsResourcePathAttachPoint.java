@@ -34,5 +34,5 @@ public interface AbsResourcePathAttachPoint extends ServiceAttachPoint {
      *
      * @return The resource path segments as a list
      */
-    List<String> get();
+    List<String> segments();
 }
