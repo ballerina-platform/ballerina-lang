@@ -125,7 +125,9 @@ public class DocCommand implements BLauncherCmd {
                 try {
                     BallerinaDocGenerator.generateAPIDocs(balaProject, this.projectPath.toString(), false);
                 } catch (IOException e) {
-                    e.printStackTrace();
+                    CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
                 }
                 return;
             }
