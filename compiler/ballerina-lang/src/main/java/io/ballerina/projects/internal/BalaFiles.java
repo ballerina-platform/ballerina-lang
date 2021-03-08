@@ -86,7 +86,7 @@ public class BalaFiles {
                     .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
             // load other modules
             List<ModuleData> otherModules = loadOtherModules(pkgName, packageRoot);
-            return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, packageMd);
+            return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, packageMd);
         } catch (IOException e) {
             throw new ProjectException("Failed to read bala file:" + balaPath);
         }
