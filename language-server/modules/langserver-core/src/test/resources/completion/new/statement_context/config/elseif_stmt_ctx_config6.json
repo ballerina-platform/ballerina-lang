@@ -453,11 +453,25 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "C",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "doSomeTask()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "insertText": "doSomeTask()",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -76,7 +76,7 @@ public class Flags {
     public static final long REQUIRED_PARAM = INCLUDED << 1;                    //  35
     public static final long DEFAULTABLE_PARAM = REQUIRED_PARAM << 1;           //  36
     public static final long REST_PARAM = DEFAULTABLE_PARAM << 1;               //  37
-    public static final long ANY_FUNCTION = REST_PARAM << 1;                      //  35
+    public static final long ANY_FUNCTION = REST_PARAM << 1;                    //  38
 
 
     public static long asMask(Set<Flag> flagSet) {
