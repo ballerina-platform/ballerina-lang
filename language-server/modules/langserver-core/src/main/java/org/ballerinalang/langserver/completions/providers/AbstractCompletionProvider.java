@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -53,6 +54,7 @@ import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.ParameterCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuilder;
@@ -79,6 +81,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 
@@ -163,6 +166,13 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 String typeName = typeDesc == null ? "" : CommonUtil.getModifiedTypeName(ctx, typeDesc);
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
                         typeName);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
+            } else if (symbol.kind() == PARAMETER) {
+                ParameterSymbol paramSymbol = (ParameterSymbol) symbol;
+                TypeSymbol typeDesc = paramSymbol.typeDescriptor();
+                String typeName = CommonUtil.getModifiedTypeName(ctx, typeDesc);
+                CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
+                                                                                    typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
@@ -307,6 +317,15 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return completionItems;
     }
 
+    /**
+     * Check whether the cursor is within a qualified name reference.
+     * This has been deprecated and use QNameReferenceUtil#onQualifiedNameIdentifier instead.
+     * 
+     * @param context completion context
+     * @param node node to evaluate upon
+     * @return {@link Boolean}
+     */
+    @Deprecated(forRemoval = true)
     protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
@@ -401,8 +420,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
         // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib 
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == FUNCTION)
-                        && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
+                .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER ||
+                        symbol.kind() == FUNCTION) && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         // TODO: anon function expressions, 

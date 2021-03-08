@@ -54,39 +54,48 @@ public class ProjectPaths {
         }
 
         // Check if the file is inside a Ballerina package directory
-        if (findProjectRoot(filepath).isEmpty()) {
+        Optional<Path> projectRoot = findProjectRoot(filepath);
+        if (projectRoot.isEmpty()) {
             throw new ProjectException("provided file path does not belong to a Ballerina package: " + filepath);
         }
 
-        // check if the file is a ballerina project related toml file
-        if (isBallerinaRelatedToml(filepath)) {
-            return filepath.getParent();
-        }
-
-        if (!isBalFile(filepath)) {
-            throw new ProjectException("provided path is not a valid Ballerina source file: " + filepath);
-        }
         Path absFilePath = filepath.toAbsolutePath().normalize();
+        if (hasBallerinaToml(projectRoot.get())) {
+            // check if the file is a ballerina project related toml file
+            if (isBallerinaRelatedToml(filepath)) {
+                return filepath.getParent();
+            }
 
-        // check if the file is a source file in the default module
-        if (isDefaultModuleSrcFile(absFilePath)) {
-            return absFilePath.getParent();
-        }
-        // check if the file is a test file in the default module
-        if (isDefaultModuleTestFile(absFilePath)) {
-            Path testsRoot = Optional.of(absFilePath.getParent()).get();
-            return testsRoot.getParent();
-        }
-        // check if the file is a source file in a non-default module
-        if (isNonDefaultModuleSrcFile(filepath)) {
-            Path modulesRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
-            return modulesRoot.getParent();
-        }
-        // check if the file is a test file in a non-default module
-        if (isNonDefaultModuleTestFile(filepath)) {
-            Path testsRoot = Optional.of(absFilePath.getParent()).get();
-            Path modulesRoot = Optional.of(Optional.of(testsRoot.getParent()).get().getParent()).get();
-            return modulesRoot.getParent();
+            if (!isBalFile(filepath)) {
+                throw new ProjectException("provided path is not a valid Ballerina source file: " + filepath);
+            }
+
+            // check if the file is a source file in the default module
+            if (isDefaultModuleSrcFile(absFilePath)) {
+                return absFilePath.getParent();
+            }
+            // check if the file is a test file in the default module
+            if (isDefaultModuleTestFile(absFilePath)) {
+                Path testsRoot = Optional.of(absFilePath.getParent()).get();
+                return testsRoot.getParent();
+            }
+            // check if the file is a source file in a non-default module
+            if (isNonDefaultModuleSrcFile(filepath)) {
+                Path modulesRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
+                return modulesRoot.getParent();
+            }
+            // check if the file is a test file in a non-default module
+            if (isNonDefaultModuleTestFile(filepath)) {
+                Path testsRoot = Optional.of(absFilePath.getParent()).get();
+                Path modulesRoot = Optional.of(Optional.of(testsRoot.getParent()).get().getParent()).get();
+                return modulesRoot.getParent();
+            }
+        } else {
+            // check if the file is a source file in a bala project
+            if (isBalaProjectSrcFile(filepath)) {
+                Path modulesRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
+                return modulesRoot.getParent();
+            }
         }
 
         throw new ProjectException("provided file path does not belong to a Ballerina package: " + filepath);
@@ -184,6 +193,14 @@ public class ProjectPaths {
                 && hasBallerinaToml(projectRoot);
     }
 
+    static boolean isBalaProjectSrcFile(Path filePath) {
+        Path absFilePath = filePath.toAbsolutePath().normalize();
+        Path modulesRoot = Optional.of(Optional.of(absFilePath.getParent()).get().getParent()).get();
+        Path projectRoot = modulesRoot.getParent();
+        return ProjectConstants.MODULES_ROOT.equals(modulesRoot.toFile().getName())
+                && hasPackageJson(projectRoot);
+    }
+
     static boolean isNonDefaultModuleTestFile(Path filePath) {
         Path absFilePath = filePath.toAbsolutePath().normalize();
         Path testsRoot = Optional.of(absFilePath.getParent()).get();
@@ -201,11 +218,16 @@ public class ProjectPaths {
         return absFilePath.resolve(BALLERINA_TOML).toFile().exists();
     }
 
+    private static boolean hasPackageJson(Path filePath) {
+        Path absFilePath = filePath.toAbsolutePath().normalize();
+        return absFilePath.resolve(ProjectConstants.PACKAGE_JSON).toFile().exists();
+    }
+
     private static Optional<Path> findProjectRoot(Path filePath) {
         if (filePath != null) {
             filePath = filePath.toAbsolutePath().normalize();
             if (filePath.toFile().isDirectory()) {
-                if (hasBallerinaToml(filePath)) {
+                if (hasBallerinaToml(filePath) || hasPackageJson(filePath)) {
                     return Optional.of(filePath);
                 }
             }

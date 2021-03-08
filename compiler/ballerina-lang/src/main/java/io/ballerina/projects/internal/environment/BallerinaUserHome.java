@@ -2,6 +2,8 @@ package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.toml.model.Settings;
@@ -11,6 +13,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Map;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.USER_HOME;
 
@@ -23,11 +26,21 @@ public final class BallerinaUserHome {
 
     private final Path ballerinaUserHomeDirPath;
     private final RemotePackageRepository remotePackageRepository;
+    private final Map<String, PackageRepository> customRepositories;
 
     private BallerinaUserHome(Environment environment, Path ballerinaUserHomeDirPath) {
         this.ballerinaUserHomeDirPath = ballerinaUserHomeDirPath;
+        Path remotePackageRepositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
+        try {
+            Files.createDirectories(remotePackageRepositoryPath);
+        } catch (IOException exception) {
+            throw new ProjectException("unable to create the file system cache of Ballerina Central repository");
+        }
+
         this.remotePackageRepository = RemotePackageRepository
-                .from(environment, ballerinaUserHomeDirPath, readSettings());
+                .from(environment, remotePackageRepositoryPath, readSettings());
+        this.customRepositories = Map.of(ProjectConstants.LOCAL_REPOSITORY_NAME, createLocalRepository(environment));
     }
 
     public static BallerinaUserHome from(Environment environment, Path ballerinaUserHomeDirPath) {
@@ -47,6 +60,10 @@ public final class BallerinaUserHome {
 
     public RemotePackageRepository remotePackageRepository() {
         return this.remotePackageRepository;
+    }
+
+    public Map<String, PackageRepository> customRepositories() {
+        return this.customRepositories;
     }
 
     /**
@@ -83,5 +100,16 @@ public final class BallerinaUserHome {
                                 + "', Directory creation also failed");
             }
         }
+    }
+
+    private FileSystemRepository createLocalRepository(Environment environment) {
+        Path repositoryPath = ballerinaUserHomeDirPath.resolve(ProjectConstants.REPOSITORIES_DIR)
+                .resolve(ProjectConstants.LOCAL_REPOSITORY_NAME);
+        try {
+            Files.createDirectories(repositoryPath);
+        } catch (IOException exception) {
+            throw new ProjectException("unable to create repository: " + ProjectConstants.LOCAL_REPOSITORY_NAME);
+        }
+        return new FileSystemRepository(environment, repositoryPath);
     }
 }
