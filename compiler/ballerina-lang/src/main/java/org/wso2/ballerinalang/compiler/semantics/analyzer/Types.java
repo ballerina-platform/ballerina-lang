@@ -4340,16 +4340,26 @@ public class Types {
         switch (type.tag) {
             case TypeTags.UNION:
                 Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+                boolean allMembersOrdered = false;
                 for (BType memType : memberTypes) {
+                    allMembersOrdered = isOrderedType(memType);
+                    if (!allMembersOrdered) {
+                        break;
+                    }
+                }
+                return allMembersOrdered;
+            case TypeTags.ARRAY:
+                BType elementType = ((BArrayType) type).eType;
+                return isOrderedType(elementType);
+            case TypeTags.TUPLE:
+                List<BType> tupleMemberTypes = ((BTupleType) type).tupleTypes;
+                for (BType memType : tupleMemberTypes) {
                     if (!isOrderedType(memType)) {
                         return false;
                     }
                 }
-                // can not sort (string?|int)/(string|int)/(string|int)[]/(string?|int)[], can sort string?/string?[]
-                return memberTypes.size() <= 2 && memberTypes.contains(symTable.nilType);
-            case TypeTags.ARRAY:
-                BType elementType = ((BArrayType) type).eType;
-                return isOrderedType(elementType);
+                BType restType = ((BTupleType) type).restType;
+                return restType == null || isOrderedType(restType);
             default:
                 return isSimpleBasicType(type.tag);
         }
