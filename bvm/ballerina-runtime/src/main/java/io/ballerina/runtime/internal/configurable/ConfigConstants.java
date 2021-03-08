@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -16,19 +16,24 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable.exceptions;
+package io.ballerina.runtime.internal.configurable;
 
 /**
- * Exception class used for configuration specific errors.
+ * Constants used by configs.
  *
  * @since 2.0.0
  */
-public class ConfigException extends RuntimeException {
-    public ConfigException(String message) {
-        super(message);
-    }
+public class ConfigConstants {
 
-    public ConfigException(String message, Throwable e) {
-        super(message, e);
+    public static final String CONFIG_FILE_NAME = "Config.toml";
+
+    public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
+
+    public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
+
+    public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
+            "supported";
+
+    private ConfigConstants() {
     }
 }

@@ -18,7 +18,16 @@
 
 package io.ballerina.runtime.internal.configurable;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlProvider;
+import io.ballerina.runtime.internal.values.ErrorValue;
+
+import java.nio.file.Path;
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -26,10 +35,22 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class ConfigurableMap {
+public class ConfigMap {
     private static Map<VariableKey, Object> configurableMap = new HashMap<>();
 
-    private ConfigurableMap(){}
+    private ConfigMap(){}
+
+    public static void initialize(Path configFilePath, Map<Module, VariableKey[]> configVarMap) {
+        try {
+            List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+            supportedConfigProviders.add(new ConfigTomlProvider(configFilePath));
+            ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
+            configurableMap = configResolver.resolveConfigs();
+        } catch (ConfigException exception) {
+            // TODO : Need to collect all the errors from each providers separately. Issue #29055
+            throw new ErrorValue(StringUtils.fromString(exception.getMessage()));
+        }
+    }
 
     public static Object get(VariableKey key) {
         return configurableMap.get(key);

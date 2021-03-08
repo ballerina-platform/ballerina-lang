@@ -16,25 +16,25 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable;
+package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
 
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIGURATION_NOT_SUPPORTED;
 
 /**
  * Util methods required for configurable variables.
  *
  * @since 2.0.0
  */
-public class ConfigUtils {
+public class ConfigTomlUtils {
 
-    private ConfigUtils() {
+    private ConfigTomlUtils() {
     }
 
     static Object getTomlTypeString(TomlNode tomlNode) {
@@ -87,7 +87,7 @@ public class ConfigUtils {
                 tomlType = TomlType.TABLE_ARRAY;
                 break;
             default:
-                throw new TomlException(
+                throw new ConfigException(
                         String.format(CONFIGURATION_NOT_SUPPORTED, variableName, expectedType.toString()));
         }
         return tomlType;
