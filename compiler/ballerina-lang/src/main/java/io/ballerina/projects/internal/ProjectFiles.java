@@ -25,6 +25,7 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
@@ -229,15 +230,37 @@ public class ProjectFiles {
 
     public static void validateBalaProjectPath(Path balaPath) {
         if (Files.notExists(balaPath)) {
-            throw new ProjectException("Given .bala file does not exist: " + balaPath);
+            throw new ProjectException("Given bala path does not exist: " + balaPath);
         }
 
-        if (!Files.isRegularFile(balaPath) || !ProjectFiles.BALA_EXTENSION_MATCHER.matches(balaPath)) {
-            throw new ProjectException("Invalid .bala file: " + balaPath);
+        if (!isValidBalaFile(balaPath) && !isValidBalaDir(balaPath)) {
+            throw new ProjectException("Invalid bala file: " + balaPath);
         }
 
         if (!balaPath.toFile().canRead()) {
             throw new ProjectException("insufficient privileges to bala: " + balaPath);
         }
+    }
+
+    private static boolean isValidBalaDir(Path balaPath) {
+        if (Files.notExists(balaPath.resolve(ProjectConstants.DEPENDENCY_GRAPH_JSON))) {
+            return false;
+        }
+        if (Files.notExists(balaPath.resolve(ProjectConstants.PACKAGE_JSON))) {
+            return false;
+        }
+        if (Files.notExists(balaPath.resolve(ProjectConstants.BALA_JSON))) {
+            return false;
+        }
+        Path modulesRoot = balaPath.resolve(ProjectConstants.MODULES_ROOT);
+        File[] files = modulesRoot.toFile().listFiles();
+        if (files == null) {
+            return false;
+        }
+        return Files.isDirectory(modulesRoot) && files.length >= 1;
+    }
+
+    private static boolean isValidBalaFile(Path balaPath) {
+        return Files.isRegularFile(balaPath) && ProjectFiles.BALA_EXTENSION_MATCHER.matches(balaPath);
     }
 }

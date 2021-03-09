@@ -134,6 +134,15 @@ public class SymbolFactory {
             if (symbol.owner instanceof BObjectTypeSymbol) {
                 return createObjectFieldSymbol((BVarSymbol) symbol);
             }
+            if (Symbols.isFlagOn(symbol.flags, Flags.REQUIRED_PARAM)) {
+                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REQUIRED);
+            }
+            if (Symbols.isFlagOn(symbol.flags, Flags.DEFAULTABLE_PARAM)) {
+                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.DEFAULTABLE);
+            }
+            if (Symbols.isFlagOn(symbol.flags, Flags.REST_PARAM)) {
+                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REST);
+            }
 
             // return the variable symbol
             return createVariableSymbol((BVarSymbol) symbol, name);
@@ -317,7 +326,7 @@ public class SymbolFactory {
             annotSymbols.add(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
-        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind);
+        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind, symbol, this.context);
     }
 
     /**
