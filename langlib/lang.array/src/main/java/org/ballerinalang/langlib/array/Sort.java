@@ -42,10 +42,6 @@ public class Sort {
     public static BArray sort(BArray arr, Object direction, Object func) {
         checkIsArrayOnlyOperation(arr.getType(), "sort()");
         BFunctionPointer<Object, Object> function = (BFunctionPointer<Object, Object>) func;
-        boolean isAscending = true;
-        if (direction.toString().equals("descending")) {
-            isAscending = false;
-        }
 
         Object[][] sortArr = new Object[arr.size()][2];
         Object[][] sortArrClone = new Object[arr.size()][2];
@@ -60,7 +56,7 @@ public class Sort {
             }
         }
 
-        mergesort(sortArr, sortArrClone, 0, sortArr.length - 1, isAscending);
+        mergesort(sortArr, sortArrClone, 0, sortArr.length - 1, direction.toString());
 
         for (int k = 0; k < sortArr.length; k++) {
             arr.add(k, sortArr[k][1]);
@@ -70,20 +66,20 @@ public class Sort {
     }
 
     // Adapted from https://algs4.cs.princeton.edu/22mergesort/Merge.java.html
-    private static void mergesort(Object[][] input, Object[][] aux, int lo, int hi, boolean isAscending) {
+    private static void mergesort(Object[][] input, Object[][] aux, int lo, int hi, String direction) {
         if (hi <= lo) {
             return;
         }
 
         int mid = lo + (hi - lo) / 2;
 
-        mergesort(input, aux, lo, mid, isAscending);
-        mergesort(input, aux, mid + 1, hi, isAscending);
+        mergesort(input, aux, lo, mid, direction);
+        mergesort(input, aux, mid + 1, hi, direction);
 
-        merge(input, aux, lo, mid, hi, isAscending);
+        merge(input, aux, lo, mid, hi, direction);
     }
 
-    private static void merge(Object[][] input, Object[][] aux, int lo, int mid, int hi, boolean isAscending) {
+    private static void merge(Object[][] input, Object[][] aux, int lo, int mid, int hi, String direction) {
         if (hi + 1 - lo >= 0) {
             System.arraycopy(input, lo, aux, lo, hi + 1 - lo);
         }
@@ -95,9 +91,11 @@ public class Sort {
                     index = j++;
                 } else if (j > hi) {
                     index = i++;
-                } else if (isAscending && TypeChecker.compareValues(aux[j][0], aux[i][0], true) < 0) {
+                } else if (direction.equals("ascending") && TypeChecker.compareValues(aux[j][0],
+                        aux[i][0], direction) < 0) {
                     index = j++;
-                } else if (!isAscending && TypeChecker.compareValues(aux[i][0], aux[j][0], false) < 0) {
+                } else if (direction.equals("descending") && TypeChecker.compareValues(aux[i][0],
+                        aux[j][0], direction) < 0) {
                     index = j++;
                 } else {
                     index = i++;

@@ -3008,25 +3008,31 @@ public class TypeChecker {
     }
 
     public static boolean compareValueLessThan(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue, false) < 0;
+        return compareValues(lhsValue, rhsValue, "") < 0;
     }
 
     public static boolean compareValueLessThanOrEqual(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue, false) <= 0;
+        return compareValues(lhsValue, rhsValue, "") <= 0;
     }
 
     public static boolean compareValueGreaterThan(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue, false) > 0;
+        return compareValues(lhsValue, rhsValue, "") > 0;
     }
 
     public static boolean compareValueGreaterThanOrEqual(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue, false) >= 0;
+        return compareValues(lhsValue, rhsValue, "") >= 0;
     }
 
-    public static int compareValues(Object lhsValue, Object rhsValue, boolean isAscending) {
+    public static int compareValues(Object lhsValue, Object rhsValue, String direction) {
         int lhsTypeTag = TypeChecker.getType(lhsValue).getTag();
         int rhsTypeTag = TypeChecker.getType(rhsValue).getTag();
-        // () should come last irrespective of the sort direction.
+        boolean inRelationalExpr = false;
+        if (direction.isEmpty()) {
+            inRelationalExpr = true;
+        }
+        boolean isAscending = direction.equals("ascending");
+        // Compare(x,()) is UN if x is not ().
+        // () should come last for CompareA(x, y) and CompareD(x, y).
         if (lhsValue == null) {
             if (rhsValue == null) {
                 return 0;
@@ -3037,6 +3043,9 @@ public class TypeChecker {
             return -1;
         }
         if (rhsValue == null) {
+            if (inRelationalExpr) {
+                throw ErrorUtils.createUnorderedTypesError(lhsValue, TYPE_NULL);
+            }
             if (isAscending) {
                 return -1;
             }
@@ -3055,8 +3064,13 @@ public class TypeChecker {
             return Integer.compare((int) lhsValue, (int) rhsValue);
         }
         if (lhsTypeTag == TypeTags.FLOAT_TAG && rhsTypeTag == TypeTags.FLOAT_TAG) {
-            // NaN should be placed last or one before the last when () is present irrespective of the sort direction.
+            // Compare(x, y) is UN if x or y or both is NaN
+            // NaN should be placed last or one before the last when () is present for
+            // CompareA(x, y) and CompareD(x, y).
             if (Double.isNaN((double) lhsValue)) {
+                if (inRelationalExpr) {
+                    throw ErrorUtils.createUnorderedTypesError(lhsValue, rhsValue);
+                }
                 if (Double.isNaN((double) rhsValue)) {
                     return 0;
                 }
@@ -3066,6 +3080,9 @@ public class TypeChecker {
                 return -1;
             }
             if (Double.isNaN((double) rhsValue)) {
+                if (inRelationalExpr) {
+                    throw ErrorUtils.createUnorderedTypesError(lhsValue, rhsValue);
+                }
                 if (isAscending) {
                     return -1;
                 }
@@ -3111,10 +3128,10 @@ public class TypeChecker {
             int c = 0;
             for (int i = 0; i < len; i++) {
                 if (lhsTypeTag == TypeTags.ARRAY_TAG) {
-                    c = compareValues(((BArray) lhsValue).get(i), ((BArray) rhsValue).get(i), isAscending);
+                    c = compareValues(((BArray) lhsValue).get(i), ((BArray) rhsValue).get(i), direction);
                 } else {
                     c = compareValues(((TupleValueImpl) lhsValue).get(i), ((TupleValueImpl) rhsValue).get(i),
-                            isAscending);
+                            direction);
                 }
                 if (c != 0) {
                     break;

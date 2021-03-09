@@ -78,7 +78,8 @@ public enum RuntimeErrors {
     RECORD_INVALID_READONLY_FIELD_UPDATE("record.invalid.readonly.field.update", "RUNTIME_0051"),
     INVALID_READONLY_VALUE_UPDATE("invalid.update.on.readonly.value", "RUNTIME_0052"),
     OBJECT_INVALID_FINAL_FIELD_UPDATE("object.invalid.final.field.update", "RUNTIME_0053"),
-    UNSUPPORTED_COMPARISON_OPERATION("unsupported.comparison.operation", "RUNTIME_0054");
+    UNSUPPORTED_COMPARISON_OPERATION("unsupported.comparison.operation", "RUNTIME_0054"),
+    UNORDERED_TYPES_IN_COMPARISON("unordered.types.in.comparison", "RUNTIME_0055");
 
     private String errorMsgKey;
     private String errorCode;
