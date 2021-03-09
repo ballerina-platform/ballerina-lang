@@ -182,8 +182,9 @@ public class CodeCoverageUtils {
     }
 
     private static String normalizeRegexPattern(String pattern) {
-        if (TesterinaConstants.WILDCARD.equals(pattern)) {
-            pattern = TesterinaConstants.DOT.concat(pattern);
+        if (pattern.contains(TesterinaConstants.WILDCARD)) {
+            pattern = pattern.replace(TesterinaConstants.WILDCARD,
+                    TesterinaConstants.DOT + TesterinaConstants.WILDCARD);
         }
         return pattern;
     }
