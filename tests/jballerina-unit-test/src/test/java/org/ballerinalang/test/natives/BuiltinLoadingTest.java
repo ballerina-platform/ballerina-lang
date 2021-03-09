@@ -20,6 +20,7 @@ package org.ballerinalang.test.natives;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
 import org.testng.annotations.Test;
 
 /**
@@ -28,23 +29,19 @@ import org.testng.annotations.Test;
 public class BuiltinLoadingTest {
 
     @Test
-    public void testBuiltinImport() {
-        CompileResult result = BCompileUtil.compile("test-src/natives/builtin-loading-negative.bal");
-        BAssertUtil.validateError(result, 0, "cannot resolve module 'ballerina/builtin'", 1, 1);
-    }
-
-    @Test
-    public void testBuiltinCoreImport() {
-        CompileResult result = BCompileUtil.compile("test-src/natives/builtin-core-loading-negative.bal");
-        BAssertUtil.validateError(result, 0, "cannot resolve module 'ballerina/builtin.core'", 1, 1);
-    }
-
-
-    @Test
     public void testRedeclaredSymbols() {
         CompileResult result = BCompileUtil.compile("test-src/natives/builtin-symbol-negative.bal");
-        BAssertUtil.validateError(result, 0, "break cannot be used outside of a loop", 2, 5);
-        BAssertUtil.validateError(result, 1, "redeclared builtin symbol 'Listener'", 5, 10);
-        BAssertUtil.validateError(result, 3, "redeclared builtin symbol 'Listener'", 10, 5);
+
+        BAssertUtil.validateError(result, 0, "a function with a non-'external' function body cannot be a " +
+                "dependently-typed function", 1, 30);
+        BAssertUtil.validateError(result, 1, "redeclared builtin symbol 'error'", 5, 6);
+        BAssertUtil.validateError(result, 2, "redeclared builtin symbol 'json'", 6, 6);
+        BAssertUtil.validateError(result, 3, "redeclared builtin symbol 'anydata'", 7, 6);
+        BAssertUtil.validateError(result, 4, "redeclared symbol 'int'", 8, 6);
+        BAssertUtil.validateError(result, 5, "redeclared symbol 'never'", 9, 6);
+        BAssertUtil.validateError(result, 6, "redeclared symbol 'readonly'", 10, 6);
+        BAssertUtil.validateError(result, 7, "redeclared symbol 'xml'", 11, 6);
+
+        Assert.assertEquals(result.getErrorCount(), 8);
     }
 }
