@@ -42,7 +42,7 @@ class ErrorField {
     }
 }
 
-public function testErrorAsObjectField () {
+public function testErrorAsObjectField() {
     error newError = error("bam", message = "new error");
     ErrorField p = new ErrorField(newError);
     assertEquality(p.'error.toString(), "error(\"bam\",message=\"new error\")");
