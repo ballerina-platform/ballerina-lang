@@ -28,8 +28,8 @@ OPTIONS
            file name may or may not contain the ‘.jar’ extension.
 
        -c, --compile
-           Compile the source and generates the Ballerina archive
-           without generating executable(s).
+           Compile the source and generates the Ballerina archive (.bala)
+           without generating the executable.
 
        --offline
            Build offline without downloading the dependencies.
@@ -71,9 +71,10 @@ EXAMPLES
         `hello.jar` file in the '<package-root>/target/bin' directory.
           $ bal build
 
-       Build the 'hello' library package with --compile flag. This will generate the
-       `<org-name>-<package-name>-<version>-<platform>.bala` file in
+       Build the 'hello' library package with '--compile'/'-c' flag. This will
+       generate the `<org-name>-<package-name>-<version>-<platform>.bala` file in
        '<package-root>/target/bala' directory.
+          $ bal build -c
 
        Build the 'hello' package from a different directory location.
           $ bal build `<hello-package-path>`
