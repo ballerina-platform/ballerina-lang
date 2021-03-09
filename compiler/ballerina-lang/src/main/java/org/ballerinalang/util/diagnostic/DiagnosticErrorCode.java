@@ -519,6 +519,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNNECESSARY_CONDITION("BCE3604", "unnecessary.condition"),
 
     INVALID_USAGE_OF_CLONE("BCE3605", "clone.invocation.invalid"),
+    EMPTY_CLOSED_RECORD_CANNOT_BE_ITERATED("BCE3606", "empty.closed.record.cannot.be.iterated"),
 
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("BCE3700", "partially.initialized.variable"),

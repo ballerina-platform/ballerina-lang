@@ -1893,6 +1893,9 @@ public class Types {
 
         if (!recordType.sealed) {
             unionType.add(recordType.restFieldType);
+        } else if (fields.size() == 0) {
+            dlog.error(recordType.tsymbol.pos, DiagnosticErrorCode.EMPTY_CLOSED_RECORD_CANNOT_BE_ITERATED);
+            return symTable.semanticError;
         }
 
         for (BField field : fields.values()) {
