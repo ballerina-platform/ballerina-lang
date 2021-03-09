@@ -52,3 +52,6 @@ function searchPeople () returns [string, int, float] {
 # + y - another thing to be added
 # + return - the sum of them
 function add (int x, int y) returns int  { return x + y; }
+
+# + 'example - The error struct to be logged
+function foo(error 'example) {}

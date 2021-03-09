@@ -232,7 +232,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getFunctions().get(5).getMarkdownDocumentationAttachment();
+                packageNode.getFunctions().get(6).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Gets a access parameter value (`true` or " +
                 "`false`) for a given key. Please note that #foo will always be bigger than #bar.\n" +
@@ -319,6 +319,11 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(7).type, DocumentationReferenceType.ANNOTATION);
         Assert.assertEquals(references.get(7).referenceName, "annot");
 
+        var fooFunction = packageNode.getFunctions().get(5).getMarkdownDocumentationAttachment();
+        var exapmpleParam = fooFunction.getParameterDocumentations().get("example");
+        Assert.assertEquals(exapmpleParam.parameterName.getValue(), "example");
+        Assert.assertEquals(exapmpleParam.parameterDocumentationLines.get(0),
+                "The error struct to be logged");
     }
 
     @Test(description = "Test doc function with function keyword", groups = { "disableOnOldParser" })
