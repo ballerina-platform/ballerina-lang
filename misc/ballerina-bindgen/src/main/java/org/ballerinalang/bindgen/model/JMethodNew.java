@@ -48,7 +48,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
  *
  * @since 1.2.0
  */
-public class JMethod extends BFunction {
+public class JMethodNew extends BFunction {
 
     private BindgenEnv env;
     private boolean isStatic;
@@ -81,7 +81,7 @@ public class JMethod extends BFunction {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    public JMethod(Method m, Class parentClass, BindgenEnv env) {
+    public JMethodNew(Method m, Class parentClass, BindgenEnv env) {
         super(BFunctionKind.METHOD, env);
         this.env = env;
         method = m;

@@ -43,6 +43,10 @@ public class BindgenConstants {
     public static final String CONSTANTS_FILE_NAME = "Constants.bal";
     public static final String ARRAY_BRACKETS = "[]";
     public static final String MODULES_DIR = "modules";
+    public static final String NAME = "name";
+    public static final String CLASS = "'class";
+    public static final String PARAM_TYPES = "paramTypes";
+    public static final String JAVA = "java";
     static final String TARGET_DIR = "target";
     static final String MVN_REPO = "platform-libs";
     static final String FILE_SEPARATOR = "file.separator";

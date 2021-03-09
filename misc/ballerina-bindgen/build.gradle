@@ -32,6 +32,9 @@ dependencies {
     implementation 'org.apache.maven:maven-plugin-api'
     implementation project(':ballerina-cli')
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-parser')
+    implementation project(':formatter:formatter-core')
+    implementation project(':ballerina-tools-api')
     implementation project(':maven-resolver')
     implementation project(':ballerina-lang:annotations')
     implementation 'com.moandjiezana.toml:toml4j'
@@ -45,3 +48,16 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
+
+task createTestJar(type: Jar) {
+    from sourceSets.test.output
+}
+
+//task copyTestJar(type: Copy) {
+//    from "$buildDir/libs/*tests.jar"
+//    into "$buildDir/resources/test/mvn-test-resources/balProject"
+//    include "*.jar"
+//}
+//
+//tasks.copyTestJar.dependsOn("createTestJar")
+//tasks.test.dependsOn("copyTestJar")

@@ -36,7 +36,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
  *
  * @since 1.2.0
  */
-public class JConstructor extends BFunction implements Cloneable  {
+public class JConstructorNew extends BFunction implements Cloneable  {
 
     private JClass jClass;
     private Class parentClass;
@@ -57,7 +57,7 @@ public class JConstructor extends BFunction implements Cloneable  {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    JConstructor(Constructor c, BindgenEnv env, JClass jClass) {
+    JConstructorNew(Constructor c, BindgenEnv env, JClass jClass) {
         super(BFunctionKind.CONSTRUCTOR, env);
         this.jClass = jClass;
         parentClass = c.getDeclaringClass();

@@ -172,4 +172,16 @@ public class JParameter {
     public Boolean getIsStringArray() {
         return isStringArray;
     }
+
+    public String getType() {
+        return type;
+    }
+
+    public String getShortTypeName() {
+        return shortTypeName;
+    }
+
+    public Boolean isArray() {
+        return isObjArray || isStringArray || isPrimitiveArray;
+    }
 }

@@ -35,7 +35,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticField;
  *
  * @since 1.2.0
  */
-public class JField extends BFunction {
+public class JFieldNew extends BFunction {
 
     private JClass jClass;
     private String fieldName;
@@ -55,7 +55,7 @@ public class JField extends BFunction {
 
     private JParameter fieldObj;
 
-    JField(Field field, BFunction.BFunctionKind fieldKind, BindgenEnv env, JClass jClass) {
+    JFieldNew(Field field, BFunctionKind fieldKind, BindgenEnv env, JClass jClass) {
         super(fieldKind, env);
         this.jClass = jClass;
         Class type = field.getType();
