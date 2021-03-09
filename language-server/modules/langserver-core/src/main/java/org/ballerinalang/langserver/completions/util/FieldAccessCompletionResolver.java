@@ -30,7 +30,6 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -51,7 +50,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -99,12 +97,14 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         if (nameRef.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
         }
-        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.METHOD;
+        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.METHOD
+                || symbol.kind() == SymbolKind.FUNCTION;
         String methodName = ((SimpleNameReferenceNode) nameRef).name().text();
         List<Symbol> visibleEntries = this.getVisibleEntries(exprTypeSymbol.orElseThrow());
 
-        MethodSymbol symbol = (MethodSymbol) this.getSymbolByName(visibleEntries, methodName, predicate);
+        FunctionSymbol symbol = (FunctionSymbol) this.getSymbolByName(visibleEntries, methodName, predicate);
         FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) SymbolUtil.getTypeDescriptor(symbol).orElseThrow();
+
         return functionTypeSymbol.returnTypeDescriptor();
     }
 
@@ -195,16 +195,6 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                                 && !methodSymbol.qualifiers().contains(Qualifier.RESOURCE))
                         .collect(Collectors.toList());
                 visibleEntries.addAll(methodSymbols);
-                break;
-            case UNION:
-                UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;
-                List<TypeSymbol> members = unionTypeSymbol.memberTypeDescriptors();
-                if (members.size() != 2
-                        || members.stream().noneMatch(symbol -> symbol.typeKind() == TypeDescKind.NIL)) {
-                    break;
-                }
-                TypeSymbol evalType = members.get(0).typeKind() == TypeDescKind.NIL ? members.get(1) : members.get(0);
-                visibleEntries.addAll(this.getVisibleEntries(evalType));
                 break;
             default:
                 break;

@@ -50,8 +50,9 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
     protected List<LSCompletionItem> getFilteredItems(BallerinaCompletionContext context, ExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        Optional<TypeSymbol> expressionType = context.currentSemanticModel().orElseThrow().type(node);
-        
+        Optional<TypeSymbol> expressionType = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.type(node));
+
         if (expressionType.isPresent() && SymbolUtil.isClient(expressionType.get())) {
             /*
             Covers the following case where a is a client object and we suggest the remote actions
