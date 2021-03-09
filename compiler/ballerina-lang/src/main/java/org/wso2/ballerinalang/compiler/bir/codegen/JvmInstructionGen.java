@@ -657,15 +657,6 @@ public class JvmInstructionGen {
             } else if (opcode == IFGE) {
                 this.mv.visitJumpInsn(IF_ICMPGE, label1);
             }
-        } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitInsn(DCMPL);
-            this.mv.visitJumpInsn(opcode, label1);
-        } else if (lhsOpType.tag == TypeTags.DECIMAL && rhsOpType.tag == TypeTags.DECIMAL) {
-            String compareFuncName = this.getDecimalCompareFuncName(opcode);
-            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName,
-                    String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
-            this.storeToVar(binaryIns.lhsOp.variableDcl);
-            return;
         } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
             if (opcode == IFLT) {
                 this.mv.visitJumpInsn(IF_ICMPLT, label1);
@@ -676,6 +667,12 @@ public class JvmInstructionGen {
             } else {
                 this.mv.visitJumpInsn(IF_ICMPGE, label1);
             }
+        } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
+            String compareFuncName = this.getCompareFuncName(opcode);
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName,
+                    String.format("(DD)Z"), false);
+            this.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
         } else {
             String compareFuncName = this.getCompareFuncName(opcode);
             this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName,

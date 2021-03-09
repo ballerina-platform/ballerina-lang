@@ -219,7 +219,9 @@ function testTupleComparison1() {
     [int, decimal] b = [59283, 24345];
     [int, decimal] c = [59215, 24345];
     [int, decimal...] d = [59283, 24345, 12342];
-    [int, decimal] e = [];
+    [int, decimal...] e = [59283, 24345, 123425];
+    [int, decimal] f = [];
+    [int, decimal] g = [];
 
     test:assertTrue(a < b);
     test:assertTrue(a <= b);
@@ -231,15 +233,15 @@ function testTupleComparison1() {
     test:assertTrue(c > a);
     test:assertTrue(c >= a);
 
-    test:assertFalse(b > d);
-    test:assertFalse(b >= d);
-    test:assertTrue(b < d);
-    test:assertTrue(b <= d);
+    test:assertTrue(d < e);
+    test:assertTrue(d <= e);
+    test:assertFalse(d > e);
+    test:assertFalse(d >= e);
 
-    test:assertFalse(d < e);
-    test:assertFalse(d <= e);
-    test:assertTrue(d > e);
-    test:assertTrue(d >= e);
+    test:assertFalse(f < g);
+    test:assertTrue(f <= g);
+    test:assertFalse(f > g);
+    test:assertTrue(f >= g);
 }
 
 function testTupleComparison2() {
@@ -311,7 +313,7 @@ function testTypeComparison() {
 }
 
 function testUnorderedTypeComparison1() {
-    [int, string] a = [59215, "ABC"];
+    [int, string?] a = [59215, "ABC"];
     [int, string?] b = [59215, ()];
 
     boolean x = a > b;
@@ -327,6 +329,41 @@ function testUnorderedTypeComparison2() {
 function testUnorderedTypeComparison3() {
     [int, float] a = [59215, (0.0/0.0)];
     [int, float] b = [59215, (0.0/0.0)];
+
+    boolean x = a > b;
+}
+
+function testUnorderedTypeComparison4() {
+    string? a = ();
+    string? b = "ABC";
+
+    boolean x = a > b;
+}
+
+function testUnorderedTypeComparison5() {
+    int? a = 400;
+    int? b = ();
+
+    boolean x = a > b;
+}
+
+function testUnorderedTypeComparison6() {
+    float a = 400.123;
+    float b = (0.0/0.0);
+
+    boolean x = a > b;
+}
+
+function testUnorderedTypeComparison7() {
+    float a = (0.0/0.0);
+    float b = (0.0/0.0);
+
+    boolean x = a > b;
+}
+
+function testUnorderedTypeComparison8() {
+    float a = (0.0/0.0);
+    float b = (0.0/0.0);
 
     boolean x = a > b;
 }

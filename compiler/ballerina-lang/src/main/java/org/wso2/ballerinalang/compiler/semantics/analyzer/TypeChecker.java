@@ -3726,7 +3726,8 @@ public class TypeChecker extends BLangNodeVisitor {
                     }
 
                     if (opSymbol == symTable.notFoundSymbol || (isBinaryComparisonOperator(binaryExpr.opKind) &&
-                            (!types.isOrderedType(lhsType) || !types.isOrderedType(rhsType)))) {
+                            !(types.isOrderedType(lhsType) && types.isOrderedType(rhsType) &&
+                                    isSameOrderedType(lhsType, rhsType)))) {
                         dlog.error(binaryExpr.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
                                 lhsType, rhsType);
                     } else if (opSymbol != symTable.notFoundSymbol) {
@@ -3748,6 +3749,14 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isBinaryComparisonOperator(OperatorKind operatorKind) {
         return operatorKind == OperatorKind.LESS_THAN || operatorKind == OperatorKind.LESS_EQUAL
                 || operatorKind == OperatorKind.GREATER_THAN || operatorKind == OperatorKind.GREATER_EQUAL;
+    }
+
+    private boolean isSameOrderedType(BType lhsType, BType rhsType) {
+        if ((lhsType.tag == TypeTags.FLOAT || lhsType.tag == TypeTags.INT || lhsType.tag == TypeTags.DECIMAL) &&
+                (rhsType.tag == TypeTags.FLOAT || rhsType.tag == TypeTags.INT || rhsType.tag == TypeTags.DECIMAL)) {
+            return true;
+        }
+        return types.isSameType(lhsType, rhsType);
     }
 
     private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
