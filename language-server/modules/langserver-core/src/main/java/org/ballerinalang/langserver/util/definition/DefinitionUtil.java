@@ -44,8 +44,8 @@ public class DefinitionUtil {
      * @return {@link List} List of definition locations
      */
     public static List<Location> getDefinition(DocumentServiceContext context, Position position) {
-        Optional<Document> srcFile = context.workspace().document(context.filePath());
-        Optional<SemanticModel> semanticModel = context.workspace().semanticModel(context.filePath());
+        Optional<Document> srcFile = context.currentDocument();
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
 
         if (semanticModel.isEmpty() || srcFile.isEmpty()) {
             return Collections.emptyList();

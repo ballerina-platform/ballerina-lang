@@ -21,6 +21,9 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -43,11 +46,15 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider;
+import org.ballerinalang.langserver.completions.ObjectFieldCompletionItem;
+import org.ballerinalang.langserver.completions.RecordFieldCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.builder.ConstantCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.FieldCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.FunctionCompletionItemBuilder;
+import org.ballerinalang.langserver.completions.builder.ParameterCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.TypeCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.VariableCompletionItemBuilder;
 import org.ballerinalang.langserver.completions.builder.WorkerCompletionItemBuilder;
@@ -69,9 +76,13 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 
 /**
@@ -156,6 +167,13 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 CompletionItem variableCItem = VariableCompletionItemBuilder.build(varSymbol, varSymbol.getName().get(),
                         typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
+            } else if (symbol.kind() == PARAMETER) {
+                ParameterSymbol paramSymbol = (ParameterSymbol) symbol;
+                TypeSymbol typeDesc = paramSymbol.typeDescriptor();
+                String typeName = CommonUtil.getModifiedTypeName(ctx, typeDesc);
+                CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
+                                                                                    typeName);
+                completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
             } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
                 // Here skip all the package symbols since the package is added separately
                 CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.getName().get());
@@ -166,6 +184,14 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             } else if (symbol.kind() == XMLNS) {
                 CompletionItem xmlItem = XMLNSCompletionItemBuilder.build((XMLNamespaceSymbol) symbol);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, xmlItem));
+            } else if (symbol.kind() == RECORD_FIELD) {
+                RecordFieldSymbol recordFieldSymbol = (RecordFieldSymbol) symbol;
+                CompletionItem recFieldItem = FieldCompletionItemBuilder.build(recordFieldSymbol);
+                completionItems.add(new RecordFieldCompletionItem(ctx, recordFieldSymbol, recFieldItem));
+            } else if (symbol.kind() == OBJECT_FIELD || symbol.kind() == CLASS_FIELD) {
+                ObjectFieldSymbol objectFieldSymbol = (ObjectFieldSymbol) symbol;
+                CompletionItem objFieldItem = FieldCompletionItemBuilder.build(objectFieldSymbol);
+                completionItems.add(new ObjectFieldCompletionItem(ctx, objectFieldSymbol, objFieldItem));
             }
 
             processedSymbols.add(symbol);
@@ -196,6 +222,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
         completionItems.addAll(Arrays.asList(
                 new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
+                new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_CLOSED_RECORD_TYPE_DESC.get()),
                 new SnippetCompletionItem(context, Snippet.KW_DISTINCT.get()),
@@ -290,6 +317,15 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         return completionItems;
     }
 
+    /**
+     * Check whether the cursor is within a qualified name reference.
+     * This has been deprecated and use QNameReferenceUtil#onQualifiedNameIdentifier instead.
+     * 
+     * @param context completion context
+     * @param node node to evaluate upon
+     * @return {@link Boolean}
+     */
+    @Deprecated(forRemoval = true)
     protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
         if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             return false;
@@ -384,8 +420,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
         // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib 
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == FUNCTION)
-                        && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
+                .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER ||
+                        symbol.kind() == FUNCTION) && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         // TODO: anon function expressions, 

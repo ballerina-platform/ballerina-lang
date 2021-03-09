@@ -15,14 +15,17 @@
  */
 package org.ballerinalang.langserver.codeaction;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
@@ -46,6 +49,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -58,7 +62,6 @@ import org.ballerinalang.langserver.common.ImportsAcceptor;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.FunctionGenerator;
 import org.ballerinalang.langserver.commons.CodeActionContext;
-import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.DiagnosticSeverity;
@@ -178,7 +181,7 @@ public class CodeActionUtil {
      * @return a list of possible type list
      */
     public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, List<TextEdit> edits,
-                                                   DocumentServiceContext context) {
+                                                   CodeActionContext context) {
         List<String> possibleTypes = getPossibleTypes(typeDescriptor, edits, context);
         return possibleTypes.isEmpty() ? Optional.empty() : Optional.of(possibleTypes.get(0));
     }
@@ -192,7 +195,7 @@ public class CodeActionUtil {
      * @return a list of possible type list
      */
     public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits,
-                                                DocumentServiceContext context) {
+                                                CodeActionContext context) {
         if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
         }
@@ -203,11 +206,20 @@ public class CodeActionUtil {
             // Handle ambiguous mapping construct types {}
 
             // Matching Record type
-            // TODO: Disabled due to #26789
-//            if (matchingRecordType != null) {
-//                String recType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
-//                types.add(recType);
-//            }
+            for (Symbol symbol : context.visibleSymbols(context.cursorPosition())) {
+                if (symbol instanceof TypeDefinitionSymbol &&
+                        ((TypeDefinitionSymbol) symbol).typeDescriptor().typeKind() == TypeDescKind.RECORD &&
+                        typeDescriptor.assignableTo(((TypeDefinitionSymbol) symbol).typeDescriptor())) {
+                    Optional<ModuleSymbol> module = symbol.getModule();
+                    String fqPrefix = "";
+                    if (module.isPresent() && !(ProjectConstants.ANON_ORG.equals(module.get().id().orgName()))) {
+                        ModuleID id = module.get().id();
+                        fqPrefix = id.orgName() + "/" + id.moduleName() + ":" + id.version() + ":";
+                    }
+                    String moduleQualifiedName = fqPrefix + symbol.getName().get();
+                    types.add(FunctionGenerator.processModuleIDsInText(importsAcceptor, moduleQualifiedName, context));
+                }
+            }
 
             // Anon Record
             String rType = FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context);
@@ -303,23 +315,23 @@ public class CodeActionUtil {
     /**
      * Returns position details for this cursor position.
      *
-     * @param range      cursor {@link Range}
      * @param syntaxTree {@link SyntaxTree}
+     * @param diagnostic {@link Diagnostic}
      * @param context    {@link CodeActionContext}
      * @return {@link DiagBasedPositionDetails}
      */
-    public static DiagBasedPositionDetails computePositionDetails(Range range, SyntaxTree syntaxTree,
+    public static DiagBasedPositionDetails computePositionDetails(SyntaxTree syntaxTree, Diagnostic diagnostic,
                                                                   CodeActionContext context) {
         // Find Cursor node
+        Range range = CommonUtil.toRange(diagnostic.location().lineRange());
         NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
-        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
+        Document srcFile = context.currentDocument().orElseThrow();
         SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
 
         Optional<Pair<NonTerminalNode, Symbol>> nodeAndSymbol = getMatchedNodeAndSymbol(cursorNode, range,
                                                                                         semanticModel, srcFile);
         Symbol matchedSymbol;
         NonTerminalNode matchedNode;
-        Optional<TypeSymbol> matchedExprTypeSymbol;
         if (nodeAndSymbol.isPresent()) {
             matchedNode = nodeAndSymbol.get().getLeft();
             matchedSymbol = nodeAndSymbol.get().getRight();
@@ -327,8 +339,7 @@ public class CodeActionUtil {
             matchedNode = cursorNode;
             matchedSymbol = null;
         }
-        matchedExprTypeSymbol = semanticModel.type(largestExpressionNode(cursorNode, range).lineRange());
-        return DiagBasedPositionDetailsImpl.from(matchedNode, matchedSymbol, matchedExprTypeSymbol.orElse(null));
+        return DiagBasedPositionDetailsImpl.from(matchedNode, matchedSymbol, diagnostic);
     }
 
     public static List<TextEdit> getTypeGuardCodeActionEdits(String varName, Range range, UnionTypeSymbol unionType,
@@ -400,7 +411,7 @@ public class CodeActionUtil {
 
         List<TextEdit> edits = new ArrayList<>();
         SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
-        Document document = context.workspace().document(context.filePath()).orElseThrow();
+        Document document = context.currentDocument().orElseThrow();
         Optional<Symbol> optEnclosedFuncSymbol =
                 semanticModel.symbol(document, enclosedFunc.get().functionName().lineRange().startLine());
 

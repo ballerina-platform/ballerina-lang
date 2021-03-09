@@ -1,6 +1,6 @@
 public function testFunction() {
     int testInt = 10; 
-    if (testInt = 1) {
+    if (testInt == 1) {
         
     } else if (t)
 }

@@ -891,7 +891,8 @@ function errorGuardHelper(any|error a1, any|error a2) returns boolean {
         error e4 = a2;
 
         map<value:Cloneable> m = <map<value:Cloneable>> e4.detail();
-        return e3.message() == reason && e4.message() == reason && m == detail;
+        return e3.message() == reason && e4.message() === reason
+            && m["code"] === detail["code"] && m["detail"] === detail["detail"];
     }
     return false;
 }

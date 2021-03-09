@@ -1,0 +1,3 @@
+[testOrg.main]
+intVar.structure = 4.25
+stringVar = false

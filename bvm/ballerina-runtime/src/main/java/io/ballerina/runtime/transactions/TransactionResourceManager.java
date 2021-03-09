@@ -513,7 +513,11 @@ public class TransactionResourceManager {
      * This method marks the current transaction context as non-transactional.
      */
     public void setContextNonTransactional() {
-        Scheduler.getStrand().currentTrxContext.setTransactional(false);
+        //todo check possibility of currentTrxContext being null when this get called
+        TransactionLocalContext localContext = Scheduler.getStrand().currentTrxContext;
+        if (localContext != null) {
+            localContext.setTransactional(false);
+        }
     }
 
     /**

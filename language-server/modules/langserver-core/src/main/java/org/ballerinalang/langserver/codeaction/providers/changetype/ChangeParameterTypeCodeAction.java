@@ -16,9 +16,10 @@
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -27,7 +28,6 @@ import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import io.ballerina.projects.Document;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
@@ -65,12 +65,18 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         // Skip, non-local var declarations
-        if (positionDetails.matchedNode().kind() != SyntaxKind.LOCAL_VAR_DECL) {
+        VariableDeclarationNode localVarNode = getVariableDeclarationNode(positionDetails.matchedNode());
+        if (localVarNode == null) {
+            return Collections.emptyList();
+        }
+
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
+        if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
 
         // Skip, variable declarations with non-initializers
-        VariableDeclarationNode localVarNode = (VariableDeclarationNode) positionDetails.matchedNode();
         Optional<ExpressionNode> initializer = localVarNode.initializer();
         if (initializer.isEmpty()) {
             return Collections.emptyList();
@@ -78,14 +84,14 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
 
         // Get parameter symbol
         SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
-        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
-        Optional<Symbol> optParamSymbol = semanticModel.symbol(srcFile,
-                                                               initializer.get().lineRange().startLine());
-        if (optParamSymbol.isEmpty() || optParamSymbol.get().kind() != SymbolKind.VARIABLE) {
+        Optional<Symbol> optParamSymbol = semanticModel.symbol(initializer.get());
+        if (optParamSymbol.isEmpty() || optParamSymbol.get().kind() != SymbolKind.PARAMETER) {
             return Collections.emptyList();
         }
-        VariableSymbol paramSymbol = (VariableSymbol) optParamSymbol.get();
+        ParameterSymbol paramSymbol = (ParameterSymbol) optParamSymbol.get();
 
+        // TODO: Check whether the following code segment is required. Since we know the symbol is a param symbol, it
+        //  follows that the var decl is within a function/method.
         // Find parent function definition
         NonTerminalNode funcDefNode = localVarNode.parent();
         while (funcDefNode != null && funcDefNode.kind() != SyntaxKind.FUNCTION_DEFINITION) {
@@ -105,7 +111,7 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         // Derive possible types
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes(positionDetails.matchedExprType(), importEdits, context);
+        List<String> types = CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context);
         for (String type : types) {
             List<TextEdit> edits = new ArrayList<>();
             edits.add(new TextEdit(paramTypeRange.get(), type));
@@ -114,6 +120,14 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;
+    }
+
+    private VariableDeclarationNode getVariableDeclarationNode(NonTerminalNode node) {
+        while (node != null && node.kind() != SyntaxKind.LOCAL_VAR_DECL) {
+            node = node.parent();
+        }
+
+        return node != null ? (VariableDeclarationNode) node : null;
     }
 
     private Optional<Range> getParameterTypeRange(NonTerminalNode parameterNode) {

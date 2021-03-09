@@ -78,6 +78,15 @@ public class TestProcessor {
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
+    private JarResolver jarResolver;
+
+    public TestProcessor() {
+    }
+
+    public TestProcessor(JarResolver jarResolver) {
+        this.jarResolver = jarResolver;
+    }
+
     /**
      * Generate and return the testsuite for module tests.
      *
@@ -93,7 +102,7 @@ public class TestProcessor {
         if (module.project().buildOptions().skipTests()) {
             return Optional.empty();
         }
-        return Optional.of(generateTestSuite(module));
+        return Optional.of(generateTestSuite(module, this.jarResolver));
     }
 
     /**
@@ -124,7 +133,7 @@ public class TestProcessor {
      * @param module Module
      * @return TestSuite
      */
-    private TestSuite generateTestSuite(Module module) {
+    private TestSuite generateTestSuite(Module module, JarResolver jarResolver) {
         TestSuite testSuite = new TestSuite(module.descriptor().name().toString(),
                 module.descriptor().packageName().toString(),
                 module.descriptor().org().value(), module.descriptor().version().toString());
@@ -132,6 +141,10 @@ public class TestProcessor {
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
         testSuite.setSourceRootPath(module.project().sourceRoot().toString());
+        if (jarResolver != null) {
+            testSuite.addTestExecutionDependencies(
+                    jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName()));
+        }
         addUtilityFunctions(module, testSuite);
         processAnnotations(module, testSuite);
         testSuite.sort();

@@ -18,6 +18,7 @@
 package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.RecordType;
@@ -40,6 +41,7 @@ import io.ballerina.runtime.api.values.BXml;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG;
 import static io.ballerina.runtime.api.TypeTags.BYTE_TAG;
@@ -267,13 +269,85 @@ public class VariableReturnType {
         Type yType = TypeUtils.getType(y);
 
         if (z.getDescribingType().getTag() == INT_TAG) {
-            long xAsInt = xType.getTag() == INT_TAG ? (long) x : Long.valueOf(((BString) x).getValue());
-            long yAsInt = yType.getTag() == INT_TAG ? (long) y : Long.valueOf(((BString) y).getValue());
+            long xAsInt = xType.getTag() == INT_TAG ? (long) x : Long.parseLong(((BString) x).getValue());
+            long yAsInt = yType.getTag() == INT_TAG ? (long) y : Long.parseLong(((BString) y).getValue());
             return xAsInt + yAsInt;
         }
 
         BString xAsString = xType.getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) x)) : (BString) x;
         BString yAsString = yType.getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) y)) : (BString) y;
         return xAsString.concat(yAsString);
+    }
+
+    public static Object getWithUnion(Object x, BTypedesc y) {
+        int tag = y.getDescribingType().getTag();
+        if (tag == INT_TAG) {
+            return TypeUtils.getType(x).getTag() == INT_TAG ? (long) x + 1 : (long) ((BString) x).length();
+        }
+
+        if (tag == STRING_TAG) {
+            return TypeUtils.getType(x).getTag() == INT_TAG ? StringUtils.fromString(Long.toString((long) x)) :
+                    (BString) x;
+        }
+
+        return ErrorCreator.createError(StringUtils.fromString("Error!"), StringUtils.fromString("Union typedesc"));
+    }
+
+    public static Object clientGetWithUnion(BObject client, Object x, BTypedesc y) {
+        return getWithUnion(x, y);
+    }
+
+    public static Object clientRemoteGetWithUnion(BObject client, Object x, BTypedesc y) {
+        return getWithUnion(x, y);
+    }
+
+    public static Object getWithRestParam(long i, BTypedesc j, long... k) {
+        int tag = j.getDescribingType().getTag();
+
+        long total = i;
+        for (long val : k) {
+            total += val;
+        }
+
+        if (tag == STRING_TAG) {
+            return total == 0 ? true : (total == 1 ? false : StringUtils.fromString(Long.toString(total)));
+        }
+
+        return total;
+    }
+
+    public static Object getWithMultipleTypedescs(long i, BTypedesc j, BTypedesc k, BTypedesc... l) {
+        return true;
+    }
+
+    public static Object clientPost(BObject client, BMap options, BTypedesc targetType) {
+        BString mediaType =
+                Optional.ofNullable(options.getStringValue(StringUtils.fromString("mediaType")))
+                        .orElse(StringUtils.fromString(""));
+        BString header =
+                Optional.ofNullable(options.getStringValue(StringUtils.fromString("header")))
+                        .orElse(StringUtils.fromString(""));
+
+        if (targetType.getDescribingType().getTag() == STRING_TAG) {
+            return mediaType.concat(StringUtils.fromString(" ")).concat(header);
+        }
+
+        return mediaType.length() + header.length();
+    }
+
+    public static Object calculate(BObject client, long i, BMap options, BTypedesc targetType) {
+        BString mediaType =
+                Optional.ofNullable(options.getStringValue(StringUtils.fromString("mediaType")))
+                        .orElse(StringUtils.fromString(""));
+        BString header =
+                Optional.ofNullable(options.getStringValue(StringUtils.fromString("header")))
+                        .orElse(StringUtils.fromString(""));
+
+        if (targetType.getDescribingType().getTag() == STRING_TAG) {
+            return mediaType.concat(StringUtils.fromString(" ")).concat(header)
+                    .concat(StringUtils.fromString(Long.toString(i)));
+        }
+
+        return mediaType.length() + header.length() + i;
     }
 }

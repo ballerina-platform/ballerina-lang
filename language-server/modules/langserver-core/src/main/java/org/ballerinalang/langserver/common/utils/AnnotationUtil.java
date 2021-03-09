@@ -169,7 +169,8 @@ public class AnnotationUtil {
      * @return {@link Boolean} having the attachment point or not
      */
     public static boolean hasAttachment(AnnotationSymbol annotation, AnnotationAttachPoint attachPoint) {
-        return annotation.attachPoints().contains(attachPoint);
+        // Annotations without attachment points can applied to any construct
+        return annotation.attachPoints().isEmpty() || annotation.attachPoints().contains(attachPoint);
     }
 
     /**
@@ -203,7 +204,8 @@ public class AnnotationUtil {
                 }
                 List<String> insertTexts = new ArrayList<>();
                 requiredFields.forEach(field -> {
-                    String fieldInsertionText = "\t" + getRecordFieldCompletionInsertText(field, 1);
+                    String fieldInsertionText = "\t" + 
+                            getRecordFieldCompletionInsertText(field, Collections.emptyList(), 1);
                     insertTexts.add(fieldInsertionText);
                 });
                 annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));

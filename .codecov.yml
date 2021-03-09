@@ -1,2 +1,9 @@
+codecov:
+  require_ci_to_pass: no
+
 fixes:
   - "ballerina/lang$0046*/*/::langlib/lang.*/src/main/ballerina/"
+
+ignore:
+  - "**/tests"
+
