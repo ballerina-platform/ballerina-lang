@@ -20,7 +20,7 @@ package io.ballerina.projects;
 
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
-import io.ballerina.projects.internal.model.CompilerPluginTomlModel;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 
 import java.io.FileInputStream;
 import java.io.IOException;
@@ -137,13 +137,13 @@ public class JBallerinaBalaWriter extends BalaWriter {
         return AnyTarget.ANY;
     }
 
-    private Optional<CompilerPluginTomlModel> readCompilerPluginToml() {
+    private Optional<CompilerPluginDescriptor> readCompilerPluginToml() {
         Optional<io.ballerina.projects.CompilerPluginToml> compilerPluginToml = backend.packageContext().project()
                 .currentPackage().compilerPluginToml();
 
         if (compilerPluginToml.isPresent()) {
             TomlDocument tomlDocument = compilerPluginToml.get().compilerPluginTomlContext().tomlDocument();
-            return Optional.of(CompilerPluginTomlModel.from(tomlDocument));
+            return Optional.of(CompilerPluginDescriptor.from(tomlDocument));
         }
         return Optional.empty();
     }

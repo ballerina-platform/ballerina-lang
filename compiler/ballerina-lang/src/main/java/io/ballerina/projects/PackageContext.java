@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.PackageResolution.DependencyResolution;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -125,6 +126,10 @@ class PackageContext {
 
     PackageDescriptor descriptor() {
         return packageManifest.descriptor();
+    }
+
+    Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
+        return packageManifest.compilerPluginDescriptor();
     }
 
     PackageManifest manifest() {

@@ -29,7 +29,7 @@ public class ProjectConstants {
 
     public static final String BALLERINA_TOML = "Ballerina.toml";
     public static final String DEPENDENCIES_TOML = "Dependencies.toml";
-    public static final String COMPILER_PLUGIN_TOML = "Compiler-plugin.toml";
+    public static final String COMPILER_PLUGIN_TOML = "CompilerPlugin.toml";
     public static final String CLOUD_TOML = "Cloud.toml";
     public static final String CONFIGURATION_TOML = "Config.toml";
     public static final String SETTINGS_FILE_NAME = "Settings.toml";
@@ -58,6 +58,7 @@ public class ProjectConstants {
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";
     public static final String LIB_DIR = "lib";
+    public static final String COMPILER_PLUGIN_DIR = "compiler-plugin";
 
     public static final String BALA_DIR_NAME = "bala";
     public static final String BALA_CACHE_DIR_NAME = "bala_cache";

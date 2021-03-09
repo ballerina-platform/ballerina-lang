@@ -1,6 +1,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.internal.ManifestBuilder;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -75,6 +76,10 @@ public class Package {
 
     public PackageDescriptor descriptor() {
         return packageContext.descriptor();
+    }
+
+    public Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
+        return packageContext.compilerPluginDescriptor();
     }
 
     public PackageManifest manifest() {
@@ -407,6 +412,7 @@ public class Package {
         private void updateManifest() {
             ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
                     Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null),
+                    Optional.ofNullable(this.compilerPluginTomlContext).map(d -> d.tomlDocument()).orElse(null),
                     this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
         }

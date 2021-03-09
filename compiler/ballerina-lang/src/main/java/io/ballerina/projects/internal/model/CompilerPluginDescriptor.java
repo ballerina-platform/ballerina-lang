@@ -17,8 +17,8 @@
  */
 package io.ballerina.projects.internal.model;
 
-import com.google.gson.annotations.SerializedName;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
@@ -32,43 +32,44 @@ import java.util.Collections;
 import java.util.List;
 
 /**
- * {@code CompilerPluginTomlModel} Model for `Compiler-plugin.toml` file.
+ * {@code CompilerPluginDescriptor} Model for `Compiler-plugin.toml` file.
  *
  * @since 2.0.0
  */
-public class CompilerPluginTomlModel {
-    private Plugin plugin;
-
+public class CompilerPluginDescriptor {
     private static final String DEPENDENCY = "dependency";
-    @SerializedName(DEPENDENCY) private List<Dependency> dependencies;
+    private static final String CLASS = "class";
 
-    private CompilerPluginTomlModel(Plugin plugin, List<Dependency> dependencies) {
+    private Plugin plugin;
+    private List<Dependency> dependencies;
+
+    private CompilerPluginDescriptor(Plugin plugin, List<Dependency> dependencies) {
         this.plugin = plugin;
         this.dependencies = dependencies;
     }
 
-    public static CompilerPluginTomlModel from(TomlDocument tomlDocument) {
+    public static CompilerPluginDescriptor from(TomlDocument tomlDocument) {
         TomlTableNode tomlTableNode = tomlDocument.toml().rootNode();
         if (tomlTableNode.entries().isEmpty()) {
-            return new CompilerPluginTomlModel(null, Collections.emptyList());
+            return new CompilerPluginDescriptor(null, Collections.emptyList());
         }
-        return new CompilerPluginTomlModel(new Plugin(getPluginClass(tomlTableNode)), getDependencies(tomlTableNode));
+        return new CompilerPluginDescriptor(new Plugin(getPluginClass(tomlTableNode)), getDependencies(tomlTableNode));
+    }
+
+    public static CompilerPluginDescriptor from(CompilerPluginJson compilerPluginJson) {
+        List<Dependency> dependencyList = new ArrayList<>();
+        for (String path : compilerPluginJson.dependencyPaths()) {
+            dependencyList.add(new Dependency(path));
+        }
+        return new CompilerPluginDescriptor(new Plugin(compilerPluginJson.pluginClass()), dependencyList);
     }
 
     public Plugin plugin() {
         return plugin;
     }
 
-    public void setPlugin(Plugin plugin) {
-        this.plugin = plugin;
-    }
-
     public List<Dependency> dependencies() {
         return dependencies;
-    }
-
-    public void setDependencies(List<Dependency> dependencies) {
-        this.dependencies = dependencies;
     }
 
     public List<String> getCompilerPluginDependencies() {
@@ -83,8 +84,7 @@ public class CompilerPluginTomlModel {
      * {@code Plugin} Model for plugin toml table of `Compiler-plugin.toml` file.
      */
     public static class Plugin {
-        private static final String CLASS = "class";
-        @SerializedName(CLASS) private String className;
+        private String className;
 
         Plugin(String className) {
             this.className = className;
@@ -136,7 +136,7 @@ public class CompilerPluginTomlModel {
     private static String getPluginClass(TomlTableNode tomlTableNode) {
         TomlTableNode pluginNode = (TomlTableNode) tomlTableNode.entries().get("plugin");
         if (pluginNode != null && pluginNode.kind() != TomlType.NONE && pluginNode.kind() == TomlType.TABLE) {
-            TopLevelNode topLevelNode = pluginNode.entries().get(Plugin.CLASS);
+            TopLevelNode topLevelNode = pluginNode.entries().get(CLASS);
             if (!(topLevelNode == null || topLevelNode.kind() == TomlType.NONE)) {
                 return getStringFromTomlTableNode(topLevelNode);
             }
@@ -145,7 +145,7 @@ public class CompilerPluginTomlModel {
     }
 
     private static String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
-        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+        if (topLevelNode != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
             TomlValueNode value = keyValueNode.value();
             if (value.kind() == TomlType.STRING) {
