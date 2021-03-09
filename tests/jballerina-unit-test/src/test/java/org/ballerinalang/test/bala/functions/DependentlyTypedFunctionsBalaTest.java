@@ -27,18 +27,18 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
- * Test cases for variable return types in extern functions.
+ * BIR test cases for dependently-typed extern functions.
  *
  * @since 2.0.0
  */
-public class VariableReturnTypesBalaTest {
+public class DependentlyTypedFunctionsBalaTest {
 
     private CompileResult result;
 
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
-        result = BCompileUtil.compile("test-src/javainterop/variable_return_type_bir_test.bal");
+        result = BCompileUtil.compile("test-src/javainterop/dependently_typed_functions_bir_test.bal");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -69,7 +69,7 @@ public class VariableReturnTypesBalaTest {
                 {"testSimpleTypes"},
                 {"testUnionTypes"},
                 {"testArrayTypes"},
-//                {"testXML"},
+                {"testXML"},
                 {"testStream"},
                 {"testTable"},
                 {"testFunctionPointers"},
