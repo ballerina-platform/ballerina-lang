@@ -102,7 +102,6 @@ public class JarResolver {
         }
     }
 
-
     public Collection<Path> getJarFilePathsRequiredForTestExecution(ModuleName moduleName) {
         // 1) Get all the jars excepts for test scope package and platform-specific dependencies
         List<Path> allJarFileForTestExec = new ArrayList<>(getJarFilePathsRequiredForExecution());
