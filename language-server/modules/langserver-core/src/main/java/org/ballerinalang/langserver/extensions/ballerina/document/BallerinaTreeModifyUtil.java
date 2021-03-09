@@ -171,7 +171,7 @@ public class BallerinaTreeModifyUtil {
 
         List<TextEdit> edits = new ArrayList<>();
         List<ASTModification> importModifications = Arrays.stream(astModifications)
-                .filter(astModification -> IMPORT.equalsIgnoreCase(astModification.getType()))
+                .filter(ASTModification::isImport)
                 .collect(Collectors.toList());
         for (ASTModification importModification : importModifications) {
             if (importExist(unusedSymbolsVisitor, importModification)) {
@@ -187,7 +187,7 @@ public class BallerinaTreeModifyUtil {
                 oldTextDocument));
 
         for (ASTModification astModification : astModifications) {
-            if (!IMPORT.equalsIgnoreCase(astModification.getType())) {
+            if (!astModification.isImport()) {
                 TextEdit edit = constructEdit(unusedSymbolsVisitor, oldTextDocument, astModification);
                 if (edit != null) {
                     edits.add(edit);
