@@ -524,8 +524,11 @@ function constPattern17(any x) returns int {
         true => {
             return 2;
         }
-        _ => {
+        -1 => {
             return 3;
+        }
+        _ => {
+            return 4;
         }
     }
 }
@@ -533,5 +536,6 @@ function constPattern17(any x) returns int {
 public function testConstPattern17() {
     assertEquals(1, constPattern17(()));
     assertEquals(2, constPattern17(true));
-    assertEquals(3, constPattern17(5));
+    assertEquals(3, constPattern17(-1));
+    assertEquals(4, constPattern17(5));
 }

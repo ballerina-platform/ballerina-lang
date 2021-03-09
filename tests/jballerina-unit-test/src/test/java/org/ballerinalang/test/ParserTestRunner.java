@@ -76,11 +76,8 @@ public class ParserTestRunner {
         hashSet.add("forEach_stmt_source_07.bal");
         hashSet.add("do_stmt_source_07.bal");
         hashSet.add("match_stmt_source_13.bal");
-        hashSet.add("match_stmt_source_10.bal");
         hashSet.add("match_stmt_source_08.bal");
-        hashSet.add("match_stmt_source_12.bal");
         hashSet.add("match_stmt_source_09.bal");
-        hashSet.add("match_stmt_source_11.bal");
         return hashSet;
     }
 

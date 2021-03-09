@@ -4084,7 +4084,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 kind == SyntaxKind.IDENTIFIER_TOKEN ||
                 kind == SyntaxKind.NULL_LITERAL ||
                 kind == SyntaxKind.NIL_LITERAL ||
-                kind == SyntaxKind.BOOLEAN_LITERAL) {
+                kind == SyntaxKind.BOOLEAN_LITERAL ||
+                kind == SyntaxKind.UNARY_EXPRESSION) { // [Sign] int-literal/floating-point-literal -> unary-expr
             BLangConstPattern bLangConstMatchPattern =
                     (BLangConstPattern) TreeBuilder.createConstMatchPattern();
             bLangConstMatchPattern.setExpression(createExpression(matchPattern));
