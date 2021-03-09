@@ -219,6 +219,7 @@ public class JvmTerminatorGen {
             case TypeTags.ARRAY:
             case TypeTags.ERROR:
             case TypeTags.NIL:
+            case TypeTags.DECIMAL:
             case TypeTags.NEVER:
             case TypeTags.ANY:
             case TypeTags.ANYDATA:

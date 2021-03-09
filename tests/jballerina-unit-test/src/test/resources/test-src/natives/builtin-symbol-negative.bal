@@ -1,11 +1,11 @@
-function test0 (){
-    break;
-}
-
 function Listener (string x, Listener e){
     e.message = x;
 }
 
-function test1(){
-    int Listener = 10;
-}
+type 'error error;
+type 'json json;
+type 'anydata anydata;
+type 'int int;
+type 'never never;
+type 'readonly readonly;
+type 'xml xml;
