@@ -1290,6 +1290,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ModuleVariableDeclarationNode transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         MetadataNode metadata = formatNode(moduleVariableDeclarationNode.metadata().orElse(null), 0, 1);
+        Token visibilityQual = formatToken(moduleVariableDeclarationNode.visibilityQualifier().orElse(null), 1, 0);
         NodeList<Token> qualifierList = formatNodeList(moduleVariableDeclarationNode.qualifiers(), 1, 0, 1, 0);
         TypedBindingPatternNode typedBindingPatternNode =
                 formatNode(moduleVariableDeclarationNode.typedBindingPattern(),
@@ -1306,6 +1307,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return moduleVariableDeclarationNode.modify()
                 .withMetadata(metadata)
+                .withVisibilityQualifier(visibilityQual)
                 .withQualifiers(qualifierList)
                 .withTypedBindingPattern(typedBindingPatternNode)
                 .withEqualsToken(equalsToken)

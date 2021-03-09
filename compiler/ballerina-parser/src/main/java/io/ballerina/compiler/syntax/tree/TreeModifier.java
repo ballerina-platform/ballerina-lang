@@ -1112,6 +1112,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(moduleVariableDeclarationNode.metadata().orElse(null));
+        Token visibilityQualifier =
+                modifyToken(moduleVariableDeclarationNode.visibilityQualifier().orElse(null));
         NodeList<Token> qualifiers =
                 modifyNodeList(moduleVariableDeclarationNode.qualifiers());
         TypedBindingPatternNode typedBindingPattern =
@@ -1124,6 +1126,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(moduleVariableDeclarationNode.semicolonToken());
         return moduleVariableDeclarationNode.modify(
                 metadata,
+                visibilityQualifier,
                 qualifiers,
                 typedBindingPattern,
                 equalsToken,

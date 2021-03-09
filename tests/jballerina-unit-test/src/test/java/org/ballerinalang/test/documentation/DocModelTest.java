@@ -366,4 +366,18 @@ public class DocModelTest {
         Assert.assertEquals(humanRec.get().fields.get(6).type.category, "records",
                 "Category of seventh field in Human Record should be map");
     }
+
+
+    @Test(description = "Test typedesc")
+    public void testTypedesc() {
+        Optional<Function> testTypeDescFunc = testModule.functions.stream()
+                .filter(func -> func.name.equals("testTypeDesc")).findAny();
+        Assert.assertTrue(testTypeDescFunc.isPresent(), "testTypeDesc function not found");
+        Assert.assertEquals(testTypeDescFunc.get().parameters.size(), 1);
+        Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).name, "rowType");
+        Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).description, "Typedesc with empty record\n");
+        Assert.assertTrue(testTypeDescFunc.get().parameters.get(0).type.isTypeDesc);
+        Assert.assertNotNull(testTypeDescFunc.get().parameters.get(0).type.elementType);
+        Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).type.elementType.name, "record {}");
+    }
 }
