@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.CURRENT_TRANSACTION_CONTEXT_PROPERTY;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_AND_YIELD;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_ON_AND_YIELD;
 import static io.ballerina.runtime.internal.scheduling.State.RUNNABLE;
@@ -54,7 +55,6 @@ import static io.ballerina.runtime.internal.scheduling.State.YIELD;
 public class Strand {
 
     private static AtomicInteger nextStrandId = new AtomicInteger(0);
-    private static final String CURRENT_TRANSACTIONAL_CONTEXT_PROPERTY = "currentTrxContext";
 
     private int id;
     private String name;
@@ -78,7 +78,7 @@ public class Strand {
     WaitContext waitContext;
     ItemGroup strandGroup;
 
-    public Map<String, Object> globalProps;
+    private Map<String, Object> globalProps;
     public TransactionLocalContext currentTrxContext;
     public Stack<TransactionLocalContext> trxContexts;
     private State state;
@@ -102,7 +102,7 @@ public class Strand {
         //TODO: improve by using a copy on write map #26710
         if (properties != null) {
             this.globalProps = properties;
-            Object currentContext = globalProps.get(CURRENT_TRANSACTIONAL_CONTEXT_PROPERTY);
+            Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
             if (currentContext != null) {
                 TransactionLocalContext branchedContext =
                         createTrxContextBranch((TransactionLocalContext) currentContext, name);
@@ -187,7 +187,7 @@ public class Strand {
             this.trxContexts.push(this.currentTrxContext);
         }
         this.currentTrxContext = ctx;
-        globalProps.putIfAbsent(CURRENT_TRANSACTIONAL_CONTEXT_PROPERTY, this.currentTrxContext);
+        globalProps.putIfAbsent(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
     }
 
     public ErrorValue handleFlush(ChannelDetails[] channels) throws Throwable {
