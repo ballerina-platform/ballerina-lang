@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 18,
-    "character": 10
+    "line": 7,
+    "character": 6
   },
-  "source": "statement_context/source/onfail_clause_ctx_source3.bal",
+  "source": "statement_context/source/onfail_clause_ctx_source2a.bal",
   "items": [
     {
       "label": "xmlns",
@@ -211,22 +211,6 @@
       "detail": "Snippet",
       "sortText": "O",
       "insertText": "on fail ${1:var} ${2:varName} {\n\t${3}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "continue",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "continue;",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "break",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "break;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -619,11 +603,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "animals",
+      "label": "testValue",
       "kind": "Variable",
-      "detail": "string[]",
+      "detail": "int",
       "sortText": "B",
-      "insertText": "animals",
+      "insertText": "testValue",
       "insertTextFormat": "Snippet"
     },
     {
@@ -641,11 +625,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "animal",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "animal",
+      "label": "worker",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "worker ${1:name} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     }
   ]
