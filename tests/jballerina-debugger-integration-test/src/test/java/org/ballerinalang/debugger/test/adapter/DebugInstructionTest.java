@@ -26,6 +26,7 @@ import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.testng.Assert;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -69,5 +70,10 @@ public class DebugInstructionTest extends BaseTestCase {
     @Test(description = "CONTINUE/NEXT_BREAKPOINT instruction related debug test")
     public void continueInstructionTest() throws BallerinaTestException {
         // Todo
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanUp() {
+        debugTestRunner.terminateDebugSession();
     }
 }

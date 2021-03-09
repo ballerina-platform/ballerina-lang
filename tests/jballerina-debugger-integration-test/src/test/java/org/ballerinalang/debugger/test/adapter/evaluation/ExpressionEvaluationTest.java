@@ -765,4 +765,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
         // Todo
     }
+
+    @Override
+    public void cleanUp() {
+        super.cleanUp();
+    }
 }

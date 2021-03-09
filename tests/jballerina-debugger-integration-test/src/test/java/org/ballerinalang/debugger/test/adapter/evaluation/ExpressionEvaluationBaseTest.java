@@ -101,7 +101,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     }
 
     @BeforeClass(alwaysRun = true)
-    protected void setup() throws BallerinaTestException {
+    public void setup() throws BallerinaTestException {
         prepareForEvaluation();
     }
 
@@ -120,7 +120,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     }
 
     @AfterClass(alwaysRun = true)
-    protected void cleanup() {
+    public void cleanUp() {
         debugTestRunner.terminateDebugSession();
         this.context = null;
     }
