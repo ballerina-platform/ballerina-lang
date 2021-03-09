@@ -940,7 +940,7 @@ public class FormattingTreeModifier extends TreeModifier {
         TypedBindingPatternNode typedBindingPattern = formatNode(forEachStatementNode.typedBindingPattern(), 1, 0);
         Token inKeyword = formatToken(forEachStatementNode.inKeyword(), 1, 0);
         Node actionOrExpressionNode = formatNode(forEachStatementNode.actionOrExpressionNode(), 1, 0);
-        StatementNode blockStatement;
+        BlockStatementNode blockStatement;
 
         OnFailClauseNode onFailClause = null;
         if (hasOnFailClause) {
@@ -1290,6 +1290,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public ModuleVariableDeclarationNode transform(ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         MetadataNode metadata = formatNode(moduleVariableDeclarationNode.metadata().orElse(null), 0, 1);
+        Token visibilityQual = formatToken(moduleVariableDeclarationNode.visibilityQualifier().orElse(null), 1, 0);
         NodeList<Token> qualifierList = formatNodeList(moduleVariableDeclarationNode.qualifiers(), 1, 0, 1, 0);
         TypedBindingPatternNode typedBindingPatternNode =
                 formatNode(moduleVariableDeclarationNode.typedBindingPattern(),
@@ -1306,6 +1307,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         return moduleVariableDeclarationNode.modify()
                 .withMetadata(metadata)
+                .withVisibilityQualifier(visibilityQual)
                 .withQualifiers(qualifierList)
                 .withTypedBindingPattern(typedBindingPatternNode)
                 .withEqualsToken(equalsToken)
@@ -1531,7 +1533,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public LockStatementNode transform(LockStatementNode lockStatementNode) {
         Token lockKeyword = formatToken(lockStatementNode.lockKeyword(), 1, 0);
-        StatementNode blockStatement;
+        BlockStatementNode blockStatement;
         if (lockStatementNode.onFailClause().isPresent()) {
             blockStatement = formatNode(lockStatementNode.blockStatement(), 1, 0);
         } else {

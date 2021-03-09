@@ -26,8 +26,11 @@ import io.ballerina.cli.task.ResolveMavenDependenciesTask;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.compiler.CompilerPhase;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
@@ -35,6 +38,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import picocli.CommandLine;
 
+import java.io.IOException;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -111,6 +115,22 @@ public class DocCommand implements BLauncherCmd {
         if (argList == null) {
             this.projectPath = Paths.get(System.getProperty("user.dir"));
         } else {
+            // Generate docs from a bala
+            if (argList.get(0).endsWith(".bala")) {
+                this.projectPath = Paths.get(System.getProperty("user.dir"));
+                Path balaPath = this.projectPath.resolve(argList.get(0));
+                ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
+                defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
+                BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+                try {
+                    BallerinaDocGenerator.generateAPIDocs(balaProject, this.projectPath.toString(), false);
+                } catch (IOException e) {
+                    CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                return;
+            }
             this.projectPath = Paths.get(argList.get(0));
         }
         // combine docs
