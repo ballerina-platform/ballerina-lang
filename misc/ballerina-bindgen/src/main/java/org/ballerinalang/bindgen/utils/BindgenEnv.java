@@ -22,7 +22,9 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.TomlDocument;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,6 +35,7 @@ import java.util.Set;
 public class BindgenEnv {
 
     private boolean modulesFlag = false; // Stores if the bindings are mapped as Java package per Ballerina module
+    private boolean publicFlag = false; // Stores if the public flag is enabled for the binding generation
     private String outputPath; // Output path of the bindings generated
     private Project project; // Ballerina project
     private String packageName; // Ballerina project's current package name
@@ -42,6 +45,7 @@ public class BindgenEnv {
     // Flag depicting whether the current class being generated is a direct class or a dependent class
     private boolean directJavaClass = true;
     private Set<String> classPaths = new HashSet<>();
+    private Map<String, String> aliases = new HashMap<>();
 
     public void setModulesFlag(boolean modulesFlag) {
         this.modulesFlag = modulesFlag;
@@ -67,6 +71,10 @@ public class BindgenEnv {
         return packageName;
     }
 
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
+    }
+
     public TomlDocument getTomlDocument() {
         return tomlDocument;
     }
@@ -87,7 +95,7 @@ public class BindgenEnv {
         return modulesFlag;
     }
 
-    public boolean getDirectJavaClass() {
+    public boolean isDirectJavaClass() {
         return directJavaClass;
     }
 
@@ -105,5 +113,34 @@ public class BindgenEnv {
 
     public void addClasspath(String classpath) {
         this.classPaths.add(classpath);
+    }
+
+    public String getAliasValue(String className) {
+        return aliases.get(className);
+    }
+
+    public void setAlias(String className, String alias) {
+        this.aliases.put(className, alias);
+    }
+
+    public String getAliasClassName(String alias) {
+        for (Map.Entry<String, String> entry : aliases.entrySet()) {
+            if (alias.equals(entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    public String removeAlias(String className) {
+        return this.aliases.remove(className);
+    }
+
+    public boolean hasPublicFlag() {
+        return publicFlag;
+    }
+
+    public void setPublicFlag(boolean publicFlag) {
+        this.publicFlag = publicFlag;
     }
 }

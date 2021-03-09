@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -34,8 +34,9 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setAllClasses;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.handleOverloadedMethods;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isAbstractClass;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isFinalField;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicField;
@@ -46,7 +47,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicMethod;
  *
  * @since 1.2.0
  */
-public class JClass {
+public class JClassNew {
 
     private BindgenEnv env;
     private String prefix;
@@ -55,13 +56,13 @@ public class JClass {
     private String accessModifier;
     private String shortClassName;
     private String balPackageName;
-    private Class currentClass;
+    public Class jClass;
 
     private boolean modulesFlag = false;
     private boolean isInterface = false;
     private boolean isDirectClass = false;
     private boolean isAbstract = false;
-    private boolean importJavaArraysModule = false;
+    private boolean importJArraysModule = false;
 
     private Set<String> superClasses = new HashSet<>();
     private Set<String> importedPackages = new HashSet<>();
@@ -72,9 +73,9 @@ public class JClass {
     private List<JConstructor> initFunctionList = new ArrayList<>();
     private Map<String, Integer> overloadedMethods = new HashMap<>();
 
-    public JClass(Class c, BindgenEnv env) {
+    public JClassNew(Class c, BindgenEnv env) {
         this.env = env;
-        currentClass = c;
+        jClass = c;
         className = c.getName();
         prefix = className.replace(".", "_").replace("$", "_");
         shortClassName = getAlias(c);
@@ -126,18 +127,18 @@ public class JClass {
         while (iterator.hasNext()) {
             String superclass = iterator.next();
             if (methodClassMap.containsValue(superclass)) {
-                List<JMethod> jMethods = new ArrayList<>();
+//                List<JMethod> jMethods = new ArrayList<>();
                 List<Method> methods = new ArrayList<>();
                 for (Map.Entry<Method, String> mapValue : methodClassMap.entrySet()) {
                     if (mapValue.getValue().equals(superclass)) {
-                        jMethods.add(new JMethod(mapValue.getKey(), currentClass, env));
+//                        jMethods.add(new JMethod(mapValue.getKey(), jClass, env));
                         methods.add(mapValue.getKey());
                     }
                 }
                 populateMethods(methods);
                 methodList.sort(Comparator.comparing(JMethod::getParamTypes));
-                jMethods.sort(Comparator.comparing(JMethod::getParamTypes));
-                handleOverloadedMethods(methodList, jMethods, this);
+//                jMethods.sort(Comparator.comparing(JMethod::getParamTypes));
+//                handleOverloadedMethods(methodList, jMethods, this);
                 methodList.sort(Comparator.comparing(JMethod::getMethodName));
             }
         }
@@ -176,7 +177,7 @@ public class JClass {
             }
             constructorList.add(jConstructor);
             if (jConstructor.requireJavaArrays()) {
-                importJavaArraysModule = true;
+                importJArraysModule = true;
             }
         }
         constructorList.sort(Comparator.comparing(JConstructor::getParamTypes));
@@ -208,10 +209,10 @@ public class JClass {
     private void populateMethods(List<Method> declaredMethods) {
         for (Method method : declaredMethods) {
             if (isPublicMethod(method)) {
-                JMethod jMethod = new JMethod(method, currentClass, env);
+                JMethod jMethod = new JMethod(method, jClass, env);
                 jMethod.setShortClassName(shortClassName);
                 if (jMethod.requireJavaArrays()) {
-                    importJavaArraysModule = true;
+                    importJArraysModule = true;
                 }
                 methodList.add(jMethod);
                 if (modulesFlag) {
@@ -231,13 +232,13 @@ public class JClass {
                 }
             }
             if (addField) {
-                JField jFieldGetter = new JField(field, JFunction.JFunctionKind.FIELD_GET, env, this);
+                JField jFieldGetter = new JField(field, ACCESS_FIELD, env);
                 fieldList.add(jFieldGetter);
                 if (jFieldGetter.requireJavaArrays()) {
-                    importJavaArraysModule = true;
+                    importJArraysModule = true;
                 }
                 if (!isFinalField(field) && isPublicField(field)) {
-                    fieldList.add(new JField(field, JFunction.JFunctionKind.FIELD_SET, env, this));
+                    fieldList.add(new JField(field, MUTATE_FIELD, env));
                     if (modulesFlag) {
                         importedPackages.add(field.getDeclaringClass().getPackageName());
                     }
@@ -280,5 +281,17 @@ public class JClass {
 
     public Integer getMethodCount(String methodName) {
         return overloadedMethods.get(methodName);
+    }
+
+    public Class getJClass() {
+        return jClass;
+    }
+
+    public boolean importJArraysModule() {
+        return importJArraysModule;
+    }
+
+    public Set<String> getImportedPackages() {
+        return importedPackages;
     }
 }
