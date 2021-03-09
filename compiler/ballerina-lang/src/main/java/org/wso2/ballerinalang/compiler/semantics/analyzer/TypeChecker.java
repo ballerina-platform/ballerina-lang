@@ -5711,7 +5711,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (restType != symTable.semanticError &&
                 Symbols.isFlagOn(invokableSymbol.flags, Flags.NATIVE) &&
                 Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = unifier.build(retType, expType, iExpr, types, dlog);
+            retType = unifier.build(retType, expType, iExpr, types, symTable, dlog);
         }
 
         // check argument types in arr:sort function

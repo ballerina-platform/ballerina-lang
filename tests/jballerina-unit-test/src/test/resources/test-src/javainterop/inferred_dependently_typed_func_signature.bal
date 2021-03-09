@@ -87,6 +87,45 @@ function testArrayTypes() {
     assert(<int[]>[10, 20, 30], arr);
 }
 
+type XmlComment xml:Comment;
+type XmlElement xml:Element;
+
+function testXml() {
+    xml:Comment x1 = xml `<!--Comment 1-->`;
+    xml<xml:Comment> x2 = <xml<xml:Comment>> x1.concat(xml `<!--Comment 2-->`);
+    xml<xml:Comment> a = getXml(val = x2);
+    assert(x2, a);
+    assert(2, a.length());
+    any v1 = a;
+    assert(true, v1 is xml<xml:Comment>);
+
+    xml<xml:Element> x3 = xml `<hello/>`;
+    xml<xml:Element> b = getXml(val = x3);
+    assert(x3, b);
+    assert(1, b.length());
+    any v2 = b;
+    assert(true, v2 is xml<xml:Element>);
+
+    xml<xml:Comment> c = getXml(XmlComment, x2);
+    assert(x2, c);
+    assert(2, c.length());
+    any v3 = c;
+    assert(true, v3 is xml<xml:Comment>);
+
+    xml<xml:Element|xml:Comment> d = getXml(td = XmlElement, val = x3);
+    assert(x3, d);
+    assert(1, d.length());
+    any v4 = d;
+    assert(true, v4 is xml<xml:Element>);
+
+    xml<xml:Element> x5 = xml `<foo/>`;
+    xml<xml:Element> e = getXml();
+    assert(x5, e);
+    assert(1, e.length());
+    any v5 = e;
+    assert(true, v5 is xml<xml:Element>);
+}
+
 //function testCastingForInvalidValues() {
 //    int|error x = trap getInvalidValue(td2 = Person);
 //
@@ -242,6 +281,39 @@ function testUnionTypes() {
     assert(<map<[int, string][]>> {entry: [[100, "Hello World"]]}, l);
 }
 
+function testArgCombinations() {
+    int[] a = funcWithMultipleArgs(1, int, ["hello", "world"]);
+    assert(<int[]> [2, 1], a);
+
+    string[] b = funcWithMultipleArgs(td = string, arr = ["hello", "world"], i = 3);
+    assert(<string[]> ["hello", "world", "3"], b);
+
+    record {| string[] arr = ["hello", "world", "Ballerina"]; int i = 123; typedesc<int> td; |} rec1 = {td: int};
+    int[] c = funcWithMultipleArgs(...rec1);
+    assert(<int[]> [3, 123], c);
+
+    record {| string[] arr = ["hello", "world"]; |} rec2 = {};
+    int[] d = funcWithMultipleArgs(1234, int, ...rec2);
+    assert(<int[]> [2, 1234], d);
+
+    [int, typedesc<string>, string[]] tup1 = [21, string, ["hello"]];
+    string[] e = funcWithMultipleArgs(...tup1);
+    assert(<string[]> ["hello", "21"], e);
+
+    [string[]] tup2 = [["hello"]];
+    string[] f = funcWithMultipleArgs(34, string, ...tup2);
+    assert(<string[]> ["hello", "34"], f);
+
+    int[] g = funcWithMultipleArgs(1);
+    assert(<int[]> [0, 1], g);
+
+    string[] h = funcWithMultipleArgs(101, arr = ["hello", "world"]);
+    assert(<string[]> ["hello", "world", "101"], h);
+
+    int[] i = funcWithMultipleArgs(arr = ["hello", "world"], i = 202);
+    assert(<int[]> [2, 202], i);
+}
+
 // Interop functions
 function getValue(typedesc<int|float|decimal|string|boolean> td = <>) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -276,6 +348,11 @@ function getArray(typedesc<anydata> td = <>) returns td[] = @java:Method {
     name: "getArray",
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
 } external;
+
+function getXml(typedesc<xml:Element|xml:Comment> td = <>, xml<xml:Element|xml:Comment> val = xml `<foo/>`)
+    returns xml<td> = @java:Method {
+                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+                      } external;
 
 //function getInvalidValue(typedesc<int|Person> td1 = <>, typedesc<Person> td2 = Person) returns td1 = @java:Method {
 //    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -332,6 +409,10 @@ function getSimpleUnion(string|int val, typedesc<string|int> td = <>) returns td
 } external;
 
 function getComplexUnion(typedesc<int|[int, string]> td = <>) returns td[]|map<td[]>? = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+} external;
+
+    function funcWithMultipleArgs(int i, typedesc<int|string> td = <>, string[] arr = []) returns td[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
 } external;
 

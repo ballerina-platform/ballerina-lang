@@ -59,6 +59,8 @@ import static io.ballerina.runtime.api.TypeTags.FLOAT_TAG;
 import static io.ballerina.runtime.api.TypeTags.INT_TAG;
 import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
+import static io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG;
+import static io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG;
 
 /**
  * Native methods for testing functions with variable return types.
@@ -219,6 +221,15 @@ public class VariableReturnType {
 
     public static ArrayValue getArray(BTypedesc td) {
         return new ArrayValueImpl(new long[]{10, 20, 30}, false);
+    }
+
+    public static BXml getXml(BTypedesc td, BXml val) {
+        if (td.getDescribingType().getTag() == XML_ELEMENT_TAG) {
+            return val;
+        }
+
+        assert td.getDescribingType().getTag() == XML_COMMENT_TAG : td.getDescribingType();
+        return val;
     }
 
     public static Object getInvalidValue(BTypedesc td1, BTypedesc td2) {
@@ -414,5 +425,15 @@ public class VariableReturnType {
 
     public static long untaintedParamFunc(BTypedesc typedesc) {
         return 0;
+    }
+
+    public static BArray funcWithMultipleArgs(long i, BTypedesc td, BArray arr) {
+        if (td.getDescribingType().getTag() == STRING_TAG) {
+            arr.append(StringUtils.fromString(Long.toString(i)));
+            return arr;
+        }
+
+        assert td.getDescribingType().getTag() == INT_TAG;
+        return ValueCreator.createArrayValue(new long[]{arr.getLength(), i});
     }
 }

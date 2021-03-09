@@ -66,6 +66,8 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 {"testFunctionAssignment"},
 //                {"testCastingForInvalidValues"},
                 {"testUnionTypes"},
+                {"testXml"},
+                {"testArgCombinations"}
         };
     }
 
@@ -82,6 +84,8 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 "typedesc default", 28, 1);
         validateError(negativeResult, index++, "cannot have more than one defaultable parameter with an inferred " +
                 "typedesc default", 32, 5);
+        validateError(negativeResult, index++, "incompatible types: expected 'stream<record {| int x; |},error>', " +
+                "found 'stream<OpenRecord,error>'", 40, 43);
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 42, 51);
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 44, 46);
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 46, 52);
@@ -90,6 +94,17 @@ public class InferredDependentlyTypeFuncSignatureTest {
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 52, 53);
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 54, 66);
         validateError(negativeResult, index++, INVALID_RETURN_TYPE_ERROR, 56, 49);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml:Comment', found 'xml<xml:Comment>'", 65, 21);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml<xml:Element>', found 'xml<xml:Comment>'", 66, 26);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml<xml:Text>', found 'xml<xml:Element>'", 67, 23);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'xml<xml:Comment>', found 'xml<xml:Element>'", 68, 26);
+        validateError(negativeResult, index++,
+                "incompatible types: expected 'typedesc<(xml:Element|xml:Comment)>', found 'typedesc<xml:Text>'",
+                69, 38);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }

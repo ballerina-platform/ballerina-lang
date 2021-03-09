@@ -56,3 +56,21 @@ function func7(typedesc<xml:Element|xml:Comment> t = <>) returns t|xml = externa
 function func8(typedesc<string> t = <>) returns string:Char|t = external;
 
 type MyError error<record {|int code;|}>;
+
+type XmlComment xml:Comment;
+type XmlElement xml:Element;
+
+function testXml() {
+    xml<xml:Element> x = xml `<foo/>`;
+    xml:Comment a = getXml(XmlComment, x);
+    xml<xml:Element> b = getXml(XmlComment, x);
+    xml<xml:Text> c = getXml(XmlElement);
+    xml<xml:Comment> d = getXml(td = XmlElement, val = x);
+    xml<xml:Comment> e = getXml(td = XmlText, val = x);
+}
+
+type XmlText xml:Text;
+
+function getXml(typedesc<xml:Element|xml:Comment> td = <>, xml<xml:Element|xml:Comment> val = xml `<foo/>`)
+    returns xml<td> = external;
+

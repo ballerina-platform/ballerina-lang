@@ -51,6 +51,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangIdentifier;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
@@ -85,13 +86,14 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     private BLangDiagnosticLog dlog;
 
     public BType build(BType originalType, BType expType, BLangInvocation invocation, Types types,
-                       BLangDiagnosticLog dlog) {
+                       SymbolTable symbolTable, BLangDiagnosticLog dlog) {
         this.isInvocation = invocation != null;
         if (this.isInvocation) {
             this.invocation = invocation;
             createParamMap(invocation);
         }
         this.types = types;
+        this.symbolTable = symbolTable;
         this.dlog = dlog;
         BType newType = originalType.accept(this, expType);
         resetBuildArgs();
@@ -99,7 +101,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     public BType build(BType originalType) {
-        return build(originalType, null, null, null, null);
+        return build(originalType, null, null, null, null, null);
     }
 
     public void validate(BType returnType, BLangFunction function, SymbolTable symbolTable, SymbolEnv env, Types types,
@@ -135,7 +137,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BMapType originalType, BType expType) {
-        BType expConstraint = isDifferentTypeKind(originalType, expType) ? null : ((BMapType) expType).constraint;
+        BType matchingType = getMatchingType(originalType, expType);
+        BType expConstraint = matchingType == null ? null : ((BMapType) matchingType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         if (newConstraint == originalType.constraint) {
@@ -149,7 +152,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BXMLType originalType, BType expType) {
-        BType expConstraint = isDifferentTypeKind(originalType, expType) ? null : ((BXMLType) expType).constraint;
+        BType matchingType = getMatchingType(originalType, expType);
+        BType expConstraint = matchingType == null ? null : ((BXMLType) matchingType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         if (newConstraint == originalType.constraint) {
@@ -168,7 +172,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BArrayType originalType, BType expType) {
-        BType expElemType = isDifferentTypeKind(originalType, expType) ? null : ((BArrayType) expType).eType;
+        BType matchingType = getMatchingType(originalType, expType);
+        BType expElemType = matchingType == null ? null : ((BArrayType) matchingType).eType;
         BType newElemType = originalType.eType.accept(this, expElemType);
 
         if (newElemType == originalType.eType) {
@@ -223,11 +228,14 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BTupleType originalType, BType expType) {
         boolean hasNewType = false;
-        boolean isDifferentType = isDifferentTypeKind(originalType, expType);
+
+        BTupleType matchingType = (BTupleType) getMatchingType(originalType, expType);
+        boolean hasMatchedTupleType = matchingType != null;
+        BTupleType expTupleType = hasMatchedTupleType ? matchingType : null;
+
         List<BType> members = new ArrayList<>();
-        List<BType> expTupleTypes = isDifferentType ? Collections.singletonList(null) :
-                ((BTupleType) expType).tupleTypes;
-        int delta = isDifferentType ? 0 : 1;
+        List<BType> expTupleTypes = hasMatchedTupleType ? expTupleType.tupleTypes : Collections.singletonList(null);
+        int delta = hasMatchedTupleType ? 1 : 0;
 
         // TODO: Consider different tuple member list sizes
         List<BType> tupleTypes = originalType.tupleTypes;
@@ -244,7 +252,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         BType rest = originalType.restType;
         if (rest != null) {
-            BType expRestType = isDifferentType ? null : ((BTupleType) expType).restType;
+            BType expRestType = hasMatchedTupleType ? matchingType.restType : null;
             rest = rest.accept(this, expRestType);
 
             if (rest != originalType.restType) {
@@ -264,14 +272,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BStreamType originalType, BType expType) {
-        boolean isDifferentType = isDifferentTypeKind(originalType, expType);
+        BStreamType matchingType = (BStreamType) getMatchingType(originalType, expType);
+        boolean hasMatchedStreamType = matchingType != null;
+        BStreamType expStreamType = hasMatchedStreamType ? matchingType : null;
 
-        BType expConstraint = isDifferentType ? null : ((BStreamType) expType).constraint;
+        BType expConstraint = hasMatchedStreamType ? expStreamType.constraint : null;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         BType newError = null;
         if (originalType.error != null) {
-            BType expError = isDifferentType ? null : ((BStreamType) expType).error;
+            BType expError = hasMatchedStreamType ? matchingType.error : null;
             newError = originalType.error.accept(this, expError);
         }
 
@@ -286,13 +296,14 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTableType originalType, BType expType) {
-        boolean isDifferentType = isDifferentTypeKind(originalType, expType);
-        BType expConstraint = isDifferentType ? null : ((BTableType) expType).constraint;
+        BTableType matchingType = (BTableType) getMatchingType(originalType, expType);
+        boolean hasMatchedTableType = matchingType != null;
+        BType expConstraint = hasMatchedTableType ? matchingType.constraint : null;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         BType newKeyTypeConstraint = null;
         if (originalType.keyTypeConstraint != null) {
-            BType expKeyConstraint = isDifferentType ? null : ((BTableType) expType).keyTypeConstraint;
+            BType expKeyConstraint = hasMatchedTableType ? matchingType.keyTypeConstraint : null;
             originalType.keyTypeConstraint.accept(this, expKeyConstraint);
         }
 
@@ -313,11 +324,14 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     @Override
     public BType visit(BInvokableType originalType, BType expType) {
         boolean hasNewType = false;
-        boolean isDifferentType = isDifferentTypeKind(originalType, expType);
+
+        BInvokableType matchingType = (BInvokableType) getMatchingType(originalType, expType);
+        boolean hasMatchingInvokableType = matchingType != null;
+
         List<BType> paramTypes = new ArrayList<>();
-        List<BType> expParamTypes = isDifferentType ? Collections.singletonList(null) :
-                ((BInvokableType) expType).paramTypes;
-        int delta = isDifferentType ? 0 : 1;
+        List<BType> expParamTypes = hasMatchingInvokableType ? matchingType.paramTypes :
+                Collections.singletonList(null);
+        int delta = hasMatchingInvokableType ? 0 : 1;
 
         List<BType> bTypes = originalType.paramTypes;
         for (int i = 0, j = 0; i < bTypes.size(); i++, j += delta) {
@@ -333,7 +347,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         BType rest = originalType.restType;
         if (rest != null) {
-            BType expRestType = isDifferentType ? null : ((BInvokableType) expType).restType;
+            BType expRestType = hasMatchingInvokableType ? matchingType.restType : null;
             rest = rest.accept(this, expRestType);
 
             if (rest != originalType.restType) {
@@ -341,7 +355,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
 
-        BType expRetType = isDifferentType ? null : ((BInvokableType) expType).retType;
+        BType expRetType = hasMatchingInvokableType ? matchingType.retType : null;
         BType retType = originalType.retType.accept(this, expRetType);
 
         if (!hasNewType && retType != originalType.retType) {
@@ -436,8 +450,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BIntersectionType originalType, BType expType) {
-        BType expEffectiveType = isDifferentTypeKind(originalType, expType) ?
-                null : ((BIntersectionType) expType).effectiveType;
+        BType matchingType = getMatchingType(originalType, expType);
+        BType expEffectiveType = matchingType == null ?
+                null : ((BIntersectionType) matchingType).effectiveType;
         BType newEffectiveType = originalType.effectiveType.accept(this, expEffectiveType);
 
         if (newEffectiveType == originalType.effectiveType) {
@@ -452,7 +467,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BErrorType originalType, BType expType) {
-        BType expDetailType = isDifferentTypeKind(originalType, expType) ? null : ((BErrorType) expType).detailType;
+        BType matchingType = getMatchingType(originalType, expType);
+        BType expDetailType = matchingType == null ? null : ((BErrorType) expType).detailType;
         BType newDetail = originalType.detailType.accept(this, expDetailType);
 
         if (newDetail == originalType.detailType) {
@@ -466,7 +482,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BFutureType originalType, BType expType) {
-        BType expConstraint = isDifferentTypeKind(originalType, expType) ? null : ((BFutureType) expType).constraint;
+        BType matchingType = getMatchingType(originalType, expType);
+        BType expConstraint = matchingType == null ? null : ((BFutureType) expType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         if (newConstraint == originalType.constraint) {
@@ -487,8 +504,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTypedescType originalType, BType expType) {
-        BType expConstraint = isDifferentTypeKind(originalType, expType) ?
-                null : ((BTypedescType) expType).constraint;
+        BType matchingType = getMatchingType(originalType, expType);
+        BType expConstraint = matchingType == null ? null : ((BTypedescType) expType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         if (newConstraint == originalType.constraint) {
@@ -507,30 +524,31 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         if (Symbols.isFlagOn(originalType.paramSymbol.flags, Flags.INFER)) {
             BType paramSymbolType = ((BTypedescType) originalType.paramSymbol.type).constraint;
             if (expType != null) {
-                if (!types.isAssignable(expType, paramSymbolType)) {
+                if (expType != symbolTable.noType && !types.isAssignable(expType, paramSymbolType)) {
                     if (!paramValueTypes.containsKey(paramVarName)) {
                         // Log an error only if the user has not explicitly passed an argument. If the passed
                         // argument is invalid, the type checker will log the error.
                         dlog.error(invocation.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_INFERRED_TYPEDESC_VALUE,
                                    paramVarName, paramSymbolType, expType);
+                        return paramSymbolType;
                     }
-                    return paramSymbolType;
+                    BType type = paramValueTypes.get(paramVarName);
+                    return type == symbolTable.semanticError ? paramSymbolType : ((BTypedescType) type).constraint;
                 }
 
-                int index = pos(originalType.paramSymbol);
-                if (index >= invocation.requiredArgs.size()) {
-                    BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
-                    typedescExpr.pos = this.invocation.pos;
-                    typedescExpr.resolvedType = expType;
-                    typedescExpr.type = new BTypedescType(expType, null);
-
-                    this.invocation.argExprs.add(index, typedescExpr);
-                    this.invocation.requiredArgs.add(index, typedescExpr);
-                }
-                return expType;
+                BType type = getTypeAddingArgIfNotProvided(originalType, expType);
+                return type == symbolTable.semanticError ? expType : type;
             }
-            // TODO: Instead of this, see if a more specific error message can be given here.
-            // e.g., incompatible inferred type: expected '(string|float)', inferred 'int'
+
+            if (this.invocation != null) {
+                if (paramValueTypes.containsKey(paramVarName)) {
+                    return getConstraintTypeIfNotError(paramValueTypes.get(paramVarName));
+                }
+
+                dlog.error(invocation.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FOR_PARAM, paramVarName);
+                return symbolTable.semanticError;
+            }
+
             return paramSymbolType;
         }
 
@@ -553,6 +571,72 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             type = ((BTypedescType) originalType.paramSymbol.type).constraint;
         }
         return type;
+    }
+
+    private BType getTypeAddingArgIfNotProvided(BParameterizedType originalType, BType expType) {
+        BVarSymbol paramSymbol = originalType.paramSymbol;
+
+        String paramName = paramSymbol.name.value;
+
+        List<BLangExpression> requiredArgs = invocation.requiredArgs;
+
+        for (BLangExpression arg : requiredArgs) {
+            if (arg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+                continue;
+            }
+
+            BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) arg;
+            if (namedArgsExpression.name.value.equals(paramName)) {
+                return getConstraintTypeIfNotError(namedArgsExpression.expr.type);
+            }
+        }
+
+        int index = getParamPosition(paramSymbol);
+
+        List<BLangExpression> restArgs = invocation.restArgs;
+
+        int requiredArgCount = requiredArgs.size();
+        if (index < requiredArgCount) {
+            BLangExpression argAtIndex = requiredArgs.get(index);
+
+            if (argAtIndex.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+                return getConstraintTypeIfNotError(argAtIndex.type);
+            }
+        } else if (!restArgs.isEmpty()) {
+            BType restArgType = restArgs.get(0).type;
+
+            if (restArgType.tag == TypeTags.RECORD) {
+                return getConstraintTypeIfNotError(((BRecordType) restArgType).fields.get(paramName).type);
+            }
+            return getConstraintTypeIfNotError(((BTupleType) restArgType).tupleTypes.get(index - requiredArgCount));
+        }
+
+        BLangNamedArgsExpression namedArg = createTypedescExprNamedArg(expType, paramName);
+        this.invocation.argExprs.add(namedArg);
+        this.invocation.requiredArgs.add(namedArg);
+        return expType;
+    }
+
+    private BType getConstraintTypeIfNotError(BType type) {
+        if (type == symbolTable.semanticError) {
+            return type;
+        }
+
+        return ((BTypedescType) type).constraint;
+    }
+
+    private BLangNamedArgsExpression createTypedescExprNamedArg(BType expType, String name) {
+        BLangTypedescExpr typedescExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
+        typedescExpr.pos = this.invocation.pos;
+        typedescExpr.resolvedType = expType;
+        typedescExpr.type = new BTypedescType(expType, null);
+
+        BLangNamedArgsExpression namedArgsExpression = (BLangNamedArgsExpression) TreeBuilder.createNamedArgNode();
+        BLangIdentifier identifierNode = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+        identifierNode.value = name;
+        namedArgsExpression.name = identifierNode;
+        namedArgsExpression.expr = typedescExpr;
+        return namedArgsExpression;
     }
 
     private void createParamMap(BLangInvocation invocation) {
@@ -678,20 +762,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         type.flags = originalFlags & (~Flags.PARAMETERIZED);
     }
 
-    private boolean isDifferentTypeKind(BType source, BType target) {
-        // TODO: Consider subtypes
-        if (target == null) {
-            return true;
-        }
-
-        if (source.tag != target.tag) {
-            return true;
-        }
-
-        return false;
-    }
-
-    private int pos(BVarSymbol sym) {
+    private int getParamPosition(BVarSymbol sym) {
         BInvokableSymbol invokableSymbol = (BInvokableSymbol) invocation.symbol;
         List<BVarSymbol> params = invokableSymbol.params;
         for (int i = 0; i < params.size(); i++) {
@@ -800,6 +871,183 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     private boolean isListType(int tag) {
         return tag == TypeTags.ARRAY || tag == TypeTags.TUPLE;
+    }
+
+    private BType getMatchingType(BType originalType, BType expType) { //int[]|error expType, orig type - td[]
+        if (expType == null || this.invocation == null) {
+            return null;
+        }
+
+        List<String> paramsWithInferredTypedescDefault =
+                getParamsWithInferredTypedescDefault(((BInvokableSymbol) this.invocation.symbol).params);
+        if (paramsWithInferredTypedescDefault.isEmpty()) {
+            return null;
+        }
+
+        List<BType> inferableTypes = new ArrayList<>();
+
+        if (originalType.tag == TypeTags.UNION) {
+            for (BType memberType : ((BUnionType) originalType).getMemberTypes()) {
+                if (!Symbols.isFlagOn(memberType.flags, Flags.PARAMETERIZED)) {
+                    continue;
+                }
+
+                if (!refersInferableParamName(paramsWithInferredTypedescDefault, memberType)) {
+                    continue;
+                }
+
+                inferableTypes.add(memberType);
+            }
+        } else if (refersInferableParamName(paramsWithInferredTypedescDefault, originalType)) {
+            inferableTypes.add(originalType);
+        }
+
+        if (inferableTypes.isEmpty()) {
+            return null;
+        }
+
+        Set<BType> expectedTypes = expType.tag == TypeTags.UNION ? ((BUnionType) expType).getMemberTypes() :
+                Set.of(expType);
+
+        HashSet<BType> matchedTypes = new LinkedHashSet<>();
+
+        for (BType inferableType : inferableTypes) {
+            for (BType expectedType : expectedTypes) {
+                if (inferableType.tag == expectedType.tag) {
+                    matchedTypes.add(expectedType);
+                }
+            }
+        }
+
+        if (matchedTypes.size() == 1) {
+            return matchedTypes.iterator().next();
+        }
+
+        return null;
+    }
+
+    private boolean refersInferableParamName(List<String> paramsWithInferredTypedescDefault, BType type) {
+        return refersInferableParamName(paramsWithInferredTypedescDefault, type, new HashSet<>());
+    }
+
+    private boolean refersInferableParamName(List<String> paramsWithInferredTypedescDefault, BType type,
+                                             Set<BType> unresolvedTypes) {
+        if (!unresolvedTypes.add(type)) {
+            return false;
+        }
+
+        switch (type.tag) {
+            case TypeTags.PARAMETERIZED_TYPE:
+                String paramName = ((BParameterizedType) type).paramSymbol.name.value;
+                return paramsWithInferredTypedescDefault.contains(paramName);
+            case TypeTags.XML:
+                return refersInferableParamName(paramsWithInferredTypedescDefault, ((BXMLType) type).constraint,
+                                                unresolvedTypes);
+            case TypeTags.TABLE:
+                BTableType tableType = (BTableType) type;
+                if (refersInferableParamName(paramsWithInferredTypedescDefault, tableType.constraint,
+                                             unresolvedTypes)) {
+                    return true;
+                }
+
+                BType keyTypeConstraint = tableType.keyTypeConstraint;
+                if (keyTypeConstraint == null) {
+                    return false;
+                }
+
+                return refersInferableParamName(paramsWithInferredTypedescDefault, keyTypeConstraint, unresolvedTypes);
+            case TypeTags.TYPEDESC:
+                return refersInferableParamName(paramsWithInferredTypedescDefault, ((BTypedescType) type).constraint,
+                                                unresolvedTypes);
+            case TypeTags.STREAM:
+                BStreamType streamType = (BStreamType) type;
+                if (refersInferableParamName(paramsWithInferredTypedescDefault, streamType.constraint,
+                                             unresolvedTypes)) {
+                    return true;
+                }
+
+                BType streamErrorType = streamType.error;
+                if (streamErrorType == null) {
+                    return false;
+                }
+                return refersInferableParamName(paramsWithInferredTypedescDefault, streamErrorType, unresolvedTypes);
+            case TypeTags.INVOKABLE:
+//                if (Symbols.isFlagOn(type.flags, Flags.ANY_FUNCTION)) {
+//                    return false;
+//                }
+                BInvokableType invokableType = (BInvokableType) type;
+                for (BType paramType : invokableType.paramTypes) {
+                    if (refersInferableParamName(paramsWithInferredTypedescDefault, paramType, unresolvedTypes)) {
+                        return true;
+                    }
+                }
+
+                BType funcRestType = invokableType.restType;
+                if (funcRestType != null &&
+                        refersInferableParamName(paramsWithInferredTypedescDefault, funcRestType, unresolvedTypes)) {
+                    return true;
+                }
+
+                BType funcRetType = invokableType.retType;
+                if (funcRetType == null) {
+                    return false;
+                }
+                return refersInferableParamName(paramsWithInferredTypedescDefault, funcRetType, unresolvedTypes);
+            case TypeTags.ARRAY:
+                return refersInferableParamName(paramsWithInferredTypedescDefault, ((BArrayType) type).eType,
+                                                unresolvedTypes);
+            case TypeTags.UNION:
+                for (BType unionMemType : ((BUnionType) type).getMemberTypes()) {
+                    if (refersInferableParamName(paramsWithInferredTypedescDefault, unionMemType, unresolvedTypes)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.INTERSECTION:
+                for (BType intersectionMemType : ((BIntersectionType) type).getConstituentTypes()) {
+                    if (refersInferableParamName(paramsWithInferredTypedescDefault, intersectionMemType,
+                                                 unresolvedTypes)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.MAP:
+                return refersInferableParamName(paramsWithInferredTypedescDefault, ((BMapType) type).constraint,
+                                                unresolvedTypes);
+            case TypeTags.ERROR:
+                return refersInferableParamName(paramsWithInferredTypedescDefault, ((BErrorType) type).detailType,
+                                                unresolvedTypes);
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+
+                for (BType tupleMemType : tupleType.tupleTypes) {
+                    if (refersInferableParamName(paramsWithInferredTypedescDefault, tupleMemType, unresolvedTypes)) {
+                        return true;
+                    }
+                }
+
+                BType tupleRestType = tupleType.restType;
+                if (tupleRestType == null) {
+                    return false;
+                }
+
+                return refersInferableParamName(paramsWithInferredTypedescDefault, tupleRestType, unresolvedTypes);
+            case TypeTags.FUTURE:
+                return refersInferableParamName(paramsWithInferredTypedescDefault, ((BFutureType) type).constraint,
+                                                unresolvedTypes);
+        }
+        return false;
+    }
+
+    private List<String> getParamsWithInferredTypedescDefault(List<BVarSymbol> params) {
+        List<String> paramsWithInferredTypedescDefault = new ArrayList<>();
+
+        for (BVarSymbol param : params) {
+            if (Symbols.isFlagOn(param.flags, Flags.INFER)) {
+                paramsWithInferredTypedescDefault.add(param.name.value);
+            }
+        }
+        return paramsWithInferredTypedescDefault;
     }
 
     private void resetBuildArgs() {
