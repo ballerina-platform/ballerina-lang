@@ -5432,9 +5432,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
                     BLangIdentifier paraName = new BLangIdentifier();
                     Token parameterName = parameterDocLineNode.parameterName();
-                    paraName.value = parameterName.isMissing() ? "" : parameterName.text();
+                    var parameterNameValue = parameterName.isMissing() ? "" : parameterName.text();
                     bLangParaDoc.parameterName = paraName;
-
+                    if (stringStartsWithSingleQuote(parameterNameValue)) {
+                        parameterNameValue = parameterNameValue.substring(1);
+                    }
+                    paraName.value = parameterNameValue;
                     NodeList<Node> paraDocElements = parameterDocLineNode.documentElements();
                     String paraDocText = addReferencesAndReturnDocumentationText(references, paraDocElements);
 
