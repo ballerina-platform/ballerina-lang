@@ -51,6 +51,18 @@ type Person readonly & record {|
     int age?;
 |};
 
+type PersonInfo readonly & record {|
+    string name;
+    string address = "Colombo";
+    int age?;
+|};
+
+type EmployeeInfo record {|
+    int id;
+    string name= "test";
+    float salary?;
+|};
+
 type UserTable table<AuthInfo> key(username);
 
 type EmployeeTable table<Employee> key(id) & readonly;
@@ -59,11 +71,19 @@ type PersonTable table<Person> key(name) & readonly;
 
 type nonKeyTable table<AuthInfo>;
 
+type PersonInfoTable table<PersonInfo> & readonly;
+
+type EmpInfoTable table<EmployeeInfo>;
+
 configurable AuthInfo & readonly admin = ?;
 configurable UserTable & readonly users = ?;
+configurable PersonInfo personInfo = ?;
+configurable EmployeeInfo & readonly empInfo = ?;
 configurable EmployeeTable employees = ?;
 configurable PersonTable people = ?;
 configurable nonKeyTable & readonly nonKeyUsers = ?;
+configurable PersonInfoTable peopleInfo = ?;
+configurable EmpInfoTable & readonly empInfoTab = ?;
 
 public function main() {
     testSimpleValues();
@@ -105,6 +125,14 @@ function testRecordValues() {
     test:assertEquals("password", admin.password);
     test:assertEquals(["write", "read", "execute"], admin["scopes"]);
     test:assertTrue(admin.isAdmin);
+
+    test:assertEquals("harry", personInfo.name);
+    test:assertEquals("Colombo", personInfo.address);
+    test:assertEquals(28, personInfo["age"]);
+
+    test:assertEquals(34, empInfo.id);
+    test:assertEquals("test", empInfo.name);
+    test:assertEquals(75000.0, empInfo["salary"]);
 }
 
 function testTableValues() {
@@ -113,6 +141,8 @@ function testTableValues() {
     test:assertEquals(3, nonKeyUsers.length());
     test:assertEquals(3, employees.length());
     test:assertEquals(3, people.length());
+    test:assertEquals(3, personInfo.length());
+    test:assertEquals(3, empInfoTab.length());
 
     AuthInfo & readonly user1 = {
         username: "alice",
@@ -159,18 +189,16 @@ function testTableValues() {
     test:assertEquals(emp3, employees.get(333));
 
     Person person1 = {
-        name : "alice",
+        name: "alice",
         address: "London",
-        age : 22
+        age: 22
     };
 
-    Person person2 = {
-        name : "bob"
-    };
+    Person person2 = {name: "bob"};
 
     Person person3 = {
-        name : "john",
-        age : 25
+        name: "john",
+        age: 25
     };
 
     test:assertEquals(person1, people.get("alice"));
@@ -178,8 +206,11 @@ function testTableValues() {
     test:assertEquals(person3, people.get("john"));
 
     testTableIterator(users);
+    testTableIterator(nonKeyUsers);
     testTableIterator(employees);
     testTableIterator(people);
+    testTableIterator(peopleInfo);
+    testTableIterator(empInfoTab);
 }
 
 function testTableIterator(table<map<anydata>> tab) {
