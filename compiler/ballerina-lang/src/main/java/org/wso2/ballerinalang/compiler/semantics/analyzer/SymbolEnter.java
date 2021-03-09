@@ -3695,7 +3695,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         } else if (flagSet.contains(Flag.REQUIRED_PARAM) || flagSet.contains(Flag.DEFAULTABLE_PARAM) ||
                 flagSet.contains(Flag.REST_PARAM)) {
-            if (!symResolver.checkForUniqueMemberSymbol (pos, env, varSymbol)) {
+            if (!symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
                 varSymbol.type = symTable.semanticError;
             }
         } else if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
