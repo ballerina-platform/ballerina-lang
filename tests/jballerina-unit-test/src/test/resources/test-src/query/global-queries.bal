@@ -105,9 +105,9 @@ function testGlobalQuery1() returns boolean {
 }
 
 DeptPerson[] globalQuery2 = from var person in personList
-       // let string deptName = "HR"
+       let string deptName = "HR"
        join var {id,name} in deptList
-       on "HR" equals getDeptName(id)
+       on deptName equals getDeptName(id)
        select {
            fname : person.fname,
            lname : person.lname,
@@ -164,5 +164,31 @@ function testGlobalQuery3() returns boolean {
     testPassed = testPassed && dp.fname == "Idris" && dp.lname == "Elba" && dp.dept == "Engineering";
     dp = deptPersonList[1];
     testPassed = testPassed && dp.fname == "Dermot" && dp.lname == "Crowley" && dp.dept == "Engineering";
+    return testPassed;
+}
+
+DeptPerson[] globalQuery4 = from var person in personList
+       let string hrDep = "HR"
+       join var {id,name} in deptList
+       on hrDep equals getDeptName(id)
+       let string deptName = "WSO2_".concat(hrDep)
+       select {
+           fname : person.fname,
+           lname : person.lname,
+           dept : deptName
+       };
+
+function testGlobalQuery4() returns boolean {
+    DeptPerson[] deptPersonList = globalQuery4;
+    boolean testPassed = true;
+    DeptPerson dp;
+    any res = deptPersonList;
+    testPassed = testPassed && res is DeptPerson[];
+    testPassed = testPassed && res is (any|error)[];
+    testPassed = testPassed && deptPersonList.length() == 4;
+    dp = deptPersonList[0];
+    testPassed = testPassed && dp.fname == "Alex" && dp.lname == "George" && dp.dept == "WSO2_HR";
+    dp = deptPersonList[3];
+    testPassed = testPassed && dp.fname == "Dermot" && dp.lname == "Crowley" && dp.dept == "WSO2_HR";
     return testPassed;
 }
