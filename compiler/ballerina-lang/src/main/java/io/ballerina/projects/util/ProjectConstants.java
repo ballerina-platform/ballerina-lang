@@ -58,6 +58,7 @@ public class ProjectConstants {
     // Bala specific constants
     public static final String MODULES_ROOT = "modules";
     public static final String LIB_DIR = "lib";
+    public static final String COMPILER_PLUGIN_DIR = "compiler-plugin";
 
     public static final String BALA_DIR_NAME = "bala";
     public static final String BALA_CACHE_DIR_NAME = "bala_cache";

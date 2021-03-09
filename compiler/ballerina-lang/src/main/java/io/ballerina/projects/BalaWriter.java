@@ -29,7 +29,7 @@ import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
-import io.ballerina.projects.internal.model.CompilerPluginTomlModel;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -78,7 +78,7 @@ public abstract class BalaWriter {
     private static final String BALLERINA_SHORT_VERSION = RepoUtils.getBallerinaShortVersion();
     private static final String BALLERINA_SPEC_VERSION = RepoUtils.getBallerinaSpecVersion();
     protected PackageContext packageContext;
-    Optional<CompilerPluginTomlModel> compilerPluginToml;
+    Optional<CompilerPluginDescriptor> compilerPluginToml;
 
     protected BalaWriter() {
     }

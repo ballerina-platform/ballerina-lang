@@ -40,4 +40,8 @@ public class CompilerPluginJson {
     public List<String> dependencyPaths() {
         return dependency_paths;
     }
+
+    public void setDependencyPaths(List<String> dependencyPaths) {
+        this.dependency_paths = dependencyPaths;
+    }
 }
