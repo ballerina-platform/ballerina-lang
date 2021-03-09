@@ -108,7 +108,8 @@ public class SyntaxTreeModifyTest {
         skipOnWindows();
         Path tempFile = createTempFile(mainFile);
         TestUtil.openDocument(serviceEndpoint, tempFile);
-        ASTModification modification = new ASTModification(4, 5, 4, 33, "delete", null);
+        ASTModification modification = new ASTModification(4, 5, 4, 33, false,
+                "delete", null);
         BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
                 .modifyAndGetBallerinaSyntaxTree(tempFile.toString(),
                         new ASTModification[]{modification}, this.serviceEndpoint);
@@ -126,16 +127,18 @@ public class SyntaxTreeModifyTest {
         TestUtil.openDocument(serviceEndpoint, tempFile);
 
         Gson gson = new Gson();
-        ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
-                gson.fromJson("{\"TYPE\":\"ballerina/http\"}", JsonObject.class));
-        ASTModification modification2 = new ASTModification(4, 1, 4, 1, "DECLARATION",
-                gson.fromJson("{\"TYPE\":\"http:Client\", \"VARIABLE\":\"clientEndpoint\"," +
-                        "\"PARAMS\": [\"\\\"http://postman-echo.com\\\"\"]}", JsonObject.class));
-        ASTModification modification3 = new ASTModification(4, 1, 4, 1,
-                "REMOTE_SERVICE_CALL_CHECK",
-                gson.fromJson("{\"TYPE\":\"http:Response\", \"VARIABLE\":\"response\"," +
-                        "\"CALLER\":\"clientEndpoint\", \"FUNCTION\":\"get\"," +
-                        "\"PARAMS\": [\"\\\"/get?test=123\\\"\"]}", JsonObject.class));
+        ASTModification modification1 = new ASTModification(1, 1, 1, 1, true,
+                "INSERT",
+                gson.fromJson("{\"TYPE\":\"ballerina/http\", \"STATEMENT\":\"import ballerina/http;\"}",
+                        JsonObject.class));
+        ASTModification modification2 = new ASTModification(4, 1, 4, 1, false,
+                "INSERT", gson
+                .fromJson("{\"STATEMENT\":\"http:Client clientEndpoint = new (\\\"http://postman-echo.com\\\");"
+                        , JsonObject.class));
+        ASTModification modification3 = new ASTModification(4, 1, 4, 1, false,
+                "INSERT",
+                gson.fromJson("{\"STATEMENT\":\"http:Response response = check clientEndpoint->get(\\\"\\\"\");",
+                        JsonObject.class));
         BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
                 .modifyAndGetBallerinaSyntaxTree(tempFile.toString(),
                         new ASTModification[]{modification1, modification2, modification3}, this.serviceEndpoint);
