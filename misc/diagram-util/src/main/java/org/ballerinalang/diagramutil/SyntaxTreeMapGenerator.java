@@ -93,7 +93,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         // TODO: Generalize the diagnostic implementation.
         Iterable<Diagnostic> syntaxDiagnostics = node.diagnostics();
         if (syntaxDiagnostics != null) {
-            nodeJson.add("syntaxDiagnostics", DiagnosticUtil.getDiagnostics(syntaxDiagnostics));
+            nodeJson.add("syntaxDiagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(syntaxDiagnostics));
         }
         nodeJson.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
         nodeJson.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
@@ -164,7 +164,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
                 List<Diagnostic> diagnostics = this.semanticModel.diagnostics(lineRange);
                 if (diagnostics != null) {
-                    symbolJson.add("diagnostics", DiagnosticUtil.getDiagnostics(diagnostics));
+                    symbolJson.add("diagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(diagnostics));
                 }
 
                 nodeJson.add("typeData", symbolJson);

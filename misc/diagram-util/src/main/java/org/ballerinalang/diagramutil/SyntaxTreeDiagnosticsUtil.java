@@ -23,10 +23,12 @@ import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 
 /**
- * This is the DiagnosticUtil class for Diagnostics related Utils for the syntax tree generation.
+ * This is the SyntaxTreeDiagnosticsUtil class for diagnostics related utils used in the syntax tree generation.
+ *
+ * @since 2.0.0
  */
 
-public class DiagnosticUtil {
+public class SyntaxTreeDiagnosticsUtil {
     public static JsonArray getDiagnostics(Iterable<Diagnostic> diagnostics) {
         JsonArray diagnosticsArray = new JsonArray();
         for (Diagnostic diagnostic : diagnostics) {
