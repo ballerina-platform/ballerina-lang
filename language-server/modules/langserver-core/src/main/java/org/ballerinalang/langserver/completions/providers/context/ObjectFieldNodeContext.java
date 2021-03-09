@@ -101,7 +101,7 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node.parent())) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
         }
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        // We need to add the function keyword also. That is being covered with #getTypeItems
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         completionItems.addAll(this.getTypeItems(context));

@@ -22,6 +22,7 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
+import java.util.Optional;
 
 import static org.ballerinalang.compiler.CompilerOptionName.PROJECT_DIR;
 
@@ -96,6 +97,8 @@ public abstract class Project {
     }
 
     public abstract DocumentId documentId(Path file);
+
+    public abstract Optional<Path> documentPath(DocumentId documentId);
 
     public abstract void save();
 }
