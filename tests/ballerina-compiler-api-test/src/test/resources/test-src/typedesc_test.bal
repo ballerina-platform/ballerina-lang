@@ -207,3 +207,8 @@ function testUnionsWithNil() {
     "A"|() z = ();
     "A"|"B"|() a = ();
 }
+
+const NIL = ();
+type Nil NIL;
+
+type Pi PI;

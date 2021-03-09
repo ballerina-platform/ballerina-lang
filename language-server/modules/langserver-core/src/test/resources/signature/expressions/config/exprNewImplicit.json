@@ -8,7 +8,7 @@
         "result": {
             "signatures": [
                 {
-                    "label": "new Stub(any arg)",
+                    "label": "new(any arg)",
                     "documentation": {
                         "right": {
                             "kind": "markdown",
@@ -18,12 +18,15 @@
                     "parameters": [
                         {
                             "label": {
-                                "left": "any arg"
+                                "right": {
+                                    "first": 8,
+                                    "second": 11
+                                }
                             },
                             "documentation": {
                                 "right": {
                                     "kind": "markdown",
-                                    "value": "**Parameter**  \n**`any`arg**: "
+                                    "value": "**Parameter**  \n**`any`arg**"
                                 }
                             }
                         }

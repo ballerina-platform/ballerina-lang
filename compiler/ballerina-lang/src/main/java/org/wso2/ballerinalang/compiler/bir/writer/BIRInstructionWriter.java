@@ -350,6 +350,20 @@ public class BIRInstructionWriter extends BIRVisitor {
     public void visit(NewStructure birNewStructure) {
         birNewStructure.rhsOp.accept(this);
         birNewStructure.lhsOp.accept(this);
+        buf.writeInt(birNewStructure.initialValues.size());
+        for (BIRNode.BIRMappingConstructorEntry initialValue : birNewStructure.initialValues) {
+            buf.writeBoolean(initialValue.isKeyValuePair());
+            if (initialValue.isKeyValuePair()) {
+                BIRNode.BIRMappingConstructorKeyValueEntry keyValueEntry =
+                        (BIRNode.BIRMappingConstructorKeyValueEntry) initialValue;
+                keyValueEntry.keyOp.accept(this);
+                keyValueEntry.valueOp.accept(this);
+            } else {
+                BIRNode.BIRMappingConstructorSpreadFieldEntry spreadEntry =
+                        (BIRNode.BIRMappingConstructorSpreadFieldEntry) initialValue;
+                spreadEntry.exprOp.accept(this);
+            }
+        }
     }
 
     public void visit(BIRNonTerminator.NewInstance newInstance) {
@@ -368,6 +382,10 @@ public class BIRInstructionWriter extends BIRVisitor {
         writeType(birNewArray.type);
         birNewArray.lhsOp.accept(this);
         birNewArray.sizeOp.accept(this);
+        buf.writeInt(birNewArray.values.size());
+        for (BIROperand value : birNewArray.values) {
+            value.accept(this);
+        }
     }
 
     public void visit(BIRNonTerminator.FieldAccess birFieldAccess) {

@@ -167,3 +167,17 @@ function testInvalidConstIndex() {
 
 type NoFillerObject object {
 };
+
+function testInvalidTupleDeclaredWithVar() {
+    var [a1, a2, a3, ...a4] = getData();
+    var [b1, b2, b3] = getData2();
+    var [c1, c2] = getData();
+}
+
+function getData() returns [int, string...] {
+    return [1, "hello"];
+}
+
+function getData2() returns int[2] {
+    return [1, 2];
+}

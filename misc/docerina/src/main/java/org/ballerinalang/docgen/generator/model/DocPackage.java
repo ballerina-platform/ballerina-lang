@@ -25,10 +25,7 @@ import java.util.List;
  * Represents a Ballerina Package.
  */
 public class DocPackage extends DocPackageMetadata {
-    @Expose
-    public boolean isSingleFile;
-    @Expose
-    public String sourceFileName;
+
     @Expose
     public String description;
     @Expose

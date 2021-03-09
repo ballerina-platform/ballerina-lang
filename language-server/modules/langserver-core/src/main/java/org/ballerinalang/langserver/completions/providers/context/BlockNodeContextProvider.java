@@ -139,6 +139,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STREAM.get()));
         Optional<Node> nodeBeforeCursor = this.nodeBeforeCursor(context, node);
         if (nodeBeforeCursor.isPresent()) {
             switch (nodeBeforeCursor.get().kind()) {
@@ -175,7 +176,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol)
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol ||
+                        symbol.kind() == SymbolKind.PARAMETER)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getTypeguardDestructedItems(visibleSymbols, context));

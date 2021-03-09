@@ -150,7 +150,8 @@ public class PullCommand implements BLauncherCmd {
         }
 
         Path packagePathInBalaCache = ProjectUtils.createAndGetHomeReposPath()
-                .resolve(ProjectConstants.BALA_DIR_NAME).resolve(orgName).resolve(packageName);
+                .resolve(ProjectConstants.REPOSITORIES_DIR).resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME)
+                .resolve(orgName).resolve(packageName);
         // create directory path in bala cache
         try {
             createDirectories(packagePathInBalaCache);

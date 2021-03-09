@@ -264,6 +264,15 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "sourceWorkerAnnotation1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "sourceWorkerAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
       "label": "sourceWorkerAnnotation2",
       "kind": "Property",
       "detail": "Annotation",
@@ -273,11 +282,11 @@
       "additionalTextEdits": []
     },
     {
-      "label": "sourceWorkerAnnotation1",
+      "label": "strand",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "sourceWorkerAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "strand {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }

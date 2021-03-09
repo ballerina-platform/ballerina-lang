@@ -59,6 +59,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
      */
     public XmlSequence() {
         children = new ArrayList<>();
+        this.type = PredefinedTypes.TYPE_XML_NEVER;
     }
 
     public XmlSequence(List<BXml> children) {

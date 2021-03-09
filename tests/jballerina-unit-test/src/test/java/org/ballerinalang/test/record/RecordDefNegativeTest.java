@@ -61,4 +61,13 @@ public class RecordDefNegativeTest {
         BAssertUtil.validateError(compileResult, indx++, "incompatible types: expected 'string', found 'int'", 79, 16);
         assertEquals(compileResult.getErrorCount(), indx);
     }
+
+    @Test(description = "Test record destructure negative cases")
+    public void recordDestructureTest() {
+        CompileResult compileResult = BCompileUtil.
+                compile("test-src/record/negative/record-destructure-negative.bal");
+        BAssertUtil.validateError(compileResult, 0,
+                "invalid record binding pattern; unknown field '_' in record type 'Person'",
+                27, 5);
+    }
 }

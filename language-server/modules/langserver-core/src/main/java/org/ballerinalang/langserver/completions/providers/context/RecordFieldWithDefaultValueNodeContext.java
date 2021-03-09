@@ -32,9 +32,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -79,7 +77,6 @@ public class RecordFieldWithDefaultValueNodeContext extends
             completionItems.addAll(this.actionKWCompletions(ctx));
             completionItems.addAll(this.expressionCompletions(ctx));
             completionItems.addAll(getNewExprCompletionItems(ctx, node.typeName()));
-            completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_IS.get()));
         }
         this.sort(ctx, node, completionItems);
 

@@ -17,12 +17,14 @@ import ballerina/test;
 import ballerina/jballerina.java;
 
 configurable int intVar = 5;
+configurable byte byteVar = ?;
 configurable float floatVar = 9.5;
 configurable string stringVar = ?;
 configurable boolean booleanVar = ?;
 configurable decimal decimalVar = 10.1;
 
 configurable int[] & readonly intArr = ?;
+configurable byte[] & readonly byteArr = ?;
 configurable float[] & readonly floatArr = [9.0, 5.3, 5.6];
 configurable string[] & readonly stringArr = ["apple", "orange", "banana"];
 configurable boolean[] & readonly booleanArr = [true, true];
@@ -60,6 +62,9 @@ function testSimpleValues() {
 
     decimal result = 24.87;
     test:assertEquals(result, decimalVar);
+
+    byte result2 = 22;
+    test:assertEquals(byteVar, result2);
 }
 
 function testArrayValues() {
@@ -70,6 +75,9 @@ function testArrayValues() {
 
     decimal[] & readonly resultArr = [8.9, 4.5, 6.2];
     test:assertEquals(resultArr, decimalArr);
+
+    byte[] & readonly resultArr2 = [11,22,33,44,55,66,77,88,99];
+    test:assertEquals(byteArr, resultArr2);
 }
 
 function testRecordValues() {

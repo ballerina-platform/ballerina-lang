@@ -20,8 +20,10 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -32,6 +34,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.function.Predicate;
 
 /**
  * Carries a set of utilities to check the types of the symbols.
@@ -188,7 +191,7 @@ public class SymbolUtil {
      * @param symbol to evaluate
      * @return {@link Optional} type descriptor
      */
-    public static Optional<? extends TypeSymbol> getTypeDescriptor(Symbol symbol) {
+    public static Optional<TypeSymbol> getTypeDescriptor(Symbol symbol) {
         if (symbol == null) {
             return Optional.empty();
         }
@@ -200,11 +203,16 @@ public class SymbolUtil {
             case ANNOTATION:
                 return ((AnnotationSymbol) symbol).typeDescriptor();
             case FUNCTION:
+            case METHOD:
                 return Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
             case CONSTANT:
                 return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
             case CLASS:
                 return Optional.of((ClassSymbol) symbol);
+            case RECORD_FIELD:
+                return Optional.ofNullable(((RecordFieldSymbol) symbol).typeDescriptor());
+            case OBJECT_FIELD:
+                return Optional.of(((ObjectFieldSymbol) symbol).typeDescriptor());
             default:
                 return Optional.empty();
         }
@@ -317,5 +325,16 @@ public class SymbolUtil {
         }
 
         return Optional.ofNullable(((VariableSymbol) symbol).typeDescriptor().typeKind());
+    }
+
+    /**
+     * Predicate to evaluate whether a symbol is a type definition of the provided kind.
+     *
+     * @param typeDescKind to compare the symbol
+     * @return {@link Predicate}
+     */
+    public static Predicate<Symbol> isOfType(TypeDescKind typeDescKind) {
+        return symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION
+                && CommonUtil.getRawType(((TypeDefinitionSymbol) symbol).typeDescriptor()).typeKind() == typeDescKind;
     }
 }

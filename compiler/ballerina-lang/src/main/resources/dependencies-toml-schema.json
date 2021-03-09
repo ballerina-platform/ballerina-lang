@@ -19,6 +19,9 @@
           },
           "version": {
             "type": "string"
+          },
+          "repository": {
+            "type": "string"
           }
         },
         "required": ["org", "name", "version"],

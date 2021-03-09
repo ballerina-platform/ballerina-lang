@@ -28,10 +28,13 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -58,7 +61,8 @@ public class CodeCoverageUtils {
      * @throws NoSuchFileException if source file doesnt exist
      */
     public static void unzipCompiledSource(Path source, Path destination, String orgName, String moduleName,
-                                           String version) throws NoSuchFileException {
+                                           String version, boolean enableIncludesFilter,
+                                           String includesInCoverage) throws NoSuchFileException {
         String destJarDir = destination.resolve(source.getFileName()).toString();
 
         try (JarFile jarFile = new JarFile(source.toFile())) {
@@ -66,7 +70,8 @@ public class CodeCoverageUtils {
             while (enu.hasMoreElements()) {
                 JarEntry entry = enu.nextElement();
                 File file = new File(destJarDir, entry.getName());
-                if (isRequiredFile(entry.getName(), orgName, moduleName, version)) {
+                if (isRequiredFile(entry.getName(), orgName, moduleName, version, enableIncludesFilter,
+                        includesInCoverage)) {
                     if (!file.exists()) {
                         Files.createDirectories(file.getParentFile().toPath());
                     }
@@ -110,7 +115,7 @@ public class CodeCoverageUtils {
 
         //Next we walk through extractedJarPath and copy only the class files
         List<Path> pathList;
-        try (Stream<Path> walk = Files.walk(extractedJarPath, 5)) {
+        try (Stream<Path> walk = Files.walk(extractedJarPath)) {
             pathList = walk.map(path -> path).filter(f -> f.toString().endsWith(".class")).collect(Collectors.toList());
         } catch (IOException e) {
             return;
@@ -140,19 +145,25 @@ public class CodeCoverageUtils {
     }
 
     private static String resolveClassDir(Path classPath, String version) {
-        // Typical class path is .jar/<moduleName>/<version>/class
-        // This function extracts the <moduleName> to create a unique directory
+        // Typical class path is .jar/<moduleName>/<version>/class for .bal files
+        // This function extracts the <moduleName> to create a unique directory for .bal files
+        // For .java files, the parent directory of the class file is returned
         version = version.replace(".", "_");
         Path resolvedPath = classPath;
-        String pathVersion;
-        do {
-            resolvedPath = resolvedPath.getParent();
-            pathVersion = resolvedPath.getFileName().toString();
-        } while (!pathVersion.equals(version));
-        return resolvedPath.getParent().getFileName().toString();
+        if (!resolvedPath.toString().contains(version)) {
+            return resolvedPath.getParent().getFileName().toString();
+        } else {
+            String pathVersion;
+            do {
+                resolvedPath = resolvedPath.getParent();
+                pathVersion = resolvedPath.getFileName().toString();
+            } while (!pathVersion.equals(version));
+            return resolvedPath.getParent().getFileName().toString();
+        }
     }
 
-    private static boolean isRequiredFile(String path, String orgName, String moduleName, String version) {
+    private static boolean isRequiredFile(String path, String orgName, String moduleName, String version,
+                                          boolean enableIncludesFilter, String includesInCoverage) {
         if (path.contains("$_init") || path.contains("META-INF") || path.contains("/tests/")) {
             return false;
         } else if (path.contains("Frame") && path.contains("module")) {
@@ -162,8 +173,36 @@ public class CodeCoverageUtils {
         } else if (path.contains(
                 orgName + "/" + moduleName + "/" + version.replace(".", "_") + "/" + moduleName + ".class")) {
             return false;
+        } else if (path.contains("module-info.class")) {
+            return false;
+        } else if (enableIncludesFilter && !isIncluded(path, includesInCoverage)) {
+            return false;
         }
         return true;
+    }
+
+    private static String normalizeRegexPattern(String pattern) {
+        if (TesterinaConstants.WILDCARD.equals(pattern)) {
+            pattern = TesterinaConstants.DOT.concat(pattern);
+        }
+        return pattern;
+    }
+
+    private static boolean isIncluded(String path, String includesInCoverage) {
+        boolean isIncluded = false;
+        if (includesInCoverage != null) {
+            List<String> includedPackages = Arrays.asList(includesInCoverage.split(":"));
+            for (String packageName : includedPackages) {
+                packageName = packageName.replace(".", "/");
+                Pattern pattern = Pattern.compile(normalizeRegexPattern(packageName));
+                Matcher matcherStr = pattern.matcher(path);
+                if (matcherStr.find()) {
+                    isIncluded = true;
+                    break;
+                }
+            }
+        }
+        return isIncluded;
     }
 
     /**

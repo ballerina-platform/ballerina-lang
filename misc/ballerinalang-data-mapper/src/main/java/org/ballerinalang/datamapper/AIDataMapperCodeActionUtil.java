@@ -30,6 +30,8 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -46,6 +48,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -82,12 +85,14 @@ class AIDataMapperCodeActionUtil {
     /**
      * Returns the workspace edits for the automatic data mapping code action.
      *
-     * @param context    {@link CodeActionContext}
-     * @param diagnostic {@link Diagnostic}
+     * @param positionDetails {@link DiagBasedPositionDetails}
+     * @param context         {@link CodeActionContext}
+     * @param diagnostic      {@link Diagnostic}
      * @return edits for the data mapper code action
      * @throws IOException throws if error occurred when getting generatedRecordMappingFunction
      */
-    static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context, Diagnostic diagnostic)
+    static List<TextEdit> getAIDataMapperCodeActionEdits(DiagBasedPositionDetails positionDetails,
+                                                         CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
         String diagnosticMessage = diagnostic.message();
@@ -166,21 +171,33 @@ class AIDataMapperCodeActionUtil {
                         foundErrorRight = true;
                     }
 
+                    NonTerminalNode matchedNode = null;
+                    if (positionDetails.matchedNode().kind() == SyntaxKind.FUNCTION_CALL) {
+                        matchedNode = positionDetails.matchedNode();
+                        if (matchedNode.parent().kind() == SyntaxKind.CHECK_EXPRESSION) {
+                            matchedNode = matchedNode.parent();
+                        }
+                    }
 
-                    String functionCall = context.positionDetails().matchedNode().toString();
+                    if (matchedNode == null) {
+                        throw new IllegalStateException("Unexpected node at cursor:" +
+                                positionDetails.matchedNode().kind());
+                    }
+
+                    String functionCall = matchedNode.toString();
                     if (foundErrorRight && !foundErrorLeft) {
-                        symbolAtCursorName = functionCall.split("[=;]")[1].trim();
+                        symbolAtCursorName = functionCall.trim();
                         generatedFunctionName =
                                 String.format("map%sTo%s(check %s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else if (foundErrorLeft && foundErrorRight) {
                         // get the information about the line positions
-                        newTextRange = CommonUtil.toRange(context.positionDetails().matchedNode().lineRange());
+                        newTextRange = CommonUtil.toRange(matchedNode.lineRange());
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else {
-                        symbolAtCursorName = functionCall.split("[=;]")[1].trim();
+                        symbolAtCursorName = functionCall.trim();
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));

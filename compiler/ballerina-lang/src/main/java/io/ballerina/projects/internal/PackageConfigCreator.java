@@ -87,7 +87,7 @@ public class PackageConfigCreator {
         PackageManifest packageManifest = BalaFiles.createPackageManifest(balaPath);
         PackageData packageData = BalaFiles.loadPackageData(balaPath, packageManifest);
         BalaFiles.DependencyGraphResult packageDependencyGraph = BalaFiles
-                .createPackageDependencyGraph(balaPath, packageManifest.name().value());
+                .createPackageDependencyGraph(balaPath);
 
         return createPackageConfig(packageData, packageManifest,
                 packageDependencyGraph.packageDependencyGraph(), packageDependencyGraph.moduleDependencies());

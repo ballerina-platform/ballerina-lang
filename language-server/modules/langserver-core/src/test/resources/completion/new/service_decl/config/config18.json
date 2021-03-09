@@ -14,14 +14,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "type",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -110,14 +102,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "distinct",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "distinct",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -149,6 +133,14 @@
       "insertText": "service /${1} on new modHttp:Listener(8080) {\n\tresource function ${2:get} ${3:getResource}(modHttp:Caller ${4:caller}, modHttp:Request ${5:req}) {\n\t\t\n\t}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
+    },
+    {
+      "label": "configurable",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "configurable",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "annotation",
@@ -228,6 +220,14 @@
       "detail": "Snippet",
       "sortText": "O",
       "insertText": "type ${1:TypeName} table<${2}> key${3}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stream<> streamName = new;",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "stream<${1}> ${2:streamName} = new;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -322,19 +322,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map",
-      "kind": "TypeParameter",
-      "detail": "type ",
-      "sortText": "Q",
-      "insertText": "map",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "record",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -354,11 +354,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "object",
+      "label": "distinct",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "object ",
+      "insertText": "distinct",
       "insertTextFormat": "Snippet"
     },
     {

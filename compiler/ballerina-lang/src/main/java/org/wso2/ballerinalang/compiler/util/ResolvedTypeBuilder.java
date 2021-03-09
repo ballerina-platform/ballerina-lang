@@ -44,7 +44,9 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangNamedArgsExpression;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -402,20 +404,119 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
     private void createParamMap(BLangInvocation invocation) {
         paramValueTypes = new LinkedHashMap<>();
         BInvokableSymbol symbol = (BInvokableSymbol) invocation.symbol;
-        int nArgs = invocation.requiredArgs.size();
-        int nParams = symbol.params.size();
-        BVarSymbol param;
+        List<BLangExpression> requiredArgs = invocation.requiredArgs;
+        List<BVarSymbol> params = symbol.params;
 
-        for (int i = 0; i < nParams; i++) {
-            param = symbol.params.get(i);
+        int argIndex = 0;
 
-            if (param.defaultableParam &&
-                    (i >= nArgs || invocation.requiredArgs.get(i).getKind() == NodeKind.IGNORE_EXPR)) {
-                paramValueTypes.put(param.name.value, symbol.paramDefaultValTypes.get(param.name.value));
+        List<BLangExpression> restArgs = invocation.restArgs;
+        boolean hasRestArg = !restArgs.isEmpty() &&
+                restArgs.get(restArgs.size() - 1).getKind() == NodeKind.REST_ARGS_EXPR;
+
+        for (int paramIndex = 0; paramIndex < params.size(); paramIndex++) {
+            if (argIndex < requiredArgs.size()) {
+                BLangExpression arg = requiredArgs.get(argIndex);
+
+                if (arg.getKind() != NodeKind.NAMED_ARGS_EXPR) {
+                    // If this is a positional arg, it should correspond to the current param.
+                    paramValueTypes.put(params.get(paramIndex).name.value, arg.type);
+                    argIndex++;
+                    continue;
+                } else {
+                    // If this is a named arg, from this point onward the order in which args are specified doesn't
+                    // have to correspond to the order in which the params were specified.
+                    populateParamMapFromNamedArgs(symbol, params, requiredArgs, paramIndex, argIndex);
+                    return;
+                }
+            }
+
+            if (hasRestArg) {
+                // Param defaults are not added if there is a rest arg, so we can populate all the remaining param
+                // types based on the rest arg.
+                populateParamMapFromRestArg(params, paramIndex, restArgs.get(restArgs.size() - 1));
+                return;
+            }
+
+            BVarSymbol param = params.get(paramIndex);
+            String paramName = param.name.value;
+            if (param.defaultableParam) {
+                paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
+            }
+        }
+    }
+
+    private void populateParamMapFromNamedArgs(BInvokableSymbol symbol, List<BVarSymbol> params,
+                                               List<BLangExpression> requiredArgs,
+                                               int currentParamIndex, int currentArgIndex) {
+        for (int paramIndex = currentParamIndex; paramIndex < params.size(); paramIndex++) {
+            BVarSymbol param = params.get(paramIndex);
+            if (Symbols.isFlagOn(param.flags, Flags.INCLUDED)) {
+                // Return types cannot be dependent on included record param fields, so we don't have to populate the
+                // map for them.
                 continue;
             }
 
-            paramValueTypes.put(param.name.value, invocation.requiredArgs.get(i).type);
+            String name = param.name.value;
+            boolean argProvided = false;
+
+            for (int argIndex = currentArgIndex; argIndex < requiredArgs.size(); argIndex++) {
+                BLangNamedArgsExpression namedArg = (BLangNamedArgsExpression) requiredArgs.get(argIndex);
+
+                if (name.equals(namedArg.name.value)) {
+                    paramValueTypes.put(name, namedArg.type);
+                    argProvided = true;
+                    break;
+                }
+            }
+
+            if (argProvided) {
+                continue;
+            }
+
+            if (param.defaultableParam) {
+                paramValueTypes.put(name, symbol.paramDefaultValTypes.get(name));
+            }
+        }
+    }
+
+    private void populateParamMapFromRestArg(List<BVarSymbol> params, int currentParamIndex, BLangExpression restArg) {
+        BType type = restArg.type;
+        int tag = type.tag;
+        if (tag == TypeTags.RECORD) {
+            populateParamMapFromRecordRestArg(params, currentParamIndex, (BRecordType) type);
+            return;
+        }
+
+        if (tag == TypeTags.ARRAY) {
+            populateParamMapFromArrayRestArg(params, currentParamIndex, (BArrayType) type);
+            return;
+        }
+
+        populateParamMapFromTupleRestArg(params, currentParamIndex, (BTupleType) type);
+    }
+
+    private void populateParamMapFromRecordRestArg(List<BVarSymbol> params, int currentParamIndex,
+                                                   BRecordType recordType) {
+        for (int i = currentParamIndex; i < params.size(); i++) {
+            String paramName = params.get(i).name.value;
+            paramValueTypes.put(paramName, recordType.fields.get(paramName).type);
+        }
+    }
+
+    private void populateParamMapFromArrayRestArg(List<BVarSymbol> params, int currentParamIndex,
+                                                  BArrayType arrayType) {
+        BType elementType = arrayType.eType;
+        for (int i = currentParamIndex; i < params.size(); i++) {
+            paramValueTypes.put(params.get(i).name.value, elementType);
+        }
+    }
+
+    private void populateParamMapFromTupleRestArg(List<BVarSymbol> params, int currentParamIndex,
+                                                  BTupleType tupleType) {
+        int tupleIndex = 0;
+        List<BType> tupleTypes = tupleType.tupleTypes;
+        for (int i = currentParamIndex; i < params.size(); i++) {
+            paramValueTypes.put(params.get(i).name.value, tupleTypes.get(tupleIndex++));
         }
     }
 

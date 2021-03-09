@@ -18,18 +18,20 @@
 package org.ballerinalang.langserver.contexts;
 
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
-import org.ballerinalang.langserver.commons.codeaction.spi.PositionDetails;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Diagnostic;
 import org.eclipse.lsp4j.Position;
 
-import java.util.ArrayList;
+import java.nio.file.Path;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Language server context implementation.
@@ -41,7 +43,6 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     private Position cursorPosition;
     private List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics;
     private final CodeActionParams params;
-    private PositionDetails positionDetails;
 
     public CodeActionContextImpl(LSOperation operation,
                                  String fileUri,
@@ -64,28 +65,24 @@ public class CodeActionContextImpl extends AbstractDocumentServiceContext implem
     }
 
     @Override
-    public List<io.ballerina.tools.diagnostics.Diagnostic> allDiagnostics() {
-        if (diagnostics == null) {
-            PackageCompilation compilation = workspace().waitAndGetPackageCompilation(this.filePath()).orElseThrow();
-            this.diagnostics = new ArrayList<>(compilation.diagnosticResult().diagnostics());
+    public List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics(Path filePath) {
+        if (this.diagnostics != null) {
+            return this.diagnostics;
         }
-
+        PackageCompilation compilation = workspace().waitAndGetPackageCompilation(filePath).orElseThrow();
+        Project project = this.workspace().project(this.filePath()).orElseThrow();
+        Path projectRoot = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT)
+                ? project.sourceRoot().getParent() :
+                project.sourceRoot();
+        this.diagnostics = compilation.diagnosticResult().diagnostics().stream()
+                .filter(diag -> projectRoot.resolve(diag.location().lineRange().filePath()).equals(filePath))
+                .collect(Collectors.toList());
         return this.diagnostics;
     }
 
     @Override
     public List<Diagnostic> cursorDiagnostics() {
         return params.getContext().getDiagnostics();
-    }
-
-    @Override
-    public void setPositionDetails(PositionDetails positionDetails) {
-        this.positionDetails = positionDetails;
-    }
-
-    @Override
-    public PositionDetails positionDetails() {
-        return this.positionDetails;
     }
 
     /**

@@ -15,7 +15,6 @@
  */
 package org.ballerinalang.langserver.codeaction.providers.changetype;
 
-import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
@@ -31,13 +30,12 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.TextEdit;
 
@@ -53,26 +51,27 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
-    private static final int FOUND_SYMBOL_INDEX = 1;
 
     /**
      * {@inheritDoc}
      */
     @Override
     public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
                                                     CodeActionContext context) {
         if (!(diagnostic.message().contains(CommandConstants.INCOMPATIBLE_TYPES))) {
             return Collections.emptyList();
         }
-        List<DiagnosticProperty<?>> props = diagnostic.properties();
-        if (props.size() != 2 || props.get(FOUND_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
+
+
+        Optional<TypeSymbol> typeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        if (typeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Symbol rhsTypeSymbol = ((DiagnosticProperty<Symbol>) props.get(FOUND_SYMBOL_INDEX)).value();
-
         // Skip, non-local var declarations
-        Node matchedNode = context.positionDetails().matchedNode();
+        Node matchedNode = positionDetails.matchedNode();
         if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
                 matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
                 matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
@@ -89,7 +88,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         Optional<String> typeNodeStr = getTypeNodeStr(typeNode.get());
         List<CodeAction> actions = new ArrayList<>();
         List<TextEdit> importEdits = new ArrayList<>();
-        List<String> types = CodeActionUtil.getPossibleTypes((TypeSymbol) rhsTypeSymbol, importEdits, context);
+        List<String> types = CodeActionUtil.getPossibleTypes(typeSymbol.get(), importEdits, context);
         for (String type : types) {
             if (typeNodeStr.isPresent() && typeNodeStr.get().equals(type)) {
                 // Skip suggesting same type
@@ -124,7 +123,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
                 if (optVariableSymbol.isEmpty()) {
                     return Optional.empty();
                 }
-                SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+                SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
                 NonTerminalNode node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
                 if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
                     return Optional.of(((TypedBindingPatternNode) node).typeDescriptor());

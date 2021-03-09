@@ -1,8 +1,8 @@
-import ballerina/io;
+import ballerina/jballerina.java;
 
 function testPrintingObject() returns Person {
 	Person p = new(20, "John", 2018, "March");
-	io:println(p);
+	println(p);
 	return p;
 }
 
@@ -25,3 +25,7 @@ class Person {
         return result.toJsonString();
     }
 }
+
+public function println(any|error... values) = @java:Method {
+    'class: "org.ballerinalang.test.utils.interop.Utils"
+} external;

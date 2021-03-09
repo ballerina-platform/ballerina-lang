@@ -13,3 +13,5 @@ public type AnnotationType record {
 public annotation AnnotationType functionAnnotation1 on function;
 
 public annotation functionAnnotation2 on function;
+
+public annotation commonAnnotation;

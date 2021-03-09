@@ -113,15 +113,9 @@ public class DataflowAnalysisTest {
         CompileResult result =
                 BCompileUtil.compile("test-src/dataflow/analysis/uninitialized_local_complex_variables.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "variable 'a' is not initialized", 19, 13);
-        BAssertUtil.validateError(result, i++, "variable 'b' is not initialized", 20, 13);
-        BAssertUtil.validateError(result, i++, "variable 'restVar' is not initialized", 21, 22);
-        BAssertUtil.validateError(result, i++, "variable 'studentId' is not initialized", 32, 13);
-        BAssertUtil.validateError(result, i++, "variable 'studentName' is not initialized", 33, 16);
-        BAssertUtil.validateError(result, i++, "variable 'otherData' is not initialized", 34, 26);
-        BAssertUtil.validateError(result, i++, "variable 'message' is not initialized", 45, 16);
-        BAssertUtil.validateError(result, i++, "variable 'errorNumber' is not initialized", 46, 19);
-        BAssertUtil.validateError(result, i++, "variable 'otherErrorDetails' is not initialized", 47, 22);
+        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 18, 46);
+        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 31, 62);
+        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 44, 83);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
