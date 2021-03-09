@@ -2718,6 +2718,8 @@ public class TypeChecker extends BLangNodeVisitor {
         if (errorConstructorExpr.errorTypeRef == null && types.isAssignable(expType, symTable.errorType)) {
             if (expType.tag == TypeTags.ERROR) {
                 symbol = expType.tsymbol;
+            } else {
+                symbol = findMemberWithMatchingErrorType((BUnionType) expType, errorConstructorExpr);
             }
         } else if (errorConstructorExpr.errorTypeRef == null) {
             typeName = "error";
@@ -2774,7 +2776,7 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         } else if (detailType.tag == TypeTags.RECORD) {
             BRecordType targetErrorDetailRec = (BRecordType) errorConstructorType.detailType;
-            BRecordType recordType = createErrorDetailRecordType(errorConstructorExpr, targetErrorDetailRec);
+            BRecordType recordType = createErrorDetailRecordType(errorConstructorExpr, targetErrorDetailRec, true);
             if (resultType == symTable.semanticError) {
                 return;
             }
@@ -2790,6 +2792,38 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = errorConstructorExpr.type = errorConstructorType;
+    }
+
+    private BSymbol findMemberWithMatchingErrorType(BUnionType expType, BLangErrorConstructorExpr errorCtor) {
+        List<BLangNamedArgsExpression> providedArgs = getProvidedErrorDetails(errorCtor);
+        List<BType> providedFieldsType = providedArgs.stream().map(f -> f.expr.type).collect(Collectors.toList());
+
+        ArrayList<BErrorType> matchingTypes = new ArrayList<>();
+        for (BType memberType : expType.getMemberTypes()) {
+            if (types.isAssignable(memberType, symTable.errorType)) {
+                BErrorType errorType = (BErrorType) memberType;
+                if (errorType.detailType.tag == TypeTags.MAP) {
+                    BType constraint = ((BMapType) errorType.detailType).constraint;
+                    if (providedFieldsType.stream().allMatch(argType -> types.isAssignable(argType, constraint))) {
+                        matchingTypes.add(errorType);
+                    }
+                } else {
+                    BRecordType detailType = (BRecordType) errorType.detailType;
+                    BRecordType candidateDetailRecord = createErrorDetailRecordType(errorCtor, detailType, false);
+                    if (types.isAssignable(candidateDetailRecord, detailType)) {
+                        matchingTypes.add(errorType);
+                    }
+                }
+            }
+        }
+
+
+        if (matchingTypes.size() == 1) {
+            return matchingTypes.get(0).tsymbol;
+        } else if (matchingTypes.size() > 1) {
+            dlog.error(errorCtor.pos, DiagnosticErrorCode.CANNOT_INFER_ERROR_TYPE, expType);
+        }
+        return symTable.notFoundSymbol;
     }
 
     public void visit(BLangInvocation.BLangActionInvocation aInv) {
@@ -5201,11 +5235,12 @@ public class TypeChecker extends BLangNodeVisitor {
      *
      * @param errorConstructorExpr error-constructor-expr
      * @param targetErrorDetailsType target error details type to extract metadata such as pkgId from
+     * @param reportDiagnostics if false, this will not report diagnostics
      * @return error detail record
      */
     // todo: try to re-use recrod literal checking
     private BRecordType createErrorDetailRecordType(BLangErrorConstructorExpr errorConstructorExpr,
-                                                    BRecordType targetErrorDetailsType) {
+                                                    BRecordType targetErrorDetailsType, boolean reportDiagnostics) {
         List<BLangNamedArgsExpression> namedArgs = getProvidedErrorDetails(errorConstructorExpr);
 
         BRecordTypeSymbol recordTypeSymbol = new BRecordTypeSymbol(
@@ -5241,7 +5276,8 @@ public class TypeChecker extends BLangNodeVisitor {
         // If there are individual field descriptors specified in the error detail record,
         // we should not allow rest fields via error constructors detail args.
         // https://github.com/ballerina-platform/ballerina-spec/issues/740
-        if (!targetErrorDetailsType.sealed && !targetErrorDetailsType.fields.isEmpty() && !restFields.isEmpty()) {
+        if (reportDiagnostics &&
+                !targetErrorDetailsType.sealed && !targetErrorDetailsType.fields.isEmpty() && !restFields.isEmpty()) {
             for (BLangNamedArgsExpression namedArg : namedArgs) {
                 if (restFields.contains(names.fromIdNode(namedArg.name))) {
                     dlog.error(namedArg.pos, DiagnosticErrorCode.INVALID_REST_DETAIL_ARG, namedArg.name.value,

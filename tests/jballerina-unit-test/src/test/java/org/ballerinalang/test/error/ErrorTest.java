@@ -261,11 +261,12 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'error<Foo>', found 'error'", 45, 17);
+                "invalid error detail rest arg 'one' passed to open detail record 'Foo'", 45, 17);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "error constructor does not accept additional detail args 'one' " +
+                        "when error detail type 'Foo' contains individual field descriptors", 45, 58);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 48, 11);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'error<boolean>', found 'error'", 48, 24);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'string', found 'boolean'", 48, 30);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 22);
@@ -277,10 +278,6 @@ public class ErrorTest {
                 "args 'other' when error detail type 'Bee' contains individual field descriptors", 95, 53);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 96, 32);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 97, 38);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'UserDefErrorTwoA', found 'error'", 110, 28);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'UserDefErrorTwoA', found 'error'", 112, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error', found '(error|int)'", 118, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,

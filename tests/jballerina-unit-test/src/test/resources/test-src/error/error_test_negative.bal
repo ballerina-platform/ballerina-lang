@@ -42,7 +42,7 @@ type InvalidErrorOne error<map<any>>;
 type InvalidErrorTwo error<boolean>;
 
 const FLOAT = 1.0;
-error<Foo> e1 = error("message", message = "string val", one = 1);
+error<Foo> e1 = error("message", message = "string val", one = 1.0);
 
 function testInvalidErrorTypeInFunc() {
     error<boolean> e = error(true);

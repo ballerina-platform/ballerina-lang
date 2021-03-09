@@ -367,7 +367,7 @@ function testDefaultErrorTypeDescriptionInferring() {
 }
 
 function testUnionErrorTypeDescriptionInferring() {
-    error|TrxError e = error("IAmAInferedUnionErr");
+    error|TrxError e = error("IAmAInferedUnionErr", abc = "abc");
     error<*> err = e;
     assertEquality(err.detail().toString(), e.detail().toString());
 }
