@@ -20,9 +20,15 @@ package io.ballerina.runtime.internal.launch;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.launch.LaunchListener;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
+import io.ballerina.runtime.internal.configurable.ConfigProvider;
+import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlProvider;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.values.ErrorValue;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 
@@ -33,6 +39,7 @@ import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
@@ -127,7 +134,15 @@ public class LaunchUtils {
     }
 
     public static void initConfigurableVariables(Path configFilePath, Map<Module, VariableKey[]> configurationData) {
-        ConfigMap.initialize(configFilePath, configurationData);
+        try {
+            List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+            supportedConfigProviders.add(new ConfigTomlProvider(configFilePath));
+            ConfigResolver configResolver = new ConfigResolver(configurationData, supportedConfigProviders);
+            ConfigMap.setConfigurableMap(configResolver.resolveConfigs());
+        } catch (ConfigException exception) {
+            // TODO : Need to collect all the errors from each providers separately. Issue #29055
+            throw new ErrorValue(StringUtils.fromString(exception.getMessage()));
+        }
     }
 
     public static Path getConfigPath() {
