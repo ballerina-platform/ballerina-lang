@@ -15,7 +15,7 @@
 // under the License.
 
 function foo(function x) returns int {
-    int j = 0;
+   int j = 0;
    if x is function (int) returns int {
       j = x(1);
    }
