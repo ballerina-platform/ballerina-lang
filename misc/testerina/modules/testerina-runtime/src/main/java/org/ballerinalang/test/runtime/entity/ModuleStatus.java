@@ -39,6 +39,10 @@ public class ModuleStatus {
         return instance;
     }
 
+    public static void clearInstance() {
+        instance = new ModuleStatus();
+    }
+
     public void addTestSummary(String testName, Status status, String failureMessage) {
         Test test = new Test(testName, status, failureMessage);
         this.tests.add(test);
