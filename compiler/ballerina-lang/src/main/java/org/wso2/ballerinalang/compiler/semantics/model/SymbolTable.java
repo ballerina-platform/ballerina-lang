@@ -116,12 +116,7 @@ public class SymbolTable {
     public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY);
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
-
-    public final BType intArrayType = new BArrayType(intType);
-    public final BType floatArrayType = new BArrayType(floatType);
-    public final BType decimalArrayType = new BArrayType(decimalType);
-    public final BType booleanArrayType = new BArrayType(booleanType);
-
+    
     public final BType simpleTypeUnion = BUnionType.create(null, nilType, booleanType, intType, floatType,
             decimalType, stringType);
     public final BType arrayTypeOfSimpleTypeUnion = new BArrayType(simpleTypeUnion);
