@@ -43,7 +43,7 @@ public class ConfigTomlConstants {
             " '%s' of record '%s' in configurable variable '%s'";
     public static final String TABLE_KEY_NOT_PROVIDED = "value required for key '%s' of type '%s' in " +
             "configurable variable '%s'";
-    public static final String INVALID_BYTE_RANGE = "Value provided for byte variable '%s' is out of range. Expected " +
+    public static final String INVALID_BYTE_RANGE = "value provided for byte variable '%s' is out of range. Expected " +
             "range is (0-255), found '%s'";
     public static final String INVALID_MODULE_STRUCTURE = "invalid module structure found for module '%s'. Please " +
             "provide the module name as '[%s]' ";
@@ -51,6 +51,10 @@ public class ConfigTomlConstants {
             " '%s' is not supported";
     public static final String DEFAULT_FIELD_UNSUPPORTED = "defaultable readonly record field '%s' in configurable " +
             "variable '%s' is not supported";
+    public static final String CONFIG_FILE_NOT_FOUND = "configuration file is not found in path '%s'";
+    public static final String EMPTY_CONFIG_FILE = "an empty configuration file is found in path '%s'. Please " +
+            "provide values for configurable variables";
+    public static final String VALUE_NOT_PROVIDED = "value not provided for required configurable variable '%s'";
 
     private ConfigTomlConstants() {
     }

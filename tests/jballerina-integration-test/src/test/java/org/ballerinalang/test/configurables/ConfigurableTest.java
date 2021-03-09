@@ -100,8 +100,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testNoConfigFile() throws BallerinaTestException {
         Path filePath = Paths.get(negativeTestFileLocation, "no_config.bal").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher("error: Value not provided for required configurable variable 'name'",
-                ERROR);
+        LogLeecher errorLeecher = new LogLeecher("configuration file is not found in path ", ERROR);
         bMainInstance.runMain("run", new String[]{filePath.toString()}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, testFileLocation + "/negative_tests");
         errorLeecher.waitForText(5000);
@@ -134,7 +133,7 @@ public class ConfigurableTest extends BaseTest {
                         "'(int[] & readonly)[] & readonly' is not supported" },
                 {"invalidRecordField", "field type '(string[][] & readonly)' in configurable variable 'main:testUser'" +
                         " is not supported"},
-                {"invalidByteRange", "Value provided for byte variable 'main:byteVar' is out of range. " +
+                {"invalidByteRange", "value provided for byte variable 'main:byteVar' is out of range. " +
                         "Expected range is (0-255), found '355'"},
                 {"invalidMapType",
                         "configurable variable 'main:intMap' with type 'map<int> & readonly' is not supported"},
@@ -165,15 +164,18 @@ public class ConfigurableTest extends BaseTest {
     @DataProvider(name = "negative-tests")
     public Object[][] getNegativeTests() {
         return new Object[][]{
-                {"no_module_config", "Value not provided for required configurable variable 'main:stringVar'"},
-                {"invalid_org_name", "Value not provided for required configurable variable 'main:stringVar'" },
+                {"empty_config_file", "an empty configuration file is found in path "},
+                {"no_module_config", "invalid module structure found for module 'main'. Please provide the module" +
+                        " name as '[main]'"},
+                {"invalid_org_name", "invalid module structure found for module 'main'. Please provide the module" +
+                        " name as '[main]'" },
                 {"invalid_org_structure", "invalid module structure found for module 'testOrg.main'. " +
                         "Please provide the module name as '[testOrg.main]'" },
                 {"invalid_module_structure", "invalid module structure found for module 'main'. " +
                         "Please provide the module name as '[main]'" },
                 {"invalid_sub_module_structure", "invalid module structure found for module 'main.foo'. " +
                         "Please provide the module name as '[main.foo]'" },
-                {"required_negative", "Value not provided for required configurable variable 'main:stringVar'"},
+                {"required_negative", "value not provided for required configurable variable 'main:stringVar'"},
                 {"primitive_type_error", "configurable variable 'main:intVar' is expected to be of type 'int', " +
                         "but found 'float'"},
                 {"primitive_structure_error", "configurable variable 'main:intVar' is expected to be of type 'int', " +

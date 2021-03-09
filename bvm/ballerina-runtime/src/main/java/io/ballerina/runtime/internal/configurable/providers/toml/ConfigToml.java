@@ -58,7 +58,7 @@ public class ConfigToml {
 
         parseToml();
         List<Diagnostic> diagnosticList = getDiagnostics();
-        if (diagnosticList.size() != 0) {
+        if (!diagnosticList.isEmpty()) {
             throw new ConfigException(INVALID_TOML_FILE + getErrorMessage(diagnosticList));
         }
         return tomlAstNode;
@@ -68,7 +68,8 @@ public class ConfigToml {
         StringBuilder errorMessage = new StringBuilder("\n");
         for (Diagnostic diagnostic : diagnosticList) {
             LineRange lineRange = diagnostic.location().lineRange();
-            errorMessage.append(diagnostic.message() + " [" + lineRange.filePath() + ":" + lineRange + "]\n");
+            errorMessage.append(diagnostic.message()).append(" [").append(lineRange.filePath()).append(":")
+                    .append(lineRange).append("]\n");
         }
         return errorMessage.toString();
     }
@@ -87,9 +88,9 @@ public class ConfigToml {
     }
 
     private void parseToml() {
-        TextDocument textDocument = textDocument();
+        TextDocument tomlDocument = textDocument();
         try {
-            syntaxTree = SyntaxTree.from(textDocument, getFileName(filePath));
+            syntaxTree = SyntaxTree.from(tomlDocument, getFileName(filePath));
             TomlTransformer nodeTransformer = new TomlTransformer();
             tomlAstNode = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
         } catch (RuntimeException e) {
@@ -108,8 +109,7 @@ public class ConfigToml {
 
     }
     private List<Diagnostic> getDiagnostics() {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        diagnostics.addAll(tomlAstNode.diagnostics());
+        List<Diagnostic> diagnostics = new ArrayList<>(tomlAstNode.diagnostics());
         syntaxTree.diagnostics().forEach(diagnostics::add);
         return diagnostics;
     }
