@@ -304,7 +304,7 @@ public class BalaFiles {
         }
         List<String> dependencyLibPaths = new ArrayList<>();
         compilerPluginJson.dependencyPaths().forEach(dependencyPath -> {
-            Path libPath = balaPath.getParent().resolve(dependencyPath);
+            Path libPath = balaPath.getParent().resolve(dependencyPath).normalize();
             if (!Files.exists(libPath)) {
                 try {
                     Path libPathInZip = Paths.get(COMPILER_PLUGIN_DIR, dependencyPath);

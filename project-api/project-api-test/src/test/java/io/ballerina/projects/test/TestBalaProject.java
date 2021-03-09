@@ -116,10 +116,11 @@ public class TestBalaProject {
         Assert.assertTrue(pluginDescriptor.isPresent());
         Assert.assertEquals(pluginDescriptor.get().plugin().getClassName(), "io.ballerina.openapi.Validator");
         Assert.assertEquals(pluginDescriptor.get().getCompilerPluginDependencies().size(), 2);
-        Assert.assertEquals(pluginDescriptor.get().getCompilerPluginDependencies().get(0),
-                            "src/test/resources/balaloader/./libs/platform-io-1.3.0-java.txt");
-        Assert.assertEquals(pluginDescriptor.get().getCompilerPluginDependencies().get(1),
-                            "src/test/resources/balaloader/./libs/platform-test-1.2.0-java.txt");
+        Assert.assertEquals(Paths.get(pluginDescriptor.get().getCompilerPluginDependencies().get(0)),
+                            Paths.get("src", "test", "resources", "balaloader", "libs", "platform-io-1.3.0-java.txt"));
+        Assert.assertEquals(Paths.get(pluginDescriptor.get().getCompilerPluginDependencies().get(1)),
+                            Paths.get("src", "test", "resources", "balaloader", "libs",
+                                      "platform-test-1.2.0-java.txt"));
     }
 
     @Test (description = "test balo project load with newly created balo")
