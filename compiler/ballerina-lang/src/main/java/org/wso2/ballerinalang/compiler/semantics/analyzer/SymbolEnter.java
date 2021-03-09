@@ -3698,10 +3698,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (!symResolver.checkForUniqueMemberSymbol (pos, env, varSymbol)) {
                 varSymbol.type = symTable.semanticError;
             }
-        } else {
-            if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
-                varSymbol.type = symTable.semanticError;
-            }
+        } else if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+            varSymbol.type = symTable.semanticError;
         }
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
