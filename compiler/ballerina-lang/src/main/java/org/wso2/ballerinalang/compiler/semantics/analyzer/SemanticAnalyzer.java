@@ -492,9 +492,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        AttachPoint.Point attachedPoint = classDefinition.flagSet.contains(Flag.SERVICE)
-                ? AttachPoint.Point.SERVICE
-                : AttachPoint.Point.CLASS;
+        // Apply service attachpoint when this is a class representing a service-decl or object-ctor with service prefix
+        AttachPoint.Point attachedPoint;
+        if (classDefinition.isServiceDecl
+                || (classDefinition.isObjectConstructor && classDefinition.flagSet.contains(Flag.SERVICE))) {
+            attachedPoint = AttachPoint.Point.SERVICE;
+        } else {
+            attachedPoint = AttachPoint.Point.CLASS;
+        }
+
         BClassSymbol symbol = (BClassSymbol) classDefinition.symbol;
 
         classDefinition.annAttachments.forEach(annotationAttachment -> {
