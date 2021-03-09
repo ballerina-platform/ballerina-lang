@@ -368,6 +368,9 @@ public class Generator {
                 TypeSymbol typeSymbol = null;
                 try {
                     Optional<Symbol> symbol = semanticModel.symbol(member);
+                    if (symbol.isEmpty()) {
+                        continue;
+                    }
                     typeSymbol = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
                 } catch (NullPointerException nullException) {
                     if (BallerinaDocUtils.isDebugEnabled()) {
@@ -593,6 +596,9 @@ public class Generator {
                 TypeSymbol typeSymbol = null;
                 try {
                     Optional<Symbol> symbol = semanticModel.symbol(node);
+                    if (symbol.isEmpty()) {
+                        continue;
+                    }
                     typeSymbol = ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
                 } catch (NullPointerException nullException) {
                     if (BallerinaDocUtils.isDebugEnabled()) {

@@ -521,6 +521,11 @@ public class OpenRecordTest {
         BRunUtil.invoke(compileResult, "testScopingRules");
     }
 
+    @Test
+    public void testRecordsWithFieldsWithBuiltinNames() {
+        BRunUtil.invoke(compileResult, "testRecordsWithFieldsWithBuiltinNames");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
