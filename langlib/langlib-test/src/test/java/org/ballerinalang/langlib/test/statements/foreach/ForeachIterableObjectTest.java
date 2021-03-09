@@ -92,21 +92,23 @@ public class ForeachIterableObjectTest {
                 "cursorIndex; public isolated function next () returns ((record {| int value; |}|CustomError)?); }'",
                 124, 16);
         BAssertUtil.validateError(negativeResult, i++, "invalid completion type '(int|CustomError)' in foreach " +
-                        "statement: next method completion type cannot contain type 'CustomError'", 239, 25);
+                        "statement: next method completion type cannot contain type 'CustomError'", 240, 25);
         BAssertUtil.validateError(negativeResult, i++, "invalid completion type '(int|error)' in foreach statement: " +
-                "next method completion type cannot contain type 'error'", 241, 25);
+                "next method completion type cannot contain type 'error'", 242, 25);
         BAssertUtil.validateError(negativeResult, i++, "invalid completion type '(int|CustomError)' in foreach " +
-                "statement: next method completion type cannot contain type 'CustomError'", 244, 25);
+                "statement: next method completion type cannot contain type 'CustomError'", 245, 25);
+        BAssertUtil.validateError(negativeResult, i++, "invalid iterable type 'Iterable13': an iterable object must be" +
+                " a subtype of 'ballerina/lang.object:1.0.0:Iterable'", 248, 25);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function" +
                 " iterator() returns object { public isolated function next () returns ((" +
                 "record {| (any|error) value; |}|error)?); }', found 'public function iterator() returns " +
-                "object { public function foo () returns (record {| int value; |}?); }'", 251, 5);
+                "object { public function foo () returns (record {| int value; |}?); }'", 254, 5);
         BAssertUtil.validateError(negativeResult, i++, "no implementation found for the method 'iterator' of class" +
-                " 'Iterable11'", 273, 1);
+                " 'Iterable11'", 276, 1);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function" +
                 " iterator() returns object { public isolated function next () returns ((" +
                 "record {| (any|error) value; |}|error)?); }', found 'public function iterator() returns " +
-                "object { public isolated function next () returns (record {| int x; |}?); }'", 299, 5);
+                "object { public isolated function next () returns (record {| int x; |}?); }'", 302, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 }

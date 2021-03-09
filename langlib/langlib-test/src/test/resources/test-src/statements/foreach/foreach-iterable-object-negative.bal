@@ -224,6 +224,7 @@ public function testIterableObject() {
     Iterable7 p7 = new;
     Iterable8 p8 = new;
     Iterable9 p9 = new;
+    Iterable13 p13 = new;
     foreach var item in p1 {
     }
     foreach var item in p2 {
@@ -243,6 +244,8 @@ public function testIterableObject() {
     }
     foreach var item in p9 {
         integers.push(item);
+    }
+    foreach var item in p13 {
     }
 }
 
@@ -309,6 +312,29 @@ class Iterable12 {
                     x: self.integers[self.cursorIndex - 1]
                 };
 
+            }
+        };
+    }
+}
+
+class Iterable13 {
+    public function iterator() returns object {public isolated function next() returns record {|int value;|}?;
+    } {
+        return object {
+            int[] integers = [12, 34, 56, 34, 78, 21, 90];
+            int cursorIndex = 0;
+            public isolated function next() returns
+            record {|
+                int value;
+            |}? {
+                self.cursorIndex += 1;
+                if (self.cursorIndex <= 7) {
+                    return {
+                        value: self.integers[self.cursorIndex - 1]
+                    };
+                } else {
+                    return ();
+                }
             }
         };
     }
