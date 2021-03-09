@@ -438,7 +438,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "C",
@@ -448,7 +448,7 @@
     {
       "label": "constructor",
       "kind": "Variable",
-      "detail": "object {public int field1}",
+      "detail": "object {public int field1;}",
       "sortText": "B",
       "insertText": "constructor",
       "insertTextFormat": "Snippet"
