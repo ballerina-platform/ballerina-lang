@@ -25,9 +25,15 @@ import org.ballerinalang.langserver.extensions.ballerina.document.ASTModificatio
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeModifyRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
+import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
+import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -89,6 +95,13 @@ public class LSExtensionTestUtil {
                 name, displayName, beta);
         CompletableFuture result = serviceEndpoint.request(GET_CONNECTOR, ballerinaConnectorRequest);
         return GSON.fromJson(getResult(result), BallerinaConnectorResponse.class);
+    }
+
+    public static Path createTempFile(Path filePath) throws IOException {
+        Path tempFilePath = FileUtils.BUILD_DIR.resolve("tmp")
+                .resolve(UUID.randomUUID() + ".bal");
+        Files.copy(filePath, tempFilePath, StandardCopyOption.REPLACE_EXISTING);
+        return tempFilePath;
     }
 
 }
