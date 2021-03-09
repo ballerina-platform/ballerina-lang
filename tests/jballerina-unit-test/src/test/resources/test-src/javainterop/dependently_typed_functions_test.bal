@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'xml;
 import ballerina/jballerina.java;
 
-type ItemType 'xml:Element|'xml:Comment|'xml:ProcessingInstruction|'xml:Text;
+type ItemType xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text;
+type XmlElement xml:Element;
 
 type Person record {
     readonly string name;
@@ -90,11 +90,11 @@ function testCastingForInvalidValues() {
     int x = getInvalidValue(int, Person);
 }
 
-//function testXML() {
-//    'xml:Element elem1 = xml `<hello>xml content</hello>`;
-//    xml<'xml:Element> x1 = getXML('xml:Element, elem1);
-//    assert(elem1, x1);
-//}
+function testXML() {
+    xml:Element elem1 = xml `<hello>xml content</hello>`;
+    xml<xml:Element> x1 = getXML(XmlElement, elem1);
+    assert(elem1, x1);
+}
 
 function testStream() {
     string[] stringList = ["hello", "world", "from", "ballerina"];
@@ -514,6 +514,311 @@ function testDependentlyTypedFunctionWithDefaultableParams() {
 
     int h = getWithDefaultableParams(z = int, x = 101);
     assert(102, h);
+}
+
+type IntOrString int|string;
+
+public function testStartActionWithDependentlyTypedFunctions() {
+    Client cl = new;
+
+    var assert1 = function (future<int|string|error> f) {
+        int|string|error r = wait f;
+        assert(true, r is error);
+        error e = <error> r;
+        assert("Error!", e.message());
+        assert("Union typedesc", <string> <any> checkpanic e.detail()["message"]);
+    };
+    future<int|string|error> a = start getWithUnion("", IntOrString);
+    assert1(a);
+    //future<int|string|error> b = start cl.get("", IntOrString);
+    //assert1(b);
+    future<int|string|error> c = start cl->remoteGet("", IntOrString);
+    assert1(c);
+
+    var assert2 = function (future<int|error> f, int expected) {
+        int|error r = wait f;
+        assert(true, r is int);
+        assert(expected, checkpanic r);
+    };
+    future<int|error> d = start getWithUnion("hello", int);
+    assert2(d, 5);
+    //future<int|error> e = start cl.get(3, int);
+    //assert2(e, 4);
+    //future<int|error> f = start cl.get("");
+    //assert2(f, 0);
+    future<int|error> g = start cl->remoteGet("hi", int);
+    assert2(g, 2);
+
+    var assert3 = function (future<string|error> f, string expected) {
+        string|error r = wait f;
+        assert(true, r is string);
+        assert(expected, checkpanic r);
+    };
+    future<string|error> h = start getWithUnion("hello", string);
+    assert3(h, "hello");
+    //future<string|error> i = start cl.get(1, string);
+    //assert3(i, "1");
+    future<string|error> j = start cl->remoteGet("", string);
+    assert3(j, "");
+}
+
+function getWithUnion(int|string x, typedesc<int|string> y) returns y|error =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getWithUnion"
+    } external;
+
+client class Client {
+    // https://github.com/ballerina-platform/ballerina-lang/issues/28740
+    //function get(int|string x, typedesc<int|string> y = int) returns y|error = @java:Method {
+    //    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+    //    name: "clientGetWithUnion"
+    //} external;
+
+    remote function remoteGet(int|string x, typedesc<int|string> y) returns y|error = @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "clientRemoteGetWithUnion"
+    } external;
+}
+
+function getWithRestParam(int i, typedesc<int|string> j, int... k) returns j|boolean =
+     @java:Method {
+         'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+     } external;
+
+function getWithMultipleTypedescs(int i, typedesc<int|string> j, typedesc<int> k, typedesc<int>... l)
+    returns j|k|boolean = @java:Method { 'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType" } external;
+
+function testArgsForDependentlyTypedFunctionViaTupleRestArg() {
+    [typedesc<string>] a = [string];
+    string|error b = getWithUnion(123, ...a);
+    assert("123", checkpanic b);
+
+    [int, typedesc<int>] c = [10, int];
+    int|error d = getWithUnion(...c);
+    assert(11, checkpanic d);
+
+    [int, typedesc<string>] e = [0, string];
+    string|boolean f = getWithRestParam(...e);
+    assert(true, f);
+
+    [typedesc<string>] g = [string];
+    string|boolean h = getWithRestParam(1, ...g);
+    assert(false, h);
+
+    [int, typedesc<int>, int...] i = [101, int, 1, 2, 3];
+    int|boolean j = getWithRestParam(...i);
+    assert(107, j);
+
+    [int, typedesc<int>, int...] k = [101, int];
+    assert(101, getWithRestParam(...k));
+
+    int|boolean l = getWithRestParam(102, int, 1, 2);
+    assert(105, l);
+
+    [int, typedesc<string>, typedesc<int>, typedesc<int>] m = [1, string, int, int];
+    int|string|boolean n = getWithMultipleTypedescs(...m);
+    assert(true, n);
+
+    [typedesc<string>, typedesc<int>, typedesc<int>] o = [string, int, int];
+    int|string|boolean p = getWithMultipleTypedescs(1, ...o);
+    assert(true, p);
+
+    [int, typedesc<byte>, typedesc<byte>, typedesc<int>...] q = [1, byte, byte, int];
+    byte|boolean r = getWithMultipleTypedescs(...q);
+    assert(true, r);
+}
+
+function testArgsForDependentlyTypedFunctionViaArrayRestArg() {
+    typedesc<string>[1] a = [string];
+    string|error b = getWithUnion(123, ...a);
+    assert("123", checkpanic b);
+
+    typedesc<int>[1] c = [int];
+    int|error d = getWithUnion(10, ...c);
+    assert(11, checkpanic d);
+
+    assert(101, getWithRestParam(101, ...c));
+
+    typedesc<int>[2] m = [int, int];
+    int|string|boolean n = getWithMultipleTypedescs(1, string, ...m);
+    assert(true, n);
+
+    typedesc<byte>[4] q = [byte, byte, byte, byte];
+    byte|boolean r = getWithMultipleTypedescs(1, ...q);
+    assert(true, r);
+}
+
+type XY record {|
+    int|string x;
+    typedesc<int> y = int;
+|};
+
+type IJ record {|
+    int i;
+    typedesc<string> j;
+|};
+
+type IJK record {|
+    int i;
+    typedesc<string> j;
+    typedesc<int> k;
+|};
+
+function testArgsForDependentlyTypedFunctionViaRecordRestArg() {
+    record {| typedesc<string> y; |} a = {y: string};
+    string|error b = getWithUnion(123, ...a);
+    assert("123", checkpanic b);
+
+    XY c = {x: 10};
+    int|error d = getWithUnion(...c);
+    assert(11, checkpanic d);
+
+    IJ e = {i: 0, j: string};
+    string|boolean f = getWithRestParam(...e);
+    assert(true, f);
+
+    record {| typedesc<string> j = string; |} g = {};
+    string|boolean h = getWithRestParam(1, ...g);
+    assert(false, h);
+
+    IJK m = {i: 1, j: string, k: int};
+    int|string|boolean n = getWithMultipleTypedescs(...m);
+    assert(true, n);
+
+    record {| typedesc<string> j = string; typedesc<int> k; |} o = {k: int};
+    int|string|boolean p = getWithMultipleTypedescs(1, ...o);
+    assert(true, p);
+
+    record {| int i; typedesc<byte> j = byte; typedesc<byte> k; |} q = {i: 1, k: byte};
+    byte|boolean r = getWithMultipleTypedescs(...q);
+    assert(true, r);
+}
+
+public type ClientActionOptions record {|
+    string mediaType?;
+    string header?;
+|};
+
+public type TargetType typedesc<int|string>;
+
+public client class ClientWithMethodWithIncludedRecordParamAndDefaultableParams {
+    remote function post(*ClientActionOptions options, TargetType targetType = int)
+        returns @tainted targetType = @java:Method {
+                                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                                          name: "clientPost"
+                                      } external;
+                                      
+    function calculate(int i, *ClientActionOptions options, TargetType targetType = int)
+        returns @tainted targetType = @java:Method {
+                                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                                          name: "calculate"
+                                      } external;
+}
+
+public client class ClientWithMethodWithIncludedRecordParamAndRequiredParams {
+    remote function post(*ClientActionOptions options, TargetType targetType)
+        returns @tainted targetType = @java:Method {
+                                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                                          name: "clientPost"
+                                      } external;
+
+    function calculate(int i, *ClientActionOptions options, TargetType targetType)
+        returns @tainted targetType|error = @java:Method {
+                                                 'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+                                                 name: "calculate"
+                                             } external;
+}
+
+function testDependentlyTypedFunctionWithIncludedRecordParam() {
+    ClientWithMethodWithIncludedRecordParamAndDefaultableParams cl = new;
+    string p1 = cl->post(mediaType = "application/json", header = "active", targetType = string);
+    assert("application/json active", p1);
+
+    int p2 = cl->post(mediaType = "json", header = "active", targetType = int);
+    assert(10, p2);
+
+    int p3 = cl->post(mediaType = "xml", header = "active");
+    assert(9, p3);
+
+    string p4 = cl->post(mediaType = "json", targetType = string);
+    assert("json ", p4);
+
+    string p5 = cl->post(targetType = string);
+    assert(" ", p5);
+
+    int p6 = cl->post();
+    assert(0, p6);
+    
+    string p7 = cl.calculate(0, mediaType = "application/json", header = "active", targetType = string);
+    assert("application/json active0", p7);
+
+    int p8 = cl.calculate(101, mediaType = "json", header = "active", targetType = int);
+    assert(111, p8);
+
+    int p9 = cl.calculate(2, mediaType = "xml", header = "active");
+    assert(11, p9);
+
+    string p10 = cl.calculate(3, mediaType = "json", targetType = string);
+    assert("json 3", p10);
+
+    string p11 = cl.calculate(4, targetType = string);
+    assert(" 4", p11);
+
+    int p12 = cl.calculate(12);
+    assert(12, p12);
+
+    string p13 = cl->post(targetType = string, mediaType = "xml");
+    assert("xml ", p13);
+
+    string p14 = cl.calculate(5, targetType = string, mediaType = "json");
+    assert("json 5", p14);
+
+    string p15 = cl.calculate(6, {}, string);
+    assert(" 6", p15);
+
+    int p16 = cl.calculate(7, {}, int);
+    assert(7, p16);
+
+    int p17 = cl.calculate(8, {});
+    assert(8, p17);
+
+    ClientWithMethodWithIncludedRecordParamAndRequiredParams cl2 = new;
+    string p18 = cl2->post(mediaType = "application/json", header = "active", targetType = string);
+    assert("application/json active", p18);
+
+    int p19 = cl2->post(mediaType = "json", header = "active", targetType = int);
+    assert(10, p19);
+
+    int p20 = cl2->post({}, int);
+    assert(0, p20);
+
+    int p21 = cl2->post({mediaType: "application/json"}, int);
+    assert(16, p21);
+
+    string p22 = cl2->post({}, string);
+    assert(" ", p22);
+
+    string p23 = cl2->post({mediaType: "application/json"}, string);
+    assert("application/json ", p23);
+
+    string|error p24 = cl2.calculate(0, mediaType = "application/json", header = "active", targetType = string);
+    assert("application/json active0", checkpanic p24);
+
+    int|error p25 = cl2.calculate(1, mediaType = "json", header = "active", targetType = int);
+    assert(11, checkpanic p25);
+
+    int|error p26 = cl2.calculate(2, {header: "active"}, int);
+    assert(8, checkpanic p26);
+
+    int|error p27 = cl2.calculate(3, {mediaType: "application/json"}, int);
+    assert(19, checkpanic p27);
+
+    string|error p28 = cl2.calculate(4, {}, string);
+    assert(" 4", checkpanic p28);
+
+    string|error p29 = cl2.calculate(5, {mediaType: "application/json"}, string);
+    assert("application/json 5", checkpanic p29);
 }
 
 // Util functions
