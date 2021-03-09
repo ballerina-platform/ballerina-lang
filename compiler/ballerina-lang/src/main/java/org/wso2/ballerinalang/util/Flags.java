@@ -76,6 +76,7 @@ public class Flags {
     public static final long REQUIRED_PARAM = INCLUDED << 1;                    //  35
     public static final long DEFAULTABLE_PARAM = REQUIRED_PARAM << 1;           //  36
     public static final long REST_PARAM = DEFAULTABLE_PARAM << 1;               //  37
+    public static final long FIELD = REST_PARAM << 1;                           //  38
 
 
     public static long asMask(Set<Flag> flagSet) {
@@ -187,6 +188,9 @@ public class Flags {
                 case REST_PARAM:
                     mask |= REST_PARAM;
                     break;
+                case FIELD:
+                    mask |= FIELD;
+                    break;
             }
         }
         return mask;
@@ -295,6 +299,9 @@ public class Flags {
                     break;
                 case REST_PARAM:
                     flagVal = REST_PARAM;
+                    break;
+                case FIELD:
+                    flagVal = FIELD;
                     break;
                 default:
                     continue;
