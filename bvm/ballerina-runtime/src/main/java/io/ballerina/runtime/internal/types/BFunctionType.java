@@ -47,8 +47,8 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
 
     public BFunctionType(long flags) {
         super("function", null, Object.class);
-        this.paramTypes = new Type[0];
-        this.retType = PredefinedTypes.TYPE_NULL;
+        this.paramTypes = null;
+        this.retType = null;
         this.flags = flags;
     }
 
