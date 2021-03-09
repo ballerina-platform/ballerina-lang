@@ -1234,14 +1234,20 @@ public class BIRPackageSymbolEnter {
                     // TODO fix
                     break;
                 case TypeTags.ERROR:
-                    BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
-                                                                   env.pkgSymbol.pkgID, null, env.pkgSymbol,
-                                                                   symTable.builtinPos, COMPILED_SOURCE);
+                    pkgCpIndex = inputStream.readInt();
+                    pkgId = getPackageId(pkgCpIndex);
+                    BPackageSymbol owner = packageCache.getSymbol(pkgId);
+                    BTypeSymbol errorSymbol;
+                    if (owner != null) {
+                        errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY, owner.pkgID,
+                                null, owner, symTable.builtinPos, COMPILED_SOURCE);
+                    } else {
+                        errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
+                                env.pkgSymbol.pkgID, null, env.pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
+                    }
                     BErrorType errorType = new BErrorType(errorSymbol);
                     addShapeCP(errorType, cpI);
                     compositeStack.push(errorType);
-                    pkgCpIndex = inputStream.readInt();
-                    pkgId = getPackageId(pkgCpIndex);
                     String errorName = getStringCPEntryValue(inputStream);
                     BType detailsType = readTypeFromCp();
                     errorType.detailType = detailsType;
