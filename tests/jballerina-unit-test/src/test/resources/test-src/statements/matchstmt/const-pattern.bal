@@ -515,3 +515,23 @@ function assertEquals(anydata expected, anydata actual) {
 
     panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
 }
+
+function constPattern17(any x) returns int {
+    match x {
+        () => {
+            return 1;
+        }
+        true => {
+            return 2;
+        }
+        _ => {
+            return 3;
+        }
+    }
+}
+
+public function testConstPattern17() {
+    assertEquals(1, constPattern17(()));
+    assertEquals(2, constPattern17(true));
+    assertEquals(3, constPattern17(5));
+}
