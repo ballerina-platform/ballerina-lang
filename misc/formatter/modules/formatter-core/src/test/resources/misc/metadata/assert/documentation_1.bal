@@ -1,6 +1,6 @@
 # Adds two parameters
 # + x - one thing to be added
-# + y
-# + return
+# + y 
+# + return 
 function foo(int x, int y) {
 }

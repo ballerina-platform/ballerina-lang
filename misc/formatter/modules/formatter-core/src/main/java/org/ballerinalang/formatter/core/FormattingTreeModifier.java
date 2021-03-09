@@ -1665,7 +1665,7 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<Node> documentElements = markdownParameterDocumentationLineNode.documentElements();
 
         // handle a scenario when the plus token is the last token in the documentation line
-        if (parameterName.isMissing() && minusToken.isMissing() && documentElements.isEmpty()) {
+        if (parameterName == null && minusToken == null && documentElements.isEmpty()) {
             plusToken = formatToken(plusToken, env.trailingWS, env.trailingNL);
         } else {
             plusToken = formatToken(plusToken, 1, 0);
