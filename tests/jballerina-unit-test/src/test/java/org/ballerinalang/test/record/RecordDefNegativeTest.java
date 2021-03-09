@@ -47,6 +47,7 @@ public class RecordDefNegativeTest {
         int errorIndex = 0;
         BAssertUtil.validateError(compileResult, errorIndex++, "redeclared symbol 'error'", 19, 11);
         BAssertUtil.validateError(compileResult, errorIndex++, "redeclared symbol 'name'", 24, 12);
+        assertEquals(compileResult.getErrorCount(), errorIndex);
     }
 
     @Test
