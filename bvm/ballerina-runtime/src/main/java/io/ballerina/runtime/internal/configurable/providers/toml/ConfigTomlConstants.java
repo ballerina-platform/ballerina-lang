@@ -25,16 +25,18 @@ package io.ballerina.runtime.internal.configurable.providers.toml;
  */
 public class ConfigTomlConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
-    public static final String INVALID_TOML_FILE = "invalid `" + CONFIG_FILE_NAME + "` file : ";
-    public static final String INVALID_TOML_TYPE = "configurable variable '%s' is expected to be of type '%s', " +
-            "but found '%s'";
-    public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
-            "supported";
     public static final String DEFAULT_MODULE = ".";
     public static final String SUBMODULE_DELIMITER = ".";
     public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
     public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
     public static final String SECRET_FILE_NAME = "secret.txt";
+
+    //Error messages
+    public static final String INVALID_TOML_FILE = "invalid `" + CONFIG_FILE_NAME + "` file : ";
+    public static final String INVALID_TOML_TYPE = "configurable variable '%s' is expected to be of type '%s', " +
+            "but found '%s'";
+    public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
+            "supported";
     public static final String INVALID_ADDITIONAL_FIELD_IN_RECORD =
             "additional field '%s' provided for configurable variable '%s' of record '%s' is not supported";
     public static final String FIELD_TYPE_NOT_SUPPORTED =
@@ -46,7 +48,7 @@ public class ConfigTomlConstants {
     public static final String INVALID_BYTE_RANGE = "value provided for byte variable '%s' is out of range. Expected " +
             "range is (0-255), found '%s'";
     public static final String INVALID_MODULE_STRUCTURE = "invalid module structure found for module '%s'. Please " +
-            "provide the module name as '[%s]' ";
+            "provide the module name as '[%s]'";
     public static final String CONSTRAINT_TYPE_NOT_SUPPORTED = "table constraint type '%s' in configurable variable" +
             " '%s' is not supported";
     public static final String DEFAULT_FIELD_UNSUPPORTED = "defaultable readonly record field '%s' in configurable " +
