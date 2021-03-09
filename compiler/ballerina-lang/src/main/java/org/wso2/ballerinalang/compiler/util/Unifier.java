@@ -367,7 +367,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 continue;
             }
 
-            if (this.function != null && Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
+            if (this.function != null && member.tag == TypeTags.PARAMETERIZED_TYPE) {
                 BParameterizedType parameterizedType = (BParameterizedType) member;
                 BType paramConstraint = getParamConstraintTypeIfInferred(this.function, parameterizedType);
                 if (paramConstraint != symbolTable.noType && !isDisjointMemberType(parameterizedType, originalType)) {
@@ -396,19 +396,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private BType getExpectedTypeForInferredTypedescMember(BUnionType originalType, BType expType, BType member) {
-        if (expType == null || this.invocation == null || member.tag != TypeTags.PARAMETERIZED_TYPE) {
+        if (expType == null || this.invocation == null || !Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
             return null;
-        }
-
-        for (BVarSymbol param : ((BInvokableSymbol) this.invocation.symbol).params) {
-            if (!param.name.value.equals(((Name) member.name).value)) {
-                continue;
-            }
-
-            if (!Symbols.isFlagOn(param.flags, Flags.INFER)) {
-                return null;
-            }
-            break;
         }
 
         if (expType.tag != TypeTags.UNION) {
@@ -799,7 +788,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         if (isMappingType(tag1) != isMappingType(tag2)) {
-            return true;
+            return false;
         }
 
         return isListType(tag1) && isListType(tag2);

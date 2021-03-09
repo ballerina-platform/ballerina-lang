@@ -204,6 +204,44 @@ function testFunctionAssignment() {
     assert("incompatible types: 'string' cannot be cast to 'int'", <string> checkpanic err.detail()["message"]);
 }
 
+function testUnionTypes() {
+    int|boolean? a = getSimpleUnion(1);
+    assert(1, a);
+
+    boolean|()|int b = getSimpleUnion("hello");
+    assert((), b);
+
+    string|boolean? c = getSimpleUnion(1);
+    assert(false, c);
+
+    ()|string|boolean d = getSimpleUnion("hello");
+    assert("hello", d);
+
+    int[]|map<int[]>? e = getComplexUnion();
+    assert(<int[]> [1, 2], e);
+
+    map<[int, string][]>|()|[int, string][] f = getComplexUnion();
+    assert(<map<[int, string][]>> {entry: [[100, "Hello World"]]}, f);
+
+    int|boolean? g = getSimpleUnion(1, int);
+    assert(1, g);
+
+    boolean|()|int h = getSimpleUnion(td = int, val = "hello");
+    assert((), h);
+
+    string|boolean? i = getSimpleUnion(1, td = string);
+    assert(false, i);
+
+    ()|string|boolean j = getSimpleUnion("hello", string);
+    assert("hello", j);
+
+    int[]|map<int[]>? k = getComplexUnion(int);
+    assert(<int[]> [1, 2], k);
+
+    map<[int, string][]>|()|[int, string][] l = getComplexUnion(td = [int, string]);
+    assert(<map<[int, string][]>> {entry: [[100, "Hello World"]]}, l);
+}
+
 // Interop functions
 function getValue(typedesc<int|float|decimal|string|boolean> td = <>) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -287,6 +325,14 @@ function getValue2(typedesc<int|string> aTypeVar = <>) returns aTypeVar = @java:
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
     name: "getValue",
     paramTypes: ["io.ballerina.runtime.api.values.BTypedesc"]
+} external;
+
+function getSimpleUnion(string|int val, typedesc<string|int> td = <>) returns td|boolean? = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+} external;
+
+function getComplexUnion(typedesc<int|[int, string]> td = <>) returns td[]|map<td[]>? = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
 } external;
 
 function assert(anydata expected, anydata actual) {

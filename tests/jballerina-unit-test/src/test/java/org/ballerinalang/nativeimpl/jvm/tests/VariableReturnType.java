@@ -19,18 +19,22 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTupleType;
@@ -372,5 +376,43 @@ public class VariableReturnType {
         }
 
         return mediaType.length() + header.length() + i;
+    }
+
+    public static Object getSimpleUnion(Object val, BTypedesc td) {
+        if (TypeUtils.getType(val).getTag() == INT_TAG) {
+            if (td.getDescribingType().getTag() == INT_TAG) {
+                return val;
+            }
+
+            return false;
+        }
+
+        if (td.getDescribingType().getTag() == INT_TAG) {
+            return null;
+        }
+
+        return val;
+    }
+
+    public static Object getComplexUnion(BTypedesc td) {
+        if (td.getDescribingType().getTag() == INT_TAG) {
+            return ValueCreator.createArrayValue(new long[]{1, 2});
+        }
+
+        BTupleType tupleType = new BTupleType(List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
+        BArray tupleValue = ValueCreator.createTupleValue(tupleType);
+        tupleValue.add(0, 100L);
+        tupleValue.add(1, StringUtils.fromString("Hello World"));
+
+        BArrayType arrayType = new BArrayType(tupleType);
+        BArray arrayValue = ValueCreator.createArrayValue(new Object[]{tupleValue}, arrayType);
+
+        BMapInitialValueEntry[] initialValues = {
+                ValueCreator.createKeyFieldEntry(StringUtils.fromString("entry"), arrayValue)};
+        return ValueCreator.createMapValue(new BMapType(arrayType), initialValues);
+    }
+
+    public static long untaintedParamFunc(BTypedesc typedesc) {
+        return 0;
     }
 }

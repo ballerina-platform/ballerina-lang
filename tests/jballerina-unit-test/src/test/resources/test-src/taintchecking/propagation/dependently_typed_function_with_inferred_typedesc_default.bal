@@ -14,8 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function untaintedParamFunc(@untainted typedesc<int> x = <>) returns x? = external;
+import ballerina/jballerina.java;
+
+public function untaintedParamFunc(@untainted typedesc<int> x = <>) returns x? = @java:Method {
+    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+} external;
 
 public function main(@tainted int i) {
-    int? x = untaintedParamFunc(typeof i);
+    int? x = untaintedParamFunc(<@untainted> typeof i);
+    byte? y = untaintedParamFunc();
+    int? z = untaintedParamFunc();
 }
