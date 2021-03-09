@@ -76,6 +76,6 @@ function testDecimalDefaultable() {
 
 function decimalDefaultable(decimal fixedPrice, decimal tax = 10.28, decimal discountRate = 0.05) returns decimal {
     decimal discount = fixedPrice * discountRate;
-    decimal price = decimal:sum(fixedPrice, tax, -discount);
+    decimal price = fixedPrice + tax - discount;
     return price;
 }
