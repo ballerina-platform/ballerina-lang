@@ -125,7 +125,7 @@ public function syncSendReceiveWithTrap() returns int|error {
    return ret;
 }
 
-public function receiveWithCheck() returns error|int {
+public function receiveWithCheck() returns error|int? {
     @strand{thread:"any"}
     worker w1 returns boolean|error{
       int i = 2;
@@ -146,7 +146,7 @@ public function receiveWithCheck() returns error|int {
     return wait w2;
 }
 
-public function syncSendReceiveWithCheck() returns int|error {
+public function syncSendReceiveWithCheck() returns int|error? {
     @strand{thread:"any"}
     worker w1 returns boolean|error {
         int i = 2;

@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -61,9 +62,11 @@ import javax.annotation.Nonnull;
  */
 public class FieldAccessCompletionResolver extends NodeTransformer<Optional<TypeSymbol>> {
     private final BallerinaCompletionContext context;
+    private final boolean optionalFieldAccess;
 
-    public FieldAccessCompletionResolver(BallerinaCompletionContext context) {
+    public FieldAccessCompletionResolver(BallerinaCompletionContext context, boolean optionalFieldAccess) {
         this.context = context;
+        this.optionalFieldAccess = optionalFieldAccess;
     }
 
     @Override
@@ -174,7 +177,13 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
         switch (rawType.typeKind()) {
             case RECORD:
-                visibleEntries.addAll(((RecordTypeSymbol) rawType).fieldDescriptors().values());
+                // If the invoked for field access expression, then avoid suggesting the optional fields
+                List<RecordFieldSymbol> filteredEntries =
+                        ((RecordTypeSymbol) rawType).fieldDescriptors().values().stream()
+                                .filter(recordFieldSymbol -> this.optionalFieldAccess
+                                        || !recordFieldSymbol.isOptional())
+                                .collect(Collectors.toList());
+                visibleEntries.addAll(filteredEntries);
                 break;
             case OBJECT: // add class field access test case as well
                 ObjectTypeSymbol objTypeDesc = (ObjectTypeSymbol) rawType;

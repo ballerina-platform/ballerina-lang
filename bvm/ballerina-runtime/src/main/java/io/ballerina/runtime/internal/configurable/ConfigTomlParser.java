@@ -55,13 +55,17 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.runtime.internal.configurable.ConfigUtils.getEffectiveTomlType;
+import static io.ballerina.runtime.internal.configurable.ConfigUtils.getTomlTypeString;
+import static io.ballerina.runtime.internal.configurable.ConfigUtils.isPrimitiveType;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.CONSTRAINT_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.DEFAULT_MODULE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.FIELD_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_ADDITIONAL_FIELD_IN_RECORD;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_BYTE_RANGE;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_FIELD_IN_RECORD;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_FILE;
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_VARIABLE_TYPE;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_MODULE_STRUCTURE;
+import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_TYPE;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.REQUIRED_FIELD_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.SUBMODULE_DELIMITER;
 import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.TABLE_KEY_NOT_PROVIDED;
@@ -105,8 +109,7 @@ public class ConfigTomlParser {
                     //It is an optional configurable variable
                     continue;
                 }
-                Object value = validateNodeAndExtractValue(key, moduleNode.entries());
-                ConfigurableMap.put(key, value);
+                ConfigurableMap.put(key, validateNodeAndExtractValue(key, moduleNode.entries()));
             }
         }
     }
@@ -115,15 +118,41 @@ public class ConfigTomlParser {
         String orgName = module.getOrg();
         String moduleName = module.getName();
         if (tomlNode.entries().containsKey(orgName)) {
-            tomlNode = (TomlTableNode) tomlNode.entries().get(orgName);
+            tomlNode = validateAndGetModuleStructure(tomlNode, orgName, orgName + SUBMODULE_DELIMITER + moduleName);
         }
-        return moduleName.equals(DEFAULT_MODULE) ? tomlNode : extractModuleNode(tomlNode, moduleName);
+        return moduleName.equals(DEFAULT_MODULE) ? tomlNode : extractModuleNode(tomlNode, moduleName, moduleName);
+    }
+
+    private static TomlTableNode validateAndGetModuleStructure(TomlTableNode tomlNode, String key, String moduleName) {
+        TomlNode retrievedNode = tomlNode.entries().get(key);
+        if (retrievedNode != null && retrievedNode.kind() != TomlType.TABLE) {
+            throw new TomlException(String.format(INVALID_MODULE_STRUCTURE, moduleName, moduleName));
+        }
+        return (TomlTableNode) retrievedNode;
+    }
+
+    private static TomlTableNode extractModuleNode(TomlTableNode orgNode, String moduleName, String fullModuleName) {
+        if (orgNode == null) {
+            return orgNode;
+        }
+        TomlTableNode moduleNode = orgNode;
+        int subModuleIndex = moduleName.indexOf(SUBMODULE_DELIMITER);
+        if (subModuleIndex == -1) {
+            moduleNode = validateAndGetModuleStructure(orgNode, moduleName, fullModuleName);
+        } else if (subModuleIndex != moduleName.length()) {
+            String parent = moduleName.substring(0, subModuleIndex);
+            String submodule = moduleName.substring(subModuleIndex + 1);
+            moduleNode = extractModuleNode(validateAndGetModuleStructure(moduleNode, parent, fullModuleName), submodule,
+                    fullModuleName);
+        }
+        return moduleNode;
     }
 
     private static Object validateNodeAndExtractValue(VariableKey key, Map<String, TopLevelNode> valueMap) {
         String variableName = key.variable;
         Type type = key.type;
-        Object value;
+        TomlNode tomlValue =  valueMap.get(variableName);
+        variableName = key.module.getName() + ":" + variableName;
         switch (type.getTag()) {
             case TypeTags.INT_TAG:
             case TypeTags.BYTE_TAG:
@@ -131,108 +160,126 @@ public class ConfigTomlParser {
             case TypeTags.FLOAT_TAG:
             case TypeTags.DECIMAL_TAG:
             case TypeTags.STRING_TAG:
-                value = retrievePrimitiveValue(((TomlKeyValueNode) valueMap.get(variableName)).value(), variableName,
-                        type);
-                break;
+                return retrievePrimitiveValue(tomlValue , variableName, type, "");
             case TypeTags.INTERSECTION_TAG:
-                value = retrieveComplexValue((BIntersectionType) type, valueMap, variableName);
-                break;
+                return retrieveComplexValue((BIntersectionType) type, tomlValue, variableName);
             default:
-                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, type.toString()));
+                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, variableName, type.toString()));
         }
-        return value;
     }
 
-    private static Object retrieveComplexValue(BIntersectionType type, Map<String, TopLevelNode> valueMap,
-                                               String variableName) {
+    private static Object retrieveComplexValue(BIntersectionType type, TomlNode tomlValue, String variableName) {
         Type effectiveType = type.getEffectiveType();
-        Object value;
-        TomlNode tomlValue;
         switch (effectiveType.getTag()) {
             case TypeTags.ARRAY_TAG:
-                tomlValue = ((TomlKeyValueNode) valueMap.get(variableName)).value();
-                checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
-                value = retrieveArrayValues((TomlArrayValueNode) tomlValue, variableName, (ArrayType) effectiveType);
-                break;
+                return retrieveArrayValues(tomlValue, variableName, (ArrayType) effectiveType, "");
             case TypeTags.RECORD_TYPE_TAG:
-                tomlValue = valueMap.get(variableName);
-                checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
-                value = retrieveRecordValues((TomlTableNode) tomlValue, variableName, type);
-                break;
+                return retrieveRecordValues(tomlValue, variableName, type);
             case TypeTags.TABLE_TAG:
-                tomlValue = valueMap.get(variableName);
-                checkTypeAndThrowError(tomlValue.kind(), variableName, effectiveType);
-                value = retrieveTableValues((TomlTableArrayNode) tomlValue, variableName, (TableType) effectiveType);
-                break;
+                return retrieveTableValues(tomlValue, variableName, (TableType) effectiveType);
             default:
-                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, effectiveType.toString()));
+                throw new TomlException(
+                        String.format(CONFIGURATION_NOT_SUPPORTED, variableName, effectiveType.toString()));
         }
-        return value;
     }
 
-    private static Object retrievePrimitiveValue(TomlNode tomlValue, String variableName, Type type) {
-        checkTypeAndThrowError(tomlValue.kind(), variableName, type);
+    private static Object retrievePrimitiveValue(TomlNode tomlValue, String variableName, Type type,
+                                                 String errorPrefix) {
+        TomlType tomlType = tomlValue.kind();
+        if (tomlType != TomlType.KEY_VALUE) {
+            throw new TomlException(errorPrefix + String.format(INVALID_TOML_TYPE, variableName, type,
+                    getTomlTypeString(tomlValue)));
+        }
+        tomlValue = ((TomlKeyValueNode) tomlValue).value();
+        tomlType = tomlValue.kind();
+        if (tomlType != getEffectiveTomlType(type, variableName)) {
+            throw new TomlException(errorPrefix + String.format(INVALID_TOML_TYPE, variableName, type,
+                            getTomlTypeString(tomlValue)));
+        }
         return getBalValue(variableName, type.getTag(), ((TomlBasicValueNode<?>) tomlValue).getValue());
     }
 
-    private static Object retrieveArrayValues(TomlArrayValueNode arrayNode, String variableName,
-                                              ArrayType effectiveType) {
+    private static Object retrieveArrayValues(TomlNode tomlValue, String variableName,
+                                              ArrayType effectiveType, String errorPrefix) {
+        if (tomlValue.kind() != TomlType.KEY_VALUE) {
+            throw new TomlException(errorPrefix + String.format(INVALID_TOML_TYPE, variableName, effectiveType,
+                    getTomlTypeString(tomlValue)));
+        }
+        tomlValue = ((TomlKeyValueNode) tomlValue).value();
+        if (tomlValue.kind() != getEffectiveTomlType(effectiveType, variableName)) {
+            throw new TomlException(errorPrefix + String.format(INVALID_TOML_TYPE, variableName, effectiveType,
+                    getTomlTypeString(tomlValue)));
+        }
         Type elementType = effectiveType.getElementType();
-        List<TomlValueNode> arrayList = arrayNode.elements();
-        checkTypeAndThrowError(arrayList.get(0).kind(), variableName, elementType);
-        return new ArrayValueImpl(effectiveType, arrayList.size(), createArray(variableName, arrayList,
-                                                                               elementType.getTag()));
+        List<TomlValueNode> arrayList = ((TomlArrayValueNode) tomlValue).elements();
+        if (!isPrimitiveType(elementType.getTag())) {
+            //Remove after supporting all arrays
+            throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, variableName, effectiveType.toString()));
+        }
+        return new ArrayValueImpl(effectiveType, arrayList.size(), createArray(variableName, arrayList, elementType));
     }
 
     private static ListInitialValueEntry.ExpressionEntry[] createArray(String variableName,
-                                                                       List<TomlValueNode> arrayList, int typeTag) {
+                                                                       List<TomlValueNode> arrayList,
+                                                                       Type elementType) {
         int arraySize = arrayList.size();
         ListInitialValueEntry.ExpressionEntry[] arrayEntries =
                 new ListInitialValueEntry.ExpressionEntry[arraySize];
         for (int i = 0; i < arraySize; i++) {
+            String elementName = variableName + "[" + i + "]";
+            TomlNode tomlNode = arrayList.get(i);
+            if (tomlNode.kind() != getEffectiveTomlType(elementType, elementName)) {
+                throw new TomlException(String.format(INVALID_TOML_TYPE, elementName, elementType ,
+                 getTomlTypeString(tomlNode)));
+            }
             TomlBasicValueNode<?> tomlBasicValueNode = (TomlBasicValueNode<?>) arrayList.get(i);
             Object value = tomlBasicValueNode.getValue();
-            arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(getBalValue(variableName, typeTag, value));
+            arrayEntries[i] =
+                    new ListInitialValueEntry.ExpressionEntry(getBalValue(variableName, elementType.getTag(), value));
         }
         return arrayEntries;
     }
 
-    private static Object retrieveRecordValues(TomlTableNode tomlValue, String variableName,
+    private static Object retrieveRecordValues(TomlNode tomlNode, String variableName,
                                                BIntersectionType intersectionType) {
-        RecordType effectiveType = (RecordType) intersectionType.getConstituentTypes().get(0);
+        Type effectiveType = intersectionType.getEffectiveType();
+        if (tomlNode.kind() != getEffectiveTomlType(effectiveType, variableName)) {
+            throw new TomlException(String.format(INVALID_TOML_TYPE, variableName, effectiveType ,
+                    getTomlTypeString(tomlNode)));
+        }
+        RecordType recordType = (RecordType) intersectionType.getConstituentTypes().get(0);
         Map<String, Object> initialValueEntries = new HashMap<>();
-        for (Map.Entry<String, TopLevelNode> tomlField : tomlValue.entries().entrySet()) {
+        for (Map.Entry<String, TopLevelNode> tomlField : ((TomlTableNode) tomlNode).entries().entrySet()) {
             String fieldName = tomlField.getKey();
-            Field field = effectiveType.getFields().get(fieldName);
+            Field field = recordType.getFields().get(fieldName);
             if (field == null) {
-                throw new TomlException(String.format(INVALID_FIELD_IN_RECORD, fieldName, variableName,
-                        effectiveType.toString()));
+                throw new TomlException(String.format(INVALID_ADDITIONAL_FIELD_IN_RECORD, fieldName, variableName,
+                        recordType.toString()));
             }
             Type fieldType = field.getFieldType();
             if (!isSupportedType(fieldType)) {
                 throw new TomlException(
-                        String.format(FIELD_TYPE_NOT_SUPPORTED, fieldType.toString(), variableName, effectiveType));
+                        String.format(FIELD_TYPE_NOT_SUPPORTED, fieldType, variableName));
             }
-            TomlNode value = ((TomlKeyValueNode) tomlField.getValue()).value();
+            TomlNode value = tomlField.getValue();
             Object objectValue;
+            String errorPrefix = "field '" + fieldName + "' from ";
             switch (fieldType.getTag()) {
                 case TypeTags.ARRAY_TAG:
-                    checkTypeAndThrowError(value.kind(), variableName + "." + fieldName, fieldType);
-                    objectValue = retrieveArrayValues((TomlArrayValueNode) value, variableName, (ArrayType) fieldType);
+                    objectValue = retrieveArrayValues(value, variableName, (ArrayType) fieldType, errorPrefix);
                     break;
                 case TypeTags.INTERSECTION_TAG:
                     ArrayType arrayType = (ArrayType) ((IntersectionType) fieldType).getEffectiveType();
-                    checkTypeAndThrowError(value.kind(), variableName + "." + fieldName, arrayType);
-                    objectValue = retrieveArrayValues((TomlArrayValueNode) value, variableName, arrayType);
+                    objectValue = retrieveArrayValues(value, variableName, arrayType, errorPrefix);
                     break;
                 default:
-                    objectValue = retrievePrimitiveValue(value, variableName + "." + fieldName, fieldType);
+                    objectValue = retrievePrimitiveValue(value, variableName, fieldType, errorPrefix);
             }
             initialValueEntries.put(fieldName, objectValue);
         }
-        validateRequiredField(initialValueEntries, effectiveType, variableName);
+        validateRequiredField(initialValueEntries, recordType, variableName);
         return ValueCreator
-                .createReadonlyRecordValue(effectiveType.getPackage(), effectiveType.getName(), initialValueEntries);
+                .createReadonlyRecordValue(recordType.getPackage(), recordType.getName(), initialValueEntries);
     }
 
     private static void validateRequiredField(Map<String, Object> initialValueEntries, RecordType recordType,
@@ -248,6 +295,7 @@ public class ConfigTomlParser {
     }
 
     private static boolean isSupportedType(Type type) {
+        //Remove this check when we support all field types
         int typeTag = type.getTag();
         if (typeTag == TypeTags.INTERSECTION_TAG) {
             Type effectiveType = ((IntersectionType) type).getEffectiveType();
@@ -258,14 +306,25 @@ public class ConfigTomlParser {
         } else if (typeTag == TypeTags.ARRAY_TAG) {
             typeTag = ((ArrayType) type).getElementType().getTag();
         }
-        return (typeTag == TypeTags.INT_TAG || typeTag == TypeTags.FLOAT_TAG || typeTag == TypeTags.BOOLEAN_TAG ||
-                typeTag == TypeTags.STRING_TAG || typeTag == TypeTags.DECIMAL_TAG);
+        return isPrimitiveType(typeTag);
     }
 
-    private static Object retrieveTableValues(TomlTableArrayNode tomlValue, String variableName,
+    private static Object retrieveTableValues(TomlNode tomlValue, String variableName,
                                               TableType tableType) {
-        List<TomlTableNode> tableNodeList = tomlValue.children();
         Type constraintType = tableType.getConstrainedType();
+        if (constraintType.getTag() != TypeTags.INTERSECTION_TAG) {
+            throw new TomlException(
+                    String.format(CONSTRAINT_TYPE_NOT_SUPPORTED, constraintType, variableName));
+        }
+        if (((BIntersectionType) constraintType).getEffectiveType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            throw new TomlException(
+                    String.format(CONSTRAINT_TYPE_NOT_SUPPORTED, constraintType, variableName));
+        }
+        if (tomlValue.kind() != getEffectiveTomlType(tableType, variableName)) {
+            throw new TomlException(String.format(INVALID_TOML_TYPE, variableName, tableType ,
+                    getTomlTypeString(tomlValue)));
+        }
+        List<TomlTableNode> tableNodeList = ((TomlTableArrayNode) tomlValue).children();
         int tableSize = tableNodeList.size();
         ListInitialValueEntry.ExpressionEntry[] tableEntries = new ListInitialValueEntry.ExpressionEntry[tableSize];
         String[] keys = tableType.getFieldNames();
@@ -310,64 +369,5 @@ public class ConfigTomlParser {
             return StringUtils.fromString(stringVal);
         }
         return tomlValue;
-    }
-
-    private static void checkTypeAndThrowError(TomlType actualType, String variableName, Type expectedType) {
-        TomlType tomlType;
-        switch (expectedType.getTag()) {
-            case TypeTags.INT_TAG:
-            case TypeTags.BYTE_TAG:
-                tomlType = TomlType.INTEGER;
-                break;
-            case TypeTags.BOOLEAN_TAG:
-                tomlType = TomlType.BOOLEAN;
-                break;
-            case TypeTags.FLOAT_TAG:
-            case TypeTags.DECIMAL_TAG:
-                tomlType = TomlType.DOUBLE;
-                break;
-            case TypeTags.STRING_TAG:
-                tomlType = TomlType.STRING;
-                break;
-            case TypeTags.ARRAY_TAG:
-                tomlType = TomlType.ARRAY;
-                break;
-            case TypeTags.RECORD_TYPE_TAG:
-                tomlType = TomlType.TABLE;
-                break;
-            case TypeTags.TABLE_TAG:
-                tomlType = TomlType.TABLE_ARRAY;
-                break;
-            default:
-                throw new TomlException(String.format(CONFIGURATION_NOT_SUPPORTED, expectedType.toString()));
-        }
-        if (actualType == tomlType) {
-            return;
-        }
-        throw new TomlException(INVALID_TOML_FILE + String.format(INVALID_VARIABLE_TYPE, variableName,
-                expectedType.toString(), actualType.name()));
-    }
-
-    private static TomlTableNode extractModuleNode(TomlTableNode orgNode, String moduleName) {
-        if (orgNode == null) {
-            return orgNode;
-        }
-        TomlTableNode moduleNode = orgNode;
-        int subModuleIndex = moduleName.indexOf(SUBMODULE_DELIMITER);
-        if (subModuleIndex == -1) {
-            moduleNode = (TomlTableNode) orgNode.entries().get(moduleName);
-        } else if (subModuleIndex != moduleName.length()) {
-            String parent = moduleName.substring(0, subModuleIndex);
-            String submodule = moduleName.substring(subModuleIndex + 1);
-            moduleNode = extractModuleNode((TomlTableNode) moduleNode.entries().get(parent), submodule);
-        }
-        return moduleNode;
-    }
-
-    private static TomlTableNode extractOrganizationNode(TomlTableNode tomlNode, String orgName) {
-        if (!tomlNode.entries().containsKey(orgName)) {
-            throw new TomlException(INVALID_TOML_FILE + "Organization name '" + orgName + "' not found.");
-        }
-        return (TomlTableNode) tomlNode.entries().get(orgName);
     }
 }

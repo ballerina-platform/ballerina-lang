@@ -152,5 +152,21 @@ public enum Flag {
     /**
      * Indicates flagged parameter is a included record parameter.
      */
-    INCLUDED;
+    INCLUDED,
+    /**
+     * Indicates flagged node is a required parameter.
+     */
+    REQUIRED_PARAM,
+    /**
+     * Indicates flagged node is a defaultable parameter.
+     */
+    DEFAULTABLE_PARAM,
+    /**
+     * Indicates flagged node is a rest parameter.
+     */
+    REST_PARAM,
+    /**
+     * Indicates flagged variable is a field.
+     */
+    FIELD
 }

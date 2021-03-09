@@ -280,6 +280,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -781,8 +782,6 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.globalVars = rewrite(pkgNode.globalVars, env);
         desugarClassDefinitions(pkgNode.topLevelNodes);
 
-        pkgNode.functions = rewrite(pkgNode.functions, env);
-
         serviceDesugar.rewriteListeners(pkgNode.globalVars, env, pkgNode.startFunction, pkgNode.stopFunction);
         ASTBuilderUtil.appendStatements(serviceAttachments, (BLangBlockFunctionBody) pkgNode.initFunction.body);
 
@@ -793,6 +792,7 @@ public class Desugar extends BLangNodeVisitor {
         pkgNode.initFunction = rewrite(pkgNode.initFunction, env);
         pkgNode.startFunction = rewrite(pkgNode.startFunction, env);
         pkgNode.stopFunction = rewrite(pkgNode.stopFunction, env);
+        pkgNode.functions = rewrite(pkgNode.functions, env);
 
         // Invoke closure desugar.
         closureDesugar.visit(pkgNode);
@@ -1293,8 +1293,15 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        annAttachmentNode.expr = rewrite(annAttachmentNode.expr, env);
+        if (annAttachmentNode.expr == null && annAttachmentNode.annotationSymbol.attachedType != null) {
+            BType attachedType = annAttachmentNode.annotationSymbol.attachedType.type;
+            if (attachedType.tag != TypeTags.FINITE) {
+                annAttachmentNode.expr = ASTBuilderUtil.createEmptyRecordLiteral(annAttachmentNode.pos,
+                        attachedType.tag == TypeTags.ARRAY ? ((BArrayType) attachedType).eType : attachedType);
+            }
+        }
         if (annAttachmentNode.expr != null) {
+            annAttachmentNode.expr = rewrite(annAttachmentNode.expr, env);
             for (AttachPoint point : annAttachmentNode.annotationSymbol.points) {
                 if (!point.source) {
                     annAttachmentNode.expr = visitCloneReadonly(annAttachmentNode.expr, annAttachmentNode.expr.type);
@@ -6085,7 +6092,7 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
         if (Symbols.isFlagOn(invSym.retType.flags, Flags.PARAMETERIZED)) {
             BType retType = typeBuilder.build(invSym.retType);
-            invocation.type = retType;
+            invocation.type = invocation.async ? new BFutureType(TypeTags.FUTURE, retType, null) : retType;
         }
 
         if (invocation.expr == null) {
@@ -6620,26 +6627,9 @@ public class Desugar extends BLangNodeVisitor {
         // validateIsNotCastToAnImportedAnonType(targetType == null ? conversionExpr.type : targetType);
 
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
-        if (types.isXMLExprCastableToString(conversionExpr.expr.type, conversionExpr.type)) {
-            result = convertXMLTextToString(conversionExpr);
-            return;
-        }
+
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
         result = conversionExpr;
-    }
-
-    private BLangExpression convertXMLTextToString(BLangTypeConversionExpr conversionExpr) {
-        BLangInvocation invocationNode = createLanglibXMLInvocation(conversionExpr.pos, XML_GET_CONTENT_OF_TEXT,
-                conversionExpr.expr, new ArrayList<>(), new ArrayList<>());
-        BLangSimpleVariableDef tempVarDef = createVarDef("$$__xml_string__$$",
-                conversionExpr.targetType, invocationNode, conversionExpr.pos);
-        BLangSimpleVarRef tempVarRef = ASTBuilderUtil.createVariableRef(conversionExpr.pos, tempVarDef.var.symbol);
-
-        BLangBlockStmt blockStmt = ASTBuilderUtil.createBlockStmt(conversionExpr.pos);
-        blockStmt.addStatement(tempVarDef);
-        BLangStatementExpression stmtExpr = ASTBuilderUtil.createStatementExpression(blockStmt, tempVarRef);
-        stmtExpr.type = conversionExpr.type;
-        return rewrite(stmtExpr, env);
     }
 
     @Override
@@ -7929,8 +7919,7 @@ public class Desugar extends BLangNodeVisitor {
             BLangRestArgsExpression restArgsExpression = (BLangRestArgsExpression) restArgs.remove(0);
             BArrayType restParamType = (BArrayType) invokableSymbol.restParam.type;
             if (restArgsExpression.type.tag == TypeTags.RECORD) {
-                BLangExpression expr = new BLangIgnoreExpr();
-                expr.type = restParamType;
+                BLangExpression expr = ASTBuilderUtil.createEmptyArrayLiteral(invokableSymbol.pos, restParamType);
                 restArgs.add(expr);
                 return;
             }
@@ -7970,15 +7959,26 @@ public class Desugar extends BLangNodeVisitor {
             BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
 
             BLangIndexBasedAccess valueExpr = ASTBuilderUtil.createIndexAccessExpr(varargRef, foreachVarRef);
-            valueExpr.type = varargVarType.tag == TypeTags.ARRAY ? ((BArrayType) varargVarType).eType :
-                    symTable.anyType; // Use any for tuple since it's a ref array.
+
+            if (varargVarType.tag == TypeTags.ARRAY) {
+                BArrayType arrayType = (BArrayType) varargVarType;
+                if (arrayType.state == BArrayState.CLOSED &&
+                        arrayType.size == (iExpr.requiredArgs.size() - originalRequiredArgCount)) {
+                    // If the array was a closed array that provided only for the non rest params, set the rest param
+                    // type as the element type to satisfy code gen. The foreach will not be executed at runtime.
+                    valueExpr.type = restParamType.eType;
+                } else {
+                    valueExpr.type = arrayType.eType;
+                }
+            } else {
+                valueExpr.type = symTable.anyOrErrorType; // Use any|error for tuple since it's a ref array.
+            }
 
             BLangExpression pushExpr = addConversionExprIfRequired(valueExpr, restParamType.eType);
             BLangExpressionStmt expressionStmt = createExpressionStmt(pos, foreachBody);
             BLangInvocation pushInvocation = createLangLibInvocationNode(PUSH_LANGLIB_METHOD, arrayVarRef,
-                                                                         new ArrayList<BLangExpression>() {{
-                                                                             add(pushExpr);
-                                                                         }}, restParamType, pos);
+                                                                         List.of(pushExpr),
+                                                                         restParamType, pos);
             pushInvocation.restArgs.add(pushInvocation.requiredArgs.remove(1));
             expressionStmt.expr = pushInvocation;
             foreach.body = foreachBody;
