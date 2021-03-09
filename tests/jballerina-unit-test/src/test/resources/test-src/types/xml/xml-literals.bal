@@ -1,3 +1,17 @@
+function testXMLSequence() {
+    string v1 = "interpolation1";
+    string v2 = "interpolation2";
+    xml x1 = xml `<foo>foo</foo><?foo?>text1<!--comment-->`;
+    assert(x1.toString(), "<foo>foo</foo><?foo ?>text1<!--comment-->");
+    xml x2 = xml `text1 text2 <foo>foo</foo>text2<!--comment-->text3 text4`;
+    assert(x2.toString(), "text1 text2 <foo>foo</foo>text2<!--comment-->text3 text4");
+    xml x3 = xml `text1${v1}<foo>foo</foo>text2${v2}<!--comment ${v2}-->text3`;
+    assert(x3.toString(), "text1interpolation1<foo>foo</foo>text2interpolation2<!--comment interpolation2-->text3");
+    xml x4 = xml `<!--comment--><?foo ${v1}?>text1${v1}<root>text2 ${v2}${v1} text3!<foo>12</foo><bar></bar></root>text2${v2}`;
+    assert(x4.toString(), "<!--comment--><?foo interpolation1?>text1interpolation1<root>text2 "+
+    "interpolation2interpolation1 text3!<foo>12</foo><bar></bar></root>text2interpolation2");
+}
+
 function testXMLTextLiteral() returns [xml, xml, xml, xml, xml, xml] {
     string v1 = "11";
     string v2 = "22";
@@ -138,4 +152,15 @@ function testDollarSignOnXMLLiteralTemplate() returns [xml, xml, xml] {
     xml x3 = xml `<foo id="hello $$ ${ 3 + 6 / 3}" >$$ ${a}</foo>`;
 
     return [x1, x2, x3];
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
 }

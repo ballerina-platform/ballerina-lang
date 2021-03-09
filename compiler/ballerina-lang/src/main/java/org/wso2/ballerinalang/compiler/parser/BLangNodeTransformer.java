@@ -4041,7 +4041,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     public BLangXMLSequenceLiteral createXmlSequence(TemplateExpressionNode expressionNode) {
-        BLangXMLSequenceLiteral xmlSequenceLiteral = (BLangXMLSequenceLiteral) TreeBuilder.createXMLSequenceLiteralNode();
+        BLangXMLSequenceLiteral xmlSequenceLiteral = (BLangXMLSequenceLiteral)
+                TreeBuilder.createXMLSequenceLiteralNode();
         xmlSequenceLiteral.pos = getPosition(expressionNode);
 
         Node lastNode = null;
@@ -4058,7 +4059,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 }
             }
             //handle previous node if it was of xml:Text or interpolation type
-            if (lastNode != null && (lastNode.kind() == SyntaxKind.XML_TEXT || lastNode.kind() == SyntaxKind.INTERPOLATION)) {
+            if (lastNode != null && (lastNode.kind() == SyntaxKind.XML_TEXT ||
+                    lastNode.kind() == SyntaxKind.INTERPOLATION)) {
                 if (adjacentTextNodes.size() > 1) {
                     //adjacent XML Text Literals (contains interpolated items and xml:Text items) should be
                     // concatenated together

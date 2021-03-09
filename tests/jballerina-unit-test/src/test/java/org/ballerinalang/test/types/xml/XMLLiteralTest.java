@@ -102,6 +102,11 @@ public class XMLLiteralTest {
     }
 
     @Test
+    public void testXMLSequence() {
+        BRunUtil.invoke(result, "testXMLSequence");
+    }
+
+    @Test
     public void testXMLTextLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLTextLiteral");
         Assert.assertTrue(returns[0] instanceof BXML);
@@ -239,7 +244,7 @@ public class XMLLiteralTest {
     @Test
     public void testTextWithValidMultiTypeExpressions() {
         BValue[] returns = BRunUtil.invoke(result, "testTextWithValidMultiTypeExpressions");
-        Assert.assertTrue(returns[0] instanceof BXMLItem);
+        Assert.assertTrue(returns[0] instanceof BXMLSequence);
 
         Assert.assertEquals(returns[0].stringValue(), "hello 11 world. How 1.35 are you true?");
     }

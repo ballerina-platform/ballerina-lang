@@ -31,11 +31,9 @@ import java.util.List;
 public class BLangXMLSequenceLiteral extends BLangExpression implements XMLLiteralNode {
 
     public List<BLangExpression> xmlItems;
-    public HashMap<Integer, BLangExpression> concatExpr;
 
     public BLangXMLSequenceLiteral() {
         this.xmlItems = new ArrayList<>();
-        this.concatExpr = new HashMap<>();
     }
 
     @Override

@@ -263,18 +263,6 @@ public class NodeCloner extends BLangNodeVisitor {
         return clone;
     }
 
-    private <T extends Node> HashMap<Integer, T> cloneHashMap(HashMap<Integer, T> nodes) {
-        if (nodes == null) {
-            return null;
-        }
-        HashMap<Integer, T> cloneHashMap = new HashMap<>();
-        for (Map.Entry<Integer, T> entry : nodes.entrySet()) {
-            T clone = (T) clone(entry.getValue());
-            cloneHashMap.put(entry.getKey(), clone);
-        }
-        return cloneHashMap;
-    }
-
     private <T extends Node> List<T> cloneList(List<T> nodes) {
 
         if (nodes == null) {
@@ -1975,7 +1963,6 @@ public class NodeCloner extends BLangNodeVisitor {
         BLangXMLSequenceLiteral clone = new BLangXMLSequenceLiteral();
         source.cloneRef = clone;
         clone.xmlItems = cloneList(source.xmlItems);
-        clone.concatExpr = cloneHashMap(source.concatExpr);
     }
 
     @Override

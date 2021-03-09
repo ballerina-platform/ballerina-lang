@@ -1493,7 +1493,6 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
         xmlSequenceLiteral.xmlItems.forEach(this::rewriteExpr);
-        xmlSequenceLiteral.concatExpr.forEach((index, value) -> rewriteExpr(value));
         result = xmlSequenceLiteral;
     }
 
