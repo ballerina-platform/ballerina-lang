@@ -1,0 +1,5 @@
+[plugin]
+class = "io.samjs.plugins.eventlogger.EventLoggerPlugin"
+
+[[dependency]]
+path = "../../../../../build/libs/event-logger-compiler-plugin-1.0.0.jar"
