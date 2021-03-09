@@ -437,7 +437,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             LockStatementNode lockStatementNode) {
         Token lockKeyword =
                 modifyToken(lockStatementNode.lockKeyword());
-        StatementNode blockStatement =
+        BlockStatementNode blockStatement =
                 modifyNode(lockStatementNode.blockStatement());
         OnFailClauseNode onFailClause =
                 modifyNode(lockStatementNode.onFailClause().orElse(null));
@@ -476,7 +476,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(forEachStatementNode.inKeyword());
         Node actionOrExpressionNode =
                 modifyNode(forEachStatementNode.actionOrExpressionNode());
-        StatementNode blockStatement =
+        BlockStatementNode blockStatement =
                 modifyNode(forEachStatementNode.blockStatement());
         OnFailClauseNode onFailClause =
                 modifyNode(forEachStatementNode.onFailClause().orElse(null));

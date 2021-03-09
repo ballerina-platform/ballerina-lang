@@ -37,7 +37,7 @@ public class LockStatementNode extends StatementNode {
         return childInBucket(0);
     }
 
-    public StatementNode blockStatement() {
+    public BlockStatementNode blockStatement() {
         return childInBucket(1);
     }
 
@@ -65,7 +65,7 @@ public class LockStatementNode extends StatementNode {
 
     public LockStatementNode modify(
             Token lockKeyword,
-            StatementNode blockStatement,
+            BlockStatementNode blockStatement,
             OnFailClauseNode onFailClause) {
         if (checkForReferenceEquality(
                 lockKeyword,
@@ -92,7 +92,7 @@ public class LockStatementNode extends StatementNode {
     public static class LockStatementNodeModifier {
         private final LockStatementNode oldNode;
         private Token lockKeyword;
-        private StatementNode blockStatement;
+        private BlockStatementNode blockStatement;
         private OnFailClauseNode onFailClause;
 
         public LockStatementNodeModifier(LockStatementNode oldNode) {
@@ -110,7 +110,7 @@ public class LockStatementNode extends StatementNode {
         }
 
         public LockStatementNodeModifier withBlockStatement(
-                StatementNode blockStatement) {
+                BlockStatementNode blockStatement) {
             Objects.requireNonNull(blockStatement, "blockStatement must not be null");
             this.blockStatement = blockStatement;
             return this;
