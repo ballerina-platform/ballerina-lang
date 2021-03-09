@@ -264,11 +264,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap2",
+      "label": "TestMap3",
       "kind": "TypeParameter",
       "detail": "Map",
       "sortText": "M",
-      "insertText": "TestMap2",
+      "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -283,19 +283,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap1",
+      "label": "Thread",
       "kind": "TypeParameter",
-      "detail": "Map",
+      "detail": "Union",
       "sortText": "M",
-      "insertText": "TestMap1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap3",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -307,11 +299,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
+      "label": "TestMap1",
       "kind": "TypeParameter",
-      "detail": "Union",
+      "detail": "Map",
       "sortText": "M",
-      "insertText": "Thread",
+      "insertText": "TestMap1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "M",
+      "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -384,6 +384,14 @@
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {
