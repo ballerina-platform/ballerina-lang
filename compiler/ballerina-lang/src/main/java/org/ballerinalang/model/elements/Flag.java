@@ -168,5 +168,5 @@ public enum Flag {
     /**
      * Indicates flagged variable is a field.
      */
-    FIELD,
+    FIELD
 }
