@@ -17,8 +17,11 @@
  */
 package org.ballerinalang.langserver.completion;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -28,6 +31,13 @@ import java.util.List;
  * @since 2.0.0
  */
 public class ExpressionContextTest extends CompletionTestNew {
+
+    @Test(dataProvider = "completion-data-provider")
+    @Override
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -67,10 +77,6 @@ public class ExpressionContextTest extends CompletionTestNew {
                 "annotation_access_ctx_config4.json",
                 "annotation_access_ctx_config5.json",
                 "annotation_access_ctx_config6.json",
-                "new_expr_ctx_config7.json", // blocked due to the typeref issue
-                "new_expr_ctx_config8.json", // blocked due to the typeref issue
-                "new_expr_ctx_config9.json", // blocked due to the typeref issue
-                "new_expr_ctx_config10.json", // blocked due to the typeref issue
                 "optional_field_access_ctx_config1.json",
                 "optional_field_access_ctx_config2.json",
                 "optional_field_access_ctx_config3.json",

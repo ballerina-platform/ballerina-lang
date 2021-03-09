@@ -48,6 +48,7 @@ dependencies {
     testCompile 'org.mockito:mockito-all'
     testImplementation 'org.powermock:powermock-mockito-release-full'
     testImplementation 'org.powermock:powermock-module-testng-common'
+    testImplementation 'commons-io:commons-io'
 
     distributionBala project(path: ':ballerina-langlib:test', configuration: 'distributionBala')
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')

@@ -526,15 +526,11 @@ public class MethodGen {
                 continue;
             }
             BType bType = optionalTypeDef.type;
-            if ((bType.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR) {
-                // Annotations for object ctors are populated at object init site.
-                continue;
-            }
-
-            if (bType.tag != TypeTags.FINITE) {
+            // Annotations for object constructors are populated at object init site.
+            boolean constructorsPopulated = (bType.flags & Flags.OBJECT_CTOR) == Flags.OBJECT_CTOR;
+            if (!constructorsPopulated && bType.tag != TypeTags.FINITE) {
                 loadAnnots(mv, typePkgName, optionalTypeDef, jvmTypeGen, localVarOffset);
             }
-
         }
     }
 
@@ -927,7 +923,7 @@ public class MethodGen {
             BIRVariableDcl localVar = func.localVars.get(i);
             Label startLabel = methodStartLabel;
             Label endLabel = methodEndLabel;
-            if (!isLocalOrArg(localVar)) {
+            if (!isValidArg(localVar)) {
                 continue;
             }
             // local vars have visible range information
@@ -948,9 +944,12 @@ public class MethodGen {
         }
     }
 
-    private boolean isLocalOrArg(BIRVariableDcl localVar) {
+    private boolean isValidArg(BIRVariableDcl localVar) {
+        boolean localArg = localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG;
         boolean synArg = localVar.type.tag == TypeTags.BOOLEAN && localVar.name.value.startsWith("%syn");
-        return !synArg && (localVar.kind == VarKind.LOCAL || localVar.kind == VarKind.ARG);
+        boolean lambdaMapArg = localVar.metaVarName != null && localVar.metaVarName.startsWith("$map$block$") &&
+                localVar.kind == VarKind.SYNTHETIC;
+        return (localArg && !synArg) || lambdaMapArg;
     }
 
     private boolean isCompilerAddedVars(String metaVarName) {

@@ -114,13 +114,8 @@
                                           ]
                                         },
                                         {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "value": "bar"
-                                            }
-                                          ]
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "bar"
                                         }
                                       ]
                                     },
