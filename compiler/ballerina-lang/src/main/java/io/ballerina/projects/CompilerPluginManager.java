@@ -28,6 +28,8 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 /**
+ * Responsible for loading and maintaining engaged compiler plugins.
+ *
  * @since 2.0.0
  */
 class CompilerPluginManager {
