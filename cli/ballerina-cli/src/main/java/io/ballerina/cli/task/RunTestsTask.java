@@ -26,14 +26,12 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.PackageId;
 import io.ballerina.projects.PlatformLibrary;
-import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -67,6 +65,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
@@ -215,11 +214,7 @@ public class RunTestsTask implements Task {
         if (hasTests) {
             int testResult;
             try {
-                testResult = runTestSuit(testsCachePath, target,
-                        project.currentPackage().packageName().toString(),
-                        project.currentPackage().packageOrg().toString(),
-                        filterPaths(project.currentPackage().modules(),
-                                jarResolver.getJarFilePathsRequiredForExecution(), jBallerinaBackend));
+                testResult = runTestSuit(testsCachePath, target, project.currentPackage(), jBallerinaBackend);
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
                         ModuleStatus moduleStatus = loadModuleStatusFromFile(
@@ -352,9 +347,12 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestSuit(Path testCachePath, Target target, String packageName, String orgName,
-                            Collection<Path> dependencyCollection) throws IOException,
+    private int runTestSuit(Path testCachePath, Target target, Package currentPackage,
+                            JBallerinaBackend jBallerinaBackend) throws IOException,
             InterruptedException {
+        String packageName = currentPackage.packageName().toString();
+        String orgName = currentPackage.packageOrg().toString();
+        String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
@@ -377,7 +375,7 @@ public class RunTestsTask implements Task {
             cmdArgs.add(agentCommand);
         }
 
-        cmdArgs.addAll(Lists.of("-cp", getClassPath(dependencyCollection)));
+        cmdArgs.addAll(Lists.of("-cp", classPath));
         if (isInDebugMode()) {
             cmdArgs.add(getDebugArgs(this.err));
         }
@@ -441,20 +439,6 @@ public class RunTestsTask implements Task {
         return moduleCoverageMap;
     }
 
-    private String getClassPath(Collection<Path> dependencyCollection) {
-        List<Path> dependencies = new ArrayList<>();
-        dependencies.add(ProjectUtils.getBallerinaRTJarPath());
-        dependencies.addAll(ProjectUtils.testDependencies());
-        for (Path path : dependencyCollection) {
-            if (!dependencies.contains(path)) {
-                dependencies.add(path);
-            }
-        }
-        StringJoiner classPath = new StringJoiner(File.pathSeparator);
-        dependencies.stream().map(Path::toString).forEach(classPath::add);
-        return classPath.toString();
-    }
-
     /**
      * Write the content of each test suite into a common json.
      */
@@ -478,56 +462,52 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private List<Path> filterPaths(Iterable<Module> modules, Collection<Path> pathCollection,
-                                   JBallerinaBackend jBallerinaBackend) {
-        List<Path> filteredPathList = new ArrayList<>();
-        List<Path> exclusionPathList = getExclusionJarList(modules, jBallerinaBackend);
-        for (Path path : pathCollection) {
-            if (!exclusionPathList.contains(path)) {
-                filteredPathList.add(path);
+    private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> dependencies = new ArrayList<>();
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            // Skip getting file paths for execution if module doesnt contain a testable jar
+            if (!module.testDocumentIds().isEmpty() ||
+                    module.project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                Collection<Path> jarFilePathsRequiredForTestExecution =
+                        jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName());
+                dependencies.addAll(jarFilePathsRequiredForTestExecution);
             }
         }
-        return filteredPathList;
+        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
+
+        List<Path> jarList = getExclusionPathList(jBallerinaBackend, currentPackage);
+        dependencies.removeAll(jarList);
+
+        StringJoiner classPath = new StringJoiner(File.pathSeparator);
+        dependencies.stream().map(Path::toString).forEach(classPath::add);
+        return classPath.toString();
     }
 
-    private List<Path> getExclusionJarList(Iterable<Module> modules, JBallerinaBackend jBallerinaBackend) {
+    private List<Path> getExclusionPathList(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
         List<Path> exclusionPathList = new ArrayList<>();
-        for (Module module : modules) {
-            for (Path path : getDependencyJarList(module, jBallerinaBackend)) {
-                if (!exclusionPathList.contains(path)) {
-                    exclusionPathList.add(path);
-                }
+
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            // Skip adding the path if the module doesnt contain a generated module jar
+            if (!module.documentIds().isEmpty()) {
+                PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
+                        currentPackage.packageId(), module.moduleName());
+                exclusionPathList.add(generatedJarLibrary.path());
+            }
+            // Skip adding the path if the module doesnt contain a generated testable jar
+            if (!module.testDocumentIds().isEmpty()) {
+                PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
+                        currentPackage.packageId(), module.moduleName());
+                exclusionPathList.add(codeGeneratedTestLibrary.path());
             }
         }
-        exclusionPathList.add(jBallerinaBackend.runtimeLibrary().path());
-        exclusionPathList.addAll(ProjectUtils.testDependencies());
-        return exclusionPathList;
-    }
 
-    private List<Path> getDependencyJarList(Module module, JBallerinaBackend jBallerinaBackend) {
-        List<Path> dependencyPathList = new ArrayList<>();
-        module.packageInstance().getResolution().allDependencies()
-                .stream()
-                .map(ResolvedPackageDependency::packageInstance)
-                .forEach(pkg -> {
-                    for (ModuleId dependencyModuleId : pkg.moduleIds()) {
-                        Module dependencyModule = pkg.module(dependencyModuleId);
-                        PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
-                                pkg.packageId(), dependencyModule.moduleName());
-                        dependencyPathList.add(generatedJarLibrary.path());
-                    }
-                    Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
-                            pkg.packageId(), PlatformLibraryScope.DEFAULT);
-                    for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-                        dependencyPathList.add(otherJarDependency.path());
-                    }
-                });
-        // Removes generated jar without test code
-        PackageId rootPackageId = module.packageInstance().packageId();
-        PlatformLibrary generatedJar = jBallerinaBackend.codeGeneratedLibrary(rootPackageId, module.moduleName());
-        dependencyPathList.add(generatedJar.path());
-
-        return dependencyPathList;
+        return exclusionPathList.stream().distinct().collect(Collectors.toList());
     }
 
 }
