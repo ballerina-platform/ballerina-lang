@@ -99,8 +99,6 @@ public class Type {
     @Expose
     public boolean isLambda;
     @Expose
-    public boolean isReadOnly;
-    @Expose
     public boolean isDeprecated;
     @Expose
     public boolean generateUserDefinedTypeLink = true;
@@ -200,6 +198,7 @@ public class Type {
                     (StreamTypeParamsNode) streamNode.streamTypeParamsNode().get() : null;
             type.name = streamNode.streamKeywordToken().text();
             type.category = "stream";
+            type.version = ballerinaShotVersion;
             if (streamParams != null) {
                 type.memberTypes.add(fromNode(streamParams.leftTypeDescNode(), semanticModel));
                 if (streamParams.rightTypeDescNode().isPresent()) {
@@ -224,6 +223,7 @@ public class Type {
             if (parameterizedNode.parameterizedType().kind().equals(SyntaxKind.MAP_KEYWORD)) {
                 type.name = "map";
                 type.category = "map";
+                type.version = ballerinaShotVersion;
                 type.constraint = fromNode(parameterizedNode.typeParameter().typeNode(), semanticModel);
             }
         } else if (node instanceof ErrorTypeDescriptorNode) {
@@ -257,6 +257,7 @@ public class Type {
                 elemType = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel);
             }
             type.isTypeDesc = true;
+            type.version = ballerinaShotVersion;
             type.elementType = elemType;
         } else {
             type.name = node.toSourceCode();

@@ -23,6 +23,10 @@ import com.google.gson.annotations.Expose;
 public class DefaultableVariable extends Variable {
     @Expose
     public String defaultValue;
+    @Expose
+    public boolean isReadOnly;
+    @Expose
+    public String builtInVersion;
 
     public DefaultableVariable(String name, String description, boolean isDeprecated, Type type, String defaultValue) {
         super(name, description, isDeprecated, type);
