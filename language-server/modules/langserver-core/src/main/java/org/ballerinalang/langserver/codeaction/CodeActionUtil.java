@@ -176,13 +176,13 @@ public class CodeActionUtil {
      * Returns first possible type for this type descriptor.
      *
      * @param typeDescriptor {@link TypeSymbol}
-     * @param edits          a list of {@link TextEdit}
+     * @param importEdits    a list of import {@link TextEdit}
      * @param context        {@link CodeActionContext}
      * @return a list of possible type list
      */
-    public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, List<TextEdit> edits,
+    public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, List<TextEdit> importEdits,
                                                    CodeActionContext context) {
-        List<String> possibleTypes = getPossibleTypes(typeDescriptor, edits, context);
+        List<String> possibleTypes = getPossibleTypes(typeDescriptor, importEdits, context);
         return possibleTypes.isEmpty() ? Optional.empty() : Optional.of(possibleTypes.get(0));
     }
 
