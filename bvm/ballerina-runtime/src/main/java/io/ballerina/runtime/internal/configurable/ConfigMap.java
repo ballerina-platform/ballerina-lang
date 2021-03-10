@@ -16,19 +16,30 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable.exceptions;
+package io.ballerina.runtime.internal.configurable;
+
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- * Exception class when parsing toml files.
+ * Singleton class that holds runtime configurable values.
  *
  * @since 2.0.0
  */
-public class TomlException extends RuntimeException {
-    public TomlException(String message) {
-        super(message);
+public class ConfigMap {
+    private static Map<VariableKey, Object> configurableMap = new HashMap<>();
+
+    private ConfigMap(){}
+
+    public static Object get(VariableKey key) {
+        return configurableMap.get(key);
     }
 
-    public TomlException(String message, Throwable e) {
-        super(message, e);
+    public static boolean containsKey(VariableKey key) {
+        return configurableMap.containsKey(key);
+    }
+
+    public static void setConfigurableMap(Map<VariableKey, Object> configurableMap) {
+        ConfigMap.configurableMap = configurableMap;
     }
 }

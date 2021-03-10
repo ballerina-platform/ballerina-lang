@@ -32,14 +32,11 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.runtime.api.constants.RuntimeConstants;
-import io.ballerina.runtime.internal.launch.LaunchUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.TEST_COMMAND;
@@ -55,7 +52,6 @@ public class TestCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private Path projectPath;
     private boolean exitWhenFinish;
 
     public TestCommand() {
@@ -83,8 +79,8 @@ public class TestCommand implements BLauncherCmd {
             "dependencies.")
     private Boolean offline;
 
-    @CommandLine.Parameters
-    private List<String> argList;
+    @CommandLine.Parameters (arity = "0..1")
+    private final Path projectPath;
 
     @CommandLine.Option(names = {"--help", "-h"}, hidden = true)
     private boolean helpFlag;
@@ -130,26 +126,6 @@ public class TestCommand implements BLauncherCmd {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(TEST_COMMAND);
             this.errStream.println(commandUsageInfo);
-            return;
-        }
-
-        String[] args;
-        if (this.argList == null) {
-            args = new String[0];
-            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        } else if (this.argList.get(0).startsWith(RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX)) {
-            args = argList.toArray(new String[0]);
-            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        } else {
-            args = argList.subList(1, argList.size()).toArray(new String[0]);
-            this.projectPath = Paths.get(argList.get(0));
-        }
-
-        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
-        // check if there are too many arguments.
-        if (userArgs.length > 0) {
-            CommandUtil.printError(this.errStream, "too many arguments.", testCmd, false);
-            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -206,7 +182,7 @@ public class TestCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream)) // compile the modules
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream, displayWarning), !listGroups) // list available test groups
-                .addTask(new RunTestsTask(outStream, errStream, args, rerunTests, groupList, disableGroupList,
+                .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
                         testList, includes), listGroups)
                 .build();
 

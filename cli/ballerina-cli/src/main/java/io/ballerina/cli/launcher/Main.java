@@ -100,12 +100,13 @@ public class Main {
             helpCmd.setParentCmdParser(cmdParser);
 
             // set stop at positional to run command
-            cmdParser.getSubcommands().get("run").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
-            cmdParser.getSubcommands().get("build").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
-            cmdParser.getSubcommands().get("test").setStopAtPositional(true)
-                    .setUnmatchedOptionsArePositionalParams(true);
+            cmdParser.getSubcommands().get("run").setStopAtUnmatched(true).setStopAtPositional(true)
+                    .setUnmatchedOptionsArePositionalParams(true)
+                    // this is a workaround to distinguish between the program args when the project path
+                    // is not provided
+                    .setEndOfOptionsDelimiter("");
+            cmdParser.getSubcommands().get("build").setStopAtUnmatched(true).setStopAtPositional(true);
+            cmdParser.getSubcommands().get("test").setStopAtUnmatched(true).setStopAtPositional(true);
 
             // Build Version Command
             VersionCmd versionCmd = new VersionCmd();

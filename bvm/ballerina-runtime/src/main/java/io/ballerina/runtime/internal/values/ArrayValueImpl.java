@@ -868,10 +868,6 @@ public class ArrayValueImpl extends AbstractArrayValue {
         return arr;
     }
 
-    public long[] getLongArray() {
-        return Arrays.copyOf(intValues, size);
-    }
-
     /**
      * Get a copy of int array.
      * 
@@ -880,6 +876,21 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     public long[] getIntArray() {
         return Arrays.copyOf(intValues, size);
+    }
+
+    @Override
+    public boolean[] getBooleanArray() {
+        return Arrays.copyOf(booleanValues, size);
+    }
+
+    @Override
+    public byte[] getByteArray() {
+        return Arrays.copyOf(byteValues, size);
+    }
+
+    @Override
+    public double[] getFloatArray() {
+        return Arrays.copyOf(floatValues, size);
     }
 
     @Override
