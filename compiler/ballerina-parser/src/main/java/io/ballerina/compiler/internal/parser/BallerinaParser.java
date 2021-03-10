@@ -9310,8 +9310,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTrapExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         STNode trapKeyword = parseTrapKeyword();
-        STNode expr =
-                parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
+        STNode expr = parseExpression(OperatorPrecedence.TRAP, isRhsExpr, allowActions, isInConditionalExpr);
         if (isAction(expr)) {
             return STNodeFactory.createTrapExpressionNode(SyntaxKind.TRAP_ACTION, trapKeyword, expr);
         }
