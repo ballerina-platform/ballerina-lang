@@ -286,12 +286,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
-
-        for (Map.Entry<BSymbol, Location> entry : this.unusedErrorVarsDeclaredWithVar.entrySet()) {
-            this.dlog.error(entry.getValue(), DiagnosticErrorCode.UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR,
-                            entry.getKey().name);
-        }
-
         return pkgNode;
     }
 
@@ -319,6 +313,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency, pkgNode.globalVars);
         pkgNode.globalVariableDependencies = globalVariableRefAnalyzer.getGlobalVariablesDependsOn();
         checkUnusedImports(pkgNode.imports);
+        checkUnusedErrorVarsDeclaredWithVar();
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
@@ -1977,6 +1972,13 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 continue;
             }
             dlog.error(importStmt.pos, DiagnosticErrorCode.UNUSED_IMPORT_MODULE, importStmt.getQualifiedPackageName());
+        }
+    }
+
+    private void checkUnusedErrorVarsDeclaredWithVar() {
+        for (Map.Entry<BSymbol, Location> entry : this.unusedErrorVarsDeclaredWithVar.entrySet()) {
+            this.dlog.error(entry.getValue(), DiagnosticErrorCode.UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR,
+                            entry.getKey().name);
         }
     }
 
