@@ -49,7 +49,7 @@ public class ShellCommand implements BLauncherCmd {
     private long timeOut = 100;
 
     @CommandLine.Option(names = {"-f", "--file"}, description = "Open file and load initial declarations.")
-    private File openFile;
+    private File file;
 
     public ShellCommand() {
         errStream = System.err;
@@ -72,8 +72,8 @@ public class ShellCommand implements BLauncherCmd {
             BShellConfiguration.Builder builder = new BShellConfiguration
                     .Builder().setDebug(isDebug).setDumb(forceDumb)
                     .setTreeParsingTimeoutMs(timeOut);
-            if (openFile != null) {
-                builder.setStartFile(openFile.getAbsolutePath());
+            if (file != null) {
+                builder.setStartFile(file.getAbsolutePath());
             }
             BShellConfiguration configuration = builder.build();
             ReplShellApplication.execute(configuration);
