@@ -70,7 +70,7 @@ public class CodeCoverageUtils {
             while (enu.hasMoreElements()) {
                 JarEntry entry = enu.nextElement();
                 File file = new File(destJarDir, entry.getName());
-                if (isRequiredFile(entry.getName(), orgName, moduleName, version, enableIncludesFilter,
+                if (isRequiredFile(entry.getName(), orgName, enableIncludesFilter,
                         includesInCoverage)) {
                     if (!file.exists()) {
                         Files.createDirectories(file.getParentFile().toPath());
@@ -162,16 +162,13 @@ public class CodeCoverageUtils {
         }
     }
 
-    private static boolean isRequiredFile(String path, String orgName, String moduleName, String version,
-                                          boolean enableIncludesFilter, String includesInCoverage) {
+    private static boolean isRequiredFile(String path, String orgName, boolean enableIncludesFilter,
+                                          String includesInCoverage) {
         if (path.contains("$_init") || path.contains("META-INF") || path.contains("/tests/")) {
             return false;
         } else if (path.contains("Frame") && path.contains("module")) {
             return false;
         } else if (path.contains("Frame") && path.contains(orgName)) {
-            return false;
-        } else if (path.contains(
-                orgName + "/" + moduleName + "/" + version.replace(".", "_") + "/" + moduleName + ".class")) {
             return false;
         } else if (path.contains("module-info.class")) {
             return false;
@@ -182,8 +179,9 @@ public class CodeCoverageUtils {
     }
 
     private static String normalizeRegexPattern(String pattern) {
-        if (TesterinaConstants.WILDCARD.equals(pattern)) {
-            pattern = TesterinaConstants.DOT.concat(pattern);
+        if (pattern.contains(TesterinaConstants.WILDCARD)) {
+            pattern = pattern.replace(TesterinaConstants.WILDCARD,
+                    TesterinaConstants.DOT + TesterinaConstants.WILDCARD);
         }
         return pattern;
     }

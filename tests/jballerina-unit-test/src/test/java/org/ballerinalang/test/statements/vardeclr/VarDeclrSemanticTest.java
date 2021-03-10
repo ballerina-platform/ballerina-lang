@@ -80,12 +80,12 @@ public class VarDeclrSemanticTest {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_var_decl.bal");
         int indx = 0;
         validateError(result, indx++, "unknown type 'L'", 20, 26);
-        validateError(result, indx++, "missing open paren token", 21, 1);
+        validateError(result, indx++, "missing open parenthesis token", 21, 1);
         validateError(result, indx++, "missing comma token", 21, 17);
-        validateError(result, indx++, "missing close paren token", 22, 1);
-        validateError(result, indx++, "missing close paren token", 22, 1);
+        validateError(result, indx++, "missing close parenthesis token", 22, 1);
+        validateError(result, indx++, "missing close parenthesis token", 22, 1);
         validateError(result, indx++, "missing identifier", 22, 1);
-        validateError(result, indx++, "missing open paren token", 22, 1);
+        validateError(result, indx++, "missing open parenthesis token", 22, 1);
         validateError(result, indx++, "missing semicolon token", 22, 1);
         assertEquals(result.getErrorCount(), indx);
     }
