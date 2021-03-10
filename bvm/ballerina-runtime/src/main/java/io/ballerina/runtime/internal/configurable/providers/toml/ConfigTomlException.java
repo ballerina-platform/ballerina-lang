@@ -37,7 +37,7 @@ public class ConfigTomlException extends ConfigException {
     }
 
     public ConfigTomlException(String message, TomlNode tomlNode) {
-        this(message + getLineRange(tomlNode));
+        this(getLineRange(tomlNode) + message);
     }
 
     public ConfigTomlException(String message, Throwable e) {
@@ -46,13 +46,13 @@ public class ConfigTomlException extends ConfigException {
 
     private static String getLineRange(TomlNode node) {
         if (node.location() == null) {
-            return " [" + CONFIG_FILE_NAME + "]";
+            return "[" + CONFIG_FILE_NAME + "] ";
         }
         LineRange lineRange = node.location().lineRange();
         LineRange oneBasedLineRange = LineRange.from(
                 lineRange.filePath(),
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
-        return " [" + oneBasedLineRange.filePath() + ":" + oneBasedLineRange.toString() + "]";
+        return "[" + oneBasedLineRange.filePath() + ":" + oneBasedLineRange.toString() + "] ";
     }
 }
