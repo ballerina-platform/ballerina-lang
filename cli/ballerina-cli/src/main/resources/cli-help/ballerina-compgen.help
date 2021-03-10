@@ -1,0 +1,9 @@
+NAME
+       bal-compgen - Generate the suggestion list for CLI completion
+
+SYNOPSIS
+       bal compgen
+
+
+DESCRIPTION
+       Compgen generate the suggestion list for CLI completion
