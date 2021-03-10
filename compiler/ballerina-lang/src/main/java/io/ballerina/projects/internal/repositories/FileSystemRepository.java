@@ -48,8 +48,9 @@ import java.util.stream.Collectors;
  *     - org
  *         - package-name
  *             - version
- *                 - org-package-name-version-any.bala
- * - cache
+ *                 - platform (contains extracted bala)
+ *
+ * - cache[-<distShortVersion>]
  *     - org
  *         - package-name
  *             - version
