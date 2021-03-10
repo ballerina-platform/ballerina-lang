@@ -16,7 +16,7 @@
     {
       "label": "state",
       "kind": "Field",
-      "detail": "string",
+      "detail": "string?",
       "sortText": "A",
       "insertText": "state",
       "insertTextFormat": "Snippet"
