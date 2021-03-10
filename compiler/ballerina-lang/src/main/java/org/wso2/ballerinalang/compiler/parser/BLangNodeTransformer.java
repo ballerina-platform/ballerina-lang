@@ -4898,11 +4898,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     private BLangExpression createExpression(Node expression) {
         if (expression.kind() == SyntaxKind.ASYNC_SEND_ACTION) {
-            // TODO: support async send as expression #29089
+            // TODO: support async send as expression #24849
             dlog.error(getPosition(expression), DiagnosticErrorCode.ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION);
             Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
                     NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
-            return (BLangExpression) createActionOrExpression(missingIdentifier);
+            expression = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
         }
 
         return (BLangExpression) createActionOrExpression(expression);
