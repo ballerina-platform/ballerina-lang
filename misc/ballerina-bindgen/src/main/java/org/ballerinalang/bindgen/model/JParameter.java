@@ -184,4 +184,8 @@ public class JParameter {
     public Boolean isArray() {
         return isObjArray || isStringArray || isPrimitiveArray;
     }
+
+    public Class getParameterClass() {
+        return parameterClass;
+    }
 }

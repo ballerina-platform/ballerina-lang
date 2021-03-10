@@ -21,6 +21,7 @@ import org.apache.commons.lang3.StringUtils;
 import org.ballerinalang.bindgen.utils.BindgenEnv;
 
 import java.lang.reflect.Field;
+import java.util.Collections;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
@@ -66,7 +67,8 @@ public class JField extends BFunction {
         fieldName = field.getName();
         fieldObj = new JParameter(type, field.getDeclaringClass(), env);
         fieldObj.setHasNext(false);
-
+        setParameters(Collections.singletonList(fieldObj));
+        setDeclaringClass(jClass.getCurrentClass());
         if (type.isPrimitive() || type.equals(String.class)) {
             isObject = false;
         }

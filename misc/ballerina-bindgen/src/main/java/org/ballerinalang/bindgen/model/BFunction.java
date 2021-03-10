@@ -19,6 +19,7 @@ package org.ballerinalang.bindgen.model;
 
 import org.ballerinalang.bindgen.utils.BindgenEnv;
 
+import java.util.LinkedList;
 import java.util.List;
 
 /**
@@ -31,13 +32,14 @@ public abstract class BFunction {
     private final BFunctionKind functionType;
     private final BindgenEnv env;
     private String externalFunctionName;
-    private Class externalReturnType;
+    private String externalReturnType;
+    private boolean isArrayReturnType;
     private String functionName;
     private Class declaringClass;
     private List<JParameter> parameters;
-    private JParameter returnType;
-    private List<JError> throwables;
+    private List<JError> throwables = new LinkedList<>();
     private boolean isStatic = true;
+    private String returnType;
 
     public BFunction(BFunctionKind functionType, BindgenEnv env) {
         this.functionType = functionType;
@@ -84,20 +86,12 @@ public abstract class BFunction {
         this.parameters = parameters;
     }
 
-    public JParameter getReturnType() {
-        return returnType;
-    }
-
-    public void setReturnType(JParameter returnType) {
-        this.returnType = returnType;
-    }
-
     public List<JError> getThrowables() {
         return throwables;
     }
 
-    public void setThrowables(List<JError> throwables) {
-        this.throwables = throwables;
+    public void setThrowable(JError throwable) {
+        this.throwables.add(throwable);
     }
 
     public boolean isStatic() {
@@ -108,18 +102,40 @@ public abstract class BFunction {
         this.isStatic = isStatic;
     }
 
-    public Class getExternalReturnType() {
+    public String getExternalReturnType() {
         return externalReturnType;
     }
 
-    public void setExternalReturnType(Class externalReturnType) {
+    public void setExternalReturnType(String externalReturnType) {
         this.externalReturnType = externalReturnType;
     }
 
     public String getPackageAlias() {
-        return declaringClass.getPackageName().replace(".", "");
+        if (declaringClass != null) {
+            return declaringClass.getPackageName().replace(".", "");
+        }
+        return "";
     }
 
+    public boolean isArrayReturnType() {
+        return isArrayReturnType;
+    }
+
+    public void setArrayReturnType(boolean arrayReturnType) {
+        isArrayReturnType = arrayReturnType;
+    }
+
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public void setReturnType(String returnType) {
+        this.returnType = returnType;
+    }
+
+    /**
+     * The enum that stores the function kind in the Ballerina bridge code generation.
+     */
     public enum BFunctionKind {
         METHOD("Method"),
         CONSTRUCTOR("Constructor"),

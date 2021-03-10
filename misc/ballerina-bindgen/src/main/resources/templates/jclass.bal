@@ -4,7 +4,7 @@ import ballerina/jballerina.java;
 @java:Binding {
     'class: "FULL_CLASS_NAME"
 }
-distinct class SHORT_CLASS_NAME {
+distinct class SIMPLE_CLASS_NAME {
 
     *java:JObject;
 

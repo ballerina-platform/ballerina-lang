@@ -46,7 +46,6 @@ public class JConstructor extends BFunction implements Cloneable  {
     private String initObjectName;
     private String constructorName;
     private String exceptionConstName;
-    private String externalFunctionName;
 
     private boolean returnError = false;
     private boolean hasException = false; // identifies if the Ballerina returns should have an error declared
@@ -106,7 +105,8 @@ public class JConstructor extends BFunction implements Cloneable  {
             } catch (ClassNotFoundException ignore) {
             }
         }
-        super.setFunctionName("new" + jClass.getShortClassName() + constructorName);
+        setFunctionName("new" + jClass.getShortClassName() + constructorName);
+        setExternalFunctionName(parentClass.getName().replace(".", "_").replace("$", "_") + "_" + constructorName);
     }
 
     private String getPackageAlias(String shortClassName, Class objectType) {
