@@ -17,8 +17,12 @@
  */
 package io.ballerina.projects;
 
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import io.ballerina.projects.internal.plugins.CompilerPlugins;
 import io.ballerina.projects.plugins.CompilerPlugin;
 
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -44,28 +48,10 @@ class CompilerPluginManager {
         ResolvedPackageDependency rootPkgNode = new ResolvedPackageDependency(
                 packageResolution.packageContext().project().currentPackage(), PackageDependencyScope.DEFAULT);
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = packageResolution.dependencyGraph();
-        List<Package> directDependencies = dependencyGraph.getDirectDependencies(rootPkgNode)
-                .stream()
-                .map(ResolvedPackageDependency::packageInstance)
-                .collect(Collectors.toList());
-
-        // TODO Iterate through the direct dependencies and filter out dependencies with compiler plugins
-        // TODO Initialize the compiler plugin classes
-        // TODO Create class loader
-
-        List<CompilerPlugin> compilerPlugins = getEngagedCompilerPlugins(directDependencies);
+        List<Package> directDependencies = getDirectDependencies(rootPkgNode, dependencyGraph);
+        List<CompilerPlugin> compilerPlugins = loadEngagedCompilerPlugins(directDependencies);
         List<CompilerPluginContextIml> compilerPluginContexts = initializePlugins(compilerPlugins);
         return new CompilerPluginManager(compilation, compilerPluginContexts);
-    }
-
-    private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPlugin> compilerPlugins) {
-        List<CompilerPluginContextIml> compilerPluginContexts = new ArrayList<>(compilerPlugins.size());
-        for (CompilerPlugin compilerPlugin : compilerPlugins) {
-            CompilerPluginContextIml pluginContext = new CompilerPluginContextIml(compilerPlugin);
-            compilerPlugin.init(pluginContext);
-            compilerPluginContexts.add(pluginContext);
-        }
-        return compilerPluginContexts;
     }
 
     PackageCompilation compilation() {
@@ -81,13 +67,49 @@ class CompilerPluginManager {
         return codeAnalyzerManager;
     }
 
-    private static List<CompilerPlugin> getEngagedCompilerPlugins(List<Package> dependencies) {
+    private static List<CompilerPlugin> loadEngagedCompilerPlugins(List<Package> dependencies) {
         List<CompilerPlugin> compilerPlugins = new ArrayList<>();
-
-        // TODO write inline compiler plugins and test the logic
-//        for (Package pkgDep : dependencies) {
-//            pkgDep.
-//        }
+        for (Package pkgDependency : dependencies) {
+            PackageManifest pkgManifest = pkgDependency.manifest();
+            pkgManifest.compilerPluginDescriptor()
+                    .ifPresent(pluginDesc -> compilerPlugins.add(loadCompilerPlugin(pluginDesc, pkgManifest)));
+        }
         return compilerPlugins;
+    }
+
+    private static CompilerPlugin loadCompilerPlugin(CompilerPluginDescriptor pluginDescriptor,
+                                                     PackageManifest pkgManifest) {
+        try {
+            String pluginClassName = pluginDescriptor.plugin().getClassName();
+            List<Path> jarLibraryPaths = pluginDescriptor.getCompilerPluginDependencies()
+                    .stream()
+                    .map(Paths::get)
+                    .collect(Collectors.toList());
+
+            return CompilerPlugins.loadCompilerPlugin(pluginClassName, jarLibraryPaths);
+        } catch (ProjectException e) {
+            throw new ProjectException("Failed to load the compiler plugin in package: " +
+                    "org=" + pkgManifest.org() +
+                    ", name=" + pkgManifest.name() +
+                    ", version=" + pkgManifest.version() + ". " + e.getMessage());
+        }
+    }
+
+    private static List<Package> getDirectDependencies(ResolvedPackageDependency rootPkgNode,
+                                                       DependencyGraph<ResolvedPackageDependency> dependencyGraph) {
+        return dependencyGraph.getDirectDependencies(rootPkgNode)
+                .stream()
+                .map(ResolvedPackageDependency::packageInstance)
+                .collect(Collectors.toList());
+    }
+
+    private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPlugin> compilerPlugins) {
+        List<CompilerPluginContextIml> compilerPluginContexts = new ArrayList<>(compilerPlugins.size());
+        for (CompilerPlugin compilerPlugin : compilerPlugins) {
+            CompilerPluginContextIml pluginContext = new CompilerPluginContextIml(compilerPlugin);
+            compilerPlugin.init(pluginContext);
+            compilerPluginContexts.add(pluginContext);
+        }
+        return compilerPluginContexts;
     }
 }
