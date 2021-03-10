@@ -1949,9 +1949,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                     Set<BType> unionType = types.expandAndGetMemberTypesRecursive(varNode.type);
                     List<BType> possibleTypes = new ArrayList<>();
                     for (BType type : unionType) {
-                        if (TypeTags.TUPLE == type.tag &&
-                                !checkMemVarCountMatchWithMemTypeCount(varNode, (BTupleType) type) &&
-                                TypeTags.ANY != type.tag && TypeTags.ANYDATA != type.tag &&
+                        if (!(TypeTags.TUPLE == type.tag &&
+                                checkMemVarCountMatchWithMemTypeCount(varNode, (BTupleType) type)) &&
+                        TypeTags.ANY != type.tag && TypeTags.ANYDATA != type.tag &&
                                 (TypeTags.ARRAY != type.tag || ((BArrayType) type).state == BArrayState.OPEN)) {
                             continue;
                         }
