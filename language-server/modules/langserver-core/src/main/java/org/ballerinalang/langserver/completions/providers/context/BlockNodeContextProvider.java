@@ -106,13 +106,13 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
+        // Remove the function keyword suggestion from here, since it is suggested by typeItems API
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_WAIT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_START.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
