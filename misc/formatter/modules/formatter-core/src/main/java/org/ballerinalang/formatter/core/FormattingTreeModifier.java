@@ -939,7 +939,7 @@ public class FormattingTreeModifier extends TreeModifier {
         TypedBindingPatternNode typedBindingPattern = formatNode(forEachStatementNode.typedBindingPattern(), 1, 0);
         Token inKeyword = formatToken(forEachStatementNode.inKeyword(), 1, 0);
         Node actionOrExpressionNode = formatNode(forEachStatementNode.actionOrExpressionNode(), 1, 0);
-        StatementNode blockStatement;
+        BlockStatementNode blockStatement;
 
         OnFailClauseNode onFailClause = null;
         if (hasOnFailClause) {
@@ -1532,7 +1532,7 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public LockStatementNode transform(LockStatementNode lockStatementNode) {
         Token lockKeyword = formatToken(lockStatementNode.lockKeyword(), 1, 0);
-        StatementNode blockStatement;
+        BlockStatementNode blockStatement;
         if (lockStatementNode.onFailClause().isPresent()) {
             blockStatement = formatNode(lockStatementNode.blockStatement(), 1, 0);
         } else {

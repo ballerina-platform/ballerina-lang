@@ -1195,6 +1195,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
+        simpleVar.flagSet.add(Flag.FIELD);
         simpleVar.pos = getPositionWithoutMetadata(objFieldNode);
         return simpleVar;
     }
@@ -1279,7 +1280,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             simpleVar.flagSet.add(Flag.REQUIRED);
         }
-
+        simpleVar.flagSet.add(Flag.FIELD);
         addReadOnlyQualifier(recordFieldNode.readonlyKeyword(), simpleVar);
 
         simpleVar.pos = getPositionWithoutMetadata(recordFieldNode);
