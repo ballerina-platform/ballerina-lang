@@ -62,26 +62,26 @@
               "kind": "ACTION_STATEMENT",
               "children": [
                 {
-                  "kind": "TRAP_ACTION",
+                  "kind": "REMOTE_METHOD_CALL_ACTION",
                   "children": [
                     {
-                      "kind": "TRAP_KEYWORD",
-                      "leadingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": "    "
-                        }
-                      ],
-                      "trailingMinutiae": [
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "REMOTE_METHOD_CALL_ACTION",
+                      "kind": "TRAP_EXPRESSION",
                       "children": [
+                        {
+                          "kind": "TRAP_KEYWORD",
+                          "leadingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": "    "
+                            }
+                          ],
+                          "trailingMinutiae": [
+                            {
+                              "kind": "WHITESPACE_MINUTIAE",
+                              "value": " "
+                            }
+                          ]
+                        },
                         {
                           "kind": "FUNCTION_CALL",
                           "children": [
@@ -105,30 +105,30 @@
                               "kind": "CLOSE_PAREN_TOKEN"
                             }
                           ]
-                        },
-                        {
-                          "kind": "RIGHT_ARROW_TOKEN"
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "b"
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "OPEN_PAREN_TOKEN"
-                        },
-                        {
-                          "kind": "LIST",
-                          "children": []
-                        },
-                        {
-                          "kind": "CLOSE_PAREN_TOKEN"
                         }
                       ]
+                    },
+                    {
+                      "kind": "RIGHT_ARROW_TOKEN"
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "b"
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "OPEN_PAREN_TOKEN"
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "CLOSE_PAREN_TOKEN"
                     }
                   ]
                 },
