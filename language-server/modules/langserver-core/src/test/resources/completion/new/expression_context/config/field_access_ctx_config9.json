@@ -158,13 +158,13 @@
       }
     },
     {
-      "label": "iterator()(var)",
+      "label": "iterator()(object {public isolated function next() returns record {| any|error value; |}? ;})",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** `var`   \n- a new iterator object that will iterate over the members of `m`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nReturns an iterator over a map.\nThe iterator will iterate over the members of the map not the keys.\nThe `entries` function can be used to iterate over the keys and members together.\nThe `keys` function can be used to iterator over just the keys.\n  \n  \n  \n**Returns** `object {public isolated function next() returns record {| any|error value; |}? ;}`   \n- a new iterator object that will iterate over the members of `m`  \n  \n"
         }
       },
       "sortText": "D",

@@ -56,13 +56,13 @@
       }
     },
     {
-      "label": "iterator()(var)",
+      "label": "iterator()(object {public isolated function next() returns record {| xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text value; |}? ;})",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of `x`\n  \n  \n  \n**Returns** `var`   \n- iterator object  \nEach item is represented by an xml singleton.  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of `x`\n  \n  \n  \n**Returns** `object {public isolated function next() returns record {| xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text value; |}? ;}`   \n- iterator object  \nEach item is represented by an xml singleton.  \n  \n"
         }
       },
       "sortText": "D",

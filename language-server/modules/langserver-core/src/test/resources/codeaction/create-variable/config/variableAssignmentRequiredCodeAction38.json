@@ -16,7 +16,7 @@
                             "character": 4
                         }
                     },
-                    "newText": "var objectResult = "
+                    "newText": "object {public isolated function __iterator() returns object {public isolated function next() returns record {| int value; |}? ;} ;} objectResult = "
                 }
             ]
         }
