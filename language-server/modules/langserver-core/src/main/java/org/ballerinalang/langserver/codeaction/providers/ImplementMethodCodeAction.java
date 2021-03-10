@@ -52,7 +52,7 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  * @since 1.2.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
-public class ImplementFunctionCodeAction extends AbstractCodeActionProvider {
+public class ImplementMethodCodeAction extends AbstractCodeActionProvider {
     /**
      * {@inheritDoc}
      */
