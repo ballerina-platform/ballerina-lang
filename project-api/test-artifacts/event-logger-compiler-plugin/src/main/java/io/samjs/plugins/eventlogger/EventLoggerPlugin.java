@@ -21,7 +21,6 @@ import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
-import io.ballerina.projects.plugins.LogCompilerPlugin;
 
 import java.io.PrintStream;
 
@@ -34,7 +33,7 @@ public class EventLoggerPlugin extends CompilerPlugin {
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
-        pluginContext.addCodeAnalyzer(new LogCompilerPlugin.LogCodeAnalyzer());
+        pluginContext.addCodeAnalyzer(new LogCodeAnalyzer());
     }
 
     /**

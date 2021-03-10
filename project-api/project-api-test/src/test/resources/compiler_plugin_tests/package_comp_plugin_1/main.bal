@@ -1,3 +1,3 @@
-public function functionA() {
+public function doSomething() {
     // Do nothing
 }
