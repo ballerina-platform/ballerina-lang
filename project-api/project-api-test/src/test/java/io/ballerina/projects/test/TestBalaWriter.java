@@ -142,8 +142,6 @@ public class TestBalaWriter extends BaseTest {
             CompilerPluginJson compilerPluginJson = gson.fromJson(reader, CompilerPluginJson.class);
             Assert.assertEquals(compilerPluginJson.pluginClass(), "io.ballerina.openapi.Validator");
             Assert.assertEquals(compilerPluginJson.dependencyPaths().size(), 1);
-            Assert.assertEquals(compilerPluginJson.dependencyPaths().get(0),
-                    "compiler-plugin/libs/platform-io-1.3.0-java.txt");
         }
 
         // Check if compiler plugin dependencies exists
