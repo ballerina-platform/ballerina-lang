@@ -423,7 +423,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static LockStatementNode createLockStatementNode(
             Token lockKeyword,
-            StatementNode blockStatement,
+            BlockStatementNode blockStatement,
             OnFailClauseNode onFailClause) {
         Objects.requireNonNull(lockKeyword, "lockKeyword must not be null");
         Objects.requireNonNull(blockStatement, "blockStatement must not be null");
@@ -458,7 +458,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             TypedBindingPatternNode typedBindingPattern,
             Token inKeyword,
             Node actionOrExpressionNode,
-            StatementNode blockStatement,
+            BlockStatementNode blockStatement,
             OnFailClauseNode onFailClause) {
         Objects.requireNonNull(forEachKeyword, "forEachKeyword must not be null");
         Objects.requireNonNull(typedBindingPattern, "typedBindingPattern must not be null");
@@ -1076,6 +1076,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ModuleVariableDeclarationNode createModuleVariableDeclarationNode(
             MetadataNode metadata,
+            Token visibilityQualifier,
             NodeList<Token> qualifiers,
             TypedBindingPatternNode typedBindingPattern,
             Token equalsToken,
@@ -1087,6 +1088,7 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
         STNode stModuleVariableDeclarationNode = STNodeFactory.createModuleVariableDeclarationNode(
                 getOptionalSTNode(metadata),
+                getOptionalSTNode(visibilityQualifier),
                 qualifiers.underlyingListNode().internalNode(),
                 typedBindingPattern.internalNode(),
                 getOptionalSTNode(equalsToken),

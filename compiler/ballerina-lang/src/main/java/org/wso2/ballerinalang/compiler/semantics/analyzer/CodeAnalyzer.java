@@ -3624,7 +3624,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLetClause letClause) {
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            analyzeNode((BLangNode) letVariable.definitionNode, env);
+            analyzeNode((BLangNode) letVariable.definitionNode.getVariable(), env);
         }
     }
 

@@ -240,8 +240,87 @@ class Listener {
     }
 }
 
-// TODO: #17936
-//public function testInlineAnnotAccess() returns boolean {
-//    Annot? f = (typeof a).@v1;
-//    return f is Annot;
-//}
+public function testInlineAnnotAccess() returns boolean {
+    Annot? f = (typeof a).@v1;
+    return f is Annot;
+}
+
+type A record {|
+    string val = "ABC";
+|};
+
+public annotation A v9 on function;
+
+@v9
+function myFunction1() {
+
+}
+
+function testAnnotWithEmptyMappingConstructor1() returns boolean {
+    typedesc<any> t = typeof myFunction1;
+    A? annot = t.@v9;
+    if (annot is A) {
+        return annot.val == "ABC";
+    }
+    return false;
+}
+
+public annotation map<string> v10 on function;
+
+@v10
+function myFunction2() {
+
+}
+
+function testAnnotWithEmptyMappingConstructor2() returns boolean {
+    typedesc<any> t = typeof myFunction2;
+    map<string>? annot = t.@v10;
+    if (annot is map<string>) {
+        return annot == {};
+    }
+    return false;
+}
+
+public annotation map<string>[] v11 on function;
+
+@v11
+@v11
+function myFunction3() {
+
+}
+
+function testAnnotWithEmptyMappingConstructor3() returns boolean {
+    typedesc<any> t = typeof myFunction3;
+    map<string>[]? annot = t.@v11;
+    if (annot is map<string>[]) {
+        if (annot.length() != 2) {
+            return false;
+        }
+        map<string> annot1 = annot[0];
+        map<string> annot2 = annot[1];
+        return annot1 == {} && annot2 == {};
+    }
+    return false;
+}
+
+public annotation A[] v12 on function;
+
+@v12
+@v12
+function myFunction4() {
+
+}
+
+function testAnnotWithEmptyMappingConstructor4() returns boolean {
+    typedesc<any> t = typeof myFunction4;
+    A[]? annot = t.@v12;
+    if (annot is A[]) {
+        if (annot.length() != 2) {
+            return false;
+        }
+        A annot1 = annot[0];
+        A annot2 = annot[1];
+        return annot1.val == "ABC" && annot2.val == "ABC";
+    }
+    return false;
+}
