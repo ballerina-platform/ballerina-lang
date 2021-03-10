@@ -1166,7 +1166,6 @@ public class BIRPackageSymbolEnter {
                     BInvokableType bInvokableType = new BInvokableType(null, null, null, null);
                     bInvokableType.flags = flags;
                     if (inputStream.readBoolean()) {
-                        inputStream.readBoolean(); //read and ignore the invokable kind
                         return bInvokableType;
                     }
                     int paramCount = inputStream.readInt();

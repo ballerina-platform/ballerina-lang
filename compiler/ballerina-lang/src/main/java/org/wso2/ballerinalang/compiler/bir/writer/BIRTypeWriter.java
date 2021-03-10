@@ -185,9 +185,7 @@ public class BIRTypeWriter implements TypeVisitor {
     public void visit(BInvokableType bInvokableType) {
         boolean isAnyFunction = Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION);
         buff.writeBoolean(isAnyFunction); // write 1 if it’s an any function if not write 0
-        if (isAnyFunction) {
-            buff.writeBoolean(isAnyFunction);
-        } else {
+        if (!isAnyFunction) {
             buff.writeInt(bInvokableType.paramTypes.size());
             for (BType params : bInvokableType.paramTypes) {
                 writeTypeCpIndex(params);
