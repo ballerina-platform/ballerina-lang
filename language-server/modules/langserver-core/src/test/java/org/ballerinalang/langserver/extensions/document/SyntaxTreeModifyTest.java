@@ -30,10 +30,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
-import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.StandardCopyOption;
-import java.util.UUID;
 
 /**
  * Test visible endpoint detection.
@@ -96,53 +93,53 @@ public class SyntaxTreeModifyTest {
         this.serviceEndpoint = TestUtil.initializeLanguageSever();
     }
 
-    private Path createTempFile(Path filePath) throws IOException {
-        Path tempFilePath = FileUtils.BUILD_DIR.resolve("tmp")
-                .resolve(UUID.randomUUID() + ".bal");
-        Files.copy(filePath, tempFilePath, StandardCopyOption.REPLACE_EXISTING);
-        return tempFilePath;
-    }
-
     @Test(description = "Remove content.")
     public void testDelete() throws IOException {
         skipOnWindows();
-        Path tempFile = createTempFile(mainFile);
-        TestUtil.openDocument(serviceEndpoint, tempFile);
-        ASTModification modification = new ASTModification(4, 5, 4, 33, "delete", null);
+        Path inputFile = LSExtensionTestUtil.createTempFile(mainFile);
+        Path expectedFile = LSExtensionTestUtil.createTempFile(mainEmptyFile);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+        TestUtil.openDocument(serviceEndpoint, expectedFile);
+        ASTModification modification = new ASTModification(3, 4, 3, 32, false, "delete", null);
         BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
-                .modifyAndGetBallerinaSyntaxTree(tempFile.toString(),
+                .modifyAndGetBallerinaSyntaxTree(inputFile.toString(),
                         new ASTModification[]{modification}, this.serviceEndpoint);
         Assert.assertTrue(astModifyResponse.isParseSuccess());
         BallerinaSyntaxTreeResponse astResponse = LSExtensionTestUtil.getBallerinaSyntaxTree(
-                mainEmptyFile.toString(), this.serviceEndpoint);
+                expectedFile.toString(), this.serviceEndpoint);
         Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());
-        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+        TestUtil.closeDocument(this.serviceEndpoint, expectedFile);
     }
 
     @Test(description = "Insert content.")
     public void testInsert() throws IOException {
         skipOnWindows();
-        Path tempFile = createTempFile(mainFile);
-        TestUtil.openDocument(serviceEndpoint, tempFile);
-
+        Path inputFile = LSExtensionTestUtil.createTempFile(mainEmptyFile);
+        TestUtil.openDocument(serviceEndpoint, inputFile);
+        Path expectedFile = LSExtensionTestUtil.createTempFile(mainHttpCallFile);
+        TestUtil.openDocument(serviceEndpoint, expectedFile);
         Gson gson = new Gson();
-        ASTModification modification1 = new ASTModification(1, 1, 1, 1, "IMPORT",
-                gson.fromJson("{\"TYPE\":\"ballerina/http\"}", JsonObject.class));
-        ASTModification modification2 = new ASTModification(4, 1, 4, 1, "DECLARATION",
-                gson.fromJson("{\"TYPE\":\"http:Client\", \"VARIABLE\":\"clientEndpoint\"," +
-                        "\"PARAMS\": [\"\\\"http://postman-echo.com\\\"\"]}", JsonObject.class));
-        ASTModification modification3 = new ASTModification(4, 1, 4, 1,
-                "REMOTE_SERVICE_CALL_CHECK",
-                gson.fromJson("{\"TYPE\":\"http:Response\", \"VARIABLE\":\"response\"," +
-                        "\"CALLER\":\"clientEndpoint\", \"FUNCTION\":\"get\"," +
-                        "\"PARAMS\": [\"\\\"/get?test=123\\\"\"]}", JsonObject.class));
+        ASTModification modification1 = new ASTModification(0, 0, 0, 0, true,
+                "INSERT",
+                gson.fromJson("{\"TYPE\":\"ballerina/http\", \"STATEMENT\":\"import ballerina/http;\"}",
+                        JsonObject.class));
+        ASTModification modification2 = new ASTModification(2, 0, 2, 0, false,
+                "INSERT", gson
+                .fromJson("{\"STATEMENT\":\"http:Client clientEndpoint = new (\\\"http://postman-echo.com\\\");\"}"
+                        , JsonObject.class));
+        ASTModification modification3 = new ASTModification(2, 0, 2, 0, false,
+                "INSERT",
+                gson.fromJson("{\"STATEMENT\":\"http:Response response = check clientEndpoint->get(\\\"\\\");\"}",
+                        JsonObject.class));
         BallerinaSyntaxTreeResponse astModifyResponse = LSExtensionTestUtil
-                .modifyAndGetBallerinaSyntaxTree(tempFile.toString(),
+                .modifyAndGetBallerinaSyntaxTree(inputFile.toString(),
                         new ASTModification[]{modification1, modification2, modification3}, this.serviceEndpoint);
         BallerinaSyntaxTreeResponse astResponse = LSExtensionTestUtil.getBallerinaSyntaxTree(
-                mainHttpCallWithPrintFile.toString(), this.serviceEndpoint);
+                expectedFile.toString(), this.serviceEndpoint);
         Assert.assertEquals(astModifyResponse.getSyntaxTree(), astResponse.getSyntaxTree());
-        TestUtil.closeDocument(this.serviceEndpoint, tempFile);
+        TestUtil.closeDocument(this.serviceEndpoint, inputFile);
+        TestUtil.closeDocument(this.serviceEndpoint, expectedFile);
     }
 
 //    @Test(description = "Update content.")

@@ -20,7 +20,6 @@ package io.ballerina.cli.task;
 
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
-import io.ballerina.cli.utils.FileUtils;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
@@ -49,7 +48,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStreamWriter;
@@ -60,7 +58,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -89,7 +86,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 public class RunTestsTask implements Task {
     private final PrintStream out;
     private final PrintStream err;
-    private final List<String> args;
     private final String includesInCoverage;
     private List<String> groupList;
     private List<String> disableGroupList;
@@ -100,18 +96,16 @@ public class RunTestsTask implements Task {
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, String includes) {
+    public RunTestsTask(PrintStream out, PrintStream err, String includes) {
         this.out = out;
         this.err = err;
-        this.args = Lists.of(args);
         this.includesInCoverage = includes;
     }
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, List<String> groupList,
+    public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
                         List<String> disableGroupList, List<String> testList, String includes) {
         this.out = out;
         this.err = err;
-        this.args = Lists.of(args);
         this.isSingleTestExecution = false;
         this.isRerunTestExecution = rerunTests;
 
@@ -165,20 +159,14 @@ public class RunTestsTask implements Task {
             throw createLauncherException("error while creating target directory: ", e);
         }
 
-        this.out.println();
-        this.out.print("Running Tests");
-        if (coverage) {
-            out.print(" with Coverage");
-        }
-        this.out.println();
-
-        int result = 0;
         boolean hasTests = false;
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         JarResolver jarResolver = jBallerinaBackend.jarResolver();
-        TestProcessor testProcessor = new TestProcessor();
+        TestProcessor testProcessor = new TestProcessor(jarResolver);
+        List<String> moduleNamesList = new ArrayList<>();
+        Map<String, TestSuite> testSuiteMap = new HashMap<>();
 
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
@@ -188,20 +176,12 @@ public class RunTestsTask implements Task {
             ModuleName moduleName = module.moduleName();
 
             TestSuite suite = testProcessor.testSuite(module).orElse(null);
-            Path moduleTestCachePath = testsCachePath.resolve(moduleName.toString());
 
             if (suite == null) {
-                if (!project.currentPackage().packageOrg().anonymous()) {
-                    out.println();
-                    out.println("\t" + moduleName.toString());
-                }
-                out.println("\t" + "No tests found");
                 continue;
             } else if (isRerunTestExecution && suite.getTests().isEmpty()) {
-                out.println("\t" + "No failed test/s found in cache");
                 continue;
             } else if (isSingleTestExecution && suite.getTests().isEmpty()) {
-                out.println("\t" + "No tests found with the given name/s");
                 continue;
             }
             //Set 'hasTests' flag if there are any tests available in the package
@@ -216,61 +196,64 @@ public class RunTestsTask implements Task {
                 suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
             }
             suite.setReportRequired(report || coverage);
-            Collection<Path> dependencies = jarResolver.getJarFilePathsRequiredForTestExecution(moduleName);
-            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-                out.println("\t" + module.document(module.documentIds().iterator().next()).name());
-            } else {
-                out.println("\t" + module.moduleName().toString());
-            }
-            writeToJson(suite, moduleTestCachePath);
+            String resolvedModuleName =
+                    module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();
+            testSuiteMap.put(resolvedModuleName, suite);
+            moduleNamesList.add(resolvedModuleName);
+        }
+
+        writeToTestSuiteJson(testSuiteMap, testsCachePath);
+
+        if (hasTests) {
             int testResult;
             try {
-
-                testResult = runTestSuit(moduleTestCachePath, target, dependencies, module);
-                if (result == 0) {
-                    result = testResult;
-                }
+                testResult = runTestSuit(testsCachePath, target,
+                        project.currentPackage().packageName().toString(),
+                        project.currentPackage().packageOrg().toString());
                 if (report || coverage) {
-                    ModuleStatus moduleStatus = loadModuleStatusFromFile(moduleTestCachePath
-                            .resolve(TesterinaConstants.STATUS_FILE));
-                    testReport.addModuleStatus(moduleName.toString(), moduleStatus);
+                    for (String moduleName : moduleNamesList) {
+                        ModuleStatus moduleStatus = loadModuleStatusFromFile(
+                                testsCachePath.resolve(moduleName).resolve(TesterinaConstants.STATUS_FILE));
+
+                        if (!moduleName.equals(project.currentPackage().packageName().toString())) {
+                            moduleName = ModuleName.from(project.currentPackage().packageName(), moduleName).toString();
+                        }
+                        testReport.addModuleStatus(moduleName, moduleStatus);
+                    }
+                    try {
+                        generateCoverage(project, jBallerinaBackend);
+                        generateHtmlReport(project, this.out, testReport, target);
+                    } catch (IOException e) {
+                        cleanTempCache(project, cachesRoot);
+                        throw createLauncherException("error occurred while generating test report :", e);
+                    }
                 }
             } catch (IOException | InterruptedException e) {
                 cleanTempCache(project, cachesRoot);
                 throw createLauncherException("error occurred while running tests", e);
             }
-        }
 
-        try {
-            if (hasTests) {
-                generateCoverage(project, jarResolver, jBallerinaBackend, target);
-                generateHtmlReport(project, this.out, testReport, target);
+            if (testResult != 0) {
+                cleanTempCache(project, cachesRoot);
+                throw createLauncherException("there are test failures");
             }
-        } catch (IOException e) {
-            cleanTempCache(project, cachesRoot);
-            throw createLauncherException("error while generating test report :", e);
-        }
-
-        if (result != 0) {
-            cleanTempCache(project, cachesRoot);
-            throw createLauncherException("there are test failures");
         }
 
         // Cleanup temp cache for SingleFileProject
         cleanTempCache(project, cachesRoot);
     }
 
-    private void generateCoverage(Project project, JarResolver jarResolver, JBallerinaBackend jBallerinaBackend,
-                                  Target target) throws IOException {
+    private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
+            throws IOException {
         // Generate code coverage
-        if (!coverage) {
+        if (testReport == null) {
             return;
         }
         Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module);
-            coverageReport.generateReport(jarResolver, moduleCoverageMap, jBallerinaBackend);
+            coverageReport.generateReport(moduleCoverageMap, jBallerinaBackend, this.includesInCoverage);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
@@ -299,7 +282,6 @@ public class RunTestsTask implements Task {
      */
     private void generateHtmlReport(Project project, PrintStream out, TestReport testReport, Target target)
             throws IOException {
-
         if (!report && !coverage) {
             return;
         }
@@ -360,20 +342,15 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestSuit(Path moduleTestCache, Target target, Collection<Path> testDependencies,
-                            Module module) throws IOException, InterruptedException {
+    private int runTestSuit(Path testCachePath, Target target, String packageName, String orgName) throws IOException,
+            InterruptedException {
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
-        String orgName = module.packageInstance().packageOrg().toString();
-        String packageName = module.packageInstance().packageName().toString();
-        String moduleName = module.isDefaultModule() ? "" : module.moduleName().moduleNamePart();
-
-        String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
-                .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
-
 
         if (coverage) {
+            String jacocoAgentJarPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_BRE)
+                    .resolve(BALLERINA_HOME_LIB).resolve(TesterinaConstants.AGENT_FILE_NAME).toString();
             String agentCommand = "-javaagent:"
                     + jacocoAgentJarPath
                     + "=destfile="
@@ -385,31 +362,25 @@ public class RunTestsTask implements Task {
             } else {
                 agentCommand += ",includes=" + this.includesInCoverage;
             }
+
             cmdArgs.add(agentCommand);
         }
 
-        String classPath = getClassPath(testDependencies);
-        cmdArgs.addAll(Lists.of("-cp", classPath));
+        cmdArgs.addAll(Lists.of("-cp", getClassPath()));
         if (isInDebugMode()) {
             cmdArgs.add(getDebugArgs(this.err));
         }
         cmdArgs.add(mainClassName);
-        cmdArgs.add(moduleTestCache.toString());
-        cmdArgs.addAll(args);
-        cmdArgs.add(target.path().toString());
-        cmdArgs.add(orgName);
-        cmdArgs.add(packageName);
-        cmdArgs.add("\"" + moduleName + "\""); // see JDK-7028124
+
+        // Adds arguments to be read at the Test Runner
+        // Index [0 - 3...]
+        cmdArgs.add(testCachePath.toString());
+        cmdArgs.add(Boolean.toString(report));
+        cmdArgs.add(Boolean.toString(coverage));
+
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
         return proc.waitFor();
-
-    }
-
-    private String getClassPath(Collection<Path> dependencies) {
-        StringJoiner cp = new StringJoiner(File.pathSeparator);
-        dependencies.stream().map(Path::toString).forEach(cp::add);
-        return cp.toString();
     }
 
     /**
@@ -417,7 +388,7 @@ public class RunTestsTask implements Task {
      *
      * @param statusJsonPath file path of json file
      * @return ModuleStatus object
-     * @throws FileNotFoundException if file does not exist
+     * @throws IOException if file does not exist
      */
     private ModuleStatus loadModuleStatusFromFile(Path statusJsonPath) throws IOException {
         Gson gson = new Gson();
@@ -432,37 +403,13 @@ public class RunTestsTask implements Task {
         try (BufferedReader bufferedReader = Files.newBufferedReader(rerunTestJsonPath, StandardCharsets.UTF_8)) {
             return gson.fromJson(bufferedReader, ArrayList.class);
         } catch (IOException e) {
-            throw createLauncherException("error while running failed tests. ", e);
-        }
-    }
-
-    /**
-     * Write the content into a json.
-     *
-     * @param testSuite Data that are parsed to the json
-     */
-    private static void writeToJson(TestSuite testSuite, Path moduleTestsCachePath) {
-        if (!Files.exists(moduleTestsCachePath)) {
-            try {
-                Files.createDirectories(moduleTestsCachePath);
-            } catch (IOException e) {
-                throw LauncherUtils.createLauncherException("couldn't create test suite : " + e.toString());
-            }
-        }
-        Path tmpJsonPath = Paths.get(moduleTestsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
-        File jsonFile = new File(tmpJsonPath.toString());
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
-            String json = gson.toJson(testSuite);
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-        } catch (IOException e) {
-            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
+            throw createLauncherException("error while running failed tests : ", e);
         }
     }
 
     private void cleanTempCache(Project project, Path cachesRoot) {
         if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
-            FileUtils.deleteDirectory(cachesRoot);
+            ProjectUtils.deleteDirectory(cachesRoot);
         }
     }
 
@@ -480,4 +427,37 @@ public class RunTestsTask implements Task {
         }
         return moduleCoverageMap;
     }
+
+    private String getClassPath() {
+        List<Path> dependencies = new ArrayList<>();
+        dependencies.add(ProjectUtils.getBallerinaRTJarPath());
+        dependencies.addAll(ProjectUtils.testDependencies());
+        StringJoiner classPath = new StringJoiner(File.pathSeparator);
+        dependencies.stream().map(Path::toString).forEach(classPath::add);
+        return classPath.toString();
+    }
+
+    /**
+     * Write the content of each test suite into a common json.
+     */
+    private static void writeToTestSuiteJson(Map<String, TestSuite> testSuiteMap, Path testsCachePath) {
+        if (!Files.exists(testsCachePath)) {
+            try {
+                Files.createDirectories(testsCachePath);
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException("couldn't create test cache directories : " + e.toString());
+            }
+        }
+
+        Path jsonFilePath = Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
+        File jsonFile = new File(jsonFilePath.toString());
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
+            Gson gson = new Gson();
+            String json = gson.toJson(testSuiteMap);
+            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
+        }
+    }
+
 }

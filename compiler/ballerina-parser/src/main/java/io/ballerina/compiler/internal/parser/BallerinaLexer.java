@@ -79,6 +79,11 @@ public class BallerinaLexer extends AbstractLexer {
         }
 
         int c = reader.peek();
+        if (c == LexerTerminals.BACKSLASH) {
+            processUnquotedIdentifier();
+            return getIdentifierToken();
+        }
+
         reader.advance();
         STToken token;
         switch (c) {
@@ -228,65 +233,12 @@ public class BallerinaLexer extends AbstractLexer {
                 token = processNumericLiteral(c);
                 break;
 
-            case 'A':
-            case 'B':
-            case 'C':
-            case 'D':
-            case 'E':
-            case 'F':
-            case 'G':
-            case 'H':
-            case 'I':
-            case 'J':
-            case 'K':
-            case 'L':
-            case 'M':
-            case 'N':
-            case 'O':
-            case 'P':
-            case 'Q':
-            case 'R':
-            case 'S':
-            case 'T':
-            case 'U':
-            case 'V':
-            case 'W':
-            case 'X':
-            case 'Y':
-            case 'Z':
-            case 'a':
-            case 'b':
-            case 'c':
-            case 'd':
-            case 'e':
-            case 'f':
-            case 'g':
-            case 'h':
-            case 'i':
-            case 'j':
-            case 'k':
-            case 'l':
-            case 'm':
-            case 'n':
-            case 'o':
-            case 'p':
-            case 'q':
-            case 'r':
-            case 's':
-            case 't':
-            case 'u':
-            case 'v':
-            case 'w':
-            case 'x':
-            case 'y':
-            case 'z':
-            case '_':
-            case '\\':
-                token = processIdentifierOrKeyword(c);
-                break;
-
-            // Other
             default:
+                if (isIdentifierInitialChar(c)) {
+                    token = processIdentifierOrKeyword();
+                    break;
+                }
+
                 // Process invalid token as trivia, and continue to next token
                 STToken invalidToken = processInvalidToken();
                 token = nextToken();
@@ -777,11 +729,10 @@ public class BallerinaLexer extends AbstractLexer {
     /**
      * Process and returns an identifier or a keyword.
      *
-     * @param startChar Initial char of the identifier
      * @return An identifier or a keyword.
      */
-    private STToken processIdentifierOrKeyword(int startChar) {
-        processUnquotedIdentifier(startChar);
+    private STToken processIdentifierOrKeyword() {
+        processUnquotedIdentifier();
         String tokenText = getLexeme();
         switch (tokenText) {
             // built-in named-types
@@ -1382,7 +1333,7 @@ public class BallerinaLexer extends AbstractLexer {
      * @return An identifier token.
      */
     private STToken processQuotedIdentifier() {
-        processIdentifierEnd(false);
+        processIdentifierEnd();
         if (String.valueOf(LexerTerminals.SINGLE_QUOTE).equals(getLexeme())) {
             reportLexerError(DiagnosticErrorCode.ERROR_INCOMPLETE_QUOTED_IDENTIFIER);
         }
@@ -1396,8 +1347,8 @@ public class BallerinaLexer extends AbstractLexer {
      * UnquotedIdentifier := (IdentifierInitialChar | IdentifierEscape) IdentifierEnd
      * </code>
      */
-    private void processUnquotedIdentifier(int startChar) {
-        processIdentifierEnd(startChar == LexerTerminals.BACKSLASH);
+    private void processUnquotedIdentifier() {
+        processIdentifierEnd();
     }
 
     /**
@@ -1413,32 +1364,22 @@ public class BallerinaLexer extends AbstractLexer {
      * IdentifierEscape := IdentifierSingleEscape | NumericEscape
      * </code>
      *
-     * @param initialEscape Denotes whether <code>\</code> is at the beginning of the identifier
      */
-    private void processIdentifierEnd(boolean initialEscape) {
+    private void processIdentifierEnd() {
         while (!reader.isEOF()) {
-            int k = 1;
             int nextChar = reader.peek();
             if (isIdentifierFollowingChar(nextChar)) {
                 reader.advance();
-                if (initialEscape) {
-                    reportInvalidEscapeSequence((char) nextChar);
-                    initialEscape = false;
-                }
                 continue;
             }
 
-            if (nextChar != LexerTerminals.BACKSLASH && !initialEscape) {
+            if (nextChar != LexerTerminals.BACKSLASH) {
                 break;
-            }
-            if (initialEscape) {
-                k = 0;
-                initialEscape = false;
             }
 
             // IdentifierSingleEscape | NumericEscape
 
-            nextChar = reader.peek(k);
+            nextChar = reader.peek(1);
             switch (nextChar) {
                 case LexerTerminals.NEWLINE:
                 case LexerTerminals.CARRIAGE_RETURN:
@@ -1446,10 +1387,10 @@ public class BallerinaLexer extends AbstractLexer {
                     break;
                 case 'u':
                     // NumericEscape
-                    if (reader.peek(k + 1) == LexerTerminals.OPEN_BRACE) {
+                    if (reader.peek(2) == LexerTerminals.OPEN_BRACE) {
                         processNumericEscape();
                     } else {
-                        reader.advance(k + 1);
+                        reader.advance(2);
                     }
                     continue;
                 default:
@@ -1457,7 +1398,7 @@ public class BallerinaLexer extends AbstractLexer {
                         reportInvalidEscapeSequence((char) nextChar);
                     }
 
-                    reader.advance(k + 1);
+                    reader.advance(2);
                     continue;
             }
             break;

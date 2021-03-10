@@ -744,11 +744,11 @@ public class CommonUtil {
             String alias = moduleParts[1];
 
             pkgPrefix = alias.replaceAll(".*\\.", "") + ":";
-            pkgPrefix = (preDeclaredLangLib) ? "'" + pkgPrefix : pkgPrefix;
+            pkgPrefix = (!preDeclaredLangLib && BALLERINA_KEYWORDS.contains(pkgPrefix)) ? "'" + pkgPrefix : pkgPrefix;
 
             // See if an alias (ex: import project.module1 as mod1) is used
             List<ImportDeclarationNode> existingModuleImports = context.currentDocImports().stream()
-                    .filter(importDeclarationNode -> 
+                    .filter(importDeclarationNode ->
                             CodeActionModuleId.from(importDeclarationNode).moduleName().equals(moduleID.moduleName()))
                     .collect(Collectors.toList());
 
@@ -1044,7 +1044,7 @@ public class CommonUtil {
         return Optional.ofNullable(uri);
     }
     
-    private static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {
+    public static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {
         Project project = context.workspace().project(context.filePath()).orElseThrow();
         String currentProjectOrg = project.currentPackage().packageOrg().value();
         boolean isCurrentOrg = currentProjectOrg.equals(orgName);

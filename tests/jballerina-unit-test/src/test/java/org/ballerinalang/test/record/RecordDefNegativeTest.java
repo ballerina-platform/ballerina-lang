@@ -41,6 +41,15 @@ public class RecordDefNegativeTest {
                 43, 10);
     }
 
+    @Test(description = "Test duplicate fields")
+    public void duplicateFieldTest() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/duplicate-field-negative.bal");
+        int errorIndex = 0;
+        BAssertUtil.validateError(compileResult, errorIndex++, "redeclared symbol 'error'", 19, 11);
+        BAssertUtil.validateError(compileResult, errorIndex++, "redeclared symbol 'name'", 24, 12);
+        assertEquals(compileResult.getErrorCount(), errorIndex);
+    }
+
     @Test
     public void testFieldRefFromWithinARecordDef() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/field_ref_in_own_record.bal");

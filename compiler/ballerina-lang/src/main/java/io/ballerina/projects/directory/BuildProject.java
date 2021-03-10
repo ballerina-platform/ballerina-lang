@@ -110,6 +110,7 @@ public class BuildProject extends Project {
         return Optional.empty();
     }
 
+    @Override
     public Optional<Path> documentPath(DocumentId documentId) {
         for (ModuleId moduleId : currentPackage().moduleIds()) {
             Module module = currentPackage().module(moduleId);
@@ -187,7 +188,8 @@ public class BuildProject extends Project {
             if (!pkgDependencies.isEmpty()) {
                 // write content to Dependencies.toml file
                 createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML),
-                                          getDependenciesTomlContent(pkgDependencies));
+                                          getDependenciesTomlContent(pkgDependencies,
+                        currentPackage.manifest().dependencies()));
             }
         }
     }

@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.configurables;
 
-import io.ballerina.runtime.internal.configurable.ConfigurableConstants;
+import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
@@ -44,7 +44,6 @@ public class ConfigurableTest extends BaseTest {
     private static final String negativeTestFileLocation =
             Paths.get(testFileLocation, "negative_tests").toAbsolutePath().toString();
     private BMainInstance bMainInstance;
-    private final String errorMsg = "error: Invalid `Config.toml` file : ";
     private final LogLeecher testsPassed = new LogLeecher("Tests passed");
 
     @BeforeClass
@@ -70,6 +69,14 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testAPIConfigFilePathOverRiding() throws BallerinaTestException {
         executeBalCommand("/testPathProject", new LogLeecher("4 passing"), "test", "configPkg", null);
+    }
+
+    @Test
+    public void testAPICNegativeTest() throws BallerinaTestException {
+        String errorMsg = "configurable variable 'configPkg:invalidArr' with type '(int[] & readonly)[] & readonly' " +
+                "is not supported";
+        executeBalCommand("/testErrorProject", new LogLeecher(errorMsg, ERROR), "test",
+                "configPkg", null);
     }
 
     @Test
@@ -106,6 +113,7 @@ public class ConfigurableTest extends BaseTest {
         String tomlError1 = "missing identifier [Config.toml:(0:9,0:9)]";
         String tomlError2 = "missing identifier [Config.toml:(0:20,0:20)]";
         String tomlError3 = "missing identifier [Config.toml:(0:21,0:21)]";
+        String errorMsg = "error: invalid `Config.toml` file : ";
         LogLeecher errorLeecher1 = new LogLeecher(errorMsg, ERROR);
         LogLeecher errorLeecher2 = new LogLeecher(tomlError1, ERROR);
         LogLeecher errorLeecher3 = new LogLeecher(tomlError2, ERROR);
@@ -119,36 +127,84 @@ public class ConfigurableTest extends BaseTest {
         errorLeecher4.waitForText(5000);
     }
 
-    @DataProvider(name = "negative-tests")
-    public Object[][] getNegativeTestDetails() {
+    @DataProvider(name = "negative-projects")
+    public Object[][] getNegativeTestProjects() {
         return new Object[][]{
-                {"invalidOrgName", "Value not provided for required configurable variable 'booleanVar'" },
-                {"requiredNegative", "Value not provided for required configurable variable 'stringVar'"},
-                {"noModuleConfig", "Value not provided for required configurable variable 'intVar'"},
-                {"invalidRecordField", "Configurable feature is yet to be supported for field type " +
-                        "'string[][]' in variable 'testUser' of record 'main:AuthInfo'"},
-                {"additionalField", "Additional field 'scopes' provided for configurable variable 'testUser' of " +
-                        "record 'main:AuthInfo' is not supported"},
-                {"missingRequiredField", "Value not provided for non-defaultable required field " +
-                        "'username' of record 'main:AuthInfo' in configurable variable 'testUser'"},
-                {"missingTableKey", "Value required for key 'username' of type " +
-                        "'table<(main:AuthInfo & readonly)> key(username) & readonly' in configurable variable " +
-                        "'users'"},
-                {"invalidMapType", "Configurable feature is yet to be supported for type 'map<int> & readonly'"},
-                {"invalidType", errorMsg + "invalid type found for variable 'intVar', expected type is 'int', found " +
-                        "'DOUBLE'"},
-                {"invalidByteRange", "Value provided for byte variable 'byteVar' is out of range. Expected " +
-                        "range is (0-255), found '355'"}
+                {"invalidComplexArray", "configurable variable 'main:intComplexArr' with type " +
+                        "'(int[] & readonly)[] & readonly' is not supported" },
+                {"invalidRecordField", "field type 'string[][]' in configurable variable 'main:testUser' is " +
+                        "not supported"},
+                {"invalidByteRange", "Value provided for byte variable 'main:byteVar' is out of range. " +
+                        "Expected range is (0-255), found '355'"},
+                {"invalidMapType",
+                        "configurable variable 'main:intMap' with type 'map<int> & readonly' is not supported"},
+                {"invalidTableConstraint", "table constraint type '(map<string> & readonly)' in configurable variable" +
+                        " 'main:tab' is not supported"}
         };
     }
 
-    @Test(dataProvider = "negative-tests")
+    @Test(dataProvider = "negative-projects")
     public void testNegativeCasesInProjects(String projectName, String errorMsg) throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, projectName).toAbsolutePath();
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, projectPath.toString());
         errorLog.waitForText(5000);
+    }
+
+    @Test(dataProvider = "negative-tests")
+    public void testNegativeCases(String tomlFileName, String errorMsg) throws BallerinaTestException {
+        Path projectPath = Paths.get(negativeTestFileLocation, "configProject").toAbsolutePath();
+        Path tomlPath = Paths.get(negativeTestFileLocation, "config_files", tomlFileName  + ".toml").toAbsolutePath();
+        LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
+        bMainInstance.runMain("run", new String[]{"main"}, addEnvVariables(tomlPath.toString()), new String[]{},
+                new LogLeecher[]{errorLog}, projectPath.toString());
+        errorLog.waitForText(5000);
+    }
+
+    @DataProvider(name = "negative-tests")
+    public Object[][] getNegativeTests() {
+        return new Object[][]{
+                {"no_module_config", "Value not provided for required configurable variable 'main:stringVar'"},
+                {"invalid_org_name", "Value not provided for required configurable variable 'main:stringVar'" },
+                {"invalid_org_structure", "invalid module structure found for module 'testOrg.main'. " +
+                        "Please provide the module name as '[testOrg.main]'" },
+                {"invalid_module_structure", "invalid module structure found for module 'main'. " +
+                        "Please provide the module name as '[main]'" },
+                {"invalid_sub_module_structure", "invalid module structure found for module 'main.foo'. " +
+                        "Please provide the module name as '[main.foo]'" },
+                {"required_negative", "Value not provided for required configurable variable 'main:stringVar'"},
+                {"primitive_type_error", "configurable variable 'main:intVar' is expected to be of type 'int', " +
+                        "but found 'float'"},
+                {"primitive_structure_error", "configurable variable 'main:intVar' is expected to be of type 'int', " +
+                        "but found 'record'"},
+                {"array_type_error", "configurable variable 'main:intArr' is expected to be of type " +
+                        "'int[] & readonly', but found 'string'"},
+                {"array_structure_error", "configurable variable 'main:intArr' is expected to be of type " +
+                        "'int[] & readonly', but found 'record'"},
+                {"array_element_structure", "configurable variable 'main:intArr[2]' is expected to be of type 'int'," +
+                        " but found 'array'"},
+                {"array_multi_type", "configurable variable 'main:intArr[1]' is expected to be of type 'int'," +
+                        " but found 'string'"},
+                {"additional_field", "additional field 'scopes' provided for configurable variable 'main:testUser'" +
+                        " of record 'main:AuthInfo' is not supported"},
+                {"missing_record_field", "value not provided for non-defaultable required field 'username' of record" +
+                        " 'main:AuthInfo' in configurable variable 'main:testUser'"},
+                {"record_type_error", "configurable variable 'main:testUser' is expected to be of type " +
+                        "'main:(testOrg/main:0.1.0:AuthInfo & readonly)', but found 'string'"},
+                {"record_field_structure_error", "field 'username' from configurable variable 'main:testUser' " +
+                        "is expected to be of type 'string', but found 'record'"},
+                {"record_field_type_error", "field 'username' from configurable variable 'main:testUser' " +
+                        "is expected to be of type 'string', but found 'int'"},
+                {"missing_table_key", "value required for key 'username' of type 'table<(main:AuthInfo & readonly)>" +
+                        " key(username) & readonly' in configurable variable 'main:users'"},
+                {"table_type_error", "configurable variable 'main:users' is expected to be of type " +
+                        "'table<(main:AuthInfo & readonly)> key(username) & readonly', but found 'record'"},
+                {"table_field_type_error", "field 'username' from configurable variable 'main:users' is " +
+                        "expected to be of type 'string', but found 'int'"},
+                {"table_field_structure_error", "field 'username' from configurable variable 'main:users' " +
+                        "is expected to be of type 'string', but found 'record'"},
+        };
     }
 
     // Encrypted Config related tests
@@ -170,7 +226,7 @@ public class ConfigurableTest extends BaseTest {
     public void testEncryptedConfigsWithIncorrectSecret() throws BallerinaTestException {
         String secretFilePath = Paths.get(testFileLocation, "Secrets", "incorrectSecret.txt").toString();
         LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
-                "'password' : Given final block not properly padded. Such " +
+                "'main:password' : Given final block not properly padded. Such " +
                 "issues can arise if a bad key is used during decryption.", ERROR);
         executeBalCommand("/encryptedConfigProject", runLeecher, "run", "main",
                 addSecretEnvVariable(secretFilePath));
@@ -190,7 +246,7 @@ public class ConfigurableTest extends BaseTest {
         String configFilePath = Paths.get(testFileLocation, "ConfigFiles", "InvalidEncryptedConfig.toml").toString();
         String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
         LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
-                "'password' : Input byte array has wrong 4-byte ending unit", ERROR);
+                "'main:password' : Input byte array has wrong 4-byte ending unit", ERROR);
         executeBalCommand("/encryptedConfigProject", runLeecher, "run", "main",
                 addEnvVariables(configFilePath, secretFilePath));
     }
@@ -209,20 +265,20 @@ public class ConfigurableTest extends BaseTest {
      */
     private Map<String, String> addEnvVariables(String configFilePath) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(ConfigurableConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        envVariables.put(ConfigTomlConstants.CONFIG_ENV_VARIABLE, configFilePath);
         return envVariables;
     }
 
     private Map<String, String> addSecretEnvVariable(String secretFilePath) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(ConfigurableConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
+        envVariables.put(ConfigTomlConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
         return envVariables;
     }
 
     private Map<String, String> addEnvVariables(String configFilePath, String secretFilePath) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(ConfigurableConstants.CONFIG_ENV_VARIABLE, configFilePath);
-        envVariables.put(ConfigurableConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
+        envVariables.put(ConfigTomlConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        envVariables.put(ConfigTomlConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
         return envVariables;
     }
 }

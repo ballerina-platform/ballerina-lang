@@ -480,10 +480,6 @@ public class TupleValueImpl extends AbstractArrayValue {
         throw new UnsupportedOperationException();
     }
 
-    public long[] getLongArray() {
-        throw new UnsupportedOperationException();
-    }
-
     /**
      * Get a copy of int array.
      * 
@@ -491,6 +487,21 @@ public class TupleValueImpl extends AbstractArrayValue {
      */
     @Override
     public long[] getIntArray() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public boolean[] getBooleanArray() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public byte[] getByteArray() {
+        throw new UnsupportedOperationException();
+    }
+
+    @Override
+    public double[] getFloatArray() {
         throw new UnsupportedOperationException();
     }
 

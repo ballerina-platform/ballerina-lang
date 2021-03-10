@@ -537,6 +537,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             // add at 0, otherwise, this goes under existing stmts.
             body.stmts.add(0, (BLangStatement) letVariable.definitionNode);
+            setSymbolOwner((BLangVariable) letVariable.definitionNode.getVariable(), env.scope.owner);
         }
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LET_FUNCTION, Lists.of(lambda), pos);
