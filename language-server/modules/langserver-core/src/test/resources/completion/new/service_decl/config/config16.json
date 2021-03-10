@@ -605,7 +605,7 @@
     {
       "label": "self",
       "kind": "Variable",
-      "detail": "isolated service object {resource function $name$.() returns () ;}",
+      "detail": "isolated service object {resource function $name$.() ;}",
       "sortText": "B",
       "insertText": "self",
       "insertTextFormat": "Snippet"

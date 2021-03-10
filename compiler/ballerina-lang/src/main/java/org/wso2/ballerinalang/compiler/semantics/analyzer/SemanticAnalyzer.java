@@ -828,7 +828,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (lhsType.tag == TypeTags.ARRAY && typeChecker.isArrayOpenSealedType((BArrayType) lhsType)) {
-                dlog.error(varNode.pos, DiagnosticErrorCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
+                dlog.error(varNode.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_NOT_INITIALIZED);
             }
             return;
         }

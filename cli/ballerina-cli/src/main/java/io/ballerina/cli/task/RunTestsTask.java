@@ -86,7 +86,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 public class RunTestsTask implements Task {
     private final PrintStream out;
     private final PrintStream err;
-    private final List<String> args;
     private final String includesInCoverage;
     private List<String> groupList;
     private List<String> disableGroupList;
@@ -97,18 +96,16 @@ public class RunTestsTask implements Task {
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, String includes) {
+    public RunTestsTask(PrintStream out, PrintStream err, String includes) {
         this.out = out;
         this.err = err;
-        this.args = Lists.of(args);
         this.includesInCoverage = includes;
     }
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, List<String> groupList,
+    public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
                         List<String> disableGroupList, List<String> testList, String includes) {
         this.out = out;
         this.err = err;
-        this.args = Lists.of(args);
         this.isSingleTestExecution = false;
         this.isRerunTestExecution = rerunTests;
 
@@ -224,7 +221,7 @@ public class RunTestsTask implements Task {
                         testReport.addModuleStatus(moduleName, moduleStatus);
                     }
                     try {
-                        generateCoverage(project, jarResolver, jBallerinaBackend);
+                        generateCoverage(project, jBallerinaBackend);
                         generateHtmlReport(project, this.out, testReport, target);
                     } catch (IOException e) {
                         cleanTempCache(project, cachesRoot);
@@ -246,10 +243,10 @@ public class RunTestsTask implements Task {
         cleanTempCache(project, cachesRoot);
     }
 
-    private void generateCoverage(Project project, JarResolver jarResolver, JBallerinaBackend jBallerinaBackend)
+    private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
             throws IOException {
         // Generate code coverage
-        if (!coverage) {
+        if (testReport == null) {
             return;
         }
         Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
@@ -378,10 +375,8 @@ public class RunTestsTask implements Task {
         // Adds arguments to be read at the Test Runner
         // Index [0 - 3...]
         cmdArgs.add(testCachePath.toString());
-        cmdArgs.add(target.path().toString());
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
-        cmdArgs.addAll(args);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
