@@ -188,6 +188,11 @@ public class StaticMethodTest {
         BRunUtil.invoke(result, "testDefaultDecimalArgs");
     }
 
+    @Test(description = "Test decimal default values with InterOp functions")
+    public void testDefaultDecimalArgs2() {
+        BRunUtil.invoke(result, "testDefaultDecimalArgs2");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

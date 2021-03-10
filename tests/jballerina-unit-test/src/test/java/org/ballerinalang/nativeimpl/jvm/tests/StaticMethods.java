@@ -649,4 +649,13 @@ public class StaticMethods {
         BDecimal c = a.add(b);
         return c;
     }
+
+    public static Object defaultDecimalArgs2(String s, BDecimal d) {
+        if (!d.booleanValue()) {
+            BDecimal a = new DecimalValue(s);
+            return a.multiply(d);
+        } else {
+            return null;
+        }
+    }
 }
