@@ -16,22 +16,15 @@
  * under the License.
  */
 
-package io.ballerina.shell.utils.timeit;
-
-import io.ballerina.shell.exceptions.BallerinaShellException;
+package io.ballerina.shell.exceptions;
 
 /**
- * Interface for timed operations to run via {@code TimeIt}.
+ * Exception to signify that shell execution failed because of a panic.
  *
- * @param <T> Return type for operation.
  * @since 2.0.0
  */
-public interface TimedOperation<T> {
-    /**
-     * Runs a operation to be timed.
-     *
-     * @return The return value from operation.
-     * @throws BallerinaShellException If the operation failed.
-     */
-    T run() throws BallerinaShellException;
+public class InvokerPanicException extends InvokerException {
+    public InvokerPanicException(Throwable e) {
+        super(e);
+    }
 }

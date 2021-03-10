@@ -19,30 +19,26 @@
 package io.ballerina.shell.parser.trials;
 
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.shell.parser.TrialTreeParser;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocuments;
 
 /**
- * Trial to reject metadata and public keywords.
- * Will thrown runtime errors if invalid statements found.
- * Act as a way to detect errors faster and fail instead of lagging.
+ * Attempts to capture a module part node.
+ * Parses directly and checks for module level entries.
  *
  * @since 2.0.0
  */
-public class RejectInvalidStmtTrial extends TreeParserTrial {
-    private static final String DOCUMENTATION_START = "#";
-    private static final String PUBLIC_START = "public";
-
-    public RejectInvalidStmtTrial(TrialTreeParser parentParser) {
+public class ModulePartTrial extends TreeParserTrial {
+    public ModulePartTrial(TrialTreeParser parentParser) {
         super(parentParser);
     }
 
     @Override
     public Node parse(String source) throws ParserTrialFailedException {
-        if (source.trim().startsWith(DOCUMENTATION_START)) {
-            throw new ParserRejectedException("Documentation is not allowed in the REPL.");
-        } else if (source.trim().startsWith(PUBLIC_START)) {
-            throw new ParserRejectedException("Invalid qualifier 'public'. Public is not allowed here.");
-        }
-        throw new ParserTrialFailedException("Valid statement.");
+        TextDocument document = TextDocuments.from(source);
+        SyntaxTree tree = getSyntaxTree(document);
+        return tree.rootNode();
     }
 }

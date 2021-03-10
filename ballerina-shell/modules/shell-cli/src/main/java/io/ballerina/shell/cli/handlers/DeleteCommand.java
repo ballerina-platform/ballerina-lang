@@ -16,24 +16,24 @@
  * under the License.
  */
 
-package io.ballerina.shell.invoker.classload;
+package io.ballerina.shell.cli.handlers;
 
-import io.ballerina.shell.exceptions.InvokerException;
+import io.ballerina.shell.cli.BallerinaShell;
+
+import java.util.Arrays;
 
 /**
- * Signature of a function that processes an import and returns its prefix.
+ * Reads source from a file.
  *
  * @since 2.0.0
  */
-public interface ImportProcessor {
-    /**
-     * Tries to import using the default prefix, if not
-     * imports with a random name and returns it.
-     *
-     * @param moduleName    Module to import.
-     * @param defaultPrefix Default prefix to use.
-     * @return The prefix for the import.
-     * @throws InvokerException If compilation failed.
-     */
-    String processImplicitImport(String moduleName, String defaultPrefix) throws InvokerException;
+public class DeleteCommand extends AbstractCommand {
+    public DeleteCommand(BallerinaShell ballerinaShell) {
+        super(ballerinaShell);
+    }
+
+    @Override
+    public void run(String... args) {
+        ballerinaShell.delete(Arrays.asList(args));
+    }
 }
