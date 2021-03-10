@@ -271,7 +271,10 @@ public class ManifestBuilder {
                 PackageOrg depOrg = PackageOrg.from(getStringValueFromDependencyNode(dependencyNode, "org"));
                 PackageVersion depVersion = PackageVersion
                         .from(getStringValueFromDependencyNode(dependencyNode, VERSION));
-
+                if (dependencyNode.entries().containsKey("repository")) {
+                    String repository = getStringValueFromDependencyNode(dependencyNode, "repository");
+                    dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
+                }
                 dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion));
             }
         }
@@ -359,6 +362,8 @@ public class ManifestBuilder {
         }
         boolean taintCheck =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.TAINT_CHECK.toString());
+        boolean listConflictedClasses =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
         return buildOptionsBuilder
                 .skipTests(skipTests)
@@ -368,6 +373,7 @@ public class ManifestBuilder {
                 .codeCoverage(codeCoverage)
                 .cloud(cloud)
                 .taintCheck(taintCheck)
+                .listConflictedClasses(listConflictedClasses)
                 .build();
     }
 

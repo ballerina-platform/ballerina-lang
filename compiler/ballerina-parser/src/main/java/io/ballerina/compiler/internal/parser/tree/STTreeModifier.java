@@ -870,6 +870,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     public STModuleVariableDeclarationNode transform(
             STModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         STNode metadata = modifyNode(moduleVariableDeclarationNode.metadata);
+        STNode visibilityQualifier = modifyNode(moduleVariableDeclarationNode.visibilityQualifier);
         STNode qualifiers = modifyNode(moduleVariableDeclarationNode.qualifiers);
         STNode typedBindingPattern = modifyNode(moduleVariableDeclarationNode.typedBindingPattern);
         STNode equalsToken = modifyNode(moduleVariableDeclarationNode.equalsToken);
@@ -877,6 +878,7 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         STNode semicolonToken = modifyNode(moduleVariableDeclarationNode.semicolonToken);
         return moduleVariableDeclarationNode.modify(
                 metadata,
+                visibilityQualifier,
                 qualifiers,
                 typedBindingPattern,
                 equalsToken,

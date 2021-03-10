@@ -20,7 +20,7 @@ package org.ballerinalang.test.runtime.entity;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PlatformLibrary;
@@ -92,8 +92,8 @@ public class CoverageReport {
      *
      * @throws IOException when file operations are failed
      */
-    public void generateReport(JarResolver jarResolver, Map<String, ModuleCoverage> moduleCoverageMap,
-                               JBallerinaBackend jBallerinaBackend)
+    public void generateReport(Map<String, ModuleCoverage> moduleCoverageMap,
+                               JBallerinaBackend jBallerinaBackend, String includesInCoverage)
             throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
@@ -103,18 +103,48 @@ public class CoverageReport {
 
         if (!module.testDocumentIds().isEmpty()) {
             filteredPathList =
-                    filterPaths(jarResolver.getJarFilePathsRequiredForTestExecution(this.module.moduleName()),
-                            jBallerinaBackend);
+                    filterPaths(jBallerinaBackend.jarResolver().getJarFilePathsRequiredForTestExecution(
+                            this.module.moduleName()), jBallerinaBackend);
         } else {
-            filteredPathList = filterPaths(jarResolver.getJarFilePathsRequiredForExecution(), jBallerinaBackend);
+            filteredPathList = filterPaths(jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution(),
+                    jBallerinaBackend);
         }
 
         if (!filteredPathList.isEmpty()) {
+            addCompiledSources(filteredPathList, orgName, packageName, version, false,
+                    includesInCoverage);
+            execFileLoader.load(executionDataFile.toFile());
+            final CoverageBuilder coverageBuilder = analyzeStructure();
+            // Create Testerina coverage report
+            createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
+            // Add additional dependency jars for Coverage XML if included
+            if (includesInCoverage != null) {
+                addCompiledSources(getDependencyJarList(jBallerinaBackend), orgName, packageName, version,
+                       true, includesInCoverage);
+                execFileLoader.load(executionDataFile.toFile());
+                final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
+                // Create XML coverage report for code coverage
+                createXMLReport(getPartialCoverageModifiedBundle(xmlCoverageBuilder));
+            } else {
+                createXMLReport(getPartialCoverageModifiedBundle(coverageBuilder));
+            }
+            CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
+        } else {
+            String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
+            throw new NoSuchFileException(msg);
+        }
+    }
+
+    private void addCompiledSources(List<Path> pathList, String orgName, String packageName, String version,
+                                    boolean enableIncludesFilter, String includesInCoverage) throws
+            IOException {
+        if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
-            for (Path jarPath : filteredPathList) {
+            for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
-                    CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir, orgName, packageName, version);
+                    CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir, orgName, packageName, version,
+                            enableIncludesFilter, includesInCoverage);
                 } catch (NoSuchFileException e) {
                     if (Files.exists(coverageDir.resolve(BIN_DIR))) {
                         CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
@@ -122,15 +152,6 @@ public class CoverageReport {
                     return;
                 }
             }
-
-            execFileLoader.load(executionDataFile.toFile());
-            final CoverageBuilder coverageBuilder = analyzeStructure();
-            createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
-            createXMLReport(getPartialCoverageModifiedBundle(coverageBuilder));
-            CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
-        } else {
-            String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
-            throw new NoSuchFileException(msg);
         }
     }
 
@@ -253,10 +274,11 @@ public class CoverageReport {
         }
     }
 
-    private List<Path> filterPaths(Collection<Path> pathCollection, JBallerinaBackend jBallerinaBackend) {
+    private List<Path> filterPaths(Collection<JarLibrary> pathCollection, JBallerinaBackend jBallerinaBackend) {
         List<Path> filteredPathList = new ArrayList<>();
         List<Path> exclusionPathList = getExclusionJarList(jBallerinaBackend);
-        for (Path path : pathCollection) {
+        for (JarLibrary library : pathCollection) {
+            Path path = library.path();
             if (!exclusionPathList.contains(path)) {
                 filteredPathList.add(path);
             }
@@ -300,7 +322,16 @@ public class CoverageReport {
     }
 
     private List<Path> getExclusionJarList(JBallerinaBackend jBallerinaBackend) {
-        List<Path> exclusionPathList = new ArrayList<>();
+        List<Path> exclusionPathList = new ArrayList<>(getDependencyJarList(jBallerinaBackend));
+        exclusionPathList.add(jBallerinaBackend.runtimeLibrary().path());
+        for (JarLibrary library : ProjectUtils.testDependencies()) {
+            exclusionPathList.add(library.path());
+        }
+        return exclusionPathList;
+    }
+
+    private List<Path> getDependencyJarList(JBallerinaBackend jBallerinaBackend) {
+        List<Path> dependencyPathList = new ArrayList<>();
         module.packageInstance().getResolution().allDependencies()
                 .stream()
                 .map(ResolvedPackageDependency::packageInstance)
@@ -309,17 +340,19 @@ public class CoverageReport {
                         Module dependencyModule = pkg.module(dependencyModuleId);
                         PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
                                 pkg.packageId(), dependencyModule.moduleName());
-                        exclusionPathList.add(generatedJarLibrary.path());
+                        if (!dependencyPathList.contains(generatedJarLibrary.path())) {
+                            dependencyPathList.add(generatedJarLibrary.path());
+                        }
                     }
                     Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
                             pkg.packageId(), PlatformLibraryScope.DEFAULT);
                     for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-                        exclusionPathList.add(otherJarDependency.path());
+                        if (!dependencyPathList.contains(otherJarDependency.path())) {
+                            dependencyPathList.add(otherJarDependency.path());
+                        }
                     }
                 });
-        exclusionPathList.add(jBallerinaBackend.runtimeLibrary().path());
-        exclusionPathList.addAll(ProjectUtils.testDependencies());
-        return exclusionPathList;
+        return dependencyPathList;
     }
 
     private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {

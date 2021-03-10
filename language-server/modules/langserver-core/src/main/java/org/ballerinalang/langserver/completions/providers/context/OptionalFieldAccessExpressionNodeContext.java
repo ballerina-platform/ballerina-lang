@@ -37,7 +37,7 @@ public class OptionalFieldAccessExpressionNodeContext extends FieldAccessContext
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, OptionalFieldAccessExpressionNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = getEntries(ctx, node.expression());
+        List<LSCompletionItem> completionItems = getEntries(ctx, node.expression(), true);
         this.sort(ctx, node, completionItems);
 
         return completionItems;

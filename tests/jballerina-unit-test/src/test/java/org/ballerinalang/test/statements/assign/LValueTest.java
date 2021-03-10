@@ -79,7 +79,8 @@ public class LValueTest {
         int i = 0;
         validateError(semanticsNegativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 13);
         validateError(semanticsNegativeResult, i++, "undefined field 'y' in object 'A'", 27, 7);
-        validateError(semanticsNegativeResult, i++, "invalid operation: type 'A' does not support indexing", 28, 5);
+        validateError(semanticsNegativeResult, i++, "invalid operation: type 'A' does not support " +
+                "member access", 28, 5);
         validateError(semanticsNegativeResult, i++, "invalid expr in compound assignment lhs", 38, 10);
         validateError(semanticsNegativeResult, i++, "invalid expr in compound assignment lhs", 39, 10);
         validateError(semanticsNegativeResult, i++, "invalid operation: type 'map<int>?' does not support member " +

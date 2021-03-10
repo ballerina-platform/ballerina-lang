@@ -18,6 +18,8 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -54,5 +56,20 @@ public class WhileStatementNodeContext extends AbstractCompletionProvider<WhileS
         this.sort(context, node, completionItems);
         
         return completionItems;
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, WhileStatementNode node) {
+        int cursor = context.getCursorPositionInTree();
+        BlockStatementNode whileBody = node.whileBody();
+        Token whileKeyword = node.whileKeyword();
+        
+        /*
+        Validates the following
+        eg: 1) while <cursor>
+            2) while <cursor>{
+         */
+        return !whileKeyword.isMissing() && cursor >= whileKeyword.textRange().endOffset() + 1
+                && ((whileBody.isMissing() || cursor < whileBody.openBraceToken().textRange().endOffset()));
     }
 }

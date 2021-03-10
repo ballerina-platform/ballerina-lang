@@ -27,6 +27,9 @@ import io.ballerina.shell.test.evaluator.base.TestInvoker;
 import io.ballerina.shell.test.evaluator.base.TestSession;
 import org.testng.Assert;
 
+import java.util.Arrays;
+import java.util.List;
+
 /**
  * Base class for evaluator tests.
  * TODO: Find a way to test concurrency.
@@ -35,6 +38,8 @@ import org.testng.Assert;
  * @since 2.0.0
  */
 public abstract class AbstractEvaluatorTest {
+    private static final String TEST_HEADER = "test.bal";
+
     /**
      * Tests a json file containing test case session.
      * This is a E2E test of the evaluator.
@@ -49,15 +54,32 @@ public abstract class AbstractEvaluatorTest {
                 .invoker(invoker).build();
         try {
             evaluator.initialize();
+            evaluator.evaluateDeclarationFile(TestUtils.getPath(TEST_HEADER));
         } catch (Exception e) {
-            Assert.fail(evaluator.diagnostics().toString());
+            Assert.fail(evaluator.diagnostics().toString(), e);
         }
 
         TestSession testSession = TestUtils.loadTestCases(fileName, TestSession.class);
         for (TestCase testCase : testSession) {
             try {
+                String testCode = testCase.getCode();
+
+                // Evaluating files
+                if (testCode.startsWith("/file")) {
+                    String loadFile = testCode.split("\\s")[1];
+                    evaluator.evaluateDeclarationFile(TestUtils.getPath(loadFile));
+                    continue;
+                }
+                // Removing declarations
+                if (testCode.startsWith("/remove")) {
+                    List<String> names = Arrays.asList(testCode.split("\\s"));
+                    names.remove(0);
+                    evaluator.delete(names);
+                    continue;
+                }
+
                 String expr = evaluator.evaluate(testCase.getCode());
-                Assert.assertEquals(invoker.getOutput(), testCase.getStdout(), testCase.getDescription());
+                Assert.assertEquals(invoker.getStdOut(), testCase.getStdout(), testCase.getDescription());
                 Assert.assertEquals(expr, testCase.getExpr(), testCase.getDescription());
                 Assert.assertNull(testCase.getError(), testCase.getDescription());
                 Assert.assertFalse(evaluator.hasErrors(), testCase.getDescription());
@@ -65,6 +87,7 @@ public abstract class AbstractEvaluatorTest {
                 Assert.assertTrue(evaluator.hasErrors(), testCase.getDescription());
                 String errorClass = e.getClass().getSimpleName();
                 if (testCase.getError() != null) {
+                    Assert.assertEquals(invoker.getStdOut(), testCase.getStdout(), testCase.getDescription());
                     Assert.assertEquals(testCase.getError(), errorClass, testCase.getDescription());
                     continue;
                 }
@@ -72,6 +95,7 @@ public abstract class AbstractEvaluatorTest {
                         testCase.getDescription(), e.getMessage(), evaluator.diagnostics()));
             } finally {
                 evaluator.resetDiagnostics();
+                invoker.reset();
             }
         }
     }

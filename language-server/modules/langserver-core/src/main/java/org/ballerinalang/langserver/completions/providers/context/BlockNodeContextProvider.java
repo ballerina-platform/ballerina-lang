@@ -65,7 +65,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
             Ex: function test() {
@@ -176,7 +176,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol)
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol ||
+                        symbol.kind() == SymbolKind.PARAMETER)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getTypeguardDestructedItems(visibleSymbols, context));
@@ -209,7 +210,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
         for (int i = statements.size() - 1; i >= 0; i--) {
             StatementNode statementNode = statements.get(i);
-            int endOffset = statementNode.lineRange().endLine().offset();
+            int endOffset = statementNode.textRange().endOffset();
             if (statementNode.kind() == SyntaxKind.LOCAL_VAR_DECL
                     && ((VariableDeclarationNode) statementNode).equalsToken().isEmpty()) {
                 continue;

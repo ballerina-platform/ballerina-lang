@@ -31,24 +31,37 @@ import java.nio.charset.Charset;
  * @since 2.0.0
  */
 public class TestInvoker extends ClassLoadInvoker {
-    private String output = "";
+    private final ByteArrayOutputStream stdOutBaOs;
+    private final PrintStream stdOutMock;
+
+    public TestInvoker() {
+        this.stdOutBaOs = new ByteArrayOutputStream();
+        this.stdOutMock = new PrintStream(stdOutBaOs, true, Charset.defaultCharset());
+    }
 
     @Override
     protected Object invokeScheduledMethod(ClassLoader classLoader, String className, String methodName)
             throws InvokerException {
         PrintStream stdOut = System.out;
-        ByteArrayOutputStream stdOutBaOs = new ByteArrayOutputStream();
         try {
-            System.setOut(new PrintStream(stdOutBaOs, true, Charset.defaultCharset()));
+            System.setOut(stdOutMock);
             return super.invokeScheduledMethod(classLoader, className, methodName);
         } finally {
-            this.output = stdOutBaOs.toString(Charset.defaultCharset());
-            this.output = this.output.replace("\r\n", "\n");
             System.setOut(stdOut);
         }
     }
 
-    public String getOutput() {
-        return output;
+    @Override
+    protected PrintStream getErrorStream() {
+        return stdOutMock;
+    }
+
+    public String getStdOut() {
+        String output = stdOutBaOs.toString(Charset.defaultCharset());
+        return output.replace("\r\n", "\n");
+    }
+
+    public void reset() {
+        this.stdOutBaOs.reset();
     }
 }

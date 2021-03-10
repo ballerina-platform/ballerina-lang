@@ -50,21 +50,21 @@ function testTableValues() {
 
     test:assertEquals(3, empTable.length());
 
-    Employee emp1 = {
+    Employee & readonly emp1 = {
         empId: 101,
         name: "Alice",
         salary: 120000.0,
         isPermanent: false
     };
 
-    Employee emp2 = {
+    Employee & readonly emp2 = {
         empId: 102,
         name: "Bob",
         salary: 200000.0,
         isPermanent: true
     };
 
-    Employee emp3 = {
+    Employee & readonly emp3 = {
         empId: 103,
         name: "Edward",
         salary: 175000.0

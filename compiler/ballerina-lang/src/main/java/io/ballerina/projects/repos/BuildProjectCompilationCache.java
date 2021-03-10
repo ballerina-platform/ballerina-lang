@@ -19,6 +19,7 @@ package io.ballerina.projects.repos;
 
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.util.ProjectConstants;
 
 import java.nio.file.Path;
 
@@ -32,7 +33,7 @@ public class BuildProjectCompilationCache extends FileSystemCache {
     private static final byte[] EMPTY_BYTE_ARRAY = new byte[0];
 
     private BuildProjectCompilationCache(Project project, Path cacheDirPath) {
-        super(project, cacheDirPath);
+        super(project, cacheDirPath.resolve(ProjectConstants.CACHES_DIR_NAME));
     }
 
     public static BuildProjectCompilationCache from(Project project) {
