@@ -14,28 +14,20 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import main.foo;
+import ballerina/jballerina.java;
 
-type AuthInfo record {|
-   readonly string username;
-   string password = "default";
-|};
+//Extern methods to verify no errors while testing
+function system_out() returns handle = @java:FieldGet {
+    name: "out",
+    'class: "java.lang.System"
+} external;
 
-type Employee record {|
-    readonly int id;
-    readonly string name= "Default";
-    readonly float salary?;
-|};
+function println(handle receiver, handle arg0) = @java:Method {
+    name: "println",
+    'class: "java.io.PrintStream",
+    paramTypes: ["java.lang.String"]
+} external;
 
-type UserTable table<AuthInfo> key(username);
-
-configurable int intVar = 5;
-configurable string stringVar = ?;
-configurable int[] & readonly intArr = [11, 33];
-configurable AuthInfo & readonly testUser = {username: "Anna"};
-configurable Employee employee = {id: 121, salary: 35000.0};
-configurable UserTable & readonly users = table [{username: "Tom"}];
-
-public function main() {
-    foo:test();
+function print(string str) {
+    println(system_out(), java:fromString(str));
 }
