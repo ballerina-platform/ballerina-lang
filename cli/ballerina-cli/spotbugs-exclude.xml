@@ -30,7 +30,7 @@
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
     <Match>
-        <Class name="io.ballerina.cli.cmd.Command"/>
+        <Class name="io.ballerina.cli.cmd.model.CommandCompletions"/>
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
     <Match>

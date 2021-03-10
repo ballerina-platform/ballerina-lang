@@ -15,7 +15,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.cli.cmd;
+package io.ballerina.cli.cmd.model;
 
 import java.util.List;
 
@@ -24,7 +24,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class Command {
+public class CommandCompletions {
     private String command;
     private List<String> subCommands;
 

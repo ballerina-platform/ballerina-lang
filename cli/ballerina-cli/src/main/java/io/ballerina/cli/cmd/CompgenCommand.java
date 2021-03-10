@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.cli.cmd.model.CommandCompletions;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.launcher.util.BCompileUtil;
 import io.ballerina.projects.util.ProjectConstants;
@@ -62,7 +63,7 @@ public class CompgenCommand implements BLauncherCmd {
     @Override
     public void execute() {
         List<String> subCommands;
-        List<String> dirContents = getDirContents(this.userDir);
+        List<String> dirContents;
         if (bashDistCommands == null) {
             subCommands = getSubCommands("bal");
             printSuggestionList(subCommands, outStream);
@@ -72,7 +73,7 @@ public class CompgenCommand implements BLauncherCmd {
                 subCommands = getSubCommands(bashDistCommands.get(0));
                 printSuggestionList(subCommands, outStream);
             } else if (subCommands.contains(bashDistCommands.get(0))) {
-                printSuggestionList(dirContents, outStream);
+                printSuggestionList(getDirContents(this.userDir), outStream);
                 return;
             }
             subCommands = subCommands.stream().filter(i -> i.startsWith(bashDistCommands.get(0))).
@@ -86,12 +87,13 @@ public class CompgenCommand implements BLauncherCmd {
                         collect(Collectors.toList());
                 printSuggestionList(subCommands, outStream);
             } else if (subCommands.contains(bashDistCommands.get(index))) {
-                printSuggestionList(dirContents, outStream);
+                printSuggestionList(getDirContents(this.userDir), outStream);
             } else if (bashDistCommands.get(index).startsWith("-") || bashDistCommands.get(index).startsWith("--")) {
                 subCommands = subCommands.stream().filter(i -> i.startsWith(bashDistCommands.get(index))).
                         collect(Collectors.toList());
                 printSuggestionList(subCommands, outStream);
             } else {
+                dirContents = getDirContents(this.userDir);
                 dirContents = dirContents.stream().filter(i -> i.startsWith(bashDistCommands.get(index))).
                         collect(Collectors.toList());
                 printSuggestionList(dirContents, outStream);
@@ -141,8 +143,9 @@ public class CompgenCommand implements BLauncherCmd {
         subCommands.add("-h");
         subCommands.add("--help");
         Gson gson = new Gson();
-        List<Command> commands = gson.fromJson(getCommandInfo(), new TypeToken<List<Command>>() { }.getType());
-        for (Command command : commands) {
+        List<CommandCompletions> commands = gson.fromJson(getCommandInfo(),
+                new TypeToken<List<CommandCompletions>>() { }.getType());
+        for (CommandCompletions command : commands) {
             if (!command.getCommand().equals(commandName)) {
                 continue;
             }
