@@ -331,7 +331,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         List<BType> paramTypes = new ArrayList<>();
         List<BType> expParamTypes = hasMatchingInvokableType ? matchingType.paramTypes :
                 Collections.singletonList(null);
-        int delta = hasMatchingInvokableType ? 0 : 1;
+        int delta = hasMatchingInvokableType ? 1 : 0;
 
         List<BType> bTypes = originalType.paramTypes;
         for (int i = 0, j = 0; i < bTypes.size(); i++, j += delta) {
