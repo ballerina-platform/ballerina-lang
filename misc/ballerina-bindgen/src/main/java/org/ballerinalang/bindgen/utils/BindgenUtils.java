@@ -301,7 +301,7 @@ public class BindgenUtils {
         StringBuilder returnString = new StringBuilder();
         if (jMethod.getHasReturn()) {
             returnString.append("returns ");
-            returnString.append(jMethod.getReturnType());
+            returnString.append(jMethod.getExternalType());
             if (jMethod.getIsStringReturn()) {
                 returnString.append("?");
             }

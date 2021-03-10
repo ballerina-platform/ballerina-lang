@@ -81,7 +81,7 @@ public class JMethod extends BFunction {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    public JMethod(Method m, Class parentClass, BindgenEnv env) {
+    public JMethod(Method m, BindgenEnv env) {
         super(BFunctionKind.METHOD, env);
         this.env = env;
         method = m;
@@ -90,7 +90,8 @@ public class JMethod extends BFunction {
         shortClassName = getAlias(m.getDeclaringClass());
         isStatic = isStaticMethod(m);
         super.setStatic(isStatic);
-        this.parentClass = parentClass;
+        this.parentClass = m.getDeclaringClass();
+        setDeclaringClass(parentClass);
 
         // Set the attributes required to identify different return types.
         Class returnTypeClass = m.getReturnType();
@@ -104,6 +105,7 @@ public class JMethod extends BFunction {
                 if (!this.getClass().getClassLoader().loadClass(RuntimeException.class.getCanonicalName())
                         .isAssignableFrom(exceptionType)) {
                     JError jError = new JError(exceptionType);
+                    setThrowable(jError);
                     importedPackages.add(exceptionType.getPackageName());
                     exceptionName = jError.getShortExceptionName();
                     exceptionConstName = jError.getExceptionConstName();
@@ -162,9 +164,11 @@ public class JMethod extends BFunction {
 
         returnTypeJava = getJavaType(returnTypeClass);
         externalType = getBallerinaHandleType(returnTypeClass);
+        setExternalReturnType(externalType);
         returnType = getBallerinaParamType(returnTypeClass);
         returnType = getExceptionName(returnTypeClass, returnType);
         if (returnTypeClass.isArray()) {
+            setArrayReturnType(true);
             javaArraysModule = true;
             hasException = true;
             returnError = true;
@@ -193,6 +197,7 @@ public class JMethod extends BFunction {
             }
             objectReturn = true;
         }
+        setReturnType(returnType);
     }
 
     private String getPackageAlias(String shortClassName, Class objectType) {
@@ -243,10 +248,6 @@ public class JMethod extends BFunction {
         return paramTypes.toString();
     }
 
-    public Boolean getHasReturn() {
-        return hasReturn;
-    }
-
     public Boolean getHasException() {
         return hasException;
     }
@@ -259,9 +260,13 @@ public class JMethod extends BFunction {
         return hasPrimitiveParam;
     }
 
-//    public String getReturnType() {
-//        return returnType;
-//    }
+    public String getReturnType() {
+        return returnType;
+    }
+
+    public boolean getHasReturn() {
+        return hasReturn;
+    }
 
     public String getMethodName() {
         return methodName;
@@ -339,5 +344,29 @@ public class JMethod extends BFunction {
             return "public";
         }
         return null;
+    }
+
+    public String getFunctionReturnType() {
+        StringBuilder returnString = new StringBuilder();
+        if (getHasReturn()) {
+            returnString.append(getExternalType());
+            if (getIsStringReturn()) {
+                returnString.append("?");
+            }
+            if (getHasException()) {
+                if (isHandleException()) {
+                    returnString.append("|").append(getExceptionName());
+                    if (isReturnError()) {
+                        returnString.append("|error");
+                    }
+                } else {
+                    returnString.append("|error");
+                }
+            }
+        } else if (getHasException() || getHasPrimitiveParam()) {
+            returnString.append("error?");
+        }
+
+        return returnString.toString();
     }
 }

@@ -22,24 +22,6 @@ package org.ballerinalang.bindgen.model;
  *
  * @since 2.0.0
  */
-public enum BindgenSyntaxKind {
+public class BindgenSyntaxKind {
 
-    REGULAR_FUNCTION("function"),
-    EXTERNAL_FUNCTION("external"),
-    INSTANCE_FUNCTION("instance"),
-    STATIC_FUNCTION("static"),
-    EXTERNAL_METHOD_FUNCTION("method"),
-    EXTERNAL_FIELD_GET_FUNCTION("field_get"),
-    EXTERNAL_FIELD_SET_FUNCTION("field_set"),
-    EXTERNAL_FIELD_CONSTRUCTOR_FUNCTION("constructor");
-
-    private final String strValue;
-
-    BindgenSyntaxKind(String strValue) {
-        this.strValue = strValue;
-    }
-
-    public String stringValue() {
-        return strValue;
-    }
 }

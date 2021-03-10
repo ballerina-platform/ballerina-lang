@@ -66,7 +66,7 @@ public class BindgenConstants {
     static final String LONG = "long";
     public static final String JAVA_STRING = "String";
     public static final String JAVA_STRING_ARRAY = "String[]";
-    static final String HANDLE = "handle";
+    public static final String HANDLE = "handle";
     public static final String BALLERINA_STRING = "string";
     public static final String BALLERINA_STRING_ARRAY = "string[]";
     public static final String[] BALLERINA_RESERVED_WORDS = {"import", "as", "public", "private", "external", "final",

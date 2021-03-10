@@ -130,7 +130,7 @@ public class JClass {
                 List<Method> methods = new ArrayList<>();
                 for (Map.Entry<Method, String> mapValue : methodClassMap.entrySet()) {
                     if (mapValue.getValue().equals(superclass)) {
-                        jMethods.add(new JMethod(mapValue.getKey(), currentClass, env));
+                        jMethods.add(new JMethod(mapValue.getKey(), env));
                         methods.add(mapValue.getKey());
                     }
                 }
@@ -170,7 +170,7 @@ public class JClass {
     private void populateConstructors(Constructor[] constructors) {
         int i = 1;
         for (Constructor constructor : constructors) {
-            JConstructor jConstructor = new JConstructor(constructor, env);
+            JConstructor jConstructor = new JConstructor(constructor, env, this);
             if (modulesFlag) {
                 importedPackages.addAll(jConstructor.getImportedPackages());
             }
@@ -208,7 +208,7 @@ public class JClass {
     private void populateMethods(List<Method> declaredMethods) {
         for (Method method : declaredMethods) {
             if (isPublicMethod(method)) {
-                JMethod jMethod = new JMethod(method, currentClass, env);
+                JMethod jMethod = new JMethod(method, env);
                 jMethod.setShortClassName(shortClassName);
                 if (jMethod.requireJavaArrays()) {
                     importJavaArraysModule = true;
@@ -231,13 +231,13 @@ public class JClass {
                 }
             }
             if (addField) {
-                JField jFieldGetter = new JField(field, JFunction.JFunctionKind.FIELD_GET, env, this);
+                JField jFieldGetter = new JField(field, BFunction.BFunctionKind.FIELD_GET, env, this);
                 fieldList.add(jFieldGetter);
                 if (jFieldGetter.requireJavaArrays()) {
                     importJavaArraysModule = true;
                 }
                 if (!isFinalField(field) && isPublicField(field)) {
-                    fieldList.add(new JField(field, JFunction.JFunctionKind.FIELD_SET, env, this));
+                    fieldList.add(new JField(field, BFunction.BFunctionKind.FIELD_SET, env, this));
                     if (modulesFlag) {
                         importedPackages.add(field.getDeclaringClass().getPackageName());
                     }
@@ -280,5 +280,29 @@ public class JClass {
 
     public Integer getMethodCount(String methodName) {
         return overloadedMethods.get(methodName);
+    }
+
+    public Class getCurrentClass() {
+        return currentClass;
+    }
+
+    public boolean isImportJavaArraysModule() {
+        return importJavaArraysModule;
+    }
+
+    public Set<String> getImportedPackages() {
+        return importedPackages;
+    }
+
+    public List<JField> getFieldList() {
+        return fieldList;
+    }
+
+    public List<JMethod> getMethodList() {
+        return methodList;
+    }
+
+    public List<JConstructor> getConstructorList() {
+        return constructorList;
     }
 }

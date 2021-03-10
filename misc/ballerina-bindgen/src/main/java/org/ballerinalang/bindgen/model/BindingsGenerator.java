@@ -17,9 +17,7 @@
  */
 package org.ballerinalang.bindgen.model;
 
-import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
-import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocuments;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
@@ -29,9 +27,6 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.Collections;
-import java.util.LinkedList;
 import java.util.Locale;
 
 /**
@@ -41,7 +36,7 @@ import java.util.Locale;
  */
 public class BindingsGenerator {
 
-    private JClassNew jClass;
+    private JClass jClass;
     private SyntaxTree syntaxTree;
     private BindgenEnv env;
     private String templateDirectory = Paths.get("src", "main", "resources", "templates").toString();
@@ -53,10 +48,10 @@ public class BindingsGenerator {
         this.env = env;
     }
 
-    public SyntaxTree generate(JClassNew jClass) throws BindgenException {
+    public SyntaxTree generate(JClass jClass) throws BindgenException {
         this.jClass = jClass;
         setClassNameAlias();
-        if (Throwable.class.isAssignableFrom(jClass.getJClass())) {
+        if (Throwable.class.isAssignableFrom(jClass.getCurrentClass())) {
             // Generate Ballerina error bindings for Java throwable classes.
             return generateFromTemplate(jErrorTemplatePath);
         } else if (!env.isDirectJavaClass()) {
@@ -71,38 +66,11 @@ public class BindingsGenerator {
 
     private SyntaxTree generateSyntaxTree() throws BindgenException {
         if (syntaxTree.containsModulePart()) {
-            return modifyModulePartNode();
+            return new BindgenTreeModifier(jClass, env).transform((ModulePartNode) syntaxTree.rootNode()).syntaxTree();
         } else {
             throw new BindgenException("error: unable to generate the binding class `"
-                    + jClass.getJClass().getName() + "`");
+                    + jClass.getCurrentClass().getName() + "`");
         }
-    }
-
-    private SyntaxTree modifyModulePartNode() {
-        ModulePartNode modulePartNode = syntaxTree.rootNode();
-        NodeList<ImportDeclarationNode> imports = modifyImportDeclarationNodes(modulePartNode.imports());
-//        NodeList<ModuleMemberDeclarationNode> members = modulePartNode.members();
-//        Token eofToken = modulePartNode.eofToken();
-        modulePartNode = modulePartNode.modify().withImports(imports).apply();
-        return modulePartNode.syntaxTree();
-    }
-
-    private NodeList<ImportDeclarationNode> modifyImportDeclarationNodes(NodeList<ImportDeclarationNode> imports) {
-        if (jClass.importJArraysModule()) {
-            ImportDeclarationNode jArraysImport = BindgenNodeFactory.createImportDeclarationNode("ballerina",
-                    "jarrays", new LinkedList<>(Arrays.asList("java", ".", "arrays")));
-            imports = imports.add(jArraysImport);
-        }
-        if (env.getModulesFlag() && env.getPackageName() != null) {
-            for (String packageName : jClass.getImportedPackages()) {
-                ImportDeclarationNode jArraysImport = BindgenNodeFactory
-                        .createImportDeclarationNode(env.getPackageName(),
-                                packageName.replace(".", ""),
-                                new LinkedList<>(Collections.singletonList(packageName)));
-                imports = imports.add(jArraysImport);
-            }
-        }
-        return imports;
     }
 
     private SyntaxTree generateFromTemplate(Path templatePath) throws BindgenException {
@@ -112,7 +80,7 @@ public class BindingsGenerator {
 
 
     private SyntaxTree replacePlaceholders(String content) {
-        Class javaClass = jClass.getJClass();
+        Class javaClass = jClass.getCurrentClass();
         String modifiedContent = content.replace("FULL_CLASS_NAME", javaClass.getName())
                 .replace("CLASS_TYPE", javaClass.isInterface() ? "interface" : "class")
                 .replace("SHORT_CLASS_NAME_CAPS", javaClass.getSimpleName().toUpperCase(Locale.getDefault()))
@@ -126,8 +94,8 @@ public class BindingsGenerator {
      * If conflicting class names are found, an incremental integer is appended to the Ballerina class name.
      * */
     private void setClassNameAlias() {
-        String className = jClass.getJClass().getName();
-        String simpleClassName = jClass.getJClass().getSimpleName();
+        String className = jClass.getCurrentClass().getName();
+        String simpleClassName = jClass.getCurrentClass().getSimpleName();
         if (env.getAliasValue(simpleClassName) == null) {
             env.setAlias(simpleClassName, className);
         } else {
