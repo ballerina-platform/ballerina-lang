@@ -26,6 +26,8 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.List;
@@ -115,8 +117,10 @@ public class BallerinaMethodSymbol implements MethodSymbol {
         }
         this.typeDescriptor().restParam().ifPresent(ballerinaParameter -> joiner.add(ballerinaParameter.signature()));
         signature.append(joiner.toString()).append(")");
-        this.typeDescriptor().returnTypeDescriptor().ifPresent(typeDescriptor -> signature.append(" returns ")
-                .append(typeDescriptor.signature()));
+        Optional<TypeSymbol> returnTypeSymbol = this.typeDescriptor().returnTypeDescriptor();
+        if (returnTypeSymbol.isPresent() && returnTypeSymbol.get().typeKind() != TypeDescKind.NIL) {
+            signature.append(" returns ").append(returnTypeSymbol.get().signature());
+        }
         return signature.toString();
     }
 }

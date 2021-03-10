@@ -2801,7 +2801,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         recordType.sealed = recordTypeNode.sealed;
         if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
-            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
+            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS);
             return;
         }
 
@@ -3151,7 +3151,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BRecordType recordType = (BRecordType) structureType;
         recordType.sealed = recordTypeNode.sealed;
         if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
-            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
+            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS);
             return;
         }
 
@@ -3689,9 +3689,12 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create variable symbol
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
-
-        // Add it to the enclosing scope
-        if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+        if (flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
+                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM)) {
+            if (!symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
+                varSymbol.type = symTable.semanticError;
+            }
+        } else if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
         }
         enclScope.define(varSymbol.name, varSymbol);

@@ -71,6 +71,8 @@ public class ObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "sample name");
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
         Assert.assertEquals(returns[3].stringValue(), "february");
+
+        BRunUtil.invoke(compileResult, "testErrorAsObjectField");
     }
 
     @Test(description = "Test Basic object as struct with just new")
@@ -770,5 +772,13 @@ public class ObjectTest {
         Assert.assertTrue(result[1] instanceof BString);
         Assert.assertEquals(result[0].stringValue(), "firstValue");
         Assert.assertEquals(result[1].stringValue(), "secondValue");
+    }
+
+    @Test(description = "Negative test to test duplicate fields")
+    public void testDuplicateFields() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_field_negative.bal");
+        BAssertUtil.validateError(result, 0, "redeclared symbol 'error'",
+                20, 18);
+        Assert.assertEquals(result.getErrorCount(), 1);
     }
 }

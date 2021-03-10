@@ -237,3 +237,32 @@ function testUsingParamValuesInAttachedFunc() returns string {
 public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
+
+function getError() returns error {
+    return error("Generated Error");
+}
+
+public function functionWithErrorNamedDefaultArgument(error 'error = getError()) {
+    assertEquality('error.toString(), "error(\"Generated Error\")");
+}
+
+public function testErrorNamedDefaultArgument() {
+    functionWithErrorNamedDefaultArgument();
+}
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON, message =
+    "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
