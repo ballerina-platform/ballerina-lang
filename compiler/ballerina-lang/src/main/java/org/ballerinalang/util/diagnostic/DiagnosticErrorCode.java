@@ -666,7 +666,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3971",
             "unsupported.resource.function.declaration.in.object.type"),
     SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3972",
-            "error.service.absolute.path.or.literal.required.by.listener"),
+            "service.absolute.path.or.literal.required.by.listener"),
     SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER("BCE3973", "service.path.literal.is.not.supported.by.listener"),
     SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3974", "service.absolute.path.is.not.supported.by.listener"),
     SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3975", "service.path.literal.required.by.listener"),
