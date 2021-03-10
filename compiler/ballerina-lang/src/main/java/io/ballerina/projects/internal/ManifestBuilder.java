@@ -362,6 +362,8 @@ public class ManifestBuilder {
         }
         boolean taintCheck =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.TAINT_CHECK.toString());
+        boolean listConflictedClasses =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
         return buildOptionsBuilder
                 .skipTests(skipTests)
@@ -371,6 +373,7 @@ public class ManifestBuilder {
                 .codeCoverage(codeCoverage)
                 .cloud(cloud)
                 .taintCheck(taintCheck)
+                .listConflictedClasses(listConflictedClasses)
                 .build();
     }
 
