@@ -73,28 +73,17 @@ public class CompilerPluginTests {
 
     @Test
     public void testCompilerPluginWithOneJavaLibDependency() {
-        Package currentPackage = loadPackage("package_plugin_user_2");
-        PackageCompilation compilation = currentPackage.getCompilation();
-
-        // TODO Use diagnostics to check test the execution of compiler plugins
-
-        // Check whether there are any diagnostics
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
-
-        // Check direct package dependencies
-        Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
-                "Unexpected number of dependencies");
+        assertDiagnostics(loadPackage("package_plugin_user_2"));
     }
 
     @Test
     public void testCompilerPluginWithTwoJavaLibDependencies() {
-        Package currentPackage = loadPackage("package_plugin_user_3");
-        PackageCompilation compilation = currentPackage.getCompilation();
+        assertDiagnostics(loadPackage("package_plugin_user_3"));
+    }
 
+    public void assertDiagnostics(Package currentPackage) {
         // Check whether there are any diagnostics
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
                 "Unexpected number of compilation diagnostics");
 
