@@ -23,7 +23,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.projects.internal.bala.BalaJson;
-import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
@@ -55,7 +54,6 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 import static io.ballerina.projects.util.ProjectConstants.BALA_JSON;
-import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
 import static io.ballerina.projects.util.ProjectUtils.getBalaName;
@@ -123,9 +121,7 @@ public abstract class BalaWriter {
         Optional<JsonArray> platformLibs = addPlatformLibs(balaOutputStream);
         addPackageJson(balaOutputStream, platformLibs);
 
-        addCompilerPluginLibs(balaOutputStream);
-        addCompilerPluginJson(balaOutputStream);
-
+        addCompilerPlugin(balaOutputStream);
         addDependenciesJson(balaOutputStream);
     }
 
@@ -168,26 +164,6 @@ public abstract class BalaWriter {
                     new ByteArrayInputStream(gson.toJson(packageJson).getBytes(Charset.defaultCharset())));
         } catch (IOException e) {
             throw new ProjectException("Failed to write 'package.json' file: " + e.getMessage(), e);
-        }
-    }
-
-    private void addCompilerPluginJson(ZipOutputStream balaOutputStream) {
-        if (this.compilerPluginToml.isPresent()) {
-            CompilerPluginJson compilerPluginJson = new CompilerPluginJson(
-                    this.compilerPluginToml.get().plugin().getClassName(),
-                    this.compilerPluginToml.get().getCompilerPluginDependencies());
-
-            // Remove fields with empty values from `package.json`
-            Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
-                    .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
-
-            try {
-                putZipEntry(balaOutputStream, Paths.get("compiler-plugin", COMPILER_PLUGIN_JSON),
-                            new ByteArrayInputStream(
-                                    gson.toJson(compilerPluginJson).getBytes(Charset.defaultCharset())));
-            } catch (IOException e) {
-                throw new ProjectException("Failed to write '" + COMPILER_PLUGIN_JSON + "' file: " + e.getMessage(), e);
-            }
         }
     }
 
@@ -378,8 +354,7 @@ public abstract class BalaWriter {
     protected abstract Optional<JsonArray> addPlatformLibs(ZipOutputStream balaOutputStream)
             throws IOException;
 
-    protected abstract void addCompilerPluginLibs(ZipOutputStream balaOutputStream)
-            throws IOException;
+    protected abstract void addCompilerPlugin(ZipOutputStream balaOutputStream) throws IOException;
 
     // Following function was put in to handle a bug in windows zipFileSystem
     // Refer https://bugs.openjdk.java.net/browse/JDK-8195141
