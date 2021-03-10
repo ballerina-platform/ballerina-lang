@@ -18,11 +18,13 @@
 package io.ballerina.projects.util;
 
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
@@ -268,8 +270,10 @@ public class ProjectUtils {
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
 
-    public static List<Path> testDependencies() {
-        List<Path> dependencies = new ArrayList<>();
+    public static List<JarLibrary> testDependencies() {
+        List<JarLibrary> dependencies = new ArrayList<>();
+        String testPkgName = "ballerina/test";
+
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         Path homeLibPath = getBalHomePath().resolve(BALLERINA_HOME_BRE).resolve(LIB_DIR);
         String testRuntimeJarName = TEST_RUNTIME_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
@@ -279,22 +283,22 @@ public class ProjectUtils {
         Path testRuntimeJarPath = homeLibPath.resolve(testRuntimeJarName);
         Path testCoreJarPath = homeLibPath.resolve(testCoreJarName);
         Path langJarPath = homeLibPath.resolve(langJarName);
-        Path jacocoCoreJarPath =  homeLibPath.resolve(JACOCO_CORE_JAR);
+        Path jacocoCoreJarPath = homeLibPath.resolve(JACOCO_CORE_JAR);
         Path jacocoReportJarPath = homeLibPath.resolve(JACOCO_REPORT_JAR);
         Path asmJarPath = homeLibPath.resolve(ASM_JAR);
         Path asmTreeJarPath = homeLibPath.resolve(ASM_TREE_JAR);
         Path asmCommonsJarPath = homeLibPath.resolve(ASM_COMMONS_JAR);
         Path diffUtilsJarPath = homeLibPath.resolve(DIFF_UTILS_JAR);
 
-        dependencies.add(testRuntimeJarPath);
-        dependencies.add(testCoreJarPath);
-        dependencies.add(langJarPath);
-        dependencies.add(jacocoCoreJarPath);
-        dependencies.add(jacocoReportJarPath);
-        dependencies.add(asmJarPath);
-        dependencies.add(asmTreeJarPath);
-        dependencies.add(asmCommonsJarPath);
-        dependencies.add(diffUtilsJarPath);
+        dependencies.add(new JarLibrary(testRuntimeJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(testCoreJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(langJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(jacocoCoreJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(jacocoReportJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(asmJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(asmTreeJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(asmCommonsJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(diffUtilsJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
         return dependencies;
     }
 

@@ -38,9 +38,13 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class AbstractIntegrationTest {
+public abstract class AbstractIntegrationTest {
+    private static final String TEST_HEADER = "test.bal";
+
     protected void test(String fileName) throws Exception {
         List<TestCase> testCases = TestUtils.loadTestCases(fileName, TestCases.class);
+
+        String declarationFile = TestUtils.getFile(TEST_HEADER).getAbsolutePath();
 
         PipedOutputStream testOut = new PipedOutputStream();
         PipedInputStream shellIn = new PipedInputStream(testOut);
@@ -58,7 +62,7 @@ public class AbstractIntegrationTest {
 
             try {
                 BShellConfiguration configuration = new BShellConfiguration.Builder()
-                        .setInputStream(shellIn).setOutputStream(shellOut)
+                        .setInputStream(shellIn).setOutputStream(shellOut).setStartFile(declarationFile)
                         .setDumb(true).setTreeParsingTimeoutMs(10000).build();
                 ReplShellApplication.execute(configuration);
             } catch (EndOfFileException ignored) {

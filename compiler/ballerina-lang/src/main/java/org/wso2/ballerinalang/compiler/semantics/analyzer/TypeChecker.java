@@ -3940,6 +3940,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        if (bLangLambdaFunction.function.symbol == null) {
+            resultType = symTable.semanticError;
+            return;
+        }
         bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.capturedClosureEnv = env.createClone();
@@ -3965,7 +3969,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 expectedType = invokableType;
             }
         }
-        if (expectedType.tag != TypeTags.INVOKABLE) {
+        if (expectedType.tag != TypeTags.INVOKABLE || Symbols.isFlagOn(expectedType.flags, Flags.ANY_FUNCTION)) {
             dlog.error(bLangArrowFunction.pos,
                     DiagnosticErrorCode.ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS);
             resultType = symTable.semanticError;
@@ -5401,6 +5405,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
+        if (Symbols.isFlagOn(iExpr.symbol.type.flags, Flags.ANY_FUNCTION)) {
+            dlog.error(iExpr.pos, DiagnosticErrorCode.INVALID_FUNCTION_POINTER_INVOCATION_WITH_TYPE);
+            return symTable.semanticError;
+        }
         if (iExpr.symbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticErrorCode.INVALID_FUNCTION_INVOCATION, iExpr.symbol.type);
             return symTable.noType;

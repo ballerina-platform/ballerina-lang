@@ -18,7 +18,6 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
-import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
 import io.ballerina.toml.syntax.tree.DocumentNode;
@@ -58,8 +57,8 @@ public class ConfigToml {
 
         parseToml();
         List<Diagnostic> diagnosticList = getDiagnostics();
-        if (diagnosticList.size() != 0) {
-            throw new ConfigException(INVALID_TOML_FILE + getErrorMessage(diagnosticList));
+        if (!diagnosticList.isEmpty()) {
+            throw new ConfigTomlException(INVALID_TOML_FILE + getErrorMessage(diagnosticList));
         }
         return tomlAstNode;
     }
@@ -68,7 +67,8 @@ public class ConfigToml {
         StringBuilder errorMessage = new StringBuilder("\n");
         for (Diagnostic diagnostic : diagnosticList) {
             LineRange lineRange = diagnostic.location().lineRange();
-            errorMessage.append(diagnostic.message() + " [" + lineRange.filePath() + ":" + lineRange + "]\n");
+            errorMessage.append("[").append(lineRange.filePath()).append(":")
+                    .append(lineRange).append("] ").append(diagnostic.message()).append("\n");
         }
         return errorMessage.toString();
     }
@@ -81,20 +81,20 @@ public class ConfigToml {
         try {
             textDocument = TextDocuments.from(Files.readString(filePath));
         } catch (IOException e) {
-            throw new ConfigException("Failed to read file: " + filePath, e);
+            throw new ConfigTomlException("Failed to read file: " + filePath, e);
         }
         return textDocument;
     }
 
     private void parseToml() {
-        TextDocument textDocument = textDocument();
+        TextDocument tomlDocument = textDocument();
         try {
-            syntaxTree = SyntaxTree.from(textDocument, getFileName(filePath));
+            syntaxTree = SyntaxTree.from(tomlDocument, getFileName(filePath));
             TomlTransformer nodeTransformer = new TomlTransformer();
             tomlAstNode = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
         } catch (RuntimeException e) {
             // The toml parser throws runtime exceptions for some cases
-            throw new ConfigException("Failed to parse file: " + getFileName(filePath), e);
+            throw new ConfigTomlException("Failed to parse file: " + getFileName(filePath), e);
         }
     }
 
@@ -104,12 +104,11 @@ public class ConfigToml {
             return fileNamePath.toString();
         }
         // This branch may never be executed.
-        throw new ConfigException("Failed to retrieve the TOML file name from the path: " + filePath);
+        throw new ConfigTomlException("Failed to retrieve the TOML file name from the path: " + filePath);
 
     }
     private List<Diagnostic> getDiagnostics() {
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        diagnostics.addAll(tomlAstNode.diagnostics());
+        List<Diagnostic> diagnostics = new ArrayList<>(tomlAstNode.diagnostics());
         syntaxTree.diagnostics().forEach(diagnostics::add);
         return diagnostics;
     }

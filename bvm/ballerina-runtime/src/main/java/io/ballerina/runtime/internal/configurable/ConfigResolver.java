@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.values.ErrorValue;
 
 import java.util.HashMap;
@@ -33,6 +34,8 @@ import java.util.Optional;
 import java.util.function.Function;
 
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_MODULE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.VALUE_NOT_PROVIDED;
 
 /**
  * Class that resolve the configurations on given providers.
@@ -65,9 +68,15 @@ public class ConfigResolver {
         }
         for (Map.Entry<Module, VariableKey[]> entry : configVarMap.entrySet()) {
             Module module = entry.getKey();
+            String moduleName = module.getName();
             VariableKey[] variableKeys = entry.getValue();
             for (VariableKey varKey : variableKeys) {
                 Optional<?> configValue = getConfigValue(module, varKey, runtimeConfigProviders);
+                if (varKey.isRequired && configValue.isEmpty()) {
+                    String configVarName =
+                            (moduleName.equals(DEFAULT_MODULE)) ? varKey.variable : moduleName + ":" + varKey.variable;
+                    throw new ConfigException(String.format(VALUE_NOT_PROVIDED, configVarName));
+                }
                 configValue.ifPresent(o -> configValueMap.put(varKey, o));
             }
         }

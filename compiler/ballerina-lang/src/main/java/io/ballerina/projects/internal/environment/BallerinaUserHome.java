@@ -8,6 +8,7 @@ import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.SettingsProcessor;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -110,6 +111,7 @@ public final class BallerinaUserHome {
         } catch (IOException exception) {
             throw new ProjectException("unable to create repository: " + ProjectConstants.LOCAL_REPOSITORY_NAME);
         }
-        return new FileSystemRepository(environment, repositoryPath);
+        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
+        return new FileSystemRepository(environment, repositoryPath, ballerinaShortVersion);
     }
 }
