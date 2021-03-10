@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects.test.plugins;
 
-import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
@@ -30,7 +29,6 @@ import org.testng.annotations.Test;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Optional;
 
 /**
  * Contains cases to test compiler plugin loading and running.
@@ -40,23 +38,23 @@ import java.util.Optional;
 public class CompilerPluginTests {
     private static final Path RESOURCE_DIRECTORY = Paths.get(
             "src/test/resources/compiler_plugin_tests").toAbsolutePath();
-    private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath();
     private static final PrintStream OUT = System.out;
 
     @BeforeSuite
     public void init() {
         BCompileUtil.compileAndCacheBala("compiler_plugin_tests/package_comp_plugin_1");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_with_one_java_dependency");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_with_two_java_dependencies");
     }
 
     @Test
     public void testCompilerPluginBasic() {
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_b");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
-        Package currentPackage = buildProject.currentPackage();
-
-        Optional<CompilerPluginToml> compilerPluginToml = currentPackage.compilerPluginToml();
-        Assert.assertTrue(compilerPluginToml.isPresent());
+        Package currentPackage = loadPackage("package_plugin_user_1");
         PackageCompilation compilation = currentPackage.getCompilation();
+
+        // TODO Use diagnostics to check test the execution of compiler plugins
 
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
@@ -66,5 +64,45 @@ public class CompilerPluginTests {
         // Check direct package dependencies
         Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
                 "Unexpected number of dependencies");
+    }
+
+    @Test
+    public void testCompilerPluginWithOneJavaLibDependency() {
+        Package currentPackage = loadPackage("package_plugin_user_2");
+        PackageCompilation compilation = currentPackage.getCompilation();
+
+        // TODO Use diagnostics to check test the execution of compiler plugins
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+
+        // Check direct package dependencies
+        Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
+                "Unexpected number of dependencies");
+    }
+
+    @Test
+    public void testCompilerPluginWithTwoJavaLibDependencies() {
+        Package currentPackage = loadPackage("package_plugin_user_3");
+        PackageCompilation compilation = currentPackage.getCompilation();
+
+        // TODO Use diagnostics to check test the execution of compiler plugins
+
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
+        diagnosticResult.errors().forEach(OUT::println);
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+
+        // Check direct package dependencies
+        Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
+                "Unexpected number of dependencies");
+    }
+
+    private Package loadPackage(String path) {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
+        BuildProject buildProject = BuildProject.load(projectDirPath);
+        return buildProject.currentPackage();
     }
 }
