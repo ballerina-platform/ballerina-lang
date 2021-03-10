@@ -16,30 +16,19 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable;
-
-import java.util.HashMap;
-import java.util.Map;
+package io.ballerina.runtime.internal.configurable.exceptions;
 
 /**
- * Singleton class that holds runtime configurable values.
+ * Exception class used for configuration specific errors.
  *
  * @since 2.0.0
  */
-public class ConfigurableMap {
-    private static Map<VariableKey, Object> configurableMap = new HashMap<>();
-
-    private ConfigurableMap(){}
-
-    public static Object get(VariableKey key) {
-        return configurableMap.get(key);
+public class ConfigException extends RuntimeException {
+    public ConfigException(String message) {
+        super(message);
     }
 
-    public static boolean containsKey(VariableKey key) {
-        return configurableMap.containsKey(key);
-    }
-
-    static void put(VariableKey key, Object value) {
-        configurableMap.put(key, value);
+    public ConfigException(String message, Throwable e) {
+        super(message, e);
     }
 }

@@ -337,12 +337,16 @@ public class CoverageReport {
                         Module dependencyModule = pkg.module(dependencyModuleId);
                         PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
                                 pkg.packageId(), dependencyModule.moduleName());
-                        dependencyPathList.add(generatedJarLibrary.path());
+                        if (!dependencyPathList.contains(generatedJarLibrary.path())) {
+                            dependencyPathList.add(generatedJarLibrary.path());
+                        }
                     }
                     Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
                             pkg.packageId(), PlatformLibraryScope.DEFAULT);
                     for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-                        dependencyPathList.add(otherJarDependency.path());
+                        if (!dependencyPathList.contains(otherJarDependency.path())) {
+                            dependencyPathList.add(otherJarDependency.path());
+                        }
                     }
                 });
         return dependencyPathList;

@@ -234,7 +234,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_RECORD_LITERAL_KEY("BCE2514", "invalid.record.literal.key"),
     INVALID_RECORD_LITERAL_IDENTIFIER_KEY("BCE2515", "invalid.record.literal.identifier.key"),
     INVALID_FIELD_NAME_RECORD_LITERAL("BCE2516", "invalid.field.name.record.lit"),
-    REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS("BCE2517", "rest.field.not.allowed"),
+    REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS("BCE2517", "rest.field.not.allowed"),
     OPEN_RECORD_CONSTRAINT_NOT_ALLOWED("BCE2518", "open.record.constraint.not.allowed"),
     INVALID_RECORD_REST_DESCRIPTOR("BCE2519", "invalid.record.rest.descriptor"),
     MISSING_REQUIRED_RECORD_FIELD("BCE2520", "missing.required.record.field"),
@@ -277,7 +277,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_UPDATE_READONLY_RECORD_FIELD("BCE2552", "cannot.update.readonly.record.field"),
     CANNOT_UPDATE_FINAL_OBJECT_FIELD("BCE2553", "cannot.update.final.object.field"),
     UNDERSCORE_NOT_ALLOWED("BCE2554", "underscore.not.allowed"),
-    OPERATION_DOES_NOT_SUPPORT_INDEXING("BCE2555", "operation.does.not.support.indexing"),
+    OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2555", "operation.does.not.support.member.access"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2556", "operation.does.not.support.field.access"),
     OPERATION_DOES_NOT_SUPPORT_FIELD_ACCESS_FOR_ASSIGNMENT(
             "BCE2557", "operation.does.not.support.field.access.for.assignment"),
@@ -286,12 +286,12 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE2559", "operation.does.not.support.field.access.for.non.required.field"),
     OPERATION_DOES_NOT_SUPPORT_OPTIONAL_FIELD_ACCESS_FOR_FIELD(
             "BCE2560", "operation.does.not.support.optional.field.access.for.field"),
-    OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT(
-            "BCE2561", "operation.does.not.support.index.access.for.assignment"),
-    INVALID_INDEX_EXPR_STRUCT_FIELD_ACCESS("BCE2562", "invalid.index.expr.struct.field.access"),
-    INVALID_INDEX_EXPR_TUPLE_FIELD_ACCESS("BCE2563", "invalid.index.expr.tuple.field.access"),
-    INVALID_TUPLE_INDEX_EXPR("BCE2564", "invalid.tuple.index.expr"),
-    INVALID_RECORD_INDEX_EXPR("BCE2565", "invalid.record.index.expr"),
+    OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS_FOR_ASSIGNMENT(
+            "BCE2561", "operation.does.not.support.member.access.for.assignment"),
+    INVALID_MEMBER_ACCESS_EXPR_STRUCT_FIELD_ACCESS("BCE2562", "invalid.member.access.expr.struct.field.access"),
+    INVALID_MEMBER_ACCESS_EXPR_TUPLE_FIELD_ACCESS("BCE2563", "invalid.member.access.expr.tuple.field.access"),
+    INVALID_TUPLE_MEMBER_ACCESS_EXPR("BCE2564", "invalid.tuple.member.access.expr"),
+    INVALID_RECORD_MEMBER_ACCESS_EXPR("BCE2565", "invalid.record.member.access.expr"),
     INVALID_ENUM_EXPR("BCE2566", "invalid.enum.expr"),
     INVALID_EXPR_IN_MATCH_STMT("BCE2567", "invalid.expr.in.match.stmt"),
     INVALID_PATTERN_CLAUSES_IN_MATCH_STMT("BCE2568", "invalid.pattern.clauses.in.match.stmt"),
@@ -320,10 +320,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_TUPLE_BINDING_PATTERN_DECL("BCE2590", "invalid.tuple.binding.pattern.decl"),
     INVALID_LIST_BINDING_PATTERN_INFERENCE("BCE2591", "invalid.list.binding.pattern.inference"),
     MISMATCHING_ARRAY_LITERAL_VALUES("BCE2592", "mismatching.array.literal.values"),
-    SEALED_ARRAY_TYPE_NOT_INITIALIZED("BCE2593", "sealed.array.type.not.initialized"),
-    INVALID_LIST_INDEX_EXPR("BCE2594", "invalid.list.index.expr"),
-    INVALID_ARRAY_INDEX_EXPR("BCE2595", "invalid.array.index.expr"),
-    SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("BCE2596", "sealed.array.type.can.not.infer.size"),
+    CLOSED_ARRAY_TYPE_NOT_INITIALIZED("BCE2593", "closed.array.type.not.initialized"),
+    INVALID_LIST_MEMBER_ACCESS_EXPR("BCE2594", "invalid.list.member.access.expr"),
+    INVALID_ARRAY_MEMBER_ACCESS_EXPR("BCE2595", "invalid.array.member.access.expr"),
+    CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE("BCE2596", "closed.array.type.can.not.infer.size"),
     INVALID_SORT_FUNC_RETURN_TYPE("BCE2597", "invalid.key.func.return.type"),
     INVALID_SORT_ARRAY_MEMBER_TYPE("BCE2598", "invalid.sort.array.member.type"),
     // TODO Maryam remove list array tuple and use first only
@@ -362,7 +362,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CANNOT_FIND_XML_NAMESPACE("BCE2629", "cannot.find.xml.namespace.prefix"),
     UNSUPPORTED_METHOD_INVOCATION_XML_NAV("BCE2630", "method.invocation.in.xml.navigation.expressions.not.supported"),
     DEPRECATED_XML_ATTRIBUTE_ACCESS("BCE2631", "deprecated.xml.attribute.access.expression"),
-    UNSUPPORTED_INDEX_IN_XML_NAVIGATION("BCE2632", "indexing.within.xml.navigation.expression.not.supported"),
+    UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION("BCE2632", "member.access.within.xml.navigation.expression.not" +
+            ".supported"),
 
     UNDEFINED_ANNOTATION("BCE2633", "undefined.annotation"),
     ANNOTATION_NOT_ALLOWED("BCE2634", "annotation.not.allowed"),
@@ -384,7 +385,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION("BCE2647", "invalid.never.return.typed.function.invocation"),
     NEVER_TYPED_VAR_DEF_NOT_ALLOWED("BCE2648", "never.typed.var.def.not.allowed"),
 
-    EXPRESSION_DOES_NOT_SUPPORT_INDEX_ACCESS("BCE2649", "expression.does.not.support.index.access"),
+    EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2649", "expression.does.not.support.member.access"),
     EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2650", "expression.does.not.support.field.access"),
     CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES(
             "BCE2651", "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
@@ -530,7 +531,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION("BCE3706", "invalid.functional.constructor.invocation"),
     MISSING_ERROR_DETAIL_ARG("BCE3707", "missing.error.detail.arg"),
     INVALID_ERROR_DETAIL_ARG_TYPE("BCE3708", "invalid.error.detail.arg.type"),
-    UNKNOWN_DETAIL_ARG_TO_SEALED_ERROR_DETAIL_REC("BCE3709", "unknown.error.detail.arg.to.sealed.detail"),
+    UNKNOWN_DETAIL_ARG_TO_CLOSED_ERROR_DETAIL_REC("BCE3709", "unknown.error.detail.arg.to.closed.detail"),
     INVALID_ERROR_DETAIL_REST_ARG_TYPE("BCE3710", "invalid.error.detail.rest.arg"),
     UNDEFINED_ERROR_TYPE_DESCRIPTOR("BCE3711", "undefined.error.type.descriptor"),
     INVALID_REST_DETAIL_ARG("BCE3712",
@@ -665,7 +666,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3971",
             "unsupported.resource.function.declaration.in.object.type"),
     SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3972",
-            "error.service.absolute.path.or.literal.required.by.listener"),
+            "service.absolute.path.or.literal.required.by.listener"),
     SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER("BCE3973", "service.path.literal.is.not.supported.by.listener"),
     SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3974", "service.absolute.path.is.not.supported.by.listener"),
     SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3975", "service.path.literal.required.by.listener"),
@@ -692,7 +693,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CONTINUE_NOT_ALLOWED("BCE3987", "continue.not.allowed"),
     BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed"),
     TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3989", "type.does.not.support.xml.navigation.access"),
-    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3990", "xml.function.does.not.support.argument.type")
+    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3990", "xml.function.does.not.support.argument.type"),
+    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3991", "async.send.action.not.yet.supported.as.expression")
     ;
 
     private String diagnosticId;

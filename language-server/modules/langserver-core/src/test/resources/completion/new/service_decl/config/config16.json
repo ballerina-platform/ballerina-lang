@@ -595,14 +595,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "self",
-      "kind": "Variable",
-      "detail": "isolated service object {resource function $name$.() returns () ;}",
-      "sortText": "B",
-      "insertText": "self",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction()(int)",
       "kind": "Function",
       "detail": "Function",
@@ -614,6 +606,14 @@
       },
       "sortText": "C",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "isolated service object {resource function name . () returns () ;}",
+      "sortText": "B",
+      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {

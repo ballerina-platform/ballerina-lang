@@ -23,7 +23,7 @@
 <suite name="ballerina-runtime-test-suite" time-out="120000">
     <test name="ballerina-runtime-test" parallel="false">
         <packages>
-            <package name="org.ballerinalang.runtime.test.*"/>
+            <package name="io.ballerina.runtime.test.*"/>
         </packages>
     </test>
 </suite>

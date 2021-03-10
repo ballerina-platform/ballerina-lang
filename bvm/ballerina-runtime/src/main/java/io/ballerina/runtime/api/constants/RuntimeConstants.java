@@ -152,4 +152,6 @@ public class RuntimeConstants {
 
     public static final String FALSE = "false";
 
+    public static final String CURRENT_TRANSACTION_CONTEXT_PROPERTY = "currentTrxContext";
+
 }

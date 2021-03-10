@@ -1,12 +1,12 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
@@ -16,19 +16,19 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable.exceptions;
+package io.ballerina.compiler.api.symbols;
 
 /**
- * Exception class when parsing toml files.
+ * Represents a string literal attach point.
  *
  * @since 2.0.0
  */
-public class TomlException extends RuntimeException {
-    public TomlException(String message) {
-        super(message);
-    }
+public interface LiteralAttachPoint extends ServiceAttachPoint {
 
-    public TomlException(String message, Throwable e) {
-        super(message, e);
-    }
+    /**
+     * Gets the string literal specified as the attach point.
+     *
+     * @return The attach point literal
+     */
+    String literal();
 }

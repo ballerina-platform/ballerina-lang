@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -140,6 +141,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.HashMap;
@@ -1673,6 +1675,32 @@ public class SymbolEnter extends BLangNodeVisitor {
     @Override
     public void visit(BLangService serviceNode) {
         defineNode(serviceNode.serviceVariable, env);
+
+        Name generatedServiceName = names.fromString("service$" + serviceNode.serviceClass.symbol.name.value);
+        BType type = serviceNode.serviceClass.typeRefs.isEmpty() ? null : serviceNode.serviceClass.typeRefs.get(0).type;
+        BServiceSymbol serviceSymbol = new BServiceSymbol((BClassSymbol) serviceNode.serviceClass.symbol,
+                                                          Flags.asMask(serviceNode.flagSet), generatedServiceName,
+                                                          env.enclPkg.symbol.pkgID, type, env.enclPkg.symbol,
+                                                          serviceNode.pos, SOURCE);
+        serviceNode.symbol = serviceSymbol;
+
+        if (!serviceNode.absoluteResourcePath.isEmpty()) {
+            if ("/".equals(serviceNode.absoluteResourcePath.get(0).getValue())) {
+                serviceSymbol.setAbsResourcePath(Collections.emptyList());
+            } else {
+                List<String> list = new ArrayList<>();
+                for (IdentifierNode identifierNode : serviceNode.absoluteResourcePath) {
+                    list.add(identifierNode.getValue());
+                }
+                serviceSymbol.setAbsResourcePath(list);
+            }
+        }
+
+        if (serviceNode.serviceNameLiteral != null) {
+            serviceSymbol.setAttachPointStringLiteral(serviceNode.serviceNameLiteral.value.toString());
+        }
+
+        env.scope.define(serviceSymbol.name, serviceSymbol);
     }
 
     @Override
@@ -2801,7 +2829,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         recordType.sealed = recordTypeNode.sealed;
         if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
-            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
+            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS);
             return;
         }
 
@@ -3151,7 +3179,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BRecordType recordType = (BRecordType) structureType;
         recordType.sealed = recordTypeNode.sealed;
         if (recordTypeNode.sealed && recordTypeNode.restFieldType != null) {
-            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_SEALED_RECORDS);
+            dlog.error(recordTypeNode.restFieldType.pos, DiagnosticErrorCode.REST_FIELD_NOT_ALLOWED_IN_CLOSED_RECORDS);
             return;
         }
 
@@ -3817,14 +3845,20 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         List<BVarSymbol> pathParamSymbols = resourceFunction.pathParams.stream()
-                .map(p -> p.symbol)
+                .map(p -> {
+                    p.symbol.kind = SymbolKind.PATH_PARAMETER;
+                    return p.symbol;
+                })
                 .collect(Collectors.toList());
 
-        BVarSymbol restPathParamSym =
-                resourceFunction.restPathParam != null ? resourceFunction.restPathParam.symbol : null;
+        BVarSymbol restPathParamSym = null;
+        if (resourceFunction.restPathParam != null) {
+            restPathParamSym = resourceFunction.restPathParam.symbol;
+            restPathParamSym.kind = SymbolKind.PATH_REST_PARAMETER;
+        }
 
         return new BResourceFunction(names.fromIdNode(funcNode.name), funcSymbol, funcType, resourcePath,
-                accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
+                                     accessor, pathParamSymbols, restPathParamSym, funcNode.pos);
     }
 
     private void validateRemoteFunctionAttachedToObject(BLangFunction funcNode, BObjectTypeSymbol objectSymbol) {
