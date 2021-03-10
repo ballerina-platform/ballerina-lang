@@ -33,6 +33,7 @@ public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
 
     private final ISourceFileCoverage oldSourceFile;
     private final List<ILine> modifiedLines;
+    private String normalizedPackageName;
 
     public PartialCoverageModifiedSourceFile(ISourceFileCoverage oldSourcefile, List<ILine> modifiedLines) {
         this.oldSourceFile = oldSourcefile;
@@ -63,6 +64,9 @@ public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
 
     @Override
     public String getPackageName() {
+        if (this.normalizedPackageName != null) {
+            return this.normalizedPackageName;
+        }
         return oldSourceFile.getPackageName();
     }
 
@@ -119,5 +123,9 @@ public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
     @Override
     public ICoverageNode getPlainCopy() {
         return oldSourceFile.getPlainCopy();
+    }
+
+    public void setNormalizedPackageName(String normalizedPackageName) {
+        this.normalizedPackageName = normalizedPackageName;
     }
 }

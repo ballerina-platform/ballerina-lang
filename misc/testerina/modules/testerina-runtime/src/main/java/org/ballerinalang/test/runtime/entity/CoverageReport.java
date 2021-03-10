@@ -32,6 +32,7 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
+import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
@@ -162,8 +163,26 @@ public class CoverageReport {
     }
 
     private IBundleCoverage getPartialCoverageModifiedBundle(CoverageBuilder coverageBuilder) {
-        return new BundleCoverageImpl(title, coverageBuilder.getClasses(),
+        return new BundleCoverageImpl(title, modifyClasses(coverageBuilder.getClasses()),
                 modifySourceFiles(coverageBuilder.getSourceFiles()));
+    }
+
+    /**
+     * Modify Classes in CoverageBuilder to reflect ballerina source root.
+     *
+     * @param classesList Collection<IClassCoverage>
+     * @return Collection<IClassCoverage>
+     */
+    private Collection<IClassCoverage> modifyClasses(Collection<IClassCoverage> classesList) {
+        Collection<IClassCoverage> modifiedClasses = new ArrayList<>();
+        for (IClassCoverage classCoverage : classesList) {
+            //Normalize package name and class name
+            IClassCoverage modifiedClass = new NormalizedCoverageClass(classCoverage,
+                    normalizeFileName(classCoverage.getPackageName()),
+                    normalizeFileName(classCoverage.getName()));
+            modifiedClasses.add(modifiedClass);
+        }
+        return modifiedClasses;
     }
 
     private void createXMLReport(IBundleCoverage bundleCoverage) throws IOException {
@@ -355,16 +374,34 @@ public class CoverageReport {
     private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
         Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
         for (ISourceFileCoverage sourcefile : sourcefiles) {
+            ISourceFileCoverage modifiedSourceFile;
             if (sourcefile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                 List<ILine> modifiedLines = modifyLines(sourcefile);
-                ISourceFileCoverage modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
+                modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
                         modifiedLines);
-                modifiedSourceFiles.add(modifiedSourceFile);
             } else {
-                modifiedSourceFiles.add(sourcefile);
+                modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
+                        new ArrayList<>());
             }
+            //Normalize source file package name
+            ((PartialCoverageModifiedSourceFile) modifiedSourceFile).setNormalizedPackageName(
+                    normalizeFileName(modifiedSourceFile.getPackageName()));
+            modifiedSourceFiles.add(modifiedSourceFile);
         }
         return modifiedSourceFiles;
+    }
+
+    private String normalizeFileName(String fileName) {
+        String orgName = this.module.packageInstance().packageOrg().toString();
+        String packageName = this.module.packageInstance().packageName().toString();
+        // Capture file paths with the format "orgName/packageName/xxxx/file-name" and replace with
+        // "<source-root>/file-name"
+        String normalizedFileName = fileName.replaceAll("^" + orgName + "/" +
+                packageName + "/.*/", module.project().sourceRoot().getFileName().toString() + "/");
+        // Capture remaining file paths with the format "orgName/packageName/file-name" and replace with "<source-root>"
+        normalizedFileName = normalizedFileName.replaceAll("^" + orgName + "/" +
+                packageName + "/.*", module.project().sourceRoot().getFileName().toString());
+        return normalizedFileName;
     }
 
     private List<ILine> modifyLines(ISourceFileCoverage sourcefile) {
