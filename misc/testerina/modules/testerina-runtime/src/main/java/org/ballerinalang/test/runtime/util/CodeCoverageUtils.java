@@ -170,9 +170,6 @@ public class CodeCoverageUtils {
             return false;
         } else if (path.contains("Frame") && path.contains(orgName)) {
             return false;
-        } else if (path.contains(
-                orgName + "/" + moduleName + "/" + version.replace(".", "_") + "/" + moduleName + ".class")) {
-            return false;
         } else if (path.contains("module-info.class")) {
             return false;
         } else if (enableIncludesFilter && !isIncluded(path, includesInCoverage)) {
