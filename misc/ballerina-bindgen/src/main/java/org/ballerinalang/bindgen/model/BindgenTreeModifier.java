@@ -71,12 +71,13 @@ public class BindgenTreeModifier {
         members = updateStaticMethods(members);
         members = updateStaticFields(members);
         members = updateExternalMethods(members);
+        members = updateTypeReferences(members);
 
         return members;
 
     }
 
-    private NodeList<ModuleMemberDeclarationNode> modifyTypeReferences(NodeList<ModuleMemberDeclarationNode> members)
+    private NodeList<ModuleMemberDeclarationNode> updateTypeReferences(NodeList<ModuleMemberDeclarationNode> members)
             throws BindgenException {
         List<TypeReferenceNode> typeReferences = new LinkedList<>();
 

@@ -297,12 +297,12 @@ public class BindgenNodeFactory {
                 !jMethod.isArrayReturnType()) {
             statementNodes.add(createVariableDeclarationNode(StatementKind.GET_HANDLE_NO_PARAMS, jMethod));
             statementNodes.add(createVariableDeclarationNode(StatementKind.GET_OBJECT_FROM_HANDLE, jMethod));
-            statementNodes.add(createReturnStatementNode(null, jMethod.getFunctionReturnType()));
+            statementNodes.add(createReturnStatementNode(null, jMethod.getFunctionReturnType(), jMethod));
 
         } else if (jMethod.getThrowables().isEmpty() && isBuiltInType(jMethod.getExternalReturnType()) &&
                 !jMethod.isArrayReturnType()) {
             statementNodes.add(createVariableDeclarationNode(StatementKind.GET_HANDLE_NO_PARAMS, jMethod));
-            statementNodes.add(createReturnStatementNode(null, jMethod.getFunctionReturnType()));
+            statementNodes.add(createReturnStatementNode(null, jMethod.getFunctionReturnType(), jMethod));
         }
 
         return statementNodes;
@@ -332,8 +332,8 @@ public class BindgenNodeFactory {
         return NodeFactory.createTypeReferenceNode(asteriskToken, typeName, semicolonToken);
     }
 
-    private static ReturnStatementNode createReturnStatementNode(StatementKind kind, String returnType)
-            throws BindgenException {
+    private static ReturnStatementNode createReturnStatementNode(StatementKind kind, String returnType,
+                                                                 BFunction bFunction) throws BindgenException {
         Token returnKeyword = AbstractNodeFactory.createToken(SyntaxKind.RETURN_KEYWORD, emptyML(),
                 singleWSML());
         ExpressionNode expression = null; // TODO: remove this null return
@@ -342,7 +342,7 @@ public class BindgenNodeFactory {
         } else if (kind == StatementKind.RETURN_BUILTIN_TYPE) {
             expression = createSimpleNameReferenceNode("externalObj");
         } else if (kind == StatementKind.RETURN_PRIMITIVE_ARRAY) {
-            expression = createTypeCastExpressionNode(returnType, true);
+            expression = createTypeCastExpressionNode(returnType, true, bFunction);
         }
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 
@@ -376,12 +376,12 @@ public class BindgenNodeFactory {
         return null;
     }
 
-    private static TypeCastExpressionNode createTypeCastExpressionNode(String type, boolean isArray)
-            throws BindgenException {
+    private static TypeCastExpressionNode createTypeCastExpressionNode(String type, boolean isArray,
+                                                                       BFunction bFunction) throws BindgenException {
         Token ltToken = AbstractNodeFactory.createToken(SyntaxKind.LT_TOKEN);
         TypeCastParamNode typeCastParam = createTypeCastParamNode(type, isArray);
         Token gtToken = AbstractNodeFactory.createToken(SyntaxKind.GT_TOKEN);
-        ExpressionNode expression = createCheckExpressionNode(StatementKind.FROM_HANDLE_EXPRESSION);
+        ExpressionNode expression = createCheckExpressionNode(StatementKind.FROM_HANDLE_EXPRESSION, bFunction);
 
         return NodeFactory.createTypeCastExpressionNode(ltToken, typeCastParam, gtToken, expression);
     }
@@ -404,12 +404,13 @@ public class BindgenNodeFactory {
         return NodeFactory.createImplicitNewExpressionNode(newToken, parenthesizedArgList);
     }
 
-    private static CheckExpressionNode createCheckExpressionNode(StatementKind expressionType) throws BindgenException {
+    private static CheckExpressionNode createCheckExpressionNode(StatementKind expressionType, BFunction bFunction)
+            throws BindgenException {
         Token checkKeyword = AbstractNodeFactory.createToken(SyntaxKind.CHECK_KEYWORD);
         ExpressionNode expressionNode = null;
         if (expressionType == StatementKind.FROM_HANDLE_EXPRESSION) {
-            expressionNode = createFunctionCallExpressionNode(null, StatementKind.FROM_HANDLE_EXPRESSION);
-        } else if (expressionType.equals("jarrays_to_handle")) {
+            expressionNode = createFunctionCallExpressionNode(bFunction, StatementKind.FROM_HANDLE_EXPRESSION);
+        } else if (expressionType == StatementKind.TO_HANDLE_EXPRESSION) {
             // TODO
         } else {
             throw new BindgenException("error: unable to create the check expression node");
@@ -808,6 +809,7 @@ public class BindgenNodeFactory {
         GET_BUILTIN_NO_PARAMS, // e.g. `int externalObj = BindgenTestResource_hashCode(self.jObj);`
         RETURN_PRIMITIVE_ARRAY, // e.g. `return <boolean[]>check jarrays:fromHandle(externalObj, "boolean");`
         FROM_HANDLE_EXPRESSION, // e.g. `jarrays:fromHandle(externalObj, "handle");`
+        TO_HANDLE_EXPRESSION, // e.g. `jarrays:toHandle(arg0, "byte")`
         CONSTRUCTOR,
         FIELD_GET,
         FIELD_SET;
