@@ -17,7 +17,7 @@
     },
     {
       "command": "build",
-      "subCommands": ["-c", "-o", "--cloud", "--code-coverage", "--compile", "--debug", "--experimental", "--observability-included", "--offline", "--output", "--skiptests", "--taint-check", "--test-report"]
+      "subCommands": ["-c", "-o", "--cloud", "--code-coverage", "--compile", "--debug", "--experimental", "--observability-included", "--offline", "--output", "--skip-tests", "--taint-check", "--test-report"]
     },
     {
       "command": "doc",

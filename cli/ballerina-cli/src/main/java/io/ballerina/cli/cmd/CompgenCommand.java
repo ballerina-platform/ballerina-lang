@@ -22,11 +22,13 @@ import com.google.gson.reflect.TypeToken;
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.cli.launcher.util.BCompileUtil;
+import io.ballerina.projects.util.ProjectConstants;
 import picocli.CommandLine;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
@@ -41,32 +43,26 @@ import static io.ballerina.cli.cmd.Constants.COMPGEN_COMMAND;
  */
 @CommandLine.Command(name = COMPGEN_COMMAND, description = "Generate bash completion script")
 public class CompgenCommand implements BLauncherCmd {
+    private Path userDir;
     private PrintStream outStream;
 
     public CompgenCommand() {
+        userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         outStream = System.out;
     }
 
-    public CompgenCommand(PrintStream outStream) {
+    public CompgenCommand(Path userDir, PrintStream outStream) {
+        this.userDir = userDir;
         this.outStream = outStream;
     }
 
     @CommandLine.Parameters(description = "Command name")
     private List<String> bashDistCommands;
 
-    @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true, description = "for more information")
-    private boolean helpFlag;
-
     @Override
     public void execute() {
-        if (helpFlag) {
-            String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(COMPGEN_COMMAND);
-            outStream.println(commandUsageInfo);
-            return;
-        }
-
         List<String> subCommands;
-        List<String> dirContents = getDirContents();
+        List<String> dirContents = getDirContents(this.userDir);
         if (bashDistCommands == null) {
             subCommands = getSubCommands("bal");
             printSuggestionList(subCommands, outStream);
@@ -160,14 +156,14 @@ public class CompgenCommand implements BLauncherCmd {
      *
      * @return contents of the current directory
      */
-    private static List<String> getDirContents() {
+    private static List<String> getDirContents(Path path) {
         List<String> dirContents = new ArrayList<>();
-        File userDir = Paths.get(System.getProperty("user.dir")).toFile();
+        File userDir = path.toFile();
         File[] filesList = userDir.listFiles();
         if (filesList != null) {
             for (File file: filesList) {
                 if (file.isDirectory()) {
-                    dirContents.add(file.getName());
+                    dirContents.add(file.getName() + "/");
                 } else {
                     String fileName = file.getName();
                     if (fileName.endsWith(".bal")) {
