@@ -85,6 +85,8 @@ public class BIRBinaryWriter {
         writeFunctions(birbuf, typeWriter, birPackage.functions);
         // Write annotations
         writeAnnotations(birbuf, typeWriter, birPackage.annotations);
+        // Write service declarations
+        writeServiceDeclarations(birbuf, birPackage.serviceDecls);
 
         // Write the constant pool entries.
         ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -432,6 +434,39 @@ public class BIRBinaryWriter {
                 throw new UnsupportedOperationException(
                         "finite type value is not supported for type: " + constValue.type);
 
+        }
+    }
+
+    private void writeServiceDeclarations(ByteBuf buf,
+                                          List<BIRNode.BIRServiceDeclaration> birServiceDeclList) {
+        buf.writeInt(birServiceDeclList.size());
+        birServiceDeclList.forEach(service -> writeServiceDeclaration(buf, service));
+    }
+
+    private void writeServiceDeclaration(ByteBuf buf, BIRNode.BIRServiceDeclaration birServiceDecl) {
+        buf.writeInt(addStringCPEntry(birServiceDecl.generatedName.value));
+        buf.writeInt(addStringCPEntry(birServiceDecl.associatedClassName.value));
+        buf.writeLong(birServiceDecl.flags);
+        buf.writeByte(birServiceDecl.origin.value());
+        writePosition(buf, birServiceDecl.pos);
+
+        buf.writeBoolean(birServiceDecl.type != null);
+        if (birServiceDecl.type != null) {
+            writeType(buf, birServiceDecl.type);
+        }
+
+        buf.writeBoolean(birServiceDecl.attachPoint != null);
+        if (birServiceDecl.attachPoint != null) {
+            buf.writeInt(birServiceDecl.attachPoint.size());
+
+            for (String pathSegment : birServiceDecl.attachPoint) {
+                buf.writeInt(addStringCPEntry(pathSegment));
+            }
+        }
+
+        buf.writeBoolean(birServiceDecl.attachPointLiteral != null);
+        if (birServiceDecl.attachPointLiteral != null) {
+            buf.writeInt(addStringCPEntry(birServiceDecl.attachPointLiteral));
         }
     }
 

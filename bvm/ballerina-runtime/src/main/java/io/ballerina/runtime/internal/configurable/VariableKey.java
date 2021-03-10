@@ -29,9 +29,9 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class VariableKey {
-    Module module;
-    String variable;
-    Type type;
+    public Module module;
+    public String variable;
+    public Type type;
 
     public VariableKey(String org, String module, String version, String variable) {
         this.module = new Module(org, module, version);

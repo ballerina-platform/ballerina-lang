@@ -64,6 +64,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -90,6 +91,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangImportPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.tree.BLangResourceFunction;
+import org.wso2.ballerinalang.compiler.tree.BLangService;
 import org.wso2.ballerinalang.compiler.tree.BLangSimpleVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangVariable;
@@ -395,6 +397,7 @@ public class BIRGen extends BLangNodeVisitor {
         astPkg.stopFunction.accept(this);
         astPkg.functions.forEach(astFunc -> astFunc.accept(this));
         astPkg.annotations.forEach(astAnn -> astAnn.accept(this));
+        astPkg.services.forEach(service -> service.accept(this));
     }
 
     private void generateClassDefinitions(List<TopLevelNode> topLevelNodes) {
@@ -532,11 +535,25 @@ public class BIRGen extends BLangNodeVisitor {
             }
 
             birFunc.returnVariable = new BIRVariableDcl(classDefinition.pos, funcSymbol.retType,
-                    this.env.nextLocalVarId(names), VarScope.FUNCTION, VarKind.RETURN, null);
+                                                        this.env.nextLocalVarId(names), VarScope.FUNCTION,
+                                                        VarKind.RETURN, null);
             birFunc.localVars.add(0, birFunc.returnVariable);
 
             typeDef.attachedFuncs.add(birFunc);
         }
+    }
+
+    @Override
+    public void visit(BLangService serviceNode) {
+        BServiceSymbol symbol = (BServiceSymbol) serviceNode.symbol;
+        List<String> attachPoint = symbol.getAbsResourcePath().orElse(null);
+        String attachPointLiteral = symbol.getAttachPointStringLiteral().orElse(null);
+        BIRNode.BIRServiceDeclaration serviceDecl =
+                new BIRNode.BIRServiceDeclaration(attachPoint, attachPointLiteral, symbol.name,
+                                                  symbol.getAssociatedClassSymbol().name, symbol.type, symbol.origin,
+                                                  symbol.flags, symbol.pos);
+        serviceDecl.setMarkdownDocAttachment(symbol.markdownDocumentation);
+        this.env.enclPkg.serviceDecls.add(serviceDecl);
     }
 
     @Override

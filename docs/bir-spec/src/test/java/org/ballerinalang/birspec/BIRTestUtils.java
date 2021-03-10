@@ -109,6 +109,9 @@ class BIRTestUtils {
 
         // assert functions
         assertFunctions(expectedBIRModule, actualBIRModule, constantPoolEntries);
+
+        // assert service decls
+        assertServiceDecls(expectedBIRModule, actualBIRModule, constantPoolEntries);
     }
 
     private static void assertFunctions(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
@@ -441,7 +444,59 @@ class BIRTestUtils {
 
             // assert markdown document
             assertMarkdownDocument(actualTypeDefinition.doc(), expectedTypeDefinition.markdownDocAttachment,
-                    constantPoolEntries);
+                                   constantPoolEntries);
+        }
+    }
+
+    private static void assertServiceDecls(BIRNode.BIRPackage expectedBIR, Bir.Module birModule,
+                                           ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+        List<BIRNode.BIRServiceDeclaration> expServiceDecls = expectedBIR.serviceDecls;
+        ArrayList<Bir.ServiceDeclaration> actualServiceDecls = birModule.serviceDeclarations();
+
+        Assert.assertEquals(actualServiceDecls.size(), expServiceDecls.size());
+
+        for (int i = 0; i < expServiceDecls.size(); i++) {
+            BIRNode.BIRServiceDeclaration expServiceDecl = expServiceDecls.get(i);
+            Bir.ServiceDeclaration actualServiceDecl = actualServiceDecls.get(i);
+
+            // assert name
+            assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.nameCpIndex()),
+                                    expServiceDecl.generatedName.value);
+
+            // assert associated class name
+            assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.associatedClassNameCpIndex()),
+                                    expServiceDecl.associatedClassName.value);
+
+            // assert flags
+            assertFlags(actualServiceDecl.flags(), expServiceDecl.flags);
+
+            // assert type
+            if (expServiceDecl.type != null) {
+                assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.typeCpIndex()),
+                                        expServiceDecl.type);
+            }
+
+            // assert position
+            if (expServiceDecl.pos != null) {
+                assertPosition(actualServiceDecl.position(), expServiceDecl.pos);
+            }
+
+            // assert attach points
+            if (expServiceDecl.attachPoint != null) {
+                Assert.assertEquals(actualServiceDecl.attachPoints().size(), expServiceDecl.attachPoint.size());
+
+                List<String> attachPoint = expServiceDecl.attachPoint;
+                for (int j = 0, attachPointSize = attachPoint.size(); j < attachPointSize; j++) {
+                    assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.attachPoints().get(j)),
+                                            attachPoint.get(j));
+                }
+            }
+
+            // assert attach point literal
+            if (expServiceDecl.attachPointLiteral != null) {
+                assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.attachPointLiteral()),
+                                        expServiceDecl.attachPointLiteral);
+            }
         }
     }
 
