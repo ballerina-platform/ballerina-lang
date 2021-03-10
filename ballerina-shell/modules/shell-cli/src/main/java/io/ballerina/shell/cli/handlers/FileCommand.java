@@ -32,10 +32,14 @@ public class FileCommand extends AbstractCommand {
 
     @Override
     public void run(String... args) {
-        if (args.length == 1) {
+        if (args.length == 0) {
+            ballerinaShell.outputError("No arguments provided. " +
+                    "You have to provide the file name to read.");
+        } else if (args.length == 1) {
             ballerinaShell.runFile(args[0]);
-            return;
+        } else {
+            ballerinaShell.outputError("Multiple arguments provided. " +
+                    "You have to provide the file name to read as the only argument.");
         }
-        ballerinaShell.outputError("You have to provide the file name to read as the only argument.");
     }
 }
