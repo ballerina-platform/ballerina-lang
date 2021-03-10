@@ -177,24 +177,42 @@ types:
         size: value_length
   type_invokable:
     seq:
-      - id: is_any_function
+      - id: invokable_kind
         type: u1
-      - id: param_types_count
-        type: s4
-        if: is_any_function == 0
-      - id: param_type_cp_index
-        type: s4
-        repeat: expr
-        repeat-expr: param_types_count
-        if: is_any_function == 0
+        enum: invokable_kind_enum
+      - id: cp_info
+        type:
+          switch-on: invokable_kind
+          cases:
+            'invokable_kind_enum::invokable_kind_any': any_function
+            'invokable_kind_enum::invokable_kind_specific': type_invokable_body
+    enums:
+      invokable_kind_enum:
+        0: invokable_kind_specific
+        1: invokable_kind_any
+  any_function:
+    seq:
+      - id: any_function_type
+        type: u1
+  invokable_rest_param_info:
+    seq:
       - id: has_rest_type
         type: u1
       - id: rest_type_cp_index
         type: s4
         if: has_rest_type == 1
+  type_invokable_body:
+    seq:
+      - id: param_types_count
+        type: s4
+      - id: param_type_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: param_types_count
+      - id: rest_type
+        type: invokable_rest_param_info
       - id: return_type_cp_index
         type: s4
-        if: is_any_function == 0
   type_map:
     seq:
       - id: constraint_type_cp_index
