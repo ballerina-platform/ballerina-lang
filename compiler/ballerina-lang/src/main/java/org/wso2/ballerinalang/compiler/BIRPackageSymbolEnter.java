@@ -25,6 +25,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -44,6 +45,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
@@ -52,6 +54,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BStructureTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
@@ -248,6 +251,9 @@ public class BIRPackageSymbolEnter {
 
         // Define annotations.
         defineSymbols(dataInStream, rethrow(this::defineAnnotations));
+
+        // Define service declarations
+        defineSymbols(dataInStream, rethrow(this::defineServiceDeclarations));
 
         this.typeReader = null;
         return this.env.pkgSymbol;
@@ -644,6 +650,41 @@ public class BIRPackageSymbolEnter {
                 // TODO implement for other types
                 throw new RuntimeException("unexpected type: " + valueType);
         }
+    }
+
+    private void defineServiceDeclarations(DataInputStream inputStream) throws IOException {
+        String serviceName = getStringCPEntryValue(inputStream);
+        String associatedClassName = getStringCPEntryValue(inputStream);
+        long flags = inputStream.readLong();
+        byte origin = inputStream.readByte();
+        Location pos = readPosition(inputStream);
+
+        BType type = null;
+        if (inputStream.readBoolean()) {
+            type = readBType(inputStream);
+        }
+
+        List<String> attachPoint = null;
+        if (inputStream.readBoolean()) {
+            attachPoint = new ArrayList<>();
+            int nSegments = inputStream.readInt();
+            for (int i = 0; i < nSegments; i++) {
+                attachPoint.add(getStringCPEntryValue(inputStream));
+            }
+        }
+
+        String attachPointLiteral = null;
+        if (inputStream.readBoolean()) {
+            attachPointLiteral = getStringCPEntryValue(inputStream);
+        }
+
+        BSymbol classSymbol = this.env.pkgSymbol.scope.lookup(names.fromString(associatedClassName)).symbol;
+        BServiceSymbol serviceDecl = new BServiceSymbol((BClassSymbol) classSymbol, flags,
+                                                        names.fromString(serviceName), this.env.pkgSymbol.pkgID, type,
+                                                        this.env.pkgSymbol, pos, SymbolOrigin.toOrigin(origin));
+        serviceDecl.setAttachPointStringLiteral(attachPointLiteral);
+        serviceDecl.setAbsResourcePath(attachPoint);
+        this.env.pkgSymbol.scope.define(names.fromString(serviceName), serviceDecl);
     }
 
     private void definePackageLevelVariables(DataInputStream dataInStream) throws IOException {

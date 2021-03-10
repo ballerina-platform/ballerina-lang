@@ -27,7 +27,9 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
@@ -59,10 +61,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
@@ -208,9 +212,7 @@ public class RunTestsTask implements Task {
         if (hasTests) {
             int testResult;
             try {
-                testResult = runTestSuit(testsCachePath, target,
-                        project.currentPackage().packageName().toString(),
-                        project.currentPackage().packageOrg().toString());
+                testResult = runTestSuit(testsCachePath, target, project.currentPackage(), jBallerinaBackend);
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
                         ModuleStatus moduleStatus = loadModuleStatusFromFile(
@@ -343,8 +345,12 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestSuit(Path testCachePath, Target target, String packageName, String orgName) throws IOException,
+    private int runTestSuit(Path testCachePath, Target target, Package currentPackage,
+                            JBallerinaBackend jBallerinaBackend) throws IOException,
             InterruptedException {
+        String packageName = currentPackage.packageName().toString();
+        String orgName = currentPackage.packageOrg().toString();
+        String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
@@ -367,7 +373,7 @@ public class RunTestsTask implements Task {
             cmdArgs.add(agentCommand);
         }
 
-        cmdArgs.addAll(Lists.of("-cp", getClassPath()));
+        cmdArgs.addAll(Lists.of("-cp", classPath));
         if (isInDebugMode()) {
             cmdArgs.add(getDebugArgs(this.err));
         }
@@ -463,6 +469,54 @@ public class RunTestsTask implements Task {
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
         }
+    }
+
+    private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> dependencies = new ArrayList<>();
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            // Skip getting file paths for execution if module doesnt contain a testable jar
+            if (!module.testDocumentIds().isEmpty() ||
+                    module.project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                Collection<Path> jarFilePathsRequiredForTestExecution =
+                        jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName());
+                dependencies.addAll(jarFilePathsRequiredForTestExecution);
+            }
+        }
+        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
+
+        List<Path> jarList = getExclusionPathList(jBallerinaBackend, currentPackage);
+        dependencies.removeAll(jarList);
+
+        StringJoiner classPath = new StringJoiner(File.pathSeparator);
+        dependencies.stream().map(Path::toString).forEach(classPath::add);
+        return classPath.toString();
+    }
+
+    private List<Path> getExclusionPathList(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> exclusionPathList = new ArrayList<>();
+
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            // Skip adding the path if the module doesnt contain a generated module jar
+            if (!module.documentIds().isEmpty()) {
+                PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
+                        currentPackage.packageId(), module.moduleName());
+                exclusionPathList.add(generatedJarLibrary.path());
+            }
+            // Skip adding the path if the module doesnt contain a generated testable jar
+            if (!module.testDocumentIds().isEmpty()) {
+                PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
+                        currentPackage.packageId(), module.moduleName());
+                exclusionPathList.add(codeGeneratedTestLibrary.path());
+            }
+        }
+
+        return exclusionPathList.stream().distinct().collect(Collectors.toList());
     }
 
 }

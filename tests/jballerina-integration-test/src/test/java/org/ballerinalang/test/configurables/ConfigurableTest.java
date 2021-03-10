@@ -132,14 +132,14 @@ public class ConfigurableTest extends BaseTest {
         return new Object[][]{
                 {"invalidComplexArray", "configurable variable 'main:intComplexArr' with type " +
                         "'(int[] & readonly)[] & readonly' is not supported" },
-                {"invalidRecordField", "field type 'string[][]' in configurable variable 'main:testUser' is " +
-                        "not supported"},
+                {"invalidRecordField", "field type '(string[][] & readonly)' in configurable variable 'main:testUser'" +
+                        " is not supported"},
                 {"invalidByteRange", "Value provided for byte variable 'main:byteVar' is out of range. " +
                         "Expected range is (0-255), found '355'"},
                 {"invalidMapType",
                         "configurable variable 'main:intMap' with type 'map<int> & readonly' is not supported"},
-                {"invalidTableConstraint", "table constraint type '(map<string> & readonly)' in configurable variable" +
-                        " 'main:tab' is not supported"}
+                {"invalidTableConstraint", "table constraint type 'map<string>' in configurable variable 'main:tab'" +
+                        " is not supported"}
         };
     }
 
@@ -187,23 +187,25 @@ public class ConfigurableTest extends BaseTest {
                 {"array_multi_type", "configurable variable 'main:intArr[1]' is expected to be of type 'int'," +
                         " but found 'string'"},
                 {"additional_field", "additional field 'scopes' provided for configurable variable 'main:testUser'" +
-                        " of record 'main:AuthInfo' is not supported"},
+                        " of record 'main:(testOrg/main:0.1.0:AuthInfo & readonly)' is not supported"},
                 {"missing_record_field", "value not provided for non-defaultable required field 'username' of record" +
-                        " 'main:AuthInfo' in configurable variable 'main:testUser'"},
+                        " 'main:(testOrg/main:0.1.0:AuthInfo & readonly)' in configurable variable 'main:testUser'"},
                 {"record_type_error", "configurable variable 'main:testUser' is expected to be of type " +
                         "'main:(testOrg/main:0.1.0:AuthInfo & readonly)', but found 'string'"},
                 {"record_field_structure_error", "field 'username' from configurable variable 'main:testUser' " +
                         "is expected to be of type 'string', but found 'record'"},
                 {"record_field_type_error", "field 'username' from configurable variable 'main:testUser' " +
                         "is expected to be of type 'string', but found 'int'"},
-                {"missing_table_key", "value required for key 'username' of type 'table<(main:AuthInfo & readonly)>" +
-                        " key(username) & readonly' in configurable variable 'main:users'"},
+                {"missing_table_key", "value required for key 'username' of type 'table<main:AuthInfo> key(username)'" +
+                        " in configurable variable 'main:users'"},
                 {"table_type_error", "configurable variable 'main:users' is expected to be of type " +
-                        "'table<(main:AuthInfo & readonly)> key(username) & readonly', but found 'record'"},
+                        "'table<main:AuthInfo> key(username)', but found 'record'"},
                 {"table_field_type_error", "field 'username' from configurable variable 'main:users' is " +
                         "expected to be of type 'string', but found 'int'"},
                 {"table_field_structure_error", "field 'username' from configurable variable 'main:users' " +
                         "is expected to be of type 'string', but found 'record'"},
+                {"warning_defaultable_field", "defaultable readonly record field 'name' in configurable variable " +
+                        "'main:employee' is not supported"}
         };
     }
 
