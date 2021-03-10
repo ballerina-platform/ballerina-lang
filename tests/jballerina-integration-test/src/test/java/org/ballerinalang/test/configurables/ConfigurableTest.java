@@ -62,6 +62,11 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
+    public void testAccessForOnlySubModules() throws BallerinaTestException {
+        executeBalCommand("/subModuleProject", testsPassed, "run", "configPkg", null);
+    }
+
+    @Test
     public void testBallerinaTestAPIWithConfigurableVariables() throws BallerinaTestException {
         executeBalCommand("/testProject", new LogLeecher("4 passing"), "test", "configPkg", null);
     }
