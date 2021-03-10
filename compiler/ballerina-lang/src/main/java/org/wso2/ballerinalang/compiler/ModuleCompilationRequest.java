@@ -25,7 +25,7 @@ import java.util.Objects;
 import java.util.UUID;
 
 /**
- * Represents a module compilation request
+ * Represents a module compilation request.
  *
  * @since 2.0.0
  */

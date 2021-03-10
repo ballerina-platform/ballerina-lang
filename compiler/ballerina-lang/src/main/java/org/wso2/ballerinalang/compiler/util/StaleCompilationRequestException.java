@@ -18,7 +18,6 @@
 
 package org.wso2.ballerinalang.compiler.util;
 
-import org.ballerinalang.compiler.BLangCompilerException;
 import org.wso2.ballerinalang.compiler.CompilationRequest;
 
 /**
@@ -26,7 +25,7 @@ import org.wso2.ballerinalang.compiler.CompilationRequest;
  *
  * @since 2.0.0
  */
-public class StaleCompilationRequestException extends BLangCompilerException {
+public class StaleCompilationRequestException extends Exception {
 
     public StaleCompilationRequestException(CompilationRequest staleRequest, CompilationRequest newRequest) {
         super(String.format("%s was cancelled by %s", staleRequest.toString(), newRequest.toString()));

@@ -66,7 +66,7 @@ public class CompilationRequestManager {
      *
      * @param request The request to be checked if it was cancelled
      */
-    public synchronized void throwIfCancelled(CompilationRequest request) {
+    public synchronized void throwIfCancelled(CompilationRequest request) throws StaleCompilationRequestException {
         if (!this.currentCompileRequest.equals(request)) {
             throw new StaleCompilationRequestException(currentCompileRequest, request);
         }

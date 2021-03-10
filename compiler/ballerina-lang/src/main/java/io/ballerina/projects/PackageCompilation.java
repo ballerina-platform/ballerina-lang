@@ -113,16 +113,9 @@ public class PackageCompilation {
         // We check whether the particular module compilation state equal to the typecheck phase here. 
         // If the states do not match, then this is a illegal state exception.
         if (moduleContext.compilationState() != ModuleCompilationState.COMPILED) {
-            if (moduleContext == null) {
-                System.err.println("ModuleContext was null");
-            } else if (moduleContext.compilationState() == null) {
-                System.err.println("Compilation state was null");
-            }
             throw new IllegalStateException("Semantic model cannot be retrieved when the module is in " +
-                                                    "compilation state '" + moduleContext.compilationState().name() +
-                                                    "'. " +
-                                                    "This is an internal error which will be fixed in a later release" +
-                                                    ".");
+                    "compilation state '" + moduleContext.compilationState().name() + "'. " +
+                    "This is an internal error which will be fixed in a later release.");
         }
 
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
