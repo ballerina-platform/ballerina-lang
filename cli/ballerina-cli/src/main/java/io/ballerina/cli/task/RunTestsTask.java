@@ -61,7 +61,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -435,19 +434,6 @@ public class RunTestsTask implements Task {
         return moduleCoverageMap;
     }
 
-    private String getClassPath() {
-        List<Path> dependencies = new ArrayList<>();
-        dependencies.add(ProjectUtils.getBallerinaRTJarPath());
-
-        for (JarLibrary jarLibrary : ProjectUtils.testDependencies()) {
-            dependencies.add(jarLibrary.path());
-        }
-
-        StringJoiner classPath = new StringJoiner(File.pathSeparator);
-        dependencies.stream().map(Path::toString).forEach(classPath::add);
-        return classPath.toString();
-    }
-
     /**
      * Write the content of each test suite into a common json.
      */
@@ -479,11 +465,11 @@ public class RunTestsTask implements Task {
             Module module = currentPackage.module(moduleId);
 
             // Skip getting file paths for execution if module doesnt contain a testable jar
-            if (!module.testDocumentIds().isEmpty() ||
-                    module.project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-                Collection<Path> jarFilePathsRequiredForTestExecution =
-                        jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName());
-                dependencies.addAll(jarFilePathsRequiredForTestExecution);
+            if (!module.testDocumentIds().isEmpty() || module.project().kind()
+                    .equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                for (JarLibrary jarLibs : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+                    dependencies.add(jarLibs.path());
+                }
             }
         }
         dependencies = dependencies.stream().distinct().collect(Collectors.toList());
