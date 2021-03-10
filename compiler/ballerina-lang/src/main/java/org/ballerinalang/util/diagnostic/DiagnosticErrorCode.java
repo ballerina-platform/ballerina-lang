@@ -208,6 +208,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_INIT_INVOCATION("BCE2419", "invalid.init.invocation"),
     INVALID_RESOURCE_FUNCTION_INVOCATION("BCE2420", "invalid.resource.function.invocation"),
     INVALID_ACTION_INVOCATION("BCE2421", "invalid.action.invocation"),
+    INVALID_FUNCTION_POINTER_INVOCATION_WITH_TYPE("BCE2422", "invalid.function.pointer.invocation.with.type"),
 
     TYPE_CAST_NOT_YET_SUPPORTED("BCE2423", "type.cast.not.yet.supported.for.type"),
     EQUALITY_NOT_YET_SUPPORTED("BCE2424", "equality.not.yet.supported.for.type"),
@@ -518,6 +519,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNNECESSARY_CONDITION("BCE3604", "unnecessary.condition"),
 
     INVALID_USAGE_OF_CLONE("BCE3605", "clone.invocation.invalid"),
+    CANNOT_ITERATE_A_CLOSED_RECORD_WITH_NO_FIELDS("BCE3606", "cannot.iterate.a.closed.record.with.no.fields"),
 
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("BCE3700", "partially.initialized.variable"),

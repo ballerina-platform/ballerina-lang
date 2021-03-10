@@ -175,7 +175,7 @@ types:
         type: s4
       - id: value
         size: value_length
-  type_invokable:
+  type_invokable_body:
     seq:
       - id: param_types_count
         type: s4
@@ -190,6 +190,13 @@ types:
         if: has_rest_type == 1
       - id: return_type_cp_index
         type: s4
+  type_invokable:
+    seq:
+      - id: is_any_function
+        type: u1
+      - id: invokable_kind
+        type: type_invokable_body
+        if: is_any_function == 0
   type_map:
     seq:
       - id: constraint_type_cp_index

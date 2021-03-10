@@ -204,15 +204,17 @@ public class Type {
         } else if (node instanceof FunctionTypeDescriptorNode) {
             type.isLambda = true;
             FunctionTypeDescriptorNode functionDescNode = (FunctionTypeDescriptorNode) node;
-            FunctionSignatureNode functionSignature = functionDescNode.functionSignature();
-            List<DefaultableVariable> variables =
-                    Generator.getDefaultableVariableList(functionSignature.parameters(), Optional.empty(),
-                            semanticModel);
-            type.paramTypes.addAll(variables.stream().map((defaultableVariable) -> defaultableVariable.type)
-                    .collect(Collectors.toList()));
-            if (functionSignature.returnTypeDesc().isPresent()) {
-                ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
-                type.returnType = Type.fromNode(returnType.type(), semanticModel);
+            if (functionDescNode.functionSignature().isPresent()) {
+                FunctionSignatureNode functionSignature = functionDescNode.functionSignature().get();
+                List<DefaultableVariable> variables =
+                        Generator.getDefaultableVariableList(functionSignature.parameters(), Optional.empty(),
+                                semanticModel);
+                type.paramTypes.addAll(variables.stream().map((defaultableVariable) -> defaultableVariable.type)
+                        .collect(Collectors.toList()));
+                if (functionSignature.returnTypeDesc().isPresent()) {
+                    ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
+                    type.returnType = Type.fromNode(returnType.type(), semanticModel);
+                }
             }
         } else if (node instanceof ParameterizedTypeDescriptorNode) {
             ParameterizedTypeDescriptorNode parameterizedNode = (ParameterizedTypeDescriptorNode) node;

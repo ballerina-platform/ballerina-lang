@@ -338,6 +338,7 @@ public enum ParserRuleContext {
     MODULE_VAR_DECL_START("module-var-decl-start"),
     MODULE_VAR_WITHOUT_FIRST_QUAL("module-var-without-first-qual"),
     MODULE_VAR_WITHOUT_SECOND_QUAL("module-var-without-second-qual"),
+    FUNC_DEF_OR_TYPE_DESC_RHS("func-def-or-type-desc-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -657,6 +658,8 @@ public enum ParserRuleContext {
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
     TYPEDESC_RHS("type-desc-rhs"),
+    FUNC_TYPE_FUNC_KEYWORD_RHS("func-type-func-keyword-rhs"),
+    FUNC_TYPE_FUNC_KEYWORD_RHS_START("func-type-func-keyword-rhs-start"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
