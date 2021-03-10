@@ -38,6 +38,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Parses the source code line using a trial based method.
@@ -47,6 +48,7 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class SerialTreeParser extends TrialTreeParser {
+    private static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init");
     private final List<TreeParserTrial> nodeParserTrials;
 
     public SerialTreeParser(long timeOutDurationMs) {
@@ -104,14 +106,9 @@ public class SerialTreeParser extends TrialTreeParser {
     private boolean isModuleDeclarationAllowed(ModuleMemberDeclarationNode declarationNode) {
         if (declarationNode instanceof FunctionDefinitionNode) {
             String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
-            if (functionName.equals("main")) {
-                addWarnDiagnostic("Found 'main' function in the declarations.\n" +
-                        "Discarded 'main' function without loading.");
-                return false;
-            }
-            if (functionName.equals("init")) {
-                addWarnDiagnostic("Found 'init' function in the declarations.\n" +
-                        "Discarded 'init' function without loading.");
+            if (RESTRICTED_FUNCTION_NAMES.contains(functionName)) {
+                addWarnDiagnostic("Found '" + functionName + "' function in the declarations.\n" +
+                        "Discarded '" + functionName + "' function without loading.");
                 return false;
             }
             if (functionName.startsWith("__")) {
