@@ -176,13 +176,13 @@ public class CodeActionUtil {
      * Returns first possible type for this type descriptor.
      *
      * @param typeDescriptor {@link TypeSymbol}
-     * @param edits          a list of {@link TextEdit}
+     * @param importEdits    a list of import {@link TextEdit}
      * @param context        {@link CodeActionContext}
      * @return a list of possible type list
      */
-    public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, List<TextEdit> edits,
+    public static Optional<String> getPossibleType(TypeSymbol typeDescriptor, List<TextEdit> importEdits,
                                                    CodeActionContext context) {
-        List<String> possibleTypes = getPossibleTypes(typeDescriptor, edits, context);
+        List<String> possibleTypes = getPossibleTypes(typeDescriptor, importEdits, context);
         return possibleTypes.isEmpty() ? Optional.empty() : Optional.of(possibleTypes.get(0));
     }
 
@@ -190,11 +190,11 @@ public class CodeActionUtil {
      * Returns a list of possible types for this type descriptor.
      *
      * @param typeDescriptor {@link TypeSymbol}
-     * @param edits          a list of {@link TextEdit}
+     * @param importEdits    a list of import {@link TextEdit}
      * @param context        {@link CodeActionContext}
      * @return a list of possible type list
      */
-    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> edits,
+    public static List<String> getPossibleTypes(TypeSymbol typeDescriptor, List<TextEdit> importEdits,
                                                 CodeActionContext context) {
         if (typeDescriptor.getName().isPresent() && typeDescriptor.getName().get().startsWith("$")) {
             typeDescriptor = CommonUtil.getRawType(typeDescriptor);
@@ -299,7 +299,7 @@ public class CodeActionUtil {
             // Handle ambiguous array element types eg. record[], json[], map[]
             ArrayTypeSymbol arrayTypeSymbol = (ArrayTypeSymbol) typeDescriptor;
             boolean isUnion = arrayTypeSymbol.memberTypeDescriptor().typeKind() == TypeDescKind.UNION;
-            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), edits, context)
+            return getPossibleTypes(arrayTypeSymbol.memberTypeDescriptor(), importEdits, context)
                     .stream().map(m -> isUnion ? "(" + m + ")[]" : m + "[]")
                     .collect(Collectors.toList());
         } else {
@@ -308,7 +308,7 @@ public class CodeActionUtil {
 
         // Remove brackets of the unions
         types = types.stream().map(v -> v.replaceAll("^\\((.*)\\)$", "$1")).collect(Collectors.toList());
-        edits.addAll(importsAcceptor.getNewImportTextEdits());
+        importEdits.addAll(importsAcceptor.getNewImportTextEdits());
         return types;
     }
 
