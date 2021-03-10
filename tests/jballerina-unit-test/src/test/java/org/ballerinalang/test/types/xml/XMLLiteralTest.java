@@ -93,14 +93,32 @@ public class XMLLiteralTest {
         // XML interpolation is not allowed to interpolate XML namespace attributes
         BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 72, 29);
         BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 72, 47);
-        Assert.assertEquals(index, negativeResult.getErrorCount());
 
         // XML iterator return type
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'xml' will not be matched to 'string'",
                 81, 29);
+
+        // XML sequence value assignment
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                        "'xml<xml:Text>', found 'xml'", 86, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                        "'xml:Text', found 'xml'", 87, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                        "'xml<(xml:Text|xml:Comment)>', found 'xml:Element'", 88, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                        "'(xml:Text|xml:Comment)', found 'other'", 89, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                        "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 90, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                        "'(xml<xml:Text>|xml<xml:Comment>)', found 'other'", 91, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                        "'(xml:Text|xml:Comment)', found 'xml:Element'", 92, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                        "'(xml:Text|xml:Comment)', found 'other'", 93, 29);
+        Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
-    @Test
+    @Test(groups = {"disableOnOldParser"})
     public void testXMLSequence() {
         BRunUtil.invoke(result, "testXMLSequence");
     }

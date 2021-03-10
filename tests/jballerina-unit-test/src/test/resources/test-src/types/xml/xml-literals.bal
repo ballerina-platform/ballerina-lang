@@ -10,6 +10,33 @@ function testXMLSequence() {
     xml x4 = xml `<!--comment--><?foo ${v1}?>text1${v1}<root>text2 ${v2}${v1} text3!<foo>12</foo><bar></bar></root>text2${v2}`;
     assert(x4.toString(), "<!--comment--><?foo interpolation1?>text1interpolation1<root>text2 "+
     "interpolation2interpolation1 text3!<foo>12</foo><bar></bar></root>text2interpolation2");
+
+    xml x5 = xml `<!--comment-->text1`;
+    assert(x5.toString(), "<!--comment-->text1");
+    xml x6 = xml `<!--comment-->`;
+    assert(x6.toString(), "<!--comment-->");
+    xml<'xml:Text> x7 = xml `text1 text2`;
+    assert(x7.toString(), "text1 text2");
+    'xml:Text x8 = xml `text1`;
+    assert(x8.toString(), "text1");
+    xml<'xml:Text|'xml:Comment> x9 = xml `<!--comment-->`;
+    assert(x9.toString(), "<!--comment-->");
+    xml<'xml:Text>|xml<'xml:Comment> x12 = xml `<!--comment-->`;
+    assert(x12.toString(), "<!--comment-->");
+    'xml:Text|'xml:Comment x14 = xml `<!--comment-->`;
+    assert(x14.toString(), "<!--comment-->");
+
+    xml<'xml:Text|'xml:Comment> x10 = xml `<!--comment-->text1`;
+    assert(x10.toString(), "<!--comment-->text1");
+
+    //xml<'xml:Element|'xml:ProcessingInstruction> x11 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
+    //assert(x11.toString(), "<root> text1<foo>100</foo><foo>200</foo></root><?foo?>");
+
+    //xml<'xml:Text>|xml<'xml:Comment> x13 = xml `<!--comment-->text1`;
+    //assert(x13.toString(), "<!--comment-->text1");
+
+    //'xml:Text|'xml:Comment x15 = xml `<!--comment-->text1`;
+    //assert(x15.toString(), "<!--comment-->text1");
 }
 
 function testXMLTextLiteral() returns [xml, xml, xml, xml, xml, xml] {

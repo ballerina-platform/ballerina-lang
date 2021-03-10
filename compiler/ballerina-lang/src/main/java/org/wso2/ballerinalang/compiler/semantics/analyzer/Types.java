@@ -170,6 +170,10 @@ public class Types {
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
+    public BUnionType getExpandedXMLBuiltinSubtypes() {
+        return this.expandedXMLBuiltinSubtypes;
+    }
+
     public List<BType> checkTypes(BLangExpression node,
                                   List<BType> actualTypes,
                                   List<BType> expTypes) {
