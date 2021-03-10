@@ -116,7 +116,9 @@ public class Type {
     public Type returnType;
     @Expose
     public Type constraint;
+
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
+    private static final String ballerinaShotVersion = BallerinaDocGenerator.getBallerinaShortVersion();
 
     private Type() {
     }
@@ -155,13 +157,16 @@ public class Type {
         } else if (node instanceof BuiltinSimpleNameReferenceNode) {
             BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
             type.name = builtinSimpleNameReferenceNode.name().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof XmlTypeDescriptorNode) {
             XmlTypeDescriptorNode xmlType = (XmlTypeDescriptorNode) node;
             type.name = xmlType.xmlKeywordToken().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof NilTypeDescriptorNode) {
             type.name = node.toString();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof ArrayTypeDescriptorNode) {
             ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
@@ -224,15 +229,18 @@ public class Type {
         } else if (node instanceof ErrorTypeDescriptorNode) {
             ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
             type.name = errorType.errorKeywordToken().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof ObjectTypeDescriptorNode) {
             ObjectTypeDescriptorNode objectType = (ObjectTypeDescriptorNode) node;
             type.name = objectType.toString();
-            type.category = "builtin";
+            type.category = "other";
+            type.generateUserDefinedTypeLink = false;
         } else if (node instanceof SingletonTypeDescriptorNode) {
             SingletonTypeDescriptorNode singletonTypeDesc = (SingletonTypeDescriptorNode) node;
             type.name = singletonTypeDesc.simpleContExprNode().toString();
-            type.category = "builtin";
+            type.category = "other";
+            type.generateUserDefinedTypeLink = false;
         } else if (node instanceof ParenthesisedTypeDescriptorNode) {
             ParenthesisedTypeDescriptorNode parenthesisedNode = (ParenthesisedTypeDescriptorNode) node;
             type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel);
@@ -326,6 +334,7 @@ public class Type {
 
     public Type(String name) {
         this.name = name;
+        this.version = ballerinaShotVersion;
         this.category = "builtin";
     }
 
