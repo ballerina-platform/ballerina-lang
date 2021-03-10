@@ -389,6 +389,16 @@ function testErrorBindingPattern() {
     assertEquality(b, false);
 }
 
+type ErrorDataWithErrorField record {
+    error 'error;
+};
+
+function testErrorDataWithErrorField() {
+    error newError = error("bam", message = "new error");
+    ErrorDataWithErrorField ef = {'error: newError};
+    assertEquality(ef.toString(), "{\"error\":error(\"bam\",message=\"new error\")}");
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {

@@ -201,6 +201,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             return true;
         }
 
+        // if a symbol is found, then check whether it is unique
+        if (!isDistinctSymbol(pos, symbol, foundSym)) {
+            return false;
+        }
+
         if (isRedeclaredSymbol(symbol, foundSym)) {
             dlog.error(pos, DiagnosticErrorCode.REDECLARED_SYMBOL, symbol.name);
             return false;
@@ -211,8 +216,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             return false;
         }
 
-        // if a symbol is found, then check whether it is unique
-        return isDistinctSymbol(pos, symbol, foundSym);
+        return true;
     }
 
     private boolean isRedeclaredSymbol(BSymbol symbol, BSymbol foundSym) {
@@ -224,7 +228,10 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (foundSym == symTable.notFoundSymbol) {
             return true;
         }
-        return isDistinctSymbol(symbol, foundSym);
+        if (symbol.tag == SymTag.CONSTRUCTOR && foundSym.tag == SymTag.ERROR) {
+            return false;
+        }
+        return !hasSameOwner(symbol, foundSym);
     }
 
     /**
@@ -1390,7 +1397,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                     errored = true;
                 }
 
-                if (tempSymbol.type.tag != TypeTags.TYPEDESC) {
+                if (tempSymbol.type != null && tempSymbol.type.tag != TypeTags.TYPEDESC) {
                     dlog.error(userDefinedTypeNode.pos, DiagnosticErrorCode.INVALID_PARAM_TYPE_FOR_RETURN_TYPE,
                                tempSymbol.type);
                     errored = true;

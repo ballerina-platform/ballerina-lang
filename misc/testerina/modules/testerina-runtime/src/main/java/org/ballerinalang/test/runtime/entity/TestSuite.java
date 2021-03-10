@@ -17,7 +17,9 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -55,6 +57,7 @@ public class TestSuite {
     private List<String> afterEachFunctionNames = new ArrayList<>();
     private List<Test> tests = new ArrayList<>();
     private Map<String, TestGroup> groups = new TreeMap<>();
+    private List<String> testExecutionDependencies = new ArrayList<>();
 
     private boolean isReportRequired;
 
@@ -303,5 +306,15 @@ public class TestSuite {
         for (TestGroup testGroup:groups.values()) {
             testGroup.sort();
         }
+    }
+
+    public void addTestExecutionDependencies(Collection<Path> dependencies) {
+        dependencies.forEach((path) -> {
+            this.testExecutionDependencies.add(path.toString());
+        });
+    }
+
+    public List<String> getTestExecutionDependencies() {
+        return this.testExecutionDependencies;
     }
 }
