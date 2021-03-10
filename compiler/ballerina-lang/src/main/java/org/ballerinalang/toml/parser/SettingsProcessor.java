@@ -27,7 +27,7 @@ import java.io.PrintStream;
 import java.nio.file.Path;
 
 /**
- * SettingHeaders Processor which processes the settings toml file parsed and populate a {@link Settings}.
+ * {@code SettingsProcessor} processes the settings toml file parsed and populate a {@link Settings}.
  *
  * @since 0.964
  */
