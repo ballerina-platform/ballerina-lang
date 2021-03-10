@@ -64,6 +64,7 @@ public class JClass {
     private boolean importJavaArraysModule = false;
 
     private Set<String> superClasses = new HashSet<>();
+    private Map<String, String> superClassPackage = new HashMap<>();
     private Set<String> importedPackages = new HashSet<>();
     private Set<String> superClassNames = new LinkedHashSet<>();
     private List<JField> fieldList = new ArrayList<>();
@@ -90,6 +91,7 @@ public class JClass {
             setAllClasses(getAlias(Object.class));
             superClassNames.add(Object.class.getName());
             superClasses.add(getAlias(Object.class));
+            superClassPackage.put(getAlias(Object.class), Object.class.getPackageName().replace(".", ""));
         }
         populateImplementedInterfaces(c.getInterfaces());
 
@@ -99,6 +101,7 @@ public class JClass {
             String simpleClassName = getAlias(sClass).replace("$", "");
             superClassNames.add(sClass.getName());
             superClasses.add(simpleClassName);
+            superClassPackage.put(simpleClassName, sClass.getPackageName().replace(".", ""));
             setAllClasses(simpleClassName);
             sClass = sClass.getSuperclass();
         }
@@ -304,5 +307,9 @@ public class JClass {
 
     public List<JConstructor> getConstructorList() {
         return constructorList;
+    }
+
+    public Map<String, String> getSuperClassPackage() {
+        return superClassPackage;
     }
 }
