@@ -387,7 +387,7 @@ public class ConfigTomlProvider implements ConfigProvider {
         }
         if (tomlNode.kind() != getEffectiveTomlType(recordType, variableName)) {
             throw new ConfigTomlException(String.format(INVALID_TOML_TYPE, variableName, recordType ,
-                    getTomlTypeString(tomlNode)));
+                    getTomlTypeString(tomlNode)), tomlNode);
         }
 
         TomlTableNode tomlValue = (TomlTableNode) tomlNode;

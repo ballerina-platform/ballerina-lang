@@ -219,9 +219,9 @@ public class ConfigurableTest extends BaseTest {
                         "[table_field_type_error.toml:(5:12,5:16)]"},
                 {"table_field_structure_error", "field 'username' from configurable variable 'main:users' " +
                         "is expected to be of type 'string', but found 'record'" +
-                        "  [table_field_structure_error.toml:(5:1,5:29)]"},
+                        " [table_field_structure_error.toml:(5:1,5:29)]"},
                 {"warning_defaultable_field", "defaultable readonly record field 'name' in configurable variable " +
-                        "'main:employee' is not supported"}
+                        "'main:employee' is not supported [warning_defaultable_field.toml:(11:1,13:17)]"}
         };
     }
 
