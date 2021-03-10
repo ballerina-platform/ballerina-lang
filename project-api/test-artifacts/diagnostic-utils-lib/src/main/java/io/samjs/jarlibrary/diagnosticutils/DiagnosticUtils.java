@@ -22,7 +22,6 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-import io.samjs.jarlibrary.stringutils.StringUtils;
 
 import java.util.Collections;
 import java.util.List;
@@ -54,9 +53,5 @@ public class DiagnosticUtils {
                 return Collections.emptyList();
             }
         };
-    }
-
-    public static boolean isStringEmpty(String value) {
-        return StringUtils.isEmpty(value);
     }
 }

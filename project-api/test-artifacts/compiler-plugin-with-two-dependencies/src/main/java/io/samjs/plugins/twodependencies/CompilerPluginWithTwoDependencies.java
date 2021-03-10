@@ -31,6 +31,7 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.samjs.jarlibrary.diagnosticutils.DiagnosticUtils;
+import io.samjs.jarlibrary.stringutils.StringUtils;
 
 /**
  * A sample {@code CompilerPlugin} that logs events.
@@ -81,6 +82,14 @@ public class CompilerPluginWithTwoDependencies extends CompilerPlugin {
                 Diagnostic diagnostic = DiagnosticUtils.createDiagnostic("Test warning message",
                         funcDefNode.functionKeyword().location(), DiagnosticSeverity.WARNING);
                 compAnalysisCtx.reportDiagnostic(diagnostic);
+
+                // Dummy usage of the StringUtils library
+                String pkgName = compAnalysisCtx.currentPackage().manifest().name().value();
+                if (StringUtils.isEmpty(pkgName)) {
+                    // This diagnostic should not be reported
+                    compAnalysisCtx.reportDiagnostic(DiagnosticUtils.createDiagnostic(
+                            "Empty package name", null, DiagnosticSeverity.ERROR));
+                }
             });
         }
 

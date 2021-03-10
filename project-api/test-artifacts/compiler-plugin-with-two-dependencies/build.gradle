@@ -25,6 +25,7 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':project-api-test-artifact:diagnostic-utils-lib')
+    implementation project(':project-api-test-artifact:string-utils-lib')
 }
 
 ext.moduleName = 'compiler.plugin.test.plugin.with.two.dependencies'
