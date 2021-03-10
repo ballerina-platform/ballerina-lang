@@ -1237,6 +1237,7 @@ public class BIRPackageSymbolEnter {
                     pkgCpIndex = inputStream.readInt();
                     pkgId = getPackageId(pkgCpIndex);
                     BPackageSymbol owner = packageCache.getSymbol(pkgId);
+                    // It is assumed that if the owner is null, the error is defined within the current module.
                     BTypeSymbol errorSymbol;
                     if (owner != null) {
                         errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY, owner.pkgID,
