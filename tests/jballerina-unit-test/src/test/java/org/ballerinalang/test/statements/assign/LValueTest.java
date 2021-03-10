@@ -161,8 +161,8 @@ public class LValueTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}InvalidUpdate \\{\"message\":\"Invalid " +
-                    "update of record field: modification not allowed on readonly value\"\\}.*")
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.map\\}InherentTypeViolation \\{\"message\":\"" +
+                    "cannot update 'readonly' field 'i' in record of type '\\(BRec & readonly\\)'\".*")
     public void testFrozenValueUpdate() {
         BRunUtil.invoke(result, "testFrozenValueUpdate");
     }
