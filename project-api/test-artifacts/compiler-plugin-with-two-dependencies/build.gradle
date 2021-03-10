@@ -22,6 +22,7 @@ version = '1.0.0'
 
 dependencies {
     implementation project(':ballerina-lang')
+    implementation project(':ballerina-parser')
     implementation project(':ballerina-tools-api')
     implementation project(':project-api-test-artifact:diagnostic-utils-lib')
 }

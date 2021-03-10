@@ -17,14 +17,20 @@
  */
 package io.samjs.plugins.twodependencies;
 
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.samjs.jarlibrary.diagnosticutils.DiagnosticUtils;
-
-import java.io.PrintStream;
 
 /**
  * A sample {@code CompilerPlugin} that logs events.
@@ -47,19 +53,42 @@ public class CompilerPluginWithTwoDependencies extends CompilerPlugin {
 
         @Override
         public void init(CodeAnalysisContext analysisContext) {
-            PrintStream out = System.out;
             analysisContext.addCompilationAnalysisTask(compAnalysisCtx -> {
-                Diagnostic diagnostic = DiagnosticUtils.createDiagnostic();
-                // 1)
-                out.println("CompilerPluginWithTwoDependencies:LogCodeAnalyzer:CompilationAnalysisTask 1 called");
+                // There is only one module and document in this project.
+                SyntaxTree syntaxTree = getSyntaxTree(compAnalysisCtx.currentPackage());
 
-                // 2) Reporting diagnostics
+                // There exits a main function in this tree.
+                // Get the location of that node.
+                ModulePartNode modulePartNode = syntaxTree.rootNode();
+                FunctionDefinitionNode funcDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
+
+                // Report a test diagnostic
+                Diagnostic diagnostic = DiagnosticUtils.createDiagnostic("Test error message",
+                        funcDefNode.location(), DiagnosticSeverity.ERROR);
+                compAnalysisCtx.reportDiagnostic(diagnostic);
             });
 
             analysisContext.addCompilationAnalysisTask(compAnalysisCtx -> {
-                // 1)
-                out.println("CompilerPluginWithTwoDependencies:LogCodeAnalyzer:CompilationAnalysisTask 2 called");
+                // There is only one module and document in this project.
+                SyntaxTree syntaxTree = getSyntaxTree(compAnalysisCtx.currentPackage());
+
+                // There exits a main function in this tree.
+                // Get the location of the function token
+                ModulePartNode modulePartNode = syntaxTree.rootNode();
+                FunctionDefinitionNode funcDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
+
+                // Report a test diagnostic
+                Diagnostic diagnostic = DiagnosticUtils.createDiagnostic("Test warning message",
+                        funcDefNode.functionKeyword().location(), DiagnosticSeverity.WARNING);
+                compAnalysisCtx.reportDiagnostic(diagnostic);
             });
+        }
+
+        SyntaxTree getSyntaxTree(Package currentPkg) {
+            Module module = currentPkg.modules().iterator().next();
+            DocumentId docId = module.documentIds().iterator().next();
+            Document doc = module.document(docId);
+            return doc.syntaxTree();
         }
     }
 }

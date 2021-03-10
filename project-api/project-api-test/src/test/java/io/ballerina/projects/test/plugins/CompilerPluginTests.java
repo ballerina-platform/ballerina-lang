@@ -21,6 +21,8 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
@@ -29,6 +31,9 @@ import org.testng.annotations.Test;
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Contains cases to test compiler plugin loading and running.
@@ -88,12 +93,20 @@ public class CompilerPluginTests {
         Package currentPackage = loadPackage("package_plugin_user_3");
         PackageCompilation compilation = currentPackage.getCompilation();
 
-        // TODO Use diagnostics to check test the execution of compiler plugins
-
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
+                "Unexpected number of compilation diagnostics");
+
+        // Sort diagnostics based on the message
+        List<Diagnostic> reportedDiagnostics = diagnosticResult.diagnostics()
+                .stream()
+                .sorted(Comparator.comparing(Diagnostic::message))
+                .collect(Collectors.toList());
+
+        Assert.assertEquals(reportedDiagnostics.get(0).diagnosticInfo().severity(), DiagnosticSeverity.ERROR);
+        Assert.assertEquals(reportedDiagnostics.get(1).diagnosticInfo().severity(), DiagnosticSeverity.WARNING);
+        reportedDiagnostics.forEach(OUT::println);
 
         // Check direct package dependencies
         Assert.assertEquals(currentPackage.packageDependencies().size(), 1,
