@@ -1,7 +1,7 @@
 [
   {
     "description": "Load the declarations file.",
-    "code": "/open files/mu-recursive.bal"
+    "code": "/file files/mu-recursive.bal"
   },
   {
     "description": "Running the function.",

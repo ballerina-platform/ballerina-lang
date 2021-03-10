@@ -65,7 +65,7 @@ public abstract class AbstractEvaluatorTest {
                 String testCode = testCase.getCode();
 
                 // Evaluating files
-                if (testCode.startsWith("/open")) {
+                if (testCode.startsWith("/file")) {
                     String loadFile = testCode.split("\\s")[1];
                     evaluator.evaluateDeclarationFile(TestUtils.getPath(loadFile));
                     continue;
