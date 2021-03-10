@@ -37,7 +37,7 @@ public class ParserTestRunner {
     private final Path parserDir = ballerinaLangDir.resolve("compiler").resolve("ballerina-parser");
 
     @Test(dataProvider = "parser-test-file-provider")
-    public void test(String fileName, String path) throws IOException {
+    public void test(String fileName, String path) {
         try {
             BCompileUtil.compile(path);
         } catch (Exception e) {
@@ -61,7 +61,6 @@ public class ParserTestRunner {
         hashSet.add("explicit-new-with-object-keyword-with-one-arg-negative02.bal");
         hashSet.add("explicit-new-with-object-keyword-with-multiple-args-negative01.bal");
         hashSet.add("explicit-new-with-object-keyword-with-one-args.bal");
-        hashSet.add("query_action_source_06.bal");
         hashSet.add("send_action_source_01.bal");
         hashSet.add("send_action_source_03.bal");
         hashSet.add("func_def_source_08.bal");

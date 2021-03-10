@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -62,6 +63,8 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
             SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
 
             this.requiredParams = this.typeSymbol.params.stream()
+                    .filter(symbol -> symbol.kind != SymbolKind.PATH_PARAMETER
+                            && symbol.kind != SymbolKind.PATH_REST_PARAMETER)
                     .map(symbol -> {
                         ParameterKind parameterKind = symbol.defaultableParam ? DEFAULTABLE : REQUIRED;
                         return symbolFactory.createBallerinaParameter(symbol, parameterKind);
