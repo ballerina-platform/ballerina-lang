@@ -1,11 +1,11 @@
 type Address record {
     string city;
-    string state;
+    string? state;
 };
 
 type Person record {
     string name;
-    Address? addr;
+    Address addr?;
 };
 
 public function main() {
