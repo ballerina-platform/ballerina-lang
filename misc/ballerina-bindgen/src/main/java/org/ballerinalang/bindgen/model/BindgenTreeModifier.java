@@ -9,6 +9,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.utils.BindgenEnv;
 
@@ -17,8 +18,10 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import static org.ballerinalang.bindgen.model.BindgenNodeFactory.createFunctionDefinitionNode;
+import static org.ballerinalang.bindgen.model.BindgenNodeFactory.createTypeReferenceNode;
 
 /**
  * Class for traversing the Ballerina syntax tree used for creating the bindings.
@@ -71,6 +74,41 @@ public class BindgenTreeModifier {
 
         return members;
 
+    }
+
+    private NodeList<ModuleMemberDeclarationNode> modifyTypeReferences(NodeList<ModuleMemberDeclarationNode> members)
+            throws BindgenException {
+        List<TypeReferenceNode> typeReferences = new LinkedList<>();
+
+        AbstractMap.SimpleEntry<Integer, ClassDefinitionNode> classDefinitionDetails = retrieveClassDefinition(members);
+        if (classDefinitionDetails == null) {
+            throw new BindgenException("error: unable to locate the class definition in the syntax tree");
+        }
+        NodeList<Node> classDefinitionMembers = classDefinitionDetails.getValue().members();
+
+        // Retrieve the existing function definition nodes inside the class definition
+        for (Node node : classDefinitionMembers) {
+            if (node.kind() == SyntaxKind.TYPE_REFERENCE) {
+                typeReferences.add((TypeReferenceNode) node);
+            }
+        }
+
+        ClassDefinitionNode modifiedClassDefinition = classDefinitionDetails.getValue();
+        NodeList<Node> memberList = modifiedClassDefinition.members();
+        for (Map.Entry<String, String> superClass : jClass.getSuperClassPackage().entrySet()) {
+            String completeSuperClassName = superClass.getKey();
+            if (env.getModulesFlag()) {
+                completeSuperClassName = superClass.getValue() + ":" + superClass.getKey();
+            }
+            if (!isFieldExists(completeSuperClassName, typeReferences)) {
+                TypeReferenceNode typeReferenceNode = generateTypeReference(completeSuperClassName);
+                if (typeReferenceNode != null) {
+                    memberList = memberList.add(typeReferenceNode);
+                }
+            }
+        }
+        modifiedClassDefinition = modifiedClassDefinition.modify().withMembers(memberList).apply();
+        return members.set(classDefinitionDetails.getKey(), modifiedClassDefinition);
     }
 
     private NodeList<ModuleMemberDeclarationNode> updateConstructors(NodeList<ModuleMemberDeclarationNode> members) {
@@ -250,6 +288,19 @@ public class BindgenTreeModifier {
 
     private FunctionDefinitionNode generateInstanceMethods(BFunction bFunction, boolean isExternal) {
         return createFunctionDefinitionNode(bFunction, isExternal);
+    }
+
+    private TypeReferenceNode generateTypeReference(String type) {
+        return createTypeReferenceNode(type);
+    }
+
+    private boolean isFieldExists(String fieldName, List<TypeReferenceNode> fieldList) {
+        for (TypeReferenceNode memberNode : fieldList) {
+            if (memberNode.typeName().toString().equals(fieldName)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private boolean isFunctionExists(String functionName, List<FunctionDefinitionNode> functionList) {

@@ -66,6 +66,7 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeCastParamNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
@@ -321,6 +322,14 @@ public class BindgenNodeFactory {
 
 
         return statementNodes;
+    }
+
+    public static TypeReferenceNode createTypeReferenceNode(String type) {
+        Token asteriskToken = AbstractNodeFactory.createToken(SyntaxKind.ASTERISK_TOKEN);
+        Node typeName = createSimpleNameReferenceNode(type);
+        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+
+        return NodeFactory.createTypeReferenceNode(asteriskToken, typeName, semicolonToken);
     }
 
     private static ReturnStatementNode createReturnStatementNode(StatementKind kind, String returnType)
