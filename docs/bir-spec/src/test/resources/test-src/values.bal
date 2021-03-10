@@ -348,6 +348,7 @@ function testToString() returns string[] {
     () varNil = ();
     Address addr = {country : "Sri Lanka", city: "Colombo", street: "Palm Grove"};
     Person p = {name : "Gima", address: addr, age: 12};
+    var s = {...p};
     boolean varBool = true;
     decimal varDecimal = 345.2425341;
     map<any|error> varMap = {};

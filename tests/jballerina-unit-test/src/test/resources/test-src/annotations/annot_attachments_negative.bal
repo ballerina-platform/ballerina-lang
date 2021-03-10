@@ -868,15 +868,20 @@ type MyObject object {
 
 function myFunction() returns @v7 {} string => "hello";
 
-function myFunctionWithWorkers() {
-    @strand
-    worker w {
-
-    }
-}
-
 @v1
 type MyType int|string;
+
+@v3
+function myFunction1(@v6 string name) returns string {
+    return "Hello " + name;
+}
+
+annotation Annot[] v21 on function;
+
+@v21
+@v21
+public function myFunction6(string... argv) {
+}
 
 @tainted
 @tainted

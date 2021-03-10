@@ -597,6 +597,22 @@ function testScopingRules() {
     assert(<record {int a; int b; record {int p;} c;}>{a: 20, b: 10, c: {p: 10}}, f2);
 }
 
+type FieldsWithBuiltinNames record {
+    error 'error;
+    json 'json;
+    anydata 'anydata;
+};
+
+function testRecordsWithFieldsWithBuiltinNames() {
+    error newError = error("bam", message = "new error");
+    FieldsWithBuiltinNames f = {
+        'error: newError,
+        'json: {s: "s"},
+        'anydata: 3
+    };
+
+    assert("{\"error\":error(\"bam\",message=\"new error\"),\"json\":{\"s\":\"s\"},\"anydata\":3}", f.toString());
+}
 // Util functions
 
 function assert(anydata expected, anydata actual) {
@@ -607,4 +623,14 @@ function assert(anydata expected, anydata actual) {
                             + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
         panic error(reason);
     }
+}
+
+type Teacher record {
+    int toJson = 44;
+};
+
+function testLangFuncOnRecord() returns json{
+    Teacher p = {};
+    json toJsonResult = p.toJson();
+    return toJsonResult;
 }

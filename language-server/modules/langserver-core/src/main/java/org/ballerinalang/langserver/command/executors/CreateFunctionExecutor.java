@@ -39,6 +39,7 @@ import org.ballerinalang.langserver.commons.command.CommandArgument;
 import org.ballerinalang.langserver.commons.command.LSCommandExecutorException;
 import org.ballerinalang.langserver.commons.command.spi.LSCommandExecutor;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.exception.UserErrorException;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -74,35 +75,35 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
     @Override
     public Object execute(ExecuteCommandContext context) throws LSCommandExecutorException {
         String uri = null;
-        Position position = null;
+        Range range = null;
         for (CommandArgument arg : context.getArguments()) {
             switch (arg.key()) {
                 case CommandConstants.ARG_KEY_DOC_URI:
                     uri = arg.valueAs(String.class);
                     break;
-                case CommandConstants.ARG_KEY_NODE_POS:
-                    position = arg.valueAs(Position.class);
+                case CommandConstants.ARG_KEY_NODE_RANGE:
+                    range = arg.valueAs(Range.class);
                     break;
                 default:
             }
         }
 
         Optional<Path> filePath = CommonUtil.getPathFromURI(uri);
-        if (position == null || filePath.isEmpty()) {
-            throw new LSCommandExecutorException("Invalid parameters received for the create function command!");
+        if (range == null || filePath.isEmpty()) {
+            throw new UserErrorException("Invalid parameters received for the create function command!");
         }
 
         SyntaxTree syntaxTree = context.workspace().syntaxTree(filePath.get()).orElseThrow();
-        NonTerminalNode cursorNode = CommonUtil.findNode(new Range(position, position), syntaxTree);
+        NonTerminalNode cursorNode = CommonUtil.findNode(range, syntaxTree);
 
         if (cursorNode == null) {
             return Collections.emptyList();
         }
 
         Optional<FunctionCallExpressionNode> fnCallExprNode =
-                CreateFunctionCodeAction.getFunctionCallExpressionNodeAtCursor(cursorNode);
+                CreateFunctionCodeAction.checkAndGetFunctionCallExpressionNode(cursorNode);
         if (fnCallExprNode.isEmpty()) {
-            return new LSCommandExecutorException("Couldn't find a matching node");
+            return new UserErrorException("Couldn't find a matching node");
         }
 
         SemanticModel semanticModel = context.workspace().semanticModel(filePath.get()).orElseThrow();
@@ -162,8 +163,8 @@ public class CreateFunctionExecutor implements LSCommandExecutor {
 
         LanguageClient client = context.getLanguageClient();
         List<TextEdit> edits = new ArrayList<>();
-        Range range = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
-        edits.add(new TextEdit(range, function));
+        Range insertRange = new Range(new Position(endLine, endCol), new Position(endLine, endCol));
+        edits.add(new TextEdit(insertRange, function));
         TextDocumentEdit textDocumentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(uri, null), edits);
         return CommandUtil.applyWorkspaceEdit(Collections.singletonList(Either.forLeft(textDocumentEdit)), client);
     }

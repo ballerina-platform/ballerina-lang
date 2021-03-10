@@ -7,26 +7,13 @@ function testXMLAccessWithIndex() {
     assert(x2[1].toString(), "<name>supun</name>");
 
     xml<'xml:Text> x3 = xml `sample test`;
-    string testString1 = x3[0];
     assert(x3[0].toString(), "sample test");
-    assert(testString1, "sample test");
 
     'xml:Text x4 = xml `sample test`;
-    string testString2 = x4[0];
     assert(x4[0].toString(), "sample test");
-    assert(testString2, "sample test");
 
     xml <xml<'xml:Text>> x5 = xml `sample test`;
-    string testString3 = x5[0];
     assert(x5[0].toString(), "sample test");
-    assert(testString3, "sample test");
-
-    string testString4 = x3[1];
-    assert(testString4, "");
-    string testString5 = x4[1];
-    assert(testString5, "");
-    string testString6 = x5[1];
-    assert(testString6, "");
 
     xml<'xml:Comment> x6 = xml `<!-- comment node-->`;
     assert(x6[0].toString(), "<!-- comment node-->");

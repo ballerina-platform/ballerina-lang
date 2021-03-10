@@ -19,6 +19,7 @@ package org.ballerinalang.langserver.completions.util;
 
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -45,7 +46,7 @@ import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
-import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,10 +82,10 @@ import javax.annotation.Nonnull;
  * @since 2.0.0
  */
 public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
-    private final BallerinaCompletionContext context;
+    private final PositionedOperationContext context;
     private final List<Node> visitedNodes = new ArrayList<>();
 
-    public ContextTypeResolver(BallerinaCompletionContext context) {
+    public ContextTypeResolver(PositionedOperationContext context) {
         this.context = context;
     }
 
@@ -131,7 +132,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     public Optional<TypeSymbol> transform(QualifiedNameReferenceNode node) {
         // Only handles the Type Definitions.
         Predicate<Symbol> predicate = symbol -> symbol.getName().isPresent()
-                && symbol.kind() == SymbolKind.TYPE_DEFINITION
+                && (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS)
                 && symbol.getName().get().equals(node.identifier().text());
         List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, node, predicate);
         if (moduleContent.size() > 1) {
@@ -139,7 +140,11 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             return Optional.empty();
         }
 
-        return Optional.of(((TypeDefinitionSymbol) moduleContent.get(0)).typeDescriptor());
+        Symbol symbol = moduleContent.get(0);
+        if (symbol.kind() == SymbolKind.CLASS) {
+            return Optional.of((ClassSymbol) symbol);
+        }
+        return Optional.of(((TypeDefinitionSymbol) symbol).typeDescriptor());
     }
 
     @Override

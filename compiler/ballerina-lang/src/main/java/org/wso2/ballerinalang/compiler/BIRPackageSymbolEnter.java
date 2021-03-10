@@ -24,6 +24,7 @@ import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.MarkdownDocAttachment;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -663,9 +664,13 @@ public class BIRPackageSymbolEnter {
             // the symbol. Because, for the function pointers we directly read the param types
             // from the varType (i.e: from InvokableType), and assumes it can have only required
             // params.
-            varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
+            BInvokableSymbol invokableSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, names.fromString(varName),
                                              this.env.pkgSymbol.pkgID, varType, enclScope.owner, symTable.builtinPos,
                                              toOrigin(origin));
+
+            invokableSymbol.kind = SymbolKind.FUNCTION;
+            invokableSymbol.retType = ((BInvokableType) invokableSymbol.type).retType;
+            varSymbol = invokableSymbol;
         } else {
             varSymbol = new BVarSymbol(flags, names.fromString(varName), this.env.pkgSymbol.pkgID, varType,
                                        enclScope.owner, symTable.builtinPos, toOrigin(origin));
@@ -753,11 +758,13 @@ public class BIRPackageSymbolEnter {
                                                   invSymbol, varType.paramSymbol.pos, VIRTUAL);
                 break;
             case TypeTags.MAP:
-            case TypeTags.XML:
             case TypeTags.FUTURE:
             case TypeTags.TYPEDESC:
                 ConstrainedType constrainedType = (ConstrainedType) type;
                 populateParameterizedType((BType) constrainedType.getConstraint(), paramsMap, invSymbol);
+                break;
+            case TypeTags.XML:
+                populateParameterizedType(((BXMLType) type).constraint, paramsMap, invSymbol);
                 break;
             case TypeTags.ARRAY:
                 populateParameterizedType(((BArrayType) type).eType, paramsMap, invSymbol);
@@ -956,6 +963,9 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.XML:
                     BType constraintType = readTypeFromCp();
                     BXMLType mutableXmlType = new BXMLType(constraintType, symTable.xmlType.tsymbol);
+                    if (Symbols.isFlagOn(flags, Flags.PARAMETERIZED)) {
+                        mutableXmlType.flags |= Flags.PARAMETERIZED;
+                    }
                     return isImmutable(flags) ? getEffectiveImmutableType(mutableXmlType) : mutableXmlType;
                 case TypeTags.NIL:
                     return symTable.nilType;
@@ -1224,14 +1234,21 @@ public class BIRPackageSymbolEnter {
                     // TODO fix
                     break;
                 case TypeTags.ERROR:
-                    BTypeSymbol errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
-                                                                   env.pkgSymbol.pkgID, null, env.pkgSymbol.owner,
-                                                                   symTable.builtinPos, COMPILED_SOURCE);
+                    pkgCpIndex = inputStream.readInt();
+                    pkgId = getPackageId(pkgCpIndex);
+                    BPackageSymbol owner = packageCache.getSymbol(pkgId);
+                    // It is assumed that if the owner is null, the error is defined within the current module.
+                    BTypeSymbol errorSymbol;
+                    if (owner != null) {
+                        errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY, owner.pkgID,
+                                null, owner, symTable.builtinPos, COMPILED_SOURCE);
+                    } else {
+                        errorSymbol = new BErrorTypeSymbol(SymTag.ERROR, Flags.PUBLIC, Names.EMPTY,
+                                env.pkgSymbol.pkgID, null, env.pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
+                    }
                     BErrorType errorType = new BErrorType(errorSymbol);
                     addShapeCP(errorType, cpI);
                     compositeStack.push(errorType);
-                    pkgCpIndex = inputStream.readInt();
-                    pkgId = getPackageId(pkgCpIndex);
                     String errorName = getStringCPEntryValue(inputStream);
                     BType detailsType = readTypeFromCp();
                     errorType.detailType = detailsType;
