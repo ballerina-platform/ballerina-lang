@@ -47,3 +47,5 @@ function getVarValues() returns [boolean, int] {
 var [[intVar], {a: intVar2}, error(message), ...restBp] = getComplexTuple();
 
 function getComplexTuple() returns [int, map<int>, float, int...] => [5, {a: 6}, 4.5, 12, 13];
+
+[int] [int:SIGNED8_MAX_VALUE] = [8];

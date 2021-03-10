@@ -78,8 +78,6 @@ public abstract class ProgramLauncher {
         // Adds file name, only if the debug source is a single bal file.
         if (balFile != null) {
             command.add(balFile);
-        } else if (!isTestDebugMode) {
-            command.add(".");
         }
 
         boolean networkLogs = configHolder.isNetworkLogsEnabled();
