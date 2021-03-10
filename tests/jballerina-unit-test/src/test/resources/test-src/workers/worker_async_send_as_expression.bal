@@ -14,28 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import main.foo;
+function foo() {
+    worker w1 {
+        () a = 5 -> w2;
+    }
 
-type AuthInfo record {|
-   readonly string username;
-   string password = "default";
-|};
-
-type Employee record {|
-    readonly int id;
-    readonly string name= "Default";
-    readonly float salary?;
-|};
-
-type UserTable table<AuthInfo> key(username);
-
-configurable int intVar = 5;
-configurable string stringVar = ?;
-configurable int[] & readonly intArr = [11, 33];
-configurable AuthInfo & readonly testUser = ?;
-configurable Employee employee = {id: 121, salary: 35000.0};
-configurable UserTable & readonly users = ?;
-
-public function main() {
-    foo:test();
+    worker w2 {
+        int a = <- w1;
+    }
 }

@@ -49,6 +49,8 @@ public class ConfigTomlConstants {
             "provide the module name as '[%s]' ";
     public static final String CONSTRAINT_TYPE_NOT_SUPPORTED = "table constraint type '%s' in configurable variable" +
             " '%s' is not supported";
+    public static final String DEFAULT_FIELD_UNSUPPORTED = "defaultable readonly record field '%s' in configurable " +
+            "variable '%s' is not supported";
 
     private ConfigTomlConstants() {
     }
