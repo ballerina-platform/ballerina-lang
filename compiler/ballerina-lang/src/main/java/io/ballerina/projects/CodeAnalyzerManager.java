@@ -31,6 +31,8 @@ import java.util.List;
 import java.util.Map;
 
 /**
+ * Manages the various code analyzer tasks.
+ *
  * @since 2.0.0
  */
 class CodeAnalyzerManager {
@@ -49,9 +51,6 @@ class CodeAnalyzerManager {
     }
 
     List<Diagnostic> runCodeAnalyzerTasks() {
-        // TODO Implement CodeAnalyzerRunner
-
-        // TODO I am running on the compilation analysis events for now.
         List<Diagnostic> reportedDiagnostics = new ArrayList<>();
         for (Map.Entry<CodeAnalyzer, List<CompilationAnalysisTask>> codeAnalyzerListEntry :
                 codeAnalyzerTasks.compilationAnalysisTaskMap.entrySet()) {
@@ -87,6 +86,11 @@ class CodeAnalyzerManager {
         return codeAnalyzerTasks;
     }
 
+    /**
+     * The default implementation of the {@code CodeAnalysisContext}.
+     *
+     * @since 2.0.0
+     */
     static class CodeAnalysisContextImpl implements CodeAnalysisContext {
         private final CodeAnalyzerTasks codeAnalyzerTasks;
         private final CodeAnalyzer codeAnalyzer;
@@ -110,6 +114,11 @@ class CodeAnalyzerManager {
         }
     }
 
+    /**
+     * A container that maintain various code analyzer tasks against the {@code CodeAnalyzer} instance.
+     *
+     * @since 2.0.0
+     */
     static class CodeAnalyzerTasks {
         private final Map<CodeAnalyzer, List<CompilationAnalysisTask>> compilationAnalysisTaskMap = new HashMap<>();
         private final Map<CodeAnalyzer, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap = new HashMap<>();
@@ -137,6 +146,11 @@ class CodeAnalyzerManager {
         }
     }
 
+    /**
+     * A wrapper class for the syntax analysis task.
+     *
+     * @since 2.0.0
+     */
     static class SyntaxNodeAnalysisTask {
         private final AnalysisTask<SyntaxNodeAnalysisContext> analysisTask;
         private final SyntaxKind[] syntaxKinds;
@@ -156,6 +170,11 @@ class CodeAnalyzerManager {
         }
     }
 
+    /**
+     * A wrapper class for the compilation analysis task.
+     *
+     * @since 2.0.0
+     */
     static class CompilationAnalysisTask {
         private final AnalysisTask<CompilationAnalysisContext> analysisTask;
 
@@ -168,6 +187,11 @@ class CodeAnalyzerManager {
         }
     }
 
+    /**
+     * The default implementation of the {@code CompilationAnalysisContext}.
+     *
+     * @since 2.0.0
+     */
     static class CompilationAnalysisContextIml extends CompilationAnalysisContext {
         private final Package currentPackage;
         private final PackageCompilation compilation;

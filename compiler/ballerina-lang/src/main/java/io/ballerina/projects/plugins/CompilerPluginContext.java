@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
+ * This class can be used to add various compiler plugin tasks to the current compilation.
+ *
  * @since 2.0.0
  */
 public abstract class CompilerPluginContext {

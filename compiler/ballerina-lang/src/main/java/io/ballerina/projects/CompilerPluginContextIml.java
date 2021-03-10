@@ -24,6 +24,8 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
 import java.util.List;
 
 /**
+ * The default implementation of the {@code CompilerPluginContext}.
+ *
  * @since 2.0.0
  */
 class CompilerPluginContextIml extends CompilerPluginContext {

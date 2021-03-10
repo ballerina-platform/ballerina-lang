@@ -19,8 +19,8 @@ package io.ballerina.projects.plugins;
 
 /**
  * The abstract representation of a Ballerina compiler plugin.
- *
- * Ballerina compiler plugin provides a mechanism to analyze
+ * <p>
+ * Ballerina compiler plugin provides a mechanism to analyze code and report diagnostics.
  *
  * @since 2.0.0
  */
