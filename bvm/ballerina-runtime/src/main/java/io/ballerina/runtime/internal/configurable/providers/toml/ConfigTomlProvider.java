@@ -198,7 +198,7 @@ public class ConfigTomlProvider implements ConfigProvider {
 
     @Override
     public Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key) {
-        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        Type effectiveType = ((BIntersectionType) key.type).getConstituentTypes().get(0);
         TomlTableNode moduleNode = moduleTomlNodeMap.get(module);
         if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
             TomlNode tomlValue = moduleNode.entries().get(key.variable);
