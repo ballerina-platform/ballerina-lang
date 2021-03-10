@@ -19,11 +19,9 @@ package io.samjs.jarlibrary.diagnosticutils;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
 import io.samjs.jarlibrary.stringutils.StringUtils;
 
 import java.util.Collections;
@@ -34,32 +32,21 @@ import java.util.List;
  */
 public class DiagnosticUtils {
 
-    public static Diagnostic createDiagnostic() {
+    public static Diagnostic createDiagnostic(String message, Location location, DiagnosticSeverity severity) {
         return new Diagnostic() {
             @Override
             public Location location() {
-                return new Location() {
-                    @Override
-                    public LineRange lineRange() {
-                        return LineRange.from("foo.bal",
-                                LinePosition.from(1, 2), LinePosition.from(2, 4));
-                    }
-
-                    @Override
-                    public TextRange textRange() {
-                        return TextRange.from(10, 5);
-                    }
-                };
+                return location;
             }
 
             @Override
             public DiagnosticInfo diagnosticInfo() {
-                return null;
+                return new DiagnosticInfo("err.dummy", "err.dummy.msg", severity);
             }
 
             @Override
             public String message() {
-                return "Dummy diagnostic";
+                return message;
             }
 
             @Override
