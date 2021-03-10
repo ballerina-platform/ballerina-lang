@@ -1211,6 +1211,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         }
 
+        simpleVar.flagSet.add(Flag.FIELD);
         simpleVar.pos = getPositionWithoutMetadata(objFieldNode);
         return simpleVar;
     }
@@ -1295,7 +1296,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else {
             simpleVar.flagSet.add(Flag.REQUIRED);
         }
-
+        simpleVar.flagSet.add(Flag.FIELD);
         addReadOnlyQualifier(recordFieldNode.readonlyKeyword(), simpleVar);
 
         simpleVar.pos = getPositionWithoutMetadata(recordFieldNode);
@@ -4896,6 +4897,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangExpression createExpression(Node expression) {
+        if (expression.kind() == SyntaxKind.ASYNC_SEND_ACTION) {
+            // TODO: support async send as expression #24849
+            dlog.error(getPosition(expression), DiagnosticErrorCode.ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION);
+            Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
+                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
+            expression = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
+        }
+
         return (BLangExpression) createActionOrExpression(expression);
     }
 
