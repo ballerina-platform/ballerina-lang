@@ -2,7 +2,7 @@ NAME
        ballerina-shell - Run ballerina interactive REPL
 
 SYNOPSIS
-       bal shell [-d|--debug] [-f|--force-dumb] [-o|--file] [-t|--time-out]
+       bal shell [-d|--debug] [--force-dumb] [-f|--file] [-t|--time-out]
 
 
 DESCRIPTION
@@ -14,9 +14,9 @@ DESCRIPTION
 OPTIONS
        -d, --debug
            Enable debug mode from the beginning.
-       -f, --force-dumb
+       --force-dumb
            Force dumb terminal mode.
-       -o <file-name>, --file <file-name>
+       -f <file-name>, --file <file-name>
            Open file and load initial declarations.
        -t <time-out-duration>, --time-out <time-out-duration>
            Set tree parsing timeout. Default is 100ms. Value should be
@@ -34,4 +34,4 @@ EXAMPLES
           $ bal shell -t 1000
 
        Run ballerina shell loading initial declarations from "main.bal".
-          $ bal shell -o main.bal
+          $ bal shell -f main.bal

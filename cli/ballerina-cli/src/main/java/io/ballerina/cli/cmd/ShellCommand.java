@@ -42,13 +42,13 @@ public class ShellCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"-d", "--debug"}, description = "Whether to enable debug mode from start.")
     private boolean isDebug = false;
 
-    @CommandLine.Option(names = {"-f", "--force-dumb"}, description = "Whether to force use of dumb terminal.")
+    @CommandLine.Option(names = {"--force-dumb"}, description = "Whether to force use of dumb terminal.")
     private boolean forceDumb = false;
 
     @CommandLine.Option(names = {"-t", "--time-out"}, description = "Timeout to use for tree parsing.")
     private long timeOut = 100;
 
-    @CommandLine.Option(names = {"-o", "--file"}, description = "Open file and load initial declarations.")
+    @CommandLine.Option(names = {"-f", "--file"}, description = "Open file and load initial declarations.")
     private File openFile;
 
     public ShellCommand() {
@@ -94,7 +94,7 @@ public class ShellCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal shell [-d|--debug] [-f|--force-dumb] [-o|--file] [-t|--time-out <time-out-ms>]\n");
+        out.append("  bal shell [-d|--debug] [--force-dumb] [-f|--file] [-t|--time-out <time-out-ms>]\n");
     }
 
     @Override
