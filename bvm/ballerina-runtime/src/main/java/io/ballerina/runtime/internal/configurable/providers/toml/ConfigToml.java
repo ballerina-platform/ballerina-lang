@@ -16,9 +16,9 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable;
+package io.ballerina.runtime.internal.configurable.providers.toml;
 
-import io.ballerina.runtime.internal.configurable.exceptions.TomlException;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
 import io.ballerina.toml.syntax.tree.DocumentNode;
@@ -34,7 +34,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.runtime.internal.configurable.ConfigurableConstants.INVALID_TOML_FILE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.INVALID_TOML_FILE;
 
 /**
  * Represents configuration TOML document for `configurable` variables.
@@ -59,7 +59,7 @@ public class ConfigToml {
         parseToml();
         List<Diagnostic> diagnosticList = getDiagnostics();
         if (diagnosticList.size() != 0) {
-            throw new TomlException(INVALID_TOML_FILE + getErrorMessage(diagnosticList));
+            throw new ConfigException(INVALID_TOML_FILE + getErrorMessage(diagnosticList));
         }
         return tomlAstNode;
     }
@@ -81,7 +81,7 @@ public class ConfigToml {
         try {
             textDocument = TextDocuments.from(Files.readString(filePath));
         } catch (IOException e) {
-            throw new TomlException("Failed to read file: " + filePath, e);
+            throw new ConfigException("Failed to read file: " + filePath, e);
         }
         return textDocument;
     }
@@ -94,7 +94,7 @@ public class ConfigToml {
             tomlAstNode = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
         } catch (RuntimeException e) {
             // The toml parser throws runtime exceptions for some cases
-            throw new TomlException("Failed to parse file: " + getFileName(filePath), e);
+            throw new ConfigException("Failed to parse file: " + getFileName(filePath), e);
         }
     }
 
@@ -104,7 +104,7 @@ public class ConfigToml {
             return fileNamePath.toString();
         }
         // This branch may never be executed.
-        throw new TomlException("Failed to retrieve the TOML file name from the path: " + filePath);
+        throw new ConfigException("Failed to retrieve the TOML file name from the path: " + filePath);
 
     }
     private List<Diagnostic> getDiagnostics() {

@@ -1,4 +1,4 @@
-package org.ballerinalang.runtime.test;
+package io.ballerina.runtime.test;
 
 import io.ballerina.runtime.internal.values.NonBmpStringValue;
 import org.testng.Assert;
