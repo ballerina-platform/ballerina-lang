@@ -332,20 +332,26 @@ public class CoverageReport {
 
     private List<Path> getDependencyJarList(JBallerinaBackend jBallerinaBackend) {
         List<Path> dependencyPathList = new ArrayList<>();
-        module.packageInstance().getResolution().allDependencies().stream()
-                .map(ResolvedPackageDependency::packageInstance).forEach(pkg -> {
-            for (ModuleId dependencyModuleId : pkg.moduleIds()) {
-                Module dependencyModule = pkg.module(dependencyModuleId);
-                PlatformLibrary generatedJarLibrary = jBallerinaBackend
-                        .codeGeneratedLibrary(pkg.packageId(), dependencyModule.moduleName());
-                dependencyPathList.add(generatedJarLibrary.path());
-            }
-            Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend
-                    .platformLibraryDependencies(pkg.packageId(), PlatformLibraryScope.DEFAULT);
-            for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-                dependencyPathList.add(otherJarDependency.path());
-            }
-        });
+        module.packageInstance().getResolution().allDependencies()
+                .stream()
+                .map(ResolvedPackageDependency::packageInstance)
+                .forEach(pkg -> {
+                    for (ModuleId dependencyModuleId : pkg.moduleIds()) {
+                        Module dependencyModule = pkg.module(dependencyModuleId);
+                        PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
+                                pkg.packageId(), dependencyModule.moduleName());
+                        if (!dependencyPathList.contains(generatedJarLibrary.path())) {
+                            dependencyPathList.add(generatedJarLibrary.path());
+                        }
+                    }
+                    Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
+                            pkg.packageId(), PlatformLibraryScope.DEFAULT);
+                    for (PlatformLibrary otherJarDependency : otherJarDependencies) {
+                        if (!dependencyPathList.contains(otherJarDependency.path())) {
+                            dependencyPathList.add(otherJarDependency.path());
+                        }
+                    }
+                });
         return dependencyPathList;
     }
 
