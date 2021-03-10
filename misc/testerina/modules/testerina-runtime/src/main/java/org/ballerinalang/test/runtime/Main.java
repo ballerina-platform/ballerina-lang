@@ -19,13 +19,11 @@ package org.ballerinalang.test.runtime;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
-import io.ballerina.runtime.internal.launch.LaunchUtils;
 import org.ballerinalang.test.runtime.entity.ModuleStatus;
 import org.ballerinalang.test.runtime.entity.TestReport;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
-import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -44,7 +42,6 @@ import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
@@ -60,11 +57,10 @@ public class Main {
         int exitStatus = 0;
         int result;
 
-        if (args.length >= 4) {
+        if (args.length >= 3) {
             Path testCache = Paths.get(args[0]);
-            String target = args[1];
-            boolean report = Boolean.valueOf(args[2]);
-            boolean coverage = Boolean.valueOf(args[3]);
+            boolean report = Boolean.parseBoolean(args[1]);
+            boolean coverage = Boolean.parseBoolean(args[2]);
 
             if (report || coverage) {
                 testReport = new TestReport();
@@ -88,16 +84,6 @@ public class Main {
                     for (Map.Entry<String, TestSuite> entry : testSuiteMap.entrySet()) {
                         String moduleName = entry.getKey();
                         TestSuite testSuite = entry.getValue();
-
-                        List<String> configList = new ArrayList<>();
-                        configList.add(target);
-                        configList.add(testSuite.getOrgName());
-                        configList.add(testSuite.getPackageName());
-                        configList.add("\"" + moduleName + "\"");
-                        configList.addAll(Lists.of(Arrays.copyOfRange(args, 4, args.length)));
-                        String[] configArgs = configList.toArray(new String[0]);
-
-                        LaunchUtils.initConfigurations(configArgs);
 
                         out.println("\n\t" + (moduleName.equals(testSuite.getPackageName()) ?
                                 moduleName : testSuite.getPackageName() + TesterinaConstants.DOT + moduleName));

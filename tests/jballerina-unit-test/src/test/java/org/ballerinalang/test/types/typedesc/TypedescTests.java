@@ -47,11 +47,12 @@ public class TypedescTests {
         int index = 0;
         validateError(compileResult, index++, "missing identifier", 2, 8);
         validateError(compileResult, index++, "undefined symbol 'i'", 7, 9);
-        validateError(compileResult, index++, "invalid operation: type 'byte' does not support indexing", 9, 18);
+        validateError(compileResult, index++, "invalid operation: type 'byte' does not support member access", 9, 18);
         validateError(compileResult, index++, "missing key expr in member access expr", 9, 23);
-        validateError(compileResult, index++, "invalid operation: type 'int' does not support indexing", 10, 18);
+        validateError(compileResult, index++, "invalid operation: type 'int' does not support member access", 10, 18);
         validateError(compileResult, index++, "missing key expr in member access expr", 10, 22);
-        validateError(compileResult, index++, "invalid operation: type 'string' does not support indexing", 10, 24);
+        validateError(compileResult, index++, "invalid operation: type 'string' does not support member access",
+                      10, 24);
         validateError(compileResult, index++, "missing key expr in member access expr", 10, 31);
         validateError(compileResult, index++, "incompatible types: expected 'typedesc<readonly>', found " +
                 "'typedesc<int[]>'", 21, 28);

@@ -3198,7 +3198,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS
                     || xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
-                dlog.error(xmlNavigation.pos, DiagnosticErrorCode.UNSUPPORTED_INDEX_IN_XML_NAVIGATION);
+                dlog.error(xmlNavigation.pos, DiagnosticErrorCode.UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION);
             }
             analyzeExpr(xmlNavigation.childIndex);
         }
@@ -3624,7 +3624,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLetClause letClause) {
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            analyzeNode((BLangNode) letVariable.definitionNode, env);
+            analyzeNode((BLangNode) letVariable.definitionNode.getVariable(), env);
         }
     }
 
