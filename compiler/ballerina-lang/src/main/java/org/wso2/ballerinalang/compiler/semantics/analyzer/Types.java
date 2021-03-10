@@ -603,8 +603,16 @@ public class Types {
         if (TypeTags.isXMLTypeTag(baseTypeTag)) {
             return true;
         }
-        return ((BUnionType) type).getMemberTypes().stream()
-                .allMatch(memType -> isSubTypeOfBaseType(memType, baseTypeTag));
+        return isUnionMemberTypesSubTypeOfBaseType(((BUnionType) type).getMemberTypes(), baseTypeTag);
+    }
+
+    private boolean isUnionMemberTypesSubTypeOfBaseType(LinkedHashSet<BType> memberTypes, int baseTypeTag) {
+        for (BType type : memberTypes) {
+            if (!isSubTypeOfBaseType(type, baseTypeTag)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**

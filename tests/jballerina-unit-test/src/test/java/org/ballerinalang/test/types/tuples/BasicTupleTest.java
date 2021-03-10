@@ -174,6 +174,11 @@ public class BasicTupleTest {
         BRunUtil.invoke(result, "testAnonRecordsInTupleTypeDescriptor");
     }
 
+    @Test
+    public void testTupleWithUnion() {
+        BRunUtil.invoke(result, "testTupleWithUnion");
+    }
+
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
         Assert.assertEquals(resultNegative.getErrorCount(), 33);

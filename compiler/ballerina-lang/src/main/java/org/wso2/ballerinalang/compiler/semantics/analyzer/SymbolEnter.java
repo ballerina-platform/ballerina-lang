@@ -1950,17 +1950,19 @@ public class SymbolEnter extends BLangNodeVisitor {
                     List<BType> possibleTypes = new ArrayList<>();
                     for (BType type : unionType) {
                         if (TypeTags.TUPLE == type.tag &&
-                                !checkMemVarCountMatchWithMemTypeCount(varNode, (BTupleType) type)) {
-                            dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN);
-                            return false;
-                        } else if (TypeTags.TUPLE != type.tag && TypeTags.ANY != type.tag &&
-                                TypeTags.ANYDATA != type.tag && (TypeTags.ARRAY != type.tag ||
-                                ((BArrayType) type).state == BArrayState.OPEN)) {
+                                !checkMemVarCountMatchWithMemTypeCount(varNode, (BTupleType) type) &&
+                                TypeTags.ANY != type.tag && TypeTags.ANYDATA != type.tag &&
+                                (TypeTags.ARRAY != type.tag || ((BArrayType) type).state == BArrayState.OPEN)) {
                             continue;
                         }
                         possibleTypes.add(type);
                     }
                     if (possibleTypes.isEmpty()) {
+                        // handle var count mismatch in foreach declared with `var`
+                        if (varNode.isDeclaredWithVar) {
+                            dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN);
+                            return false;
+                        }
                         dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_DECL, varNode.type);
                         return false;
                     }
