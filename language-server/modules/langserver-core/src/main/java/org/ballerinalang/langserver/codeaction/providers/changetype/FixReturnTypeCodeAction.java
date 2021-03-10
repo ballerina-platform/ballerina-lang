@@ -95,29 +95,27 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         List<CodeAction> codeActions = new ArrayList<>();
-        if (!RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.functionName().text())) {
-            List<TextEdit> importEdits = new ArrayList<>();
-            // Get all possible return types including ambiguous scenarios
-            List<String> types = CodeActionUtil.getPossibleTypes(foundTypeSymbol.get(), importEdits, context);
+        List<TextEdit> importEdits = new ArrayList<>();
+        // Get all possible return types including ambiguous scenarios
+        List<String> types = CodeActionUtil.getPossibleTypes(foundTypeSymbol.get(), importEdits, context);
 
-            types.forEach(type -> {
-                List<TextEdit> edits = new ArrayList<>();
+        types.forEach(type -> {
+            List<TextEdit> edits = new ArrayList<>();
 
-                String editText;
-                // Process function node
-                if (funcDef.functionSignature().returnTypeDesc().isEmpty()) {
-                    editText = " returns " + type;
-                } else {
-                    editText = type;
-                }
-                edits.add(new TextEdit(new Range(start, end), editText));
-                edits.addAll(importEdits);
+            String editText;
+            // Process function node
+            if (funcDef.functionSignature().returnTypeDesc().isEmpty()) {
+                editText = " returns " + type;
+            } else {
+                editText = type;
+            }
+            edits.add(new TextEdit(new Range(start, end), editText));
+            edits.addAll(importEdits);
 
-                // Add code action
-                String commandTitle = String.format(CommandConstants.CHANGE_RETURN_TYPE_TITLE, type);
-                codeActions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
-            });
-        }
+            // Add code action
+            String commandTitle = String.format(CommandConstants.CHANGE_RETURN_TYPE_TITLE, type);
+            codeActions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+        });
 
         return codeActions;
     }
