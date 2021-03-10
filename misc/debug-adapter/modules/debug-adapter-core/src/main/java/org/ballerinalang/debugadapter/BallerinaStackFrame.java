@@ -31,7 +31,7 @@ import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.getRectifiedSourcePath;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.getSrcPathFromBreakpointLocation;
 import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
 import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.LAMBDA;
 
@@ -87,7 +87,7 @@ public class BallerinaStackFrame {
             dapStackFrame.setColumn(0L);
 
             // Adds ballerina source information.
-            Path sourcePath = getRectifiedSourcePath(jStackFrame.location(), context.getSourceProject());
+            Path sourcePath = getSrcPathFromBreakpointLocation(jStackFrame.location(), context.getSourceProject());
             if (sourcePath != null) {
                 Source source = new Source();
                 source.setPath(sourcePath.toString());

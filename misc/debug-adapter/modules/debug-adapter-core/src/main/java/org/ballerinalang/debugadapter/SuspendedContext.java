@@ -125,7 +125,7 @@ public class SuspendedContext {
 
     private Optional<Path> getSourcePath(StackFrameProxyImpl frame) {
         try {
-            return Optional.ofNullable(PackageUtils.getRectifiedSourcePath(frame.location(), project));
+            return Optional.ofNullable(PackageUtils.getSrcPathFromBreakpointLocation(frame.location(), project));
         } catch (AbsentInformationException | InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
             return Optional.empty();
