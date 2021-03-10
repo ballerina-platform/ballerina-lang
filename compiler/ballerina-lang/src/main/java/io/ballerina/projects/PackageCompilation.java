@@ -25,9 +25,12 @@ import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
+import org.wso2.ballerinalang.compiler.CompilationRequestManager;
+import org.wso2.ballerinalang.compiler.PackageCompilationRequest;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
+import org.wso2.ballerinalang.compiler.util.StaleCompilationRequestException;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -110,9 +113,16 @@ public class PackageCompilation {
         // We check whether the particular module compilation state equal to the typecheck phase here. 
         // If the states do not match, then this is a illegal state exception.
         if (moduleContext.compilationState() != ModuleCompilationState.COMPILED) {
+            if (moduleContext == null) {
+                System.err.println("ModuleContext was null");
+            } else if (moduleContext.compilationState() == null) {
+                System.err.println("Compilation state was null");
+            }
             throw new IllegalStateException("Semantic model cannot be retrieved when the module is in " +
-                    "compilation state '" + moduleContext.compilationState().name() + "'. " +
-                    "This is an internal error which will be fixed in a later release.");
+                                                    "compilation state '" + moduleContext.compilationState().name() +
+                                                    "'. " +
+                                                    "This is an internal error which will be fixed in a later release" +
+                                                    ".");
         }
 
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
@@ -138,13 +148,24 @@ public class PackageCompilation {
             return;
         }
 
+        PackageCompilationRequest compilationRequest = new PackageCompilationRequest(packageContext().packageId());
+        CompilationRequestManager compilationRequestManager = CompilationRequestManager.getInstance(compilerContext);
+        compilationRequestManager.submit(compilationRequest);
+
         synchronized (this.compilerContext) {
             if (compiled) {
                 return;
             }
-            
+
             List<Diagnostic> diagnostics = new ArrayList<>();
             for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
+                try {
+                    compilationRequestManager.throwIfCancelled(compilationRequest);
+                } catch (StaleCompilationRequestException e) {
+                    diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+                    moduleContext.setCompilationState(ModuleCompilationState.CANCELLED_COMPILATION);
+                    return;
+                }
                 moduleContext.compile(compilerContext);
                 moduleContext.diagnostics()
                         .forEach(diagnostic -> diagnostics

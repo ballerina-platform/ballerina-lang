@@ -24,7 +24,10 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import org.wso2.ballerinalang.compiler.CompilationRequestManager;
+import org.wso2.ballerinalang.compiler.ModuleCompilationRequest;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.StaleCompilationRequestException;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -92,19 +95,34 @@ public class ModuleCompilation {
     }
 
     private void compile() {
-        // Compile all the modules
-        List<Diagnostic> diagnostics = new ArrayList<>();
-        List<ModuleId> sortedModuleIds = dependencyGraph.toTopologicallySortedList();
-        for (ModuleId sortedModuleId : sortedModuleIds) {
-            Package pkg = packageCache.getPackageOrThrow(sortedModuleId.packageId());
-            ModuleContext moduleContext = pkg.module(sortedModuleId).moduleContext();
-            moduleContext.compile(compilerContext);
-            moduleContext.diagnostics().forEach(diagnostic ->
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
-        }
+        ModuleCompilationRequest compilationRequest = new ModuleCompilationRequest(moduleContext.moduleId());
+        CompilationRequestManager compilationRequestManager = CompilationRequestManager.getInstance(compilerContext);
+        compilationRequestManager.submit(compilationRequest);
 
-        // Create an immutable list
-        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+        synchronized (compilerContext) {
+            // Compile all the modules
+            List<Diagnostic> diagnostics = new ArrayList<>();
+            List<ModuleId> sortedModuleIds = dependencyGraph.toTopologicallySortedList();
+            for (ModuleId sortedModuleId : sortedModuleIds) {
+                try {
+                    compilationRequestManager.throwIfCancelled(compilationRequest);
+                } catch (StaleCompilationRequestException e) {
+                    diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+                    moduleContext.setCompilationState(ModuleCompilationState.CANCELLED_COMPILATION);
+                    return;
+                }
+
+                Package pkg = packageCache.getPackageOrThrow(sortedModuleId.packageId());
+                ModuleContext moduleContext = pkg.module(sortedModuleId).moduleContext();
+                moduleContext.compile(compilerContext);
+                moduleContext.diagnostics()
+                        .forEach(diagnostic -> diagnostics
+                                .add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
+            }
+
+            // Create an immutable list
+            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+        }
     }
 
     public SemanticModel getSemanticModel() {

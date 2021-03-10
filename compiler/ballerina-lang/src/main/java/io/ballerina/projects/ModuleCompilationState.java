@@ -288,6 +288,28 @@ enum ModuleCompilationState {
                                           CompilerBackend compilerBackend) {
             // Do nothing
         }
+    },
+    CANCELLED_COMPILATION {
+        @Override
+        void parse(ModuleContext moduleContext) {
+            // Do nothing
+        }
+
+        @Override
+        void resolveDependencies(ModuleContext moduleContext) {
+            // Do nothing
+        }
+
+        @Override
+        void compile(ModuleContext moduleContext, CompilerContext compilerContext) {
+            // Do nothing
+        }
+
+        @Override
+        void generatePlatformSpecificCode(ModuleContext moduleContext, CompilerContext compilerContext,
+                                          CompilerBackend compilerBackend) {
+            // Do nothing
+        }
     };
 
     abstract void parse(ModuleContext moduleContext);
