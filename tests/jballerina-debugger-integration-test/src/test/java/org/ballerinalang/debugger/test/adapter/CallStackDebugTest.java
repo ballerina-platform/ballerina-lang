@@ -124,7 +124,7 @@ public class CallStackDebugTest extends BaseTestCase {
     }
 
     @AfterMethod(alwaysRun = true)
-    private void cleanup() {
+    public void cleanUp() {
         debugTestRunner.terminateDebugSession();
     }
 }

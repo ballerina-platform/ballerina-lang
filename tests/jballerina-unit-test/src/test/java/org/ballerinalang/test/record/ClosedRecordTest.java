@@ -257,6 +257,18 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, indx, errMsg2, 52, 17);
     }
 
+    @Test(description = "Test closed record mismatch fields")
+    public void testClosedRecordMismatchFields() {
+        CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_mismatch_fields.bal");
+        int indx = 0;
+        BAssertUtil.validateError(result, indx++, "missing error detail arg for error detail field 'foo'",
+                18, 27);
+        BAssertUtil.validateError(result, indx++, "missing error detail arg for error detail field 'message'",
+                18, 27);
+        BAssertUtil.validateError(result, indx, "unknown error detail arg 'bar' passed to closed error " +
+                "detail type 'FooErrData'", 18, 27);
+    }
+
     @Test
     public void testLiteralsAsMappingConstructorKeys() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testLiteralsAsMappingConstructorKeys");

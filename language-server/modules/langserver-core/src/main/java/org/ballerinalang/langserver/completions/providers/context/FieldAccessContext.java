@@ -47,8 +47,10 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
      * @param expr expression node to evaluate
      * @return {@link List} of filtered scope entries
      */
-    protected List<LSCompletionItem> getEntries(BallerinaCompletionContext ctx, ExpressionNode expr) {
-        FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(ctx);
+    protected List<LSCompletionItem> getEntries(BallerinaCompletionContext ctx,
+                                                ExpressionNode expr,
+                                                boolean optionalFieldAccess) {
+        FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(ctx, optionalFieldAccess);
         List<Symbol> symbolList = resolver.getVisibleEntries(expr);
 
         return this.getCompletionItemList(symbolList, ctx);

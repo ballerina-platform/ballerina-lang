@@ -25,10 +25,13 @@ import java.util.List;
  */
 public class PackageLibrary {
     @Expose
-    public String libVersion;
+    public String releaseVersion;
+    @Expose
+    public String releaseShortVersion = "";
     @Expose
     public String description;
     @Expose
     public List<DocPackage> packages = new ArrayList<>();
-
+    @Expose
+    public List<BuiltInType> builtinTypesAndKeywords = new ArrayList<>();
 }

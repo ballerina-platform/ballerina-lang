@@ -32,3 +32,29 @@ function testTupleForeachNegative2() {
 
     }
 }
+
+function testTupleForeachNegative3() {
+    [[int, int...]...] x = [[1, 2], [3, 4, 5, 6], [7, 8], [9, 10]];
+    foreach [int, int, int...] [a, ...b] in x {
+
+    }
+}
+
+function testTupleForeachNegative4() {
+    [[int, int...], [int, int, int...], int[2]] x = [[1, 2], [3, 4, 5, 6], [7, 8]];
+    foreach [int, int, int...] [a, ...b] in x {
+
+    }
+}
+
+function testTupleForeachNegative5() {
+    [[int, int...], [int, int, int...], int] x = [[1, 2], [3, 4, 5, 6], 12];
+    foreach var [a, ...b] in x {
+    }
+}
+
+function testTupleForeachNegative6() {
+    [[int, int...], [int, int, int...]] x = [[1, 2], [3, 4, 5, 6]];
+    foreach var [a] in x {
+    }
+}

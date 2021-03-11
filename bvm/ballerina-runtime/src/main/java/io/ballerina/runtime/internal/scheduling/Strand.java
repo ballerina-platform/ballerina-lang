@@ -40,6 +40,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.Lock;
 import java.util.concurrent.locks.ReentrantLock;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.CURRENT_TRANSACTION_CONTEXT_PROPERTY;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_AND_YIELD;
 import static io.ballerina.runtime.internal.scheduling.State.BLOCK_ON_AND_YIELD;
 import static io.ballerina.runtime.internal.scheduling.State.RUNNABLE;
@@ -101,6 +102,12 @@ public class Strand {
         //TODO: improve by using a copy on write map #26710
         if (properties != null) {
             this.globalProps = properties;
+            Object currentContext = globalProps.get(CURRENT_TRANSACTION_CONTEXT_PROPERTY);
+            if (currentContext != null) {
+                TransactionLocalContext branchedContext =
+                        createTrxContextBranch((TransactionLocalContext) currentContext, name);
+                setCurrentTransactionContext(branchedContext);
+            }
         } else if (parent != null) {
             this.globalProps = new HashMap<>(parent.globalProps);
         } else {
@@ -180,6 +187,7 @@ public class Strand {
             this.trxContexts.push(this.currentTrxContext);
         }
         this.currentTrxContext = ctx;
+        globalProps.putIfAbsent(CURRENT_TRANSACTION_CONTEXT_PROPERTY, this.currentTrxContext);
     }
 
     public ErrorValue handleFlush(ChannelDetails[] channels) throws Throwable {

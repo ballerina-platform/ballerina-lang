@@ -183,6 +183,11 @@ public class StaticMethodTest {
                 "testCreateStudent"};
     }
 
+    @Test(description = "Test decimal default values with interop functions")
+    public void testDefaultDecimalArgs() {
+        BRunUtil.invoke(result, "testDefaultDecimalArgs");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

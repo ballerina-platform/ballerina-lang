@@ -300,6 +300,9 @@ public class AnnotationDesugar {
             if (!annotation.annotationName.value.equals("strand")) {
                 continue;
             }
+            if (annotation.expr == null) {
+                continue;
+            }
             List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) annotation.expr).fields;
             for (RecordLiteralNode.RecordField field : fields) {
                 if (field.getKind() != NodeKind.RECORD_LITERAL_KEY_VALUE) {
