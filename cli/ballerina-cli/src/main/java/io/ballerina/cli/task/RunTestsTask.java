@@ -175,7 +175,8 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+
+        for (ModuleId moduleId :  project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
 
