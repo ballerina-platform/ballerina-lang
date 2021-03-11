@@ -180,17 +180,7 @@ public class StaticMethodTest {
         return new String[]{"testBalEnvSlowAsyncVoidSig", "testBalEnvFastAsyncVoidSig", "testBalEnvSlowAsync",
                 "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
                 "testStringCast", "testGetCurrentModule", "testGetDefaultValueWithBEnv", "testCreateStudentUsingType",
-                "testCreateStudent"};
-    }
-
-    @Test(description = "Test decimal default values with interop functions")
-    public void testDefaultDecimalArgs() {
-        BRunUtil.invoke(result, "testDefaultDecimalArgs");
-    }
-
-    @Test(description = "Test decimal default values with InterOp functions")
-    public void testDefaultDecimalArgs2() {
-        BRunUtil.invoke(result, "testDefaultDecimalArgs2");
+                "testCreateStudent", "testDefaultDecimalArgs", "testDefaultDecimalArgsAddition"};
     }
 
     @AfterClass

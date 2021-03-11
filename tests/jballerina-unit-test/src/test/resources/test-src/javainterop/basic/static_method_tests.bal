@@ -149,15 +149,15 @@ public function testGetDefaultValueWithBEnv() {
      test:assertEquals(defaultValue, 2021);
 }
 
-public function testDefaultDecimalArgs() {
-    decimal val = defaultDecimalArgs(5);
+public function testDefaultDecimalArgsAddition() {
+    decimal val = defaultDecimalArgsAddition(5);
     decimal expected = 15.05;
     test:assertEquals(val, expected);
 }
 
-public function testDefaultDecimalArgs2() {
+public function testDefaultDecimalArgs() {
     handle h = java:fromString("8");
-    anydata val = defaultDecimalArgs2(h);
+    anydata val = defaultDecimalArgs(h);
     anydata expected = ();
     test:assertEquals(val, expected);
 }
@@ -361,10 +361,10 @@ function createStudentUsingType() returns (Student & readonly) = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-function defaultDecimalArgs(decimal a, decimal b = 10.05) returns (decimal) = @java:Method {
+function defaultDecimalArgsAddition(decimal a, decimal b = 10.05) returns (decimal) = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
 
-function defaultDecimalArgs2(handle s, decimal d = -1) returns (anydata) = @java:Method {
+function defaultDecimalArgs(handle s, decimal d = -1) returns (anydata) = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;
