@@ -1,0 +1,18 @@
+
+Compiling source
+	pramodya/conflictProject:0.1.7
+
+Running Tests
+
+	conflictProject
+	No tests found
+
+Creating bala
+	target/bala/pramodya-conflictProject-any-0.1.7.bala
+
+Generating executable
+	warning: Detected conflicting jar files:
+		'one-1.0.0.jar' dependency of 'pramodya/conflictProject' conflict with 'two-1.0.0.jar' dependency of 'pramodya/conflictProject'
+			test/sample/Sample3.class
+			test/sample/Sample2.class
+	target/bin/conflictProject.jar
