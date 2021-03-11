@@ -307,7 +307,7 @@ public class BalaFiles {
             Path libPath = balaPath.getParent().resolve(dependencyPath).normalize();
             if (!Files.exists(libPath)) {
                 try {
-                    Path libPathInZip = Paths.get(dependencyPath);
+                    Path libPathInZip = Paths.get(COMPILER_PLUGIN_DIR, dependencyPath);
                     Files.createDirectories(libPath.getParent());
                     Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
                 } catch (IOException e) {
