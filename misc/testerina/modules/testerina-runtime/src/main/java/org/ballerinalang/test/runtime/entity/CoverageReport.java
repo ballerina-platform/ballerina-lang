@@ -26,6 +26,7 @@ import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
@@ -180,10 +181,10 @@ public class CoverageReport {
         for (IClassCoverage classCoverage : classesList) {
             if (classCoverage.getSourceFileName() != null) {
                 //Normalize package name and class name for classes generated for bal files
-                IClassCoverage modifiedClass = new NormalizedCoverageClass(classCoverage,
+                IClassCoverage modifiedClassCoverage = new NormalizedCoverageClass(classCoverage,
                         normalizeFileName(classCoverage.getPackageName()),
                         normalizeFileName(classCoverage.getName()));
-                modifiedClasses.add(modifiedClass);
+                modifiedClasses.add(modifiedClassCoverage);
             } else {
                 modifiedClasses.add(classCoverage);
             }
@@ -401,15 +402,11 @@ public class CoverageReport {
                 this.module.packageInstance().packageOrg().toString());
         //Get package instance and traverse through all the modules
         for (Module module : this.module.packageInstance().modules()) {
-            String sourceRoot;
-            String packageName;
-            if (module.isDefaultModule()) {
-                packageName = IdentifierUtils.encodeNonFunctionIdentifier(
-                        module.packageInstance().packageName().toString());
-                sourceRoot = module.project().sourceRoot().getFileName().toString();
-            } else {
-                packageName = IdentifierUtils.encodeNonFunctionIdentifier(module.descriptor().name().toString());
-                sourceRoot = module.project().sourceRoot().getFileName().toString() + "/modules/" +
+            String packageName = IdentifierUtils.encodeNonFunctionIdentifier(
+                    module.moduleName().toString());
+            String sourceRoot = module.project().sourceRoot().getFileName().toString();
+            if (!module.isDefaultModule()) {
+                sourceRoot = sourceRoot + "/" + ProjectConstants.MODULES_ROOT + "/" +
                         module.moduleName().moduleNamePart();
             }
             if (fileName.contains(orgName + "/" + packageName + "/")) {

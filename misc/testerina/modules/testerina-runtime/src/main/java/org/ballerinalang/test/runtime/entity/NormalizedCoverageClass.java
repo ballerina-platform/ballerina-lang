@@ -69,6 +69,7 @@ public class NormalizedCoverageClass implements IClassCoverage {
 
     @Override
     public String getPackageName() {
+        // PackageName normalization is not done for non-ballerina classes and normalizedPackageName is null.
         if (this.normalizedPackageName != null) {
             return this.normalizedPackageName;
         }
