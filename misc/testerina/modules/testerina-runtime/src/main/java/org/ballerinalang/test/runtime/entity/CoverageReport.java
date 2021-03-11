@@ -20,7 +20,6 @@ package org.ballerinalang.test.runtime.entity;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PlatformLibrary;
@@ -274,11 +273,10 @@ public class CoverageReport {
         }
     }
 
-    private List<Path> filterPaths(Collection<JarLibrary> pathCollection, JBallerinaBackend jBallerinaBackend) {
+    private List<Path> filterPaths(Collection<Path> pathCollection, JBallerinaBackend jBallerinaBackend) {
         List<Path> filteredPathList = new ArrayList<>();
         List<Path> exclusionPathList = getExclusionJarList(jBallerinaBackend);
-        for (JarLibrary library : pathCollection) {
-            Path path = library.path();
+        for (Path path : pathCollection) {
             if (!exclusionPathList.contains(path)) {
                 filteredPathList.add(path);
             }
@@ -322,11 +320,10 @@ public class CoverageReport {
     }
 
     private List<Path> getExclusionJarList(JBallerinaBackend jBallerinaBackend) {
-        List<Path> exclusionPathList = new ArrayList<>(getDependencyJarList(jBallerinaBackend));
+        List<Path> exclusionPathList = new ArrayList<>();
+        exclusionPathList.addAll(getDependencyJarList(jBallerinaBackend));
         exclusionPathList.add(jBallerinaBackend.runtimeLibrary().path());
-        for (JarLibrary library : ProjectUtils.testDependencies()) {
-            exclusionPathList.add(library.path());
-        }
+        exclusionPathList.addAll(ProjectUtils.testDependencies());
         return exclusionPathList;
     }
 
