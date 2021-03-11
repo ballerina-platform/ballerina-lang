@@ -1136,7 +1136,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(ObjectConstructorExpressionNode objectConstructorExpressionNode) {
         Location pos = getPositionWithoutMetadata(objectConstructorExpressionNode);
         BLangClassDefinition anonClass = transformObjectCtorExpressionBody(objectConstructorExpressionNode.members());
-        anonClass.isObjectConstructor = true;
         anonClass.pos = pos;
         BLangObjectConstructorExpression objectCtorExpression = TreeBuilder.createObjectCtorExpression();
         objectCtorExpression.pos = pos;

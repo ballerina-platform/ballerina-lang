@@ -2240,7 +2240,6 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.generatedInitFunction = clone(source.generatedInitFunction);
         clone.receiver = clone(source.receiver);
         clone.isServiceDecl = source.isServiceDecl;
-        clone.isObjectConstructor = source.isObjectConstructor;
     }
 
     @Override
