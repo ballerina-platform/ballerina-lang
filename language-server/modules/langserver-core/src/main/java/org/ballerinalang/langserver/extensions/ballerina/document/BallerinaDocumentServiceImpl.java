@@ -125,7 +125,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             } catch (Throwable e) {
                 reply.setParseSuccess(false);
                 String msg = "Operation 'ballerinaDocument/syntaxTreeByRange' failed!";
-                this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_BY_RANGE, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
                 return reply;
             }
         });
@@ -168,7 +169,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             } catch (Throwable e) {
                 reply.setParseSuccess(false);
                 String msg = "Operation 'ballerinaDocument/syntaxTreeLocate' failed!";
-                this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_LOCATE, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
                 return reply;
             }
         });
