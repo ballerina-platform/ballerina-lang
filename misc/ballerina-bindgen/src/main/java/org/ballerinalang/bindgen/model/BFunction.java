@@ -137,10 +137,10 @@ public abstract class BFunction {
      * The enum that stores the function kind in the Ballerina bridge code generation.
      */
     public enum BFunctionKind {
-        METHOD("Method"),
-        CONSTRUCTOR("Constructor"),
-        FIELD_GET("FieldGet"),
-        FIELD_SET("FieldSet");
+        METHOD("java:Method"),
+        CONSTRUCTOR("java:Constructor"),
+        FIELD_GET("java:FieldGet"),
+        FIELD_SET("java:FieldSet");
 
         private final String value;
 

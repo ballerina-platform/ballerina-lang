@@ -112,7 +112,8 @@ public class BindgenTreeModifier {
         return members.set(classDefinitionDetails.getKey(), modifiedClassDefinition);
     }
 
-    private NodeList<ModuleMemberDeclarationNode> updateConstructors(NodeList<ModuleMemberDeclarationNode> members) {
+    private NodeList<ModuleMemberDeclarationNode> updateConstructors(NodeList<ModuleMemberDeclarationNode> members)
+            throws BindgenException {
         List<FunctionDefinitionNode> constructorFunctions = new LinkedList<>();
 
         for (ModuleMemberDeclarationNode node : members) {
@@ -133,7 +134,8 @@ public class BindgenTreeModifier {
         return memberList;
     }
 
-    private NodeList<ModuleMemberDeclarationNode> updateStaticMethods(NodeList<ModuleMemberDeclarationNode> members) {
+    private NodeList<ModuleMemberDeclarationNode> updateStaticMethods(NodeList<ModuleMemberDeclarationNode> members)
+            throws BindgenException {
         List<FunctionDefinitionNode> staticFunctions = new LinkedList<>();
 
         for (ModuleMemberDeclarationNode node : members) {
@@ -184,7 +186,8 @@ public class BindgenTreeModifier {
         return members.set(classDefinitionDetails.getKey(), modifiedClassDefinition);
     }
 
-    private NodeList<ModuleMemberDeclarationNode> updateStaticFields(NodeList<ModuleMemberDeclarationNode> members) {
+    private NodeList<ModuleMemberDeclarationNode> updateStaticFields(NodeList<ModuleMemberDeclarationNode> members)
+            throws BindgenException {
         List<FunctionDefinitionNode> staticFields = new LinkedList<>();
 
         for (ModuleMemberDeclarationNode node : members) {
@@ -235,7 +238,8 @@ public class BindgenTreeModifier {
         return members.set(classDefinitionDetails.getKey(), modifiedClassDefinition);
     }
 
-    private NodeList<ModuleMemberDeclarationNode> updateExternalMethods(NodeList<ModuleMemberDeclarationNode> members) {
+    private NodeList<ModuleMemberDeclarationNode> updateExternalMethods(NodeList<ModuleMemberDeclarationNode> members)
+            throws BindgenException {
         List<FunctionDefinitionNode> externalFunctions = new LinkedList<>();
 
         for (ModuleMemberDeclarationNode node : members) {
@@ -287,7 +291,8 @@ public class BindgenTreeModifier {
         return entry;
     }
 
-    private FunctionDefinitionNode generateInstanceMethods(BFunction bFunction, boolean isExternal) {
+    private FunctionDefinitionNode generateInstanceMethods(BFunction bFunction, boolean isExternal)
+            throws BindgenException {
         return createFunctionDefinitionNode(bFunction, isExternal);
     }
 

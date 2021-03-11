@@ -147,4 +147,18 @@ public class JConstructor extends BFunction implements Cloneable  {
     public List<JParameter> getParameters() {
         return parameters;
     }
+
+    public String getFunctionReturnType() {
+        StringBuilder returnString = new StringBuilder();
+        returnString.append(shortClassName);
+        if (hasException) {
+            if (handleException) {
+                returnString.append("|").append(exceptionName);
+            }
+            if (returnError) {
+                returnString.append("|error");
+            }
+        }
+        return returnString.toString();
+    }
 }
