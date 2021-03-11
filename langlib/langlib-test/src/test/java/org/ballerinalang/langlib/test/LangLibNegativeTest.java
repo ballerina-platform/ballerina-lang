@@ -68,7 +68,7 @@ public class LangLibNegativeTest {
                 71, 26);
         BAssertUtil.validateError(negativeResult, err++, "invalid token 'join'",
                 71, 30);
-        BAssertUtil.validateError(negativeResult, err++, "missing close paren token",
+        BAssertUtil.validateError(negativeResult, err++, "missing close parenthesis token",
                 71, 39);
         BAssertUtil.validateError(negativeResult, err++, "missing close bracket token",
                 71, 52);
