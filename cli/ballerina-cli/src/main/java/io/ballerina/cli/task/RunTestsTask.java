@@ -352,6 +352,9 @@ public class RunTestsTask implements Task {
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
+        cmdArgs.add("-Djava.util.logging.config.class=org.ballerinalang.logging.util.LogConfigReader");
+        cmdArgs.add("-Djava.util.logging.manager=org.ballerinalang.logging.BLogManager");
+
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
 
         if (coverage) {
