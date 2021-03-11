@@ -3041,28 +3041,32 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         functionTypeNode.pos = getPosition(functionTypeDescriptorNode);
         functionTypeNode.returnsKeywordExists = true;
 
-        FunctionSignatureNode funcSignature = functionTypeDescriptorNode.functionSignature();
+        if (functionTypeDescriptorNode.functionSignature().isPresent()) {
+            FunctionSignatureNode funcSignature = functionTypeDescriptorNode.functionSignature().get();
 
-        // Set Parameters
-        for (ParameterNode child : funcSignature.parameters()) {
-            SimpleVariableNode param = (SimpleVariableNode) child.apply(this);
-            if (child instanceof RestParameterNode) {
-                functionTypeNode.restParam = (BLangSimpleVariable) param;
-            } else {
-                functionTypeNode.params.add((BLangVariable) param);
+            // Set Parameters
+            for (ParameterNode child : funcSignature.parameters()) {
+                SimpleVariableNode param = (SimpleVariableNode) child.apply(this);
+                if (child.kind() == SyntaxKind.REST_PARAM) {
+                    functionTypeNode.restParam = (BLangSimpleVariable) param;
+                } else {
+                    functionTypeNode.params.add((BLangVariable) param);
+                }
             }
-        }
 
-        // Set Return Type
-        Optional<ReturnTypeDescriptorNode> retNode = funcSignature.returnTypeDesc();
-        if (retNode.isPresent()) {
-            ReturnTypeDescriptorNode returnType = retNode.get();
-            functionTypeNode.returnTypeNode = createTypeNode(returnType.type());
+            // Set Return Type
+            Optional<ReturnTypeDescriptorNode> retNode = funcSignature.returnTypeDesc();
+            if (retNode.isPresent()) {
+                ReturnTypeDescriptorNode returnType = retNode.get();
+                functionTypeNode.returnTypeNode = createTypeNode(returnType.type());
+            } else {
+                BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
+                bLValueType.pos = getPosition(funcSignature);
+                bLValueType.typeKind = TypeKind.NIL;
+                functionTypeNode.returnTypeNode = bLValueType;
+            }
         } else {
-            BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            bLValueType.pos = getPosition(funcSignature);
-            bLValueType.typeKind = TypeKind.NIL;
-            functionTypeNode.returnTypeNode = bLValueType;
+            functionTypeNode.flagSet.add(Flag.ANY_FUNCTION);
         }
 
         functionTypeNode.flagSet.add(Flag.PUBLIC);
@@ -4907,6 +4911,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     }
 
     private BLangExpression createExpression(Node expression) {
+        if (expression.kind() == SyntaxKind.ASYNC_SEND_ACTION) {
+            // TODO: support async send as expression #24849
+            dlog.error(getPosition(expression), DiagnosticErrorCode.ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION);
+            Token missingIdentifier = NodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN,
+                    NodeFactory.createEmptyMinutiaeList(), NodeFactory.createEmptyMinutiaeList());
+            expression = NodeFactory.createSimpleNameReferenceNode(missingIdentifier);
+        }
+
         return (BLangExpression) createActionOrExpression(expression);
     }
 

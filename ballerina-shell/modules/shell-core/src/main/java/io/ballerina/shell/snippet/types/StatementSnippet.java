@@ -27,7 +27,7 @@ import io.ballerina.shell.snippet.SnippetSubKind;
  *
  * @since 2.0.0
  */
-public class StatementSnippet extends ExecutableSnippet {
+public class StatementSnippet extends AbstractSnippet<StatementNode> implements ExecutableSnippet {
     public StatementSnippet(SnippetSubKind subKind, StatementNode rootNode) {
         super(subKind, rootNode);
     }

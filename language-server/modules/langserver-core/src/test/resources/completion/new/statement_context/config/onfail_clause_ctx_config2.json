@@ -54,14 +54,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -603,14 +595,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testValue",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "testValue",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -622,6 +606,14 @@
       },
       "sortText": "C",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testValue",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "testValue",
       "insertTextFormat": "Snippet"
     },
     {

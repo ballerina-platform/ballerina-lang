@@ -323,6 +323,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BInvokableType originalType, BType expType) {
+        if (Symbols.isFlagOn(originalType.flags, Flags.ANY_FUNCTION)) {
+            return originalType;
+        }
+
         boolean hasNewType = false;
 
         BInvokableType matchingType = (BInvokableType) getMatchingType(originalType, expType);

@@ -43,6 +43,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
@@ -56,7 +58,7 @@ import static org.mockito.Mockito.when;
  */
 public class TestCentralApiClient extends CentralAPIClient {
 
-    private HttpURLConnection connection = mock(HttpURLConnection.class);
+    private HttpsURLConnection connection = mock(HttpsURLConnection.class);
     private ByteArrayOutputStream console;
 
     private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
@@ -73,7 +75,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     }
 
     @Override
-    protected HttpURLConnection createHttpUrlConnection(String a, String b, String c) {
+    protected HttpsURLConnection createHttpsURLConnection(String a, String b, String c) {
         return connection;
     }
 

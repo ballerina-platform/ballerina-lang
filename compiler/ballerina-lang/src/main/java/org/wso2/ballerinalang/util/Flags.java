@@ -69,13 +69,16 @@ public class Flags {
     public static final long ISOLATED_PARAM = ISOLATED << 1;                    //  30
     public static final long CONFIGURABLE = ISOLATED_PARAM << 1;                //  31
     public static final long OBJECT_CTOR = CONFIGURABLE << 1;                   //  32
+
+
     public static final long ENUM = OBJECT_CTOR << 1;                           //  33
     public static final long INCLUDED = ENUM << 1;                              //  34
     public static final long REQUIRED_PARAM = INCLUDED << 1;                    //  35
     public static final long DEFAULTABLE_PARAM = REQUIRED_PARAM << 1;           //  36
     public static final long REST_PARAM = DEFAULTABLE_PARAM << 1;               //  37
     public static final long FIELD = REST_PARAM << 1;                           //  38
-    public static final long INFER = FIELD << 1;                                //  39
+    public static final long ANY_FUNCTION = FIELD << 1;                         //  39
+    public static final long INFER = ANY_FUNCTION << 1;                         //  40
 
 
     public static long asMask(Set<Flag> flagSet) {
@@ -190,6 +193,9 @@ public class Flags {
                 case FIELD:
                     mask |= FIELD;
                     break;
+                case ANY_FUNCTION:
+                    mask |= ANY_FUNCTION;
+                    break;
             }
         }
         return mask;
@@ -301,6 +307,9 @@ public class Flags {
                     break;
                 case FIELD:
                     flagVal = FIELD;
+                    break;
+                case ANY_FUNCTION:
+                    flagVal = ANY_FUNCTION;
                     break;
                 default:
                     continue;

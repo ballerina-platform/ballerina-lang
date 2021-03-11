@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -39,6 +40,7 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 /**
  * Represents an object type descriptor.
@@ -103,8 +105,15 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         Map<String, MethodSymbol> methods = new LinkedHashMap<>();
 
         for (BAttachedFunction attachedFunc : ((BObjectTypeSymbol) this.getBType().tsymbol).attachedFuncs) {
-            methods.put(attachedFunc.funcName.value,
-                        symbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
+            if (attachedFunc instanceof BResourceFunction) {
+                BResourceFunction resFn = (BResourceFunction) attachedFunc;
+                String resPath = resFn.resourcePath.stream().map(p -> p.value).collect(Collectors.joining("/"));
+                methods.put(resFn.accessor.value + " " + resPath,
+                            symbolFactory.createResourceMethodSymbol(attachedFunc.symbol));
+            } else {
+                methods.put(attachedFunc.funcName.value,
+                            symbolFactory.createMethodSymbol(attachedFunc.symbol, attachedFunc.funcName.getValue()));
+            }
         }
 
         this.methods = Collections.unmodifiableMap(methods);

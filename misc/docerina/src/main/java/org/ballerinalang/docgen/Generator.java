@@ -327,6 +327,7 @@ public class Generator {
         BType bType = new BType(typeDefinition.typeName().text(),
                 getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), null);
         bType.isTypeDesc = true;
+        bType.version = BallerinaDocGenerator.getBallerinaShortVersion();
         bType.elementType = type;
         return bType;
     }
@@ -571,9 +572,12 @@ public class Generator {
                 }
                 String defaultValue = recordField.expression().toString();
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
-                type.isReadOnly = recordField.readonlyKeyword().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         defaultValue);
+                if (recordField.readonlyKeyword().isPresent()) {
+                    defaultableVariable.isReadOnly = true;
+                    defaultableVariable.builtInVersion = BallerinaDocGenerator.getBallerinaShortVersion();
+                }
                 variables.add(defaultableVariable);
             } else if (node instanceof RecordFieldNode) {
                 RecordFieldNode recordField = (RecordFieldNode) node;
@@ -584,9 +588,12 @@ public class Generator {
                 }
                 Type type = Type.fromNode(recordField.typeName(), semanticModel);
                 type.isNullable = recordField.questionMarkToken().isPresent();
-                type.isReadOnly = recordField.readonlyKeyword().isPresent();
                 DefaultableVariable defaultableVariable = new DefaultableVariable(name, doc, false, type,
                         "");
+                if (recordField.readonlyKeyword().isPresent()) {
+                    defaultableVariable.isReadOnly = true;
+                    defaultableVariable.builtInVersion = BallerinaDocGenerator.getBallerinaShortVersion();
+                }
                 variables.add(defaultableVariable);
             } else if (node instanceof TypeReferenceNode) {
                 Type originType = Type.fromNode(((TypeReferenceNode) node).typeName(), semanticModel);

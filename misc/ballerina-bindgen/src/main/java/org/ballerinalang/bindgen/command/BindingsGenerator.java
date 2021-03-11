@@ -158,7 +158,7 @@ public class BindingsGenerator {
 
     private PackageManifest.Platform getPackagePlatform(TomlDocument tomlDocument) {
         if (tomlDocument != null) {
-            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null,
+            PackageManifest packageManifest = ManifestBuilder.from(tomlDocument, null, null,
                     env.getProjectRoot()).packageManifest();
             if (packageManifest != null) {
                 return packageManifest.platform(JvmTarget.JAVA_11.code());

@@ -19,6 +19,7 @@
 package io.ballerina.shell.utils;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
@@ -118,6 +119,16 @@ public class StringUtils {
     }
 
     /**
+     * Replace the unicode patterns in identifiers into respective unicode characters.
+     *
+     * @param identifier identifier string
+     * @return modified identifier with unicode character
+     */
+    public static String unescapeUnicodeCodepoints(String identifier) {
+        return IdentifierUtils.unescapeUnicodeCodepoints(identifier);
+    }
+
+    /**
      * Escapes the <code>String</code> with the escaping rules of Java language
      * string literals, so it's safe to insert the value into a string literal.
      * The resulting string will not be quoted.
@@ -137,5 +148,18 @@ public class StringUtils {
      */
     public static String getExpressionStringValue(Object object) {
         return io.ballerina.runtime.api.utils.StringUtils.getExpressionStringValue(object, null);
+    }
+
+    /**
+     * Converts {@link Throwable} to a more descriptive format.
+     *
+     * @param error Error object to convert.
+     * @return Converted string.
+     */
+    public static String getErrorStringValue(Throwable error) {
+        if (error instanceof BError) {
+            return ((BError) error).getErrorMessage() + " " + ((BError) error).getDetails();
+        }
+        return error.getMessage();
     }
 }

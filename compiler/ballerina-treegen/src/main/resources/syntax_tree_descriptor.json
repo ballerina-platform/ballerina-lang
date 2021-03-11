@@ -2531,7 +2531,8 @@
                 },
                 {
                     "name": "functionSignature",
-                    "type": "FunctionSignatureNode"
+                    "type": "FunctionSignatureNode",
+                    "isOptional": true
                 }
             ]
         },

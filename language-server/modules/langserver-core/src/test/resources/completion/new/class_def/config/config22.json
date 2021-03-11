@@ -245,11 +245,27 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "service",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "service on ${1:listenerName} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "UniqueGreetingsStore",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
       "insertText": "UniqueGreetingsStore",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -261,14 +277,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

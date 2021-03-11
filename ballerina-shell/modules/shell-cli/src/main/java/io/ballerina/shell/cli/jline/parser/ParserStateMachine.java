@@ -81,7 +81,8 @@ public class ParserStateMachine {
 
         switch (state) {
             case NORMAL:
-                normalState(character);
+            case AFTER_OPERATOR:
+                normalStateOrAfterOperator(character);
                 return;
             case AFTER_BACKWARD_SLASH:
                 afterBackwardSlashState();
@@ -104,9 +105,6 @@ public class ParserStateMachine {
             case IN_COMMENT:
                 inCommentState(character);
                 return;
-            case AFTER_OPERATOR:
-                afterOperatorState(character);
-                return;
             case ERROR:
                 return;
             default:
@@ -116,15 +114,22 @@ public class ParserStateMachine {
 
     /**
      * Handles normal state input.
+     * This will also handle normal state just after an operator.
      * If brackets: (, [, { are pushed, they are added to stack.
      * Inversely, if ), ], } are pushed, other is removed from stack.
      * Will transit to other states on \, ", `, /, # characters.
      *
      * @param character Next character to process.
      */
-    private void normalState(char character) {
-        assert state == ParserState.NORMAL;
+    private void normalStateOrAfterOperator(char character) {
+        assert state == ParserState.NORMAL || state == ParserState.AFTER_OPERATOR;
         switch (character) {
+            case NEW_LINE:
+            case SPACE:
+            case TAB:
+                // The whitespace characters are ignored.
+                // They simply act as NO-OP characters.
+                return;
             case OPEN_CURLY:
             case OPEN_PAREN:
             case OPEN_SQ_BR:
@@ -160,8 +165,14 @@ public class ParserStateMachine {
                 break;
             default:
         }
-        if (CONTINUING_OPERATORS.contains(character)) {
-            state = ParserState.AFTER_OPERATOR;
+        // Change the transitioning state according to the current character.
+        // If current character is an operator, the next state would be AFTER_OPERATOR.
+        if (state == ParserState.NORMAL || state == ParserState.AFTER_OPERATOR) {
+            if (CONTINUING_OPERATORS.contains(character)) {
+                state = ParserState.AFTER_OPERATOR;
+            } else {
+                state = ParserState.NORMAL;
+            }
         }
     }
 
@@ -282,20 +293,6 @@ public class ParserStateMachine {
         if (character == NEW_LINE) {
             state = ParserState.NORMAL;
         }
-    }
-
-    /**
-     * Handles state after a operator.
-     * Waits until any character that is not a whitespace is fed.
-     *
-     * @param character Next character to process.
-     */
-    private void afterOperatorState(char character) {
-        assert state == ParserState.AFTER_OPERATOR;
-        if (character == NEW_LINE || character == SPACE || character == TAB) {
-            return;
-        }
-        state = ParserState.NORMAL;
     }
 
     public ParserState getState() {

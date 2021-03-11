@@ -60,7 +60,7 @@ public class ProjectFiles {
         ModuleData defaultModule = ModuleData
                 .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null);
         return PackageData.from(filePath, defaultModule, Collections.emptyList(),
-                null, null, null, null);
+                null, null, null, null, null);
     }
 
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
@@ -70,10 +70,11 @@ public class ProjectFiles {
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
         DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
+        DocumentData compilerPluginToml = loadDocument(packageDirPath.resolve(ProjectConstants.COMPILER_PLUGIN_TOML));
         DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
 
         return PackageData.from(packageDirPath, defaultModule, otherModules,
-                ballerinaToml, dependenciesToml, cloudToml, packageMd);
+                ballerinaToml, dependenciesToml, cloudToml, compilerPluginToml, packageMd);
     }
 
     private static List<ModuleData> loadOtherModules(Path packageDirPath) {
@@ -171,7 +172,10 @@ public class ProjectFiles {
                 packageConfig.ballerinaToml().map(t -> t.content()).orElse(""));
         TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML,
                 packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
-        ManifestBuilder manifestBuilder = ManifestBuilder.from(ballerinaToml, dependenciesToml, projectDirPath);
+        TomlDocument pluginToml = TomlDocument.from(ProjectConstants.COMPILER_PLUGIN_TOML,
+                packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
+        ManifestBuilder manifestBuilder = ManifestBuilder
+                .from(ballerinaToml, dependenciesToml, pluginToml, projectDirPath);
         BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = new BuildOptionsBuilder().build();
