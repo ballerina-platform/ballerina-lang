@@ -25,9 +25,7 @@ import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.debugger.test.utils.DebugUtils;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
-import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 
 /**
@@ -86,25 +84,6 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
 
     protected DebugTestRunner debugTestRunner;
 
-    protected void prepareForEvaluation() throws BallerinaTestException {
-        String testProjectName = "variable-tests";
-        String testModuleFileName = "main.bal";
-        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
-
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 191));
-        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
-        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
-        this.context = debugHitInfo.getRight();
-
-        // Enable to see all the assertion failures at once.
-        // debugTestRunner.setAssertionMode(DebugTestRunner.AssertionMode.SOFT_ASSERT);
-    }
-
-    @BeforeClass(alwaysRun = true)
-    public void setup() throws BallerinaTestException {
-        prepareForEvaluation();
-    }
-
     @BeforeMethod(alwaysRun = true)
     protected void beginSoftAssertions() {
         if (debugTestRunner.isSoftAssertionsEnabled()) {
@@ -119,10 +98,18 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
         }
     }
 
-    @AfterClass(alwaysRun = true)
-    public void cleanUp() {
-        debugTestRunner.terminateDebugSession();
-        this.context = null;
+    protected void prepareForEvaluation() throws BallerinaTestException {
+        String testProjectName = "variable-tests";
+        String testModuleFileName = "main.bal";
+        debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
+
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 191));
+        debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
+        Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
+        this.context = debugHitInfo.getRight();
+
+        // Enable to see all the assertion failures at once.
+        // debugTestRunner.setAssertionMode(DebugTestRunner.AssertionMode.SOFT_ASSERT);
     }
 
     // 1. literal expressions

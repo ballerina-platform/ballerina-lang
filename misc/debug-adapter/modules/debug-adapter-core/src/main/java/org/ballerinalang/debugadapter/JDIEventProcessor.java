@@ -299,7 +299,9 @@ public class JDIEventProcessor {
     /**
      * Evaluates the given breakpoint condition (expression) using the ballerina debugger expression evaluation engine.
      *
-     * @param expression breakpoint expression
+     * @param expression      breakpoint expression
+     * @param threadReference suspended thread reference, which should be used to get the top stack frame
+     * @return result of the given breakpoint condition (logical expression).
      */
     private boolean evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
         try {
