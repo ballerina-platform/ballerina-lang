@@ -27,6 +27,7 @@ import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
@@ -52,6 +53,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
@@ -176,11 +178,15 @@ public class CoverageReport {
     private Collection<IClassCoverage> modifyClasses(Collection<IClassCoverage> classesList) {
         Collection<IClassCoverage> modifiedClasses = new ArrayList<>();
         for (IClassCoverage classCoverage : classesList) {
-            //Normalize package name and class name
-            IClassCoverage modifiedClass = new NormalizedCoverageClass(classCoverage,
-                    normalizeFileName(classCoverage.getPackageName()),
-                    normalizeFileName(classCoverage.getName()));
-            modifiedClasses.add(modifiedClass);
+            if (classCoverage.getSourceFileName() != null) {
+                //Normalize package name and class name for classes generated for bal files
+                IClassCoverage modifiedClass = new NormalizedCoverageClass(classCoverage,
+                        normalizeFileName(classCoverage.getPackageName()),
+                        normalizeFileName(classCoverage.getName()));
+                modifiedClasses.add(modifiedClass);
+            } else {
+                modifiedClasses.add(classCoverage);
+            }
         }
         return modifiedClasses;
     }
@@ -375,33 +381,53 @@ public class CoverageReport {
         Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
         for (ISourceFileCoverage sourcefile : sourcefiles) {
             ISourceFileCoverage modifiedSourceFile;
+            List<ILine> modifiedLines;
             if (sourcefile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                List<ILine> modifiedLines = modifyLines(sourcefile);
+                modifiedLines = modifyLines(sourcefile);
+                //Normalize source file package name
                 modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
-                        modifiedLines);
+                        modifiedLines, normalizeFileName(sourcefile.getPackageName()));
+                modifiedSourceFiles.add(modifiedSourceFile);
             } else {
-                modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
-                        new ArrayList<>());
+                modifiedSourceFiles.add(sourcefile);
             }
-            //Normalize source file package name
-            ((PartialCoverageModifiedSourceFile) modifiedSourceFile).setNormalizedPackageName(
-                    normalizeFileName(modifiedSourceFile.getPackageName()));
-            modifiedSourceFiles.add(modifiedSourceFile);
+
         }
         return modifiedSourceFiles;
     }
 
     private String normalizeFileName(String fileName) {
-        String orgName = this.module.packageInstance().packageOrg().toString();
-        String packageName = this.module.packageInstance().packageName().toString();
-        // Capture file paths with the format "orgName/packageName/xxxx/file-name" and replace with
-        // "<source-root>/file-name"
-        String normalizedFileName = fileName.replaceAll("^" + orgName + "/" +
-                packageName + "/.*/", module.project().sourceRoot().getFileName().toString() + "/");
-        // Capture remaining file paths with the format "orgName/packageName/file-name" and replace with "<source-root>"
-        normalizedFileName = normalizedFileName.replaceAll("^" + orgName + "/" +
-                packageName + "/.*", module.project().sourceRoot().getFileName().toString());
-        return normalizedFileName;
+        String orgName = IdentifierUtils.encodeNonFunctionIdentifier(
+                this.module.packageInstance().packageOrg().toString());
+        //Get package instance and traverse through all the modules
+        for (Module module : this.module.packageInstance().modules()) {
+            String sourceRoot;
+            String packageName;
+            if (module.isDefaultModule()) {
+                packageName = IdentifierUtils.encodeNonFunctionIdentifier(
+                        module.packageInstance().packageName().toString());
+                sourceRoot = module.project().sourceRoot().getFileName().toString();
+            } else {
+                packageName = IdentifierUtils.encodeNonFunctionIdentifier(module.descriptor().name().toString());
+                sourceRoot = module.project().sourceRoot().getFileName().toString() + "/modules/" +
+                        module.moduleName().moduleNamePart();
+            }
+            if (fileName.contains(orgName + "/" + packageName + "/")) {
+                //Escape special characters before using in regex
+                orgName = Pattern.quote(orgName);
+                packageName = Pattern.quote(packageName);
+                // Capture file paths with the format "orgName/packageName/xxxx/file-name" and replace with
+                // "<source-root>/file-name"
+                String normalizedFileName = fileName.replaceAll("^" + orgName + "/" +
+                        packageName + "/.*/", sourceRoot + "/");
+                // Capture remaining file paths with the format "orgName/packageName/file-name" and replace
+                // with "<source-root>"
+                normalizedFileName = normalizedFileName.replaceAll("^" + orgName + "/" +
+                        packageName + "/.*", sourceRoot);
+                return normalizedFileName;
+            }
+        }
+        return fileName;
     }
 
     private List<ILine> modifyLines(ISourceFileCoverage sourcefile) {
