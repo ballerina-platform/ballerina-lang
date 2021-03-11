@@ -88,21 +88,18 @@ public class BSpan {
      * The started span is part of a trace which had spanned across multiple services and the parent is in the service
      * which called the current service.
      *
-     * @param httpHeaders   Contains http headers of request received
-     * @param serviceName   The name of the service the span belongs to
-     * @param operationName The name of the operation the span corresponds to
-     * @param isClient      True if this is a client span
+     * @param parentTraceContext Contains http headers of request received
+     * @param serviceName        The name of the service the span belongs to
+     * @param operationName      The name of the operation the span corresponds to
+     * @param isClient           True if this is a client span
      * @return The new span
      */
-    public static BSpan start(Map<String, String> httpHeaders, String serviceName, String operationName,
+    public static BSpan start(Map<String, String> parentTraceContext, String serviceName, String operationName,
                               boolean isClient) {
         TextMapGetter<Map<String, String>> getter = new TextMapGetter<>() {
             @Override
             public String get(Map<String, String> carrier, String key) {
-                if (carrier != null && carrier.containsKey(key)) {
-                    return carrier.get(key);
-                }
-                return null;
+                return carrier.get(key);
             }
 
             @Override
@@ -113,7 +110,7 @@ public class BSpan {
 
         Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
         Context parentContext = TracersStore.getInstance().getPropagators()
-                .getTextMapPropagator().extract(Context.current(), httpHeaders, getter);
+                .getTextMapPropagator().extract(Context.current(), parentTraceContext, getter);
         return start(tracer, parentContext, operationName, isClient);
     }
 

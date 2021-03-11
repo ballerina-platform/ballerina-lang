@@ -18,7 +18,6 @@ module io.ballerina.runtime {
     requires transactions.jta;
     requires java.transaction;
     requires java.naming;
-    requires jdk.httpserver;
 
     // API exports
     exports io.ballerina.runtime.api;
