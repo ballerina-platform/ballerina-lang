@@ -86,7 +86,7 @@ public class LSClientLogger {
      */
     public void logError(LSOperation operation, String message, Throwable error, TextDocumentIdentifier identifier,
                          Position... pos) {
-        if (!this.isInitializedOnce) {
+        if (!this.isInitializedOnce || this.languageClient == null) {
             return;
         }
         LSClientConfig config = this.configHolder.getConfig();
