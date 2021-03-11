@@ -130,4 +130,18 @@ public class JField extends BFunction {
     public JParameter getFieldObj() {
         return fieldObj;
     }
+
+    public String getFunctionReturnType() {
+        StringBuilder returnString = new StringBuilder();
+        if (super.getKind() == BFunctionKind.FIELD_GET) {
+            returnString.append(fieldType);
+            if (isString) {
+                returnString.append("?");
+            }
+            if (returnError) {
+                returnString.append("|error");
+            }
+        }
+        return returnString.toString();
+    }
 }

@@ -55,16 +55,19 @@ public class JMethod extends BFunction {
     private boolean hasParams = true;
     private boolean hasReturn = false;
     private boolean returnError = false;
-    private boolean objectReturn = false;
+    public boolean objectReturn = false;
     private boolean reservedWord = false;
     private boolean isArrayReturn = false;
     private boolean hasException = false;
     private boolean handleException = false;
-    private boolean isStringReturn = false;
+    public boolean isStringReturn = false;
+    public boolean isStringArrayReturn = false;
     private boolean javaArraysModule = false;
     private boolean hasPrimitiveParam = false;
+    private String parentPrefix;
 
     private Class parentClass;
+    private Class jClass;
     private Method method;
     private String methodName;
     private String returnType;
@@ -81,9 +84,10 @@ public class JMethod extends BFunction {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    public JMethod(Method m, BindgenEnv env) {
+    public JMethod(Method m, BindgenEnv env, String parentPrefix, Class jClass) {
         super(BFunctionKind.METHOD, env);
         this.env = env;
+        this.parentPrefix = parentPrefix;
         method = m;
         javaMethodName = m.getName();
         methodName = m.getName();
@@ -98,7 +102,7 @@ public class JMethod extends BFunction {
         if (!returnTypeClass.equals(Void.TYPE)) {
             setReturnTypeAttributes(returnTypeClass);
         }
-        setExternalFunctionName(parentClass.getName().replace(".", "_").replace("$", "_") + "_" + methodName);
+        setExternalFunctionName(jClass.getName().replace(".", "_") + "_" + methodName);
         // Set the attributes relevant to error returns.
         for (Class<?> exceptionType : m.getExceptionTypes()) {
             try {
@@ -144,7 +148,7 @@ public class JMethod extends BFunction {
         }
 
         if (isStatic) {
-            super.setFunctionName(shortClassName + "_" + m);
+            super.setFunctionName(shortClassName + "_" + methodName);
         } else {
             super.setFunctionName(methodName);
         }
@@ -177,6 +181,7 @@ public class JMethod extends BFunction {
                 objectReturn = false;
             } else if (getAlias(returnTypeClass).equals(JAVA_STRING_ARRAY)) {
                 objectReturn = false;
+                isStringArrayReturn = true;
             } else {
                 returnComponentType = getAlias(returnTypeClass.getComponentType());
                 returnComponentType = getExceptionName(returnTypeClass.getComponentType(), returnComponentType);
@@ -336,7 +341,7 @@ public class JMethod extends BFunction {
     }
 
     public String getBalFunctionName() {
-        return shortClassName + "_" + methodName;
+        return parentPrefix + "_" + methodName;
     }
 
     public String getAccessModifier() {
@@ -349,7 +354,7 @@ public class JMethod extends BFunction {
     public String getFunctionReturnType() {
         StringBuilder returnString = new StringBuilder();
         if (getHasReturn()) {
-            returnString.append(getExternalType());
+            returnString.append(this.returnType);
             if (getIsStringReturn()) {
                 returnString.append("?");
             }
@@ -368,5 +373,34 @@ public class JMethod extends BFunction {
         }
 
         return returnString.toString();
+    }
+
+    public String externalFunctionReturnType() {
+        StringBuilder returnString = new StringBuilder();
+        if (getHasReturn()) {
+            returnString.append(externalType);
+            if (handleException) {
+                returnString.append("|error");
+            }
+        } else if (getHasException() || getHasPrimitiveParam()) {
+            returnString.append("error?");
+        }
+        return returnString.toString();
+    }
+
+    public String getParentPrefix() {
+        return parentPrefix;
+    }
+
+    public String getReturnComponentType() {
+        return returnComponentType;
+    }
+
+    public String getReturnTypeJava() {
+        return returnTypeJava;
+    }
+
+    public String getExceptionConstName() {
+        return exceptionConstName;
     }
 }

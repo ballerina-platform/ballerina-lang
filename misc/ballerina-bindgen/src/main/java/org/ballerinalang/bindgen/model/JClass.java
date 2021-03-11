@@ -133,7 +133,8 @@ public class JClass {
                 List<Method> methods = new ArrayList<>();
                 for (Map.Entry<Method, String> mapValue : methodClassMap.entrySet()) {
                     if (mapValue.getValue().equals(superclass)) {
-                        jMethods.add(new JMethod(mapValue.getKey(), env));
+                        JMethod jMethod = new JMethod(mapValue.getKey(), env, prefix, currentClass);
+                        jMethods.add(jMethod);
                         methods.add(mapValue.getKey());
                     }
                 }
@@ -211,7 +212,7 @@ public class JClass {
     private void populateMethods(List<Method> declaredMethods) {
         for (Method method : declaredMethods) {
             if (isPublicMethod(method)) {
-                JMethod jMethod = new JMethod(method, env);
+                JMethod jMethod = new JMethod(method, env, prefix, currentClass);
                 jMethod.setShortClassName(shortClassName);
                 if (jMethod.requireJavaArrays()) {
                     importJavaArraysModule = true;

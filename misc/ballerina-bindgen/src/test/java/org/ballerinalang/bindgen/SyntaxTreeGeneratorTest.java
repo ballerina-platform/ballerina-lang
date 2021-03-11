@@ -17,10 +17,10 @@
  */
 package org.ballerinalang.bindgen;
 
-import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
-import org.ballerinalang.bindgen.model.BindingsGenerator;
-import org.ballerinalang.bindgen.model.JClass;
+import org.ballerinalang.bindgen.model.BindgenNodeFactory;
+import org.ballerinalang.bindgen.model.JMethod;
 import org.ballerinalang.bindgen.utils.BindgenEnv;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
@@ -42,10 +42,20 @@ public class SyntaxTreeGeneratorTest {
         bindgenEnv.setPublicFlag(true);
         bindgenEnv.setModulesFlag(true);
         bindgenEnv.setPackageName("packagex");
-        BindingsGenerator bindingsGenerator = new BindingsGenerator(bindgenEnv);
-        SyntaxTree syntaxTree = bindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
-                .loadClass("org.ballerinalang.bindgen.BindgenTestResource"), bindgenEnv));
-        new PrintStream(System.out).println(Formatter.format(syntaxTree.toSourceCode()));
+//        BindingsGenerator bindingsGenerator = new BindingsGenerator(bindgenEnv);
+//        SyntaxTree syntaxTree = bindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
+//                .loadClass("org.ballerinalang.bindgen.MethodsTestResource"), bindgenEnv));
+//        new PrintStream(System.out).println(Formatter.format(syntaxTree.toSourceCode()));
 
+        try {
+            JMethod jMethod = new JMethod(org.ballerinalang.bindgen.MethodsTestResource.class.getMethod(
+//            JMethod jMethod = new JMethod(java.io.FileInputStream.class.getMethod(
+                    "returnStaticOptionalError"),
+                    bindgenEnv, "MethodsTestResource", java.io.FileInputStream.class);
+            FunctionDefinitionNode ff = BindgenNodeFactory.createFunctionDefinitionNode(jMethod, false);
+            new PrintStream(System.out).println("******" + Formatter.format(ff.syntaxTree().toSourceCode()));
+        } catch (NoSuchMethodException e) {
+            new PrintStream(System.out).println(e);
+        }
     }
 }
