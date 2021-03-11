@@ -20,6 +20,8 @@ package io.samjs.plugins.badsad;
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 
+import java.io.PrintStream;
+
 /**
  * A {@code CompilerPlugin} that does not have a default constructor.
  *
@@ -27,7 +29,7 @@ import io.ballerina.projects.plugins.CompilerPluginContext;
  */
 public class BadSadCompilerPlugin4 extends CompilerPlugin {
 
-    int a = 5;
+    int a;
 
     public BadSadCompilerPlugin4(int a) {
         this.a = a;
@@ -35,6 +37,7 @@ public class BadSadCompilerPlugin4 extends CompilerPlugin {
 
     @Override
     public void init(CompilerPluginContext pluginContext) {
-
+        PrintStream out = System.out;
+        out.println(a);
     }
 }
