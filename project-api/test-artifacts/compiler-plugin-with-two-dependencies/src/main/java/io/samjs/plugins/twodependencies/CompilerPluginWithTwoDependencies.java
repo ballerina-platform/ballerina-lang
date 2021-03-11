@@ -19,6 +19,7 @@ package io.samjs.plugins.twodependencies;
 
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
@@ -64,8 +65,8 @@ public class CompilerPluginWithTwoDependencies extends CompilerPlugin {
                 FunctionDefinitionNode funcDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
 
                 // Report a test diagnostic
-                Diagnostic diagnostic = DiagnosticUtils.createDiagnostic("Test error message",
-                        funcDefNode.location(), DiagnosticSeverity.ERROR);
+                Diagnostic diagnostic = DiagnosticUtils.createDiagnostic("COMP_PLUGIN_2_ERROR",
+                        "Test error message", funcDefNode.location(), DiagnosticSeverity.ERROR);
                 compAnalysisCtx.reportDiagnostic(diagnostic);
             });
 
@@ -79,7 +80,8 @@ public class CompilerPluginWithTwoDependencies extends CompilerPlugin {
                 FunctionDefinitionNode funcDefNode = (FunctionDefinitionNode) modulePartNode.members().get(0);
 
                 // Report a test diagnostic
-                Diagnostic diagnostic = DiagnosticUtils.createDiagnostic("Test warning message",
+                Diagnostic diagnostic = DiagnosticUtils.createDiagnostic("COMP_PLUGIN_2_WARNING",
+                        "Test warning message",
                         funcDefNode.functionKeyword().location(), DiagnosticSeverity.WARNING);
                 compAnalysisCtx.reportDiagnostic(diagnostic);
 
@@ -87,10 +89,18 @@ public class CompilerPluginWithTwoDependencies extends CompilerPlugin {
                 String pkgName = compAnalysisCtx.currentPackage().manifest().name().value();
                 if (StringUtils.isEmpty(pkgName)) {
                     // This diagnostic should not be reported
-                    compAnalysisCtx.reportDiagnostic(DiagnosticUtils.createDiagnostic(
-                            "Empty package name", null, DiagnosticSeverity.ERROR));
+                    compAnalysisCtx.reportDiagnostic(
+                            DiagnosticUtils.createDiagnostic("COMP_PLUGIN_2_SYNTAX_ERROR",
+                                    "Empty package name", null, DiagnosticSeverity.ERROR));
                 }
             });
+
+            analysisContext.addSyntaxNodeAnalysisTask(syntaxNodeAnalysisContext -> {
+                syntaxNodeAnalysisContext.reportDiagnostic(
+                        DiagnosticUtils.createDiagnostic("COMP_PLUGIN_2_SYNTAX_WARNING",
+                                "Local var decl test warning message",
+                                syntaxNodeAnalysisContext.node().location(), DiagnosticSeverity.WARNING));
+            }, SyntaxKind.LOCAL_VAR_DECL);
         }
 
         SyntaxTree getSyntaxTree(Package currentPkg) {

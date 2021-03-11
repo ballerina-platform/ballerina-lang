@@ -52,6 +52,8 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/package_comp_plugin_with_one_java_dependency");
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_with_two_java_dependencies");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_with_func_node_analyzer");
     }
 
     @Test
@@ -78,7 +80,42 @@ public class CompilerPluginTests {
 
     @Test
     public void testCompilerPluginWithTwoJavaLibDependencies() {
-        assertDiagnostics(loadPackage("package_plugin_user_3"));
+        Package currentPackage = loadPackage("package_plugin_user_3");
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 5,
+                "Unexpected number of compilation diagnostics");
+
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        Assert.assertEquals(diagnosticResult.warningCount(), 4);
+    }
+
+    @Test
+    public void testFunctionNodeAnalyzerCompilerPlugin() {
+        Package currentPackage = loadPackage("package_plugin_user_4");
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 6,
+                "Unexpected number of compilation diagnostics");
+
+        Assert.assertEquals(diagnosticResult.errorCount(), 3);
+        Assert.assertEquals(diagnosticResult.warningCount(), 3);
+    }
+
+    @Test
+    public void testTheExistenceOfMultipleCompilerPlugins() {
+        Package currentPackage = loadPackage("package_plugin_user_5");
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        for (Diagnostic diagnostic : diagnosticResult.diagnostics()) {
+            OUT.println(diagnostic.diagnosticInfo().code());
+            OUT.println(diagnostic);
+        }
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 16,
+                "Unexpected number of compilation diagnostics");
+
+        Assert.assertEquals(diagnosticResult.errorCount(), 7);
+        Assert.assertEquals(diagnosticResult.warningCount(), 9);
     }
 
     public void assertDiagnostics(Package currentPackage) {
@@ -95,7 +132,6 @@ public class CompilerPluginTests {
 
         Assert.assertEquals(reportedDiagnostics.get(0).diagnosticInfo().severity(), DiagnosticSeverity.ERROR);
         Assert.assertEquals(reportedDiagnostics.get(1).diagnosticInfo().severity(), DiagnosticSeverity.WARNING);
-        reportedDiagnostics.forEach(OUT::println);
 
         // Check direct package dependencies
         Assert.assertEquals(currentPackage.packageDependencies().size(), 1,

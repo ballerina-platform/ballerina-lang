@@ -31,7 +31,10 @@ import java.util.List;
  */
 public class DiagnosticUtils {
 
-    public static Diagnostic createDiagnostic(String message, Location location, DiagnosticSeverity severity) {
+    public static Diagnostic createDiagnostic(String code,
+                                              String message,
+                                              Location location,
+                                              DiagnosticSeverity severity) {
         return new Diagnostic() {
             @Override
             public Location location() {
@@ -40,7 +43,7 @@ public class DiagnosticUtils {
 
             @Override
             public DiagnosticInfo diagnosticInfo() {
-                return new DiagnosticInfo("err.dummy", "err.dummy.msg", severity);
+                return new DiagnosticInfo(code, "err.dummy.msg", severity);
             }
 
             @Override
