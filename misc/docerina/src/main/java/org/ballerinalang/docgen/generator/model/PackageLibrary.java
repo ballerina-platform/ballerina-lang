@@ -33,5 +33,7 @@ public class PackageLibrary {
     @Expose
     public List<DocPackage> packages = new ArrayList<>();
     @Expose
-    public List<BuiltInType> builtinTypesAndKeywords = new ArrayList<>();
+    public List<BuiltInType> builtinTypes = new ArrayList<>();
+    @Expose
+    public List<BuiltInType> keywords = new ArrayList<>();
 }
