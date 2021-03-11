@@ -1989,19 +1989,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, env);
         Map<String, BVarSymbol> clauseVariables = matchClause.declaredVars;
 
-        BLangMatchPattern matchPattern = matchPatterns.get(0);
-        SymbolEnv patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
-        analyzeNode(matchPattern, patternEnv);
-        resolveMatchClauseVariableTypes(matchPattern, clauseVariables, blockEnv);
-        if (matchPattern.getKind() != NodeKind.CONST_MATCH_PATTERN) {
-            matchClause.patternsType = matchPattern.type;
-        }
-        for (int i = 1; i < matchPatterns.size(); i++) {
-            matchPattern = matchPatterns.get(i);
-            patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
+        for (BLangMatchPattern matchPattern : matchPatterns) {
+            SymbolEnv patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
             analyzeNode(matchPattern, patternEnv);
             resolveMatchClauseVariableTypes(matchPattern, clauseVariables, blockEnv);
             if (matchPattern.getKind() == NodeKind.CONST_MATCH_PATTERN) {
+                continue;
+            }
+            if (matchClause.patternsType == null) {
+                matchClause.patternsType = matchPattern.type;
                 continue;
             }
             matchClause.patternsType = types.mergeTypes(matchClause.patternsType, matchPattern.type);
