@@ -79,3 +79,11 @@ public const annotation sourceListenerAnnotation2 on source listener;
 public const annotation AnnotationType sourceWorkerAnnotation1 on source worker;
 
 public const annotation sourceWorkerAnnotation2 on source worker;
+
+public const annotation commonAnnotation1;
+
+public const annotation AnnotationType commonAnnotation2;
+
+public const annotation AnnotationType serviceRemoteFunctionAnnotation1 on service remote function;
+
+public const annotation serviceRemoteFunctionAnnotation2 on service remote function;

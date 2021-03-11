@@ -21,3 +21,7 @@ class TestObject2 {
 	    self.field2 = 20;
     }
 }
+
+function createObject1() returns TestObject1 {
+    return new (1, 2);
+}

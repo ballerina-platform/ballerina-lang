@@ -60,8 +60,8 @@ public class PackageUtils {
      * Some additional processing is required to rectify the source path, as the source name will be the
      * relative path instead of just the file name, for the ballerina module sources.
      */
-    public static Path getRectifiedSourcePath(Location location, Project project, String projectRoot)
-            throws AbsentInformationException {
+    public static Path getRectifiedSourcePath(Location location, Project project) throws AbsentInformationException {
+        String projectRoot = project.sourceRoot().toAbsolutePath().toString();
         if (project instanceof SingleFileProject) {
             DocumentId docId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
             Document document = project.currentPackage().getDefaultModule().document(docId);

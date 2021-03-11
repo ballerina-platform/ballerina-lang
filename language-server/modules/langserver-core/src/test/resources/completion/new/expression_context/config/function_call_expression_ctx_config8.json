@@ -54,14 +54,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -464,6 +456,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -472,14 +472,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -555,6 +547,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -587,33 +587,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "valueB",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "valueB",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "valueA",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "valueA",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunctionWithParams1(int a, int b)",
+      "label": "logic(json)(boolean|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \nThis is a test function with nil return type\n  \n**Params**  \n- `int` a: Parameter a Description  \n- `int` b: Parameter b Description"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `json`  \n  \n**Returns** `boolean|error`   \n  \n"
         }
       },
       "sortText": "C",
-      "insertText": "testFunctionWithParams1(${1})",
+      "insertText": "logic(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -657,17 +641,33 @@
       }
     },
     {
-      "label": "logic(json)(boolean|error)",
+      "label": "valueB",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "valueB",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "valueA",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "valueA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunctionWithParams1(int a, int b)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `json`  \n  \n**Returns** `boolean|error`   \n  \n"
+          "value": "**Package:** _._  \n  \nThis is a test function with nil return type\n  \n**Params**  \n- `int` a: Parameter a Description  \n- `int` b: Parameter b Description"
         }
       },
       "sortText": "C",
-      "insertText": "logic(${1})",
+      "insertText": "testFunctionWithParams1(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

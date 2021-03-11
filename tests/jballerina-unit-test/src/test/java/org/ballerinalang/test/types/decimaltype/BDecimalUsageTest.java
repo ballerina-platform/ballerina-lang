@@ -140,6 +140,11 @@ public class BDecimalUsageTest {
                 "Invalid decimal value returned.");
     }
 
+    @Test(description = "Test decimal defaultable parameters")
+    public void testDecimalDefaultable() {
+        BRunUtil.invoke(result, "testDecimalDefaultable");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

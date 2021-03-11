@@ -249,6 +249,17 @@ function testAnonRecordsInTupleTypeDescriptor() {
     assertEquality(<record {| string name; |}[]>[{name: "Pubudu"}], tup[1]);
 }
 
+function testTupleWithUnion() {
+    [int]|[int, int, int] [a, b, ...c] = getTuples();
+    assertEquality(1, a);
+    assertEquality(2, b);
+    assertEquality(3, c[0]);
+}
+
+function getTuples() returns [int]|[int, int, int] {
+    return [1, 2, 3];
+}
+
 function testTupleDeclaredWithVar1() {
     var [a1, ...b1] = getData();
     assertEquality(1, a1);

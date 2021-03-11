@@ -40,8 +40,9 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
@@ -87,11 +88,11 @@ public class AnnotationsTest {
                 {65, 6, CLASS, of("v1", "v2", "v2")},
                 {66, 15, CLASS_FIELD, of("v5")},
                 {71, 20, METHOD, of("v3")},
-                {71, 69, VARIABLE, of("v4")},
+                {71, 69, PARAMETER, of("v4")},
                 {81, 16, FUNCTION, of("v3")},
                 {86, 11, ANNOTATION, of("v1")},
                 {98, 18, CLASS_FIELD, of("v5")},
-                {103, 22, METHOD, of("v3")},
+                {103, 22, RESOURCE_METHOD, of("v3")},
 //                {112, 11, WORKER, of("v1")} // TODO: Uncomment after fixing #27461
                 {121, 5, ENUM, of("v1", "v5")},
                 {125, 4, CONSTANT, of("v1")}

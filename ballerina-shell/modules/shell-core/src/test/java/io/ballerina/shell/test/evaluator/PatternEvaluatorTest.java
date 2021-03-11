@@ -43,7 +43,6 @@ public class PatternEvaluatorTest extends AbstractEvaluatorTest {
 
     @Test
     public void testEvaluateArray() throws BallerinaShellException {
-        // TODO: Fix issue of float[3] type converting to float[]
-        // testEvaluate(ARRAY_EVALUATOR_TESTCASE);
+         testEvaluate(ARRAY_EVALUATOR_TESTCASE);
     }
 }

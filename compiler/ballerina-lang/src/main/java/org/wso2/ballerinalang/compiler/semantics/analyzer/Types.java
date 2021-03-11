@@ -596,13 +596,23 @@ public class Types {
 
     public boolean isSubTypeOfBaseType(BType type, int baseTypeTag) {
         if (type.tag != TypeTags.UNION) {
-            return type.tag == baseTypeTag;
+            return type.tag == baseTypeTag || (baseTypeTag == TypeTags.TUPLE && type.tag == TypeTags.ARRAY)
+                    || (baseTypeTag == TypeTags.ARRAY && type.tag == TypeTags.TUPLE);
         }
         // TODO: Recheck this
         if (TypeTags.isXMLTypeTag(baseTypeTag)) {
             return true;
         }
-        return ((BUnionType) type).getMemberTypes().stream().allMatch(memType -> memType.tag == baseTypeTag);
+        return isUnionMemberTypesSubTypeOfBaseType(((BUnionType) type).getMemberTypes(), baseTypeTag);
+    }
+
+    private boolean isUnionMemberTypesSubTypeOfBaseType(LinkedHashSet<BType> memberTypes, int baseTypeTag) {
+        for (BType type : memberTypes) {
+            if (!isSubTypeOfBaseType(type, baseTypeTag)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     /**
@@ -1079,29 +1089,42 @@ public class Types {
 
     private boolean isArrayTypeAssignableToTupleType(BArrayType source, BTupleType target,
                                                      Set<TypePair> unresolvedTypes) {
-        if (!target.tupleTypes.isEmpty()) {
-            if (source.state == BArrayState.OPEN) {
-                // [int, int, int...] = int[] || [int, int] = int[]
+        BType restType = target.restType;
+        List<BType> tupleTypes = target.tupleTypes;
+        if (source.state == BArrayState.OPEN) {
+            if (restType == null || !tupleTypes.isEmpty()) {
+                // [int, int] = int[] || [int, int...] = int[]
                 return false;
             }
 
-            if (target.restType != null && target.tupleTypes.size() > source.size) {
-                // [int, int, int...] = int[1]
-                return false;
-            }
+            return isAssignable(source.eType, restType, unresolvedTypes);
+        }
 
-            if (target.restType == null && target.tupleTypes.size() != source.size) {
-                // [int, int] = int[1], [int, int] = int[3]
+        int targetTupleMemberSize = tupleTypes.size();
+        int sourceArraySize = source.size;
+
+        if (targetTupleMemberSize > sourceArraySize) {
+            // [int, int, int...] = int[1]
+            return false;
+        }
+
+        if (restType == null && targetTupleMemberSize < sourceArraySize) {
+            // [int, int] = int[3]
+            return false;
+        }
+
+        BType sourceElementType = source.eType;
+        for (BType memType : tupleTypes) {
+            if (!isAssignable(sourceElementType, memType, unresolvedTypes)) {
                 return false;
             }
         }
 
-        List<BType> targetTypes = new ArrayList<>(target.tupleTypes);
-        if (target.restType != null) {
-            targetTypes.add(target.restType);
+        if (restType == null) {
+            return true;
         }
-        return targetTypes.stream()
-                .allMatch(tupleElemType -> isAssignable(source.eType, tupleElemType, unresolvedTypes));
+
+        return sourceArraySize == targetTupleMemberSize || isAssignable(sourceElementType, restType, unresolvedTypes);
     }
 
     private boolean isArrayTypesAssignable(BArrayType source, BType target, Set<TypePair> unresolvedTypes) {
@@ -1130,6 +1153,10 @@ public class Types {
                                              Set<TypePair> unresolvedTypes) {
         if (hasIncompatibleIsolatedFlags(source, target) || hasIncompatibleTransactionalFlags(source, target)) {
             return false;
+        }
+
+        if (Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION)) {
+            return true;
         }
 
         // For invokable types with typeParam parameters, we have to check whether the source param types are
@@ -1331,6 +1358,14 @@ public class Types {
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
                                               Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
         if (hasIncompatibleIsolatedFlags(source, target) || hasIncompatibleTransactionalFlags(source, target)) {
+            return false;
+        }
+
+        if (Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION) && Symbols.isFlagOn(source.flags, Flags.ANY_FUNCTION)) {
+            return true;
+        }
+
+        if (Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION) || Symbols.isFlagOn(source.flags, Flags.ANY_FUNCTION)) {
             return false;
         }
 
@@ -1881,6 +1916,9 @@ public class Types {
 
         if (!recordType.sealed) {
             unionType.add(recordType.restFieldType);
+        } else if (fields.size() == 0) {
+            dlog.error(recordType.tsymbol.pos, DiagnosticErrorCode.CANNOT_ITERATE_A_CLOSED_RECORD_WITH_NO_FIELDS);
+            return symTable.semanticError;
         }
 
         for (BField field : fields.values()) {
@@ -2346,7 +2384,8 @@ public class Types {
 
         @Override
         public Boolean visit(BFutureType t, BType s) {
-            return s.tag == TypeTags.FUTURE && t.constraint.tag == ((BFutureType) s).constraint.tag;
+            return s.tag == TypeTags.FUTURE &&
+                    isSameType(t.constraint, ((BFutureType) s).constraint, this.unresolvedTypes);
         }
 
         @Override

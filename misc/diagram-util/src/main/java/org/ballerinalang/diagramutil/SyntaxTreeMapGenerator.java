@@ -139,7 +139,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                                 JsonObject memberJson = (JsonObject) generateTypeJson(member);
                                 memberArray.add(memberJson);
                             } catch (JSONGenerationException e) {
-                                // ignored
+                                // Ignore
                             }
                         });
                         ((JsonObject) symbolJson.get("typeSymbol")).add("members", memberArray);

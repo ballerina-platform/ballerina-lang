@@ -41,25 +41,41 @@ public class LangLibNegativeTest {
     @Test
     public void testLangLibNegative() {
         int err = 0;
-        BAssertUtil.validateError(negativeResult, err++, "undefined function 'indexOf' in type 'map<string>'", 19, 47);
+        BAssertUtil.validateError(negativeResult, err++, "undefined function 'indexOf' in type 'map<string>'", 21, 47);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected '(float[]|error)', found " +
-                "'(json|error)'", 34, 25);
+                "'(json|error)'", 36, 25);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected '(int|string|float[]|error)', " +
-                "found '(json|error)'", 38, 37);
+                "found '(json|error)'", 40, 37);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
-                50, 14);
-        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
-                51, 14);
-        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(int|error)'",
                 52, 14);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
+                53, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(int|error)'",
                 54, 14);
         BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
-                55, 14);
-        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(int|error)'",
                 56, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(json|error)'",
+                57, 14);
+        BAssertUtil.validateError(negativeResult, err++, "incompatible types: expected 'any', found '(int|error)'",
+                58, 14);
         BAssertUtil.validateError(negativeResult, err++, "undefined function 'toXML' in type 'int'",
-                61, 19);
+                63, 19);
+        BAssertUtil.validateError(negativeResult, err++, "missing identifier",
+                71, 26);
+        BAssertUtil.validateError(negativeResult, err++, "missing open bracket token",
+                71, 26);
+        BAssertUtil.validateError(negativeResult, err++, "missing semicolon token",
+                71, 26);
+        BAssertUtil.validateError(negativeResult, err++, "invalid token 'join'",
+                71, 30);
+        BAssertUtil.validateError(negativeResult, err++, "missing close parenthesis token",
+                71, 39);
+        BAssertUtil.validateError(negativeResult, err++, "missing close bracket token",
+                71, 52);
+        BAssertUtil.validateError(negativeResult, err++, "missing identifier",
+                71, 52);
+        BAssertUtil.validateError(negativeResult, err++, "invalid token ')'",
+                71, 53);
 
         Assert.assertEquals(negativeResult.getErrorCount(), err);
     }

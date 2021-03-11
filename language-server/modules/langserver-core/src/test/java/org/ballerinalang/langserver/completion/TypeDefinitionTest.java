@@ -19,7 +19,7 @@ package org.ballerinalang.langserver.completion;
 
 import org.testng.annotations.DataProvider;
 
-import java.util.Collections;
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -36,7 +36,7 @@ public class TypeDefinitionTest extends CompletionTestNew {
 
     @Override
     public List<String> skipList() {
-        return Collections.singletonList("config2.json");
+        return Arrays.asList("config2.json", "config1.json");
     }
 
     @Override

@@ -1,0 +1,7 @@
+[main]
+stringVar = "required"
+
+[main.testUser]
+username = "Jane"
+password = "password"
+scopes = ["write"]

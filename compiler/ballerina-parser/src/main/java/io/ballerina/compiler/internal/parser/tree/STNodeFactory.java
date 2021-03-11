@@ -822,6 +822,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
     public static STNode createModuleVariableDeclarationNode(
             STNode metadata,
+            STNode visibilityQualifier,
             STNode qualifiers,
             STNode typedBindingPattern,
             STNode equalsToken,
@@ -830,6 +831,7 @@ public class STNodeFactory extends STAbstractNodeFactory {
 
         return new STModuleVariableDeclarationNode(
                 metadata,
+                visibilityQualifier,
                 qualifiers,
                 typedBindingPattern,
                 equalsToken,

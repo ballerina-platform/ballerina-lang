@@ -205,6 +205,9 @@ public class TypeParamAnalyzer {
                 return false;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) type;
+                if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+                    return false;
+                }
                 for (BType paramType : invokableType.paramTypes) {
                     if (containsTypeParam(paramType, resolvedTypes)) {
                         return true;

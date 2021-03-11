@@ -8,8 +8,8 @@
     {
       "label": "Listener",
       "kind": "Interface",
-      "detail": "Object",
-      "sortText": "C",
+      "detail": "Class",
+      "sortText": "K",
       "insertText": "Listener",
       "insertTextFormat": "Snippet"
     }
