@@ -268,6 +268,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
@@ -985,6 +986,12 @@ public class Desugar extends BLangNodeVisitor {
 
         typeDef.annAttachments.forEach(attachment ->  rewrite(attachment, env));
         result = typeDef;
+    }
+
+    @Override
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+        finiteTypeNode.valueSpace.forEach(param -> rewrite(param, env));
+        result = finiteTypeNode;
     }
 
     @Override
