@@ -18,10 +18,11 @@
 package org.ballerinalang.test.bala.functions;
 
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.test.bala.BalaCreator;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.ballerinalang.test.bala.BalaCreator;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -43,6 +44,21 @@ public class FunctionPointersTest {
     }
 
     @Test
+    public void testAnyFunctionTypeNegative() {
+        CompileResult negativeCompileResult =
+                BCompileUtil.compile("test-src/bala/test_bala/functions/test_global_function_pointers_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'isolated function', found 'function () returns " +
+                        "(function (string,int) returns (string))'", 24, 30);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'function (int) returns (string)', found 'function'", 28, 41);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "cannot call function pointer of type 'function'", 30, 22);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
+    }
+
+    @Test
     public void testGlobalFP() {
         // testing function pointer.
         BValue[] returns = BRunUtil.invoke(result, "test1");
@@ -53,7 +69,7 @@ public class FunctionPointersTest {
     }
 
     @Test
-    public void testGlobalFPAsLambda() { ;
+    public void testGlobalFPAsLambda() {
         // lambda.
         BValue[] returns = BRunUtil.invoke(result, "test2");
         Assert.assertNotNull(returns);
@@ -94,6 +110,12 @@ public class FunctionPointersTest {
         Assert.assertEquals(returns.length, 1);
         Assert.assertNotNull(returns[0]);
         Assert.assertEquals(returns[0].stringValue(), "truetest6");
+    }
+
+    @Test
+    public void testAnyFunction() {
+        // test any function type descriptor.
+        BRunUtil.invoke(result, "test7");
     }
 
     @AfterClass
