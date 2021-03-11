@@ -26,14 +26,14 @@ package io.ballerina.tools.diagnostics;
 public class DiagnosticInfo {
 
     private final String code;
-    private final String messageTemplate;
+    private final String messageFormat;
     private final DiagnosticSeverity severity;
 
     public DiagnosticInfo(String code,
-                          String messageTemplate,
+                          String messageFormat,
                           DiagnosticSeverity severity) {
         this.code = code;
-        this.messageTemplate = messageTemplate;
+        this.messageFormat = messageFormat;
         this.severity = severity;
     }
 
@@ -41,8 +41,8 @@ public class DiagnosticInfo {
         return code;
     }
 
-    public String messageTemplate() {
-        return messageTemplate;
+    public String messageFormat() {
+        return messageFormat;
     }
 
     public DiagnosticSeverity severity() {

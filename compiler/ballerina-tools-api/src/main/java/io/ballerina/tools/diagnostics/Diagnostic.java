@@ -49,11 +49,11 @@ public abstract class Diagnostic {
      */
     public abstract String message();
 
-    /*
-    * Get the diagnostic-properties passed when logging.
-    *
-    * @return {@link DiagnosticProperty} of the diagnostic.
-    * */
+    /**
+     * Get the diagnostic-properties passed when logging.
+     *
+     * @return {@link DiagnosticProperty} of the diagnostic
+     */
     public abstract List<DiagnosticProperty<?>> properties();
 
     @Override
