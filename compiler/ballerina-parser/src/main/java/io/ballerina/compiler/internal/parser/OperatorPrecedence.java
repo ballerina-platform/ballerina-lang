@@ -42,12 +42,13 @@ public enum OperatorPrecedence {
     CONDITIONAL(14),        //  x ? y : z
 
     ANON_FUNC_OR_LET(16),   //  (x) => y
-    QUERY_OR_TRAP(17),      //  from x, select x, where x, (trap x)
+    QUERY(17),              //  from x, select x, where x
 
     //  Actions cannot reside inside expressions, hence they have the lowest precedence.
     REMOTE_CALL_ACTION(18), //  (x -> y()),
     ACTION(19),             //  (start x), ...
-    DEFAULT(20),            //  (start x), ...
+    TRAP(20),               //  (trap x)
+    DEFAULT(21),            //  (start x), ...
     ;
 
     private int level = 0;
