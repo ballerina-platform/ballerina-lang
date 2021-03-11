@@ -3073,7 +3073,7 @@ public class BallerinaParser extends AbstractParser {
             case EXPRESSION_ACTION:
             case REMOTE_CALL_ACTION:
             case ANON_FUNC_OR_LET:
-            case QUERY:
+            case QUERY_OR_TRAP:
             case ADDITIVE:
                 return SyntaxKind.PLUS_TOKEN;
             case SHIFT:
@@ -3119,7 +3119,7 @@ public class BallerinaParser extends AbstractParser {
             case EXPRESSION_ACTION:
             case REMOTE_CALL_ACTION:
             case ANON_FUNC_OR_LET:
-            case QUERY:
+            case QUERY_OR_TRAP:
             case ADDITIVE:
                 return ParserRuleContext.PLUS_TOKEN;
             case SHIFT:
@@ -9310,7 +9310,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTrapExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         STNode trapKeyword = parseTrapKeyword();
-        STNode expr = parseExpression(OperatorPrecedence.TRAP, isRhsExpr, allowActions, isInConditionalExpr);
+        STNode expr = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, allowActions, isInConditionalExpr);
         if (isAction(expr)) {
             return STNodeFactory.createTrapExpressionNode(SyntaxKind.TRAP_ACTION, trapKeyword, expr);
         }
@@ -9886,7 +9886,7 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the let-expr, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
         return STNodeFactory.createLetExpressionNode(letKeyword, letVarDeclarations, inKeyword, expression);
     }
 
@@ -10392,7 +10392,7 @@ public class BallerinaParser extends AbstractParser {
 
         // Give high priority to the body-expr. This is done by lowering the current
         // precedence bewfore visiting the body.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
 
         STNode semiColon;
         if (isAnon) {
@@ -10436,7 +10436,7 @@ public class BallerinaParser extends AbstractParser {
         STNode rightDoubleArrow = parseDoubleRightArrow();
         // start parsing the expr by giving higher-precedence to parse the right side arguments for right associative
         // operators. That is done by lowering the current precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
         return STNodeFactory.createImplicitAnonymousFunctionExpressionNode(params, rightDoubleArrow, expression);
     }
 
@@ -10893,7 +10893,7 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the from-clause, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
         return STNodeFactory.createFromClauseNode(fromKeyword, typedBindingPattern, inKeyword, expression);
     }
 
@@ -10924,7 +10924,7 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the where-clause, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
         return STNodeFactory.createWhereClauseNode(whereKeyword, expression);
     }
 
@@ -11118,7 +11118,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseOrderKey(boolean isRhsExpr) {
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
 
         STNode orderDirection;
         STToken nextToken = peek();
@@ -11147,7 +11147,7 @@ public class BallerinaParser extends AbstractParser {
 
         // allow-actions flag is always false, since there will not be any actions
         // within the select-clause, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
         endContext();
         return STNodeFactory.createSelectClauseNode(selectKeyword, expression);
     }
@@ -11186,7 +11186,7 @@ public class BallerinaParser extends AbstractParser {
         STNode onKeyword = parseOnKeyword();
         STNode conflictKeyword = parseConflictKeyword();
         endContext();
-        STNode expr = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expr = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
         return STNodeFactory.createOnConflictClauseNode(onKeyword, conflictKeyword, expr);
     }
 
@@ -11216,7 +11216,7 @@ public class BallerinaParser extends AbstractParser {
         STNode limitKeyword = parseLimitKeyword();
         // allow-actions flag is always false, since there will not be any actions
         // within the where-clause, due to the precedence.
-        STNode expr = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expr = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
         return STNodeFactory.createLimitClauseNode(limitKeyword, expr);
     }
 
@@ -11248,7 +11248,7 @@ public class BallerinaParser extends AbstractParser {
         STNode inKeyword = parseInKeyword();
         // allow-actions flag is always false, since there will not be any actions
         // within the from-clause, due to the precedence.
-        STNode expression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode expression = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
         endContext();
         STNode onCondition = parseOnClause(isRhsExpr);
         return STNodeFactory.createJoinClauseNode(outerKeyword, joinKeyword, typedBindingPattern, inKeyword, expression,
@@ -11270,10 +11270,10 @@ public class BallerinaParser extends AbstractParser {
 
         startContext(ParserRuleContext.ON_CLAUSE);
         STNode onKeyword = parseOnKeyword();
-        STNode lhsExpression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode lhsExpression = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
         STNode equalsKeyword = parseEqualsKeyword();
         endContext();
-        STNode rhsExpression = parseExpression(OperatorPrecedence.QUERY, isRhsExpr, false);
+        STNode rhsExpression = parseExpression(OperatorPrecedence.QUERY_OR_TRAP, isRhsExpr, false);
         return STNodeFactory.createOnClauseNode(onKeyword, lhsExpression, equalsKeyword, rhsExpression);
     }
 
