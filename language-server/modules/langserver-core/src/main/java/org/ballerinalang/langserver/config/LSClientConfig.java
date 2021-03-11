@@ -26,7 +26,7 @@ public class LSClientConfig {
     private final boolean traceLog;
     private final GoToDefinitionConfig goToDefinition;
     private final boolean enableFileWatcher;
-    private final boolean enableLanguageServerCrashReporter;
+    private final boolean enableTelemetry;
 
     protected LSClientConfig() {
         this.home = "";
@@ -37,7 +37,7 @@ public class LSClientConfig {
         String balExperimental = System.getenv("BAL_EXPERIMENTAL");
         String balDefStdLibs = System.getenv("BAL_DEF_STD_LIBS");
         String balFileWatcher = System.getenv("BAL_FILE_WATCHER");
-        String lsCrashReporter = System.getenv("LS_CRASH_REPORTER");
+        String balTelemetry = System.getenv("BAL_TELEMETRY");
 
         this.allowExperimental = Boolean.parseBoolean(balExperimental);
         this.debugLog = Boolean.parseBoolean(balDebugLog);
@@ -46,7 +46,7 @@ public class LSClientConfig {
         this.goToDefinition = (balDefStdLibs != null) ? new GoToDefinitionConfig(Boolean.parseBoolean(balDefStdLibs)) :
                 new GoToDefinitionConfig(true);
         this.enableFileWatcher = balFileWatcher == null || Boolean.parseBoolean(balFileWatcher);
-        this.enableLanguageServerCrashReporter = lsCrashReporter == null || Boolean.parseBoolean(lsCrashReporter);
+        this.enableTelemetry = balTelemetry == null || Boolean.parseBoolean(balTelemetry);
     }
 
     /**
@@ -122,11 +122,11 @@ public class LSClientConfig {
     }
 
     /**
-     * Returns True if crash reporter enabled, False otherwise.
+     * Returns True if ballerina telemetry enabled, False otherwise.
      *
      * @return True if enabled, False otherwise
      */
-    public boolean isEnableLanguageServerCrashReporter() {
-        return enableLanguageServerCrashReporter;
+    public boolean isEnableTelemetry() {
+        return enableTelemetry;
     }
 }

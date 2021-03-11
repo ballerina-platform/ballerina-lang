@@ -90,7 +90,7 @@ public class LSClientLogger {
             return;
         }
         LSClientConfig config = this.configHolder.getConfig();
-        if (config.isEnableLanguageServerCrashReporter()) {
+        if (config.isEnableTelemetry()) {
             this.languageClient.telemetryEvent(LSTelemetry.from(operation, message, error));
         }
         String details = getErrorDetails(identifier, error, pos);
