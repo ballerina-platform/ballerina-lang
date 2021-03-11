@@ -95,6 +95,8 @@ public class ListTestGroupsTask implements Task {
                 groupList.addAll(test.getGroups());
             }
         }
-        return groupList.stream().distinct().collect(Collectors.toList());
+        List<String> distinctGroupList = groupList.stream().distinct().collect(Collectors.toList());
+        Collections.sort(distinctGroupList);
+        return distinctGroupList;
     }
 }

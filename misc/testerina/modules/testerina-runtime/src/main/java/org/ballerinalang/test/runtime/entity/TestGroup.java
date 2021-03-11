@@ -18,7 +18,6 @@
 package org.ballerinalang.test.runtime.entity;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 
 /**
@@ -108,11 +107,4 @@ public class TestGroup {
         return testCount == executedCount;
     }
 
-    /**
-     * Sort all the lists in Test group in alphabetical order.
-     */
-    public void sort() {
-        Collections.sort(beforeGroupsFunctions);
-        Collections.sort(afterGroupsFunctions);
-    }
 }

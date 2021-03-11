@@ -147,7 +147,6 @@ public class TestProcessor {
         }
         addUtilityFunctions(module, testSuite);
         processAnnotations(module, testSuite);
-        testSuite.sort();
         return testSuite;
     }
 
