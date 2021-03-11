@@ -111,6 +111,7 @@ public class SyntaxErrors {
             case VAR_DECL_STMT_RHS:
             case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
             case IMPORT_SUB_VERSION:
+            case FUNC_DEF_OR_TYPE_DESC_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case SIMPLE_TYPE_DESCRIPTOR:
             case REQUIRED_PARAM:

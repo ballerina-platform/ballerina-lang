@@ -20,6 +20,7 @@ package org.ballerinalang.test.runtime.entity;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PlatformLibrary;
@@ -273,10 +274,11 @@ public class CoverageReport {
         }
     }
 
-    private List<Path> filterPaths(Collection<Path> pathCollection, JBallerinaBackend jBallerinaBackend) {
+    private List<Path> filterPaths(Collection<JarLibrary> pathCollection, JBallerinaBackend jBallerinaBackend) {
         List<Path> filteredPathList = new ArrayList<>();
         List<Path> exclusionPathList = getExclusionJarList(jBallerinaBackend);
-        for (Path path : pathCollection) {
+        for (JarLibrary library : pathCollection) {
+            Path path = library.path();
             if (!exclusionPathList.contains(path)) {
                 filteredPathList.add(path);
             }
@@ -320,10 +322,11 @@ public class CoverageReport {
     }
 
     private List<Path> getExclusionJarList(JBallerinaBackend jBallerinaBackend) {
-        List<Path> exclusionPathList = new ArrayList<>();
-        exclusionPathList.addAll(getDependencyJarList(jBallerinaBackend));
+        List<Path> exclusionPathList = new ArrayList<>(getDependencyJarList(jBallerinaBackend));
         exclusionPathList.add(jBallerinaBackend.runtimeLibrary().path());
-        exclusionPathList.addAll(ProjectUtils.testDependencies());
+        for (JarLibrary library : ProjectUtils.testDependencies()) {
+            exclusionPathList.add(library.path());
+        }
         return exclusionPathList;
     }
 
@@ -337,12 +340,16 @@ public class CoverageReport {
                         Module dependencyModule = pkg.module(dependencyModuleId);
                         PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
                                 pkg.packageId(), dependencyModule.moduleName());
-                        dependencyPathList.add(generatedJarLibrary.path());
+                        if (!dependencyPathList.contains(generatedJarLibrary.path())) {
+                            dependencyPathList.add(generatedJarLibrary.path());
+                        }
                     }
                     Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
                             pkg.packageId(), PlatformLibraryScope.DEFAULT);
                     for (PlatformLibrary otherJarDependency : otherJarDependencies) {
-                        dependencyPathList.add(otherJarDependency.path());
+                        if (!dependencyPathList.contains(otherJarDependency.path())) {
+                            dependencyPathList.add(otherJarDependency.path());
+                        }
                     }
                 });
         return dependencyPathList;

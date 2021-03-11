@@ -1,0 +1,46 @@
+[configPkg.util.foo]
+booleanVar = false
+byteVar = 78
+decimalVar = 5.6
+floatVar = 1.2
+intVar = 34
+stringVar = "world"
+
+booleanArr = [true, false, false, true]
+byteArr = [99, 88, 77, 66, 55, 44, 33, 22, 11]
+decimalArr = [9.8, 7.6, 5.4]
+floatArr = [3.2, 1.9]
+intArr = [9, 8, 7]
+stringArr = ["aa", "bb", "cc"]
+
+[configPkg.util.foo.manager]
+age = 30
+id = 101
+name = "John"
+
+[[configPkg.util.foo.employees]]
+age = 28
+id = 11
+name = "Anna"
+
+[[configPkg.util.foo.employees]]
+age = 32
+id = 22
+
+[[configPkg.util.foo.employees]]
+id = 33
+name = "Ben"
+
+[[configPkg.util.foo.nonKeyEmployees]]
+age = 18
+id = 111
+name = "Anna"
+
+[[configPkg.util.foo.nonKeyEmployees]]
+age = 29
+id = 222
+
+[[configPkg.util.foo.nonKeyEmployees]]
+age = 27
+id = 333
+name = "Belle"

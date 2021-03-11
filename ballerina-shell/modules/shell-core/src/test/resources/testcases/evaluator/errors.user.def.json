@@ -50,19 +50,16 @@
   {
     "description": "View getTypeId error.",
     "code": "result",
-    "error": "InvokerException",
-    "stdout": "Exception occurred: error InvalidAccountTypeError (\"Invalid account type\",accountType=\"Joined\")\n"
+    "expr": "error(\"Invalid account type\",accountType=\"Joined\")"
   },
   {
     "description": "View getAccountBalance error.",
     "code": "getAccountBalance(-1);",
-    "error": "InvokerException",
-    "stdout": "Exception occurred: error InvalidAccountIdError (\"Invalid account Id\",accountID=-1)\n"
+    "expr": "error InvalidAccountIdError&AccountError (\"Invalid account Id\",accountID=-1)"
   },
   {
     "description": "View transferToAccount error.",
     "code": "transferToAccount(-1, 90, 1000);",
-    "error": "InvokerException",
-    "stdout": "Exception occurred: error AccountTransferError (\"Account transfer failed\",error InvalidAccountIdError (\"Invalid account Id\",accountID=-1),fromAccountId=-1,toAccountId=90)\n"
+    "expr": "error(\"Account transfer failed\",error InvalidAccountIdError&AccountError (\"Invalid account Id\",accountID=-1),fromAccountId=-1,toAccountId=90)"
   }
 ]

@@ -1851,7 +1851,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token functionKeyword =
                 modifyToken(functionTypeDescriptorNode.functionKeyword());
         FunctionSignatureNode functionSignature =
-                modifyNode(functionTypeDescriptorNode.functionSignature());
+                modifyNode(functionTypeDescriptorNode.functionSignature().orElse(null));
         return functionTypeDescriptorNode.modify(
                 qualifierList,
                 functionKeyword,

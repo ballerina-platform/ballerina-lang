@@ -71,6 +71,8 @@ service ProcessingService / on lsn {
     resource function get processRequest() returns json => { output: self.magic };
 
     function createError() returns @tainted error? => ();
+
+    resource function get [int... rest] () returns string => "foo";
 }
 
 public class Listener {
