@@ -64,7 +64,10 @@ public class PackageConfigCreator {
                 .map(d -> TomlDocument.from(ProjectConstants.BALLERINA_TOML, d.content())).orElse(null);
         TomlDocument dependenciesToml = packageData.dependenciesToml()
                 .map(d -> TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, d.content())).orElse(null);
-        ManifestBuilder manifestBuilder = ManifestBuilder.from(ballerinaToml, dependenciesToml, projectDirPath);
+        TomlDocument pluginToml = packageData.compilerPluginToml()
+                .map(d -> TomlDocument.from(ProjectConstants.COMPILER_PLUGIN_TOML, d.content())).orElse(null);
+        ManifestBuilder manifestBuilder = ManifestBuilder
+                .from(ballerinaToml, dependenciesToml, pluginToml, projectDirPath);
         PackageManifest packageManifest = manifestBuilder.packageManifest();
 
         return createPackageConfig(packageData, packageManifest);
@@ -128,11 +131,13 @@ public class PackageConfigCreator {
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig cloudToml = packageData.cloudToml()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
+        DocumentConfig compilerPluginToml = packageData.compilerPluginToml()
+                .map(data -> createDocumentConfig(data, null)).orElse(null);
         DocumentConfig packageMd = packageData.packageMd()
                 .map(data -> createDocumentConfig(data, null)).orElse(null);
 
         return PackageConfig.from(packageId, packageData.packagePath(), packageManifest, ballerinaToml,
-                dependenciesToml, cloudToml, packageMd, moduleConfigs, packageDependencyGraph);
+                dependenciesToml, cloudToml, compilerPluginToml, packageMd, moduleConfigs, packageDependencyGraph);
     }
 
     private static ModuleConfig createDefaultModuleConfig(PackageDescriptor pkgDesc,

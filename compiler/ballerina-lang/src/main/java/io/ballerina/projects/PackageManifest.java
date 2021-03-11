@@ -18,11 +18,13 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 /**
  * Represents a Ballerina.toml file.
@@ -31,6 +33,7 @@ import java.util.Map;
  */
 public class PackageManifest {
     private final PackageDescriptor packageDesc;
+    private final Optional<CompilerPluginDescriptor> compilerPluginDesc;
     private final List<Dependency> dependencies;
     private final Map<String, Platform> platforms;
     private final DiagnosticResult diagnostics;
@@ -45,11 +48,13 @@ public class PackageManifest {
     private final Map<String, TopLevelNode> otherEntries;
 
     private PackageManifest(PackageDescriptor packageDesc,
+                            Optional<CompilerPluginDescriptor> compilerPluginDesc,
                             List<Dependency> dependencies,
                             Map<String, Platform> platforms,
                             Map<String, TopLevelNode> otherEntries,
                             DiagnosticResult diagnostics) {
         this.packageDesc = packageDesc;
+        this.compilerPluginDesc = compilerPluginDesc;
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.platforms = Collections.unmodifiableMap(platforms);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
@@ -62,6 +67,7 @@ public class PackageManifest {
     }
 
     private PackageManifest(PackageDescriptor packageDesc,
+                            Optional<CompilerPluginDescriptor> compilerPluginDesc,
                             List<Dependency> dependencies,
                             Map<String, Platform> platforms,
                             Map<String, TopLevelNode> otherEntries,
@@ -72,6 +78,7 @@ public class PackageManifest {
                             List<String> exported,
                             String repository) {
         this.packageDesc = packageDesc;
+        this.compilerPluginDesc = compilerPluginDesc;
         this.dependencies = Collections.unmodifiableList(dependencies);
         this.platforms = Collections.unmodifiableMap(platforms);
         this.otherEntries = Collections.unmodifiableMap(otherEntries);
@@ -84,18 +91,20 @@ public class PackageManifest {
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc) {
-        return new PackageManifest(packageDesc, Collections.emptyList(),
-                Collections.emptyMap(), Collections.emptyMap(), new DefaultDiagnosticResult(Collections.EMPTY_LIST));
+        return new PackageManifest(packageDesc, Optional.empty(), Collections.emptyList(),
+                Collections.emptyMap(), Collections.emptyMap(), new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
+                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
                                        List<Dependency> dependencies,
                                        Map<String, Platform> platforms) {
-        return new PackageManifest(packageDesc, dependencies, platforms, Collections.emptyMap(),
-                new DefaultDiagnosticResult(Collections.EMPTY_LIST));
+        return new PackageManifest(packageDesc, compilerPluginDesc, dependencies, platforms, Collections.emptyMap(),
+                new DefaultDiagnosticResult(Collections.emptyList()));
     }
 
     public static PackageManifest from(PackageDescriptor packageDesc,
+                                       Optional<CompilerPluginDescriptor> compilerPluginDesc,
                                        List<Dependency> dependencies,
                                        Map<String, Platform> platforms,
                                        Map<String, TopLevelNode> otherEntries,
@@ -105,8 +114,8 @@ public class PackageManifest {
                                        List<String> keywords,
                                        List<String> exported,
                                        String repository) {
-        return new PackageManifest(packageDesc, dependencies, platforms, otherEntries, diagnostics, license, authors,
-                                   keywords, exported, repository);
+        return new PackageManifest(packageDesc, compilerPluginDesc, dependencies, platforms, otherEntries, diagnostics,
+                                   license, authors, keywords, exported, repository);
     }
 
     public PackageName name() {
@@ -123,6 +132,10 @@ public class PackageManifest {
 
     public PackageDescriptor descriptor() {
         return packageDesc;
+    }
+
+    public Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
+        return compilerPluginDesc;
     }
 
     public List<Dependency> dependencies() {
