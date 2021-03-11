@@ -90,11 +90,11 @@ public class LSClientLogger {
             return;
         }
         LSClientConfig config = this.configHolder.getConfig();
-        if (config.isEnableLanguageServerCrashReporter() && this.languageClient != null) {
+        if (config.isEnableLanguageServerCrashReporter()) {
             this.languageClient.telemetryEvent(LSTelemetry.from(operation, message, error));
         }
         String details = getErrorDetails(identifier, error, pos);
-        if (config.isDebugLogEnabled() && this.languageClient != null) {
+        if (config.isDebugLogEnabled()) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
                 PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
