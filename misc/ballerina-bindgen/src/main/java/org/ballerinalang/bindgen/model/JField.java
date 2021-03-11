@@ -25,7 +25,9 @@ import java.util.Collections;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD_INTEROP_TYPE;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getJavaType;
@@ -45,11 +47,14 @@ public class JField extends BFunction {
     private String externalType;
     private String returnTypeJava;
     private String fieldMethodName;
+    private String returnComponentType;
 
     private boolean isArray;
     private boolean isStatic;
     private boolean isString;
+    private boolean isStringArray;
     private boolean isObject = true;
+    private boolean isObjectArray;
     private boolean isSetter = false;
     private boolean returnError = false;
     private boolean javaArraysModule = false;
@@ -75,11 +80,20 @@ public class JField extends BFunction {
         if (fieldType.equals(BALLERINA_STRING)) {
             isString = true;
         }
+        if (fieldType.equals(BALLERINA_STRING_ARRAY)) {
+            isStringArray = true;
+        }
         if (type.isArray()) {
             isArray = true;
             returnError = true;
-            if (!type.getComponentType().isPrimitive()) {
+            if (!type.getComponentType().isPrimitive() && !isStringArray) {
                 isObject = false;
+                isObjectArray = true;
+            } else if (!fieldType.equals(BALLERINA_STRING_ARRAY)) {
+                returnComponentType = getAlias(type.getComponentType());
+                if (env.getModulesFlag()) {
+                    returnComponentType = getPackageAlias(returnComponentType, type.getComponentType());
+                }
             }
             javaArraysModule = true;
         }
@@ -101,6 +115,13 @@ public class JField extends BFunction {
         } else {
             super.setFunctionName(fieldMethodName);
         }
+    }
+
+    private String getPackageAlias(String shortClassName, Class objectType) {
+        if (objectType.getPackage() != jClass.getCurrentClass().getPackage()) {
+            return objectType.getPackageName().replace(".", "") + ":" + shortClassName;
+        }
+        return shortClassName;
     }
 
     public boolean isString() {
@@ -134,7 +155,7 @@ public class JField extends BFunction {
     public String getFunctionReturnType() {
         StringBuilder returnString = new StringBuilder();
         if (super.getKind() == BFunctionKind.FIELD_GET) {
-            returnString.append(fieldType);
+            returnString.append(fieldObj.getShortTypeName());
             if (isString) {
                 returnString.append("?");
             }
@@ -143,5 +164,33 @@ public class JField extends BFunction {
             }
         }
         return returnString.toString();
+    }
+
+    public boolean isArray() {
+        return isArray;
+    }
+
+    public boolean isObject() {
+        return isObject;
+    }
+
+    public boolean isStringArray() {
+        return isStringArray;
+    }
+
+    public String getFieldType() {
+        return fieldType;
+    }
+
+    public String getReturnComponentType() {
+        return returnComponentType;
+    }
+
+    public boolean isObjectArray() {
+        return isObjectArray;
+    }
+
+    public String getReturnShortName() {
+        return fieldObj.getShortTypeName();
     }
 }

@@ -125,7 +125,7 @@ public class BindgenTreeModifier {
         NodeList<ModuleMemberDeclarationNode> memberList = members;
         for (JConstructor jConstructor : jClass.getConstructorList()) {
             if (!isFunctionExists(jConstructor.getFunctionName(), constructorFunctions)) {
-                FunctionDefinitionNode staticMethod = generateInstanceMethods(jConstructor, false);
+                FunctionDefinitionNode staticMethod = generateBalFunction(jConstructor, false);
                 if (staticMethod != null) {
                     memberList = memberList.add(staticMethod);
                 }
@@ -147,7 +147,7 @@ public class BindgenTreeModifier {
         NodeList<ModuleMemberDeclarationNode> memberList = members;
         for (JMethod jMethod : jClass.getMethodList()) {
             if (jMethod.isStatic() && !isFunctionExists(jMethod.getBalFunctionName(), staticFunctions)) {
-                FunctionDefinitionNode staticMethod = generateInstanceMethods(jMethod, false);
+                FunctionDefinitionNode staticMethod = generateBalFunction(jMethod, false);
                 if (staticMethod != null) {
                     memberList = memberList.add(staticMethod);
                 }
@@ -176,7 +176,7 @@ public class BindgenTreeModifier {
         NodeList<Node> memberList = modifiedClassDefinition.members();
         for (JMethod jMethod : jClass.getMethodList()) {
             if (!jMethod.isStatic() && !isFunctionExists(jMethod.getBalFunctionName(), instanceFunctions)) {
-                FunctionDefinitionNode instanceMethod = generateInstanceMethods(jMethod, false);
+                FunctionDefinitionNode instanceMethod = generateBalFunction(jMethod, false);
                 if (instanceMethod != null) {
                     memberList = memberList.add(instanceMethod);
                 }
@@ -199,7 +199,7 @@ public class BindgenTreeModifier {
         NodeList<ModuleMemberDeclarationNode> memberList = members;
         for (JField jField : jClass.getFieldList()) {
             if (jField.isStatic() && !isFunctionExists(jField.getFunctionName(), staticFields)) {
-                FunctionDefinitionNode staticMethod = generateInstanceMethods(jField, false);
+                FunctionDefinitionNode staticMethod = generateBalFunction(jField, false);
                 if (staticMethod != null) {
                     memberList = memberList.add(staticMethod);
                 }
@@ -228,7 +228,7 @@ public class BindgenTreeModifier {
         NodeList<Node> memberList = modifiedClassDefinition.members();
         for (JField jField : jClass.getFieldList()) {
             if (!jField.isStatic() && !isFunctionExists(jField.getFunctionName(), instanceFields)) {
-                FunctionDefinitionNode instanceMethod = generateInstanceMethods(jField, false);
+                FunctionDefinitionNode instanceMethod = generateBalFunction(jField, false);
                 if (instanceMethod != null) {
                     memberList = memberList.add(instanceMethod);
                 }
@@ -250,26 +250,27 @@ public class BindgenTreeModifier {
 
         NodeList<ModuleMemberDeclarationNode> memberList = members;
         for (JMethod jMethod : jClass.getMethodList()) {
-            if (jMethod.isStatic() && !isFunctionExists(jMethod.getBalFunctionName(), externalFunctions)) {
-                FunctionDefinitionNode staticMethod = generateInstanceMethods(jMethod, true);
-                if (staticMethod != null) {
-                    memberList = memberList.add(staticMethod);
+            if (!isFunctionExists(jMethod.getBalFunctionName(), externalFunctions)) {
+                FunctionDefinitionNode generatedFunction = generateBalFunction(jMethod, true);
+                if (generatedFunction != null) {
+                    memberList = memberList.add(generatedFunction);
                 }
             }
         }
         for (JField jField : jClass.getFieldList()) {
-            if (jField.isStatic() && !isFunctionExists(jField.getFunctionName(), externalFunctions)) {
-                FunctionDefinitionNode staticMethod = generateInstanceMethods(jField, true);
-                if (staticMethod != null) {
-                    memberList = memberList.add(staticMethod);
+            if (!isFunctionExists(jField.getFunctionName(), externalFunctions)) {
+                FunctionDefinitionNode generatedFunction = generateBalFunction(jField, true);
+                if (generatedFunction != null) {
+                    memberList = memberList.add(generatedFunction);
                 }
             }
         }
         for (JConstructor jConstructor : jClass.getConstructorList()) {
-            if (jConstructor.isStatic() && !isFunctionExists(jConstructor.getFunctionName(), externalFunctions)) {
-                FunctionDefinitionNode staticMethod = generateInstanceMethods(jConstructor, true);
-                if (staticMethod != null) {
-                    memberList = memberList.add(staticMethod);
+            if (!isFunctionExists(jConstructor.getExternalFunctionName(),
+                    externalFunctions)) {
+                FunctionDefinitionNode generatedFunction = generateBalFunction(jConstructor, true);
+                if (generatedFunction != null) {
+                    memberList = memberList.add(generatedFunction);
                 }
             }
         }
@@ -291,7 +292,7 @@ public class BindgenTreeModifier {
         return entry;
     }
 
-    private FunctionDefinitionNode generateInstanceMethods(BFunction bFunction, boolean isExternal)
+    private FunctionDefinitionNode generateBalFunction(BFunction bFunction, boolean isExternal)
             throws BindgenException {
         return createFunctionDefinitionNode(bFunction, isExternal);
     }

@@ -32,7 +32,6 @@ import io.ballerina.compiler.syntax.tree.ErrorConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
-import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionArgumentNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -71,7 +70,6 @@ import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypeCastParamNode;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
-import io.ballerina.compiler.syntax.tree.TypeTestExpressionNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
@@ -213,8 +211,14 @@ public class BindgenNodeFactory {
             if (jParameter.isArray() && isMultiDimensionalArray(jParameter.getParameterClass().getName())) {
                 throw new BindgenException("multi dimensional arrays are currently not support");
             }
-            parameterNodes.add(createRequiredParameterNode(jParameter.getShortTypeName()
-                    + " ", jParameter.getFieldName()));
+            if (isExternal) {
+                parameterNodes.add(createRequiredParameterNode(jParameter.getExternalType()
+                        + " ", jParameter.getFieldName()));
+            } else {
+                parameterNodes.add(createRequiredParameterNode(jParameter.getShortTypeName()
+                        + " ", jParameter.getFieldName()));
+            }
+
             parameterNodes.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
         }
         if (parameterNodes.size() > 1) {
@@ -318,6 +322,333 @@ public class BindgenNodeFactory {
         return NodeFactory.createFunctionBodyBlockNode(openBraceToken, null, statements, closeBraceToken);
     }
 
+    private static List<StatementNode> getConstructorFunctionStatements(JConstructor jConstructor) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        if (jConstructor.isHandleException()) {
+            statementNodes.addAll(getConstructorWithException(jConstructor));
+        } else {
+            statementNodes.addAll(getConstructorWithoutException(jConstructor));
+        }
+
+        return statementNodes;
+    }
+
+    private static List<StatementNode> getConstructorWithoutException(JConstructor jConstructor) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        List<String> argValues = new LinkedList<>();
+        if (!jConstructor.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jConstructor.getParameters()) {
+            if (jParameter.getIsString()) {
+                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            } else if (jParameter.isArray()) {
+                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
+                        jParameter.getComponentType() + "\")");
+            } else if (jParameter.getIsObj()) {
+                argValues.add(jParameter.getFieldName() + ".jObj");
+            } else {
+                argValues.add(jParameter.getFieldName());
+            }
+        }
+        FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
+                jConstructor.getExternalFunctionName(), argValues);
+        statementNodes.add(createVariableDeclarationNode(
+                createTypedBindingPatternNode("handle", "externalObj"), innerFunctionCall));
+        statementNodes.add(createVariableDeclarationNode(
+                createTypedBindingPatternNode(jConstructor.getReturnType(), "newObj"),
+                createImplicitNewExpressionNode(Collections.singletonList("externalObj"))));
+        statementNodes.add(createReturnStatementNode(createSimpleNameReferenceNode("newObj")));
+
+        return statementNodes;
+    }
+
+    private static List<StatementNode> getConstructorWithException(JConstructor jConstructor) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        List<String> argValues = new LinkedList<>();
+        if (!jConstructor.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jConstructor.getParameters()) {
+            if (jParameter.getIsString()) {
+                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            } else if (jParameter.isArray()) {
+                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
+                        jParameter.getComponentType() + "\")");
+            } else if (jParameter.getIsObj()) {
+                argValues.add(jParameter.getFieldName() + ".jObj");
+            } else {
+                argValues.add(jParameter.getFieldName());
+            }
+        }
+        FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
+                jConstructor.getExternalFunctionName(), argValues);
+        statementNodes.add(createVariableDeclarationNode(
+                createTypedBindingPatternNode("handle|error", "externalObj"), innerFunctionCall));
+        statementNodes.add(createIfElseStatementNode(
+                createBracedExpressionNode(createSimpleNameReferenceNode("externalObj is error")),
+                createBlockStatementNode(AbstractNodeFactory.createNodeList(
+                        createVariableDeclarationNode(
+                                createTypedBindingPatternNode(jConstructor.getExceptionName(), "e"),
+                                createErrorConstructorExpressionNode(
+                                        createSimpleNameReferenceNode(jConstructor.getExceptionName()),
+                                        new LinkedList<>(Arrays.asList(jConstructor.getExceptionConstName(),
+                                                "externalObj", "message = externalObj.message()")))
+                        ),
+                        createReturnStatementNode(createSimpleNameReferenceNode("e")))
+                ),
+                createElseBlockNode(createBlockStatementNode(AbstractNodeFactory.createNodeList(
+                        createVariableDeclarationNode(
+                                createTypedBindingPatternNode(jConstructor.getReturnType(), "newObj"),
+                                createImplicitNewExpressionNode(Collections.singletonList("externalObj"))
+                        ),
+                        createReturnStatementNode(createSimpleNameReferenceNode("newObj")))))));
+
+        return statementNodes;
+    }
+
+    private static List<StatementNode> getFieldFunctionStatements(JField jField) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        if (jField.getKind() == BFunction.BFunctionKind.FIELD_GET) {
+            if (!jField.isArray()) {
+                if (jField.isString()) {
+                    // string, no arrays, no errors
+                    statementNodes.addAll(getFieldGetStringStatement(jField));
+                } else if (jField.isObject()) {
+                    // object, no arrays, no errors
+                    statementNodes.addAll(getFieldGetObjectStatements(jField));
+                } else {
+                    // primitive, no arrays, no errors
+                    statementNodes.addAll(getFieldGetPrimitiveStatement(jField));
+                }
+            } else {
+                if (jField.isStringArray()) {
+                    // string, has simple error
+                    statementNodes.addAll(getFieldGetStringArrayStatements(jField));
+                } else if (jField.isObjectArray()) {
+                    // object, has simple error
+                    statementNodes.addAll(getFieldGetObjectArrayStatements(jField));
+                } else {
+                    // primitive, has simple error
+                    statementNodes.addAll(getFieldGetPrimitiveArrayStatements(jField));
+                }
+            }
+        } else {
+            statementNodes.addAll(getFieldSetStatements(jField));
+        }
+
+        return statementNodes;
+    }
+
+    private static List<StatementNode> getFieldGetPrimitiveArrayStatements(JField jField) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        List<String> argValues = new LinkedList<>();
+        if (!jField.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jField.getParameters()) {
+            if (jParameter.getIsString()) {
+                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            } else if (jParameter.isArray()) {
+                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
+                        jParameter.getComponentType() + "\")");
+            } else if (jParameter.getIsObj()) {
+                argValues.add(jParameter.getFieldName() + ".jObj");
+            } else {
+                argValues.add(jParameter.getFieldName());
+            }
+        }
+        FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
+                jField.getExternalFunctionName(), argValues);
+        statementNodes.add(createVariableDeclarationNode(
+                createTypedBindingPatternNode("handle", "externalObj"), innerFunctionCall));
+        statementNodes.add(createReturnStatementNode(createTypeCastExpressionNode(jField.getReturnType(),
+                createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
+                        new LinkedList<>(Arrays.asList("externalObj", "\"" + jField.getFieldType() + "\"")))))));
+
+        return statementNodes;
+    }
+
+    private static List<StatementNode> getFieldGetObjectArrayStatements(JField jField) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        List<String> argValues = new LinkedList<>();
+        if (!jField.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jField.getParameters()) {
+            if (jParameter.getIsString()) {
+                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            } else if (jParameter.isArray()) {
+                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
+                        jParameter.getComponentType() + "\")");
+            } else if (jParameter.getIsObj()) {
+                argValues.add(jParameter.getFieldName() + ".jObj");
+            } else {
+                argValues.add(jParameter.getFieldName());
+            }
+        }
+        FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
+                jField.getExternalFunctionName(), argValues);
+        statementNodes.add(createVariableDeclarationNode(
+                createTypedBindingPatternNode("handle", "externalObj"), innerFunctionCall));
+        statementNodes.add(createVariableDeclarationNode(
+                createTypedBindingPatternNode(jField.getReturnShortName(), "newObj"),
+                createListConstructorExpressionNode(new LinkedList<>())));
+        statementNodes.add(createVariableDeclarationNode(
+                createTypedBindingPatternNode("handle[]", "anyObj"),
+                createTypeCastExpressionNode("handle[]",
+                        createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
+                                new LinkedList<>(Arrays.asList("externalObj", "\"handle\"")))))));
+        statementNodes.add(createVariableDeclarationNode(
+                createTypedBindingPatternNode("int", "count"),
+                createMethodCallExpressionNode(createSimpleNameReferenceNode("anyObj"), "length", new LinkedList<>())));
+        statementNodes.add(createForEachStatementNode(
+                createTypedBindingPatternNode("int", "i"),
+                createBinaryExpressionNode("0", AbstractNodeFactory.createToken(SyntaxKind.ELLIPSIS_TOKEN),
+                        "count - 1"),
+                createBlockStatementNode(AbstractNodeFactory.createNodeList(
+                        createVariableDeclarationNode(
+                                createTypedBindingPatternNode(jField.getReturnShortName(), "element"),
+                                createImplicitNewExpressionNode(Collections.singletonList("anyObj[i]"))),
+                        createAssignmentStatementNode(
+                                createSimpleNameReferenceNode("newObj[i]"),
+                                createSimpleNameReferenceNode("element"))
+                ))));
+        statementNodes.add(createReturnStatementNode(createSimpleNameReferenceNode("newObj")));
+        return statementNodes;
+    }
+
+    private static List<StatementNode> getFieldGetStringArrayStatements(JField jField) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        List<String> argValues = new LinkedList<>();
+        if (!jField.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jField.getParameters()) {
+            if (jParameter.getIsString()) {
+                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            } else if (jParameter.isArray()) {
+                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
+                        jParameter.getComponentType() + "\")");
+            } else if (jParameter.getIsObj()) {
+                argValues.add(jParameter.getFieldName() + ".jObj");
+            } else {
+                argValues.add(jParameter.getFieldName());
+            }
+        }
+        FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
+                jField.getExternalFunctionName(), argValues);
+        statementNodes.add(createReturnStatementNode(createTypeCastExpressionNode("string[]",
+                createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
+                        Collections.singletonList(innerFunctionCall.toSourceCode()))))));
+
+        return statementNodes;
+    }
+
+    private static List<StatementNode> getFieldGetPrimitiveStatement(JField jField) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        List<String> argValues = new LinkedList<>();
+        if (!jField.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jField.getParameters()) {
+            if (jParameter.getIsString()) {
+                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            } else if (jParameter.isArray()) {
+                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
+                        jParameter.getComponentType() + "\")");
+            } else if (jParameter.getIsObj()) {
+                argValues.add(jParameter.getFieldName() + ".jObj");
+            } else {
+                argValues.add(jParameter.getFieldName());
+            }
+        }
+        statementNodes.add(createReturnStatementNode(createFunctionCallExpressionNode(
+                jField.getExternalFunctionName(), argValues)));
+
+        return statementNodes;
+    }
+
+    private static List<StatementNode> getFieldGetObjectStatements(JField jField) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        List<String> argValues = new LinkedList<>();
+        if (!jField.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jField.getParameters()) {
+            if (jParameter.getIsString()) {
+                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            } else if (jParameter.isArray()) {
+                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
+                        jParameter.getComponentType() + "\")");
+            } else if (jParameter.getIsObj()) {
+                argValues.add(jParameter.getFieldName() + ".jObj");
+            } else {
+                argValues.add(jParameter.getFieldName());
+            }
+        }
+        FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
+                jField.getExternalFunctionName(), argValues);
+        statementNodes.add(createVariableDeclarationNode(
+                createTypedBindingPatternNode("handle", "externalObj"), innerFunctionCall));
+        statementNodes.add(createVariableDeclarationNode(createTypedBindingPatternNode(
+                jField.getReturnShortName(), "newObj"),
+                createImplicitNewExpressionNode(Collections.singletonList("externalObj"))));
+        statementNodes.add(createReturnStatementNode(createSimpleNameReferenceNode("newObj")));
+
+        return statementNodes;
+    }
+
+    private static List<StatementNode> getFieldGetStringStatement(JField jField) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        List<String> argValues = new LinkedList<>();
+        if (!jField.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jField.getParameters()) {
+            if (jParameter.getIsString()) {
+                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            } else if (jParameter.isArray()) {
+                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
+                        jParameter.getComponentType() + "\")");
+            } else if (jParameter.getIsObj()) {
+                argValues.add(jParameter.getFieldName() + ".jObj");
+            } else {
+                argValues.add(jParameter.getFieldName());
+            }
+        }
+        FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
+                jField.getExternalFunctionName(), argValues);
+        statementNodes.add(createReturnStatementNode(createFunctionCallExpressionNode("java:toString",
+                Collections.singletonList(innerFunctionCall.toSourceCode()))));
+
+        return statementNodes;
+    }
+
+    private static List<StatementNode> getFieldSetStatements(JField jField) {
+        List<StatementNode> statementNodes = new LinkedList<>();
+        List<String> argValues = new LinkedList<>();
+        if (!jField.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jField.getParameters()) {
+            if (jParameter.getIsString()) {
+                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            } else if (jParameter.isArray()) {
+                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
+                        jParameter.getComponentType() + "\")");
+            } else if (jParameter.getIsObj()) {
+                argValues.add(jParameter.getFieldName() + ".jObj");
+            } else {
+                argValues.add(jParameter.getFieldName());
+            }
+        }
+        statementNodes.add(createExpressionStatementNode(
+                createFunctionCallExpressionNode(jField.getExternalFunctionName(), argValues)));
+
+        return statementNodes;
+    }
+
     private static List<StatementNode> getMethodFunctionStatements(JMethod jMethod) {
         List<StatementNode> statementNodes = new LinkedList<>();
         if (!jMethod.getHasReturn()) {
@@ -394,6 +725,45 @@ public class BindgenNodeFactory {
         return createReturnStatementNode(functionCallExpression);
     }
 
+    private static ReturnStatementNode getStringReturnStatement(JMethod jMethod) {
+        List<String> argValues = new LinkedList<>();
+        if (!jMethod.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jMethod.getParameters()) {
+            if (jParameter.getIsString()) {
+                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
+            } else if (jParameter.isArray()) {
+                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
+                        jParameter.getComponentType() + "\")");
+            } else if (jParameter.getIsObj()) {
+                argValues.add(jParameter.getFieldName() + ".jObj");
+            } else {
+                argValues.add(jParameter.getFieldName());
+            }
+        }
+        FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
+                jMethod.getExternalFunctionName(), argValues);
+        PositionalArgumentNode positionalArgNode = createPositionalArgumentNode(innerFunctionCall.toSourceCode());
+        FunctionCallExpressionNode outerFunctionCall = createFunctionCallExpressionNode("java:toString",
+                Collections.singletonList(positionalArgNode.toSourceCode()));
+
+        return createReturnStatementNode(outerFunctionCall);
+    }
+
+    private static ExpressionStatementNode getNoReturnNoExceptionStatement(JMethod jMethod) {
+        List<String> argValues = new LinkedList<>();
+        if (!jMethod.isStatic()) {
+            argValues.add("self.jObj");
+        }
+        for (JParameter jParameter : jMethod.getParameters()) {
+            argValues.add(jParameter.getFieldName());
+        }
+        FunctionCallExpressionNode functionCallExpression = createFunctionCallExpressionNode(
+                jMethod.getExternalFunctionName(), argValues);
+        return createExpressionStatementNode(functionCallExpression);
+    }
+
     private static List<StatementNode> getPrimitiveArrayWithException(JMethod jMethod) {
         List<StatementNode> statementNodes = new LinkedList<>();
         List<String> argValues = new LinkedList<>();
@@ -405,7 +775,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -449,7 +819,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -516,7 +886,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -558,7 +928,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -598,7 +968,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -642,7 +1012,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -672,32 +1042,6 @@ public class BindgenNodeFactory {
         return statementNodes;
     }
 
-    private static ReturnStatementNode getStringReturnStatement(JMethod jMethod) {
-        List<String> argValues = new LinkedList<>();
-        if (!jMethod.isStatic()) {
-            argValues.add("self.jObj");
-        }
-        for (JParameter jParameter : jMethod.getParameters()) {
-            if (jParameter.getIsString()) {
-                argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
-            } else if (jParameter.isArray()) {
-                argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
-            } else if (jParameter.getIsObj()) {
-                argValues.add(jParameter.getFieldName() + ".jObj");
-            } else {
-                argValues.add(jParameter.getFieldName());
-            }
-        }
-        FunctionCallExpressionNode innerFunctionCall = createFunctionCallExpressionNode(
-                jMethod.getExternalFunctionName(), argValues);
-        PositionalArgumentNode positionalArgNode = createPositionalArgumentNode(innerFunctionCall.toSourceCode());
-        FunctionCallExpressionNode outerFunctionCall = createFunctionCallExpressionNode("java:toString",
-                Collections.singletonList(positionalArgNode.toSourceCode()));
-
-        return createReturnStatementNode(outerFunctionCall);
-    }
-
     private static List<StatementNode> getObjectReturnStatements(JMethod jMethod) {
         List<StatementNode> statementNodes = new LinkedList<>();
         List<String> argValues = new LinkedList<>();
@@ -709,7 +1053,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -739,7 +1083,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -789,7 +1133,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -818,7 +1162,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -847,7 +1191,7 @@ public class BindgenNodeFactory {
                 argValues.add("java:fromString(" + jParameter.getFieldName() + ")");
             } else if (jParameter.isArray()) {
                 argValues.add("check jarrays:toHandle(" + jParameter.getFieldName() + ", \"" +
-                        jParameter.getComponentType() + "\"");
+                        jParameter.getComponentType() + "\")");
             } else if (jParameter.getIsObj()) {
                 argValues.add(jParameter.getFieldName() + ".jObj");
             } else {
@@ -870,33 +1214,6 @@ public class BindgenNodeFactory {
                         ),
                         createReturnStatementNode(createSimpleNameReferenceNode("e")))
                 ), null));
-
-        return statementNodes;
-    }
-
-    private static ExpressionStatementNode getNoReturnNoExceptionStatement(JMethod jMethod) {
-        List<String> argValues = new LinkedList<>();
-        if (!jMethod.isStatic()) {
-            argValues.add("self.jObj");
-        }
-        for (JParameter jParameter : jMethod.getParameters()) {
-            argValues.add(jParameter.getFieldName());
-        }
-        FunctionCallExpressionNode functionCallExpression = createFunctionCallExpressionNode(
-                jMethod.getExternalFunctionName(), argValues);
-        return createExpressionStatementNode(functionCallExpression);
-    }
-
-    private static List<StatementNode> getConstructorFunctionStatements(JConstructor jConstructor) {
-        List<StatementNode> statementNodes = new LinkedList<>();
-
-
-        return statementNodes;
-    }
-
-    private static List<StatementNode> getFieldFunctionStatements(JField jField) {
-        List<StatementNode> statementNodes = new LinkedList<>();
-
 
         return statementNodes;
     }
@@ -1083,16 +1400,6 @@ public class BindgenNodeFactory {
     }
 
     /**
-     * Creates a type test expression node using the expression node and the string type provided.
-     */
-    private static TypeTestExpressionNode createTypeTestExpressionNode(ExpressionNode expressionNode, String type) {
-        Token isKeyword = AbstractNodeFactory.createToken(SyntaxKind.IS_KEYWORD, singleWSML(), singleWSML());
-        Node typeDescriptorNode = createSimpleNameReferenceNode(type);
-
-        return NodeFactory.createTypeTestExpressionNode(expressionNode, isKeyword, typeDescriptorNode);
-    }
-
-    /**
      * Creates a parenthesized argument list using the argument list provided.
      */
     private static ParenthesizedArgList createParenthesizedArgList(List<String> argList) {
@@ -1194,9 +1501,7 @@ public class BindgenNodeFactory {
         for (Map.Entry<String, List<String>> entry : fields.entrySet()) {
             List<String> fieldValues = entry.getValue();
             mappingFields.add(createSpecificFieldNode(entry.getKey(), fieldValues));
-            mappingFields.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
         }
-        mappingFields.remove(mappingFields.size() - 1);
         SeparatedNodeList<MappingFieldNode> fieldsNodeList = AbstractNodeFactory.createSeparatedNodeList(mappingFields);
 
         return NodeFactory.createMappingConstructorExpressionNode(openBraceToken, fieldsNodeList, closeBraceToken);
@@ -1209,7 +1514,7 @@ public class BindgenNodeFactory {
         IdentifierToken fieldName = AbstractNodeFactory.createIdentifierToken(name);
         Token colonToken = AbstractNodeFactory.createToken(SyntaxKind.COLON_TOKEN);
         ExpressionNode expressionNode = null;
-        if (value.size() > 1) {
+        if (value.size() > 1 || name.equals("paramTypes")) {
             expressionNode = createListConstructorExpressionNode(value);
         } else if (!value.isEmpty()) {
             expressionNode = createBasicLiteralNode(value.get(0));
@@ -1226,8 +1531,11 @@ public class BindgenNodeFactory {
         Token closeBracketToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACKET_TOKEN);
         List<Node> listElements = new LinkedList<>();
         for (String element : list) {
-            listElements.add(AbstractNodeFactory.createLiteralValueToken(SyntaxKind.STRING_LITERAL_TOKEN, element,
-                    emptyML(), emptyML()));
+            listElements.add(createBasicLiteralNode(element));
+            listElements.add(AbstractNodeFactory.createToken(SyntaxKind.COMMA_TOKEN));
+        }
+        if (listElements.size() > 1) {
+            listElements.remove(listElements.size() - 1);
         }
         SeparatedNodeList<Node> expressions = AbstractNodeFactory.createSeparatedNodeList(listElements);
 
@@ -1241,19 +1549,6 @@ public class BindgenNodeFactory {
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
 
         return NodeFactory.createExpressionStatementNode(null, expression, semicolonToken);
-    }
-
-    /**
-     * Creates a field access expression node using the string expression and the string field name provided.
-     */
-    private static FieldAccessExpressionNode createFieldAccessExpressionNode(String expression, String fieldName) {
-        SimpleNameReferenceNode expressionNode = NodeFactory.createSimpleNameReferenceNode(AbstractNodeFactory
-                .createIdentifierToken(expression));
-        Token dotToken = AbstractNodeFactory.createToken(SyntaxKind.DOT_TOKEN);
-        SimpleNameReferenceNode fieldNameNode = NodeFactory.createSimpleNameReferenceNode(AbstractNodeFactory
-                .createIdentifierToken(fieldName));
-
-        return NodeFactory.createFieldAccessExpressionNode(expressionNode, dotToken, fieldNameNode);
     }
 
     /**
@@ -1271,7 +1566,7 @@ public class BindgenNodeFactory {
     private static RequiredParameterNode createRequiredParameterNode(String type, String param) {
         NodeList<AnnotationNode> annotations = AbstractNodeFactory.createNodeList();
         Node typeName = createSimpleNameReferenceNode(type);
-        IdentifierToken paramName = AbstractNodeFactory.createIdentifierToken(param);
+        IdentifierToken paramName = AbstractNodeFactory.createIdentifierToken(param, singleWSML(), emptyML());
 
         return NodeFactory.createRequiredParameterNode(annotations, typeName, paramName);
     }
@@ -1318,11 +1613,7 @@ public class BindgenNodeFactory {
     private static List<String> getParameterList(List<JParameter> jParameterList) {
         List<String> paramList = new ArrayList<>();
         for (JParameter jparameter : jParameterList) {
-            paramList.add("\"" + jparameter.getType() + "\"");
-            paramList.add(",");
-        }
-        if (paramList.size() > 1) {
-            paramList.remove(paramList.size() - 1);
+            paramList.add(jparameter.getType());
         }
         return paramList;
     }
