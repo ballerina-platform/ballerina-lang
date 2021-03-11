@@ -317,7 +317,7 @@ public class BindgenNodeFactory {
         }
 
         NodeList<StatementNode> statements = AbstractNodeFactory.createNodeList(statementNodes);
-        Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
+        Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN, emptyML(), singleNLML());
 
         return NodeFactory.createFunctionBodyBlockNode(openBraceToken, null, statements, closeBraceToken);
     }
@@ -1587,6 +1587,13 @@ public class BindgenNodeFactory {
      */
     private static MinutiaeList singleWSML() {
         return emptyML().add(AbstractNodeFactory.createWhitespaceMinutiae(" "));
+    }
+
+    /**
+     * Retrieve a single new line minutiae list.
+     */
+    private static MinutiaeList singleNLML() {
+        return emptyML().add(AbstractNodeFactory.createEndOfLineMinutiae("\n\n"));
     }
 
     /**

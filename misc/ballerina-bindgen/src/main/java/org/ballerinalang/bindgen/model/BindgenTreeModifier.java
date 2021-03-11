@@ -65,13 +65,13 @@ public class BindgenTreeModifier {
 
     private NodeList<ModuleMemberDeclarationNode> modifyModuleMemberDeclarationNode(
             NodeList<ModuleMemberDeclarationNode> members) throws BindgenException {
+        members = updateTypeReferences(members);
         members = updateInstanceMethods(members);
         members = updateInstanceFields(members);
         members = updateConstructors(members);
         members = updateStaticMethods(members);
         members = updateStaticFields(members);
         members = updateExternalMethods(members);
-        members = updateTypeReferences(members);
 
         return members;
 
