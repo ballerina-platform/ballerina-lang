@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.parser.trials;
 
-import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
@@ -48,14 +47,16 @@ public class ModuleMemberTrial extends DualTreeParserTrial {
 
         ModulePartNode node = tree.rootNode();
         assertIf(!node.members().isEmpty(), "expected at least one member");
-
         ModuleMemberDeclarationNode dclnNode = node.members().get(0);
 
-        // Only captured binding patterns can be global variables
         if (dclnNode instanceof ModuleVariableDeclarationNode) {
-            assertIf(((ModuleVariableDeclarationNode) dclnNode).typedBindingPattern().bindingPattern()
-                            instanceof CaptureBindingPatternNode,
-                    "Only captured binding patterns can be global variables");
+            // If there are no qualifiers or metadata then this can be also a statement/expression.
+            // eg: `mp[a] = f()` (mp is a map) is also valid as `mp [a] = f()` (mp is a type) which is a var-dcln.
+            // So, this will be passed down to be parsed by statement/expression trial.
+            ModuleVariableDeclarationNode varNode = (ModuleVariableDeclarationNode) dclnNode;
+            assertIf(varNode.metadata().isPresent() || varNode.qualifiers().size() > 0
+                            || varNode.visibilityQualifier().isPresent(),
+                    "meta data nor qualifiers not present - not accepted as module-dcln");
         }
         return dclnNode;
     }

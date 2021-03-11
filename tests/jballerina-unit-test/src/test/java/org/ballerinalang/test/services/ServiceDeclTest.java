@@ -65,6 +65,7 @@ public class ServiceDeclTest {
         validateError(result, i++, "listener variable incompatible types: 'ui' is not a Listener object", 165, 1);
         validateError(result, i++, "incompatible types: expected 'listener', found '(PathOnlyListener|int)'", 167, 14);
         validateError(result, i++, "service type is not supported by the listener", 190, 14);
+        validateError(result, i++, "service absolute path or literal is required by listener", 209, 12);
         Assert.assertEquals(i, result.getErrorCount());
     }
 }

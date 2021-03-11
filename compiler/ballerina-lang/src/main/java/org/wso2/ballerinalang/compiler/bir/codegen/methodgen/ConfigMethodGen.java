@@ -47,6 +47,8 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
@@ -165,7 +167,12 @@ public class ConfigMethodGen {
                         "L" + MODULE + ";");
                 mv.visitLdcInsn(globalVar.name.value);
                 jvmTypeGen.loadType(mv, globalVar.type);
-                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
+                if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
+                    mv.visitInsn(ICONST_1);
+                } else {
+                    mv.visitInsn(ICONST_0);
+                }
+                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;Z)V",
                         MODULE, STRING_VALUE, TYPE), false);
                 mv.visitVarInsn(ASTORE, varCount + 1);
 

@@ -104,7 +104,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             return CompletableFuture.supplyAsync(() -> response);
         } catch (IOException e) {
             String msg = "Operation 'ballerinaConnector/connectors' failed!";
-            this.clientLogger.logError(msg, e, null, (Position) null);
+            this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
         }
 
         return CompletableFuture.supplyAsync(BallerinaConnectorsResponse::new);
@@ -200,7 +200,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
                 error = e.getMessage();
-                this.clientLogger.logError(msg, e, null, (Position) null);
+                this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
             }
         }
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
@@ -366,7 +366,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 String msg = "Operation 'ballerinaConnector/record' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
                 error = e.getMessage();
-                this.clientLogger.logError(msg, e, null, (Position) null);
+                this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
             }
 
         }

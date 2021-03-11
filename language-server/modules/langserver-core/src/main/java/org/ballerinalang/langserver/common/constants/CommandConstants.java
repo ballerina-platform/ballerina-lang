@@ -100,7 +100,7 @@ public class CommandConstants {
 
     public static final String PULL_MOD_TITLE = "Pull from Ballerina Central";
 
-    public static final String CHANGE_RETURN_TYPE_TITLE = "Change return type to '";
+    public static final String CHANGE_RETURN_TYPE_TITLE = "Change return type to '%s'";
 
     public static final String ADD_TYPE_CAST_TITLE = "Add type cast to assignment";
 

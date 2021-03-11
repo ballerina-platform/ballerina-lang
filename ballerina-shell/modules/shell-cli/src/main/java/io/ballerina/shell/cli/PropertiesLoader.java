@@ -46,6 +46,8 @@ public class PropertiesLoader {
     public static final String COMMAND_VARS = "commands.vars";
     public static final String COMMAND_IMPORTS = "commands.imports";
     public static final String COMMAND_DCLNS = "commands.dclns";
+    public static final String COMMAND_DELETE = "commands.delete";
+    public static final String COMMAND_FILE = "commands.file";
 
     public static final String HELP_DESCRIPTION_POSTFIX = "commands.help.ps.description";
     public static final String HELP_EXAMPLE_POSTFIX = "commands.help.ps.example";

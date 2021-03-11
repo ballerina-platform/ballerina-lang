@@ -28,6 +28,7 @@ import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
@@ -67,7 +68,6 @@ public abstract class BalaWriter {
     private static final String RESOURCE_DIR_NAME = "resources";
     private static final String BLANG_SOURCE_EXT = ".bal";
     protected static final String PLATFORM = "platform";
-    protected static final String DEPENDENCY = "dependency";
     protected static final String PATH = "path";
 
     // Set the target as any for default bala.
@@ -76,6 +76,7 @@ public abstract class BalaWriter {
     private static final String BALLERINA_SHORT_VERSION = RepoUtils.getBallerinaShortVersion();
     private static final String BALLERINA_SPEC_VERSION = RepoUtils.getBallerinaSpecVersion();
     protected PackageContext packageContext;
+    Optional<CompilerPluginDescriptor> compilerPluginToml;
 
     protected BalaWriter() {
     }
@@ -119,6 +120,8 @@ public abstract class BalaWriter {
         addPackageSource(balaOutputStream);
         Optional<JsonArray> platformLibs = addPlatformLibs(balaOutputStream);
         addPackageJson(balaOutputStream, platformLibs);
+
+        addCompilerPlugin(balaOutputStream);
         addDependenciesJson(balaOutputStream);
     }
 
@@ -350,6 +353,8 @@ public abstract class BalaWriter {
 
     protected abstract Optional<JsonArray> addPlatformLibs(ZipOutputStream balaOutputStream)
             throws IOException;
+
+    protected abstract void addCompilerPlugin(ZipOutputStream balaOutputStream) throws IOException;
 
     // Following function was put in to handle a bug in windows zipFileSystem
     // Refer https://bugs.openjdk.java.net/browse/JDK-8195141

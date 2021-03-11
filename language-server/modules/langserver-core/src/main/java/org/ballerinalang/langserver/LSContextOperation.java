@@ -35,6 +35,7 @@ public enum LSContextOperation implements LSOperation {
     TXT_DOC_SYMBOL("text/documentSymbol"),
     TXT_CODE_ACTION("text/codeAction"),
     TXT_FORMATTING("text/formatting"),
+    TXT_RANGE_FORMATTING("text/rangeFormatting"),
     TXT_CODE_LENS("text/codeLens"),
     TXT_RENAME("text/rename"),
     TXT_IMPL("text/implementation"),
@@ -46,7 +47,8 @@ public enum LSContextOperation implements LSOperation {
     DOC_DIAGNOSTICS("ballerinaDocument/diagnostics"),
     LS_INIT("langserver/init"),
     SOURCE_PRUNER("sourcePruner"),
-    TEST_GEN("testGeneration");
+    TEST_GEN("testGeneration"),
+    CREATE_PROJECT("createProject");
 
     private final String name;
 

@@ -82,7 +82,7 @@ public class MavenTestCase extends BaseTest {
 
         Path tempFile = projectPath.resolve("temp.txt");
         Assert.assertFalse(tempFile.toFile().exists());
-        balClient.runMain("run", new String[]{".", tempFile.toString()}, envVariables, new String[]{},
+        balClient.runMain("run", new String[]{"--", tempFile.toString()}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(tempFile.toFile().exists());
         Files.delete(tempFile);
