@@ -296,10 +296,10 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         // the sequence type should be changed to that corresponding xml type
         boolean isSameType = true;
         Type tempExprType = null;
-        for (int i = 0; i< children.size(); i++) {
+        for (int i = 0; i < children.size(); i++) {
             if (i == 0) {
                 tempExprType = children.get(i).getType();
-            } else if ( tempExprType != children.get(i).getType()) {
+            } else if (tempExprType != children.get(i).getType()) {
                 isSameType = false;
                 break;
             }
