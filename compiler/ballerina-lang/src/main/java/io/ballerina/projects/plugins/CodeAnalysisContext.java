@@ -17,7 +17,9 @@
  */
 package io.ballerina.projects.plugins;
 
-import io.ballerina.toml.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+
+import java.util.Collection;
 
 /**
  * Represent the context required to initialize a {@code CodeAnalyzer}.
@@ -40,7 +42,17 @@ public interface CodeAnalysisContext {
      * one of the specified {@code SyntaxKind}s.
      *
      * @param analysisTask the analysis task to be executed
-     * @param syntaxKinds  the list of {@code SyntaxKind}s of syntax nodes on which the analysis task is triggered
+     * @param syntaxKind   the {@code SyntaxKind} of the nodes on which the analysis task is triggered
      */
-    void addSyntaxNodeAnalysisTask(AnalysisTask<SyntaxNodeAnalysisContext> analysisTask, SyntaxKind... syntaxKinds);
+    void addSyntaxNodeAnalysisTask(AnalysisTask<SyntaxNodeAnalysisContext> analysisTask, SyntaxKind syntaxKind);
+
+    /**
+     * Add a code analysis task to be triggered once the semantic analysis of a syntax node with
+     * one of the specified {@code SyntaxKind}s.
+     *
+     * @param analysisTask the analysis task to be executed
+     * @param syntaxKinds  the collection of {@code SyntaxKind}s of nodes on which the analysis task is triggered
+     */
+    void addSyntaxNodeAnalysisTask(AnalysisTask<SyntaxNodeAnalysisContext> analysisTask,
+                                   Collection<SyntaxKind> syntaxKinds);
 }

@@ -17,8 +17,14 @@
  */
 package io.ballerina.projects.plugins;
 
-import io.ballerina.compiler.api.symbols.Symbol;
-import org.ballerinalang.model.tree.Node;
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.tools.diagnostics.Diagnostic;
 
 /**
  * This class provides a context for the syntax node analysis task.
@@ -26,23 +32,61 @@ import org.ballerinalang.model.tree.Node;
  * @see CodeAnalysisContext
  * @since 2.0.0
  */
-public class SyntaxNodeAnalysisContext {
+public interface SyntaxNodeAnalysisContext {
 
     /**
      * Returns the syntax node that matches with one of the specified {@code SyntaxKind}s.
      *
      * @return the syntax node on which the {@code AnalysisTask<SyntaxNodeAnalysisContext>} executed
      */
-    public Node node() {
-        throw new UnsupportedOperationException();
-    }
+    Node node();
 
     /**
-     * Returns the {@code Symbol} of the declaration that encloses the syntax node.
+     * Returns the {@code ModuleId} of the {@code Module} that contains the syntax node.
      *
-     * @return the {@code Symbol} of the declaration that encloses the syntax node
+     * @return the {@code ModuleId} of the {@code Module} that contains the syntax node
      */
-    public Symbol symbol() {
-        throw new UnsupportedOperationException();
-    }
+    ModuleId moduleId();
+
+    /**
+     * Returns the {@code DocumentId} of the {@code Document} that contains the syntax node.
+     *
+     * @return the {@code DocumentId} of the {@code Document} that contains the syntax node
+     */
+    DocumentId documentId();
+
+    /**
+     * Returns the {@code SyntaxTree} associated with the {@code Node}.
+     *
+     * @return the {@code SyntaxTree}
+     */
+    SyntaxTree syntaxTree();
+
+    /**
+     * Returns the {@code SemanticModel} of the module that contains the syntax node.
+     *
+     * @return the {@code SemanticModel} of the module that contains the syntax node.
+     */
+    SemanticModel semanticModel();
+
+    /**
+     * Returns the current {@code Package} instance on which the compilation is being performed.
+     *
+     * @return the current {@code Package} instance
+     */
+    Package currentPackage();
+
+    /**
+     * Returns the compilation instance that captures the state of the package compilation.
+     *
+     * @return the package compilation instance
+     */
+    PackageCompilation compilation();
+
+    /**
+     * Reports a diagnostic against the compilation.
+     *
+     * @param diagnostic the {@code Diagnostic} to be reported
+     */
+    void reportDiagnostic(Diagnostic diagnostic);
 }
