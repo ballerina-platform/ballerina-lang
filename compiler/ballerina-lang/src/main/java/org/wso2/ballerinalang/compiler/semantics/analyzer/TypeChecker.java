@@ -2129,6 +2129,7 @@ public class TypeChecker extends BLangNodeVisitor {
         varRefExpr.pkgSymbol =
                 symResolver.resolvePrefixSymbol(env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
         if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
+            varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
         }
 

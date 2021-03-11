@@ -4078,21 +4078,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return bLangWildCardMatchPattern;
         }
 
-        if (kind == SyntaxKind.NUMERIC_LITERAL ||
-                kind == SyntaxKind.STRING_LITERAL ||
-                kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                kind == SyntaxKind.IDENTIFIER_TOKEN ||
-                kind == SyntaxKind.NULL_LITERAL ||
-                kind == SyntaxKind.NIL_LITERAL ||
-                kind == SyntaxKind.BOOLEAN_LITERAL ||
-                kind == SyntaxKind.UNARY_EXPRESSION) { // [Sign] int-literal/floating-point-literal -> unary-expr
-            BLangConstPattern bLangConstMatchPattern =
-                    (BLangConstPattern) TreeBuilder.createConstMatchPattern();
-            bLangConstMatchPattern.setExpression(createExpression(matchPattern));
-            bLangConstMatchPattern.pos = matchPatternPos;
-            return bLangConstMatchPattern;
-        }
-
         if (kind == SyntaxKind.TYPED_BINDING_PATTERN) { // var a
             TypedBindingPatternNode typedBindingPatternNode = (TypedBindingPatternNode) matchPattern;
             BLangVarBindingPatternMatchPattern bLangVarBindingPattern =
@@ -4126,9 +4111,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return transformFieldMatchPattern((FieldMatchPatternNode) matchPattern, matchPatternPos);
         }
 
-        // TODO : Remove this after all binding patterns are implemented
-        dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
-        return null;
+        // We reach here for simple-const-expr
+        assert (kind == SyntaxKind.NUMERIC_LITERAL ||
+                kind == SyntaxKind.STRING_LITERAL ||
+                kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                kind == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
+                kind == SyntaxKind.IDENTIFIER_TOKEN ||
+                kind == SyntaxKind.NULL_LITERAL ||
+                kind == SyntaxKind.NIL_LITERAL ||
+                kind == SyntaxKind.BOOLEAN_LITERAL ||
+                // [Sign] int/float -> unary-expr
+                kind == SyntaxKind.UNARY_EXPRESSION);
+
+        BLangConstPattern bLangConstMatchPattern = (BLangConstPattern) TreeBuilder.createConstMatchPattern();
+        bLangConstMatchPattern.setExpression(createExpression(matchPattern));
+        bLangConstMatchPattern.pos = matchPatternPos;
+        return bLangConstMatchPattern;
     }
 
     private BLangErrorMatchPattern transformErrorMatchPattern(ErrorMatchPatternNode errorMatchPatternNode,
@@ -4264,8 +4262,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Location pos = getPosition(bindingPattern);
         SyntaxKind patternKind = bindingPattern.kind();
         switch (patternKind) {
-            case WILDCARD_BINDING_PATTERN:
-                return transformWildCardBindingPattern(pos);
             case CAPTURE_BINDING_PATTERN:
                 return transformCaptureBindingPattern((CaptureBindingPatternNode) bindingPattern, pos);
             case LIST_BINDING_PATTERN:
@@ -4280,10 +4276,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 return transformFieldBindingPattern(bindingPattern, pos);
             case ERROR_BINDING_PATTERN:
                 return transformErrorBindingPattern((ErrorBindingPatternNode) bindingPattern, pos);
+            case WILDCARD_BINDING_PATTERN:
             default:
-                // TODO : Remove this after all binding patterns are implemented
-                dlog.error(pos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
-                return null;
+                assert patternKind == SyntaxKind.WILDCARD_BINDING_PATTERN;
+                return transformWildCardBindingPattern(pos);
         }
     }
 
