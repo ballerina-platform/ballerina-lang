@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class CreateVariableTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "create-variable";
