@@ -4191,14 +4191,17 @@ public class TypeChecker extends BLangNodeVisitor {
         this.nonErrorLoggingCheck = true;
         this.dlog.mute();
 
-        if (types.isAssignable(childTypesInXMLSequence, expType)) {
-            node.type = symTable.xmlType;
-            return node.type;
-        }
+        boolean isUnionAssignable = types.isAssignable(childTypesInXMLSequence, expType);
+
         this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         this.dlog.setErrorCount(errorCount);
         if (!prevNonErrorLoggingCheck) {
             this.dlog.unmute();
+        }
+
+        if (isUnionAssignable) {
+            node.type = symTable.xmlType;
+            return node.type;
         }
         dlog.error(node.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, childTypesInXMLSequence);
         return symTable.semanticError;

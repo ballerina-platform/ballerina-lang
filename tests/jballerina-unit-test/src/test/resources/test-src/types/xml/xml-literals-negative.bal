@@ -1,4 +1,4 @@
-import ballerina/math as x;
+import ballerina/io as x;
 
 function testRestrictedElementPrefix() returns (xml) {
     xml x = xml `<xmlns:foo>hello</xmlns:foo>`;
@@ -17,14 +17,6 @@ function xmlTemplateWithNonXML() {
 
 function defineEmptyNamespaceInline() {
     xml x = xml `<root xmlns:ns0=""/>`;
-}
-
-function testTextWithMultiTypeExpressions() {
-    int v1 = 11;
-    string v2 = "world";
-    xml v3 = xml `<foo>apple</foo>`;
-    
-    xml x = xml `hello ${v1} ${v2}. How are you ${v3} ?`;
 }
 
 function testRedeclareNamespaces() {
@@ -63,23 +55,13 @@ function testMismatchingElementTags() {
 }
 
 function dummyFunctionToUseMath() {
-    float f = x:random();
+    x:println("text");
 }
 
 function testXmlNsInterpolation() returns xml {
     string ns = "http://wso2.com/";
     xml x = xml `<foo xmlns="${ns}" xmlns:foo="${ns}">hello</foo>`;
     return x;
-}
-
-function testXMLLiteralWithEscapeSequence() {
-    xml x1 = xml `hello &lt; &gt; &amp;`;
-    string[] strs = [];
-    foreach xml e in x1 {
-        if e is string {
-            strs.push(e);
-        }
-    }
 }
 
 function testXMLSequence() {

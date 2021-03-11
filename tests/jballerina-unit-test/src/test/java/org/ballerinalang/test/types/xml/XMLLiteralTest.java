@@ -50,71 +50,62 @@ public class XMLLiteralTest {
         result = BCompileUtil.compile("test-src/types/xml/xml-literals.bal");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testXMLNegativeSemantics() {
         negativeResult = BCompileUtil.compile("test-src/types/xml/xml-literals-negative.bal");
         int index = 0;
-        BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 5, 19);
-        BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 5, 36);
+        BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 4, 19);
+        BAssertUtil.validateError(negativeResult, index++, "invalid namespace prefix 'xmlns'", 4, 36);
 
         // undeclared element prefix
-        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 10, 19);
-        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 10, 34);
+        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 9, 19);
+        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'ns1'", 9, 34);
 
         // text with multi type expressions
         BAssertUtil.validateError(negativeResult, index++,
                                   "incompatible types: expected '(int|float|decimal|string|boolean|xml)', found 'map'",
-                                  16, 59);
-
-        // text with invalid multi type expressions
-        BAssertUtil.validateError(negativeResult, index++,
-                                  "incompatible types: expected '(int|float|decimal|string|boolean)', found 'xml'",
-                                  28, 51);
+                                  15, 59);
 
         // namespace conflict with block scope namespace
-        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'ns0'", 37, 46);
+        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'ns0'", 28, 46);
 
         // namespace conflict with package import
-        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 42, 5);
+        BAssertUtil.validateError(negativeResult, index++, "redeclared symbol 'x'", 33, 5);
 
         // update qname
-        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 47, 5);
+        BAssertUtil.validateError(negativeResult, index++, "cannot assign values to an xml qualified name", 38, 5);
 
         // use of undefined namespace for qname
-        BAssertUtil.validateError(negativeResult, index++, "cannot find xml namespace prefix 'ns0'", 55, 24);
+        BAssertUtil.validateError(negativeResult, index++, "cannot find xml namespace prefix 'ns0'", 46, 24);
 
         // define namespace with empty URI
         BAssertUtil.validateError(negativeResult, index++, "cannot bind prefix 'ns0' to the empty namespace name",
-                59, 5);
+                50, 5);
 
         // XML elements with mismatching start and end tags
         BAssertUtil.validateError(negativeResult, index++, "mismatching start and end tags found in xml element",
-                                  63, 18);
+                                  54, 18);
         // XML interpolation is not allowed to interpolate XML namespace attributes
-        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 72, 29);
-        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 72, 47);
-
-        // XML iterator return type
-        BAssertUtil.validateError(negativeResult, index++, "incompatible types: 'xml' will not be matched to 'string'",
-                81, 29);
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 63, 29);
+        BAssertUtil.validateError(negativeResult, index++, "xml namespaces cannot be interpolated", 63, 47);
 
         // XML sequence value assignment
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'xml<xml:Text>', found 'xml'", 86, 29);
+                        "'xml<xml:Text>', found 'xml'", 68, 25);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'xml:Text', found 'xml'", 87, 29);
+                        "'xml:Text', found 'xml'", 69, 21);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'xml<(xml:Text|xml:Comment)>', found 'xml:Element'", 88, 29);
+                        "'xml<(xml:Text|xml:Comment)>', found 'xml:Element'", 70, 43);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'(xml:Text|xml:Comment)', found 'other'", 89, 29);
+                        "'(xml:Text|xml:Comment)', found 'other'", 71, 38);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 90, 29);
+                        "'(xml<xml:Text>|xml<xml:Comment>)', found 'xml:Element'", 72, 49);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'(xml<xml:Text>|xml<xml:Comment>)', found 'other'", 91, 29);
+                        "'(xml<xml:Text>|xml<xml:Comment>)', found 'other'", 73, 44);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'(xml:Text|xml:Comment)', found 'xml:Element'", 92, 29);
+                        "'(xml:Text|xml:Comment)', found 'xml:Element'", 74, 39);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'(xml:Text|xml:Comment)', found 'other'", 93, 29);
+                        "'(xml:Text|xml:Comment)', found 'other'", 75, 34);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 

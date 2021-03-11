@@ -25,18 +25,14 @@ function testXMLSequence() {
     assert(x12.toString(), "<!--comment-->");
     'xml:Text|'xml:Comment x14 = xml `<!--comment-->`;
     assert(x14.toString(), "<!--comment-->");
-
     xml<'xml:Text|'xml:Comment> x10 = xml `<!--comment-->text1`;
     assert(x10.toString(), "<!--comment-->text1");
-
-    //xml<'xml:Element|'xml:ProcessingInstruction> x11 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
-    //assert(x11.toString(), "<root> text1<foo>100</foo><foo>200</foo></root><?foo?>");
-
-    //xml<'xml:Text>|xml<'xml:Comment> x13 = xml `<!--comment-->text1`;
-    //assert(x13.toString(), "<!--comment-->text1");
-
-    //'xml:Text|'xml:Comment x15 = xml `<!--comment-->text1`;
-    //assert(x15.toString(), "<!--comment-->text1");
+    xml<'xml:Element|'xml:ProcessingInstruction> x11 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
+    assert(x11.toString(), "<root> text1<foo>100</foo><foo>200</foo></root><?foo ?>");
+    xml<'xml:Text>|xml<'xml:Comment> x13 = xml `<!--comment-->text1`;
+    assert(x13.toString(), "<!--comment-->text1");
+    'xml:Text|'xml:Comment x15 = xml `<!--comment-->text1`;
+    assert(x15.toString(), "<!--comment-->text1");
 }
 
 function testXMLTextLiteral() returns [xml, xml, xml, xml, xml, xml] {
@@ -120,7 +116,7 @@ function testTextWithValidMultiTypeExpressions() returns (xml) {
 
 function testArithmaticExpreesionInXMLTemplate() returns (xml) {
     xml x1 = xml `<foo id="hello ${ 3 + 6 / 3}" >hello</foo>`;
-    
+
     return x1;
 }
 
