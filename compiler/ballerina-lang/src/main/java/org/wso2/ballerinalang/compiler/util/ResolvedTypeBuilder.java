@@ -255,6 +255,10 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BInvokableType originalType, BType newType) {
+        if (Symbols.isFlagOn(originalType.flags, Flags.ANY_FUNCTION)) {
+            return originalType;
+        }
+
         boolean hasNewType = false;
         List<BType> paramTypes = new ArrayList<>();
         for (BType type : originalType.paramTypes) {

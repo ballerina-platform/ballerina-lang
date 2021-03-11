@@ -72,6 +72,10 @@ public abstract class BIRVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BIRNode.BIRServiceDeclaration birServiceDecl) {
+        throw new AssertionError();
+    }
+
     // Terminating instructions
 
     public void visit(BIRTerminator.GOTO birGoto) {

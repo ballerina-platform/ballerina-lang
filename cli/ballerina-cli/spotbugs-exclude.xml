@@ -30,6 +30,10 @@
         <Bug pattern="UWF_UNWRITTEN_FIELD"/>
     </Match>
     <Match>
+        <Class name="io.ballerina.cli.cmd.model.CommandCompletions"/>
+        <Bug pattern="UWF_UNWRITTEN_FIELD"/>
+    </Match>
+    <Match>
         <Class name="io.ballerina.cli.task.RunTestsTask"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_OF_NONNULL_VALUE"/>
     </Match>

@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.ForEachStatementNode;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
@@ -95,5 +96,20 @@ public class ForEachStatementNodeContext extends AbstractCompletionProvider<ForE
         Position cursor = context.getCursorPosition();
         return (cursor.getLine() < inKWEnd.line())
                 || (cursor.getLine() == inKWEnd.line() && cursor.getCharacter() > inKWEnd.offset());
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ForEachStatementNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token matchKeyword = node.forEachKeyword();
+        BlockStatementNode blockStatement = (BlockStatementNode) node.blockStatement();
+        
+        /*
+        Validates the following
+        eg: 1) foreach ... <cursor>
+            2) foreach ... <cursor>{
+         */
+        return !matchKeyword.isMissing() && cursor >= matchKeyword.textRange().endOffset() + 1
+                && ((blockStatement.isMissing() || cursor < blockStatement.openBraceToken().textRange().endOffset()));
     }
 }

@@ -164,5 +164,13 @@ public enum Flag {
     /**
      * Indicates flagged node is a rest parameter.
      */
-    REST_PARAM
+    REST_PARAM,
+    /**
+     * Indicates flagged variable is a field.
+     */
+    FIELD,
+    /**
+     * Indicates flagged node is a `function` type.
+     */
+    ANY_FUNCTION;
 }
