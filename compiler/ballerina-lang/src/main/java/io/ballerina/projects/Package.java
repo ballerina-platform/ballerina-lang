@@ -1,6 +1,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.internal.ManifestBuilder;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -28,6 +29,7 @@ public class Package {
     private Optional<BallerinaToml> ballerinaToml = null;
     private Optional<DependenciesToml> dependenciesToml = null;
     private Optional<CloudToml> cloudToml = null;
+    private Optional<CompilerPluginToml> compilerPluginToml = null;
 
     private Package(PackageContext packageContext, Project project) {
         this.packageContext = packageContext;
@@ -74,6 +76,10 @@ public class Package {
 
     public PackageDescriptor descriptor() {
         return packageContext.descriptor();
+    }
+
+    public Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
+        return packageContext.compilerPluginDescriptor();
     }
 
     public PackageManifest manifest() {
@@ -168,6 +174,14 @@ public class Package {
         return this.cloudToml;
     }
 
+    public Optional<CompilerPluginToml> compilerPluginToml() {
+        if (null == this.compilerPluginToml) {
+            this.compilerPluginToml = this.packageContext.compilerPluginTomlContext()
+                    .map(c -> CompilerPluginToml.from(c, this));
+        }
+        return this.compilerPluginToml;
+    }
+
     public Optional<PackageMd> packageMd() {
         if (null == this.packageMd) {
             this.packageMd = this.packageContext.packageMdContext().map(c ->
@@ -218,6 +232,7 @@ public class Package {
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
         private TomlDocumentContext cloudTomlContext;
+        private TomlDocumentContext compilerPluginTomlContext;
         private MdDocumentContext packageMdContext;
 
         public Modifier(Package oldPackage) {
@@ -230,6 +245,7 @@ public class Package {
             this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
             this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
             this.cloudTomlContext = oldPackage.packageContext.cloudTomlContext().orElse(null);
+            this.compilerPluginTomlContext = oldPackage.packageContext.compilerPluginTomlContext().orElse(null);
             this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
         }
 
@@ -298,6 +314,29 @@ public class Package {
         }
 
         /**
+         * Adds a Compiler plugin toml.
+         *
+         * @param documentConfig configuration of the toml document
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier addCompilerPluginToml(DocumentConfig documentConfig) {
+            TomlDocumentContext tomlDocumentContext = TomlDocumentContext.from(documentConfig);
+            this.compilerPluginTomlContext = tomlDocumentContext;
+            updateManifest();
+            return this;
+        }
+
+        /**
+         * Remove Compiler plugin toml.
+         *
+         * @return Package.Modifier which contains the updated package
+         */
+        public Modifier removeCompilerPluginToml() {
+            this.compilerPluginTomlContext = null;
+            return this;
+        }
+
+        /**
          * Adds a package md.
          *
          * @param documentConfig configuration of the toml document
@@ -338,6 +377,11 @@ public class Package {
             return this;
         }
 
+        Modifier updateCompilerPluginToml(CompilerPluginToml compilerPluginToml) {
+            this.compilerPluginTomlContext = compilerPluginToml.compilerPluginTomlContext();
+            return this;
+        }
+
         /**
          * Returns the updated package created by a module add/remove/update operation.
          *
@@ -359,8 +403,8 @@ public class Package {
         private Package createNewPackage() {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.ballerinaTomlContext, this.dependenciesTomlContext, this.cloudTomlContext,
-                    this.packageMdContext,  this.compilationOptions, this.moduleContextMap,
-                    this.pkgDescDependencyGraph);
+                    this.compilerPluginTomlContext, this.packageMdContext,  this.compilationOptions,
+                    this.moduleContextMap, this.pkgDescDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }
@@ -368,6 +412,7 @@ public class Package {
         private void updateManifest() {
             ManifestBuilder manifestBuilder = ManifestBuilder.from(this.ballerinaTomlContext.tomlDocument(),
                     Optional.ofNullable(this.dependenciesTomlContext).map(d -> d.tomlDocument()).orElse(null),
+                    Optional.ofNullable(this.compilerPluginTomlContext).map(d -> d.tomlDocument()).orElse(null),
                     this.project.sourceRoot());
             this.packageManifest = manifestBuilder.packageManifest();
         }

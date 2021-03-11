@@ -53,7 +53,9 @@ public class RemotePackageRepository implements PackageRepository {
         if (Files.notExists(cacheDirectory)) {
             throw new ProjectException("cache directory does not exists: " + cacheDirectory);
         }
-        FileSystemRepository fileSystemRepository = new FileSystemRepository(environment, cacheDirectory);
+        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
+        FileSystemRepository fileSystemRepository = new FileSystemRepository(
+                environment, cacheDirectory, ballerinaShortVersion);
         Proxy proxy = initializeProxy(settings.getProxy());
         CentralAPIClient client = new CentralAPIClient(repoUrl, proxy);
 

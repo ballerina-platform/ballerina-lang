@@ -91,6 +91,17 @@ public class BasicWorkerActionsNegativeTest {
 
     }
 
+    @Test
+    public void testAsyncSendAsExpression() {
+        // TODO: support async send as expression issue #24849
+        CompileResult compileResult = BCompileUtil.compile("test-src/workers/worker_async_send_as_expression.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "async send action not yet supported as expression",
+                19, 16);
+
+        Assert.assertEquals(compileResult.getErrorCount(), index);
+    }
+
     @AfterClass
     public void tearDown() {
         resultNegative = null;

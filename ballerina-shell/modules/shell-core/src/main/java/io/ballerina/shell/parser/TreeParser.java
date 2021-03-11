@@ -22,6 +22,10 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.TreeParserException;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 /**
  * In this stage the correct syntax tree is identified.
  * The root node of the syntax tree must be the corresponding
@@ -34,6 +38,20 @@ import io.ballerina.shell.exceptions.TreeParserException;
  */
 public abstract class TreeParser extends DiagnosticReporter {
     /**
+     * Parses a collection of strings string into Nodes.
+     *
+     * @param statements Input source code statements.
+     * @return Syntax tree for the source code.
+     */
+    public Collection<Node> parse(Collection<String> statements) throws TreeParserException {
+        List<Node> nodes = new ArrayList<>();
+        for (String statement : statements) {
+            nodes.add(parse(statement));
+        }
+        return nodes;
+    }
+
+    /**
      * Parses a source code string into a Node.
      * Input source code is expected to be a single statement/expression.
      *
@@ -41,4 +59,13 @@ public abstract class TreeParser extends DiagnosticReporter {
      * @return Syntax tree for the source code.
      */
     public abstract Node parse(String statement) throws TreeParserException;
+
+    /**
+     * Parses a source code entirely.
+     * Input source code is expected to only have declarations.
+     *
+     * @param source Source to parse.
+     * @return Parsed declaration nodes.
+     */
+    public abstract Collection<Node> parseDeclarations(String source) throws TreeParserException;
 }

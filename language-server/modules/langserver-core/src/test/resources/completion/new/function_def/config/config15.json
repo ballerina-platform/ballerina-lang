@@ -69,11 +69,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.array",
+      "label": "ballerina/lang.value",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "array",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -87,7 +87,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.array;\n"
+          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -111,29 +111,6 @@
             }
           },
           "newText": "import ballerina/jballerina.java;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.value",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "value",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.value;\n"
         }
       ]
     },
@@ -180,6 +157,29 @@
             }
           },
           "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -456,19 +456,37 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testParam1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "testParam1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testParam2",
       "kind": "Variable",
       "detail": "int",
       "sortText": "B",
       "insertText": "testParam2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunction1(int testParam1, int testParam2)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` testParam1  \n- `int` testParam2(Defaultable)"
+        }
+      },
+      "sortText": "C",
+      "insertText": "testFunction1(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "testParam1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "testParam1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -484,24 +502,6 @@
       "sortText": "C",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunction1(int testParam1, int testParam2)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` testParam1  \n- `int` testParam2(Defaultable)  \n  \n**Returns** `()`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "testFunction1(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     }
   ]
 }

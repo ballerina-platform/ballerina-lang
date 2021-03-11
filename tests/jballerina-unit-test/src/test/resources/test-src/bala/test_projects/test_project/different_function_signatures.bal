@@ -13,6 +13,10 @@ public function getIntArray() returns int[] {
     return [1,2,3,4];
 }
 
+public function anyFunction(function f) returns function {
+    return f;
+}
+
 
 //------------- Testing a function having required and rest parameters --------
 

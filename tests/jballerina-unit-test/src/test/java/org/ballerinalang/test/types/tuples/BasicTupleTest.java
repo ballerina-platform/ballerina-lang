@@ -174,6 +174,11 @@ public class BasicTupleTest {
         BRunUtil.invoke(result, "testAnonRecordsInTupleTypeDescriptor");
     }
 
+    @Test
+    public void testTupleWithUnion() {
+        BRunUtil.invoke(result, "testTupleWithUnion");
+    }
+
     @Test(description = "Test negative scenarios of assigning tuple literals")
     public void testNegativeTupleLiteralAssignments() {
         Assert.assertEquals(resultNegative.getErrorCount(), 33);
@@ -234,13 +239,14 @@ public class BasicTupleTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'int', found 'S1|S2'", 154, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid list index expression: value space '3|4|5' out of range", 155, 19);
+                "invalid list member access expression: value space '3|4|5' out of range", 155, 19);
         BAssertUtil.validateError(resultNegative, i++,
                 "incompatible types: expected 'int', found '0|1|2|S1'", 156, 19);
         BAssertUtil.validateError(resultNegative, i++,
                                   "incompatible types: expected 'int', found '(0|1|2|S1|S2)'", 157, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "invalid list index expression: value space '(3|4|5|6)' out of range", 158, 19);
+                                  "invalid list member access expression: value space '(3|4|5|6)' " +
+                                          "out of range", 158, 19);
         BAssertUtil.validateError(resultNegative, i, "list index out of range: index: '-1'", 165, 19);
     }
 
@@ -262,12 +268,12 @@ public class BasicTupleTest {
     @Test(description = "Test invalid var declaration with tuples")
     public void testInvalidTupleDeclaredWithVar() {
         int i = 30;
-        BAssertUtil.validateError(resultNegative, i++, "invalid tuple binding pattern; member variable count mismatch" +
-                " with member type count", 172, 9);
-        BAssertUtil.validateError(resultNegative, i++, "invalid tuple binding pattern; member variable count mismatch" +
-                " with member type count", 173, 9);
-        BAssertUtil.validateError(resultNegative, i, "invalid tuple binding pattern; member variable count mismatch" +
-                " with member type count", 174, 9);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; " +
+                "member variable count mismatch with member type count", 172, 9);
+        BAssertUtil.validateError(resultNegative, i++, "invalid list binding pattern; member variable " +
+                "count mismatch with member type count", 173, 9);
+        BAssertUtil.validateError(resultNegative, i, "invalid list binding pattern; member variable " +
+                "count mismatch with member type count", 174, 9);
     }
 
     @Test
