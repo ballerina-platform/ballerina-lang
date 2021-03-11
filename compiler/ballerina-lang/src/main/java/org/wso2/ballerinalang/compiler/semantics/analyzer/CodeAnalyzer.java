@@ -2261,6 +2261,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) symbol.type;
+                if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+                    return;
+                }
                 if (invokableType.paramTypes != null) {
                     for (BType paramType : invokableType.paramTypes) {
                         checkForExportableType(paramType.tsymbol, pos);
@@ -3513,7 +3516,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-
+        if (functionTypeNode.flagSet.contains(Flag.ANY_FUNCTION)) {
+            return;
+        }
         functionTypeNode.params.forEach(node -> analyzeNode(node, env));
         analyzeTypeNode(functionTypeNode.returnTypeNode, env);
     }

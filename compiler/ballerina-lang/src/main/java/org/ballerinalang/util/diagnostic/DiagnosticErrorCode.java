@@ -208,6 +208,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_INIT_INVOCATION("BCE2419", "invalid.init.invocation"),
     INVALID_RESOURCE_FUNCTION_INVOCATION("BCE2420", "invalid.resource.function.invocation"),
     INVALID_ACTION_INVOCATION("BCE2421", "invalid.action.invocation"),
+    INVALID_FUNCTION_POINTER_INVOCATION_WITH_TYPE("BCE2422", "invalid.function.pointer.invocation.with.type"),
 
     TYPE_CAST_NOT_YET_SUPPORTED("BCE2423", "type.cast.not.yet.supported.for.type"),
     EQUALITY_NOT_YET_SUPPORTED("BCE2424", "equality.not.yet.supported.for.type"),
@@ -518,6 +519,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNNECESSARY_CONDITION("BCE3604", "unnecessary.condition"),
 
     INVALID_USAGE_OF_CLONE("BCE3605", "clone.invocation.invalid"),
+    CANNOT_ITERATE_A_CLOSED_RECORD_WITH_NO_FIELDS("BCE3606", "cannot.iterate.a.closed.record.with.no.fields"),
 
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("BCE3700", "partially.initialized.variable"),
@@ -694,9 +696,10 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3989", "type.does.not.support.xml.navigation.access"),
     XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3990", "xml.function.does.not.support.argument.type"),
     ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3991", "async.send.action.not.yet.supported.as.expression"),
-    INVALID_ITERABLE_OBJECT_TYPE("BCE3992", "invalid.iterable.type"),
-    INVALID_ITERABLE_COMPLETION_TYPE_IN_NEXT_FUNCTION("BCE3993",
-            "invalid.iterable.completion.type.in.foreach.next.function"),
+    UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR("BCE3992", "unused.variable.with.inferred.type.including.error"),
+    INVALID_ITERABLE_OBJECT_TYPE("BCE3993", "invalid.iterable.type"),
+    INVALID_ITERABLE_COMPLETION_TYPE_IN_NEXT_FUNCTION("BCE3994",
+            "invalid.iterable.completion.type.in.foreach.next.function")
     ;
 
     private String diagnosticId;

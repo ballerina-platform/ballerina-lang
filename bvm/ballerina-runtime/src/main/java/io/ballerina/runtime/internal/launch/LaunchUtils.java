@@ -136,7 +136,7 @@ public class LaunchUtils {
     public static void initConfigurableVariables(Path configFilePath, Map<Module, VariableKey[]> configurationData) {
         try {
             List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-            supportedConfigProviders.add(new ConfigTomlProvider(configFilePath));
+            supportedConfigProviders.add(new ConfigTomlProvider(configFilePath, configurationData));
             ConfigResolver configResolver = new ConfigResolver(configurationData, supportedConfigProviders);
             ConfigMap.setConfigurableMap(configResolver.resolveConfigs());
         } catch (ConfigException exception) {

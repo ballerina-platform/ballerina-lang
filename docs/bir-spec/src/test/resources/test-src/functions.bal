@@ -138,6 +138,9 @@ public function anonymousFunctions() {
             function (string x, string y) returns string {
                 return x + y;
             };
+    function func = function (string x, string y) returns string {
+                        return x + y;
+                    };
     _ = anonFunction("Hello ", "World.!!!");
 
     var anonFunction2 = function (string x, string y, string... z) returns string {

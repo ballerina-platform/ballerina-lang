@@ -9,7 +9,7 @@
   },
   {
     "description": "Query join expression evaluation.",
-    "code": "Report[] reportList = from var student in studentList\n join var department in departmentList\n on student.deptId equals department.deptId\n limit 3\n select { name: student.firstName + \" \" + student.lastName, deptName: department.deptName, degree: \"Bachelor of Science\", intakeYear: student.intakeYear }; reportList",
+    "code": "from var student in studentList\n join var department in departmentList\n on student.deptId equals department.deptId\n limit 3\n select { name: student.firstName + \" \" + student.lastName, deptName: department.deptName, degree: \"Bachelor of Science\", intakeYear: student.intakeYear }",
     "expr": "[{\"name\":\"Michelle Sadler\",\"deptName\":\"Physics\",\"degree\":\"Bachelor of Science\",\"intakeYear\":1990},{\"name\":\"Ranjan Fonseka\",\"deptName\":\"Chemistry\",\"degree\":\"Bachelor of Science\",\"intakeYear\":2001},{\"name\":\"Martin Guthrie\",\"deptName\":\"Physics\",\"degree\":\"Bachelor of Science\",\"intakeYear\":2002}]"
   }
 ]

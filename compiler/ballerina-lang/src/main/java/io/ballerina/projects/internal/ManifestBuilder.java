@@ -29,6 +29,7 @@ import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.SemanticVersion;
 import io.ballerina.projects.TomlDocument;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.util.FileUtils;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
@@ -70,6 +71,7 @@ public class ManifestBuilder {
 
     private TomlDocument ballerinaToml;
     private Optional<TomlDocument> dependenciesToml;
+    private Optional<TomlDocument> compilerPluginToml;
     private DiagnosticResult diagnostics;
     private List<Diagnostic> diagnosticList;
     private PackageManifest packageManifest;
@@ -84,17 +86,20 @@ public class ManifestBuilder {
     private static final String KEYWORDS = "keywords";
     private static final String EXPORTED = "exported";
 
-    private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml, Path projectPath) {
+    private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml, TomlDocument compilerPluginToml,
+            Path projectPath) {
         this.projectPath = projectPath;
         this.ballerinaToml = ballerinaToml;
         this.dependenciesToml = Optional.ofNullable(dependenciesToml);
+        this.compilerPluginToml = Optional.ofNullable(compilerPluginToml);
         this.diagnosticList = new ArrayList<>();
         this.packageManifest = parseAsPackageManifest();
         this.buildOptions = parseBuildOptions();
     }
 
-    public static ManifestBuilder from(TomlDocument ballerinaToml, TomlDocument dependenciesToml, Path projectPath) {
-        return new ManifestBuilder(ballerinaToml, dependenciesToml, projectPath);
+    public static ManifestBuilder from(TomlDocument ballerinaToml, TomlDocument dependenciesToml,
+            TomlDocument compilerPluginToml, Path projectPath) {
+        return new ManifestBuilder(ballerinaToml, dependenciesToml, compilerPluginToml, projectPath);
     }
 
     public DiagnosticResult diagnostics() {
@@ -178,8 +183,17 @@ public class ManifestBuilder {
         TopLevelNode platformNode = otherEntries.remove("platform");
         Map<String, PackageManifest.Platform> platforms = getPlatforms(platformNode);
 
-        return PackageManifest.from(packageDescriptor, dependencies, platforms, otherEntries, diagnostics(), license,
-                                    authors, keywords, exported, repository);
+        // Compiler plugin descriptor
+        Optional<CompilerPluginDescriptor> pluginDescriptor;
+        if (this.compilerPluginToml.isPresent()) {
+            pluginDescriptor = Optional.of(CompilerPluginDescriptor.from(this.compilerPluginToml.get()));
+        } else {
+            pluginDescriptor = Optional.empty();
+        }
+
+        return PackageManifest
+                .from(packageDescriptor, pluginDescriptor, dependencies, platforms, otherEntries, diagnostics(),
+                      license, authors, keywords, exported, repository);
     }
 
     private PackageDescriptor getPackageDescriptor(TomlTableNode tomlTableNode) {
@@ -362,6 +376,8 @@ public class ManifestBuilder {
         }
         boolean taintCheck =
                 getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.TAINT_CHECK.toString());
+        boolean listConflictedClasses =
+                getBooleanFromBuildOptionsTableNode(tableNode, CompilerOptionName.LIST_CONFLICTED_CLASSES.toString());
 
         return buildOptionsBuilder
                 .skipTests(skipTests)
@@ -371,6 +387,7 @@ public class ManifestBuilder {
                 .codeCoverage(codeCoverage)
                 .cloud(cloud)
                 .taintCheck(taintCheck)
+                .listConflictedClasses(listConflictedClasses)
                 .build();
     }
 

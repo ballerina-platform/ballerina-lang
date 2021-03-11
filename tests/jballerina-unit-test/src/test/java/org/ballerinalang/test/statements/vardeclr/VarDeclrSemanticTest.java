@@ -45,18 +45,12 @@ public class VarDeclrSemanticTest {
     public void testIncompleteListenerDecl() {
         CompileResult result = BCompileUtil.compile("test-src/statements/vardeclr/incomplete_listener_decl.bal");
         int indx = 0;
-        validateError(result, indx++, "listener variable incompatible types: '$missingNode$_0' is not a Listener " +
-                        "object",
-                      17, 1);
-        validateError(result, indx++, "missing open parenthesis token", 19, 10);
-        validateError(result, indx++, "required parameter after the defaultable parameter", 19, 10);
-        validateError(result, indx++, "unknown type 'foo'", 19, 10);
+        validateError(result, indx++, "listener variable incompatible types: 'foo' is not a Listener object", 17, 1);
+        validateError(result, indx++, "incompatible types: expected '(function|error)', found '()'", 19, 13);
         validateError(result, indx++, "missing equal token", 19, 13);
-        validateError(result, indx++, "missing close parenthesis token", 22, 1);
-        validateError(result, indx++, "missing equal token", 22, 1);
-        validateError(result, indx++, "missing identifier", 22, 1);
-        validateError(result, indx++, "missing identifier", 22, 1);
-        validateError(result, indx++, "missing semicolon token", 22, 1);
+        validateError(result, indx++, "missing class keyword", 19, 16);
+        validateError(result, indx++, "missing identifier", 19, 16);
+        validateError(result, indx++, "missing semicolon token", 19, 16);
         assertEquals(result.getErrorCount(), indx);
     }
 

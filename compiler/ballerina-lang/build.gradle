@@ -41,12 +41,14 @@ description = 'Ballerina - Lang'
 checkstyleMain {
     exclude 'io/ballerina/projects/internal/bala/BalaJson.java'
     exclude 'io/ballerina/projects/internal/bala/PackageJson.java'
+    exclude 'io/ballerina/projects/internal/bala/CompilerPluginJson.java'
     exclude 'org/ballerinalang/toml/model/Module.java'
     exclude 'org/ballerinalang/toml/model/Bala.java'
     exclude 'org/ballerinalang/toml/model/LockFile.java'
     exclude 'org/ballerinalang/toml/model/LockFileImport.java'
     exclude 'io/ballerina/projects/internal/model/BalaJson.java'
     exclude 'io/ballerina/projects/internal/model/PackageJson.java'
+    exclude 'io/ballerina/projects/internal/model/CompilerPluginToml.java'
 }
 
 test {

@@ -1155,6 +1155,10 @@ public class Types {
             return false;
         }
 
+        if (Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION)) {
+            return true;
+        }
+
         // For invokable types with typeParam parameters, we have to check whether the source param types are
         // covariant with the target param types.
         if (containsTypeParams(target)) {
@@ -1354,6 +1358,14 @@ public class Types {
     private boolean checkFunctionTypeEquality(BInvokableType source, BInvokableType target,
                                               Set<TypePair> unresolvedTypes, TypeEqualityPredicate equality) {
         if (hasIncompatibleIsolatedFlags(source, target) || hasIncompatibleTransactionalFlags(source, target)) {
+            return false;
+        }
+
+        if (Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION) && Symbols.isFlagOn(source.flags, Flags.ANY_FUNCTION)) {
+            return true;
+        }
+
+        if (Symbols.isFlagOn(target.flags, Flags.ANY_FUNCTION) || Symbols.isFlagOn(source.flags, Flags.ANY_FUNCTION)) {
             return false;
         }
 
@@ -1905,6 +1917,9 @@ public class Types {
 
         if (!recordType.sealed) {
             unionType.add(recordType.restFieldType);
+        } else if (fields.size() == 0) {
+            dlog.error(recordType.tsymbol.pos, DiagnosticErrorCode.CANNOT_ITERATE_A_CLOSED_RECORD_WITH_NO_FIELDS);
+            return symTable.semanticError;
         }
 
         for (BField field : fields.values()) {
