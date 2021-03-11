@@ -170,8 +170,8 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
@@ -4160,8 +4160,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 || attrName.prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE);
     }
 
-    public BType resolveXMLSequenceUnionType(BLangXMLSequenceLiteral node, BType expType, boolean isSameType, BType sameType,
-                                     List<BType> childXMLTypes){
+    public BType resolveXMLSequenceUnionType(BLangXMLSequenceLiteral node, BType expType, boolean isSameType,
+                                             BType sameType, List<BType> childXMLTypes) {
         Set<BType> membersofExpectedType = ((BUnionType) expType).getMemberTypes();
         Set<BType> membersofXMLType = types.getExpandedXMLBuiltinSubtypes().getMemberTypes();
 
@@ -4242,8 +4242,8 @@ public class TypeChecker extends BLangNodeVisitor {
                 resultType = types.checkType(bLangXMLSequenceLiteral, tempExprType, targetConstraint);
                 return;
             }
-            resultType = resolveXMLSequenceUnionType(bLangXMLSequenceLiteral, targetConstraint, isSameType, tempExprType,
-                    childXMLTypes);
+            resultType = resolveXMLSequenceUnionType(bLangXMLSequenceLiteral, targetConstraint, isSameType,
+                    tempExprType, childXMLTypes);
         } else if (TypeTags.isXMLTypeTag(expType.tag)) {
             if (!isSameType) {
                 dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,

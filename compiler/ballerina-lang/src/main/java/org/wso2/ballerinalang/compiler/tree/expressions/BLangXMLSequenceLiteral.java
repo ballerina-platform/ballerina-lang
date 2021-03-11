@@ -22,7 +22,6 @@ import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
 
 /**

@@ -220,12 +220,9 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
-import java.util.Map;
-
 
 /**
  * Node Visitor for cloning AST nodes.
