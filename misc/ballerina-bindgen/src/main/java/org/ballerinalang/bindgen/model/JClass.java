@@ -70,7 +70,6 @@ public class JClass {
     private List<JField> fieldList = new ArrayList<>();
     private List<JMethod> methodList = new ArrayList<>();
     private List<JConstructor> constructorList = new ArrayList<>();
-    private List<JConstructor> initFunctionList = new ArrayList<>();
     private Map<String, Integer> overloadedMethods = new HashMap<>();
 
     public JClass(Class c, BindgenEnv env) {
@@ -112,7 +111,6 @@ public class JClass {
         if (env.isDirectJavaClass()) {
             isDirectClass = true;
             populateConstructors(c.getConstructors());
-            populateInitFunctions();
             populateMethodsInOrder(c);
             populateFields(c.getFields());
         }
@@ -173,8 +171,14 @@ public class JClass {
 
     private void populateConstructors(Constructor[] constructors) {
         int i = 1;
+        List<JConstructor> tempList = new ArrayList<>();
         for (Constructor constructor : constructors) {
-            JConstructor jConstructor = new JConstructor(constructor, env, this);
+            tempList.add(new JConstructor(constructor, env, this, null));
+        }
+        tempList.sort(Comparator.comparing(JConstructor::getParamTypes));
+        for (JConstructor constructor:tempList) {
+            JConstructor jConstructor = new JConstructor(constructor.getConstructor(), env,
+                    this, "new" + shortClassName + i);
             if (modulesFlag) {
                 importedPackages.addAll(jConstructor.getImportedPackages());
             }
@@ -182,30 +186,7 @@ public class JClass {
             if (jConstructor.requireJavaArrays()) {
                 importJavaArraysModule = true;
             }
-        }
-        constructorList.sort(Comparator.comparing(JConstructor::getParamTypes));
-        for (JConstructor jConstructor:constructorList) {
-            jConstructor.setConstructorName("new" + shortClassName + i);
-            jConstructor.setShortClassName(shortClassName);
             i++;
-        }
-    }
-
-    private void populateInitFunctions() {
-        int j = 1;
-        for (JConstructor constructor : constructorList) {
-            JConstructor newCons = null;
-            try {
-                newCons = (JConstructor) constructor.clone();
-            } catch (CloneNotSupportedException ignore) {
-
-            }
-            if (newCons != null) {
-                newCons.setExternalFunctionName(constructor.getConstructorName());
-                newCons.setConstructorName("" + j);
-                initFunctionList.add(newCons);
-            }
-            j++;
         }
     }
 

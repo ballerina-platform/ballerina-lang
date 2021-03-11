@@ -55,31 +55,10 @@ public class FieldsTestResource {
     public boolean[] getInstanceBooleanArray = {true, false};
     public String[] getInstanceStringArray = {"hello", "ballerina"};
 
-    // Instance primitive field multi-dimensional arrays
-    public byte[][] getInstanceByteMultiArray1 = new byte[5][8];
-    public char[][] getInstanceCharMultiArray1 = new char[5][8];
-    public short[][] getInstanceShortMultiArray1 = new short[5][8];
-    public int[][] getInstanceIntMultiArray1 = new int[5][8];
-    public long[][] getInstanceLongMultiArray1 = new long[5][8];
-    public float[][] getInstanceFloatMultiArray1 = new float[5][8];
-    public double[][] getInstanceDoubleMultiArray1 = new double[5][8];
-    public boolean[][] getInstanceBooleanMultiArray1 = new boolean[5][8];
-    public String[][] getInstanceStringMultiArray1 = new String[5][8];
-
-    public byte[][][] getInstanceByteMultiArray2 = new byte[10][2][1];
-    public char[][][] getInstanceCharMultiArray2 = new char[5][8][1];
-    public short[][][] getInstanceShortMultiArray2 = new short[5][8][1];
-    public int[][][] getInstanceIntMultiArray2 = new int[5][8][1];
-    public long[][][] getInstanceLongMultiArray2 = new long[5][8][1];
-    public float[][][] getInstanceFloatMultiArray2 = new float[5][8][1];
-    public double[][][] getInstanceDoubleMultiArray2 = new double[5][8][1];
-    public boolean[][][] getInstanceBooleanMultiArray2 = new boolean[5][8][1];
-    public String[][][] getInstanceStringMultiArray2 = new String[5][8][1];
-
     // Other instance fields
     public StringBuilder[] getInstanceObjectArray = new StringBuilder[2];
-    public Integer[][] getInstanceObjectMultiArray1 = new Integer[2][5];
-    public Object[][][] getInstanceObjectMultiArray2 = new Object[2][5][1];
+    public Integer[] getInstanceObjectMultiArray1 = new Integer[5];
+    public Object[] getInstanceObjectMultiArray2 = new Object[2];
     public List getInstanceInterface = new ArrayList<>();
     public AbstractList getInstanceAbstractClass = new ArrayList<>();
     public Path getInstanceObject = Paths.get("/test.txt");
@@ -125,31 +104,10 @@ public class FieldsTestResource {
     public static boolean[] getStaticBooleanArray = {true, false};
     public static String[] getStaticStringArray = {"hello", "ballerina"};
 
-    // Static primitive field multi-dimensional arrays
-    public static byte[][] getStaticByteMultiArray1 = new byte[5][8];
-    public static char[][] getStaticCharMultiArray1 = new char[5][8];
-    public static short[][] getStaticShortMultiArray1 = {{8, 9}, {8, 9}};
-    public static int[][] getStaticIntMultiArray1 = new int[5][8];
-    public static long[][] getStaticLongMultiArray1 = {{8, 9}, {8, 9}};
-    public static float[][] getStaticFloatMultiArray1 = new float[5][8];
-    public static double[][] getStaticDoubleMultiArray1 = new double[5][8];
-    public static boolean[][] getStaticBooleanMultiArray1 = new boolean[5][8];
-    public static String[][] getStaticStringMultiArray1 = {{"hi", "how"}, {"are", "you"}};
-
-    public static byte[][][] getStaticByteMultiArray2 = new byte[10][2][1];
-    public static char[][][] getStaticCharMultiArray2 = new char[5][8][1];
-    public static short[][][] getStaticShortMultiArray2 = new short[5][8][1];
-    public static int[][][] getStaticIntMultiArray2 = new int[5][8][1];
-    public static long[][][] getStaticLongMultiArray2 = new long[5][8][1];
-    public static float[][][] getStaticFloatMultiArray2 = new float[5][8][1];
-    public static double[][][] getStaticDoubleMultiArray2 = new double[5][8][1];
-    public static boolean[][][] getStaticBooleanMultiArray2 = new boolean[5][8][1];
-    public static String[][][] getStaticStringMultiArray2 = new String[5][8][1];
-
     // Other static fields
     public StringBuilder[] getStaticObjectArray = new StringBuilder[2];
-    public Integer[][] getStaticObjectMultiArray1 = new Integer[2][5];
-    public Object[][][] getStaticObjectMultiArray2 = new Object[2][5][1];
+    public Integer[] getStaticObjectMultiArray1 = new Integer[2];
+    public Object[] getStaticObjectMultiArray2 = new Object[2];
     public static List getStaticInterface = new ArrayList<>();
     public static AbstractList getStaticAbstractClass = new ArrayList<>();
     public static Path getStaticObject = Paths.get("/test.txt");

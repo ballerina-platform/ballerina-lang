@@ -46,6 +46,7 @@ public class JConstructor extends BFunction implements Cloneable  {
     private String initObjectName;
     private String constructorName;
     private String exceptionConstName;
+    private Constructor constructor;
 
     private boolean returnError = false;
     private boolean hasException = false; // identifies if the Ballerina returns should have an error declared
@@ -56,13 +57,14 @@ public class JConstructor extends BFunction implements Cloneable  {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    JConstructor(Constructor c, BindgenEnv env, JClass jClass) {
+    public JConstructor(Constructor c, BindgenEnv env, JClass jClass, String constructorName) {
         super(BFunctionKind.CONSTRUCTOR, env);
+        this.constructor = c;
         this.jClass = jClass;
+        this.constructorName = constructorName;
         parentClass = c.getDeclaringClass();
         super.setDeclaringClass(parentClass);
         shortClassName = getAlias(c.getDeclaringClass());
-        constructorName = c.getName();
         interopType = CONSTRUCTOR_INTEROP_TYPE;
         initObjectName = "_" + Character.toLowerCase(this.shortClassName.charAt(0)) + shortClassName.substring(1);
 
@@ -105,7 +107,7 @@ public class JConstructor extends BFunction implements Cloneable  {
             } catch (ClassNotFoundException ignore) {
             }
         }
-        setFunctionName("new" + jClass.getShortClassName() + constructorName);
+        setFunctionName(constructorName);
         setExternalFunctionName(parentClass.getName().replace(".", "_").replace("$", "_") + "_" + constructorName);
     }
 
@@ -160,5 +162,26 @@ public class JConstructor extends BFunction implements Cloneable  {
             }
         }
         return returnString.toString();
+    }
+
+    public boolean isHandleException() {
+        return handleException;
+    }
+
+    public String getExceptionName() {
+        return exceptionName;
+    }
+
+    public String getExceptionConstName() {
+        return exceptionConstName;
+    }
+
+    @Override
+    public String getReturnType() {
+        return shortClassName;
+    }
+
+    public Constructor getConstructor() {
+        return constructor;
     }
 }
