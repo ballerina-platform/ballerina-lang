@@ -26,6 +26,7 @@ public class LSClientConfig {
     private final boolean traceLog;
     private final GoToDefinitionConfig goToDefinition;
     private final boolean enableFileWatcher;
+    private final boolean enableLanguageServerCrashReporter;
 
     protected LSClientConfig() {
         this.home = "";
@@ -36,6 +37,7 @@ public class LSClientConfig {
         String balExperimental = System.getenv("BAL_EXPERIMENTAL");
         String balDefStdLibs = System.getenv("BAL_DEF_STD_LIBS");
         String balFileWatcher = System.getenv("BAL_FILE_WATCHER");
+        String lsCrashReporter = System.getenv("LS_CRASH_REPORTER");
 
         this.allowExperimental = Boolean.parseBoolean(balExperimental);
         this.debugLog = Boolean.parseBoolean(balDebugLog);
@@ -44,6 +46,7 @@ public class LSClientConfig {
         this.goToDefinition = (balDefStdLibs != null) ? new GoToDefinitionConfig(Boolean.parseBoolean(balDefStdLibs)) :
                 new GoToDefinitionConfig(true);
         this.enableFileWatcher = balFileWatcher == null || Boolean.parseBoolean(balFileWatcher);
+        this.enableLanguageServerCrashReporter = lsCrashReporter == null || Boolean.parseBoolean(lsCrashReporter);
     }
 
     /**
@@ -116,5 +119,14 @@ public class LSClientConfig {
      */
     public boolean isEnableFileWatcher() {
         return enableFileWatcher;
+    }
+
+    /**
+     * Returns True if crash reporter enabled, False otherwise.
+     *
+     * @return True if enabled, False otherwise
+     */
+    public boolean isEnableLanguageServerCrashReporter() {
+        return enableLanguageServerCrashReporter;
     }
 }

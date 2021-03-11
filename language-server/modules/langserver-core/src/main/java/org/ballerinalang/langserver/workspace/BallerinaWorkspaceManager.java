@@ -774,7 +774,7 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             return projectPair;
         } catch (ProjectException e) {
             clientLogger.notifyUser("Project load failed: " + e.getMessage(), e);
-            clientLogger.logError("Operation '" + operationName +
+            clientLogger.logError(LSContextOperation.CREATE_PROJECT, "Operation '" + operationName +
                                           "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
                                           projectKind.name().toLowerCase(Locale.getDefault()) + "'} failed", e,
                                   new TextDocumentIdentifier(filePath.toUri().toString()));
