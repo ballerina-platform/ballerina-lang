@@ -16,6 +16,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.util.List;
 
@@ -30,6 +31,8 @@ public class Function extends Construct {
     @Expose
     public boolean isExtern;
     @Expose
+    public String builtInVersion;
+    @Expose
     public List<DefaultableVariable> parameters;
     @Expose
     public List<Variable> returnParameters;
@@ -42,5 +45,8 @@ public class Function extends Construct {
         this.parameters = parameters;
         this.returnParameters = returnParameters;
         this.isIsolated = isIsolated;
+        if (isIsolated) {
+            this.builtInVersion = BallerinaDocGenerator.getBallerinaShortVersion();
+        }
     }
 }

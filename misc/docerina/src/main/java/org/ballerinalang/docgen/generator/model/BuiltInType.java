@@ -18,23 +18,21 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
- * Holds data needed by central api docs.
+ * Represents ballerina builtin types.
  *
  * @since 2.0.0
  */
-public class CentralStdLibrary {
+public class BuiltInType {
     @Expose
-    public String releaseVersion = "";
+    public String name = "";
     @Expose
-    public String releaseShortVersion = "";
+    public String description;
     @Expose
-    public String description = "";
-    @Expose
-    public List<DocPackageMetadata> packages = new ArrayList<>();
-    @Expose
-    public List<BuiltInType> builtinTypesAndKeywords = new ArrayList<>();
+    public DocPackageMetadata langlib;
+
+    public BuiltInType(String name, String description) {
+        this.name = name;
+        this.description = description;
+    }
 }

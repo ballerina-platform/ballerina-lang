@@ -99,8 +99,6 @@ public class Type {
     @Expose
     public boolean isLambda;
     @Expose
-    public boolean isReadOnly;
-    @Expose
     public boolean isDeprecated;
     @Expose
     public boolean generateUserDefinedTypeLink = true;
@@ -116,7 +114,9 @@ public class Type {
     public Type returnType;
     @Expose
     public Type constraint;
+
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
+    private static final String ballerinaShotVersion = BallerinaDocGenerator.getBallerinaShortVersion();
 
     private Type() {
     }
@@ -155,13 +155,16 @@ public class Type {
         } else if (node instanceof BuiltinSimpleNameReferenceNode) {
             BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
             type.name = builtinSimpleNameReferenceNode.name().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof XmlTypeDescriptorNode) {
             XmlTypeDescriptorNode xmlType = (XmlTypeDescriptorNode) node;
             type.name = xmlType.xmlKeywordToken().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof NilTypeDescriptorNode) {
             type.name = node.toString();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof ArrayTypeDescriptorNode) {
             ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
@@ -195,6 +198,7 @@ public class Type {
                     (StreamTypeParamsNode) streamNode.streamTypeParamsNode().get() : null;
             type.name = streamNode.streamKeywordToken().text();
             type.category = "stream";
+            type.version = ballerinaShotVersion;
             if (streamParams != null) {
                 type.memberTypes.add(fromNode(streamParams.leftTypeDescNode(), semanticModel));
                 if (streamParams.rightTypeDescNode().isPresent()) {
@@ -221,20 +225,24 @@ public class Type {
             if (parameterizedNode.parameterizedType().kind().equals(SyntaxKind.MAP_KEYWORD)) {
                 type.name = "map";
                 type.category = "map";
+                type.version = ballerinaShotVersion;
                 type.constraint = fromNode(parameterizedNode.typeParameter().typeNode(), semanticModel);
             }
         } else if (node instanceof ErrorTypeDescriptorNode) {
             ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
             type.name = errorType.errorKeywordToken().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof ObjectTypeDescriptorNode) {
             ObjectTypeDescriptorNode objectType = (ObjectTypeDescriptorNode) node;
             type.name = objectType.toString();
-            type.category = "builtin";
+            type.category = "other";
+            type.generateUserDefinedTypeLink = false;
         } else if (node instanceof SingletonTypeDescriptorNode) {
             SingletonTypeDescriptorNode singletonTypeDesc = (SingletonTypeDescriptorNode) node;
             type.name = singletonTypeDesc.simpleContExprNode().toString();
-            type.category = "builtin";
+            type.category = "other";
+            type.generateUserDefinedTypeLink = false;
         } else if (node instanceof ParenthesisedTypeDescriptorNode) {
             ParenthesisedTypeDescriptorNode parenthesisedNode = (ParenthesisedTypeDescriptorNode) node;
             type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel);
@@ -251,6 +259,7 @@ public class Type {
                 elemType = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel);
             }
             type.isTypeDesc = true;
+            type.version = ballerinaShotVersion;
             type.elementType = elemType;
         } else {
             type.name = node.toSourceCode();
@@ -328,6 +337,7 @@ public class Type {
 
     public Type(String name) {
         this.name = name;
+        this.version = ballerinaShotVersion;
         this.category = "builtin";
     }
 
