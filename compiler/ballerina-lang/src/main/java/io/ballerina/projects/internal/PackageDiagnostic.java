@@ -22,7 +22,7 @@ import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;

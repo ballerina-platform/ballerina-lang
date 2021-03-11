@@ -18,7 +18,7 @@
 package io.ballerina.tools.diagnostics;
 
 /**
- * Represents a abstract shape of a {@code Diagnostic} that is independent of
+ * Represents an abstract shape of a {@link Diagnostic} that is independent of
  * the location and message arguments.
  *
  * @since 2.0.0
@@ -29,6 +29,13 @@ public class DiagnosticInfo {
     private final String messageFormat;
     private final DiagnosticSeverity severity;
 
+    /**
+     * Constructs an abstract shape of a {@link Diagnostic}.
+     *
+     * @param code          a code that can be used to uniquely identify a diagnostic category
+     * @param messageFormat a pattern that can be formatted with the {@link java.text.MessageFormat} utility
+     * @param severity      the severity of the diagnostic
+     */
     public DiagnosticInfo(String code,
                           String messageFormat,
                           DiagnosticSeverity severity) {

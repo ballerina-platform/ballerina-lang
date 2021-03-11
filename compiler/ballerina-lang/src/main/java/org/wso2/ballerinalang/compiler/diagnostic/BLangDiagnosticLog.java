@@ -26,7 +26,7 @@ import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.util.diagnostic.DiagnosticLog;
 import org.wso2.ballerinalang.compiler.PackageCache;
