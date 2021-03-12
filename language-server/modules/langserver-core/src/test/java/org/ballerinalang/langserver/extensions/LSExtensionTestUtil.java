@@ -94,9 +94,8 @@ public class LSExtensionTestUtil {
     public static BallerinaSyntaxTreeResponse getBallerinaSyntaxTreeByRange(String filePath,
                                                                             Range range,
                                                                             Endpoint serviceEndpoint) {
-        BallerinaSyntaxTreeByRangeRequest request = new BallerinaSyntaxTreeByRangeRequest();
-        request.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
-        request.setLineRange(range);
+        BallerinaSyntaxTreeByRangeRequest request = new BallerinaSyntaxTreeByRangeRequest(
+                TestUtil.getTextDocumentIdentifier(filePath), range);
         CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_BY_RANGE, request);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }

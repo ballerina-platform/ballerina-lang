@@ -63,7 +63,6 @@ public class BallerinaLocateSyntaxTreeUtil {
             node = node.parent();
         }
         if (node == syntaxTree.rootNode()) {
-            syntaxTreeJson.getAsJsonObject().addProperty(LOCATED_NODE_PROPERTY, true);
             return syntaxTreeJson;
         }
         return findNodePath(syntaxTreeJson, syntaxTree, node);
@@ -98,6 +97,9 @@ public class BallerinaLocateSyntaxTreeUtil {
             } else if (childEntry.getValue().isJsonObject() && childEntry.getValue().getAsJsonObject().has(POSITION)) {
                 NodeRange nodeRange = evaluateRange(syntaxTree, node, childEntry.getValue(),
                             childEntry.getValue().getAsJsonObject().get(POSITION).getAsJsonObject());
+                if (nodeRange == NodeRange.INCLUSIVE) {
+                    return Optional.ofNullable(childEntry.getValue());
+                }
                 if (nodeRange == NodeRange.EQUALS) {
                     return Optional.empty();
                 }
