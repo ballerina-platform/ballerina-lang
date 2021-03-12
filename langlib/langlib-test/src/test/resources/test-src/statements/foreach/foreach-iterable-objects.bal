@@ -81,8 +81,8 @@ public function testIterableObjectReturnedByRangeExpression() returns int[] {
         public int iEnd;
         public int iCurrent;
         public isolated function iterator() returns object {
-                                                        public isolated function next() returns record {| int value; |}?;
-                                                    };
+                public isolated function next() returns record {| int value; |}?;
+            };
     } objectResult = 1...3;
     int[] integers = [];
     var iterator = objectResult.iterator();
