@@ -695,10 +695,12 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     BREAK_NOT_ALLOWED("BCE3988", "break.not.allowed"),
     TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3989", "type.does.not.support.xml.navigation.access"),
     XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3990", "xml.function.does.not.support.argument.type"),
-    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3991", "async.send.action.not.yet.supported.as.expression"),
-    UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR("BCE3992", "unused.variable.with.inferred.type.including.error"),
-    INVALID_ITERABLE_OBJECT_TYPE("BCE3993", "invalid.iterable.type"),
-    INVALID_ITERABLE_COMPLETION_TYPE_IN_NEXT_FUNCTION("BCE3994",
+
+    INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3991", "intersection.not.allowed.with.type"),
+    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3992", "async.send.action.not.yet.supported.as.expression"),
+    UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR("BCE3993", "unused.variable.with.inferred.type.including.error"),
+    INVALID_ITERABLE_OBJECT_TYPE("BCE3994", "invalid.iterable.type"),
+    INVALID_ITERABLE_COMPLETION_TYPE_IN_NEXT_FUNCTION("BCE3995",
             "invalid.iterable.completion.type.in.foreach.next.function")
     ;
 

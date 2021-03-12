@@ -750,16 +750,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (shouldInferErrorType(varNode)) {
-            validateWorkerAnnAttachments(varNode.expr);
-            handleDeclaredWithVar(varNode);
-            transferForkFlag(varNode);
-            if (!types.isAssignable(varNode.type, symTable.errorType)) {
-                dlog.error(varNode.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.errorType, varNode.type);
-            }
-            return;
-        }
-
         int ownerSymTag = env.scope.owner.tag;
         boolean isListenerDecl = varNode.flagSet.contains(Flag.LISTENER);
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET
@@ -864,12 +854,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LISTENER_VARIABLE, varNode.name);
             }
         }
-    }
-
-    private boolean shouldInferErrorType(BLangSimpleVariable varNode) {
-        return varNode.typeNode != null
-                && varNode.typeNode.getKind() == NodeKind.ERROR_TYPE
-                && ((BLangErrorType) varNode.typeNode).inferErrorType;
     }
 
     private void analyzeVarNode(BLangSimpleVariable varNode, SymbolEnv env, AttachPoint.Point... attachPoints) {
@@ -2318,7 +2302,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         BType bindingPatternType = wildCardBindingPattern.type;
-        BType intersectionType = types.getTypeIntersection(bindingPatternType, symTable.anyType, this.env);
+        BType intersectionType = types.getTypeIntersection(
+                Types.IntersectionContext.compilerInternalIntersectionContext(),
+                bindingPatternType, symTable.anyType, this.env);
         if (intersectionType == symTable.semanticError) {
             wildCardBindingPattern.type = symTable.noType;
             return;
@@ -2730,7 +2716,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType intersectionType = types.getTypeIntersection(matchExprType, symTable.anyType, this.env);
+        BType intersectionType = types.getTypeIntersection(
+                Types.IntersectionContext.compilerInternalIntersectionContext(),
+                matchExprType, symTable.anyType, this.env);
         if (intersectionType == symTable.semanticError) {
             wildCardMatchPattern.type = symTable.noType;
             return;
