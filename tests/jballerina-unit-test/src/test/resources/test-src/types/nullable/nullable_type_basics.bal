@@ -34,3 +34,31 @@ function testNilableTypeInTypeTest() returns string {
 
     return "()";
 }
+
+function testNullWithBasicTypes() returns [int?, string?, decimal?, boolean?, float?] {
+    int? a = null;
+    string? b = null;
+    decimal? c = null;
+    boolean? d = null;
+    float? e = null;
+    return [a, b, c, d, e];
+}
+
+function testNullWithMap() returns [map<string>?, map<json>?] {
+    map<string>? a = null;
+    map<json>? b = null;
+    return [a, b];
+}
+
+function testNullWithMap2() returns [map<string?>, map<json>] {
+    map<string?> a = {"a": null};
+    map<json> b = {"b": null};
+    return [a, b];
+}
+
+function testNullWithArray() returns [string[]?, json[]?, string?[]] {
+    string[]? a = null;
+    json[]? b = null;
+    string?[] c = [null, "ABC", "DEF"];
+    return [a, b, c];
+}

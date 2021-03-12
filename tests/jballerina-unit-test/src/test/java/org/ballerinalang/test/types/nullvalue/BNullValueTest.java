@@ -51,8 +51,18 @@ public class BNullValueTest {
 
     @Test(description = "Test negative test cases")
     void testNullValueNegative() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 1);
-        BAssertUtil.validateError(resultNegative, 0, "'null' literal is only supported for 'json'", 20, 12);
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        int index = 0;
+        BAssertUtil.validateError(resultNegative, index++, "'null' literal is only allowed in a json-related context",
+                20, 12);
+        BAssertUtil.validateError(resultNegative, index++, "'null' literal is only allowed in a json-related context",
+                25, 22);
+        BAssertUtil.validateError(resultNegative, index++, "'null' literal is only allowed in a json-related context",
+                26, 17);
+        BAssertUtil.validateError(resultNegative, index++, "'null' literal is only allowed in a json-related context",
+                27, 18);
+        BAssertUtil.validateError(resultNegative, index, "'null' literal is only allowed in a json-related context",
+                28, 20);
     }
 
     @AfterClass

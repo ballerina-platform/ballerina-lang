@@ -20,6 +20,14 @@ function testArithmaticOperationOnNull() returns (any) {
     return null;
 }
 
+type Person record {| string name; |};
+function testNullNegativeScenarios() {
+    map<Person>? a = null;
+    Person? b = null;
+    Person[]? c= null;
+    Person?[] d = [null , {"name": "John"}];
+}
+
 //function testNullForValueType2() {
 //    string s = ();
 //}
