@@ -871,6 +871,7 @@ public class TestBuildProject {
         CompilerPluginToml newCompilerPluginToml = project.currentPackage().compilerPluginToml().get().modify()
                 .withContent("" +
                             "[plugin]\n" +
+                            "id = \"openapi-validator\"\n" +
                             "class = \"io.ballerina.openapi.Validator\"\n" +
                             "\n" +
                             "[[dependency]]\n" +
@@ -963,6 +964,7 @@ public class TestBuildProject {
         DocumentConfig compilerPluginToml = DocumentConfig.from(
                 DocumentId.create(ProjectConstants.COMPILER_PLUGIN_TOML, null),
                 "[plugin]\n" +
+                        "id = \"openapi-validator\"\n" +
                         "class = \"io.ballerina.openapi.Validator\"\n" +
                         "\n" +
                         "[[dependency]]\n" +

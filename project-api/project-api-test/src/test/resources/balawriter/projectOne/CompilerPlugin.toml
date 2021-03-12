@@ -1,4 +1,5 @@
 [plugin]
+id = "openapi-validator"
 class = "io.ballerina.openapi.Validator"
 
 [[dependency]]

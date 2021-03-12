@@ -114,6 +114,7 @@ public class TestBalaProject {
         // compiler plugin
         Optional<CompilerPluginDescriptor> pluginDescriptor = currentPackage.compilerPluginDescriptor();
         Assert.assertTrue(pluginDescriptor.isPresent());
+        Assert.assertEquals(pluginDescriptor.get().plugin().getId(), "openapi-validator");
         Assert.assertEquals(pluginDescriptor.get().plugin().getClassName(), "io.ballerina.openapi.Validator");
         Assert.assertEquals(pluginDescriptor.get().getCompilerPluginDependencies().size(), 2);
     }
