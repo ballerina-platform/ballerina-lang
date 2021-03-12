@@ -31,6 +31,17 @@ function getIntArray() returns int[] {
     return [1,2,3,4];
 }
 
+function total(int b) returns int {
+    return b;
+}
+
+function t = total;
+
+function testAnyFunction() returns [boolean, boolean] {
+    function fn = foo:anyFunction(t);
+    return [fn is function (int) returns int, fn is function () returns int];
+}
+
 //------------- Testing a function having required and rest parameters --------
 
 function testInvokeFuncWithoutRestParams() returns [int, float, string, int, string] {

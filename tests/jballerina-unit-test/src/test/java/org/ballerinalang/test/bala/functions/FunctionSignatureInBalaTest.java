@@ -17,6 +17,7 @@
 */
 package org.ballerinalang.test.bala.functions;
 
+import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BString;
@@ -153,6 +154,15 @@ public class FunctionSignatureInBalaTest {
 
         Assert.assertTrue(returns[5] instanceof BValueArray);
         Assert.assertEquals(returns[5].stringValue(), "[]");
+    }
+
+    @Test
+    public void testInvokeFunctionWithAnyFunctionTypeParam() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnyFunction");
+        Assert.assertTrue(returns[0] instanceof BBoolean);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+        Assert.assertTrue(returns[1] instanceof BBoolean);
+        Assert.assertFalse(((BBoolean) returns[1]).booleanValue());
     }
 
     @Test

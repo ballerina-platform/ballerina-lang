@@ -43,5 +43,10 @@
     "description": "Enum value can be used as a type.",
     "code": "Language english = \"english\"; english",
     "expr": "\"english\""
+  },
+  {
+    "description": "Enum value can be used as a type.",
+    "code": "PF pf = \"Pink Floyd\"; pf",
+    "expr": "\"Pink Floyd\""
   }
 ]

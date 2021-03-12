@@ -1,0 +1,21 @@
+[
+  {
+    "description": "Define variable",
+    "code": "int a = 100;"
+  },
+  {
+    "description": "Reassign a and panic",
+    "code": "function f() { a = 1000; panic error(\"Error\"); }"
+  },
+  {
+    "description": "Call function f",
+    "code": "f()",
+    "stdout": "panic: Error {}\n",
+    "error": "InvokerPanicException"
+  },
+  {
+    "description": "See variable value",
+    "code": "a",
+    "expr": "1000"
+  }
+]
