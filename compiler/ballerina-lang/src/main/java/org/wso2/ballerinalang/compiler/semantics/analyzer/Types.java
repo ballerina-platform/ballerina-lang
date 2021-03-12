@@ -221,17 +221,23 @@ public class Types {
     }
 
     public boolean isJSONContext(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.JSON);
+        switch (type.tag) {
+            case TypeTags.MAP:
+                return isJSONContext(((BMapType) type).constraint);
+            case TypeTags.ARRAY:
+                return isJSONContext(((BArrayType) type).eType);
+            case TypeTags.UNION:
+                return hasJsonContextInUnion(((BUnionType) type).getMemberTypes());
+            default:
+                return isSimpleBasicType(type.tag) || type.tag == TypeTags.JSON;
         }
-        return type.tag == TypeTags.JSON;
     }
 
-    public boolean isJSONUnionType(BUnionType type) {
-        if (type.name != null && (type.name.getValue().equals(Names.JSON.getValue()))) {
-            return true;
+    public boolean hasJsonContextInUnion(LinkedHashSet<BType> memberTypes) {
+        for (BType type : memberTypes) {
+            return isJSONContext(type);
         }
-        return isSameType(type, symTable.jsonType);
+        return false;
     }
 
     public boolean isLax(BType type) {
