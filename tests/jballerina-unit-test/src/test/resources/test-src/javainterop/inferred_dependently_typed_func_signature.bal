@@ -126,13 +126,17 @@ function testXml() {
     assert(true, v5 is xml<xml:Element>);
 }
 
-//function testCastingForInvalidValues() {
-//    int|error x = trap getInvalidValue(td2 = Person);
-//
-//    error err = <error>x;
-//    assert("{ballerina}TypeCastError", err.message());
-//    assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", err.detail()["message"].toString());
-//}
+function testCastingForInvalidValues() {
+    var fn = function() {
+        int x = getInvalidValue(td2 = Person);
+    };
+
+    error? y = trap fn();
+    assert(true, y is error);
+    error err = <error> y;
+    assert("{ballerina}TypeCastError", err.message());
+    assert("incompatible types: 'Person' cannot be cast to 'int'", <string> checkpanic err.detail()["message"]);
+}
 
 function testStream() {
     string[] stringList = ["hello", "world", "from", "ballerina"];
@@ -354,11 +358,12 @@ function getXml(typedesc<xml:Element|xml:Comment> td = <>, xml<xml:Element|xml:C
                           'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
                       } external;
 
-//function getInvalidValue(typedesc<int|Person> td1 = <>, typedesc<Person> td2 = Person) returns td1 = @java:Method {
-//    'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
-//    name: "getInvalidValue",
-//    paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
-//} external;
+function getInvalidValue(typedesc<int|Person> td1 = <>, typedesc<Person> td2 = Person) returns td1 =
+    @java:Method {
+        'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
+        name: "getInvalidValue",
+        paramTypes: ["io.ballerina.runtime.api.values.BTypedesc", "io.ballerina.runtime.api.values.BTypedesc"]
+    } external;
 
 function getStream( stream<anydata> value, typedesc<anydata> td = <>) returns stream<td> = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",

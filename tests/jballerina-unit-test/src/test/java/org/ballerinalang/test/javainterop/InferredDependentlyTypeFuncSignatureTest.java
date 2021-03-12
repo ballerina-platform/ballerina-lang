@@ -64,7 +64,7 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 {"testComplexTypes"},
                 {"testRuntimeCastError"},
                 {"testFunctionAssignment"},
-//                {"testCastingForInvalidValues"},
+                {"testCastingForInvalidValues"},
                 {"testUnionTypes"},
                 {"testXml"},
                 {"testArgCombinations"}

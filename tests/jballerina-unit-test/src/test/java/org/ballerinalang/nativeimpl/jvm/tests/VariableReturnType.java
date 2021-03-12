@@ -233,13 +233,14 @@ public class VariableReturnType {
     }
 
     public static Object getInvalidValue(BTypedesc td1, BTypedesc td2) {
-        switch (td1.getDescribingType().getTag()) {
-            case INT_TAG:
-                return getRecord(td2);
-            case RECORD_TYPE_TAG:
-                return 200;
+        int tag = td1.getDescribingType().getTag();
+
+        if (tag == INT_TAG) {
+            return getRecord(td2);
         }
-        return null;
+
+        assert tag == RECORD_TYPE_TAG;
+        return 200;
     }
 
     private static Object getValue(Type type) {
