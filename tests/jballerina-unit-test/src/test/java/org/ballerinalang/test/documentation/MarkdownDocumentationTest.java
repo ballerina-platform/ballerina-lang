@@ -320,9 +320,9 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(7).referenceName, "annot");
 
         var fooFunction = packageNode.getFunctions().get(5).getMarkdownDocumentationAttachment();
-        var exapmpleParam = fooFunction.getParameterDocumentations().get("example");
-        Assert.assertEquals(exapmpleParam.parameterName.getValue(), "example");
-        Assert.assertEquals(exapmpleParam.parameterDocumentationLines.get(0),
+        var exampleParam = fooFunction.getParameterDocumentations().get("example");
+        Assert.assertEquals(exampleParam.parameterName.getValue(), "example");
+        Assert.assertEquals(exampleParam.parameterDocumentationLines.get(0),
                 "The error struct to be logged");
     }
 
