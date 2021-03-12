@@ -703,7 +703,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
             BVarSymbol param = params.get(paramIndex);
             String paramName = param.name.value;
-            if (param.defaultableParam && !Symbols.isFlagOn(param.flags, Flags.INFER)) {
+            if (param.isDefaultable && !Symbols.isFlagOn(param.flags, Flags.INFER)) {
                 paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
             }
         }
@@ -737,7 +737,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 continue;
             }
 
-            if (param.defaultableParam && !Symbols.isFlagOn(param.flags, Flags.INFER)) {
+            if (param.isDefaultable && !Symbols.isFlagOn(param.flags, Flags.INFER)) {
                 paramValueTypes.put(name, symbol.paramDefaultValTypes.get(name));
             }
         }
@@ -860,7 +860,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     }
 
     private boolean hasIntersection(BType t1, BType t2) {
-        BType typeIntersection = types.getTypeIntersection(t1, t2, env);
+        BType typeIntersection =
+                types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(), t1, t2, env);
         return typeIntersection != null && typeIntersection != symbolTable.semanticError;
     }
 

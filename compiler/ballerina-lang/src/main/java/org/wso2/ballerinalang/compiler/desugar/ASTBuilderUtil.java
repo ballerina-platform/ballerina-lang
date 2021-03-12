@@ -894,7 +894,7 @@ public class ASTBuilderUtil {
         BVarSymbol newParamSymbol = new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID,
                                                    paramSymbol.type, owner, paramSymbol.pos, paramSymbol.origin);
         newParamSymbol.tainted = paramSymbol.tainted;
-        newParamSymbol.defaultableParam = paramSymbol.defaultableParam;
+        newParamSymbol.isDefaultable = paramSymbol.isDefaultable;
         newParamSymbol.markdownDocumentation = paramSymbol.markdownDocumentation;
         return newParamSymbol;
     }

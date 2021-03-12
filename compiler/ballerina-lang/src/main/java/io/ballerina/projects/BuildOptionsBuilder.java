@@ -43,6 +43,11 @@ public class BuildOptionsBuilder {
         return this;
     }
 
+    public BuildOptionsBuilder listConflictedClasses(Boolean value) {
+        compilationOptionsBuilder.listConflictedClasses(value);
+        return this;
+    }
+
     public BuildOptionsBuilder skipTests(Boolean value) {
         compilationOptionsBuilder.skipTests(value);
         return this;

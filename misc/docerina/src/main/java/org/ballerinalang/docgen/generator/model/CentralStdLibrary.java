@@ -36,5 +36,7 @@ public class CentralStdLibrary {
     @Expose
     public List<DocPackageMetadata> packages = new ArrayList<>();
     @Expose
-    public List<BuiltInType> builtinTypesAndKeywords = new ArrayList<>();
+    public List<BuiltInType> builtinTypes = new ArrayList<>();
+    @Expose
+    public List<BuiltInType> keywords = new ArrayList<>();
 }

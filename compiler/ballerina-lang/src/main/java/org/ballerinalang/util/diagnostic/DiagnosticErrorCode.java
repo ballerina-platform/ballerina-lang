@@ -700,7 +700,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     BREAK_NOT_ALLOWED("BCE3992", "break.not.allowed"),
     TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3993", "type.does.not.support.xml.navigation.access"),
     XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3994", "xml.function.does.not.support.argument.type"),
-    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3995", "async.send.action.not.yet.supported.as.expression")
+
+    INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3995", "intersection.not.allowed.with.type"),
+    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3996", "async.send.action.not.yet.supported.as.expression")
     ;
 
     private String diagnosticId;

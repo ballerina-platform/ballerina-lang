@@ -3365,7 +3365,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BVarSymbol> requiredParams = function.symbol.params.stream()
-                .filter(param -> !param.defaultableParam)
+                .filter(param -> !param.isDefaultable)
                 .collect(Collectors.toList());
         // Given named and positional arguments are less than required parameters.
         if (requiredParams.size() > invocationArguments.size()) {
@@ -3373,7 +3373,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BVarSymbol> defaultableParams = function.symbol.params.stream()
-                .filter(param -> param.defaultableParam)
+                .filter(param -> param.isDefaultable)
                 .collect(Collectors.toList());
 
         int givenRequiredParamCount = 0;
@@ -5505,7 +5505,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BVarSymbol> requiredIncRecordParams = new ArrayList<>();
 
         for (BVarSymbol nonRestParam : nonRestParams) {
-            if (nonRestParam.defaultableParam) {
+            if (nonRestParam.isDefaultable) {
                 continue;
             }
 
