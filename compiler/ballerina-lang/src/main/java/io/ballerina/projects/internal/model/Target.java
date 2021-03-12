@@ -20,7 +20,6 @@ package io.ballerina.projects.internal.model;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.apache.commons.io.FileUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;

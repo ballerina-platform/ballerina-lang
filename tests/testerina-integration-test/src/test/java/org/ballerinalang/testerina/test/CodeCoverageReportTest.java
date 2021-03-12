@@ -44,6 +44,8 @@ import javax.xml.parsers.ParserConfigurationException;
 
 /**
  * Test class to test report using a ballerina project.
+ *
+ * @since 2.0.0
  */
 public class CodeCoverageReportTest extends BaseTestCase {
 
@@ -171,16 +173,17 @@ public class CodeCoverageReportTest extends BaseTestCase {
      * @throws BallerinaTestException
      */
     private void copyReportDTDFile(Path reportRoot) throws BallerinaTestException {
-        try {
-            File reportDTDFile = new File(projectBasedTestsPath.resolve(singleModuleTestRoot).resolve("resources").
-                    resolve("report.dtd").toString());
-            File reportDTDFileCopy = new File(reportRoot.resolve("report.dtd").toString());
-            reportDTDFileCopy.createNewFile();
-            FileOutputStream outputStream = new FileOutputStream(reportDTDFileCopy);
-            FileInputStream inputStream = new FileInputStream(reportDTDFile);
-            outputStream.write(inputStream.readAllBytes());
-            inputStream.close();
-            outputStream.close();
+        File reportDTDFile = new File(projectBasedTestsPath.resolve(singleModuleTestRoot).resolve("resources").
+                resolve("report.dtd").toString());
+        File reportDTDFileCopy = new File(reportRoot.resolve("report.dtd").toString());
+        try (FileOutputStream outputStream = new FileOutputStream(reportDTDFileCopy);
+             FileInputStream inputStream = new FileInputStream(reportDTDFile);) {
+            byte[] buffer = new byte[1024];
+            int length;
+            while ((length = inputStream.read(buffer)) > 0) {
+                outputStream.write(buffer, 0, length);
+            }
+
         } catch (IOException exception) {
             throw new BallerinaTestException("Error while copying the report.dtd file for Jacoco coverageXML report " +
                     "validation.", exception);
