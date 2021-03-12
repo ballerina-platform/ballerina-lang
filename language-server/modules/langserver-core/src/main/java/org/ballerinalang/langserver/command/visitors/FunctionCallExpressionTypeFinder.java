@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.LetExpressionNode;
@@ -108,8 +109,11 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
 
     @Override
     public void visit(LetVariableDeclarationNode letVariableDeclarationNode) {
-        TypeSymbol typeSymbol = semanticModel.type(letVariableDeclarationNode).orElse(null);
-        checkAndSetTypeResult(typeSymbol);
+        Optional<Symbol> symbol = semanticModel.symbol(letVariableDeclarationNode);
+        if (symbol.isEmpty()) {
+            return;
+        }
+        checkAndSetTypeResult(((VariableSymbol) symbol.get()).typeDescriptor());
     }
 
     @Override
