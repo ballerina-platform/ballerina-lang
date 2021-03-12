@@ -20,24 +20,21 @@
             },
             {
               "kind": "TYPED_BINDING_PATTERN",
+              "hasDiagnostics": true,
               "children": [
                 {
-                  "kind": "INT_TYPE_DESC",
+                  "kind": "ARRAY_TYPE_DESC",
                   "children": [
                     {
-                      "kind": "INT_KEYWORD"
-                    }
-                  ]
-                },
-                {
-                  "kind": "LIST_BINDING_PATTERN",
-                  "children": [
-                    {
-                      "kind": "OPEN_BRACKET_TOKEN"
+                      "kind": "INT_TYPE_DESC",
+                      "children": [
+                        {
+                          "kind": "INT_KEYWORD"
+                        }
+                      ]
                     },
                     {
-                      "kind": "LIST",
-                      "children": []
+                      "kind": "OPEN_BRACKET_TOKEN"
                     },
                     {
                       "kind": "CLOSE_BRACKET_TOKEN",
@@ -46,6 +43,20 @@
                           "kind": "WHITESPACE_MINUTIAE",
                           "value": " "
                         }
+                      ]
+                    }
+                  ]
+                },
+                {
+                  "kind": "CAPTURE_BINDING_PATTERN",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "IDENTIFIER_TOKEN",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_IDENTIFIER"
                       ]
                     }
                   ]
@@ -635,38 +646,34 @@
                         },
                         {
                           "kind": "TYPED_BINDING_PATTERN",
+                          "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "INT_TYPE_DESC",
+                              "kind": "ARRAY_TYPE_DESC",
                               "children": [
                                 {
-                                  "kind": "INT_KEYWORD",
-                                  "leadingMinutiae": [
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
                                     {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "    "
+                                      "kind": "INT_KEYWORD",
+                                      "leadingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": "    "
+                                        }
+                                      ]
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "LIST_BINDING_PATTERN",
-                              "children": [
+                                },
                                 {
                                   "kind": "OPEN_BRACKET_TOKEN"
                                 },
                                 {
-                                  "kind": "LIST",
+                                  "kind": "SIMPLE_NAME_REFERENCE",
                                   "children": [
                                     {
-                                      "kind": "CAPTURE_BINDING_PATTERN",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "k"
-                                        }
-                                      ]
+                                      "kind": "IDENTIFIER_TOKEN",
+                                      "value": "k"
                                     }
                                   ]
                                 },
@@ -680,23 +687,20 @@
                                   ]
                                 }
                               ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "EQUAL_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED"
-                          ]
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
+                            },
                             {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "hasDiagnostics": true,
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_IDENTIFIER"
+                                  ]
+                                }
+                              ]
                             }
                           ]
                         },

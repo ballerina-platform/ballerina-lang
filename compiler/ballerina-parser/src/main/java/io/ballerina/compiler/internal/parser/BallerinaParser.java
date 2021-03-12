@@ -15455,7 +15455,10 @@ public class BallerinaParser extends AbstractParser {
         // In ambiguous scenarios typDesc: T[a] may have parsed as an indexed expression.
         // Therefore make an array-type-desc out of it.
         typeDesc = getTypeDescFromExpr(typeDesc);
+        switchContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
+        startContext(ParserRuleContext.ARRAY_TYPE_DESCRIPTOR);
         STNode closeBracket = parseCloseBracket();
+        endContext();
         endContext();
         return parseTypedBindingPatternOrMemberAccessRhs(typeDesc, openBracket, member, closeBracket, true, true,
                 context);
@@ -15573,7 +15576,7 @@ public class BallerinaParser extends AbstractParser {
 
         ParserRuleContext recoveryCtx = ParserRuleContext.BRACKETED_LIST_RHS;
         if (isTypedBindingPattern) {
-            recoveryCtx = ParserRuleContext.BINDING_PATTERN;
+            recoveryCtx = ParserRuleContext.TYPE_DESC_RHS_IN_TYPED_BP;
         }
 
         recover(peek(), recoveryCtx, typeDescOrExpr, openBracket, member, closeBracket,

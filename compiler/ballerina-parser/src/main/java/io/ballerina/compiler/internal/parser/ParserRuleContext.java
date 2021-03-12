@@ -688,6 +688,7 @@ public enum ParserRuleContext {
     TRANSACTION_STMT_RHS_OR_TYPE_REF("transaction-stmt-rhs-or-type-ref"),
     QUALIFIED_IDENTIFIER_START_IDENTIFIER("qualified-identifier-start-identifier"),
     QUALIFIED_IDENTIFIER_PREDECLARED_PREFIX("qualified-identifier-predeclared-prefix"),
+    TYPE_DESC_RHS_IN_TYPED_BP("type-desc-rhs-in-typed-binding-pattern"),
     ;
 
     private String value;
@@ -702,3 +703,4 @@ public enum ParserRuleContext {
     }
 
 }
+

@@ -549,7 +549,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.ARRAY_LENGTH, ParserRuleContext.BINDING_PATTERN };
 
     private static final ParserRuleContext[] BRACKETED_LIST_RHS = { ParserRuleContext.ASSIGN_OP,
-            ParserRuleContext.VARIABLE_NAME, ParserRuleContext.BINDING_PATTERN, ParserRuleContext.EXPRESSION_RHS };
+            ParserRuleContext.TYPE_DESC_RHS_IN_TYPED_BP, ParserRuleContext.EXPRESSION_RHS };
 
     private static final ParserRuleContext[] XML_NAVIGATE_EXPR =
             { ParserRuleContext.XML_FILTER_EXPR, ParserRuleContext.XML_STEP_EXPR };
@@ -2484,6 +2484,8 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
         if (parentCtx == ParserRuleContext.IF_BLOCK || parentCtx == ParserRuleContext.WHILE_BLOCK ||
                 parentCtx == ParserRuleContext.FOREACH_STMT) {
             nextContext = ParserRuleContext.BLOCK_STMT;
+        } else if (parentCtx == ParserRuleContext.MATCH_STMT) {
+            nextContext = ParserRuleContext.MATCH_BODY;
         } else if (isStatement(parentCtx) ||
                 parentCtx == ParserRuleContext.RECORD_FIELD || parentCtx == ParserRuleContext.OBJECT_MEMBER ||
                 parentCtx == ParserRuleContext.CLASS_MEMBER ||
@@ -2507,8 +2509,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             nextContext = ParserRuleContext.COLON;
         } else if (parentCtx == ParserRuleContext.ENUM_MEMBER_LIST) {
             nextContext = ParserRuleContext.ENUM_MEMBER_END;
-        } else if (parentCtx == ParserRuleContext.MATCH_STMT) {
-            nextContext = ParserRuleContext.MATCH_BODY;
         } else if (parentCtx == ParserRuleContext.MATCH_BODY) {
             nextContext = ParserRuleContext.RIGHT_DOUBLE_ARROW;
         } else if (parentCtx == ParserRuleContext.SELECT_CLAUSE) {
@@ -3027,8 +3027,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_DESC_IN_PATH_PARAM:
                 return ParserRuleContext.TYPE_DESCRIPTOR;
             case VAR_DECL_STARTED_WITH_DENTIFIER:
+            case TYPE_DESC_RHS_IN_TYPED_BP:
                 // We come here trying to recover statement started with identifier,
-                // and trying to match it against a var-decl. Since this wasn't a var-decl
+                // and trying to match it against a var-decl. Or typed binding pattern starts
+                // with array type descriptor.
                 // originally, a context for type hasn't started yet. Therefore start a
                 // a context manually here.
                 startContext(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN);
@@ -3939,10 +3941,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 if (isInTypeDescContext()) {
                     return ParserRuleContext.TYPEDESC_RHS;
                 }
-                if (getParentContext() == ParserRuleContext.FOREACH_STMT) {
-                    return ParserRuleContext.BINDING_PATTERN;
-                }
-                return ParserRuleContext.VARIABLE_NAME;
+                return ParserRuleContext.BINDING_PATTERN;
             case TYPE_DESC_IN_PARAM:
                 endContext();
                 if (isInTypeDescContext()) {
