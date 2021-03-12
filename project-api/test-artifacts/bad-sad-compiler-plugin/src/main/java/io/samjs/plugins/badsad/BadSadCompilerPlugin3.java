@@ -15,19 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.plugins;
+package io.samjs.plugins.badsad;
 
 /**
- * This class can be used to add various compiler plugin tasks to the current compilation.
+ * A class that does not extend {@code CompilerPlugin}.
  *
  * @since 2.0.0
  */
-public interface CompilerPluginContext {
+public class BadSadCompilerPlugin3 {
 
-    /**
-     * Add a {@code CodeAnalyzer} instance to the current compilation.
-     *
-     * @param codeAnalyzer the {@code CodeAnalyzer} instance
-     */
-    void addCodeAnalyzer(CodeAnalyzer codeAnalyzer);
 }

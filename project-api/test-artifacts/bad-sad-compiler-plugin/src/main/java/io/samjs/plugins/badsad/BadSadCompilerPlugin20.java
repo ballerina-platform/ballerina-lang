@@ -15,19 +15,27 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.projects.plugins;
+package io.samjs.plugins.badsad;
+
+import io.ballerina.projects.plugins.CompilerPlugin;
+import io.ballerina.projects.plugins.CompilerPluginContext;
+
+import java.io.PrintStream;
 
 /**
- * This class can be used to add various compiler plugin tasks to the current compilation.
+ * A {@code CompilerPlugin} that throws runtime error when initializing.
  *
  * @since 2.0.0
  */
-public interface CompilerPluginContext {
+public class BadSadCompilerPlugin20 extends CompilerPlugin {
 
-    /**
-     * Add a {@code CodeAnalyzer} instance to the current compilation.
-     *
-     * @param codeAnalyzer the {@code CodeAnalyzer} instance
-     */
-    void addCodeAnalyzer(CodeAnalyzer codeAnalyzer);
+    @Override
+    public void init(CompilerPluginContext pluginContext) {
+        PrintStream out = System.out;
+        out.println(getStr().toCharArray());
+    }
+
+    String getStr() {
+        return null;
+    }
 }
