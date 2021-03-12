@@ -412,7 +412,7 @@ function getComplexUnion(typedesc<int|[int, string]> td = <>) returns td[]|map<t
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
 } external;
 
-    function funcWithMultipleArgs(int i, typedesc<int|string> td = <>, string[] arr = []) returns td[] = @java:Method {
+function funcWithMultipleArgs(int i, typedesc<int|string> td = <>, string[] arr = []) returns td[] = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
 } external;
 

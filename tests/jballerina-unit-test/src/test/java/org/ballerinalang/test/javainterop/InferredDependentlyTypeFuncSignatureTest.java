@@ -77,7 +77,7 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 BCompileUtil.compile("test-src/javainterop/inferred_dependently_typed_func_signature_negative.bal");
         int index = 0;
         validateError(negativeResult, index++, "incompatible type for parameter 'rowType' with inferred " +
-                "typedesc value: expected 'record {| int...; |}', found 'OpenRecord'", 20, 37);
+                "typedesc value: expected 'typedesc<record {| int...; |}>', found 'typedesc<OpenRecord>'", 20, 37);
         validateError(negativeResult, index++, "incompatible types: expected 'typedesc<record {| int...; |}>', found " +
                 "'typedesc<OpenRecord>'", 21, 48);
         validateError(negativeResult, index++, "cannot have more than one defaultable parameter with an inferred " +
@@ -105,6 +105,37 @@ public class InferredDependentlyTypeFuncSignatureTest {
         validateError(negativeResult, index++,
                 "incompatible types: expected 'typedesc<(xml:Element|xml:Comment)>', found 'typedesc<xml:Text>'",
                 69, 38);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 78, 18);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
+                "expected 'typedesc<(string|int)>', found 'typedesc<float>'", 79, 26);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
+                "expected 'typedesc<(int|[int,string])>', found 'typedesc<float>'", 80, 31);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
+                "expected 'typedesc<(int|[int,string])>', found 'typedesc<[int,boolean]>'", 81, 50);
+        validateError(negativeResult, index++, "incompatible types: expected 'boolean?', found '(int|boolean)?'", 82,
+                18);
+        validateError(negativeResult, index++, "incompatible types: expected 'typedesc<(string|int)>', found " +
+                "'typedesc<float>'", 83, 46);
+        validateError(negativeResult, index++, "incompatible types: expected '(float|boolean)?', found '" +
+                "(string|boolean)?'", 84, 24);
+        validateError(negativeResult, index++, "incompatible types: expected '(string|boolean)', found '" +
+                "(string|boolean)?'", 85, 24);
+        validateError(negativeResult, index++, "incompatible types: expected '(int[]|map<float[]>)?', found '" +
+                "(int[]|map<int[]>)?'", 86, 29);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
+                "expected 'typedesc<(int|[int,string])>', found 'typedesc<[int,int]>'", 87, 43);
+        validateError(negativeResult, index++, "incompatible types: expected 'string[]', found 'int[]'", 95, 18);
+        validateError(negativeResult, index++, "incompatible types: expected 'int[]', found 'string[]'", 96, 15);
+        validateError(negativeResult, index++, "incompatible types: expected 'string[]', found 'int[]'", 99, 18);
+        validateError(negativeResult, index++, "incompatible types: expected 'string[]', found 'int[]'", 102, 18);
+        validateError(negativeResult, index++, "incompatible types: expected 'int[]', found 'string[]'", 105, 15);
+        validateError(negativeResult, index++, "incompatible types: expected 'int[]', found 'string[]'", 108, 15);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
+                "expected 'typedesc<(int|string)>', found 'typedesc<boolean>'", 110, 19);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
+                "expected 'typedesc<(int|string)>', found 'typedesc<float>'", 112, 17);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
+                "expected 'typedesc<(int|string)>', found 'typedesc<json>'", 114, 16);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }

@@ -74,3 +74,44 @@ type XmlText xml:Text;
 function getXml(typedesc<xml:Element|xml:Comment> td = <>, xml<xml:Element|xml:Comment> val = xml `<foo/>`)
     returns xml<td> = external;
 
+function testUnionTypes() {
+    boolean? a = getSimpleUnion(1);
+    boolean|()|float b = getSimpleUnion("hello");
+    float[]|map<float[]>? e = getComplexUnion();
+    map<[int, string][]>|()|[int, boolean][] f = getComplexUnion();
+    boolean? g = getSimpleUnion(1, int);
+    boolean|()|float h = getSimpleUnion(td = float, val = "hello");
+    float|boolean? i = getSimpleUnion(1, td = string);
+    string|boolean j = getSimpleUnion("hello", string);
+    int[]|map<float[]>? k = getComplexUnion(int);
+    map<[int, int][]>|()|[int, int][] l = getComplexUnion();
+}
+
+function getSimpleUnion(string|int val, typedesc<string|int> td = <>) returns td|boolean? = external;
+
+function getComplexUnion(typedesc<int|[int, string]> td = <>) returns td[]|map<td[]>? = external;
+
+function testArgCombinations() {
+    string[] a = funcWithMultipleArgs(1, int, ["hello", "world"]);
+    int[] b = funcWithMultipleArgs(td = string, arr = ["hello", "world"], i = 3);
+
+    record {| string[] arr = ["hello", "world", "Ballerina"]; int i = 123; typedesc<int> td; |} rec1 = {td: int};
+    string[] c = funcWithMultipleArgs(...rec1);
+
+    record {| string[] arr = ["hello", "world"]; |} rec2 = {};
+    string[] d = funcWithMultipleArgs(1234, int, ...rec2);
+
+    [int, typedesc<string>, string[]] tup1 = [21, string, ["hello"]];
+    int[] e = funcWithMultipleArgs(...tup1);
+
+    [string[]] tup2 = [["hello"]];
+    int[] f = funcWithMultipleArgs(34, string, ...tup2);
+
+    boolean[] g = funcWithMultipleArgs(1);
+
+    float[] h = funcWithMultipleArgs(101, arr = ["hello", "world"]);
+
+    json[] i = funcWithMultipleArgs(arr = ["hello", "world"], i = 202);
+}
+
+function funcWithMultipleArgs(int i, typedesc<int|string> td = <>, string[] arr = []) returns td[] = external;

@@ -137,12 +137,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BMapType originalType, BType expType) {
-        BType matchingType = getMatchingType(originalType, expType);
+        BType matchingType = getMatchingTypeForInferrableType(originalType, expType);
         BType expConstraint = matchingType == null ? null : ((BMapType) matchingType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
-        if (newConstraint == originalType.constraint) {
+        if (isSameType(newConstraint, originalType.constraint)) {
             return originalType;
+        }
+
+        if (isSemanticErrorInInvocation(newConstraint)) {
+            return symbolTable.semanticError;
         }
 
         BMapType newMType = new BMapType(originalType.tag, newConstraint, null);
@@ -152,12 +156,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BXMLType originalType, BType expType) {
-        BType matchingType = getMatchingType(originalType, expType);
+        BType matchingType = getMatchingTypeForInferrableType(originalType, expType);
         BType expConstraint = matchingType == null ? null : ((BXMLType) matchingType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
-        if (newConstraint == originalType.constraint) {
+        if (isSameType(newConstraint, originalType.constraint)) {
             return originalType;
+        }
+
+        if (isSemanticErrorInInvocation(newConstraint)) {
+            return symbolTable.semanticError;
         }
 
         BXMLType newXMLType = new BXMLType(newConstraint, null);
@@ -172,12 +180,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BArrayType originalType, BType expType) {
-        BType matchingType = getMatchingType(originalType, expType);
+        BType matchingType = getMatchingTypeForInferrableType(originalType, expType);
         BType expElemType = matchingType == null ? null : ((BArrayType) matchingType).eType;
         BType newElemType = originalType.eType.accept(this, expElemType);
 
-        if (newElemType == originalType.eType) {
+        if (isSameType(newElemType, originalType.eType)) {
             return originalType;
+        }
+
+        if (isSemanticErrorInInvocation(newElemType)) {
+            return symbolTable.semanticError;
         }
 
         BArrayType newArrayType = new BArrayType(newElemType, null, originalType.size, originalType.state);
@@ -203,16 +215,20 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
 
             this.visitedTypes.add(field.type);
-            BType newFType = field.type.accept(this, null);
+            BType newFieldType = field.type.accept(this, null);
             this.visitedTypes.remove(field.type);
 
-            if (newFType == field.type) {
+            if (isSemanticErrorInInvocation(newFieldType)) {
+                return originalType;
+            }
+
+            if (newFieldType == field.type) {
                 newFields.put(field.name.value, field);
                 continue;
             }
 
             BField newField = new BField(field.name, field.pos, field.symbol);
-            newField.type = newFType;
+            newField.type = newFieldType;
             newFields.put(newField.name.value, newField);
         }
 
@@ -229,7 +245,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
     public BType visit(BTupleType originalType, BType expType) {
         boolean hasNewType = false;
 
-        BTupleType matchingType = (BTupleType) getMatchingType(originalType, expType);
+        BTupleType matchingType = (BTupleType) getMatchingTypeForInferrableType(originalType, expType);
         boolean hasMatchedTupleType = matchingType != null;
         BTupleType expTupleType = hasMatchedTupleType ? matchingType : null;
 
@@ -245,17 +261,18 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType newMem = member.accept(this, expMember);
             members.add(newMem);
 
-            if (newMem != member) {
+            if (!isSameTypeOrError(newMem, member)) {
                 hasNewType = true;
             }
         }
 
-        BType rest = originalType.restType;
-        if (rest != null) {
+        BType restType = originalType.restType;
+        BType newRestType = null;
+        if (restType != null) {
             BType expRestType = hasMatchedTupleType ? matchingType.restType : null;
-            rest = rest.accept(this, expRestType);
+            newRestType = restType.accept(this, expRestType);
 
-            if (rest != originalType.restType) {
+            if (!isSameTypeOrError(newRestType, restType)) {
                 hasNewType = true;
             }
         }
@@ -265,14 +282,14 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         }
 
         BTupleType type = new BTupleType(null, members);
-        type.restType = rest;
+        type.restType = newRestType;
         setFlags(type, originalType.flags);
         return type;
     }
 
     @Override
     public BType visit(BStreamType originalType, BType expType) {
-        BStreamType matchingType = (BStreamType) getMatchingType(originalType, expType);
+        BStreamType matchingType = (BStreamType) getMatchingTypeForInferrableType(originalType, expType);
         boolean hasMatchedStreamType = matchingType != null;
         BStreamType expStreamType = hasMatchedStreamType ? matchingType : null;
 
@@ -285,8 +302,12 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             newError = originalType.error.accept(this, expError);
         }
 
-        if (newConstraint == originalType.constraint && newError == originalType.error) {
+        if (isSameType(newConstraint, originalType.constraint) && isSameType(newError, originalType.error)) {
             return originalType;
+        }
+
+        if (isSemanticErrorInInvocation(newConstraint) || isSemanticErrorInInvocation(newError)) {
+            return symbolTable.semanticError;
         }
 
         BStreamType type = new BStreamType(originalType.tag, newConstraint, newError, null);
@@ -296,7 +317,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTableType originalType, BType expType) {
-        BTableType matchingType = (BTableType) getMatchingType(originalType, expType);
+        BTableType matchingType = (BTableType) getMatchingTypeForInferrableType(originalType, expType);
         boolean hasMatchedTableType = matchingType != null;
         BType expConstraint = hasMatchedTableType ? matchingType.constraint : null;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
@@ -307,8 +328,13 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             originalType.keyTypeConstraint.accept(this, expKeyConstraint);
         }
 
-        if (newConstraint == originalType.constraint && newKeyTypeConstraint == originalType.keyTypeConstraint) {
+        if (isSameType(newConstraint, originalType.constraint) &&
+                isSameType(newKeyTypeConstraint, originalType.keyTypeConstraint)) {
             return originalType;
+        }
+
+        if (isSemanticErrorInInvocation(newConstraint) || isSemanticErrorInInvocation(newKeyTypeConstraint)) {
+            return symbolTable.semanticError;
         }
 
         BTableType newTableType = new BTableType(TypeTags.TABLE, newConstraint, null);
@@ -329,7 +355,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
         boolean hasNewType = false;
 
-        BInvokableType matchingType = (BInvokableType) getMatchingType(originalType, expType);
+        BInvokableType matchingType = (BInvokableType) getMatchingTypeForInferrableType(originalType, expType);
         boolean hasMatchingInvokableType = matchingType != null;
 
         List<BType> paramTypes = new ArrayList<>();
@@ -344,17 +370,18 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType newT = type.accept(this, expParamType);
             paramTypes.add(newT);
 
-            if (newT != type) {
+            if (!isSameTypeOrError(newT, type)) {
                 hasNewType = true;
             }
         }
 
-        BType rest = originalType.restType;
-        if (rest != null) {
+        BType restType = originalType.restType;
+        BType newRestType = null;
+        if (restType != null) {
             BType expRestType = hasMatchingInvokableType ? matchingType.restType : null;
-            rest = rest.accept(this, expRestType);
+            newRestType = restType.accept(this, expRestType);
 
-            if (rest != originalType.restType) {
+            if (!isSameTypeOrError(newRestType, restType)) {
                 hasNewType = true;
             }
         }
@@ -362,11 +389,17 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BType expRetType = hasMatchingInvokableType ? matchingType.retType : null;
         BType retType = originalType.retType.accept(this, expRetType);
 
-        if (!hasNewType && retType != originalType.retType) {
-            return originalType;
+        if (!hasNewType) {
+            if (isSameType(retType, originalType.retType)) {
+                return originalType;
+            }
+
+            if (isSemanticErrorInInvocation(retType)) {
+                return symbolTable.semanticError;
+            }
         }
 
-        BType type = new BInvokableType(paramTypes, rest, retType, null);
+        BType type = new BInvokableType(paramTypes, newRestType, retType, null);
         setFlags(type, originalType.flags);
         return type;
     }
@@ -397,9 +430,20 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
             BType newMember = member.accept(this,
                                             getExpectedTypeForInferredTypedescMember(originalType, expType, member));
+
+            if (this.isInvocation) {
+                if (newMember == symbolTable.semanticError) {
+                    return symbolTable.semanticError;
+                }
+
+                if (newMember == member && Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
+                    return expType;
+                }
+            }
+
             newMemberTypes.add(newMember);
 
-            if (newMember != member) {
+            if (!isSameTypeOrError(newMember, member)) {
                 hasNewType = true;
             }
         }
@@ -413,54 +457,19 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return type;
     }
 
-    private BType getExpectedTypeForInferredTypedescMember(BUnionType originalType, BType expType, BType member) {
-        if (expType == null || this.invocation == null || !Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
-            return null;
-        }
-
-        if (expType.tag != TypeTags.UNION) {
-            return expType;
-        }
-
-        LinkedHashSet<BType> types = new LinkedHashSet<>();
-        for (BType expMemType : ((BUnionType) expType).getMemberTypes()) {
-            boolean hasMatchWithOtherType = false;
-            for (BType origMemType : originalType.getMemberTypes()) {
-                if (origMemType == member) {
-                    continue;
-                }
-
-                if (hasSameBasicType(expMemType, origMemType)) {
-                    hasMatchWithOtherType = true;
-                    break;
-                }
-            }
-
-            if (!hasMatchWithOtherType) {
-                types.add(expMemType);
-            }
-        }
-
-        if (types.isEmpty()) {
-            return null;
-        }
-
-        if (types.size() == 1) {
-            return types.iterator().next();
-        }
-
-        return BUnionType.create(null, types);
-    }
-
     @Override
     public BType visit(BIntersectionType originalType, BType expType) {
-        BType matchingType = getMatchingType(originalType, expType);
+        BType matchingType = getMatchingTypeForInferrableType(originalType, expType);
         BType expEffectiveType = matchingType == null ?
                 null : ((BIntersectionType) matchingType).effectiveType;
         BType newEffectiveType = originalType.effectiveType.accept(this, expEffectiveType);
 
-        if (newEffectiveType == originalType.effectiveType) {
+        if (isSameType(newEffectiveType, originalType.effectiveType)) {
             return originalType;
+        }
+
+        if (isSemanticErrorInInvocation(newEffectiveType)) {
+            return symbolTable.semanticError;
         }
 
         BIntersectionType type = new BIntersectionType(null, (LinkedHashSet<BType>) originalType.getConstituentTypes(),
@@ -471,12 +480,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BErrorType originalType, BType expType) {
-        BType matchingType = getMatchingType(originalType, expType);
+        BType matchingType = getMatchingTypeForInferrableType(originalType, expType);
         BType expDetailType = matchingType == null ? null : ((BErrorType) expType).detailType;
         BType newDetail = originalType.detailType.accept(this, expDetailType);
 
-        if (newDetail == originalType.detailType) {
+        if (isSameType(newDetail, originalType.detailType)) {
             return originalType;
+        }
+
+        if (isSemanticErrorInInvocation(newDetail)) {
+            return symbolTable.semanticError;
         }
 
         BErrorType type = new BErrorType(null, newDetail);
@@ -486,12 +499,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BFutureType originalType, BType expType) {
-        BType matchingType = getMatchingType(originalType, expType);
+        BType matchingType = getMatchingTypeForInferrableType(originalType, expType);
         BType expConstraint = matchingType == null ? null : ((BFutureType) expType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
-        if (newConstraint == originalType.constraint) {
+        if (isSameType(newConstraint, originalType.constraint)) {
             return originalType;
+        }
+
+        if (isSemanticErrorInInvocation(newConstraint)) {
+            return symbolTable.semanticError;
         }
 
         BFutureType newFutureType = new BFutureType(originalType.tag, newConstraint, null,
@@ -508,12 +525,16 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BTypedescType originalType, BType expType) {
-        BType matchingType = getMatchingType(originalType, expType);
+        BType matchingType = getMatchingTypeForInferrableType(originalType, expType);
         BType expConstraint = matchingType == null ? null : ((BTypedescType) expType).constraint;
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
-        if (newConstraint == originalType.constraint) {
+        if (isSameType(newConstraint, originalType.constraint)) {
             return originalType;
+        }
+
+        if (isSemanticErrorInInvocation(newConstraint)) {
+            return symbolTable.semanticError;
         }
 
         BTypedescType newTypedescType = new BTypedescType(newConstraint, null);
@@ -526,25 +547,26 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         String paramVarName = originalType.paramSymbol.name.value;
 
         if (Symbols.isFlagOn(originalType.paramSymbol.flags, Flags.INFER)) {
-            BType paramSymbolType = ((BTypedescType) originalType.paramSymbol.type).constraint;
+            BTypedescType paramSymbolTypedescType = (BTypedescType) originalType.paramSymbol.type;
+            BType paramSymbolType = paramSymbolTypedescType.constraint;
             if (expType != null) {
                 if (expType != symbolTable.noType && !types.isAssignable(expType, paramSymbolType)) {
                     if (!paramValueTypes.containsKey(paramVarName)) {
                         // Log an error only if the user has not explicitly passed an argument. If the passed
                         // argument is invalid, the type checker will log the error.
                         dlog.error(invocation.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_FOR_INFERRED_TYPEDESC_VALUE,
-                                   paramVarName, paramSymbolType, expType);
-                        return paramSymbolType;
+                                   paramVarName, paramSymbolTypedescType, new BTypedescType(expType, null));
+                        return symbolTable.semanticError;
                     }
                     BType type = paramValueTypes.get(paramVarName);
-                    return type == symbolTable.semanticError ? paramSymbolType : ((BTypedescType) type).constraint;
+                    return type == symbolTable.semanticError ? expType : ((BTypedescType) type).constraint;
                 }
 
                 BType type = getTypeAddingArgIfNotProvided(originalType, expType);
                 return type == symbolTable.semanticError ? expType : type;
             }
 
-            if (this.invocation != null) {
+            if (this.isInvocation) {
                 if (paramValueTypes.containsKey(paramVarName)) {
                     return getConstraintTypeIfNotError(paramValueTypes.get(paramVarName));
                 }
@@ -877,8 +899,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return tag == TypeTags.ARRAY || tag == TypeTags.TUPLE;
     }
 
-    private BType getMatchingType(BType originalType, BType expType) { //int[]|error expType, orig type - td[]
-        if (expType == null || this.invocation == null) {
+    private BType getMatchingTypeForInferrableType(BType originalType, BType expType) {
+        if (expType == null || !this.isInvocation) {
             return null;
         }
 
@@ -1052,6 +1074,57 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             }
         }
         return paramsWithInferredTypedescDefault;
+    }
+
+    private BType getExpectedTypeForInferredTypedescMember(BUnionType originalType, BType expType, BType member) {
+        if (expType == null || !this.isInvocation || !Symbols.isFlagOn(member.flags, Flags.PARAMETERIZED)) {
+            return null;
+        }
+
+        if (expType.tag != TypeTags.UNION) {
+            return expType;
+        }
+
+        LinkedHashSet<BType> types = new LinkedHashSet<>();
+        for (BType expMemType : ((BUnionType) expType).getMemberTypes()) {
+            boolean hasMatchWithOtherType = false;
+            for (BType origMemType : originalType.getMemberTypes()) {
+                if (origMemType == member) {
+                    continue;
+                }
+
+                if (hasSameBasicType(expMemType, origMemType)) {
+                    hasMatchWithOtherType = true;
+                    break;
+                }
+            }
+
+            if (!hasMatchWithOtherType) {
+                types.add(expMemType);
+            }
+        }
+
+        if (types.isEmpty()) {
+            return null;
+        }
+
+        if (types.size() == 1) {
+            return types.iterator().next();
+        }
+
+        return BUnionType.create(null, types);
+    }
+
+    private boolean isSameTypeOrError(BType newType, BType originalType) {
+        return isSameType(newType, originalType) || isSemanticErrorInInvocation(newType);
+    }
+
+    private boolean isSameType(BType newType, BType originalType) {
+        return newType == originalType;
+    }
+
+    private boolean isSemanticErrorInInvocation(BType newType) {
+        return this.isInvocation && newType == symbolTable.semanticError;
     }
 
     private void resetBuildArgs() {
