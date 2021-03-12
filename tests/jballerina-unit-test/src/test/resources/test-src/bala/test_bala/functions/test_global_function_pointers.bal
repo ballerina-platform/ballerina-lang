@@ -1,4 +1,4 @@
-import testorg/foo as foo;
+import testorg/foo;
 
 function test0 (string x, int y) returns string {
     string result = x + y.toString();

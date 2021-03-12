@@ -49,6 +49,8 @@ public class FunctionPointersTest {
                 BCompileUtil.compile("test-src/bala/test_bala/functions/test_global_function_pointers_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'function', found 'string'", 20, 12);
+        BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'isolated function', found 'function () returns " +
                         "(function (string,int) returns (string))'", 24, 30);
         BAssertUtil.validateError(negativeCompileResult, i++,

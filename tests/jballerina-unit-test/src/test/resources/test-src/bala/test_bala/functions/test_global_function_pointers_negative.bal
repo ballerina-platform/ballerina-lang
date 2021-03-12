@@ -14,10 +14,10 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/foo as foo;
+import testorg/foo;
 
 function functionWithFunctionReturnType() returns function {
-    return foo:getGlf1();
+    return foo:concat("chiran", 12);
 }
 
 function testFunctionTypedescWithIsolatedQualifier() {

@@ -38,7 +38,7 @@ public function anyFunction2(function (string, int) returns string func) returns
     return <function> func;
 }
 
-function concat (string x, int y) returns string {
+public function concat (string x, int y) returns string {
     string result = x + y.toString();
     return result;
 }
