@@ -20,7 +20,6 @@ package io.ballerina.cli.task;
 
 import io.ballerina.cli.launcher.RuntimePanicException;
 import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
@@ -119,9 +118,7 @@ public class RunExecutableTask implements Task {
     private String getAllClassPaths(JarResolver jarResolver) {
 
         StringJoiner cp = new StringJoiner(File.pathSeparator);
-        jarResolver.getJarFilePathsRequiredForExecution().stream()
-                .map(JarLibrary::path).map(Path::toString)
-                .forEach(cp::add);
+        jarResolver.getJarFilePathsRequiredForExecution().stream().map(Path::toString).forEach(cp::add);
         return cp.toString();
     }
 }

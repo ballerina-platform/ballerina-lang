@@ -100,8 +100,10 @@ public class FunctionNodeAnalyzerPlugin extends CompilerPlugin {
                     }
 
                     syntaxNodeAnalysisContext.reportDiagnostic(
-                            DiagnosticUtils.createDiagnostic(code, "Module level decl test warning message",
-                                    syntaxNodeAnalysisContext.node().location(), DiagnosticSeverity.WARNING));
+                            DiagnosticUtils.createDiagnostic(code,
+                                    "Module level declaration: ''{0}'', test ''{1}'' message",
+                                    syntaxNodeAnalysisContext.node().location(), DiagnosticSeverity.WARNING,
+                                    syntaxNodeAnalysisContext.node().kind(), DiagnosticSeverity.WARNING));
                 };
 
         SyntaxTree getSyntaxTree(Package currentPkg) {

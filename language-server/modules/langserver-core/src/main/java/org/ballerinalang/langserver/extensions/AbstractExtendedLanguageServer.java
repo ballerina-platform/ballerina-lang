@@ -79,7 +79,7 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
                             String msg = "The json rpc method '" + entry.getKey()
                                     + "' can not be an extension as it is already defined in the LSP standard.";
                             LSClientLogger.getInstance(this.serverContext)
-                                    .logError(msg, new RuntimeException(msg), null, (Position) null);
+                                    .logError(null, msg, new RuntimeException(msg), null, (Position) null);
                         } else {
                             JsonRpcMethod existing = extensions.put(entry.getKey(), entry.getValue());
                             if (existing != null && !Objects.equal(existing, entry.getValue())) {
@@ -87,7 +87,7 @@ public abstract class AbstractExtendedLanguageServer implements LanguageServer, 
                                         + "' has already been registered. Using 1 ignoring 2. \n1 : " +
                                         existing + " \n2 : " + entry.getValue();
                                 LSClientLogger.getInstance(this.serverContext)
-                                        .logError(msg, new RuntimeException(msg), null, (Position) null);
+                                        .logError(null, msg, new RuntimeException(msg), null, (Position) null);
                                 extensions.put(entry.getKey(), existing);
                             } else {
                                 Endpoint endpoint = ServiceEndpoints.toEndpoint(ext);
