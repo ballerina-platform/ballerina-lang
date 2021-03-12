@@ -267,7 +267,6 @@ public class BalaFiles {
         // Load `package.json`
         PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
         validatePackageJson(packageJson, balrPath);
-        extractPlatformLibraries(packageJson, balrPath);
 
         // Load `compiler-plugin.json`
         Path compilerPluginJsonPath = balrPath.resolve(COMPILER_PLUGIN_DIR).resolve(COMPILER_PLUGIN_JSON);
@@ -297,24 +296,6 @@ public class BalaFiles {
         });
     }
 
-    private static void extractPlatformLibraries(PackageJson packageJson, Path balaPath) {
-        if (packageJson.getPlatformDependencies() == null) {
-            return;
-        }
-        packageJson.getPlatformDependencies().forEach(dependency -> {
-            Path libPath = balaPath.getParent().resolve(dependency.getPath());
-            if (!Files.exists(libPath)) {
-                try {
-                    Files.createDirectories(libPath.getParent());
-                    Files.copy(balaPath.resolve(dependency.getPath()), libPath);
-                } catch (IOException e) {
-                    throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
-                }
-            }
-            dependency.setPath(libPath.toString());
-        });
-    }
-
     private static void extractCompilerPluginLibraries(CompilerPluginJson compilerPluginJson, Path balaPath,
             FileSystem zipFileSystem) {
         if (compilerPluginJson.dependencyPaths() == null) {
@@ -325,9 +306,10 @@ public class BalaFiles {
             Path libPath = balaPath.getParent().resolve(dependencyPath).normalize();
             if (!Files.exists(libPath)) {
                 try {
-                    Path libPathInZip = Paths.get(COMPILER_PLUGIN_DIR, dependencyPath);
+                    Path libPathInZip = Paths.get(dependencyPath);
                     Files.createDirectories(libPath.getParent());
-                    Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
+                    Files.copy(zipFileSystem.getPath(
+                            String.valueOf(Paths.get(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip)))), libPath);
                 } catch (IOException e) {
                     throw new ProjectException(
                             "Failed to extract compiler plugin dependency:" + libPath.getFileName(), e);
