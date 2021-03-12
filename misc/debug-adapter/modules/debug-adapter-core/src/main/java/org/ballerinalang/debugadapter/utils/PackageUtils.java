@@ -23,7 +23,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
@@ -69,14 +68,18 @@ public class PackageUtils {
             throws AbsentInformationException {
 
         String sourcePath = location.sourcePath();
-        String[] moduleNameParts = getQModuleNameParts(sourcePath);
-        String locationOrg = moduleNameParts[0];
-        String locationModule = decodeIdentifier(moduleNameParts[1]);
+        String[] moduleParts = getQModuleNameParts(sourcePath);
+        String locationOrg = moduleParts[0];
+        String locationModule = decodeIdentifier(moduleParts[1]);
 
+        // 1. If the debug hit location resides within the current debug source project, retrieves the returns the
+        // absolute path of the project file source.
+        // 2. Else, checks whether the debug hit location resides within a project dependency (lang library, standard
+        // library, central module, etc.) and if so, retrieves the dependency file path.
         if (isWithinProject(location, currentProject)) {
-            return getSourcePath(location, currentProject);
+            return getSourceFilePath(location, currentProject);
         } else if (isWithinProjectDependency(currentProject, locationOrg, locationModule)) {
-            return dependencyFilePath(currentProject.currentPackage(), locationOrg, locationModule, moduleNameParts[3]);
+            return getDependencyFilePath(currentProject, locationOrg, locationModule, moduleParts[3]);
         }
         return null;
     }
@@ -114,48 +117,6 @@ public class PackageUtils {
             }
         }
         return false;
-    }
-
-    /**
-     * Returns the absolute file path of the project source, which is represented by the given JDI location information.
-     */
-    private static Path getSourcePath(Location location, Project project) throws AbsentInformationException {
-        String projectRoot = project.sourceRoot().toAbsolutePath().toString();
-
-        if (project instanceof SingleFileProject) {
-            DocumentId docId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
-            Document document = project.currentPackage().getDefaultModule().document(docId);
-            if (!document.name().equals(location.sourcePath()) || !document.name().equals(location.sourceName())) {
-                return null;
-            }
-            return Paths.get(projectRoot);
-        } else if (project instanceof BuildProject) {
-            String projectOrg = getOrgName(project);
-            String defaultModuleName = getDefaultModuleName(project);
-            String locationPath = location.sourcePath();
-            String locationName = location.sourceName();
-            String[] moduleNameParts = getQModuleNameParts(locationPath);
-            String locationOrg = moduleNameParts[0];
-
-            if (!locationOrg.equals(projectOrg)) {
-                return null;
-            }
-
-            String modulePart = decodeIdentifier(moduleNameParts[1]);
-            modulePart = modulePart.replaceFirst(defaultModuleName, "");
-            if (modulePart.startsWith(".")) {
-                modulePart = modulePart.replaceFirst("\\.", "");
-            }
-
-            if (modulePart.isBlank()) {
-                // default module
-                return Paths.get(projectRoot, locationName);
-            } else {
-                // other modules
-                return Paths.get(projectRoot, MODULE_DIR_NAME, modulePart, locationName);
-            }
-        }
-        return null;
     }
 
     /**
@@ -318,20 +279,63 @@ public class PackageUtils {
     }
 
     /**
+     * Returns the absolute file path of the project source, which is represented by the given JDI location information.
+     */
+    private static Path getSourceFilePath(Location location, Project project) throws AbsentInformationException {
+        String projectRoot = project.sourceRoot().toAbsolutePath().toString();
+
+        if (project instanceof SingleFileProject) {
+            DocumentId docId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
+            Document document = project.currentPackage().getDefaultModule().document(docId);
+            if (!document.name().equals(location.sourcePath()) || !document.name().equals(location.sourceName())) {
+                return null;
+            }
+            return Paths.get(projectRoot);
+        } else if (project instanceof BuildProject) {
+            String projectOrg = getOrgName(project);
+            String defaultModuleName = getDefaultModuleName(project);
+            String locationPath = location.sourcePath();
+            String locationName = location.sourceName();
+            String[] moduleNameParts = getQModuleNameParts(locationPath);
+            String locationOrg = moduleNameParts[0];
+
+            if (!locationOrg.equals(projectOrg)) {
+                return null;
+            }
+
+            String modulePart = decodeIdentifier(moduleNameParts[1]);
+            modulePart = modulePart.replaceFirst(defaultModuleName, "");
+            if (modulePart.startsWith(".")) {
+                modulePart = modulePart.replaceFirst("\\.", "");
+            }
+
+            if (modulePart.isBlank()) {
+                // default module
+                return Paths.get(projectRoot, locationName);
+            } else {
+                // other modules
+                return Paths.get(projectRoot, MODULE_DIR_NAME, modulePart, locationName);
+            }
+        }
+        return null;
+    }
+
+    /**
      * Returns the path of the specified file from dependency bala.
      *
-     * @param org        package org of the dependency
+     * @param project    current ballerina debug source project
+     * @param orgName    package org of the dependency
      * @param moduleName module name of the dependency
      * @param filename   name of the file to get the path of
      * @return path of the file
      * @throws ProjectException if file cannot be found in the dependency package
      */
-    private static Path dependencyFilePath(Package currentPkg, String org, String moduleName, String filename) {
+    private static Path getDependencyFilePath(Project project, String orgName, String moduleName, String filename) {
         List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(moduleName);
         for (PackageName possiblePackageName : possiblePackageNames) {
-            PackageResolution resolution = currentPkg.getResolution();
+            PackageResolution resolution = project.currentPackage().getResolution();
             for (ResolvedPackageDependency resolvedPackageDependency : resolution.dependencyGraph().getNodes()) {
-                if (!resolvedPackageDependency.packageInstance().packageOrg().value().equals(org)
+                if (!resolvedPackageDependency.packageInstance().packageOrg().value().equals(orgName)
                         || !resolvedPackageDependency.packageInstance().packageName().equals(possiblePackageName)) {
                     continue;
                 }
@@ -355,8 +359,8 @@ public class PackageUtils {
             }
         }
 
-        throw new ProjectException("no matching file '" + filename + "' found in dependency graph in '" +
-                org + "/" + moduleName + "'");
+        throw new ProjectException(String.format("no matching file '%s' found in dependency graph of '%s/%s'",
+                filename, orgName, moduleName));
     }
 
     private static ModuleName findModuleName(PackageName packageName, String moduleNameStr) {
@@ -367,5 +371,4 @@ public class PackageUtils {
             return ModuleName.from(packageName, moduleNamePart);
         }
     }
-
 }
