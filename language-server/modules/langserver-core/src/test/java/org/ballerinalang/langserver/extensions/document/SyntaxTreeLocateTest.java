@@ -61,15 +61,30 @@ public class SyntaxTreeLocateTest {
         TestUtil.closeDocument(this.serviceEndpoint, emptyFile);
     }
 
-    @Test (description = "Locate a member node")
-    public void testLocateFunctionNode() throws Exception {
+    @Test (description = "Locate imports node")
+    public void testLocateImportsNode() throws Exception {
         TestUtil.openDocument(serviceEndpoint, mainFile);
-        Range range = new Range(new Position(2, 0), new Position(4, 1));
+        Range range = new Range(new Position(0, 0), new Position(0, 20));
         BallerinaSyntaxTreeResponse response = LSExtensionTestUtil.getBallerinaSyntaxTreeLocate(mainFile.toString(),
                 range, this.serviceEndpoint);
         Assert.assertTrue(response.isParseSuccess());
 
-        Path filePath = RESOURCE_DIRECTORY.resolve("locateFunctionNode.json");
+        Path filePath = RESOURCE_DIRECTORY.resolve("locateImportsNode.json");
+        Gson gson = new Gson();
+        JsonObject expectedSyntaxTree = gson.fromJson(new FileReader(filePath.toFile()), JsonObject.class);
+        Assert.assertEquals(response.getSyntaxTree().getAsJsonObject(), expectedSyntaxTree.get("syntaxTree"));
+        TestUtil.closeDocument(this.serviceEndpoint, mainFile);
+    }
+
+    @Test (description = "Locate a member node")
+    public void testLocateMemberNode() throws Exception {
+        TestUtil.openDocument(serviceEndpoint, mainFile);
+        Range range = new Range(new Position(3, 7), new Position(3, 14));
+        BallerinaSyntaxTreeResponse response = LSExtensionTestUtil.getBallerinaSyntaxTreeLocate(mainFile.toString(),
+                range, this.serviceEndpoint);
+        Assert.assertTrue(response.isParseSuccess());
+
+        Path filePath = RESOURCE_DIRECTORY.resolve("locateMemberNode.json");
         Gson gson = new Gson();
         JsonObject expectedSyntaxTree = gson.fromJson(new FileReader(filePath.toFile()), JsonObject.class);
         Assert.assertEquals(response.getSyntaxTree().getAsJsonObject(), expectedSyntaxTree.get("syntaxTree"));
@@ -85,6 +100,21 @@ public class SyntaxTreeLocateTest {
         Assert.assertTrue(response.isParseSuccess());
 
         Path filePath = RESOURCE_DIRECTORY.resolve("locateNodeList.json");
+        Gson gson = new Gson();
+        JsonObject expectedSyntaxTree = gson.fromJson(new FileReader(filePath.toFile()), JsonObject.class);
+        Assert.assertEquals(response.getSyntaxTree().getAsJsonObject(), expectedSyntaxTree.get("syntaxTree"));
+        TestUtil.closeDocument(this.serviceEndpoint, sourceFile);
+    }
+
+    @Test (description = "Locate a list of nodes that leads to finding the module part node")
+    public void testModulePartNode() throws Exception {
+        TestUtil.openDocument(serviceEndpoint, sourceFile);
+        Range range = new Range(new Position(0, 4), new Position(4, 15));
+        BallerinaSyntaxTreeResponse response = LSExtensionTestUtil.getBallerinaSyntaxTreeLocate(sourceFile.toString(),
+                range, this.serviceEndpoint);
+        Assert.assertTrue(response.isParseSuccess());
+
+        Path filePath = RESOURCE_DIRECTORY.resolve("locateModulePartNode.json");
         Gson gson = new Gson();
         JsonObject expectedSyntaxTree = gson.fromJson(new FileReader(filePath.toFile()), JsonObject.class);
         Assert.assertEquals(response.getSyntaxTree().getAsJsonObject(), expectedSyntaxTree.get("syntaxTree"));

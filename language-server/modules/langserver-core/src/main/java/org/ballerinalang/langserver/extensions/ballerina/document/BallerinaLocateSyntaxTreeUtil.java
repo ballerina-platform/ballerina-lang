@@ -63,6 +63,7 @@ public class BallerinaLocateSyntaxTreeUtil {
             node = node.parent();
         }
         if (node == syntaxTree.rootNode()) {
+            syntaxTreeJson.getAsJsonObject().addProperty(LOCATED_NODE_PROPERTY, true);
             return syntaxTreeJson;
         }
         return findNodePath(syntaxTreeJson, syntaxTree, node);

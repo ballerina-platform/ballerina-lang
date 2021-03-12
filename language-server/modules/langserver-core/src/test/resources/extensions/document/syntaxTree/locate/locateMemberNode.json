@@ -436,7 +436,9 @@
                         }
                       }
                     ]
-                  }
+                  },
+                  "isNodePath":true,
+                  "isLocatedNode":true
                 },
                 "openParenToken":{
                   "kind":"OpenParenToken",
@@ -594,7 +596,8 @@
                       }
                     }
                   ]
-                }
+                },
+                "isNodePath":true
               },
               "semicolonToken":{
                 "kind":"SemicolonToken",
@@ -664,7 +667,8 @@
                     }
                   }
                 ]
-              }
+              },
+              "isNodePath":true
             }
           ],
           "closeBraceToken":{
@@ -713,7 +717,8 @@
             "diagnostics":[
 
             ]
-          }
+          },
+          "isNodePath":true
         },
         "source":"\npublic function main() {\n    io:println(\"Hello, World!\");\n}\n",
         "syntaxDiagnostics":[
@@ -754,8 +759,7 @@
 
           ]
         },
-        "isNodePath":true,
-        "isLocatedNode":true
+        "isNodePath":true
       }
     ],
     "eofToken":{
