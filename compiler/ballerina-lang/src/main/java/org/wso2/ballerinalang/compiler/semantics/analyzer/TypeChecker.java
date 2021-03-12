@@ -4176,11 +4176,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return types.checkType(node, symTable.xmlType, symTable.xmlType);
         }
         if (isSameType) {
-            if (membersofExpectedType.contains(sameType)) {
-                return types.checkType(node, sameType, expType);
-            }
-            dlog.error(node.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, sameType);
-            return symTable.semanticError;
+            return types.checkType(node, sameType, expType);
         }
         //At this point the expected type and expression node both contain different
         // combinations of types
