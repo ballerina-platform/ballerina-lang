@@ -136,7 +136,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -1338,6 +1337,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (definedType == symTable.semanticError) {
             // TODO : Fix this properly. issue #21242
+
+            invalidateAlreadyDefinedErrorType(typeDefinition);
             return;
         }
         if (definedType == symTable.noType) {
@@ -1396,7 +1397,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         boolean distinctFlagPresent = isDistinctFlagPresent(typeDefinition);
 
-        // todo: need to handle intersections
         if (distinctFlagPresent) {
             if (definedType.getKind() == TypeKind.ERROR) {
                 BErrorType distinctType = getDistinctErrorType(typeDefinition, (BErrorType) definedType, typeDefSymbol);
@@ -1460,6 +1460,15 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
     }
 
+    private void invalidateAlreadyDefinedErrorType(BLangTypeDefinition typeDefinition) {
+        // We need to invalidate the already defined type as we don't have a way to undefine it.
+        BTypeSymbol alreadyDefinedTypeSymbol =
+                (BTypeSymbol) symResolver.lookupSymbolInMainSpace(env, names.fromString(typeDefinition.name.value));
+        if (alreadyDefinedTypeSymbol.type.tag == TypeTags.ERROR) {
+            alreadyDefinedTypeSymbol.type = symTable.errorType;
+        }
+    }
+
     private void populateTypeIds(BErrorType effectiveType, BLangIntersectionTypeNode typeNode, String name) {
         Set<BTypeIdSet.BTypeId> secondaryTypeIds = new HashSet<>();
         for (BLangType constituentType : typeNode.constituentTypeNodes) {
@@ -1486,17 +1495,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         alreadyDefinedErrorType.flags = errorType.flags;
         alreadyDefinedErrorType.name = errorType.name;
         intersectionType.effectiveType = alreadyDefinedErrorType;
-
-        addErrorTypeDefinition(alreadyDefinedErrorType, env, typeDefinition.pos);
-    }
-
-    private void addErrorTypeDefinition(BErrorType errorType, SymbolEnv pkgEnv, Location pos) {
-        BTypeSymbol errorTSymbol = errorType.tsymbol;
-        BLangErrorType bLangErrorType = TypeDefBuilderHelper.createBLangErrorType(pos, errorType.detailType);
-        bLangErrorType.type = errorType;
-        BLangTypeDefinition errorTypeDefinition = TypeDefBuilderHelper
-                .addTypeDefinition(errorType, errorTSymbol, bLangErrorType, pkgEnv);
-        errorTypeDefinition.pos = pos;
     }
 
     private void populateSymbolNamesForErrorIntersection(BType definedType, BLangTypeDefinition typeDefinition) {
@@ -3225,9 +3223,12 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void resolveFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
                                SymbolEnv typeDefEnv) {
         structureType.fields = structureTypeNode.fields.stream()
-                .peek(field -> defineNode(field, typeDefEnv))
+                .peek((BLangSimpleVariable field) -> defineNode(field, typeDefEnv))
                 .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
-                .map(field -> new BField(names.fromIdNode(field.name), field.pos, field.symbol))
+                .map((BLangSimpleVariable field) -> {
+                    field.symbol.isDefaultable = field.expr != null;
+                    return new BField(names.fromIdNode(field.name), field.pos, field.symbol);
+                })
                 .collect(getFieldCollector());
 
         List<BType> list = new ArrayList<>();
@@ -3247,12 +3248,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
             structureType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos,
                                                                   field.symbol));
-        }
-    }
-
-    private void updateServiceResourceFieldVisibilityRegion(BField value, boolean isService) {
-        if (isService && value.symbol != null && Symbols.isResource(value.symbol)) {
-            value.symbol.flags |= Flags.PUBLIC;
         }
     }
 
@@ -3605,7 +3600,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             BVarSymbol symbol = varNode.symbol;
             if (varNode.expr != null) {
                 symbol.flags |= Flags.OPTIONAL;
-                symbol.defaultableParam = true;
+                symbol.isDefaultable = true;
             }
             if (varNode.flagSet.contains(Flag.INCLUDED)) {
                 if (varNode.type.getKind() == TypeKind.RECORD) {
