@@ -74,10 +74,14 @@ public class ModuleTupleVariableTest {
         validateError(compileResultNegative, index++, "incompatible types: expected 'int', found 'other'", 38, 25);
         validateError(compileResultNegative, index++, "redeclared symbol 'n'", 40, 9);
         validateError(compileResultNegative, index++,
-                "invalid tuple binding pattern: expected a tuple type, but found 'int'",
+                "invalid list binding pattern: expected an array or a tuple, but found 'int'",
                 47, 6);
         validateError(compileResultNegative, index++,
                 "invalid error binding pattern with type 'float'", 47, 30);
+        validateError(compileResultNegative, index++,
+                "invalid list binding pattern; member variable count mismatch with member type count", 51, 1);
+        validateError(compileResultNegative, index++,
+                "field binding pattern inside list binding pattern", 51, 7);
         assertEquals(compileResultNegative.getErrorCount(), index);
     }
 

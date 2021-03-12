@@ -48,7 +48,7 @@ public class EvaluatorBuilder {
         treeParser = Objects.requireNonNullElseGet(treeParser, TrialTreeParser::defaultParser);
         snippetFactory = Objects.requireNonNullElseGet(snippetFactory, BasicSnippetFactory::new);
         invoker = Objects.requireNonNullElseGet(invoker, ClassLoadInvoker::new);
-        return new Evaluator(preprocessor, treeParser, snippetFactory, invoker);
+        return new EvaluatorImpl(preprocessor, treeParser, snippetFactory, invoker);
     }
 
     public EvaluatorBuilder preprocessor(Preprocessor preprocessor) {

@@ -31,6 +31,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.FileSystemCache;
+import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -127,7 +128,7 @@ public class TestBirAndJarCache {
         public int jarCachedCount;
 
         public TestCompilationCache(Project project, Path cacheDirPath) {
-            super(project, cacheDirPath);
+            super(project, cacheDirPath.resolve(ProjectConstants.CACHES_DIR_NAME));
         }
 
         @Override

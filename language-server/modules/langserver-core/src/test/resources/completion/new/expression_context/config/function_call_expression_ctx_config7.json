@@ -54,14 +54,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -595,22 +587,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "valueA",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "valueA",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "valueB",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "valueB",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunctionWithParams2(int a, int b)",
       "kind": "Function",
       "detail": "Function",
@@ -640,6 +616,22 @@
       },
       "sortText": "C",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "valueB",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "valueB",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "valueA",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "valueA",
       "insertTextFormat": "Snippet"
     },
     {

@@ -168,5 +168,9 @@ public enum Flag {
     /**
      * Indicates flagged variable is a field.
      */
-    FIELD
+    FIELD,
+    /**
+     * Indicates flagged node is a `function` type.
+     */
+    ANY_FUNCTION;
 }

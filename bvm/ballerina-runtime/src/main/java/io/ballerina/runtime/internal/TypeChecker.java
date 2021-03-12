@@ -1785,6 +1785,10 @@ public class TypeChecker {
             return false;
         }
 
+        if (SymbolFlags.isFlagOn(targetType.getFlags(), SymbolFlags.ANY_FUNCTION)) {
+            return true;
+        }
+
         if (source.paramTypes.length != targetType.paramTypes.length) {
             return false;
         }

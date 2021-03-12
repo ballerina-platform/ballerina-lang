@@ -16,10 +16,7 @@
 
 package org.ballerinalang.debugadapter;
 
-import com.sun.jdi.AbsentInformationException;
-import com.sun.jdi.ArrayReference;
 import com.sun.jdi.Field;
-import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.Value;
@@ -96,7 +93,6 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -111,16 +107,12 @@ import java.util.concurrent.atomic.AtomicLong;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.DebugExecutionManager.LOCAL_HOST;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRAND_VAR_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.GENERATED_VAR_PREFIX;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.closeQuietly;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.getRectifiedSourcePath;
-import static org.ballerinalang.debugadapter.variable.VariableUtils.removeRedundantQuotes;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDERR;
 import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
-import static org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper.LAMBDA;
 
 /**
  * JBallerina debug server implementation.
@@ -146,12 +138,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private final Map<Long, Long> scopeIdToFrameIdMap = new HashMap<>();
 
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    private static final String STRAND_FIELD_NAME = "name";
-    private static final String FRAME_TYPE_START = "start";
-    private static final String FRAME_TYPE_WORKER = "worker";
-    private static final String FRAME_TYPE_ANONYMOUS = "anonymous";
-    private static final String FRAME_SEPARATOR = ":";
-    private static final String WORKER_LAMBDA_REGEX = "(\\$lambda\\$)\\b(.*)\\b(\\$lambda)(.*)";
     private static final String SCOPE_NAME_LOCAL = "Local";
     private static final String SCOPE_NAME_GLOBAL = "Global";
     private static final String VALUE_UNKNOWN = "unknown";
@@ -197,12 +183,12 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     @Override
     public CompletableFuture<SetBreakpointsResponse> setBreakpoints(SetBreakpointsArguments args) {
         BalBreakpoint[] balBreakpoints = Arrays.stream(args.getBreakpoints())
-            .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
-            .toArray(BalBreakpoint[]::new);
+                .map((SourceBreakpoint sourceBreakpoint) -> toBreakpoint(sourceBreakpoint, args.getSource()))
+                .toArray(BalBreakpoint[]::new);
 
         Breakpoint[] breakpoints = Arrays.stream(balBreakpoints)
-            .map(BalBreakpoint::getBreakpoint)
-            .toArray(Breakpoint[]::new);
+                .map(BalBreakpoint::getBreakpoint)
+                .toArray(Breakpoint[]::new);
 
         Map<Integer, BalBreakpoint> breakpointsMap = new HashMap<>();
         for (BalBreakpoint bp : balBreakpoints) {
@@ -289,31 +275,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     @Override
     public CompletableFuture<StackTraceResponse> stackTrace(StackTraceArguments args) {
-        activeThread = getAllThreads().get(args.getThreadId());
         StackTraceResponse stackTraceResponse = new StackTraceResponse();
         stackTraceResponse.setStackFrames(new StackFrame[0]);
         try {
-            List<StackFrame> balFrames = activeThread.frames().stream()
+            activeThread = getAllThreads().get(args.getThreadId());
+            StackFrame[] validFrames = activeThread.frames().stream()
                     .map(this::toDapStackFrame)
                     .filter(Objects::nonNull)
-                    .collect(Collectors.toList());
-
-            // If the last instruction is step-in and there are no valid source information in the top-most stack
-            // frame, that means that the debugger has stepped into an unsupported source(i.e. lang library, standard
-            // library, imported module from central).
-            // Therefore we need to manually rollback into the previous debugging state by sending a step-out request
-            // or otherwise, this might produce unpredictable behaviors under different contexts as described in
-            // (https://github.com/ballerina-platform/ballerina-lang/issues/28071).
-            //
-            // Todo - Enable and refactor accordingly after adding support for external module debugging support.
-            // if (!isValidFrame(balFrames.get(0)) && lastInstruction == DebugInstruction.STEP_IN) {
-            //     sendOutput("Trying to step into an unsupported source! Rolling back into the previous state..",
-            //                       ONSOLE);
-            //     stepOut(activeThread.uniqueID());
-            //     return CompletableFuture.completedFuture(stackTraceResponse);
-            //  }
-
-            StackFrame[] validFrames = balFrames.stream()
                     .filter(JBallerinaDebugServer::isValidFrame)
                     .toArray(StackFrame[]::new);
 
@@ -588,74 +556,18 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         variableToStackFrameMap.put(child, parentRef);
     }
 
-    private StackFrame toDapStackFrame(StackFrameProxyImpl stackFrame) {
+    public StackFrame toDapStackFrame(StackFrameProxyImpl stackFrameProxy) {
         try {
-            long variableReference = nextVarReference.getAndIncrement();
-            stackFramesMap.put(variableReference, stackFrame);
-
-            if (!isBalStackFrame(stackFrame.getStackFrame())) {
+            if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
                 return null;
             }
 
-            StackFrame dapStackFrame = new StackFrame();
-            dapStackFrame.setId(variableReference);
-            dapStackFrame.setName(getStackFrameName(stackFrame));
-            dapStackFrame.setLine((long) stackFrame.location().lineNumber());
-            dapStackFrame.setColumn(0L);
-
-            // Adds ballerina source information.
-            Path sourcePath = getRectifiedSourcePath(stackFrame.location(), project, projectRoot);
-            if (sourcePath != null) {
-                Source source = new Source();
-                source.setPath(sourcePath.toString());
-                source.setName(stackFrame.location().sourceName());
-                dapStackFrame.setSource(source);
-            }
-            return dapStackFrame;
-        } catch (AbsentInformationException | JdiProxyException e) {
+            long referenceId = nextVarReference.getAndIncrement();
+            stackFramesMap.put(referenceId, stackFrameProxy);
+            BallerinaStackFrame balStackFrame = new BallerinaStackFrame(context, referenceId, stackFrameProxy);
+            return balStackFrame.getAsDAPStackFrame().orElse(null);
+        } catch (JdiProxyException e) {
             return null;
-        }
-    }
-
-    /**
-     * Can be used to get the stack frame name.
-     *
-     * @param stackFrame stackFrame.
-     * @return Stack frame name.
-     */
-    private String getStackFrameName(StackFrameProxyImpl stackFrame) {
-        ObjectReference strand;
-        String stackFrameName;
-        try {
-            if (stackFrame.location().method().name().matches(WORKER_LAMBDA_REGEX)
-                    && stackFrame.visibleVariableByName(STRAND_VAR_NAME) == null) {
-                strand = (ObjectReference) ((ArrayReference) stackFrame.getStackFrame().getArgumentValues().get(0))
-                        .getValue(0);
-                stackFrameName = String.valueOf(strand.getValue(strand.referenceType().fieldByName(STRAND_FIELD_NAME)));
-                stackFrameName = removeRedundantQuotes(stackFrameName);
-                return FRAME_TYPE_WORKER + FRAME_SEPARATOR + stackFrameName;
-            } else if (stackFrame.location().method().name().contains(LAMBDA)
-                    && stackFrame.visibleVariableByName(STRAND_VAR_NAME) == null) {
-                strand = (ObjectReference) ((ArrayReference) stackFrame.getStackFrame().getArgumentValues().get(0))
-                        .getValue(0);
-                Value stackFrameValue = strand.getValue(strand.referenceType().fieldByName(STRAND_FIELD_NAME));
-                if (stackFrameValue == null) {
-                    stackFrameName = FRAME_TYPE_ANONYMOUS;
-                } else {
-                    stackFrameName = removeRedundantQuotes(stackFrameValue.toString());
-                }
-                return FRAME_TYPE_START + FRAME_SEPARATOR + stackFrameName;
-            } else if (stackFrame.location().method().name().contains(LAMBDA)
-                    && stackFrame.visibleVariableByName(STRAND_VAR_NAME) != null) {
-                strand = (ObjectReference) stackFrame.getValue(stackFrame.visibleVariableByName(STRAND_VAR_NAME));
-                stackFrameName = String.valueOf(strand.getValue(strand.referenceType().fieldByName(STRAND_FIELD_NAME)));
-                stackFrameName = removeRedundantQuotes(stackFrameName);
-                return stackFrameName;
-            } else {
-                return stackFrame.location().method().name();
-            }
-        } catch (Exception e) {
-            return FRAME_TYPE_ANONYMOUS;
         }
     }
 
@@ -863,7 +775,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * @param frame DAP stack frame
      * @return true if the given DAP stack frame represents a ballerina call stack frame.
      */
-    private static boolean isBalStackFrame(com.sun.jdi.StackFrame frame) {
+    static boolean isBalStackFrame(com.sun.jdi.StackFrame frame) {
         // Todo - Refactor to use stack frame proxy implementation
         try {
             return frame.location().sourceName().endsWith(BAL_FILE_EXT);
@@ -964,6 +876,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private void prepareFor(DebugInstruction instruction) {
         clearState();
         eventProcessor.restoreBreakpoints(instruction);
+        context.setLastInstruction(instruction);
     }
 
     /**

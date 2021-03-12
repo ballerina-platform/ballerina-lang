@@ -3,7 +3,7 @@
     "character": 10,
     "expected": [
         {
-            "title": "Change return type to '[int,string]'",
+            "title": "Change return type to '[int, string]'",
             "edits": [
                 {
                     "range": {
@@ -16,7 +16,7 @@
                             "character": 49
                         }
                     },
-                    "newText": "[int,string]"
+                    "newText": "[int, string]"
                 }
             ]
         }

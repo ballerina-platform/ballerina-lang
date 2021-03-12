@@ -1877,6 +1877,12 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, FUNCTION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
+        if (Symbols.isFlagOn(bType.flags, Flags.ANY_FUNCTION)) {
+            mv.visitLdcInsn(bType.flags);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, "(J)V", false);
+            return;
+        }
+
         // Create param types array
         mv.visitLdcInsn((long) bType.paramTypes.size());
         mv.visitInsn(L2I);

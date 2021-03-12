@@ -1808,12 +1808,11 @@ public abstract class NodeFactory extends AbstractNodeFactory {
             FunctionSignatureNode functionSignature) {
         Objects.requireNonNull(qualifierList, "qualifierList must not be null");
         Objects.requireNonNull(functionKeyword, "functionKeyword must not be null");
-        Objects.requireNonNull(functionSignature, "functionSignature must not be null");
 
         STNode stFunctionTypeDescriptorNode = STNodeFactory.createFunctionTypeDescriptorNode(
                 qualifierList.underlyingListNode().internalNode(),
                 functionKeyword.internalNode(),
-                functionSignature.internalNode());
+                getOptionalSTNode(functionSignature));
         return stFunctionTypeDescriptorNode.createUnlinkedFacade();
     }
 

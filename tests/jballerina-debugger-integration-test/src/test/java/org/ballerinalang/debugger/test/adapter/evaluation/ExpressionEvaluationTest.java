@@ -19,12 +19,19 @@
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Test implementation for debug expression evaluation scenarios.
  */
 public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
+
+    @BeforeClass(alwaysRun = true)
+    public void setup() throws BallerinaTestException {
+        prepareForEvaluation();
+    }
 
     @Override
     @Test
@@ -764,5 +771,11 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
         // Todo
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void cleanUp() {
+        debugTestRunner.terminateDebugSession();
+        this.context = null;
     }
 }

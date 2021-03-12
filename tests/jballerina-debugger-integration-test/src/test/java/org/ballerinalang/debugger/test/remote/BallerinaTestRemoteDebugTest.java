@@ -22,6 +22,7 @@ import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -51,5 +52,10 @@ public class BallerinaTestRemoteDebugTest extends BaseTestCase {
         balClient.debugMain("test", new String[]{"--debug", String.valueOf(port)}, null,
                 new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 10);
         clientLeecher.waitForText(20000);
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanUp() {
+        debugTestRunner.terminateDebugSession();
     }
 }

@@ -220,9 +220,9 @@ public class XMLAccessTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 11, 15);
         BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 18, 5);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(string|xml:Text)' does" +
-                " not support indexing", 21, 28);
+                " not support member access", 21, 28);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(string|xml:Text)' does " +
-                "not support indexing", 22, 14);
+                "not support member access", 22, 14);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type '(xml:Element|xml<never> " +
                 "& readonly)' does not support xml navigation access", 25, 14);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type '(xml:Comment|xml<never> " +
@@ -230,11 +230,11 @@ public class XMLAccessTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type " +
                 "'(xml:ProcessingInstruction|xml<never> & readonly)' does not support xml navigation access", 29, 15);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
-                "'(xml:Element|xml<never> & readonly)' does not support indexing", 31, 10);
+                "'(xml:Element|xml<never> & readonly)' does not support member access", 31, 10);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
-                "'(xml:Comment|xml<never> & readonly)' does not support indexing", 32, 10);
+                "'(xml:Comment|xml<never> & readonly)' does not support member access", 32, 10);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
-                "'(xml:ProcessingInstruction|xml<never> & readonly)' does not support indexing", 33, 11);
+                "'(xml:ProcessingInstruction|xml<never> & readonly)' does not support member access", 33, 11);
         BAssertUtil.validateError(negativeResult, i++, "xml langlib functions does not support " +
                 "union types as their arguments", 35, 25);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
@@ -261,9 +261,9 @@ public class XMLAccessTest {
                 "use a grouping expression (parenthesis) " +
                 "if you intend to invoke the method on the result of the navigation expression.";
 
-        String navIndexingMessage = "index operations are not yet supported within XML navigation expressions, " +
-                "use a grouping expression (parenthesis) " +
-                "if you intend to index the result of the navigation expression.";
+        String navIndexingMessage = "member access operations are not yet supported within XML navigation " +
+                "expressions, use a grouping expression (parenthesis) " +
+                "if you intend to member-access the result of the navigation expression.";
         int i = 0;
         BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 14);
         BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 4, 14);

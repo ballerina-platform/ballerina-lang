@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class CreateVariableTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "create-variable";
@@ -86,6 +87,8 @@ public class CreateVariableTest extends AbstractCodeActionTest {
 //                {"variableAssignmentRequiredCodeAction40.json", "createVariable5.bal"},   // disabled due to #26996
                 {"variableAssignmentRequiredCodeAction41.json", "createVariable6.bal"},
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
+                {"projectVariableAssignmentRequiredCodeAction1.json", "testproject/main.bal"},
+                {"projectVariableAssignmentRequiredCodeAction2.json", "testproject/main.bal"},
         };
     }
 }

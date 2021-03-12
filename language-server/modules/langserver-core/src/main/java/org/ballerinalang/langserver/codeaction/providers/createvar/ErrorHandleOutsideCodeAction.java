@@ -109,7 +109,8 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         TextEdit textEdit = createVarTextEdits.edits.get(0);
         textEdit.setNewText(typeWithoutError + textEdit.getNewText().substring(typeWithError.length()));
         edits.add(textEdit);
-        edits.addAll(createVarTextEdits.imports);
+        // Add all the import text edits excluding duplicates
+        createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
         return edits;
     }
 }

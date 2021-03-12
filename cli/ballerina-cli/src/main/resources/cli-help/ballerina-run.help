@@ -2,9 +2,8 @@ NAME
        ballerina-run - Build and execute a Ballerina program
 
 SYNOPSIS
-       bal run [<options>]
-                     <ballerina-file-path> | <executable-jar> [<arguments>] [<config properties>]
-       bal run [<options>] <.> | <ballerina-package-path> [<arguments>] [<config properties>]
+       bal run [<options>][<ballerina-file-path> | <executable-jar> | <ballerina-package-path>]
+       				 [-- <args...>]
 
 
 DESCRIPTION
@@ -45,14 +44,6 @@ OPTIONS
 
        --taint-check
            Perform taint flow analysis.
-
-CONFIG PROPERTIES
-       (--key=value)...
-           Set the Ballerina environment parameters as key/value pairs.
-           If multiple parameters need to be provided, each parameter
-           has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library packages are specified
-           in the relevant API documentation.
 
 ARGUMENTS
        --

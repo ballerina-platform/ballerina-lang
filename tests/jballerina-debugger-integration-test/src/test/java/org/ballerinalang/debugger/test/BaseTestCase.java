@@ -29,7 +29,19 @@ import java.nio.file.Paths;
 /**
  * Parent test class for all debug integration test cases.
  */
-public class BaseTestCase {
+public abstract class BaseTestCase {
+
+    /**
+     * Each extended debugger integration test class should implement this method to initialize the debug test runner
+     * (base debugger test framework).
+     */
+    public abstract void setup() throws BallerinaTestException;
+
+    /**
+     * Each extended debugger integration test class should implement this method to ensure tear down after the test
+     * execution.
+     */
+    public abstract void cleanUp();
 
     @BeforeSuite(alwaysRun = true)
     public void initialize() throws BallerinaTestException, IOException {

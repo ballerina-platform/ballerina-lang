@@ -2266,6 +2266,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) symbol.type;
+                if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+                    return;
+                }
                 if (invokableType.paramTypes != null) {
                     for (BType paramType : invokableType.paramTypes) {
                         checkForExportableType(paramType.tsymbol, pos);
@@ -3203,7 +3206,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS
                     || xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
-                dlog.error(xmlNavigation.pos, DiagnosticErrorCode.UNSUPPORTED_INDEX_IN_XML_NAVIGATION);
+                dlog.error(xmlNavigation.pos, DiagnosticErrorCode.UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION);
             }
             analyzeExpr(xmlNavigation.childIndex);
         }
@@ -3518,7 +3521,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-
+        if (functionTypeNode.flagSet.contains(Flag.ANY_FUNCTION)) {
+            return;
+        }
         functionTypeNode.params.forEach(node -> analyzeNode(node, env));
         analyzeTypeNode(functionTypeNode.returnTypeNode, env);
     }
@@ -3629,7 +3634,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLetClause letClause) {
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            analyzeNode((BLangNode) letVariable.definitionNode, env);
+            analyzeNode((BLangNode) letVariable.definitionNode.getVariable(), env);
         }
     }
 
