@@ -3012,47 +3012,51 @@ public class TypeChecker {
     }
 
     /**
-     * Check if left hand side value is less than right hand side value.
+q     * Check if left hand side ordered type value is less than right hand side ordered type value.
      *
      * @param lhsValue The value on the left hand side
      * @param rhsValue The value on the right hand side
-     * @return True if left hand side value is less than right hand side value, else false.
+     * @return True if left hand side ordered type value is less than right hand side ordered type value, else false.
      */
     public static boolean compareValueLessThan(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue, "") < 0;
+        return compareValues(lhsValue, rhsValue) < 0;
     }
 
     /**
-     * Check if left hand side value is less than or equal to the right hand side value.
+     * Check if left hand side ordered type value is less than or equal to the right hand side ordered type value.
      *
      * @param lhsValue The value on the left hand side
      * @param rhsValue The value on the right hand side
-     * @return True if left hand side value is less than or equal to the right hand side value, else false.
+     * @return True if left hand side ordered type value is less than or equal to the right hand side ordered type
+     * value, else false.
      */
     public static boolean compareValueLessThanOrEqual(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue, "") <= 0;
+        return compareValues(lhsValue, rhsValue) <= 0;
     }
 
     /**
-     * Check if left hand side value is greater than the right hand side value.
+     * Check if left hand side ordered type value is greater than the right hand side ordered type value.
      *
      * @param lhsValue The value on the left hand side
      * @param rhsValue The value on the right hand side
-     * @return True if left hand side value is greater than the right hand side value, else false.
+     * @return True if left hand side ordered type value is greater than the right hand side ordered type value, else
+     * false.
      */
     public static boolean compareValueGreaterThan(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue, "") > 0;
+        return compareValues(lhsValue, rhsValue) > 0;
     }
 
     /**
-     * Check if left hand side value is greater than or equal to the right hand side value.
+     * Check if left hand side ordered type value is greater than or equal to the right hand side ordered type value.
      *
      * @param lhsValue The value on the left hand side
      * @param rhsValue The value on the right hand side
-     * @return True if left hand side value is greater than or equal to the right hand side value, else false.
+     * @return True if left hand side ordered type value is greater than or equal to the right hand side ordered type
+     * value, else
+     * false.
      */
     public static boolean compareValueGreaterThanOrEqual(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue, "") >= 0;
+        return compareValues(lhsValue, rhsValue) >= 0;
     }
 
     /**
@@ -3063,7 +3067,7 @@ public class TypeChecker {
      * @return True if left hand side float value is less than right hand side float value, else false.
      */
     public static boolean compareValueLessThan(double lhsValue, double rhsValue) {
-        return compareValues(lhsValue, rhsValue, "") < 0;
+        return compareValues(lhsValue, rhsValue) < 0;
     }
 
     /**
@@ -3074,7 +3078,7 @@ public class TypeChecker {
      * @return True if left hand side float value is less than or equal to the right hand side float value, else false.
      */
     public static boolean compareValueLessThanOrEqual(double lhsValue, double rhsValue) {
-        return compareValues(lhsValue, rhsValue, "") <= 0;
+        return compareValues(lhsValue, rhsValue) <= 0;
     }
 
     /**
@@ -3085,7 +3089,7 @@ public class TypeChecker {
      * @return True if left hand side float value is greater than the right hand side float value, else false.
      */
     public static boolean compareValueGreaterThan(double lhsValue, double rhsValue) {
-        return compareValues(lhsValue, rhsValue, "") > 0;
+        return compareValues(lhsValue, rhsValue) > 0;
     }
 
     /**
@@ -3097,7 +3101,11 @@ public class TypeChecker {
      * false.
      */
     public static boolean compareValueGreaterThanOrEqual(double lhsValue, double rhsValue) {
-        return compareValues(lhsValue, rhsValue, "") >= 0;
+        return compareValues(lhsValue, rhsValue) >= 0;
+    }
+
+    public static int compareValues(Object lhsValue, Object rhsValue) {
+        return compareValues(lhsValue, rhsValue, "");
     }
 
     public static int compareValues(Object lhsValue, Object rhsValue, String direction) {

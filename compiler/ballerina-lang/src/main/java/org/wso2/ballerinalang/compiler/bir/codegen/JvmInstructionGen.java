@@ -691,22 +691,6 @@ public class JvmInstructionGen {
         this.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
-    private String getDecimalCompareFuncName(int opcode) {
-
-        switch (opcode) {
-            case IFGT:
-                return "checkDecimalGreaterThan";
-            case IFGE:
-                return "checkDecimalGreaterThanOrEqual";
-            case IFLT:
-                return "checkDecimalLessThan";
-            case IFLE:
-                return "checkDecimalLessThanOrEqual";
-            default:
-                throw new BLangCompilerException(String.format("Opcode: '%s' is not a comparison opcode.", opcode));
-        }
-    }
-
     private String getCompareFuncName(int opcode) {
         switch (opcode) {
             case IFGT:
