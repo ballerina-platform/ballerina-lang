@@ -100,3 +100,12 @@ public function testIterableObjectReturnedByRangeExpression() returns int[] {
     }
     return integers;
 }
+
+public function testIterableDistinctObjectReturnedByRangeExpression() returns int[] {
+    var objectResult = 1...3;
+    int[] integers = [];
+    foreach var item in objectResult {
+        integers.push(item);
+    }
+    return integers;
+}
