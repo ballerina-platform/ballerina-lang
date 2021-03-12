@@ -76,3 +76,25 @@ function testForEachLoopWithError() {
         tot += 1;
     }
 }
+
+function testQueryExprsWithError() {
+    error[] v = [error("a"), error("b")];
+
+    int[] w = from var a in v
+                select 1;
+
+    error? x = from var error(m, c) in v
+                do {};
+
+    error[] arr1 = [error("a"), error("b")];
+    error[] arr2 = [error("a"), error("c")];
+
+    int[] y = from var e1 in arr1
+                join var e2 in arr2 on true equals false
+                select 1;
+
+    int val = 0;
+    error? z = from var error(m1, c1) in arr1
+                join var error(m2, c2) in arr2 on val equals 0
+                do {};
+ }
