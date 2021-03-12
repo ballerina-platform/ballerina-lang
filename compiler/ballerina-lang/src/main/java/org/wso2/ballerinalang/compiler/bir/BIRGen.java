@@ -2184,8 +2184,7 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand toVarRef = new BIROperand(tempVarDcl);
 
         BIRNonTerminator.NewXMLSequence newXMLSequence =
-                new BIRNonTerminator.NewXMLSequence(xmlSequenceLiteral.pos, toVarRef,
-                        Symbols.isFlagOn(xmlSequenceLiteral.type.flags, Flags.READONLY));
+                new BIRNonTerminator.NewXMLSequence(xmlSequenceLiteral.pos, toVarRef);
 
         setScopeAndEmit(newXMLSequence);
         populateXMLSequence(xmlSequenceLiteral, toVarRef);
