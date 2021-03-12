@@ -22,6 +22,7 @@ import org.ballerinalang.debugger.test.utils.DebugTestRunner;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -59,7 +60,7 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
         String msg = "Listening for transport dt_socket at address: " + port;
         LogLeecher clientLeecher = new LogLeecher(msg);
         balClient.debugMain("build", new String[]{"--debug", String.valueOf(port)}, null,
-            new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 20);
+                new String[]{}, new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath, 20);
         clientLeecher.waitForText(20000);
     }
 
@@ -87,5 +88,10 @@ public class BallerinaBuildRemoteDebugTest extends BaseTestCase {
                 throw e;
             }
         }
+    }
+
+    @AfterMethod(alwaysRun = true)
+    public void cleanUp() {
+        debugTestRunner.terminateDebugSession();
     }
 }

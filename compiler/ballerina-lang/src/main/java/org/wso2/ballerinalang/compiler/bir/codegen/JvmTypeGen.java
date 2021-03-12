@@ -1226,7 +1226,7 @@ public class JvmTypeGen {
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
-            mv.visitLdcInsn(paramSymbol.defaultableParam);
+            mv.visitLdcInsn(paramSymbol.isDefaultable);
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
                     String.format("(Z)L%s;", BOOLEAN_VALUE), false);
             mv.visitInsn(AASTORE);

@@ -107,10 +107,6 @@ public class CompilerPluginTests {
         Package currentPackage = loadPackage("package_plugin_user_5");
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
-        for (Diagnostic diagnostic : diagnosticResult.diagnostics()) {
-            OUT.println(diagnostic.diagnosticInfo().code());
-            OUT.println(diagnostic);
-        }
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 16,
                 "Unexpected number of compilation diagnostics");
 

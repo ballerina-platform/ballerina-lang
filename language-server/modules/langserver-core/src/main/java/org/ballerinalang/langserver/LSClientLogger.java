@@ -15,7 +15,9 @@
  */
 package org.ballerinalang.langserver;
 
+import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.config.LSClientConfig;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
@@ -26,7 +28,6 @@ import org.eclipse.lsp4j.services.LanguageClient;
 import java.io.ByteArrayOutputStream;
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
 /**
@@ -83,16 +84,20 @@ public class LSClientLogger {
      * @param identifier text document
      * @param pos        pos
      */
-    public void logError(String message, Throwable error, TextDocumentIdentifier identifier, Position... pos) {
-        if (!this.isInitializedOnce) {
+    public void logError(LSOperation operation, String message, Throwable error, TextDocumentIdentifier identifier,
+                         Position... pos) {
+        if (!this.isInitializedOnce || this.languageClient == null) {
             return;
         }
+        LSClientConfig config = this.configHolder.getConfig();
+        if (config.isEnableTelemetry()) {
+            this.languageClient.telemetryEvent(LSTelemetry.from(operation, message, error));
+        }
         String details = getErrorDetails(identifier, error, pos);
-        if (this.configHolder.getConfig().isDebugLogEnabled() && this.languageClient != null) {
-            final Charset charset = StandardCharsets.UTF_8;
+        if (config.isDebugLogEnabled()) {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
             try {
-                PrintStream ps = new PrintStream(baos, true, charset.name());
+                PrintStream ps = new PrintStream(baos, true, StandardCharsets.UTF_8.name());
                 error.printStackTrace(ps);
             } catch (UnsupportedEncodingException e1) {
                 //ignore
