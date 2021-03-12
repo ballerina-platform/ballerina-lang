@@ -428,7 +428,6 @@ public class ImmutableTypeCloner {
                 unionEffectiveImmutableType.isCyclic = origUnionType.isCyclic;
                 unionEffectiveImmutableType.setMemberTypes(readOnlyMemTypes);
 
-
                 for (BType memberType : originalMemberList) {
                     if (types.isInherentlyImmutableType(memberType)) {
                         unionEffectiveImmutableType.add(memberType);

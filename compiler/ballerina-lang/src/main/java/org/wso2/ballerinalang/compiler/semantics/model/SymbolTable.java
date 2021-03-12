@@ -780,6 +780,9 @@ public class SymbolTable {
         cloneableType = BUnionType.create(null, readonlyType, xmlType);
         addCyclicArrayMapTableOfMapMembers(cloneableType);
 
+        // `cloneableType` and its symbol gets replaced by `Cloneable` type defined in lang value module. To prevent
+        // cyclic dependencies need to define duplicate `Cloneable type in other modules as well. Due to this reason
+        // symbol in symbol table is created by default as private.
         cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PRIVATE, Names.CLONEABLE, rootPkgSymbol.pkgID,
                 cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
 
