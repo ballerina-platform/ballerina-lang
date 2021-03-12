@@ -2,8 +2,7 @@ NAME
        ballerina-build - Build the Ballerina package and generate an executable
 
 SYNOPSIS
-       bal build [<options>]
-                       [<ballerina-file-path> | <ballerina-package-path>] [<config properties>]
+       bal build [<options>] [<ballerina-file-path> | <ballerina-package-path>]
 
 
 DESCRIPTION
@@ -29,7 +28,8 @@ OPTIONS
            file name may or may not contain the ‘.jar’ extension.
 
        -c, --compile
-           Compile the source without generating executable(s).
+           Compile the source and generates the Ballerina archive (.bala)
+           without generating the executable.
 
        --offline
            Build offline without downloading the dependencies.
@@ -62,14 +62,6 @@ OPTIONS
        --taint-check
            Perform taint flow analysis.
 
-CONFIG PROPERTIES
-       (--key=value)...
-           Set the Ballerina environment parameters as key/value pairs.
-           If multiple parameters need to be provided, each parameter
-           has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library packages are specified
-           in the relevant API documentation.
-
 
 EXAMPLES
        Compile a Ballerina source file and create an executable JAR.
@@ -78,6 +70,11 @@ EXAMPLES
        Build the 'hello' package that has an entry point. This will generate a
         `hello.jar` file in the '<package-root>/target/bin' directory.
           $ bal build
+
+       Build the 'hello' library package with '--compile'/'-c' flag. This will
+       generate the `<org-name>-<package-name>-<version>-<platform>.bala` file in
+       '<package-root>/target/bala' directory.
+          $ bal build -c
 
        Build the 'hello' package from a different directory location.
           $ bal build `<hello-package-path>`

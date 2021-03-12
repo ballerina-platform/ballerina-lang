@@ -2182,7 +2182,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Check type compatibility
         if (expType.tag == TypeTags.ARRAY && isArrayOpenSealedType((BArrayType) expType)) {
-            dlog.error(varRefExpr.pos, DiagnosticErrorCode.SEALED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
             return;
 
         }
@@ -2606,7 +2606,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // First analyze the variable reference expression.
         BLangExpression containerExpression = indexBasedAccessExpr.expr;
         if (containerExpression.getKind() ==  NodeKind.TYPEDESC_EXPRESSION) {
-            dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS,
                     ((BLangTypedescExpr) containerExpression).typeNode);
             resultType = symTable.semanticError;
             return;
@@ -2616,7 +2616,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // Container expression must be a accessible expression.
         if (!(containerExpression instanceof BLangAccessibleExpression) && !isStringValue) {
-            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_INDEX_ACCESS,
+            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS,
                     containerExpression);
             resultType = symTable.semanticError;
             return;
@@ -3364,7 +3364,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BVarSymbol> requiredParams = function.symbol.params.stream()
-                .filter(param -> !param.defaultableParam)
+                .filter(param -> !param.isDefaultable)
                 .collect(Collectors.toList());
         // Given named and positional arguments are less than required parameters.
         if (requiredParams.size() > invocationArguments.size()) {
@@ -3372,7 +3372,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BVarSymbol> defaultableParams = function.symbol.params.stream()
-                .filter(param -> param.defaultableParam)
+                .filter(param -> param.isDefaultable)
                 .collect(Collectors.toList());
 
         int givenRequiredParamCount = 0;
@@ -3940,6 +3940,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
+        if (bLangLambdaFunction.function.symbol == null) {
+            resultType = symTable.semanticError;
+            return;
+        }
         bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.capturedClosureEnv = env.createClone();
@@ -3965,7 +3969,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 expectedType = invokableType;
             }
         }
-        if (expectedType.tag != TypeTags.INVOKABLE) {
+        if (expectedType.tag != TypeTags.INVOKABLE || Symbols.isFlagOn(expectedType.flags, Flags.ANY_FUNCTION)) {
             dlog.error(bLangArrowFunction.pos,
                     DiagnosticErrorCode.ARROW_EXPRESSION_CANNOT_INFER_TYPE_FROM_LHS);
             resultType = symTable.semanticError;
@@ -5163,23 +5167,23 @@ public class TypeChecker extends BLangNodeVisitor {
                         fieldEntry.getKey(), fieldEntry.getValue().type, argField.type);
             }
         }
-        if (recordType.fields.size() > checkedFieldNames.size()) {
-            for (Map.Entry<String, BField> fieldEntry : recordType.fields.entrySet()) {
-                if (!checkedFieldNames.contains(fieldEntry.getKey())) {
-                    BField field = fieldEntry.getValue();
-                    if (targetErrorDetailRec.sealed) {
-                        dlog.error(errorConstructorExpr.pos,
-                                DiagnosticErrorCode.UNKNOWN_DETAIL_ARG_TO_SEALED_ERROR_DETAIL_REC,
-                                fieldEntry.getKey(), targetErrorDetailRec);
-                        detailedErrorReported = true;
-                    } else if (!types.isAssignable(field.type, targetErrorDetailRec.restFieldType)) {
-                        dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_REST_ARG_TYPE,
-                                fieldEntry.getKey(), targetErrorDetailRec);
-                        detailedErrorReported = true;
-                    }
+
+        for (Map.Entry<String, BField> fieldEntry : recordType.fields.entrySet()) {
+            if (!checkedFieldNames.contains(fieldEntry.getKey())) {
+                BField field = fieldEntry.getValue();
+                if (targetErrorDetailRec.sealed) {
+                    dlog.error(errorConstructorExpr.pos,
+                            DiagnosticErrorCode.UNKNOWN_DETAIL_ARG_TO_CLOSED_ERROR_DETAIL_REC,
+                            fieldEntry.getKey(), targetErrorDetailRec);
+                    detailedErrorReported = true;
+                } else if (!types.isAssignable(field.type, targetErrorDetailRec.restFieldType)) {
+                    dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.INVALID_ERROR_DETAIL_REST_ARG_TYPE,
+                            fieldEntry.getKey(), targetErrorDetailRec);
+                    detailedErrorReported = true;
                 }
             }
         }
+
         if (!detailedErrorReported) {
             dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.INVALID_ERROR_CONSTRUCTOR_DETAIL,
                     errorConstructorExpr);
@@ -5401,6 +5405,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType checkInvocationParam(BLangInvocation iExpr) {
+        if (Symbols.isFlagOn(iExpr.symbol.type.flags, Flags.ANY_FUNCTION)) {
+            dlog.error(iExpr.pos, DiagnosticErrorCode.INVALID_FUNCTION_POINTER_INVOCATION_WITH_TYPE);
+            return symTable.semanticError;
+        }
         if (iExpr.symbol.type.tag != TypeTags.INVOKABLE) {
             dlog.error(iExpr.pos, DiagnosticErrorCode.INVALID_FUNCTION_INVOCATION, iExpr.symbol.type);
             return symTable.noType;
@@ -5487,7 +5495,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BVarSymbol> requiredIncRecordParams = new ArrayList<>();
 
         for (BVarSymbol nonRestParam : nonRestParams) {
-            if (nonRestParam.defaultableParam) {
+            if (nonRestParam.isDefaultable) {
                 continue;
             }
 
@@ -6696,14 +6704,14 @@ public class TypeChecker extends BLangNodeVisitor {
                     if (!types.isSubTypeOfMapping(varRefType)) {
                         // Member access is allowed on optional types only with mappings.
                         dlog.error(indexBasedAccessExpr.pos,
-                                DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+                                DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS,
                                 indexBasedAccessExpr.expr.type);
                         return symTable.semanticError;
                     }
 
                     if (indexBasedAccessExpr.lhsVar) {
                         dlog.error(indexBasedAccessExpr.pos,
-                                DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT,
+                                DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS_FOR_ASSIGNMENT,
                                 indexBasedAccessExpr.expr.type);
                         return symTable.semanticError;
                     }
@@ -6732,7 +6740,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     return actualType;
                 }
 
-                dlog.error(indexExpr.pos, DiagnosticErrorCode.INVALID_RECORD_INDEX_EXPR, indexExpr.type);
+                dlog.error(indexExpr.pos, DiagnosticErrorCode.INVALID_RECORD_MEMBER_ACCESS_EXPR, indexExpr.type);
                 return actualType;
             }
 
@@ -6755,13 +6763,13 @@ public class TypeChecker extends BLangNodeVisitor {
                             DiagnosticErrorCode.LIST_INDEX_OUT_OF_RANGE, getConstIndex(indexExpr));
                     return actualType;
                 }
-                dlog.error(indexExpr.pos, DiagnosticErrorCode.INVALID_LIST_INDEX_EXPR, indexExpr.type);
+                dlog.error(indexExpr.pos, DiagnosticErrorCode.INVALID_LIST_MEMBER_ACCESS_EXPR, indexExpr.type);
                 return actualType;
             }
         } else if (types.isAssignable(varRefType, symTable.stringType)) {
             if (indexBasedAccessExpr.lhsVar) {
                 dlog.error(indexBasedAccessExpr.pos,
-                        DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_INDEX_ACCESS_FOR_ASSIGNMENT,
+                        DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS_FOR_ASSIGNMENT,
                         indexBasedAccessExpr.expr.type);
                 return symTable.semanticError;
             }
@@ -6857,7 +6865,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return symTable.semanticError;
         } else {
             indexBasedAccessExpr.indexExpr.type = symTable.semanticError;
-            dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_INDEXING,
+            dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.OPERATION_DOES_NOT_SUPPORT_MEMBER_ACCESS,
                     indexBasedAccessExpr.expr.type);
             return symTable.semanticError;
         }

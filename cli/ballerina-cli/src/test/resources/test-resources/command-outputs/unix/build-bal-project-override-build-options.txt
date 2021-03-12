@@ -7,8 +7,5 @@ Generating Test Report
 
 warning: Could not find the required HTML report tools for code coverage at <ballerina.home>/lib/tools/coverage/report.zip
 
-Creating bala
-	target/bala/foo-winery-any-0.1.0.bala
-
 Generating executable
 	target/bin/winery.jar

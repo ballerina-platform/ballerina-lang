@@ -83,7 +83,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTree' failed!";
-            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+            this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE, msg, e, request.getDocumentIdentifier(),
+                                       (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
@@ -110,7 +111,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTreeModify' failed!";
-            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+            this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_MODIFY, msg, e, request.getDocumentIdentifier(),
+                                       (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
@@ -135,7 +137,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         } catch (Throwable e) {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
-            this.clientLogger.logError(msg, e, request.getDocumentIdentifier(), (Position) null);
+            this.clientLogger.logError(DocumentContext.DC_AST, msg, e, request.getDocumentIdentifier(),
+                                       (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
@@ -161,7 +164,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 ballerinaProject.setKind(projectKind.name());
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/project' failed!";
-                this.clientLogger.logError(msg, e, params.getDocumentIdentifier(), (Position) null);
+                this.clientLogger.logError(DocumentContext.DC_PROJECT, msg, e, params.getDocumentIdentifier(),
+                                           (Position) null);
             }
             return ballerinaProject;
         });
@@ -182,7 +186,8 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                         .collect(Collectors.toList());
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/diagnostics' failed!";
-                this.clientLogger.logError(msg, e, params.getDocumentIdentifier(), (Position) null);
+                this.clientLogger.logError(DocumentContext.DC_DIAGNOSTICS, msg, e, params.getDocumentIdentifier(),
+                                           (Position) null);
                 return Collections.emptyList();
             }
         });

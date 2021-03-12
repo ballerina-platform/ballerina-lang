@@ -61,6 +61,12 @@ public class GlobalQueryTest {
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
+    @Test(description = "Test module level let clause")
+    public void testGlobalQuery4() {
+        BValue[] values = BRunUtil.invoke(result, "testGlobalQuery4");
+        Assert.assertTrue(((BBoolean) values[0]).booleanValue());
+    }
+
     @Test(description = "Test negative scenarios for module level queries")
     public void testNegativeScenarios() {
         Assert.assertEquals(negativeResult.getErrorCount(), 1);

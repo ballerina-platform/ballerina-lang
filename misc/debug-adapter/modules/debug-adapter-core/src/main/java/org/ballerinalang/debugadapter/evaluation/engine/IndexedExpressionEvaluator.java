@@ -61,7 +61,7 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     && containerVar.getBType() != BVariableType.ARRAY && containerVar.getBType() != BVariableType.MAP
                     && containerVar.getBType() != BVariableType.JSON) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Type `" +
-                        containerVar.getBType().getString() + "' does not support indexing."));
+                        containerVar.getBType().getString() + "' does not support member access."));
             }
             // Todo - verify
             BExpressionValue keyResult = keyEvaluators.get(0).evaluate();
@@ -155,11 +155,11 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     // String substring = containerVar.getDapVariable().getValue().substring(index, index + 1);
                     // return EvaluationUtils.make(context, substring);
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "Type `" + containerVar.getBType().getString() + "' does not support indexing."));
+                            "Type `" + containerVar.getBType().getString() + "' does not support member access."));
                 }
                 default: {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "Type `" + containerVar.getBType().getString() + "' does not support indexing."));
+                            "Type `" + containerVar.getBType().getString() + "' does not support member access."));
                 }
             }
         } catch (DebugVariableException e) {

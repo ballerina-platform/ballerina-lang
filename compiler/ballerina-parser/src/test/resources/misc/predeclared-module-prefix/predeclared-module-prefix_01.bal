@@ -35,6 +35,7 @@ public function foo() returns int:c {
         }
     }
     transaction:Info info;
+    int:IntType info;
 }
 
 transaction:Info info2;
@@ -46,3 +47,6 @@ public function bar() {
     any c = condition ? int:x : y;
     any d = condition ? int:x : boolean;
 }
+
+// Predeclared module prefix in array length
+int[int:SIGNED8_MAX_VALUE] x = [];

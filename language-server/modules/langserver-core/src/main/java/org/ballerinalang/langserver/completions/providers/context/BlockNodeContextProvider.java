@@ -65,7 +65,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
             Ex: function test() {
@@ -106,13 +106,13 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
+        // Remove the function keyword suggestion from here, since it is suggested by typeItems API
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_WAIT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_START.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
@@ -210,7 +210,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
         for (int i = statements.size() - 1; i >= 0; i--) {
             StatementNode statementNode = statements.get(i);
-            int endOffset = statementNode.lineRange().endLine().offset();
+            int endOffset = statementNode.textRange().endOffset();
             if (statementNode.kind() == SyntaxKind.LOCAL_VAR_DECL
                     && ((VariableDeclarationNode) statementNode).equalsToken().isEmpty()) {
                 continue;
