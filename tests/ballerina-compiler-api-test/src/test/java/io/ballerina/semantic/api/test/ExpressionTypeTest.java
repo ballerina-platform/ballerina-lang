@@ -53,6 +53,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -110,8 +111,8 @@ public class ExpressionTypeTest {
         TypeSymbol type = getExprType(24, 12, 24, 45);
 
         assertEquals(type.typeKind(), TYPE_REFERENCE);
-        assertEquals(type.name(), "Element");
-        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), XML);
+        assertEquals(type.getName().get(), "Element");
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), XML_ELEMENT);
     }
 
     @Test
@@ -351,6 +352,6 @@ public class ExpressionTypeTest {
     private Optional<TypeSymbol> getOptionalType(int sLine, int sCol, int eLine, int eCol) {
         LinePosition start = LinePosition.from(sLine, sCol);
         LinePosition end = LinePosition.from(eLine, eCol);
-        return model.type("expressions_test.bal", LineRange.from("expressions_test.bal", start, end));
+        return model.type(LineRange.from("expressions_test.bal", start, end));
     }
 }

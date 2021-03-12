@@ -64,18 +64,8 @@ public class TypeByReferenceTest extends TypeByNodeTest {
 
             @Override
             public void visit(BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode) {
-                TypeDescKind typeKind;
-                switch (builtinSimpleNameReferenceNode.kind()) {
-                    case FLOAT_TYPE_DESC:
-                        typeKind = FLOAT;
-                        break;
-                    case INT_TYPE_DESC:
-                        typeKind = INT;
-                        break;
-                    default:
-                        throw new IllegalStateException();
-                }
-                assertType(builtinSimpleNameReferenceNode, model, typeKind);
+                assertTrue(model.type(builtinSimpleNameReferenceNode).isEmpty());
+                incrementAssertCount();
             }
         };
     }

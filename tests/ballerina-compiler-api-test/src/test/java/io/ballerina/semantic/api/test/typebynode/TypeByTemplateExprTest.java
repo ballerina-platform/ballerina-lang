@@ -19,10 +19,8 @@
 package io.ballerina.semantic.api.test.typebynode;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import org.testng.annotations.Test;
@@ -32,7 +30,7 @@ import java.util.Optional;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -55,40 +53,33 @@ public class TypeByTemplateExprTest extends TypeByNodeTest {
 
             @Override
             public void visit(TemplateExpressionNode templateExpressionNode) {
-                TypeDescKind expTypeKind;
+                Optional<TypeSymbol> type = model.type(templateExpressionNode);
+                assertTrue(type.isPresent());
+
                 switch (templateExpressionNode.kind()) {
                     case STRING_TEMPLATE_EXPRESSION:
-                        expTypeKind = STRING;
+                        assertEquals(type.get().typeKind(), STRING);
                         break;
                     case XML_TEMPLATE_EXPRESSION:
-                        expTypeKind = XML;
+                        assertEquals(type.get().typeKind(), TYPE_REFERENCE);
+                        assertEquals(((TypeReferenceTypeSymbol) type.get()).name(), "Element");
+                        assertEquals(((TypeReferenceTypeSymbol) type.get()).typeDescriptor().typeKind(), XML_ELEMENT);
                         break;
                     case RAW_TEMPLATE_EXPRESSION:
-                        expTypeKind = TYPE_REFERENCE;
+                        assertEquals(type.get().typeKind(), TYPE_REFERENCE);
+                        assertEquals(((TypeReferenceTypeSymbol) type.get()).name(), "RawTemplate");
+                        assertEquals(((TypeReferenceTypeSymbol) type.get()).typeDescriptor().typeKind(), OBJECT);
                         break;
                     default:
                         throw new IllegalStateException();
                 }
 
-                assertType(templateExpressionNode, model, expTypeKind);
+                incrementAssertCount();
             }
         };
     }
 
     void verifyAssertCount() {
         assertEquals(getAssertCount(), 3);
-    }
-
-    private void assertType(Node node, SemanticModel model, TypeDescKind typeKind) {
-        Optional<TypeSymbol> type = model.type(node);
-        assertTrue(type.isPresent());
-        assertEquals(type.get().typeKind(), typeKind);
-
-        if (typeKind == TYPE_REFERENCE) {
-            assertEquals(((TypeReferenceTypeSymbol) type.get()).name(), "RawTemplate");
-            assertEquals(((TypeReferenceTypeSymbol) type.get()).typeDescriptor().typeKind(), OBJECT);
-        }
-
-        incrementAssertCount();
     }
 }

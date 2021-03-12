@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test.typebynode;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ExplicitAnonymousFunctionExpressionNode;
@@ -59,7 +60,11 @@ public class TypeByAnonFunctionTest extends TypeByNodeTest {
             @Override
             public void visit(ImplicitAnonymousFunctionExpressionNode implicitAnonymousFunctionExpressionNode) {
                 assertType(implicitAnonymousFunctionExpressionNode, model, FUNCTION);
-                assertType(implicitAnonymousFunctionExpressionNode.params(), model, STRING);
+                FunctionTypeSymbol type =
+                        (FunctionTypeSymbol) model.type(implicitAnonymousFunctionExpressionNode).get();
+                assertEquals(type.parameters().size(), 1);
+                assertEquals(type.parameters().get(0).getName().get(), "s");
+                assertEquals(type.parameters().get(0).typeDescriptor().typeKind(), STRING);
             }
 
             @Override
@@ -70,7 +75,7 @@ public class TypeByAnonFunctionTest extends TypeByNodeTest {
     }
 
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 4);
+        assertEquals(getAssertCount(), 3);
     }
 
     private void assertType(Node node, SemanticModel model, TypeDescKind typeKind) {

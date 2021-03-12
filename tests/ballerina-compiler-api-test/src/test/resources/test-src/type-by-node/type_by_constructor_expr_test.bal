@@ -27,7 +27,7 @@ function test() {
     object {
         string name;
         function getName() returns string;
-    } person = object {
+    } personObj = object {
         string name = "Anon";
 
         function getName() returns string => self.name;
