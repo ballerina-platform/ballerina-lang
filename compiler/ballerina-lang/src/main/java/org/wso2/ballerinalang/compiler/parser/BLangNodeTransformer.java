@@ -1435,6 +1435,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
 //        attachAnnotations(function, annCount, false);
         bLFunction.pos = pos;
+        bLFunction.internal = true;
 
         bLFunction.addFlag(Flag.LAMBDA);
         bLFunction.addFlag(Flag.ANONYMOUS);
@@ -4065,6 +4066,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             case XML_ELEMENT:
             case XML_EMPTY_ELEMENT:
                 expr = createExpression(expressionNode.content().get(0));
+                break;
             default:
                 expr = createXMLLiteral(expressionNode);
         }
