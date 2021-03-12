@@ -74,3 +74,29 @@ public function testNestedIterableObject() returns int[] {
 
     return integers;
 }
+
+public function testIterableObjectReturnedByRangeExpression() returns int[] {
+    object {
+        public int iStart;
+        public int iEnd;
+        public int iCurrent;
+        public isolated function iterator() returns object {
+                                                        public isolated function next() returns record {| int value; |}?;
+                                                    };
+    } objectResult = 1...3;
+    int[] integers = [];
+    var iterator = objectResult.iterator();
+    var nR1 = iterator.next();
+    if (nR1 is record {| int value; |}) {
+        integers.push(nR1.value);
+    }
+    nR1 = iterator.next();
+    if (nR1 is record {| int value; |}) {
+        integers.push(nR1.value);
+    }
+    nR1 = iterator.next();
+    if (nR1 is record {| int value; |}) {
+        integers.push(nR1.value);
+    }
+    return integers;
+}

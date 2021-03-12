@@ -85,6 +85,18 @@ public class ForeachIterableObjectTest {
     }
 
     @Test
+    public void testIterableObjectReturnedByRangeExpression() {
+        BValue[] returns = BRunUtil.invoke(program, "testIterableObjectReturnedByRangeExpression");
+
+        BValueArray arr = (BValueArray) returns[0];
+        Assert.assertEquals(arr.size(), 3);
+        int i = 0;
+        Assert.assertEquals(arr.getInt(i++), 1);
+        Assert.assertEquals(arr.getInt(i++), 2);
+        Assert.assertEquals(arr.getInt(i++), 3);
+    }
+
+    @Test
     public void testIterableObjectErrors() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'object { public isolated " +

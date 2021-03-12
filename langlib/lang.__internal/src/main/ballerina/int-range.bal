@@ -24,9 +24,9 @@ import ballerina/lang.'object as lang_object;
 public class __IntRange {
 
     *lang_object:Iterable;
-    int iStart;
-    int iEnd;
-    int iCurrent;
+    public int iStart;
+    public int iEnd;
+    public int iCurrent;
 
     public isolated function init(int s, int e) {
         self.iStart = s;
