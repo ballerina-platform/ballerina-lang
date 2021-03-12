@@ -443,7 +443,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
             BVarSymbol param = params.get(paramIndex);
             String paramName = param.name.value;
-            if (param.defaultableParam) {
+            if (param.isDefaultable) {
                 paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
             }
         }
@@ -477,7 +477,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
                 continue;
             }
 
-            if (param.defaultableParam) {
+            if (param.isDefaultable) {
                 paramValueTypes.put(name, symbol.paramDefaultValTypes.get(name));
             }
         }

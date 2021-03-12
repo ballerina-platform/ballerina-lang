@@ -222,7 +222,11 @@ class CodeAnalyzerManager {
         }
 
         void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
-            analysisTask.perform(syntaxNodeAnalysisContext);
+            try {
+                analysisTask.perform(syntaxNodeAnalysisContext);
+            } catch (Throwable e) {
+                throw new ProjectException("A compiler extension failed to complete, " + e.getMessage(), e);
+            }
         }
 
         Collection<SyntaxKind> syntaxKinds() {
@@ -243,7 +247,11 @@ class CodeAnalyzerManager {
         }
 
         void perform(CompilationAnalysisContext compilationAnalysisContext) {
-            analysisTask.perform(compilationAnalysisContext);
+            try {
+                analysisTask.perform(compilationAnalysisContext);
+            } catch (Throwable e) {
+                throw new ProjectException("A compiler extension failed to complete, " + e.getMessage(), e);
+            }
         }
     }
 
