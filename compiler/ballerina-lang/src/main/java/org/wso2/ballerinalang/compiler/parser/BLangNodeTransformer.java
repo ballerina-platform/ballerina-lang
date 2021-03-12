@@ -5444,12 +5444,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
                     BLangIdentifier paraName = new BLangIdentifier();
                     Token parameterName = parameterDocLineNode.parameterName();
-                    var parameterNameValue = parameterName.isMissing() ? "" : parameterName.text();
-                    bLangParaDoc.parameterName = paraName;
+                    String parameterNameValue = parameterName.isMissing() ? "" :
+                            IdentifierUtils.unescapeUnicodeCodepoints(parameterName.text());
                     if (stringStartsWithSingleQuote(parameterNameValue)) {
                         parameterNameValue = parameterNameValue.substring(1);
                     }
                     paraName.value = parameterNameValue;
+                    bLangParaDoc.parameterName = paraName;
                     NodeList<Node> paraDocElements = parameterDocLineNode.documentElements();
                     String paraDocText = addReferencesAndReturnDocumentationText(references, paraDocElements);
 
