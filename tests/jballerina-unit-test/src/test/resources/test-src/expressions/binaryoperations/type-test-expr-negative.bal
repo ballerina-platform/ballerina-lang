@@ -278,6 +278,7 @@ function testXMLNeverType() {
 function testRecordNegative() {
     Baz|int val = 11;
     boolean b = val is Bar;
+    boolean b2 = val is Qux;
 }
 
 type Baz record {
@@ -289,6 +290,10 @@ type Foo record {
 
 type Bar record {
     readonly Class code = new;
+};
+
+type Qux record {
+    readonly Class code;
 };
 
 readonly class Class {

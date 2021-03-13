@@ -1100,7 +1100,7 @@ function testXMLTextType(){
     assertEquality(<any> t is string, false);
 }
 
-function testRecordWithObjects() {
+function testRecordIntersections() {
     Baz|int val = 11;
     assertFalse(val is Bar);
 
@@ -1109,6 +1109,12 @@ function testRecordWithObjects() {
 
     Baz|int val3 = <Bar> {code: new};
     assertTrue(val3 is Bar);
+
+    Bar val4 = {code: new};
+    assertFalse(val4 is Foo);
+
+    Bar val5 = <Foo> {code: new, index: 0};
+    assertTrue(val5 is Foo);
 }
 
 type Baz record {|
@@ -1122,6 +1128,11 @@ type Bar record {
 readonly class Class {
 
 }
+
+type Foo record {|
+    readonly Class code;
+    int index;
+|};
 
 function assertTrue(anydata actual) {
     assertEquality(true, actual);

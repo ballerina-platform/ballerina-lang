@@ -145,6 +145,9 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(Baz|int)' will not be matched to 'Bar'",
                 280, 17);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: '(Baz|int)' will not be matched to 'Qux'",
+                281, 18);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
@@ -730,7 +733,7 @@ public class TypeTestExprTest {
     }
 
     @Test
-    public void testRecordWithObjects() {
-        BRunUtil.invoke(result, "testRecordWithObjects");
+    public void testRecordIntersections() {
+        BRunUtil.invoke(result, "testRecordIntersections");
     }
 }

@@ -80,6 +80,8 @@ public class TypeGuardTest {
 //                                  "incompatible types: 'any' will not be matched to 'error'", 157, 18);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 167, 15);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 173, 15);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
