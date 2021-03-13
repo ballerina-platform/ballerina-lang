@@ -101,7 +101,7 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
     }
 
     private Optional<NonTerminalNode> getVariableNode(NonTerminalNode sNode) {
-        // Find invocation node
+        // Find var node
         while (sNode != null &&
                 sNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
                 sNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
