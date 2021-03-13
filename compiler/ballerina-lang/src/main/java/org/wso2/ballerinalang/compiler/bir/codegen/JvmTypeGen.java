@@ -1226,7 +1226,7 @@ public class JvmTypeGen {
             mv.visitInsn(DUP);
             mv.visitLdcInsn((long) i);
             mv.visitInsn(L2I);
-            mv.visitLdcInsn(paramSymbol.defaultableParam);
+            mv.visitLdcInsn(paramSymbol.isDefaultable);
             mv.visitMethodInsn(INVOKESTATIC, BOOLEAN_VALUE, VALUE_OF_METHOD,
                     String.format("(Z)L%s;", BOOLEAN_VALUE), false);
             mv.visitInsn(AASTORE);
@@ -1876,6 +1876,12 @@ public class JvmTypeGen {
 
         mv.visitTypeInsn(NEW, FUNCTION_TYPE_IMPL);
         mv.visitInsn(DUP);
+
+        if (Symbols.isFlagOn(bType.flags, Flags.ANY_FUNCTION)) {
+            mv.visitLdcInsn(bType.flags);
+            mv.visitMethodInsn(INVOKESPECIAL, FUNCTION_TYPE_IMPL, JVM_INIT_METHOD, "(J)V", false);
+            return;
+        }
 
         // Create param types array
         mv.visitLdcInsn((long) bType.paramTypes.size());

@@ -19,6 +19,14 @@ password = "password"
 scopes = ["write","read","execute"]
 isAdmin = true
 
+[main.personInfo]
+name = "harry"
+age = 28
+
+[main.empInfo]
+id = 34
+salary = 75000.0
+
 [[main.users]]
 username = "alice"
 id = 11
@@ -52,3 +60,52 @@ scopes=["write", "read"]
 username = "john"
 id = 33
 password="password3"
+
+[[main.employees]]
+id = 111
+name = "anna"
+
+[[main.employees]]
+id = 222
+name = "elsa"
+salary = 25000.0
+
+[[main.employees]]
+id = 333
+name = "tom"
+
+[[main.people]]
+name = "alice"
+address = "London"
+age = 22
+
+[[main.people]]
+name = "bob"
+
+[[main.people]]
+name = "john"
+age = 25
+
+[[main.peopleInfo]]
+name = "bill"
+address = "Paris"
+age = 27
+
+[[main.peopleInfo]]
+name = "james"
+
+[[main.peopleInfo]]
+name = "ben"
+age = 21
+
+[[main.empInfoTab]]
+id = 101
+name = "jim"
+
+[[main.empInfoTab]]
+id = 202
+salary = 25000.0
+
+[[main.empInfoTab]]
+id = 303
+name = "belle"

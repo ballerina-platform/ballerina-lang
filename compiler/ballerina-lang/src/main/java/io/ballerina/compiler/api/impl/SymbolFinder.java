@@ -289,6 +289,10 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(serviceNode.annAttachments);
         lookupNode(serviceNode.serviceClass);
         lookupNodes(serviceNode.attachedExprs);
+
+        if (PositionUtil.withinBlock(this.cursorPos, serviceNode.pos) && this.symbolAtCursor == null) {
+            this.symbolAtCursor = serviceNode.symbol;
+        }
     }
 
     @Override

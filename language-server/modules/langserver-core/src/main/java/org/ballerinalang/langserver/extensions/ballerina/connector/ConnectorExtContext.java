@@ -17,6 +17,8 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.connector;
 
+import org.ballerinalang.langserver.commons.LSOperation;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -25,7 +27,7 @@ import java.util.Map;
  *
  * @since 0.970.0
  */
-public class ConnectorExtContext {
+public class ConnectorExtContext implements LSOperation {
 
     private final Map<ConnectorExtContext.Key<?>, Object> props = new HashMap<>();
 
@@ -36,6 +38,11 @@ public class ConnectorExtContext {
     @SuppressWarnings("unchecked")
     public <V> V get(ConnectorExtContext.Key<V> key) {
         return (V) this.props.get(key);
+    }
+
+    @Override
+    public String getName() {
+        return "ballerinaConnector/record";
     }
 
     /**

@@ -828,7 +828,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             }
 
             if (lhsType.tag == TypeTags.ARRAY && typeChecker.isArrayOpenSealedType((BArrayType) lhsType)) {
-                dlog.error(varNode.pos, DiagnosticErrorCode.SEALED_ARRAY_TYPE_NOT_INITIALIZED);
+                dlog.error(varNode.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_NOT_INITIALIZED);
             }
             return;
         }
@@ -1267,7 +1267,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 break;
             case TUPLE_VARIABLE:
                 BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
-                if (TypeTags.TUPLE != rhsType.tag && TypeTags.UNION != rhsType.tag) {
+                if ((TypeTags.TUPLE != rhsType.tag && TypeTags.ARRAY != rhsType.tag && TypeTags.UNION != rhsType.tag) ||
+                        (variable.isDeclaredWithVar && !types.isSubTypeOfBaseType(rhsType, TypeTags.TUPLE))) {
                     dlog.error(variable.pos, DiagnosticErrorCode.INVALID_LIST_BINDING_PATTERN_INFERENCE, rhsType);
                     recursivelyDefineVariables(tupleVariable, blockEnv);
                     return;
@@ -1281,10 +1282,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
 
-                if (rhsType.tag == TypeTags.UNION && !(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable,
-                        null, blockEnv))) {
-                    recursivelyDefineVariables(tupleVariable, blockEnv);
-                    return;
+                if (rhsType.tag == TypeTags.UNION || rhsType.tag == TypeTags.ARRAY) {
+                    BTupleType tupleVariableType = null;
+                    if (tupleVariable.typeNode != null && tupleVariable.typeNode.type.tag == TypeTags.TUPLE) {
+                        tupleVariableType = (BTupleType) tupleVariable.typeNode.type;
+                    }
+                    if (!(this.symbolEnter.checkTypeAndVarCountConsistency(tupleVariable,
+                            tupleVariableType, blockEnv))) {
+                        recursivelyDefineVariables(tupleVariable, blockEnv);
+                        return;
+                    }
                 }
                 recursivelySetFinalFlag(tupleVariable);
                 break;
@@ -2311,7 +2318,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
         BType bindingPatternType = wildCardBindingPattern.type;
-        BType intersectionType = types.getTypeIntersection(bindingPatternType, symTable.anyType, this.env);
+        BType intersectionType = types.getTypeIntersection(
+                Types.IntersectionContext.compilerInternalIntersectionContext(),
+                bindingPatternType, symTable.anyType, this.env);
         if (intersectionType == symTable.semanticError) {
             wildCardBindingPattern.type = symTable.noType;
             return;
@@ -2723,7 +2732,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        BType intersectionType = types.getTypeIntersection(matchExprType, symTable.anyType, this.env);
+        BType intersectionType = types.getTypeIntersection(
+                Types.IntersectionContext.compilerInternalIntersectionContext(),
+                matchExprType, symTable.anyType, this.env);
         if (intersectionType == symTable.semanticError) {
             wildCardMatchPattern.type = symTable.noType;
             return;

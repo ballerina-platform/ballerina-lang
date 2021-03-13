@@ -130,12 +130,26 @@ public class ParserStateMachineTest {
     }
 
     @Test
+    public void testBracketIncompleteBug() {
+        //                                   0        1
+        //                                   1234567890
+        ParserState[] states = states("json x = {");
+        Assert.assertEquals(states[0], ParserState.NORMAL);
+        Assert.assertEquals(states[4], ParserState.NORMAL);
+        Assert.assertEquals(states[8], ParserState.AFTER_OPERATOR);
+        Assert.assertEquals(states[9], ParserState.AFTER_OPERATOR);
+        Assert.assertEquals(states[10], ParserState.NORMAL);
+    }
+
+    @Test
     public void testCompletion() {
         Assert.assertFalse(isComplete(" int i = 12 + \n"));
         Assert.assertFalse(isComplete("{ \n"));
         Assert.assertFalse(isComplete("{ \n {} "));
         Assert.assertFalse(isComplete("` Hello \n ${ hi\n"));
         Assert.assertFalse(isComplete("` Hello \n ${ hi\n } \n"));
+        Assert.assertFalse(isComplete("var value = json {"));
+        Assert.assertFalse(isComplete("json x = {"));
         Assert.assertTrue(isComplete("Hello(\"abc\n"));
         Assert.assertTrue(isComplete("` Hello \n ${ hi\n } \n`"));
         Assert.assertTrue(isComplete("// { \n"));

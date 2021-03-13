@@ -36,12 +36,10 @@ public class ExecutionContext {
     private VirtualMachineProxyImpl debuggeeVM;
     private Project sourceProject;
     private Process launchedProcess;
+    private DebugInstruction lastInstruction;
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
-        this.client = null;
-        this.debuggeeVM = null;
-        this.launchedProcess = null;
     }
 
     public Optional<Process> getLaunchedProcess() {
@@ -81,14 +79,31 @@ public class ExecutionContext {
     }
 
     public EventRequestManager getEventManager() {
+        if (debuggeeVM == null) {
+            return null;
+        }
         return debuggeeVM.eventRequestManager();
     }
 
     public BufferedReader getInputStream() {
+        if (launchedProcess == null) {
+            return null;
+        }
         return new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(), StandardCharsets.UTF_8));
     }
 
     public BufferedReader getErrorStream() {
+        if (launchedProcess == null) {
+            return null;
+        }
         return new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(), StandardCharsets.UTF_8));
+    }
+
+    public DebugInstruction getLastInstruction() {
+        return lastInstruction;
+    }
+
+    public void setLastInstruction(DebugInstruction lastInstruction) {
+        this.lastInstruction = lastInstruction;
     }
 }

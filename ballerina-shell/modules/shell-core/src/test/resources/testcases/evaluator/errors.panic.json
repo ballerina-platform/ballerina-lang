@@ -19,7 +19,7 @@
   {
     "description": "View error.",
     "code": "readRecord(r2);",
-    "stdout": "Exception occurred: error(\"Record is nil\")\n",
-    "error": "InvokerException"
+    "stdout": "panic: Record is nil {}\n",
+    "error": "InvokerPanicException"
   }
 ]

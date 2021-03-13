@@ -255,6 +255,10 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BInvokableType originalType, BType newType) {
+        if (Symbols.isFlagOn(originalType.flags, Flags.ANY_FUNCTION)) {
+            return originalType;
+        }
+
         boolean hasNewType = false;
         List<BType> paramTypes = new ArrayList<>();
         for (BType type : originalType.paramTypes) {
@@ -439,7 +443,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
 
             BVarSymbol param = params.get(paramIndex);
             String paramName = param.name.value;
-            if (param.defaultableParam) {
+            if (param.isDefaultable) {
                 paramValueTypes.put(paramName, symbol.paramDefaultValTypes.get(paramName));
             }
         }
@@ -473,7 +477,7 @@ public class ResolvedTypeBuilder implements BTypeVisitor<BType, BType> {
                 continue;
             }
 
-            if (param.defaultableParam) {
+            if (param.isDefaultable) {
                 paramValueTypes.put(name, symbol.paramDefaultValTypes.get(name));
             }
         }

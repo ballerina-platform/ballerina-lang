@@ -1064,7 +1064,7 @@ public class SnippetGenerator {
      */
     public static SnippetBlock getCommonServiceSnippet() {
         String snippet = "service on ${1:listenerName} {"
-                + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "};";
+                + CommonUtil.LINE_SEPARATOR + "\t${2}" + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.SERVICE, snippet, ItemResolverConstants.SNIPPET_TYPE,
                 Kind.SNIPPET);
     }

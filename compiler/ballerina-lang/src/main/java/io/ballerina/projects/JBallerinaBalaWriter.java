@@ -18,16 +18,28 @@
 
 package io.ballerina.projects;
 
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
+import io.ballerina.projects.internal.bala.CompilerPluginJson;
+import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
+import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 
+import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 import java.util.zip.ZipOutputStream;
+
+import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
 
 /**
  * This class knows how to create a bala containing jballerina platform libs.
@@ -42,6 +54,7 @@ public class JBallerinaBalaWriter extends BalaWriter {
         this.backend = backend;
         this.packageContext = backend.packageContext();
         this.target = getTargetPlatform(packageContext.getResolution()).code();
+        this.compilerPluginToml = readCompilerPluginToml();
     }
 
 
@@ -90,6 +103,55 @@ public class JBallerinaBalaWriter extends BalaWriter {
         return Optional.of(newPlatformLibs);
     }
 
+    @Override
+    protected void addCompilerPlugin(ZipOutputStream balaOutputStream) throws IOException {
+        if (this.compilerPluginToml.isPresent()) {
+            List<String> compilerPluginLibPaths = new ArrayList<>();
+            List<String> compilerPluginDependencies = this.compilerPluginToml.get().getCompilerPluginDependencies();
+
+            if (!compilerPluginDependencies.isEmpty()) {
+
+                // Iterate through compiler plugin dependencies and add them to bala
+                // organization would be
+                // -- Bala Root
+                //   - compiler-plugin/
+                //     - libs
+                //       - java-library1.jar
+                //       - java-library2.jar
+
+
+                // Iterate jars and create directories for each target
+                for (String compilerPluginLib : compilerPluginDependencies) {
+                    Path libPath = this.packageContext.project().sourceRoot().resolve(compilerPluginLib);
+                    // null check is added for spot bug with the toml validation filename cannot be null
+                    String fileName = Optional.ofNullable(libPath.getFileName())
+                            .map(p -> p.toString()).orElse("annon");
+                    Path entryPath = Paths.get("compiler-plugin").resolve("libs").resolve(fileName);
+                    // create a zip entry for each file
+                    putZipEntry(balaOutputStream, entryPath, new FileInputStream(libPath.toString()));
+                    compilerPluginLibPaths.add(entryPath.toString());
+                }
+            }
+
+            CompilerPluginJson compilerPluginJson = new CompilerPluginJson(
+                    this.compilerPluginToml.get().plugin().getId(),
+                    this.compilerPluginToml.get().plugin().getClassName(),
+                    compilerPluginLibPaths);
+
+            // Remove fields with empty values from `compiler-plugin.json`
+            Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
+                    .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
+
+            try {
+                putZipEntry(balaOutputStream, Paths.get("compiler-plugin", COMPILER_PLUGIN_JSON),
+                        new ByteArrayInputStream(
+                                gson.toJson(compilerPluginJson).getBytes(Charset.defaultCharset())));
+            } catch (IOException e) {
+                throw new ProjectException("Failed to write '" + COMPILER_PLUGIN_JSON + "' file: " + e.getMessage(), e);
+            }
+        }
+    }
+
     private CompilerBackend.TargetPlatform getTargetPlatform(PackageResolution pkgResolution) {
         ResolvedPackageDependency resolvedPackageDependency = new ResolvedPackageDependency(
                 this.packageContext.project().currentPackage(), PackageDependencyScope.DEFAULT);
@@ -102,5 +164,16 @@ public class JBallerinaBalaWriter extends BalaWriter {
             }
         }
         return AnyTarget.ANY;
+    }
+
+    private Optional<CompilerPluginDescriptor> readCompilerPluginToml() {
+        Optional<io.ballerina.projects.CompilerPluginToml> compilerPluginToml = backend.packageContext().project()
+                .currentPackage().compilerPluginToml();
+
+        if (compilerPluginToml.isPresent()) {
+            TomlDocument tomlDocument = compilerPluginToml.get().compilerPluginTomlContext().tomlDocument();
+            return Optional.of(CompilerPluginDescriptor.from(tomlDocument));
+        }
+        return Optional.empty();
     }
 }

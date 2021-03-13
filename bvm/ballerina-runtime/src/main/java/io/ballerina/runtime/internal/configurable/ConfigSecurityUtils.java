@@ -47,7 +47,7 @@ public class ConfigSecurityUtils {
 
     private static AESCipherTool cipherTool = null;
 
-    private static PrintStream stderr = System.err;
+    private static final PrintStream stderr = System.err;
 
     private ConfigSecurityUtils() {
     }
