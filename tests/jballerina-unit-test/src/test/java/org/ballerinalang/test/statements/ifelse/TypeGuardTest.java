@@ -86,7 +86,7 @@ public class TypeGuardTest {
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testTypeGuardSemanticsNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/statements/ifelse/type-guard-semantics-negative.bal");
