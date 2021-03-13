@@ -51,7 +51,6 @@ public class TypeTestExprTest {
     public void testTypeTestExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-expr-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 42);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
@@ -140,9 +139,13 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'xml<xml<never>>' will not be matched to 'string'",
                 274, 9);
-        BAssertUtil.validateError(negativeResult, i,
+        BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'xml' will not be matched to 'string'",
                 275, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: '(Baz|int)' will not be matched to 'Bar'",
+                280, 17);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
@@ -724,5 +727,10 @@ public class TypeTestExprTest {
     @Test
     public void testMapAsRecord() {
         BRunUtil.invoke(result, "testMapAsRecord");
+    }
+
+    @Test
+    public void testRecordWithObjects() {
+        BRunUtil.invoke(result, "testRecordWithObjects");
     }
 }

@@ -1100,6 +1100,29 @@ function testXMLTextType(){
     assertEquality(<any> t is string, false);
 }
 
+function testRecordWithObjects() {
+    Baz|int val = 11;
+    assertFalse(val is Bar);
+
+    Baz|int val2 = {};
+    assertFalse(val2 is Bar);
+
+    Baz|int val3 = <Bar> {code: new};
+    assertTrue(val3 is Bar);
+}
+
+type Baz record {|
+    anydata|object {}...;
+|};
+
+type Bar record {
+    readonly Class code = new;
+};
+
+readonly class Class {
+
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

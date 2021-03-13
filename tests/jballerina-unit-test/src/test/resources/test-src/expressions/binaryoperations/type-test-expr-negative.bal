@@ -274,3 +274,23 @@ function testXMLNeverType() {
     _ = g is string;
     _ = e is string;
 }
+
+function testRecordNegative() {
+    Baz|int val = 11;
+    boolean b = val is Bar;
+}
+
+type Baz record {
+};
+
+type Foo record {
+    readonly Class code = new;
+};
+
+type Bar record {
+    readonly Class code = new;
+};
+
+readonly class Class {
+
+}
