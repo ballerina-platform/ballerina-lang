@@ -143,11 +143,23 @@ public class TypeTestExprTest {
                 "incompatible types: 'xml' will not be matched to 'string'",
                 275, 9);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '(Baz|int)' will not be matched to 'Bar'",
-                280, 17);
+                "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 280, 17);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '(Baz|int)' will not be matched to 'Qux'",
-                281, 18);
+                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 281, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Bar' will not be matched to 'Baz'", 284, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Bar' will not be matched to 'Quux'", 285, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Qux' will not be matched to 'Baz'", 288, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Qux' will not be matched to 'Quux'", 289, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Quux' will not be matched to 'Bar'", 292, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Quux' will not be matched to 'Qux'", 293, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Quux' will not be matched to 'record {| int i; boolean b; |}'", 294, 18);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

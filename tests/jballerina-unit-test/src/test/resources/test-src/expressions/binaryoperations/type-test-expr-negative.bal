@@ -279,6 +279,19 @@ function testRecordNegative() {
     Baz|int val = 11;
     boolean b = val is Bar;
     boolean b2 = val is Qux;
+
+    Bar val2 = {};
+    boolean b3 = val2 is Baz;
+    boolean b4 = val2 is Quux;
+
+    Qux val3 = {code: new};
+    boolean b5 = val3 is Baz;
+    boolean b6 = val3 is Quux;
+
+    Quux val4 = {"i": 1, "j": 2};
+    boolean b7 = val4 is Bar;
+    boolean b8 = val4 is Qux;
+    boolean b9 = val4 is record {|int i; boolean b;|};
 }
 
 type Baz record {
@@ -299,3 +312,7 @@ type Qux record {
 readonly class Class {
 
 }
+
+type Quux record {|
+    int...;
+|};
