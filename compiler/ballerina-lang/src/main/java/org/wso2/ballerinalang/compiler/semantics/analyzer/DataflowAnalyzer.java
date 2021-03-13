@@ -510,11 +510,11 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
         this.currDependentSymbol.push(symbol);
         try {
-            if (variable.expr != null) {
-                if (variable.isDeclaredWithVar) {
-                    addVarIfInferredTypeIncludesError(variable);
-                }
+            if (variable.isDeclaredWithVar) {
+                addVarIfInferredTypeIncludesError(variable);
+            }
 
+            if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
                 this.uninitializedVars.remove(symbol);
                 return;
@@ -1124,6 +1124,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
+        analyzeNode((BLangVariable) onFailClause.variableDefinitionNode.getVariable(), env);
         analyzeNode(onFailClause.body, env);
     }
 

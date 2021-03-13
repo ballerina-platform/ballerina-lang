@@ -97,4 +97,18 @@ function testQueryExprsWithError() {
     error? z = from var error(m1, c1) in arr1
                 join var error(m2, c2) in arr2 on val equals 0
                 do {};
- }
+}
+
+function testOnFailClauseWithError() {
+    do {
+        fail error("error!");
+    } on fail var x {
+        error y = x;
+    }
+
+    // https://github.com/ballerina-platform/ballerina-lang/issues/29183
+    //do {
+    //    fail error("error!");
+    //} on fail var error(m, c) {
+    //}
+}

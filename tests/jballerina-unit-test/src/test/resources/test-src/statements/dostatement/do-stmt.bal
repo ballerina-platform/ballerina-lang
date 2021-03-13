@@ -124,6 +124,7 @@ function testNestedDoWithOnFail () returns string {
           str += " -> Before error 2 is thrown";
           fail err2;
       } on fail var e2 {
+          error err = e2;
           str += " -> error 2 caught !";
       }
      fail err1;

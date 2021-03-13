@@ -37,3 +37,11 @@ type MyError error<record {error err;}>;
 
 function baz() returns record {[error|boolean, int] q; error r; MyError s; int t;} =>
     {q: [error("four"), 1], r: error("five"), s: error MyError("five", err = error("six")), t: 101};
+
+function testOnFailClauseWithError() {
+    do {
+        fail error("error!");
+    } on fail var x {
+
+    }
+}
