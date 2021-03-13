@@ -426,7 +426,7 @@ class AIDataMapperCodeActionUtil {
     }
 
     /**
-     * Create the mapping function
+     * Create the mapping function.
      *
      * @param mappingFromServer {@link String}
      * @param foundTypeLeft {@link String}
@@ -470,7 +470,7 @@ class AIDataMapperCodeActionUtil {
     }
 
     /**
-     * Properly type caste the symbols
+     * Properly type caste the symbols.
      *
      * @param lftTypeSymbol {@link Symbol}
      * @param rhsTypeSymbol {@link String}
