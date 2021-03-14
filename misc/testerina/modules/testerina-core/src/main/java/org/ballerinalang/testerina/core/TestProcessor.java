@@ -36,6 +36,7 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
@@ -47,6 +48,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -141,10 +143,15 @@ public class TestProcessor {
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
         testSuite.setSourceRootPath(module.project().sourceRoot().toString());
+
         if (jarResolver != null) {
-            testSuite.addTestExecutionDependencies(
-                    jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName()));
+            List<Path> jarPaths = new ArrayList<>();
+            for (JarLibrary jarLibrary : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+                jarPaths.add(jarLibrary.path());
+            }
+            testSuite.addTestExecutionDependencies(jarPaths);
         }
+
         addUtilityFunctions(module, testSuite);
         processAnnotations(module, testSuite);
         testSuite.sort();

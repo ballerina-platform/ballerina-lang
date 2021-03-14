@@ -234,6 +234,31 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("winery.bir").toFile().exists());
     }
 
+    @Test(description = "Build a valid ballerina project")
+    public void testBuildBalProjectWithJarConflicts() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithConflictedJars");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                            getOutput("build-bal-project-with-jar-conflicts.txt"));
+
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bala").resolve("pramodya-conflictProject-any-0.1.7.bala")
+                        .toFile().exists());
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bin").resolve("conflictProject.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
+                                  .resolve("conflictProject").resolve("0.1.7").resolve("java11")
+                                  .resolve("conflictProject.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
+                                  .resolve("conflictProject").resolve("0.1.7").resolve("bir")
+                                  .resolve("conflictProject.bir").toFile().exists());
+    }
+
     @Test(description = "Build a valid ballerina project with java imports")
     public void testBuildJava11BalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validJava11Project");
