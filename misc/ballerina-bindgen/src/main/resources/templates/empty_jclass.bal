@@ -18,14 +18,14 @@ distinct class SIMPLE_CLASS_NAME {
 
     handle jObj;
 
-    # Init function of the Ballerina class mapping the `FULL_CLASS_NAME` Java CLASS_TYPE.
+    # The init function of the Ballerina class mapping the `FULL_CLASS_NAME` Java CLASS_TYPE.
     #
     # + obj - The `handle` value containing the Java reference of the object.
     function init(handle obj) {
         self.jObj = obj;
     }
 
-    # Function to retrieve the string representation of the Ballerina class mapping the `FULL_CLASS_NAME` Java CLASS_TYPE.
+    # The function to retrieve the string representation of the Ballerina class mapping the `FULL_CLASS_NAME` Java CLASS_TYPE.
     #
     # + return - The `string` form of the Java object instance.
     function toString() returns string {

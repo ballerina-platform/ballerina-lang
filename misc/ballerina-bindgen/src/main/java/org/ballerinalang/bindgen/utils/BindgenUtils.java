@@ -25,12 +25,16 @@ import com.github.jknack.handlebars.context.JavaBeanValueResolver;
 import com.github.jknack.handlebars.context.MapValueResolver;
 import com.github.jknack.handlebars.io.ClassPathTemplateLoader;
 import com.github.jknack.handlebars.io.FileTemplateLoader;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
+import org.ballerinalang.bindgen.model.BindingsGenerator;
 import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JField;
 import org.ballerinalang.bindgen.model.JMethod;
 import org.ballerinalang.bindgen.model.JParameter;
+import org.ballerinalang.formatter.core.Formatter;
+import org.ballerinalang.formatter.core.FormatterException;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -90,6 +94,31 @@ public class BindgenUtils {
 
     private static PrintStream errStream;
     private static PrintStream outStream;
+
+    public static void outputSyntaxTreeFile(JClass jClass, BindgenEnv bindgenEnv,
+                                            String outPath, Boolean append) throws BindgenException {
+        PrintWriter writer = null;
+        FileWriterWithEncoding fileWriter = null;
+        try {
+            SyntaxTree syntaxTree = new BindingsGenerator(bindgenEnv).generate(jClass);
+            fileWriter = new FileWriterWithEncoding(outPath, StandardCharsets.UTF_8, append);
+            writer = new PrintWriter(fileWriter);
+            writer.println(Formatter.format(syntaxTree.toSourceCode()));
+            fileWriter.close();
+        } catch (IOException | FormatterException e) {
+            throw new BindgenException("Unable to create the Ballerina file: " + e.getMessage(), e);
+        } finally {
+            if (writer != null) {
+                writer.close();
+            }
+            if (fileWriter != null) {
+                try {
+                    fileWriter.close();
+                } catch (IOException ignored) {
+                }
+            }
+        }
+    }
 
     public static void writeOutputFile(Object object, String templateDir, String templateName, String outPath,
                                        Boolean append) throws BindgenException {
@@ -444,20 +473,6 @@ public class BindgenUtils {
     public static boolean isAbstractClass(Class javaClass) {
         int modifiers = javaClass.getModifiers();
         return Modifier.isAbstract(modifiers) && !javaClass.isInterface();
-    }
-
-    public static void handleOverloadedMethods(List<JMethod> methodList, List<JMethod> methods, JClass jClass) {
-        for (JMethod method: methods) {
-            jClass.setMethodCount(method.getMethodName());
-            if (jClass.getMethodCount(method.getMethodName()) > 1) {
-                for (JMethod jMethod : methodList) {
-                    if (jMethod.getMethod().equals(method.getMethod())) {
-                        jMethod.setMethodName(jMethod.getJavaMethodName() +
-                                jClass.getMethodCount(method.getMethodName()));
-                    }
-                }
-            }
-        }
     }
 
     public static String getBallerinaParamType(Class javaType) {

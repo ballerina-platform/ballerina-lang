@@ -17,6 +17,9 @@
  */
 package org.ballerinalang.bindgen;
 
+import java.io.File;
+import java.io.IOException;
+
 /**
  * Java resources for the unit testing of different constructor bindings generated.
  *
@@ -24,71 +27,91 @@ package org.ballerinalang.bindgen;
  */
 public class ConstructorsTestResource {
 
-    public int getInstanceInt = 3;
-
-    // Different constructor combinations
-
-    private ConstructorsTestResource(String obj) {
-        getInstanceInt = 5;
+    // The tool should not generate constructors with private access modifier.
+    private ConstructorsTestResource(boolean x) {
     }
 
-    ConstructorsTestResource(String obj1, String obj2) {
-        getInstanceInt = 5;
+    // The tool should not generate constructors with package access modifier.
+    ConstructorsTestResource(int x, float y) {
     }
 
-    protected ConstructorsTestResource(String obj1, String obj2, String obj3) {
-        getInstanceInt = 5;
+    // The tool should not generate constructors with protected access modifier.
+    protected ConstructorsTestResource(String x, String y, String z) {
     }
 
+    // Constructor with no parameters or throwables.
     public ConstructorsTestResource() {
-        getInstanceInt = 5;
     }
 
-    public ConstructorsTestResource(int x) throws ArithmeticException {
-        getInstanceInt = 5 / x;
+    // Constructor with a single primitive parameter.
+    public ConstructorsTestResource(int x) {
     }
 
-    public ConstructorsTestResource(int[] x, int[] y) throws ArithmeticException, ArrayIndexOutOfBoundsException {
-        getInstanceInt = 5 / x[0];
+    // Constructor with a two primitive parameters.
+    public ConstructorsTestResource(int x, short y) {
     }
 
-    public ConstructorsTestResource(boolean[] x, boolean[] y) {
+    // Constructor with a string parameter.
+    public ConstructorsTestResource(String x) {
     }
 
-//    public ConstructorsTestResource(byte x, Object obj, byte[] y, byte[][] z) {
-//        getInstanceByte = x;
-//    }
-//
-//    public ConstructorsTestResource(char x, StringBuffer[] obj, char[] y, char[][] z) {
-//        getInstanceChar = x;
-//    }
-//
-//    public ConstructorsTestResource(short x, Integer[][] obj, Byte[][][] in, short[] y) {
-//        getInstanceShort = x;
-//    }
-//
-//    public ConstructorsTestResource(long x, Set<String> obj, short[][] y, long[] z, long[][] a) {
-//        getInstanceLong = x;
-//    }
-//
-//    public ConstructorsTestResource(float x, System.Logger.Level obj, float[] y, float[][] z) {
-//        getInstanceFloat = x;
-//    }
-//
-//    public ConstructorsTestResource(double x, ArithmeticException obj, double[] y, double[][] z) {
-//        getInstanceDouble = x;
-//    }
+    // Constructor with multiple string parameters.
+    public ConstructorsTestResource(String x, String y) {
+    }
 
-//    public ConstructorsTestResource(boolean x, AbstractList obj, boolean[] y, boolean[][] z) {
-//        getInstanceBoolean = x;
-//    }
-//
-//    public ConstructorsTestResource(String x, Map obj, String[] y, String[][] z) {
-//        getInstanceString = x;
-//    }
-//
-//    public ConstructorsTestResource(float x, double y, boolean z, String[] a, short[][] b, Object[][][] c)
-//            throws ArithmeticException, ArrayIndexOutOfBoundsException {
-//        getInstanceFloat = x;
-//    }
+    // Constructor with string and a two different parameters.
+    public ConstructorsTestResource(String x, byte y, char z) {
+    }
+
+    // Constructor with an object parameter.
+    public ConstructorsTestResource(File x) {
+    }
+
+    // Constructor with two object parameters.
+    public ConstructorsTestResource(File x, StringBuffer y) {
+    }
+
+    // Constructor with a primitive, string and object parameters.
+    public ConstructorsTestResource(boolean x, String y, StringBuffer z) {
+    }
+
+    // Constructor with a primitive parameter and a checked exception.
+    public ConstructorsTestResource(double x) throws IOException {
+    }
+
+    // Constructor with a string parameter, primitive parameter and a checked exception.
+    public ConstructorsTestResource(String x, int y) throws IOException {
+    }
+
+    // Constructor with an object parameter, primitive parameter and a checked exception.
+    public ConstructorsTestResource(File x, boolean y) throws InterruptedException {
+    }
+
+    // Constructor with a primitive parameter and an unchecked exception.
+    public ConstructorsTestResource(File x, char y) throws ArithmeticException {
+    }
+
+    // Constructor with a primitive array parameter.
+    public ConstructorsTestResource(int[] x) {
+    }
+
+    // Constructor with a string array parameter.
+    public ConstructorsTestResource(String[] x) {
+    }
+
+    // Constructor with a object array parameter.
+    public ConstructorsTestResource(Object[] x) {
+    }
+
+    // Constructor with a primitive array with a string parameter.
+    public ConstructorsTestResource(int[] x, String y) {
+    }
+
+    // Constructor with two string array parameters.
+    public ConstructorsTestResource(String[] x, String[] y) {
+    }
+
+    // Constructor with object array, primitive array and string array parameters.
+    public ConstructorsTestResource(Object[] x, boolean y, String[] z) {
+    }
 }

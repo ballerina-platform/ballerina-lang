@@ -40,17 +40,14 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.BBGEN_CLASS_TEMPLATE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_FILE_NAME;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTANTS_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MODULES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.getUpdatedConstantsList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.outputSyntaxTreeFile;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
 
 /**
@@ -226,17 +223,6 @@ public class BindingsGenerator {
         String utilsDirStrPath = utilsDirPath.toString();
         createDirectory(utilsDirStrPath);
 
-        // Create the Constants.bal file.
-        if (!env.getModulesFlag()) {
-            Path constantsPath = Paths.get(utilsDirPath.toString(), CONSTANTS_FILE_NAME);
-            generateConstantFiles(constantsPath);
-        } else {
-            for (String packagePath : allPackages) {
-                Path constantsPath = Paths.get(modulePath.toString(), packagePath, CONSTANTS_FILE_NAME);
-                generateConstantFiles(constantsPath);
-            }
-        }
-
         // Create the .bal files for Ballerina error types.
         for (JError jError : exceptionList) {
             jError.setAccessModifier(accessModifier);
@@ -248,16 +234,6 @@ public class BindingsGenerator {
             // The folder structure is flattened to address the Project API changes.
             writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
                     Paths.get(utilsDirStrPath, fileName).toString(), false);
-        }
-    }
-
-    private void generateConstantFiles(Path constantPaths) throws BindgenException {
-        Set<String> names = new HashSet<>(allClasses);
-        if (constantPaths.toFile().exists()) {
-            getUpdatedConstantsList(constantPaths, names);
-        }
-        if (!names.isEmpty()) {
-            writeOutputFile(names, DEFAULT_TEMPLATE_DIR, CONSTANTS_TEMPLATE_NAME, constantPaths.toString(), true);
         }
     }
 
@@ -295,7 +271,7 @@ public class BindingsGenerator {
                             filePath = Paths.get(modulePath.toString(), jClass.getShortClassName()
                                     + BAL_EXTENSION).toString();
                         }
-                        writeOutputFile(jClass, DEFAULT_TEMPLATE_DIR, BBGEN_CLASS_TEMPLATE_NAME, filePath, false);
+                        outputSyntaxTreeFile(jClass, env, filePath, false);
                         outStream.println("\t" + c);
                     }
                 }

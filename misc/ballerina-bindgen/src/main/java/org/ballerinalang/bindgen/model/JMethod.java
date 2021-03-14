@@ -84,10 +84,11 @@ public class JMethod extends BFunction {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    public JMethod(Method m, BindgenEnv env, String parentPrefix, Class jClass) {
+    public JMethod(Method m, BindgenEnv env, String parentPrefix, Class jClass, String shortClassName) {
         super(BFunctionKind.METHOD, env);
         this.env = env;
         this.parentPrefix = parentPrefix;
+        this.shortClassName = shortClassName;
         method = m;
         javaMethodName = m.getName();
         methodName = m.getName();
@@ -307,10 +308,6 @@ public class JMethod extends BFunction {
 
     public boolean isReturnError() {
         return returnError;
-    }
-
-    void setShortClassName(String shortClassName) {
-        this.shortClassName = shortClassName;
     }
 
     public Method getMethod() {

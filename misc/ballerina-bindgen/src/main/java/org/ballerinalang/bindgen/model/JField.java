@@ -107,8 +107,10 @@ public class JField extends BFunction {
             interopType = MUTATE_FIELD_INTEROP_TYPE;
             isSetter = true;
         }
+        setExternalReturnType(externalType);
         setExternalFunctionName(field.getDeclaringClass().getName().replace(".", "_")
                 .replace("$", "_") + "_" + fieldMethodName);
+        setReturnType(fieldType);
 
         if (isStatic) {
             super.setFunctionName(jClass.getShortClassName() + "_" + fieldMethodName);

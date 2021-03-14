@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
@@ -35,7 +34,6 @@ import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setAllClasses;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.handleOverloadedMethods;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isAbstractClass;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isFinalField;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicField;
@@ -111,37 +109,12 @@ public class JClass {
         if (env.isDirectJavaClass()) {
             isDirectClass = true;
             populateConstructors(c.getConstructors());
-            populateMethodsInOrder(c);
+            populateMethods(c);
             populateFields(c.getFields());
         }
 
         if (modulesFlag) {
             importedPackages.remove(c.getPackageName());
-        }
-    }
-
-    private void populateMethodsInOrder(Class c) {
-        Map<Method, String> methodClassMap = getMethodsAsMap(c);
-        LinkedList<String> list = new LinkedList<>(superClassNames);
-        Iterator<String> iterator = list.descendingIterator();
-        while (iterator.hasNext()) {
-            String superclass = iterator.next();
-            if (methodClassMap.containsValue(superclass)) {
-                List<JMethod> jMethods = new ArrayList<>();
-                List<Method> methods = new ArrayList<>();
-                for (Map.Entry<Method, String> mapValue : methodClassMap.entrySet()) {
-                    if (mapValue.getValue().equals(superclass)) {
-                        JMethod jMethod = new JMethod(mapValue.getKey(), env, prefix, currentClass);
-                        jMethods.add(jMethod);
-                        methods.add(mapValue.getKey());
-                    }
-                }
-                populateMethods(methods);
-                methodList.sort(Comparator.comparing(JMethod::getParamTypes));
-                jMethods.sort(Comparator.comparing(JMethod::getParamTypes));
-                handleOverloadedMethods(methodList, jMethods, this);
-                methodList.sort(Comparator.comparing(JMethod::getMethodName));
-            }
         }
     }
 
@@ -158,12 +131,12 @@ public class JClass {
         return name;
     }
 
-    private Map<Method, String> getMethodsAsMap(Class classObject) {
-        Method[] declaredMethods = classObject.getMethods();
-        Map<Method, String> classMethods = new HashMap<>();
+    private List<Method> getMethodsAsList(Class classObject) {
+        Method[] declaredMethods = classObject.getDeclaredMethods();
+        List<Method> classMethods = new LinkedList<>();
         for (Method m : declaredMethods) {
-            if (!m.isSynthetic() && (!m.getName().equals("toString"))) {
-                classMethods.put(m, m.getDeclaringClass().getName());
+            if (!m.isSynthetic() && (!m.getName().equals("toString")) && isPublicMethod(m)) {
+                classMethods.add(m);
             }
         }
         return classMethods;
@@ -190,20 +163,25 @@ public class JClass {
         }
     }
 
-    private void populateMethods(List<Method> declaredMethods) {
-        for (Method method : declaredMethods) {
-            if (isPublicMethod(method)) {
-                JMethod jMethod = new JMethod(method, env, prefix, currentClass);
-                jMethod.setShortClassName(shortClassName);
-                if (jMethod.requireJavaArrays()) {
-                    importJavaArraysModule = true;
-                }
-                methodList.add(jMethod);
-                if (modulesFlag) {
-                    importedPackages.addAll(jMethod.getImportedPackages());
-                }
-            }
+    private void populateMethods(Class c) {
+        List<JMethod> tempList = new ArrayList<>();
+        for (Method method : getMethodsAsList(c)) {
+            tempList.add(new JMethod(method, env, prefix, currentClass, null));
         }
+        tempList.sort(Comparator.comparing(JMethod::getParamTypes));
+        for (JMethod method : tempList) {
+            setMethodCount(method.getJavaMethodName());
+            JMethod jMethod = new JMethod(method.getMethod(), env, prefix, currentClass,
+                    shortClassName + getMethodCount(method.getJavaMethodName()));
+            if (jMethod.requireJavaArrays()) {
+                importJavaArraysModule = true;
+            }
+            if (modulesFlag) {
+                importedPackages.addAll(jMethod.getImportedPackages());
+            }
+            methodList.add(jMethod);
+        }
+        methodList.sort(Comparator.comparing(JMethod::getMethodName));
     }
 
     private void populateFields(Field[] fields) {

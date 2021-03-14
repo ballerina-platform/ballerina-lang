@@ -65,6 +65,7 @@ public class JConstructor extends BFunction implements Cloneable  {
         parentClass = c.getDeclaringClass();
         super.setDeclaringClass(parentClass);
         shortClassName = getAlias(c.getDeclaringClass());
+        setExternalReturnType("handle");
         interopType = CONSTRUCTOR_INTEROP_TYPE;
         initObjectName = "_" + Character.toLowerCase(this.shortClassName.charAt(0)) + shortClassName.substring(1);
 
@@ -100,6 +101,7 @@ public class JConstructor extends BFunction implements Cloneable  {
                         exceptionConstName = getPackageAlias(exceptionConstName, exceptionType);
                     }
                     setExceptionList(jError);
+                    setThrowable(jError);
                     hasException = true;
                     handleException = true;
                     break;
@@ -107,6 +109,7 @@ public class JConstructor extends BFunction implements Cloneable  {
             } catch (ClassNotFoundException ignore) {
             }
         }
+        setErrorType(exceptionName);
         setFunctionName(constructorName);
         setExternalFunctionName(parentClass.getName().replace(".", "_").replace("$", "_") + "_" + constructorName);
     }
