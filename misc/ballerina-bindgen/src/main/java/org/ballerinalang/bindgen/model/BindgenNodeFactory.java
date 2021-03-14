@@ -357,6 +357,9 @@ public class BindgenNodeFactory {
     }
 
     private static ReturnTypeDescriptorNode getExternalFunctionSignatureReturnType(BFunction bFunction) {
+        if (bFunction.getKind() == BFunction.BFunctionKind.FIELD_SET) {
+            return null;
+        }
         if (bFunction.getExternalReturnType() != null && !bFunction.getThrowables().isEmpty()) {
             return createReturnTypeDescriptorNode(createSimpleNameReferenceNode(bFunction
                     .getExternalReturnType() + "|error"));
@@ -392,8 +395,8 @@ public class BindgenNodeFactory {
         } else if (bFunction.getKind() == BFunction.BFunctionKind.FIELD_GET ||
                 bFunction.getKind() == BFunction.BFunctionKind.FIELD_SET) {
             JField jField = (JField) bFunction;
+            fields.put(NAME, Collections.singletonList(jField.getFieldName()));
             fields.put(CLASS, Collections.singletonList(jField.getDeclaringClass().getName()));
-            fields.put(PARAM_TYPES, getParameterList(Collections.singletonList(jField.getFieldObj())));
         }
 
         Token equalsToken = AbstractNodeFactory.createToken(SyntaxKind.EQUAL_TOKEN);
@@ -536,7 +539,7 @@ public class BindgenNodeFactory {
                 jField.getExternalFunctionName(), getParameterArgumentList(jField));
         statementNodes.add(createReturnStatementNode(createTypeCastExpressionNode("string[]",
                 createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
-                        Collections.singletonList(innerFunctionCall.toSourceCode()))))));
+                        Arrays.asList(innerFunctionCall.toSourceCode(), "\"string\""))))));
 
         return statementNodes;
     }
