@@ -69,7 +69,7 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
             String fileUri = request.getDocumentIdentifier().getUri();
             Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
             if (filePath.isEmpty()) {
-                return CompletableFuture.supplyAsync(Collections::emptyList);
+                return null;
             }
 
             try {
@@ -81,15 +81,15 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
                 if (semanticModel.isPresent()){
                     Optional<TypeSymbol> typeSymbol = semanticModel.get().type(lineRange);
                     if (typeSymbol.isPresent()) {
-                        return typeSymbol;
+                        return typeSymbol.get();
                     }
                 }
-                return CompletableFuture.supplyAsync(Collections::emptyList);
+                return null;
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaSymbol/type' failed!";
                 this.clientLogger.logError(LSContextOperation.DOC_TYPE, msg, e, request.getDocumentIdentifier(),
                         (Position) null);
-                return Collections.emptyList();
+                return null;
             }
         });
     }
