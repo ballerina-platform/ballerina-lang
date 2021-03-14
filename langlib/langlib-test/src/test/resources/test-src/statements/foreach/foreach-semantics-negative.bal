@@ -216,3 +216,13 @@ function print(any... v) {
 function concatString(int index, string value) {
     output = output + index.toString() + ":" + value + " ";
 }
+
+type Foo record {|
+|};
+
+function test18() {
+    Foo f = {
+    };
+    foreach var x in f {
+    }
+}

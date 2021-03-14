@@ -1,6 +1,0 @@
-[[main.users]]
-username = "alice"
-password="password1"
-
-[[main.users]]
-password="password2"

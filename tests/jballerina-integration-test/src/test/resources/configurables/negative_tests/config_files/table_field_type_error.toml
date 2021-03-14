@@ -1,0 +1,7 @@
+[main]
+stringVar = "required"
+
+[[main.users]]
+username = 1234
+password="password1"
+ 

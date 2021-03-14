@@ -133,18 +133,6 @@ public class Symbols {
         return symbol;
     }
 
-    public static BServiceSymbol createServiceSymbol(long flags,
-                                                     Name name,
-                                                     PackageID pkgID,
-                                                     BType type,
-                                                     BSymbol owner,
-                                                     Location pos,
-                                                     SymbolOrigin origin) {
-        BServiceSymbol serviceSymbol = new BServiceSymbol(flags, name, pkgID, type, owner, pos, origin);
-        serviceSymbol.kind = SymbolKind.SERVICE;
-        return serviceSymbol;
-    }
-
     public static BInvokableSymbol createFunctionSymbol(long flags,
                                                         Name name,
                                                         PackageID pkgID,

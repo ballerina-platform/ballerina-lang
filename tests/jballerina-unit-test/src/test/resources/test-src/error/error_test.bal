@@ -208,7 +208,7 @@ function testUnspecifiedErrorDetailFrozenness() returns boolean {
     return err is error && err.message() == "{ballerina/lang.map}InvalidUpdate";
 }
 
-function addValueToMap(map<anydata|readonly> m, string key, anydata|readonly value) {
+function addValueToMap(map<value:Cloneable> m, string key, anydata|readonly value) {
     m[key] = value;
 }
 
@@ -387,6 +387,16 @@ function testErrorBindingPattern() {
     error(info=i,fatal=b) = error SampleError("Sample Error", info = "Some Info", fatal = false);
     assertEquality(i, "Some Info");
     assertEquality(b, false);
+}
+
+type ErrorDataWithErrorField record {
+    error 'error;
+};
+
+function testErrorDataWithErrorField() {
+    error newError = error("bam", message = "new error");
+    ErrorDataWithErrorField ef = {'error: newError};
+    assertEquality(ef.toString(), "{\"error\":error(\"bam\",message=\"new error\")}");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

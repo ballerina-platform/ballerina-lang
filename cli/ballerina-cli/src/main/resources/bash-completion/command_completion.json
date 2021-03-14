@@ -1,0 +1,86 @@
+[
+    {
+        "command": "bal",
+        "subCommands": ["-v", "--version", "add", "bindgen", "build" ,"clean", "dist", "doc", "encrypt", "format", "grpc", "help", "init","new","openapi", "pull", "push", "run", "search", "shell", "test", "update", "version"]
+    },
+    {
+        "command": "dist",
+        "subCommands": ["list", "pull", "remove", "update", "use"]
+    },
+    {
+      "command": "add",
+      "subCommands": ["-t", "--template"]
+    },
+    {
+      "command": "bindgen",
+      "subCommands": ["-cp", "-m", "-mvn", "-o", "--classpath", "--maven", "--modules", "--output", "--public"]
+    },
+    {
+      "command": "build",
+      "subCommands": ["-c", "-o", "--cloud", "--code-coverage", "--compile", "--debug", "--experimental", "--observability-included", "--offline", "--output", "--skip-tests", "--taint-check", "--test-report"]
+    },
+    {
+      "command": "doc",
+      "subCommands": ["-c", "-o", "--exclude", "--offline", "--output", "--experimental"]
+    },
+    {
+      "command": "encrypt",
+      "subCommands": []
+    },
+    {
+      "command": "format",
+      "subCommands": []
+    },
+    {
+      "command": "grpc",
+      "subCommands": ["--input", "--mode", "--output"]
+    },
+    {
+      "command": "help",
+      "subCommands": []
+    },
+    {
+      "command": "init",
+      "subCommands": ["-t", "--template"]
+    },
+    {
+      "command": "new",
+      "subCommands": []
+    },
+    {
+      "command": "openapi",
+      "subCommands": ["-i", "-m", "-o", "-s", "--input", "--mode", "--module", "--output", "--operation", "--service", "--service-name", "--tags", "--operation"]
+    },
+    {
+      "command": "pull",
+      "subCommands": []
+    },
+    {
+      "command": "push",
+      "subCommands": []
+    },
+    {
+      "command": "run",
+      "subCommands": ["--debug", "--experimental", "--observability-included", "--offline", "--taint-check"]
+    },
+    {
+      "command": "search",
+      "subCommands": []
+    },
+    {
+      "command": "shell",
+      "subCommands": ["-d", "-f", "-t", "--debug", "--force-dumb", "--time-out"]
+    },
+    {
+      "command": "test",
+      "subCommands": ["--code-coverage", "--debug", "--disable-groups", "--experimental", "--groups", "--list-groups", "--observability-included", "--offline", "--rerun-failed", "--tests", "--test-report"]
+    },
+    {
+      "command": "version",
+      "subCommands": []
+    },
+    {
+      "command": "update",
+      "subCommands": []
+    }
+]

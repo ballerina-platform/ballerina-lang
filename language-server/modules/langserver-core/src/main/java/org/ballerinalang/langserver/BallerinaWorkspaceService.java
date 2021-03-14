@@ -103,7 +103,7 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 this.clientLogger.notifyUser("File Change Failed to Handle", e);
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/didChangeWatchedFiles' failed!";
-                this.clientLogger.logError(msg, e, null, (Position) null);
+                this.clientLogger.logError(LSContextOperation.WS_WF_CHANGED, msg, e, null, (Position) null);
             }
         }
     }
@@ -130,9 +130,9 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 this.clientLogger.notifyUser("Execute Command", e);
             } catch (Throwable e) {
                 String msg = "Operation 'workspace/executeCommand' failed!";
-                this.clientLogger.logError(msg, e, null, (Position) null);
+                this.clientLogger.logError(LSContextOperation.WS_EXEC_CMD, msg, e, null, (Position) null);
             }
-            this.clientLogger.logError("Operation 'workspace/executeCommand' failed!",
+            this.clientLogger.logError(LSContextOperation.WS_EXEC_CMD, "Operation 'workspace/executeCommand' failed!",
                                        new LSCommandExecutorException(
                                                "No command executor found for '" + params.getCommand() + "'"),
                                        null, (Position) null);

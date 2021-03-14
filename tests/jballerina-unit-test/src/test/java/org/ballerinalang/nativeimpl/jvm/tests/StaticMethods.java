@@ -644,4 +644,18 @@ public class StaticMethods {
                 StringUtils.fromString("id"), 123L)};
         return ValueCreator.createMapValue(recordType, mapInitialValueEntries);
     }
+
+    public static BDecimal defaultDecimalArgsAddition(BDecimal a, BDecimal b) {
+        BDecimal c = a.add(b);
+        return c;
+    }
+
+    public static Object defaultDecimalArgs(String s, BDecimal d) {
+        if (!d.booleanValue()) {
+            BDecimal a = new DecimalValue(s);
+            return a.multiply(d);
+        } else {
+            return null;
+        }
+    }
 }

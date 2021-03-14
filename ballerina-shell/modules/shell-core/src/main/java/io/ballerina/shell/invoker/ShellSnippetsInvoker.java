@@ -28,6 +28,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarResolver;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
@@ -36,9 +37,10 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticReporter;
 import io.ballerina.shell.exceptions.InvokerException;
+import io.ballerina.shell.exceptions.InvokerPanicException;
+import io.ballerina.shell.invoker.classload.context.ClassLoadContext;
 import io.ballerina.shell.snippet.Snippet;
 import io.ballerina.shell.utils.StringUtils;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -46,14 +48,17 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.io.StringWriter;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.function.Function;
 
 
@@ -70,19 +75,20 @@ import java.util.function.Function;
  * @since 2.0.0
  */
 public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
-    public static final String MODULE_NOT_FOUND_CODE = "BCE2003";
-    // TODO: (#28662) After configurables can be supported, change this to that file location
-    private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.dir"), "Config.toml");
     /* Constants related to execution */
+    protected static final String MODULE_RUN_METHOD_NAME = "__run";
     private static final String MODULE_INIT_CLASS_NAME = "$_init";
     private static final String CONFIGURE_INIT_CLASS_NAME = "$ConfigurationMapper";
     private static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
+    private static final String MODULE_START_METHOD_NAME = "$moduleStart";
     private static final String CONFIGURE_INIT_METHOD_NAME = "$configureInit";
-    private static final String MODULE_MAIN_METHOD_NAME = "main";
+    // TODO: (#28662) After configurables can be supported, change this to that file location
+    private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.dir"), "Config.toml");
     /* Constants related to temp files */
     private static final String TEMP_FILE_PREFIX = "main-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
-    private static final String NON_ACCESSIBLE_TYPE_CODE = "BCE2037";
+    /* Error type codes */
+    private static final String MODULE_NOT_FOUND_CODE = "BCE2003";
 
     /**
      * Scheduler used to run the init and main methods
@@ -119,14 +125,21 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     public abstract void reset();
 
     /**
-     * Executes a snippet and returns the output lines.
+     * Executes snippets and returns the output lines.
      * Snippets parameter should only include newly added snippets.
      * Old snippets should be managed as necessary by the implementation.
      *
-     * @param newSnippet New snippet to execute.
+     * @param newSnippets New snippets to execute.
      * @return Execution output result.
      */
-    public abstract Optional<Object> execute(Snippet newSnippet) throws InvokerException;
+    public abstract Optional<Object> execute(Collection<Snippet> newSnippets) throws InvokerException;
+
+    /**
+     * Deletes a collection of names from the evaluator state.
+     * If any of the names did not exist, this will throw an error.
+     * A compilation will be done to make sure that no new errors are there.
+     */
+    public abstract void delete(Set<String> declarationNames) throws InvokerException;
 
     /**
      * Returns available imports in the module.
@@ -172,11 +185,11 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return Created ballerina project.
      * @throws InvokerException If file writing failed.
      */
-    protected SingleFileProject getProject(Object context, String templateFile) throws InvokerException {
+    protected Project getProject(Object context, String templateFile) throws InvokerException {
         Mustache template = getTemplate(templateFile);
         try (StringWriter stringWriter = new StringWriter()) {
             template.execute(stringWriter, context);
-            return getProject(stringWriter.toString());
+            return getProject(stringWriter.toString(), true);
         } catch (IOException e) {
             addErrorDiagnostic("File generation failed: " + e.getMessage());
             throw new InvokerException(e);
@@ -186,14 +199,15 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     /**
      * Get the project with the context data.
      *
-     * @param source Source to use for generating project.
+     * @param source    Source to use for generating project.
+     * @param isOffline Whether to use offline flag for build options.
      * @return Created ballerina project.
      * @throws InvokerException If file writing failed.
      */
-    protected SingleFileProject getProject(String source) throws InvokerException {
+    protected Project getProject(String source, boolean isOffline) throws InvokerException {
         try {
             File mainBal = writeToFile(source);
-            BuildOptions buildOptions = new BuildOptionsBuilder().offline(true).build();
+            BuildOptions buildOptions = new BuildOptionsBuilder().offline(isOffline).build();
             return SingleFileProject.load(mainBal.toPath(), buildOptions);
         } catch (IOException e) {
             addErrorDiagnostic("File writing failed: " + e.getMessage());
@@ -224,9 +238,9 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                     addErrorDiagnostic("Compilation aborted due to errors.");
                     throw new InvokerException();
                 } else if (severity == DiagnosticSeverity.WARNING) {
-                    addDiagnostic(Diagnostic.warn(highlightedDiagnostic(module, diagnostic)));
+                    addWarnDiagnostic(highlightedDiagnostic(module, diagnostic));
                 } else {
-                    addDiagnostic(Diagnostic.debug(diagnostic.message()));
+                    addDebugDiagnostic(diagnostic.message());
                 }
             }
 
@@ -239,7 +253,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
         }
     }
 
-
     /**
      * Tries to import using the given statement.
      *
@@ -247,19 +260,48 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @throws InvokerException If import cannot be resolved.
      */
     protected void compileImportStatement(String importStatement) throws InvokerException {
-        SingleFileProject project = getProject(importStatement);
-        PackageCompilation compilation = project.currentPackage().getCompilation();
+        // First try to compile import offline.
+        // If the module is not found, then try to change to online and compile.
+        PackageCompilation offlineCompilation = getProject(importStatement, true)
+                .currentPackage().getCompilation();
 
-        // Detect if import is valid.
-        for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
-            if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
+        if (containsModuleNotFoundError(offlineCompilation)) {
+            PackageCompilation onlineCompilation = getProject(importStatement, false)
+                    .currentPackage().getCompilation();
+            if (containsModuleNotFoundError(onlineCompilation)) {
                 addErrorDiagnostic("Import resolution failed. Module not found.");
                 throw new InvokerException();
             }
         }
     }
 
+    /**
+     * @return Whether the compilation contains MODULE_NOT_FOUND error.
+     */
+    private boolean containsModuleNotFoundError(PackageCompilation compilation) {
+        for (io.ballerina.tools.diagnostics.Diagnostic diagnostic : compilation.diagnosticResult().diagnostics()) {
+            if (diagnostic.diagnosticInfo().code().equals(MODULE_NOT_FOUND_CODE)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /* Execution methods */
+
+    /**
+     * Executes a context in given template.
+     *
+     * @param context      Context to use.
+     * @param templateName Template to evaluate.
+     * @throws InvokerException If execution/compilation failed.
+     */
+    protected void executeProject(ClassLoadContext context, String templateName) throws InvokerException {
+        Project project = getProject(context, templateName);
+        PackageCompilation compilation = compile(project);
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(compilation, JvmTarget.JAVA_11);
+        executeProject(jBallerinaBackend);
+    }
 
     /**
      * Executes a compiled project.
@@ -267,29 +309,38 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * The process is run and the stdout is collected and printed.
      *
      * @param jBallerinaBackend Backed to use.
-     * @return Whether process execution was successful.
      * @throws InvokerException If execution failed.
      */
-    protected boolean executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
+    protected void executeProject(JBallerinaBackend jBallerinaBackend) throws InvokerException {
         if (bufferFile == null) {
             throw new UnsupportedOperationException("Buffer file must be set before execution");
         }
 
-        // Main method class name is file name without extension
-        String fileName = bufferFile.getName();
-        String mainMethodClassName = fileName.substring(0, fileName.length() - TEMP_FILE_SUFFIX.length());
+        PrintStream errorStream = getErrorStream();
+        try {
+            // Main method class name is file name without extension
+            String fileName = bufferFile.getName();
+            String mainMethodClassName = fileName.substring(0, fileName.length() - TEMP_FILE_SUFFIX.length());
 
-        JarResolver jarResolver = jBallerinaBackend.jarResolver();
-        ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
-        // First run configure initialization
-        invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                new Class[]{Path.class}, new Object[]{CONFIG_PATH});
-        // Initialize the module
-        invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
-        // Then call main method
-        Object result = invokeScheduledMethod(classLoader, mainMethodClassName, MODULE_MAIN_METHOD_NAME);
-        addDiagnostic(Diagnostic.debug("Result: " + result));
-        return result == null;
+            JarResolver jarResolver = jBallerinaBackend.jarResolver();
+            ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
+            // First run configure initialization
+            invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
+                    new Class[]{Path.class}, new Object[]{CONFIG_PATH});
+            // Initialize the module
+            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
+            // Start the module
+            invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_START_METHOD_NAME);
+            // Then call run method
+            Object failErrorMessage = invokeScheduledMethod(classLoader, mainMethodClassName, MODULE_RUN_METHOD_NAME);
+            if (failErrorMessage != null) {
+                errorStream.println("fail: " + failErrorMessage);
+            }
+        } catch (InvokerPanicException panicError) {
+            errorStream.println("panic: " + StringUtils.getErrorStringValue(panicError.getCause()));
+            addErrorDiagnostic("Execution aborted due to unhandled runtime error.");
+            throw panicError;
+        }
     }
 
     /* Invocation methods */
@@ -307,7 +358,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     protected Object invokeScheduledMethod(ClassLoader classLoader, String className, String methodName)
             throws InvokerException {
         try {
-            addDiagnostic(Diagnostic.debug(String.format("Running %s.%s on schedule", className, methodName)));
+            addDebugDiagnostic(String.format("Running %s.%s on schedule", className, methodName));
 
             // Get class and method references
             Class<?> clazz = classLoader.loadClass(className);
@@ -321,11 +372,14 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
 
             Object result = out.getResult();
             Throwable panic = out.getPanic();
-            addDiagnostic(Diagnostic.debug("Panic: " + panic));
-            addDiagnostic(Diagnostic.debug("Result: " + result));
 
             if (panic != null) {
-                throw new InvokerException(panic);
+                // Unexpected runtime error
+                throw new InvokerPanicException(panic);
+            }
+            if (result instanceof Throwable) {
+                // Function returned error (panic)
+                throw new InvokerPanicException((Throwable) result);
             }
             return result;
         } catch (ClassNotFoundException e) {
@@ -354,12 +408,10 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
                                           Class<?>[] argTypes, Object[] args) throws InvokerException {
         try {
             // Get class and method references
-            addDiagnostic(Diagnostic.debug(String.format("Running %s.%s directly", className, methodName)));
+            addDebugDiagnostic(String.format("Running %s.%s directly", className, methodName));
             Class<?> clazz = classLoader.loadClass(className);
             Method method = clazz.getDeclaredMethod(methodName, argTypes);
-            Object result = method.invoke(null, args);
-            addDiagnostic(Diagnostic.debug("Result: " + result));
-            return result;
+            return method.invoke(null, args);
         } catch (ClassNotFoundException e) {
             addErrorDiagnostic(className + " class not found: " + e.getMessage());
             throw new InvokerException(e);
@@ -403,16 +455,8 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
      * @return The string with position highlighted.
      */
     private String highlightedDiagnostic(Module module, io.ballerina.tools.diagnostics.Diagnostic diagnostic) {
-        // Get the source code
         Optional<DocumentId> documentId = module.documentIds().stream().findFirst();
-        assert documentId.isPresent();
-        Document document = module.document(documentId.get());
-        if (diagnostic.diagnosticInfo().code().equals(NON_ACCESSIBLE_TYPE_CODE)) {
-            return "Error: " + diagnostic.message() + "\n" +
-                    "The initializer returns a non-accessible symbol. " +
-                    "This is currently not supported in REPL. " +
-                    "Please explicitly state the type.";
-        }
+        Document document = module.document(documentId.orElseThrow());
         return StringUtils.highlightDiagnostic(document.textDocument(), diagnostic);
     }
 
@@ -440,8 +484,16 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     private File getBufferFile() throws IOException {
         if (this.bufferFile == null) {
             this.bufferFile = File.createTempFile(TEMP_FILE_PREFIX, TEMP_FILE_SUFFIX);
+            addDebugDiagnostic("Using temp file: " + bufferFile.getAbsolutePath());
             this.bufferFile.deleteOnExit();
         }
         return this.bufferFile;
+    }
+
+    /**
+     * @return Error stream to print out error messages.
+     */
+    protected PrintStream getErrorStream() {
+        return System.err;
     }
 }

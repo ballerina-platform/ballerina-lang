@@ -32,6 +32,7 @@ import java.util.Collections;
  */
 public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNode {
     public final STNode metadata;
+    public final STNode visibilityQualifier;
     public final STNode qualifiers;
     public final STNode typedBindingPattern;
     public final STNode equalsToken;
@@ -40,6 +41,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
 
     STModuleVariableDeclarationNode(
             STNode metadata,
+            STNode visibilityQualifier,
             STNode qualifiers,
             STNode typedBindingPattern,
             STNode equalsToken,
@@ -47,6 +49,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
             STNode semicolonToken) {
         this(
                 metadata,
+                visibilityQualifier,
                 qualifiers,
                 typedBindingPattern,
                 equalsToken,
@@ -57,6 +60,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
 
     STModuleVariableDeclarationNode(
             STNode metadata,
+            STNode visibilityQualifier,
             STNode qualifiers,
             STNode typedBindingPattern,
             STNode equalsToken,
@@ -65,6 +69,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
             Collection<STNodeDiagnostic> diagnostics) {
         super(SyntaxKind.MODULE_VAR_DECL, diagnostics);
         this.metadata = metadata;
+        this.visibilityQualifier = visibilityQualifier;
         this.qualifiers = qualifiers;
         this.typedBindingPattern = typedBindingPattern;
         this.equalsToken = equalsToken;
@@ -73,6 +78,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
 
         addChildren(
                 metadata,
+                visibilityQualifier,
                 qualifiers,
                 typedBindingPattern,
                 equalsToken,
@@ -83,6 +89,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
     public STNode modifyWith(Collection<STNodeDiagnostic> diagnostics) {
         return new STModuleVariableDeclarationNode(
                 this.metadata,
+                this.visibilityQualifier,
                 this.qualifiers,
                 this.typedBindingPattern,
                 this.equalsToken,
@@ -93,6 +100,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
 
     public STModuleVariableDeclarationNode modify(
             STNode metadata,
+            STNode visibilityQualifier,
             STNode qualifiers,
             STNode typedBindingPattern,
             STNode equalsToken,
@@ -100,6 +108,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
             STNode semicolonToken) {
         if (checkForReferenceEquality(
                 metadata,
+                visibilityQualifier,
                 qualifiers,
                 typedBindingPattern,
                 equalsToken,
@@ -110,6 +119,7 @@ public class STModuleVariableDeclarationNode extends STModuleMemberDeclarationNo
 
         return new STModuleVariableDeclarationNode(
                 metadata,
+                visibilityQualifier,
                 qualifiers,
                 typedBindingPattern,
                 equalsToken,

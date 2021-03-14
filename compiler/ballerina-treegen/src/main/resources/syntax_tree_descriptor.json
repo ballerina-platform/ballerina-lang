@@ -571,7 +571,7 @@
                 },
                 {
                     "name": "blockStatement",
-                    "type": "StatementNode"
+                    "type": "BlockStatementNode"
                 },
                 {
                     "name": "onFailClause",
@@ -627,7 +627,7 @@
                 },
                 {
                     "name": "blockStatement",
-                    "type": "StatementNode"
+                    "type": "BlockStatementNode"
                 },
                 {
                     "name": "onFailClause",
@@ -1485,6 +1485,11 @@
                 {
                     "name": "metadata",
                     "type": "MetadataNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token",
                     "isOptional": true
                 },
                 {
@@ -2511,7 +2516,8 @@
                 },
                 {
                     "name": "functionSignature",
-                    "type": "FunctionSignatureNode"
+                    "type": "FunctionSignatureNode",
+                    "isOptional": true
                 }
             ]
         },

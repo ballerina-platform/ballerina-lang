@@ -54,14 +54,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -472,6 +464,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -480,14 +480,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -563,6 +555,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "record {}",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -595,25 +595,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "animals",
-      "kind": "Variable",
-      "detail": "string[]",
-      "sortText": "B",
-      "insertText": "animals",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
       "sortText": "C",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "animals",
+      "kind": "Variable",
+      "detail": "string[]",
+      "sortText": "B",
+      "insertText": "animals",
       "insertTextFormat": "Snippet"
     },
     {

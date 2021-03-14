@@ -268,6 +268,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangBuiltInRefTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangLetVariable;
@@ -280,6 +281,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangValueType;
+import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.ClosureVarSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
@@ -987,6 +989,12 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangFiniteTypeNode finiteTypeNode) {
+        finiteTypeNode.valueSpace.forEach(param -> rewrite(param, env));
+        result = finiteTypeNode;
+    }
+
+    @Override
     public void visit(BLangObjectTypeNode objectTypeNode) {
         // Merge the fields defined within the object and the fields that
         // get inherited via the type references.
@@ -1292,8 +1300,15 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
-        annAttachmentNode.expr = rewrite(annAttachmentNode.expr, env);
+        if (annAttachmentNode.expr == null && annAttachmentNode.annotationSymbol.attachedType != null) {
+            BType attachedType = annAttachmentNode.annotationSymbol.attachedType.type;
+            if (attachedType.tag != TypeTags.FINITE) {
+                annAttachmentNode.expr = ASTBuilderUtil.createEmptyRecordLiteral(annAttachmentNode.pos,
+                        attachedType.tag == TypeTags.ARRAY ? ((BArrayType) attachedType).eType : attachedType);
+            }
+        }
         if (annAttachmentNode.expr != null) {
+            annAttachmentNode.expr = rewrite(annAttachmentNode.expr, env);
             for (AttachPoint point : annAttachmentNode.annotationSymbol.points) {
                 if (!point.source) {
                     annAttachmentNode.expr = visitCloneReadonly(annAttachmentNode.expr, annAttachmentNode.expr.type);
@@ -6084,7 +6099,7 @@ public class Desugar extends BLangNodeVisitor {
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
         if (Symbols.isFlagOn(invSym.retType.flags, Flags.PARAMETERIZED)) {
             BType retType = typeBuilder.build(invSym.retType);
-            invocation.type = retType;
+            invocation.type = invocation.async ? new BFutureType(TypeTags.FUTURE, retType, null) : retType;
         }
 
         if (invocation.expr == null) {
@@ -7951,15 +7966,26 @@ public class Desugar extends BLangNodeVisitor {
             BLangBlockStmt foreachBody = ASTBuilderUtil.createBlockStmt(pos);
 
             BLangIndexBasedAccess valueExpr = ASTBuilderUtil.createIndexAccessExpr(varargRef, foreachVarRef);
-            valueExpr.type = varargVarType.tag == TypeTags.ARRAY ? ((BArrayType) varargVarType).eType :
-                    symTable.anyType; // Use any for tuple since it's a ref array.
+
+            if (varargVarType.tag == TypeTags.ARRAY) {
+                BArrayType arrayType = (BArrayType) varargVarType;
+                if (arrayType.state == BArrayState.CLOSED &&
+                        arrayType.size == (iExpr.requiredArgs.size() - originalRequiredArgCount)) {
+                    // If the array was a closed array that provided only for the non rest params, set the rest param
+                    // type as the element type to satisfy code gen. The foreach will not be executed at runtime.
+                    valueExpr.type = restParamType.eType;
+                } else {
+                    valueExpr.type = arrayType.eType;
+                }
+            } else {
+                valueExpr.type = symTable.anyOrErrorType; // Use any|error for tuple since it's a ref array.
+            }
 
             BLangExpression pushExpr = addConversionExprIfRequired(valueExpr, restParamType.eType);
             BLangExpressionStmt expressionStmt = createExpressionStmt(pos, foreachBody);
             BLangInvocation pushInvocation = createLangLibInvocationNode(PUSH_LANGLIB_METHOD, arrayVarRef,
-                                                                         new ArrayList<BLangExpression>() {{
-                                                                             add(pushExpr);
-                                                                         }}, restParamType, pos);
+                                                                         List.of(pushExpr),
+                                                                         restParamType, pos);
             pushInvocation.restArgs.add(pushInvocation.requiredArgs.remove(1));
             expressionStmt.expr = pushInvocation;
             foreach.body = foreachBody;
@@ -8070,7 +8096,7 @@ public class Desugar extends BLangNodeVisitor {
                 // If a vararg is provided, no parameter defaults are added and no named args are specified.
                 // Thus, any missing args should come from the vararg.
                 if (varargRef.type.tag == TypeTags.RECORD) {
-                    if (param.defaultableParam) {
+                    if (param.isDefaultable) {
                         BLangInvocation hasKeyInvocation = createLangLibInvocationNode(HAS_KEY, varargRef,
                                 List.of(createStringLiteral(param.pos, param.name.value)), null, varargRef.pos);
                         BLangExpression indexExpr = rewriteExpr(createStringLiteral(param.pos, param.name.value));
