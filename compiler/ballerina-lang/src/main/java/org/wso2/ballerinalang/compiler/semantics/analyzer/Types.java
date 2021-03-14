@@ -3754,8 +3754,8 @@ public class Types {
         BType restFieldTypeOne = recordTypeOne.restFieldType;
         BType restFieldTypeTwo = recordTypeTwo.restFieldType;
 
-        BType constraintOne = restFieldTypeOne == null || restFieldTypeOne == symTable.noType ? null : restFieldTypeOne;
-        BType constraintTwo = restFieldTypeTwo == null || restFieldTypeTwo == symTable.noType ? null : restFieldTypeTwo;
+        BType constraintOne = restFieldTypeOne == symTable.noType ? null : restFieldTypeOne;
+        BType constraintTwo = restFieldTypeTwo == symTable.noType ? null : restFieldTypeTwo;
 
         if (!populateRecordFields(diagnosticContext.switchLeft(), newType, recordTypeOne, env, constraintTwo) ||
                 !populateRecordFields(diagnosticContext.switchRight(), newType, recordTypeTwo, env, constraintOne)) {
