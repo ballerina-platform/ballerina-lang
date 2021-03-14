@@ -318,6 +318,23 @@ function testArgCombinations() {
     assert(<int[]> [2, 202], i);
 }
 
+function testBuiltInRefType() {
+    stream<int> strm = (<int[]> [1, 2, 3]).toStream();
+
+    readonly|handle|stream<int> a = funcReturningUnionWithBuiltInRefType(strm);
+    assertSame(strm, a);
+    stream<byte>|readonly b = funcReturningUnionWithBuiltInRefType();
+    assertSame(100, b);
+    stream<int>|readonly c = funcReturningUnionWithBuiltInRefType(strm = strm);
+    assertSame(strm, c);
+    stream<int>|readonly d = funcReturningUnionWithBuiltInRefType(strm, IntStream);
+    assertSame(strm, d);
+    stream<byte>|readonly e = funcReturningUnionWithBuiltInRefType(strm);
+    assert(true, e is handle);
+    string? str = java:toString(<handle> checkpanic e);
+    assert("hello world", str);
+}
+
 // Interop functions
 function getValue(typedesc<int|float|decimal|string|boolean> td = <>) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -421,22 +438,32 @@ function funcWithMultipleArgs(int i, typedesc<int|string> td = <>, string[] arr 
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
 } external;
 
+function funcReturningUnionWithBuiltInRefType(stream<int>? strm = (), typedesc<stream<int>> td = <>)
+    returns readonly|td|handle =
+        @java:Method {
+            'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+        } external;
+
 function assert(anydata expected, anydata actual) {
-    if (expected != actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
-        string detail = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        panic error("{AssertionError}", message = detail);
+    if (expected == actual) {
+        return;
     }
+
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string detail = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                        + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error("{AssertionError}", message = detail);
 }
 
-function assertSame(any expected, any actual) {
-    if (expected !== actual) {
-        typedesc<any> expT = typeof expected;
-        typedesc<any> actT = typeof actual;
-        string detail = "expected value of type [" + expT.toString() + "] is not the same as actual value" +
-                                " of type [" + actT.toString() + "]";
-        panic error("{AssertionError}", message = detail);
+function assertSame(any|error expected, any|error actual) {
+    if (expected === actual) {
+        return;
     }
+
+    typedesc<any|error> expT = typeof expected;
+    typedesc<any|error> actT = typeof actual;
+    string detail = "expected value of type [" + expT.toString() + "] is not the same as actual value" +
+                            " of type [" + actT.toString() + "]";
+    panic error("{AssertionError}", message = detail);
 }

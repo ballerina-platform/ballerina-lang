@@ -67,7 +67,8 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 {"testCastingForInvalidValues"},
                 {"testUnionTypes"},
                 {"testXml"},
-                {"testArgCombinations"}
+                {"testArgCombinations"},
+                {"testBuiltInRefType"}
         };
     }
 
@@ -145,6 +146,15 @@ public class InferredDependentlyTypeFuncSignatureTest {
         validateError(negativeResult, index++, "cannot infer type for parameter 'td2'", 127, 18);
         validateError(negativeResult, index++, "incompatible types: expected '[string]', found '[int,string...]'",
                 128, 18);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
+                "expected 'typedesc<stream<int>>', found 'typedesc<stream<string>>'", 143, 40);
+        validateError(negativeResult, index++, "incompatible types: expected 'stream<byte>', found '" +
+                "(readonly|stream<byte>|handle)'", 144, 22);
+        validateError(negativeResult, index++, "incompatible types: expected 'stream<int>?', found 'typedesc<int>'",
+                145, 67);
+        validateError(negativeResult, index++, "incompatible types: expected '(stream<boolean>|readonly)', found '" +
+                "(readonly|stream<int>|handle)'", 146, 34);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 147, 25);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }

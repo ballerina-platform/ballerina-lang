@@ -131,3 +131,18 @@ function testTuples() {
 function getTupleWithNoRestDesc(typedesc td = <>) returns [int, td] = external;
 
 function getTupleWithRestDesc(typedesc<int|string> td1, typedesc td2 = <>) returns [td1, td2...] = external;
+
+function funcReturningUnionWithBuiltInRefType(stream<int>? strm = (), typedesc<stream<int>> td = <>)
+    returns readonly|td|handle = external;
+
+type IntStream stream<int>;
+
+function testBuiltInRefType() {
+    stream<int> strm = (<int[]> [1, 2, 3]).toStream();
+
+    readonly|handle|stream<string> a = funcReturningUnionWithBuiltInRefType(strm);
+    stream<byte> b = funcReturningUnionWithBuiltInRefType();
+    stream<int>|readonly c = funcReturningUnionWithBuiltInRefType(int);
+    stream<boolean>|readonly d = funcReturningUnionWithBuiltInRefType(strm, IntStream);
+    readonly|handle e = funcReturningUnionWithBuiltInRefType();
+}

@@ -37,6 +37,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -436,5 +437,20 @@ public class VariableReturnType {
 
         assert td.getDescribingType().getTag() == INT_TAG;
         return ValueCreator.createArrayValue(new long[]{arr.getLength(), i});
+    }
+
+    public static Object funcReturningUnionWithBuiltInRefType(Object strm, BTypedesc td) {
+        int tag = ((BStreamType) td.getDescribingType()).getConstrainedType().getTag();
+
+        if (tag == INT_TAG) {
+            return strm;
+        }
+
+        assert tag == BYTE_TAG;
+        if (strm == null) {
+            return 100L;
+        }
+
+        return "hello world";
     }
 }
