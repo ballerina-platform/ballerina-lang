@@ -77,7 +77,7 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
                 // Get the semantic model.
                 Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
 
-                if (semanticModel.isPresent()){
+                if (semanticModel.isPresent()) {
                     Optional<TypeSymbol> typeSymbol = semanticModel.get().type(lineRange);
                     if (typeSymbol.isPresent()) {
                         return typeSymbol.get();
