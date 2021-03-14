@@ -4164,109 +4164,82 @@ public class TypeChecker extends BLangNodeVisitor {
                 || attrName.prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE);
     }
 
-    public BType resolveXMLSequenceUnionType(BLangXMLSequenceLiteral node, BType expType, boolean isSameType,
-                                             BType sameType, List<BType> childXMLTypes) {
-        Set<BType> membersofExpectedType = ((BUnionType) expType).getMemberTypes();
-        Set<BType> membersofXMLType = types.getExpandedXMLBuiltinSubtypes().getMemberTypes();
-
-        if (membersofExpectedType.containsAll(membersofXMLType)) {
-            if (isSameType) {
-                return types.checkType(node, sameType, symTable.xmlType);
-            }
-            return types.checkType(node, symTable.xmlType, symTable.xmlType);
+    public BType getXMLTypeFromLiteralKind(BLangExpression childXMLExpressions) {
+        if (childXMLExpressions instanceof BLangXMLElementLiteral) {
+            return symTable.xmlElementType;
+        } else if (childXMLExpressions instanceof BLangXMLTextLiteral) {
+            return symTable.xmlTextType;
+        } else if (childXMLExpressions instanceof BLangXMLProcInsLiteral) {
+            return symTable.xmlTextType;
+        } else {
+            return symTable.xmlCommentType;
         }
-        if (isSameType) {
-            return types.checkType(node, sameType, expType);
-        }
-        //At this point the expected type and expression node both contain different
-        // combinations of types
-        BUnionType childTypesInXMLSequence = BUnionType.create(null, new LinkedHashSet<BType>(childXMLTypes));
+    }
 
-        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
-        int errorCount = this.dlog.errorCount();
+    public void muteErrorLog() {
         this.nonErrorLoggingCheck = true;
         this.dlog.mute();
+    }
 
-        boolean isUnionAssignable = types.isAssignable(childTypesInXMLSequence, expType);
-
+    public void unMuteErrorLog(boolean prevNonErrorLoggingCheck, int errorCount) {
         this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
         this.dlog.setErrorCount(errorCount);
         if (!prevNonErrorLoggingCheck) {
             this.dlog.unmute();
         }
-
-        if (isUnionAssignable) {
-            node.type = symTable.xmlType;
-            return node.type;
-        }
-        dlog.error(node.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, childTypesInXMLSequence);
-        return symTable.semanticError;
     }
 
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        List<BLangExpression> childXMLExpressions = bLangXMLSequenceLiteral.xmlItems;
-        List<BType> childXMLTypes = new ArrayList<>();
-        boolean isSameType = true;
-        BType tempExprType = null;
+        if (expType.tag != TypeTags.XML && expType.tag != TypeTags.UNION && expType.tag != TypeTags.XML_TEXT) {
+            dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
+                    "XML Sequence");
+            resultType = symTable.semanticError;
+            return;
+        }
 
+        List<BType> xmlTypesInSequence = new ArrayList<>();
         boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
         int errorCount = this.dlog.errorCount();
-        this.nonErrorLoggingCheck = true;
-        this.dlog.mute();
-        for (int i = 0; i < childXMLExpressions.size(); i++) {
-            checkExpr(childXMLExpressions.get(i), env, expType);
-            childXMLTypes.add(childXMLExpressions.get(i).type);
-            if (i == 0) {
-                tempExprType = childXMLExpressions.get(i).type;
-            } else if (tempExprType != childXMLExpressions.get(i).type) {
-                isSameType = false;
-            }
-        }
-        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
-        this.dlog.setErrorCount(errorCount);
-        if (!prevNonErrorLoggingCheck) {
-            this.dlog.unmute();
-        }
+        muteErrorLog();
 
-//        check type according to types in xml sequence and expected type
-        if (expType.tag == TypeTags.XML) {
-            BType targetConstraint = ((BXMLType) expType).constraint;
-            //Revisit and check xml<xml<constraint>>>
-            while (targetConstraint.tag == TypeTags.XML) {
-                targetConstraint = ((BXMLType) expType).constraint;
-            }
-            if (!isSameType && targetConstraint.tag != TypeTags.UNION) {
+        for (BLangExpression expressionItem : bLangXMLSequenceLiteral.xmlItems) {
+            resultType = checkExpr(expressionItem, env, expType);
+            if (resultType == symTable.semanticError) {
+                unMuteErrorLog(prevNonErrorLoggingCheck, errorCount);
                 dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
-                        symTable.xmlType);
-                resultType = symTable.semanticError;
+                        getXMLTypeFromLiteralKind(expressionItem));
                 return;
             }
-            if (targetConstraint.tag != TypeTags.UNION && isSameType) {
-                resultType = types.checkType(bLangXMLSequenceLiteral, tempExprType, targetConstraint);
-                return;
+            if (!xmlTypesInSequence.contains(resultType)) {
+                xmlTypesInSequence.add(resultType);
             }
-            resultType = resolveXMLSequenceUnionType(bLangXMLSequenceLiteral, targetConstraint, isSameType,
-                    tempExprType, childXMLTypes);
-        } else if (TypeTags.isXMLTypeTag(expType.tag)) {
-            if (!isSameType) {
-                dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
-                        symTable.xmlType);
-                resultType = symTable.semanticError;
-                return;
-            }
-            resultType = types.checkType(bLangXMLSequenceLiteral, tempExprType, expType);
-        } else if (expType.tag == TypeTags.UNION) {
-            resultType = resolveXMLSequenceUnionType(bLangXMLSequenceLiteral, expType, isSameType, tempExprType,
-                    childXMLTypes);
-        } else {
-            if (isSameType) {
-                dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, tempExprType);
-                resultType = symTable.semanticError;
-                return;
-            }
-            dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, symTable.xmlType);
-            resultType = symTable.semanticError;
         }
+        unMuteErrorLog(prevNonErrorLoggingCheck, errorCount);
+
+        // set type according to items in xml sequence and expected type
+        if (expType.tag == TypeTags.XML) {
+            if (xmlTypesInSequence.size() == 1) {
+                resultType = xmlTypesInSequence.get(0);
+                return;
+            }
+            resultType = symTable.xmlType;
+            return;
+        }
+        //since 'xml:Text is same as xml<'xml:Text>
+        if (expType.tag == TypeTags.XML_TEXT) {
+            resultType = symTable.xmlType;
+            return;
+        }
+        // disallow unions with 'xml:T (singleton) items
+         for (BType item : ((BUnionType) expType).getMemberTypes()) {
+             if (item.tag != TypeTags.XML_TEXT && item.tag != TypeTags.XML) {
+                 dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+                         expType, symTable.xmlType);
+                 resultType = symTable.semanticError;
+                 return;
+             }
+         }
+        resultType = symTable.xmlType;
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {

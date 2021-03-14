@@ -47,7 +47,7 @@ public class XMLIterationTest {
 
     @Test
     public void testNegative() {
-        Assert.assertEquals(negative.getErrorCount(), 19);
+        Assert.assertEquals(negative.getErrorCount(), 20);
         int index = 0;
         BAssertUtil.validateError(negative, index++,
                                   "invalid list binding pattern: attempted to infer a list type, but found 'xml'",
@@ -85,6 +85,9 @@ public class XMLIterationTest {
                 "incompatible types: expected 'record {| xml:ProcessingInstruction value; |}?', " +
                         "found 'record {| (xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) value; |}?'",
                 55, 63);
+        BAssertUtil.validateError(negative, index++,
+                "incompatible types: expected '(xml:Element|xml:Text)', found 'xml'",
+                59, 34);
         BAssertUtil.validateError(negative, index++,
                 "incompatible types: expected 'other', found '(xml:Element|xml:Text)'",
                 63, 13);

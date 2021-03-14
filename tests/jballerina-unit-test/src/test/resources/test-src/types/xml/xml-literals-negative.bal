@@ -73,4 +73,9 @@ function testXMLSequence() {
     xml<'xml:Text>|xml<'xml:Comment> x12 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
     'xml:Text|'xml:Comment x15 = xml `<root> text1<foo>100</foo><foo>200</foo></root>`;
     'xml:Text|'xml:Comment x16 = xml `<root> text1<foo>100</foo><foo>200</foo></root><?foo?>`;
+    'xml:Text|'xml:Comment x17 = xml `<!--comment-->text1`;
+    xml<'xml:Text>|'xml:Comment x18 = xml `<!--comment-->text1`;
+    'xml:Element x20 = xml `<foo>100</foo><foo>200</foo>`;
+    'xml:Comment|'xml:Element x21 = xml `<foo>foo</foo><bar/><!--comment-->`;
+    'xml:Comment|'xml:Element x22 = xml `<foo>foo</foo><bar/>`;
 }
