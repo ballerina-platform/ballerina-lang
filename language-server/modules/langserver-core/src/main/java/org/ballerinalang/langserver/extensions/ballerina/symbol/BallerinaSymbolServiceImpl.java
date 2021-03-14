@@ -15,8 +15,21 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
+import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.tools.text.LineRange;
+import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.LSContextOperation;
+import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
+import org.eclipse.lsp4j.Position;
+
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 
 /**
@@ -25,6 +38,15 @@ import java.util.concurrent.CompletableFuture;
  * @since 0.981.2
  */
 public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
+    private final WorkspaceManager workspaceManager;
+    private final LSClientLogger clientLogger;
+    private final LanguageServerContext serverContext;
+
+    public BallerinaSymbolServiceImpl(WorkspaceManager workspaceManager, LanguageServerContext serverContext) {
+        this.workspaceManager = workspaceManager;
+        this.clientLogger = LSClientLogger.getInstance(serverContext);
+        this.serverContext = serverContext;
+    }
 
     @Override
     public CompletableFuture<BallerinaEndpointsResponse> endpoints() {
@@ -41,4 +63,34 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
         return endpoints;
     }
 
+    @Override
+    public CompletableFuture<TypeSymbol> type(ExpressionTypeRequest request) {
+        return CompletableFuture.supplyAsync(() -> {
+            String fileUri = request.getDocumentIdentifier().getUri();
+            Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+            if (filePath.isEmpty()) {
+                return CompletableFuture.supplyAsync(Collections::emptyList);
+            }
+
+            try {
+                LineRange lineRange = LineRange.from(null, request.getStartPosition(), request.getEndPosition());
+
+                // Get the semantic model.
+                Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
+
+                if (semanticModel.isPresent()){
+                    Optional<TypeSymbol> typeSymbol = semanticModel.get().type(lineRange);
+                    if (typeSymbol.isPresent()) {
+                        return typeSymbol;
+                    }
+                }
+                return CompletableFuture.supplyAsync(Collections::emptyList);
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaSymbol/type' failed!";
+                this.clientLogger.logError(LSContextOperation.DOC_TYPE, msg, e, request.getDocumentIdentifier(),
+                        (Position) null);
+                return Collections.emptyList();
+            }
+        });
+    }
 }

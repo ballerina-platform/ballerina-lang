@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.eclipse.lsp4j.jsonrpc.services.JsonRequest;
 import org.eclipse.lsp4j.jsonrpc.services.JsonSegment;
 
@@ -30,4 +31,7 @@ public interface BallerinaSymbolService {
 
     @JsonRequest
     CompletableFuture<BallerinaEndpointsResponse> endpoints();
+
+    @JsonRequest
+    CompletableFuture<TypeSymbol> type(ExpressionTypeRequest params);
 }
