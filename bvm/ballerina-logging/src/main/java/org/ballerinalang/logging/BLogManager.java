@@ -65,8 +65,9 @@ public class BLogManager extends LogManager {
     public static final String BALLERINA_ROOT_LOGGER_NAME = "ballerina";
     public static final int LOGGER_PREFIX_LENGTH = BALLERINA_ROOT_LOGGER_NAME.length() + 1; // +1 to account for the .
     private static final Pattern varPattern = Pattern.compile("\\$\\{([^}]*)}");
-    public static final String OUTPUT_FORMAT_LOGFMT = "LOGFMT";
-    public static final String OUTPUT_FORMAT_JSON = "JSON";
+    public static final String OUTPUT_FORMAT_LOGFMT = "logfmt";
+    public static final String OUTPUT_FORMAT_JSON = "json";
+    public static final String GLOBAL_PACKAGE_PATH = ".";
     private static String outputFormat = OUTPUT_FORMAT_LOGFMT;
 
     private Map<String, BLogLevel> loggerLevels = new HashMap<>();
@@ -115,19 +116,6 @@ public class BLogManager extends LogManager {
                     loggerLevels.get(CONSOLE_LOGGER)));
         }
 
-    }
-
-    public BLogLevel getPackageLogLevel(String pkg) {
-        return loggerLevels.containsKey(pkg) ? loggerLevels.get(pkg) : ballerinaUserLogLevel;
-    }
-
-    /**
-     * Checks if module log level has been enabled.
-     *
-     * @return true if module log level has been enabled, false if not.
-     */
-    public boolean isModuleLogLevelEnabled() {
-        return loggerLevels.size() > 1;
     }
 
     /**
@@ -272,6 +260,16 @@ public class BLogManager extends LogManager {
     }
 
     /**
+     * Sets the global log level.
+     *
+     * @param logLevel log level
+     */
+    public void setGlobalLogLevel(BLogLevel logLevel) {
+        ballerinaUserLogLevel = logLevel;
+        loggerLevels.put(GLOBAL_PACKAGE_PATH, logLevel);
+    }
+
+    /**
      * Sets the module log level.
      *
      * @param logLevel log level
@@ -279,6 +277,25 @@ public class BLogManager extends LogManager {
      */
     public void setModuleLogLevel(BLogLevel logLevel, String moduleName) {
         loggerLevels.put(moduleName, logLevel);
+    }
+
+    /**
+     * Checks if module log level has been enabled.
+     *
+     * @return true if module log level has been enabled, false if not.
+     */
+    public boolean isModuleLogLevelEnabled() {
+        return loggerLevels.size() > 1;
+    }
+
+    /**
+     * Get the log level of a given package.
+     *
+     * @param pkg package name
+     * @return the log level
+     */
+    public BLogLevel getPackageLogLevel(String pkg) {
+        return loggerLevels.containsKey(pkg) ? loggerLevels.get(pkg) : ballerinaUserLogLevel;
     }
 
     /**

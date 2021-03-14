@@ -59,7 +59,6 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.WhileStatementNode;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.SnippetException;
 import io.ballerina.shell.snippet.SnippetSubKind;
 import io.ballerina.shell.snippet.types.ExpressionSnippet;
@@ -132,11 +131,13 @@ public class BasicSnippetFactory extends SnippetFactory {
         } else if (node instanceof VariableDeclarationNode) {
             VariableDeclarationNode varNode = (VariableDeclarationNode) node;
             NodeList<Token> qualifiers = NodeFactory.createEmptyNodeList();
+            // Only final qualifier is transferred.
+            // It is the only possible qualifier that can be transferred.
             if (varNode.finalKeyword().isPresent()) {
                 qualifiers = NodeFactory.createNodeList(varNode.finalKeyword().get());
             }
             dclnNode = NodeFactory.createModuleVariableDeclarationNode(
-                    NodeFactory.createMetadataNode(null, varNode.annotations()),
+                    NodeFactory.createMetadataNode(null, varNode.annotations()), null,
                     qualifiers, varNode.typedBindingPattern(),
                     varNode.equalsToken().orElse(null), varNode.initializer().orElse(null),
                     varNode.semicolonToken()
@@ -145,9 +146,9 @@ public class BasicSnippetFactory extends SnippetFactory {
             return null;
         }
         if (dclnNode.initializer().isEmpty()) {
-            addDiagnostic(Diagnostic.error("" +
+            addErrorDiagnostic("" +
                     "Variables without initializers are not permitted. " +
-                    "Give an initial value for your variable."));
+                    "Give an initial value for your variable.");
             return null;
         }
         return new VariableDeclarationSnippet(dclnNode);
@@ -160,7 +161,7 @@ public class BasicSnippetFactory extends SnippetFactory {
             assert MODULE_MEM_DCLNS.containsKey(node.getClass());
             SnippetSubKind subKind = MODULE_MEM_DCLNS.get(node.getClass());
             if (subKind.hasError()) {
-                addDiagnostic(Diagnostic.error(subKind.getError()));
+                addErrorDiagnostic(subKind.getError());
                 throw new SnippetException();
             } else if (subKind.isValid()) {
                 return new ModuleMemberDeclarationSnippet(subKind, (ModuleMemberDeclarationNode) node);
@@ -175,15 +176,15 @@ public class BasicSnippetFactory extends SnippetFactory {
             assert STATEMENTS.containsKey(node.getClass());
             SnippetSubKind subKind = STATEMENTS.get(node.getClass());
             if (subKind.hasError()) {
-                addDiagnostic(Diagnostic.error(subKind.getError()));
+                addErrorDiagnostic(subKind.getError());
                 throw new SnippetException();
             } else if (subKind.isValid()) {
                 return new StatementSnippet(subKind, (StatementNode) node);
             }
         } else if (node instanceof NamedWorkerDeclarator) {
-            addDiagnostic(Diagnostic.error("" +
+            addErrorDiagnostic("" +
                     "Named worker declarators cannot be used in the REPL as top level statement.\n" +
-                    "Please use them in a suitable place such as in a function."));
+                    "Please use them in a suitable place such as in a function.");
         }
         return null;
     }

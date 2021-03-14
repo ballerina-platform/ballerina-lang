@@ -107,4 +107,15 @@ public class DataflowAnalysisTest {
         BAssertUtil.validateError(result, i++, "variable 'x' is not initialized", 24, 62);
         Assert.assertEquals(result.getErrorCount(), i);
     }
+
+    @Test(description = "Test uninitialized local complex variable")
+    public void testUninitializedLocalTupleVar() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/dataflow/analysis/uninitialized_local_complex_variables.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 18, 46);
+        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 31, 62);
+        BAssertUtil.validateError(result, i++, "complex variable must be initialized", 44, 83);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
 }

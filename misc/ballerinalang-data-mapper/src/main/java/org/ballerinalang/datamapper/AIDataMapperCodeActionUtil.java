@@ -23,6 +23,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -30,12 +31,14 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
@@ -46,6 +49,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -53,6 +57,7 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
@@ -82,12 +87,14 @@ class AIDataMapperCodeActionUtil {
     /**
      * Returns the workspace edits for the automatic data mapping code action.
      *
-     * @param context    {@link CodeActionContext}
-     * @param diagnostic {@link Diagnostic}
+     * @param positionDetails {@link DiagBasedPositionDetails}
+     * @param context         {@link CodeActionContext}
+     * @param diagnostic      {@link Diagnostic}
      * @return edits for the data mapper code action
      * @throws IOException throws if error occurred when getting generatedRecordMappingFunction
      */
-    static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context, Diagnostic diagnostic)
+    static List<TextEdit> getAIDataMapperCodeActionEdits(DiagBasedPositionDetails positionDetails,
+                                                         CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
         String diagnosticMessage = diagnostic.message();
@@ -141,8 +148,15 @@ class AIDataMapperCodeActionUtil {
             switch (symbolAtCursorType) {
                 case "RECORD":
                 case "TYPE_REFERENCE":
-                    generatedFunctionName =
-                            String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
+                    //Check if the rhs is defined with var
+                    if ("".equals(foundTypeRight)) {
+                        generatedFunctionName =
+                                String.format("map%sTo%s(%s)", symbolAtCursorName, foundTypeLeft, symbolAtCursorName);
+                        foundTypeRight = symbolAtCursorName;
+                    } else {
+                        generatedFunctionName =
+                                String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
+                    }
                     fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     break;
 
@@ -166,21 +180,33 @@ class AIDataMapperCodeActionUtil {
                         foundErrorRight = true;
                     }
 
+                    NonTerminalNode matchedNode = null;
+                    if (positionDetails.matchedNode().kind() == SyntaxKind.FUNCTION_CALL) {
+                        matchedNode = positionDetails.matchedNode();
+                        if (matchedNode.parent().kind() == SyntaxKind.CHECK_EXPRESSION) {
+                            matchedNode = matchedNode.parent();
+                        }
+                    }
 
-                    String functionCall = context.positionDetails().matchedNode().toString();
+                    if (matchedNode == null) {
+                        throw new IllegalStateException("Unexpected node at cursor:" +
+                                positionDetails.matchedNode().kind());
+                    }
+
+                    String functionCall = matchedNode.toString();
                     if (foundErrorRight && !foundErrorLeft) {
-                        symbolAtCursorName = functionCall.split("[=;]")[1].trim();
+                        symbolAtCursorName = functionCall.trim();
                         generatedFunctionName =
                                 String.format("map%sTo%s(check %s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else if (foundErrorLeft && foundErrorRight) {
                         // get the information about the line positions
-                        newTextRange = CommonUtil.toRange(context.positionDetails().matchedNode().lineRange());
+                        newTextRange = CommonUtil.toRange(matchedNode.lineRange());
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else {
-                        symbolAtCursorName = functionCall.split("[=;]")[1].trim();
+                        symbolAtCursorName = functionCall.trim();
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
@@ -228,8 +254,15 @@ class AIDataMapperCodeActionUtil {
                         leftModule = lftModule.modulePrefix();
                     }
                 }
+
+                //To get the signature of the rhsSymbol to the generated Function - Var solution
+                String rhsSignature = "";
+                if (symbolAtCursorName.equals(foundTypeRight)) {
+                    rhsSignature = SymbolUtil.getTypeDescriptor(symbolAtCursor).get().signature();
+                }
+
                 String generatedRecordMappingFunction = generateMappingFunction(mappingFromServer, foundTypeLeft,
-                        foundTypeRight, leftModule, rightModule);
+                        foundTypeRight, leftModule, rightModule, rhsSignature);
                 fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
                 return fEdits;
             }
@@ -268,25 +301,20 @@ class AIDataMapperCodeActionUtil {
         JsonObject rightRecordJSON = new JsonObject();
         JsonObject leftRecordJSON = new JsonObject();
 
-        // Schema 1
-        TypeSymbol rhsSymbol = ((TypeReferenceTypeSymbol) rhsTypeSymbol).typeDescriptor();
-        if ("RECORD".equals(rhsSymbol.typeKind().name())) {
-            RecordTypeSymbol rightSymbol = (RecordTypeSymbol) rhsSymbol;
-            Map<String, RecordFieldSymbol> rightSchemaFields = rightSymbol.fieldDescriptors();
+
+        List<RecordTypeSymbol> symbolList = checkMappingCapability(lftTypeSymbol, rhsTypeSymbol);
+        if (!symbolList.contains(null)) {
+            // Schema 1
+            Map<String, RecordFieldSymbol> rightSchemaFields = symbolList.get(0).fieldDescriptors();
             JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields.values());
 
             rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
             rightRecordJSON.addProperty(ID, "dummy_id");
             rightRecordJSON.addProperty(TYPE, "object");
             rightRecordJSON.add(PROPERTIES, rightSchema);
-        }
 
-        // Schema 2
-        TypeSymbol lftSymbol = ((TypeReferenceTypeSymbol) lftTypeSymbol).typeDescriptor();
-        if ("RECORD".equals(lftSymbol.typeKind().name())) {
-            RecordTypeSymbol leftSymbol = (RecordTypeSymbol) lftSymbol;
-            Map<String, RecordFieldSymbol> leftSchemaFields = leftSymbol.fieldDescriptors();
-
+            // Schema 2
+            Map<String, RecordFieldSymbol> leftSchemaFields = symbolList.get(1).fieldDescriptors();
             JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields.values());
             leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
             leftRecordJSON.addProperty(ID, "dummy_id");
@@ -341,6 +369,22 @@ class AIDataMapperCodeActionUtil {
                 Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
                 fieldDetails.addProperty(TYPE, "ballerina_type");
                 fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
+            } else if (attributeType.typeKind() == TypeDescKind.INTERSECTION) {
+                // To get the fields of a readonly record type
+                List<TypeSymbol> memberTypeList = ((IntersectionTypeSymbol) attribute.typeDescriptor()).
+                        memberTypeDescriptors();
+                for (TypeSymbol attributeTypeReference : memberTypeList) {
+                    if (attributeTypeReference.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                        TypeSymbol attributeTypeRecord = ((TypeReferenceTypeSymbol) attributeTypeReference).
+                                typeDescriptor();
+                        if (attributeTypeRecord.typeKind() == TypeDescKind.RECORD) {
+                            Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeTypeRecord).
+                                    fieldDescriptors();
+                            fieldDetails.addProperty(TYPE, "ballerina_type");
+                            fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
+                        }
+                    }
+                }
             } else {
                 fieldDetails.addProperty(TYPE, attributeType.typeKind().toString());
             }
@@ -381,11 +425,29 @@ class AIDataMapperCodeActionUtil {
         }
     }
 
+    /**
+     * Create the mapping function.
+     *
+     * @param mappingFromServer {@link String}
+     * @param foundTypeLeft {@link String}
+     * @param foundTypeRight {@link String}
+     * @param leftModule {@link String}
+     * @param rightModule {@link String}
+     * @param rhsSignature {@link String}
+     * @return - Generated mapping Function
+     */
     private static String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
-                                                  String foundTypeRight, String leftModule, String rightModule) {
+                                                  String foundTypeRight, String leftModule, String rightModule,
+                                                  String rhsSignature) {
 
         String leftType = foundTypeLeft;
-        String rightType = foundTypeRight;
+        String rightType;
+        // To add the rhs signature to parameter of the mapping function
+        if (rhsSignature.isEmpty()) {
+            rightType = foundTypeRight;
+        } else {
+            rightType = rhsSignature;
+        }
 
         mappingFromServer = mappingFromServer.replaceAll("\"", "");
         mappingFromServer = mappingFromServer.replaceAll(",", ", ");
@@ -405,5 +467,34 @@ class AIDataMapperCodeActionUtil {
                 "\n\treturn " + foundTypeLeft.toLowerCase() + ";\n}\n";
 
         return mappingFunction;
+    }
+
+    /**
+     * Properly type caste the symbols.
+     *
+     * @param lftTypeSymbol {@link Symbol}
+     * @param rhsTypeSymbol {@link String}
+     * @return - Type casted symbol list
+     */
+    private static List<RecordTypeSymbol> checkMappingCapability(Symbol lftTypeSymbol, Symbol rhsTypeSymbol) {
+        // rhs Schema
+        RecordTypeSymbol rightSymbol = null;
+        if (rhsTypeSymbol.getName().isEmpty()) {
+            rightSymbol = (RecordTypeSymbol) rhsTypeSymbol;
+        } else {
+            TypeSymbol rhsSymbol = ((TypeReferenceTypeSymbol) rhsTypeSymbol).typeDescriptor();
+            if ("RECORD".equals(rhsSymbol.typeKind().name())) {
+                rightSymbol = (RecordTypeSymbol) rhsSymbol;
+            }
+        }
+
+        // lfs Schema
+        TypeSymbol lftSymbol = ((TypeReferenceTypeSymbol) lftTypeSymbol).typeDescriptor();
+        RecordTypeSymbol leftSymbol = null;
+        if ("RECORD".equals(lftSymbol.typeKind().name())) {
+            leftSymbol = (RecordTypeSymbol) lftSymbol;
+        }
+
+        return Arrays.asList(rightSymbol, leftSymbol);
     }
 }

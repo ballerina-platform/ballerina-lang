@@ -70,32 +70,26 @@ function testExclusiveRecord() {
 function testXMLWithNeverType() {
     xml<never> x = <xml<never>> 'xml:concat();  //generates an empty XML sequence and assign it to XML<never>
     xml<never> a = xml ``;
-    string testString1 = a;
     xml<never> b = <xml<never>> 'xml:createText("");
     xml c = xml ``;
     'xml:Text d = xml ``;
-    string testString2 = d;
     xml<'xml:Text> e = a;
-    string testString3 = e;
     xml f = a;
     xml<xml<never>> g = xml ``;
-    string testString4 = g;
     xml<xml<'xml:Text>> h = xml ``;
-    string testString5 = h;
     string empty = "";
     'xml:Text j = xml `${empty}`;
     xml k = xml `${empty}`;
     xml<never>|'xml:Text l = xml ``;
-    string testString6 = l;
     xml<never> & readonly m =  xml ``;
     string|'xml:Text n = a;
-    int|string t = a;
 
-    string|'xml:Text p = d;
-    string q = p;
-
-    string|'xml:Text r = a;
-    string s = r;
+    xml<xml<'xml:Element>> t = xml ``;
+    xml<'xml:Element> u = xml ``;
+    xml<xml<'xml:Comment>> v = xml ``;
+    xml<'xml:Comment> w = xml ``;
+    xml<xml<'xml:ProcessingInstruction>> z = xml ``;
+    xml<'xml:ProcessingInstruction> y = xml ``;
 }
 
 //---------------Test 'never' types with 'union-type' descriptors ------------

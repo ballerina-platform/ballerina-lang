@@ -127,32 +127,32 @@ public class CodeActionTest {
                 codeActionFoundOnlyOnce, "Cannot find expected Code Action for: " + title);
     }
 
-    @Test(dataProvider = "restricted-codeAction-data-mapper-data-provider")
-    public void testRestrictedDataMapperCodeAction(String config, String source) throws Exception {
-        // Read expected results
-        String configJsonPath = "codeaction" + File.separator + config;
-        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-
-        // Get code action from language server
-        JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
-
-        JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
-        String title = expectedResponse.get("title").getAsString();
-
-        boolean codeActionFound = false;
-        for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
-            JsonElement right = jsonElement.getAsJsonObject().get("right");
-            JsonElement editText = right.getAsJsonObject().get("edit");
-            if (editText == null) {
-                continue;
-            }
-            if (right.getAsJsonObject().get("title").getAsString().equals(title)) {
-                codeActionFound = true;
-            }
-        }
-        Assert.assertFalse(
-                codeActionFound, "Cannot find expected Code Action for: " + title);
-    }
+//    @Test(dataProvider = "restricted-codeAction-data-mapper-data-provider")
+//    public void testRestrictedDataMapperCodeAction(String config, String source) throws Exception {
+//        // Read expected results
+//        String configJsonPath = "codeaction" + File.separator + config;
+//        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+//
+//        // Get code action from language server
+//        JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
+//
+//        JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
+//        String title = expectedResponse.get("title").getAsString();
+//
+//        boolean codeActionFound = false;
+//        for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
+//            JsonElement right = jsonElement.getAsJsonObject().get("right");
+//            JsonElement editText = right.getAsJsonObject().get("edit");
+//            if (editText == null) {
+//                continue;
+//            }
+//            if (right.getAsJsonObject().get("title").getAsString().equals(title)) {
+//                codeActionFound = true;
+//            }
+//        }
+//        Assert.assertFalse(
+//                codeActionFound, "Cannot find expected Code Action for: " + title);
+//    }
 
 
     @DataProvider(name = "codeAction-data-mapper-data-provider")
@@ -164,6 +164,7 @@ public class CodeActionTest {
                 {"dataMapper3.json", "dataMapper3.bal"},
                 {"dataMapper4.json", "dataMapper4.bal"},
                 {"dataMapper5.json", "dataMapper5.bal"},
+                {"dataMapper6.json", "dataMapper6.bal"},
                 {"dataMapper7.json", "dataMapper7.bal"},
                 {"dataMapper8.json", "dataMapper8.bal"},
                 {"dataMapper9.json", "dataMapper9.bal"},
@@ -181,13 +182,13 @@ public class CodeActionTest {
         };
     }
 
-    @DataProvider(name = "restricted-codeAction-data-mapper-data-provider")
-    public Object[][] restrictedCodeActionDataMapperDataProvider() {
-        log.info("Test textDocument/codeAction QuickFixes");
-        return new Object[][]{
-                {"dataMapper6.json", "dataMapper6.bal"},
-        };
-    }
+//    @DataProvider(name = "restricted-codeAction-data-mapper-data-provider")
+//    public Object[][] restrictedCodeActionDataMapperDataProvider() {
+//        log.info("Test textDocument/codeAction QuickFixes");
+//        return new Object[][]{
+//                {"dataMapper6.json", "dataMapper6.bal"},
+//        };
+//    }
 
     @AfterClass
     private void cleanupLanguageServer() {

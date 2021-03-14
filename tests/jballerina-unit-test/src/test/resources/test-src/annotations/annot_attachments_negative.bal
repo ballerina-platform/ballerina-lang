@@ -855,3 +855,36 @@ public const annotation v20 on class;
         self.i = 2;
     }
 }
+
+@tainted
+class MyClass {
+}
+
+
+@tainted {
+}
+type MyObject object {
+};
+
+function myFunction() returns @v7 {} string => "hello";
+
+@v1
+type MyType int|string;
+
+@v3
+function myFunction1(@v6 string name) returns string {
+    return "Hello " + name;
+}
+
+annotation Annot[] v21 on function;
+
+@v21
+@v21
+public function myFunction6(string... argv) {
+}
+
+@tainted
+@tainted
+@v1 {val: "one"}
+@v1 {val: "two"}
+type MyTypeTwo int|boolean;

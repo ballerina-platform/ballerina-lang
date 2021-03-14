@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.configurable.ConfigurableMap;
+import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
@@ -38,6 +38,7 @@ import java.util.function.Supplier;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUILTIN_PKG_PREFIX;
 import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_POSITION;
@@ -53,8 +54,6 @@ import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_ACCESSOR;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_SRC_RESOURCE_PATH;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_TRUE_VALUE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
-import static io.ballerina.runtime.observability.tracer.TraceConstants.KEY_SPAN;
 
 /**
  * Util class used for observability.
@@ -91,10 +90,10 @@ public class ObserveUtils {
 
     private static <T> T readConfig(VariableKey specificKey, VariableKey inheritedKey, T defaultValue) {
         T value;
-        if (ConfigurableMap.containsKey(specificKey)) {
-            value = (T) ConfigurableMap.get(specificKey);
-        } else if (inheritedKey != null && ConfigurableMap.containsKey(inheritedKey)) {
-            value = (T) ConfigurableMap.get(inheritedKey);
+        if (ConfigMap.containsKey(specificKey)) {
+            value = (T) ConfigMap.get(specificKey);
+        } else if (inheritedKey != null && ConfigMap.containsKey(inheritedKey)) {
+            value = (T) ConfigMap.get(inheritedKey);
         } else {
             value = defaultValue;
         }
@@ -226,7 +225,7 @@ public class ObserveUtils {
         if (observerContext == null) {
             return;
         }
-        BSpan span = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BSpan span = observerContext.getSpan();
         if (span == null) {
             return;
         }
@@ -311,7 +310,7 @@ public class ObserveUtils {
             newObContext.setEntrypointFunctionPosition(prevObserverCtx.getEntrypointFunctionPosition());
             newObContext.setParent(prevObserverCtx);
         } else {
-            newObContext.setServiceName(UNKNOWN_SERVICE);
+            newObContext.setServiceName(DEFAULT_SERVICE_NAME);
             newObContext.setEntrypointFunctionModule(module.getValue());
             newObContext.setEntrypointFunctionPosition(position.getValue());
         }
@@ -359,9 +358,9 @@ public class ObserveUtils {
      * @return property map
      */
     public static Map<String, String> getContextProperties(ObserverContext observerContext) {
-        BSpan bSpan = (BSpan) observerContext.getProperty(KEY_SPAN);
+        BSpan bSpan = observerContext.getSpan();
         if (bSpan != null) {
-            return bSpan.getTraceContext();
+            return bSpan.extractContextAsHttpHeaders();
         }
         return Collections.emptyMap();
     }

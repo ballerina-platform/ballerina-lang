@@ -4,5 +4,5 @@ function foo() {
     a = <- {};
     a = <- {a b:c, d};
     a = <- {a, :c, d:};
-    <- {default, b:default, d;
+    <- {function, b:function, d;
 }

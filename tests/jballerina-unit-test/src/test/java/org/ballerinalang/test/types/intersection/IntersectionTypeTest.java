@@ -107,6 +107,11 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testIntersectionOfErrorWithInlineError() {
+        BRunUtil.invoke(errorIntersectionResults, "testIntersectionOfErrorWithInlineError");
+    }
+
+    @Test
     public void testErrorIntersectionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/error_intersection_type_negative.bal");
 
@@ -117,9 +122,36 @@ public class IntersectionTypeTest {
         validateError(result, index++,
                       "invalid error detail rest arg 'z' passed to open detail record '"
                               + "record {| string x; string...; |}'", 56, 15);
+        validateError(result, index++, "error constructor does not accept additional detail args 'z' when " +
+                        "error detail type 'record {| string x; string...; |}' contains individual field descriptors",
+                56, 63);
         validateError(result, index++,
                       "incompatible types: expected 'DistinctErrorIntersection', found 'IntersectionErrorFour'", 57,
                       38);
+        validateError(result, index++,
+                "invalid intersection type 'ErrorX & ErrorY': no intersection", 72, 33);
+        validateError(result, index++,
+                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 72, 33);
+        validateError(result, index++,
+                "invalid intersection type '$anonType$_2 & $anonType$_3': no intersection", 74, 39);
+        validateError(result, index++,
+                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 74, 39);
+        validateError(result, index++,
+                "invalid intersection type '$anonType$_4 & $anonType$_5 & ErrorX': no intersection", 76, 44);
+        validateError(result, index++,
+                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 76, 61);
+        validateError(result, index++,
+                "invalid intersection type 'error & ErrorX': no intersection", 78, 35);
+        validateError(result, index++,
+                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 78, 43);
+        validateError(result, index++,
+                "invalid intersection type 'ErrorX & error': no intersection", 79, 36);
+        validateError(result, index++,
+                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 79, 36);
+        validateError(result, index++,
+                "invalid intersection type 'E & ErrorX': no intersection", 82, 21);
+        validateError(result, index++,
+                "invalid intersection: field 'x' contains a default value in type 'DetailX'", 82, 25);
 
         assertEquals(result.getErrorCount(), index);
     }

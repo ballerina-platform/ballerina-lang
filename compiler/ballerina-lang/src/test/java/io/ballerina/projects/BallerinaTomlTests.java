@@ -22,6 +22,7 @@ import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
+import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 
 import static io.ballerina.projects.util.ProjectConstants.INTERNAL_VERSION;
@@ -187,6 +189,12 @@ public class BallerinaTomlTests {
 
     @Test
     public void testBallerinaTomlWithInvalidOrgNameVersion() throws IOException {
+        // TODO: enable this after the alpha2-release
+        String os = System.getProperty("os.name").toLowerCase(Locale.getDefault());
+        if (os.contains("win")) {
+            throw new SkipException("Skipping tests on Windows");
+        }
+
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-org-name-version.toml"));
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
         Assert.assertEquals(packageManifest.diagnostics().errors().size(), 3);
@@ -200,7 +208,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,33)");
 
         Assert.assertEquals(iterator.next().message(), "invalid 'org' under [package]: 'org' can only contain "
-                + "alphanumerics, underscores and periods and the maximum length is 256 characters");
+                + "alphanumerics, underscores and the maximum length is 256 characters");
         Assert.assertEquals(iterator.next().message(), "invalid 'version' under [package]: "
                 + "'version' should be compatible with semver");
     }
@@ -274,7 +282,7 @@ public class BallerinaTomlTests {
     private PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
-        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
+        return ManifestBuilder.from(ballerinaToml, null, null, tomlPath.getParent()).packageManifest();
     }
 
     private PackageManifest getPackageManifest(Path ballerinaTomlPath, Path dependenciesTomlPath) throws IOException {
@@ -284,6 +292,7 @@ public class BallerinaTomlTests {
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, ballerinaTomlContent);
         TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, dependenciesTomlContent);
 
-        return ManifestBuilder.from(ballerinaToml, dependenciesToml, ballerinaTomlPath.getParent()).packageManifest();
+        return ManifestBuilder.from(ballerinaToml, dependenciesToml, null, ballerinaTomlPath.getParent())
+                .packageManifest();
     }
 }

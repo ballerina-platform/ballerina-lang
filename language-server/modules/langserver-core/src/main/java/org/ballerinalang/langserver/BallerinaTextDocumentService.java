@@ -49,6 +49,7 @@ import org.ballerinalang.langserver.signature.SignatureHelpUtil;
 import org.ballerinalang.langserver.util.TokensUtil;
 import org.ballerinalang.langserver.util.definition.DefinitionUtil;
 import org.ballerinalang.langserver.util.references.ReferencesUtil;
+import org.ballerinalang.langserver.util.rename.RenameUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionParams;
 import org.eclipse.lsp4j.CodeLens;
@@ -90,7 +91,6 @@ import org.eclipse.lsp4j.services.TextDocumentService;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -142,7 +142,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/completion' failed!";
-                this.clientLogger.logError(msg, e, position.getTextDocument(), position.getPosition());
+                this.clientLogger.logError(LSContextOperation.TXT_COMPLETION, msg, e, position.getTextDocument(),
+                                           position.getPosition());
             }
 
             return Either.forLeft(Collections.emptyList());
@@ -161,7 +162,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } catch (Throwable e) {
                 // Note: Not catching UserErrorException separately to avoid flooding error msgs popups
                 String msg = "Operation 'text/hover' failed!";
-                this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
+                this.clientLogger.logError(LSContextOperation.TXT_HOVER, msg, e, params.getTextDocument(),
+                                           params.getPosition());
                 hover = HoverUtil.getDefaultHoverObject();
             }
 
@@ -236,7 +238,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return new SignatureHelp();
             } catch (Throwable e) {
                 String msg = "Operation 'text/signature' failed!";
-                this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
+                this.clientLogger.logError(LSContextOperation.TXT_SIGNATURE, msg, e, params.getTextDocument(),
+                                           params.getPosition());
                 return new SignatureHelp();
             }
         });
@@ -257,7 +260,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return Either.forLeft(Collections.emptyList());
             } catch (Throwable e) {
                 String msg = "Operation 'text/definition' failed!";
-                this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
+                this.clientLogger.logError(LSContextOperation.TXT_DEFINITION, msg, e, params.getTextDocument(),
+                                           params.getPosition());
                 return Either.forLeft(Collections.emptyList());
             }
         });
@@ -289,7 +293,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return new ArrayList<>();
             } catch (Throwable e) {
                 String msg = "Operation 'text/references' failed!";
-                this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
+                this.clientLogger.logError(LSContextOperation.TXT_REFERENCES, msg, e, params.getTextDocument(),
+                                           params.getPosition());
                 return new ArrayList<>();
             }
         });
@@ -313,7 +318,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return new ArrayList<>();
             } catch (Throwable e) {
                 String msg = "Operation 'text/documentSymbol' failed!";
-                this.clientLogger.logError(msg, e, params.getTextDocument(), (Position) null);
+                this.clientLogger.logError(LSContextOperation.TXT_DOC_SYMBOL, msg, e, params.getTextDocument(),
+                                           (Position) null);
                 return new ArrayList<>();
             }
         });
@@ -334,7 +340,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeAction' failed!";
                 Range range = params.getRange();
-                this.clientLogger.logError(msg, e, params.getTextDocument(), range.getStart(), range.getEnd());
+                this.clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, params.getTextDocument(),
+                                           range.getStart(), range.getEnd());
             }
             return Collections.emptyList();
         });
@@ -371,7 +378,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 // Source compilation failed, serve from cache
             } catch (Throwable e) {
                 String msg = "Operation 'text/codeLens' failed!";
-                this.clientLogger.logError(msg, e, params.getTextDocument(), (Position) null);
+                this.clientLogger.logError(LSContextOperation.TXT_CODE_LENS, msg, e, params.getTextDocument(),
+                                           (Position) null);
                 // Source compilation failed, serve from cache
             }
 
@@ -412,7 +420,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return Collections.singletonList(textEdit);
             } catch (Throwable e) {
                 String msg = "Operation 'text/formatting' failed!";
-                this.clientLogger.logError(msg, e, params.getTextDocument(), (Position) null);
+                this.clientLogger.logError(LSContextOperation.TXT_FORMATTING, msg, e, params.getTextDocument(),
+                                           (Position) null);
                 return Collections.singletonList(textEdit);
             }
         });
@@ -456,8 +465,9 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 this.clientLogger.notifyUser("Formatting", e);
                 return Collections.singletonList(textEdit);
             } catch (Throwable e) {
-                String msg = "Operation 'text/formatting' failed!";
-                this.clientLogger.logError(msg, e, params.getTextDocument(), (Position) null);
+                String msg = "Operation 'text/rangeFormatting' failed!";
+                this.clientLogger.logError(LSContextOperation.TXT_RANGE_FORMATTING, msg, e, params.getTextDocument(),
+                                           (Position) null);
                 return Collections.singletonList(textEdit);
             }
         });
@@ -467,7 +477,6 @@ class BallerinaTextDocumentService implements TextDocumentService {
     public CompletableFuture<WorkspaceEdit> rename(RenameParams params) {
         return CompletableFuture.supplyAsync(() -> {
             WorkspaceEdit workspaceEdit = new WorkspaceEdit();
-            Map<String, List<TextEdit>> changes = new HashMap<>();
 
             try {
                 ReferencesContext context = ContextBuilder.buildReferencesContext(params.getTextDocument().getUri(),
@@ -475,24 +484,16 @@ class BallerinaTextDocumentService implements TextDocumentService {
                         this.serverContext,
                         params.getPosition());
 
-                Map<Module, List<io.ballerina.tools.diagnostics.Location>> locationMap = 
-                        ReferencesUtil.getReferences(context);
-                Path projectRoot = context.workspace().projectRoot(context.filePath());
-
-                locationMap.forEach((module, locations) ->
-                        locations.forEach(location -> {
-                            String uri = ReferencesUtil.getUriFromLocation(module, location, projectRoot);
-                            List<TextEdit> textEdits = changes.computeIfAbsent(uri, k -> new ArrayList<>());
-                            textEdits.add(new TextEdit(ReferencesUtil.getRange(location), params.getNewName()));
-                        }));
+                Map<String, List<TextEdit>> changes = RenameUtil.rename(context, params.getNewName());
+                workspaceEdit.setChanges(changes);
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Rename", e);
             } catch (Throwable e) {
                 String msg = "Operation 'text/rename' failed!";
-                this.clientLogger.logError(msg, e, params.getTextDocument(), params.getPosition());
+                this.clientLogger.logError(LSContextOperation.TXT_RENAME, msg, e, params.getTextDocument(),
+                                           params.getPosition());
             }
 
-            workspaceEdit.setChanges(changes);
             return workspaceEdit;
         });
     }
@@ -505,13 +506,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     LSContextOperation.TXT_DID_OPEN, this.serverContext);
             this.workspaceManager.didOpen(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_OPEN.getName() +
-                    "' {fileUri: '" + fileUri + "'} opened}");
+                    "' {fileUri: '" + fileUri + "'} opened");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
             diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didOpen' failed!";
             TextDocumentIdentifier identifier = new TextDocumentIdentifier(params.getTextDocument().getUri());
-            this.clientLogger.logError(msg, e, identifier, (Position) null);
+            this.clientLogger.logError(LSContextOperation.TXT_DID_OPEN, msg, e, identifier, (Position) null);
         }
     }
 
@@ -531,12 +532,13 @@ class BallerinaTextDocumentService implements TextDocumentService {
             }
             workspaceManager.didChange(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CHANGE.getName() +
-                    "' {fileUri: '" + fileUri + "'} updated}");
+                    "' {fileUri: '" + fileUri + "'} updated");
             DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
             diagnosticsHelper.compileAndSendDiagnostics(this.languageServer.getClient(), context);
         } catch (Throwable e) {
             String msg = "Operation 'text/didChange' failed!";
-            this.clientLogger.logError(msg, e, params.getTextDocument(), (Position) null);
+            this.clientLogger.logError(LSContextOperation.TXT_DID_CHANGE, msg, e, params.getTextDocument(),
+                                       (Position) null);
         }
     }
 
@@ -550,10 +552,11 @@ class BallerinaTextDocumentService implements TextDocumentService {
                     this.serverContext);
             workspaceManager.didClose(context.filePath(), params);
             this.clientLogger.logTrace("Operation '" + LSContextOperation.TXT_DID_CLOSE.getName() +
-                    "' {fileUri: '" + fileUri + "'} closed}");
+                    "' {fileUri: '" + fileUri + "'} closed");
         } catch (Throwable e) {
             String msg = "Operation 'text/didClose' failed!";
-            this.clientLogger.logError(msg, e, params.getTextDocument(), (Position) null);
+            this.clientLogger.logError(LSContextOperation.TXT_DID_CLOSE, msg, e, params.getTextDocument(),
+                                       (Position) null);
         }
     }
 
@@ -573,7 +576,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 return FoldingRangeProvider.getFoldingRange(foldingRangeContext);
             } catch (Throwable e) {
                 String msg = "Operation 'text/foldingRange' failed!";
-                this.clientLogger.logError(msg, e, new TextDocumentIdentifier(params.getTextDocument().getUri()),
+                this.clientLogger.logError(LSContextOperation.TXT_FOLDING_RANGE, msg, e,
+                                           new TextDocumentIdentifier(params.getTextDocument().getUri()),
                         (Position) null);
                 return Collections.emptyList();
             }

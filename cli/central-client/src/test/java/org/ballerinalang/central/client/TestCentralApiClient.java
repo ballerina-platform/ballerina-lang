@@ -43,6 +43,8 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
@@ -56,11 +58,13 @@ import static org.mockito.Mockito.when;
  */
 public class TestCentralApiClient extends CentralAPIClient {
 
-    private HttpURLConnection connection = mock(HttpURLConnection.class);
+    private HttpsURLConnection connection = mock(HttpsURLConnection.class);
     private ByteArrayOutputStream console;
 
     private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
     private static final Path TMP_DIR = UTILS_TEST_RESOURCES.resolve("temp-test-central-api-client");
+    private static final String TEST_BAL_VERSION = "slp5";
+    private static final String ANY_PLATFORM = "any";
     private static final String TEST_BALA_NAME = "sf-any.bala";
     private static final String OUTPUT_BALA = "output.bala";
     private static final String WINERY = "winery";
@@ -71,7 +75,7 @@ public class TestCentralApiClient extends CentralAPIClient {
     }
 
     @Override
-    protected HttpURLConnection createHttpUrlConnection(String a) {
+    protected HttpsURLConnection createHttpsURLConnection(String a, String b, String c) {
         return connection;
     }
 
@@ -123,7 +127,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getContentLengthLong()).thenReturn(Files.size(balaPath));
             when(connection.getInputStream()).thenReturn(balaStream);
 
-            this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", "slp5", false);
+            this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
 
             Assert.assertTrue(TMP_DIR.resolve("1.3.5").resolve("sf-2020r2-any-1.3.5.bala").toFile().exists());
             String buildLog = readOutput();
@@ -147,7 +151,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
         when(connection.getErrorStream()).thenReturn(resStream);
 
-        this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, "any", "slp5", false);
+        this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
     }
 
     @Test(description = "Test get package")
@@ -158,7 +162,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(connection.getInputStream()).thenReturn(new FileInputStream(packageJson));
 
-        Package aPackage = this.getPackage("foo", WINERY, "1.3.5", "any");
+        Package aPackage = this.getPackage("foo", WINERY, "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION);
         Assert.assertNotNull(aPackage);
         Assert.assertEquals(aPackage.getOrganization(), "foo");
         Assert.assertEquals(aPackage.getName(), WINERY);
@@ -173,7 +177,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
         when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-        this.getPackage("bar", WINERY, "2.0.0", "any");
+        this.getPackage("bar", WINERY, "2.0.0", ANY_PLATFORM, TEST_BAL_VERSION);
     }
 
     @Test(description = "Test get package with bad request", expectedExceptions = CentralClientException.class,
@@ -184,7 +188,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
         when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-        this.getPackage("bar", WINERY, "v2", "any");
+        this.getPackage("bar", WINERY, "v2", ANY_PLATFORM, TEST_BAL_VERSION);
     }
 
     @Test(description = "Test push package", enabled = false)
@@ -198,7 +202,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getOutputStream()).thenReturn(outputStream);
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
 
-            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
+            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
             String buildLog = readOutput();
             given().with().pollInterval(Duration.ONE_SECOND).and()
                     .with().pollDelay(Duration.ONE_SECOND)
@@ -221,7 +225,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
             when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-            this.pushPackage(balaPath, "foo", "github", "1.8.3", ACCESS_TOKEN);
+            this.pushPackage(balaPath, "foo", "github", "1.8.3", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
         }
     }
 
@@ -239,7 +243,7 @@ public class TestCentralApiClient extends CentralAPIClient {
             when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
             when(connection.getURL()).thenReturn(new URL("https://api.central.ballerina.io/registry"));
 
-            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN);
+            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
         }
     }
 
@@ -251,7 +255,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
         when(connection.getInputStream()).thenReturn(new FileInputStream(packageSearchJson));
 
-        PackageSearchResult pkgSearchResult = this.searchPackage("org=foo");
+        PackageSearchResult pkgSearchResult = this.searchPackage("org=foo", ANY_PLATFORM, TEST_BAL_VERSION);
         Assert.assertNotNull(pkgSearchResult);
         Assert.assertEquals(pkgSearchResult.getCount(), 1);
         Assert.assertFalse(pkgSearchResult.getPackages().isEmpty());
@@ -266,7 +270,7 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
         when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
 
-        this.searchPackage("org=foo-org");
+        this.searchPackage("org=foo-org", ANY_PLATFORM, TEST_BAL_VERSION);
     }
 
     private void setBallerinaHome() {

@@ -23,6 +23,7 @@ import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.CloudToml;
+import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
@@ -707,34 +708,6 @@ public class TestBuildProject {
     }
 
     @Test
-    public void testRemoveModule() {
-        Path filePath =
-                RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.MODULES_ROOT).resolve("storage")
-                        .toAbsolutePath();
-        BuildProject buildProject = (BuildProject) ProjectLoader.loadProject(filePath);
-        Package oldPackage = buildProject.currentPackage();
-        // get module to remove
-        Module module = buildProject.currentPackage().module(ModuleName.from(
-                buildProject.currentPackage().packageName(), filePath.getFileName().toString()));
-
-        ModuleId removeId = module.moduleId();
-        Package newPackage = oldPackage.modify().removeModule(removeId).apply();
-
-        Assert.assertEquals(newPackage.moduleIds().size(), (oldPackage.moduleIds().size() - 1));
-        Assert.assertEquals(newPackage.moduleIds().size(), 2);
-        Assert.assertTrue(oldPackage.moduleIds().contains(removeId));
-        Assert.assertFalse(newPackage.moduleIds().contains(removeId));
-
-        for (ModuleId moduleId : oldPackage.moduleIds()) {
-            if (moduleId == removeId) {
-                Assert.assertFalse(newPackage.moduleIds().contains(moduleId));
-            } else {
-                Assert.assertTrue(newPackage.moduleIds().contains(moduleId));
-            }
-        }
-    }
-
-    @Test
     public void testAccessNonExistingDocument() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("db.bal").toAbsolutePath();
@@ -823,6 +796,7 @@ public class TestBuildProject {
         Assert.assertTrue(currentPackage.ballerinaToml().isPresent());
         Assert.assertTrue(currentPackage.dependenciesToml().isPresent());
         Assert.assertTrue(currentPackage.cloudToml().isPresent());
+        Assert.assertTrue(currentPackage.compilerPluginToml().isPresent());
         Assert.assertTrue(currentPackage.packageMd().isPresent());
         // Check module.md files
         Module defaultModule = currentPackage.getDefaultModule();
@@ -843,6 +817,9 @@ public class TestBuildProject {
 
         TomlTableNode cloudToml = currentPackage.cloudToml().get().tomlAstNode();
         Assert.assertEquals(cloudToml.entries().size(), 1);
+
+        TomlTableNode compilerPluginToml = currentPackage.compilerPluginToml().get().tomlAstNode();
+        Assert.assertEquals(compilerPluginToml.entries().size(), 2);
     }
 
     @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md")
@@ -891,6 +868,17 @@ public class TestBuildProject {
         TomlTableNode cloudToml = newCloudToml.tomlAstNode();
         Assert.assertEquals(cloudToml.entries().size(), 2);
 
+        CompilerPluginToml newCompilerPluginToml = project.currentPackage().compilerPluginToml().get().modify()
+                .withContent("" +
+                            "[plugin]\n" +
+                            "id = \"openapi-validator\"\n" +
+                            "class = \"io.ballerina.openapi.Validator\"\n" +
+                            "\n" +
+                            "[[dependency]]\n" +
+                            "path = \"./libs/platform-io-1.3.0-java.txt\"\n").apply();
+        TomlTableNode compilerPluginToml = newCompilerPluginToml.tomlAstNode();
+        Assert.assertEquals(compilerPluginToml.entries().size(), 2);
+
         // Check if PackageMd is editable
         project.currentPackage().packageMd().get().modify().withContent("#Modified").apply();
         String packageMdContent = project.currentPackage().packageMd().get().content();
@@ -912,10 +900,12 @@ public class TestBuildProject {
         project.currentPackage().modify().removePackageMd().apply();
         project.currentPackage().modify().removeDependenciesToml().apply();
         project.currentPackage().modify().removeCloudToml().apply();
+        project.currentPackage().modify().removeCompilerPluginToml().apply();
         project.currentPackage().getDefaultModule().modify().removeModuleMd().apply();
 
         Assert.assertTrue(project.currentPackage().packageMd().isEmpty());
         Assert.assertTrue(project.currentPackage().cloudToml().isEmpty());
+        Assert.assertTrue(project.currentPackage().compilerPluginToml().isEmpty());
         Assert.assertTrue(project.currentPackage().dependenciesToml().isEmpty());
         Assert.assertTrue(project.currentPackage().getDefaultModule().moduleMd().isEmpty());
     }
@@ -936,6 +926,7 @@ public class TestBuildProject {
 
         Assert.assertTrue(currentPackage.dependenciesToml().isEmpty());
         Assert.assertTrue(currentPackage.cloudToml().isEmpty());
+        Assert.assertTrue(currentPackage.compilerPluginToml().isEmpty());
         // Assert.assertTrue(currentPackage.packageMd().isEmpty());
 
         DocumentConfig dependenciesToml = DocumentConfig.from(
@@ -970,6 +961,19 @@ public class TestBuildProject {
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
                 .get("dependency")).children().size(), 2);
 
+        DocumentConfig compilerPluginToml = DocumentConfig.from(
+                DocumentId.create(ProjectConstants.COMPILER_PLUGIN_TOML, null),
+                "[plugin]\n" +
+                        "id = \"openapi-validator\"\n" +
+                        "class = \"io.ballerina.openapi.Validator\"\n" +
+                        "\n" +
+                        "[[dependency]]\n" +
+                        "path = \"./libs/platform-io-1.3.0-java.txt\"\n",
+                ProjectConstants.COMPILER_PLUGIN_TOML);
+
+        currentPackage = currentPackage.modify().addCompilerPluginToml(compilerPluginToml).apply();
+        TomlTableNode compilerPluginTomlTable = currentPackage.compilerPluginToml().get().tomlAstNode();
+        Assert.assertEquals(compilerPluginTomlTable.entries().size(), 2);
     }
 
     @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md", enabled = true)
@@ -1142,37 +1146,6 @@ public class TestBuildProject {
                 Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
         Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
                 .contains("unknown type 'PersonalDetails'"));
-    }
-
-    @Test (enabled = false)
-    public void testRemoveDependantModule() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_for_module_edit_test");
-
-        // 1) Initialize the project instance
-        BuildProject project = null;
-        try {
-            project = BuildProject.load(projectPath);
-        } catch (Exception e) {
-            Assert.fail(e.getMessage());
-        }
-        // 2) Load current package
-        Package currentPackage = project.currentPackage();
-
-        // 3) Compile the package
-        PackageCompilation compilation = currentPackage.getCompilation();
-        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 0);
-
-        // 4) Edit a module that is used by another module
-        Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
-        project.currentPackage().modify().removeModule(module.moduleId()).apply();
-
-        PackageCompilation compilation1 = project.currentPackage().getCompilation();
-        DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
-        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
-                "main.bal");
-        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
-                .contains("cannot resolve module 'myproject.util as util'"));
     }
 
     @AfterClass (alwaysRun = true)

@@ -20,9 +20,11 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.test.context.LogLeecher;
+import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+
+import java.util.HashMap;
 
 /**
  * Test class to test positive scenarios of testerina using a ballerina project.
@@ -40,29 +42,25 @@ public class MockTest extends BaseTestCase {
 
     @Test()
     public void testFunctionMocking() throws BallerinaTestException {
-        String msg1 = "10 passing";
+        String msg1 = "12 passing";
         String msg2 = "3 failing";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-
         String[] args = mergeCoverageArgs(new String[]{"function-mocking-tests"});
-        balClient.runMain("test", args,
-                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            AssertionUtils.assertForTestFailures(output, "function mocking failure");
+        }
     }
 
     @Test()
     public void testObjectMocking() throws BallerinaTestException {
         String msg1 = "5 passing";
         String msg2 = "6 failing";
-        LogLeecher clientLeecher1 = new LogLeecher(msg1);
-        LogLeecher clientLeecher2 = new LogLeecher(msg2);
-
         String[] args = mergeCoverageArgs(new String[]{"object-mocking-tests"});
-        balClient.runMain("test", args,
-                null, new String[]{}, new LogLeecher[]{clientLeecher1, clientLeecher2}, projectPath);
-        clientLeecher1.waitForText(20000);
-        clientLeecher2.waitForText(20000);
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg1) || !output.contains(msg2)) {
+            AssertionUtils.assertForTestFailures(output, "object mocking failure");
+        }
     }
 }

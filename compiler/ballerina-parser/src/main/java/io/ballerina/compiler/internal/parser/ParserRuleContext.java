@@ -126,7 +126,7 @@ public enum ParserRuleContext {
     PATCH_VERSION("patch-version"),
     IMPORT_PREFIX("import-prefix"),
     IMPORT_PREFIX_DECL("import-alias"),
-    IMPORT_DECL_RHS("import-decl-rhs"),
+    IMPORT_DECL_ORG_OR_MODULE_NAME_RHS("import-decl-org-or-module-name-rhs"),
     AFTER_IMPORT_MODULE_NAME("after-import-module-name"),
     MAJOR_MINOR_VERSION_END("major-minor-version-end"),
     SERVICE_DECL("service-decl"),
@@ -338,6 +338,7 @@ public enum ParserRuleContext {
     MODULE_VAR_DECL_START("module-var-decl-start"),
     MODULE_VAR_WITHOUT_FIRST_QUAL("module-var-without-first-qual"),
     MODULE_VAR_WITHOUT_SECOND_QUAL("module-var-without-second-qual"),
+    FUNC_DEF_OR_TYPE_DESC_RHS("func-def-or-type-desc-rhs"),
 
     // Statements
     STATEMENT("statement"),
@@ -437,7 +438,6 @@ public enum ParserRuleContext {
     SELECT_KEYWORD("select"),
     START_KEYWORD("start"),
     FLUSH_KEYWORD("flush"),
-    DEFAULT_KEYWORD("default"),
     WAIT_KEYWORD("wait"),
     DO_KEYWORD("do"),
     TRANSACTION_KEYWORD("transaction"),
@@ -538,6 +538,7 @@ public enum ParserRuleContext {
     FIELD_OR_FUNC_NAME("field-or-func-name"),
     ORDER_DIRECTION("order-direction"),
     VAR_REF_COLON("var-ref-colon"),
+    TYPE_REF_COLON("type-ref-colon"),
 
     // Expressions
     EXPRESSION("expression"),
@@ -657,6 +658,8 @@ public enum ParserRuleContext {
     //Other
     PARAMETERIZED_TYPE("parameterized-type"),
     TYPEDESC_RHS("type-desc-rhs"),
+    FUNC_TYPE_FUNC_KEYWORD_RHS("func-type-func-keyword-rhs"),
+    FUNC_TYPE_FUNC_KEYWORD_RHS_START("func-type-func-keyword-rhs-start"),
     ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
@@ -684,6 +687,8 @@ public enum ParserRuleContext {
     QUERY_CONSTRUCT_TYPE_RHS("query-construct-type-rhs"),
     ERROR_CONS_EXPR_OR_VAR_REF("error-cons-expr-or-var-ref"),
     ERROR_CONS_ERROR_KEYWORD_RHS("error-cons-error-keyword-rhs"),
+    TRANSACTION_STMT_TRANSACTION_KEYWORD_RHS("transaction-stmt-transaction-keyword-rhs"),
+    TRANSACTION_STMT_RHS_OR_TYPE_REF("transaction-stmt-rhs-or-type-ref"),
     QUALIFIED_IDENTIFIER_START_IDENTIFIER("qualified-identifier-start-identifier"),
     QUALIFIED_IDENTIFIER_PREDECLARED_PREFIX("qualified-identifier-predeclared-prefix"),
     ;

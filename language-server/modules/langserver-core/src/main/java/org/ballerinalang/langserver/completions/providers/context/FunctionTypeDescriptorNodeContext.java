@@ -77,10 +77,10 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     }
 
     private boolean withinParameterContext(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
-        FunctionSignatureNode functionSignatureNode = node.functionSignature();
-        if (functionSignatureNode.isMissing()) {
+        if (node.functionSignature().isEmpty()) {
             return false;
         }
+        FunctionSignatureNode functionSignatureNode = node.functionSignature().get();
         int txtPosInTree = context.getCursorPositionInTree();
         TextRange openParanRange = functionSignatureNode.openParenToken().textRange();
         TextRange closeParanRange = functionSignatureNode.closeParenToken().textRange();
@@ -89,10 +89,10 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     }
 
     private boolean withinReturnKWContext(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
-        FunctionSignatureNode functionSignatureNode = node.functionSignature();
-        if (functionSignatureNode.isMissing()) {
+        if (node.functionSignature().isEmpty()) {
             return false;
         }
+        FunctionSignatureNode functionSignatureNode = node.functionSignature().get();
         int txtPosInTree = context.getCursorPositionInTree();
         TextRange closeParanRange = functionSignatureNode.closeParenToken().textRange();
         Optional<ReturnTypeDescriptorNode> returnTypeDescNode = functionSignatureNode.returnTypeDesc();

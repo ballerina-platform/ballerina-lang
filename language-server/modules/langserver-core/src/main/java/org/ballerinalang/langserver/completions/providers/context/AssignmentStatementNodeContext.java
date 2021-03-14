@@ -16,8 +16,10 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -30,10 +32,10 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.SymbolCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
-import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,16 +83,51 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             completionItems.addAll(this.actionKWCompletions(context));
             completionItems.addAll(this.expressionCompletions(context));
             completionItems.addAll(this.getNewExprCompletionItems(context, node));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IS.get()));
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, AssignmentStatementNode node) {
         return !node.equalsToken().isMissing();
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, AssignmentStatementNode node, 
+                     List<LSCompletionItem> completionItems) {
+        Optional<TypeSymbol> typeSymbolAtCursor = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(node.varRef()))
+                .flatMap(SymbolUtil::getTypeDescriptor);
+
+        if (typeSymbolAtCursor.isEmpty()) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+
+        TypeSymbol symbol = typeSymbolAtCursor.get();
+        completionItems.forEach(completionItem -> {
+            int rank = SortingUtil.toRank(completionItem, 1);
+
+            // If a completion item is a symbol and is assignable to the variable at left hand side, 
+            // this assigns the highest rank to such variables and methods.
+            if (completionItem.getType() == LSCompletionItem.CompletionItemType.SYMBOL) {
+                SymbolCompletionItem symbolCompletionItem = (SymbolCompletionItem) completionItem;
+
+                Optional<TypeSymbol> completionItemType =
+                        SymbolUtil.getTypeDescriptor(symbolCompletionItem.getSymbol());
+                if (completionItemType.isPresent() && completionItemType.get() instanceof FunctionTypeSymbol) {
+                    completionItemType = ((FunctionTypeSymbol) completionItemType.get()).returnTypeDescriptor();
+                }
+
+                if (completionItemType.isPresent() && completionItemType.get().assignableTo(symbol)) {
+                    rank = 1;
+                }
+            }
+
+            completionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        });
     }
 
     private List<LSCompletionItem> getNewExprCompletionItems(BallerinaCompletionContext context,
@@ -103,7 +140,7 @@ public class AssignmentStatementNodeContext extends AbstractCompletionProvider<A
             String identifier = ((SimpleNameReferenceNode) varRef).name().text();
             objectType = visibleSymbols.stream()
                     .filter(symbol -> Objects.equals(symbol.getName().orElse(null), identifier)
-                            && SymbolUtil.isClass(symbol))
+                            && SymbolUtil.isClassVariable(symbol))
                     .map(SymbolUtil::getTypeDescForClassSymbol)
                     .findAny();
         } else {

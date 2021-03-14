@@ -314,7 +314,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(function, env);
         }
 
-        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
+        for (BLangVariable globalVar : pkgNode.globalVars) {
             analyzeNode(globalVar, env);
         }
 
@@ -351,7 +351,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
 
         for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
-            if (!requiredParam.symbol.defaultableParam) {
+            if (!requiredParam.symbol.isDefaultable) {
                 continue;
             }
 

@@ -23,7 +23,7 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
@@ -34,7 +34,8 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 import java.nio.file.Path;
 import java.util.Optional;
 
-import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
+import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
+import static org.ballerinalang.debugadapter.DebugSourceType.SINGLE_FILE;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
@@ -46,7 +47,6 @@ public class SuspendedContext {
     private final ThreadReferenceProxyImpl owningThread;
     private final StackFrameProxyImpl frame;
     private final Project project;
-    private final String projectRoot;
     private final DebugSourceType sourceType;
 
     private Path breakPointSourcePath;
@@ -62,9 +62,7 @@ public class SuspendedContext {
         this.owningThread = threadRef;
         this.frame = frame;
         this.project = project;
-        this.projectRoot = project.sourceRoot().toAbsolutePath().toString();
-        this.sourceType = (project instanceof SingleFileProject) ? DebugSourceType.SINGLE_FILE :
-                DebugSourceType.PACKAGE;
+        this.sourceType = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) ? SINGLE_FILE : PACKAGE;
         this.lineNumber = -1;
         this.fileName = null;
         this.breakPointSourcePath = null;
@@ -127,7 +125,7 @@ public class SuspendedContext {
 
     private Optional<Path> getSourcePath(StackFrameProxyImpl frame) {
         try {
-            return Optional.ofNullable(PackageUtils.getRectifiedSourcePath(frame.location(), project, projectRoot));
+            return Optional.ofNullable(PackageUtils.getRectifiedSourcePath(frame.location(), project));
         } catch (AbsentInformationException | InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
             return Optional.empty();
@@ -152,10 +150,6 @@ public class SuspendedContext {
             fileName = getFileNameFrom(breakPointPath.get());
         }
         return Optional.ofNullable(fileName);
-    }
-
-    public Optional<String> getFileNameWithExt() {
-        return getFileName().isEmpty() ? getFileName() : Optional.of(getFileName().get() + BAL_FILE_EXT);
     }
 
     public int getLineNumber() {

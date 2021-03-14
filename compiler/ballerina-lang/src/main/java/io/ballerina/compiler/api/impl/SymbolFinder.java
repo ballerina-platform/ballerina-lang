@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -135,6 +136,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -287,6 +289,10 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(serviceNode.annAttachments);
         lookupNode(serviceNode.serviceClass);
         lookupNodes(serviceNode.attachedExprs);
+
+        if (PositionUtil.withinBlock(this.cursorPos, serviceNode.pos) && this.symbolAtCursor == null) {
+            this.symbolAtCursor = serviceNode.symbol;
+        }
     }
 
     @Override
@@ -468,6 +474,12 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangDo doNode) {
+        lookupNode(doNode.body);
+        lookupNode(doNode.onFailClause);
+    }
+
+    @Override
     public void visit(BLangFromClause fromClause) {
         lookupNode(fromClause.collection);
         lookupNode((BLangNode) fromClause.variableDefinitionNode);
@@ -518,6 +530,12 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangDoClause doClause) {
         lookupNode(doClause.body);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        lookupNode((BLangNode) onFailClause.variableDefinitionNode);
+        lookupNode(onFailClause.body);
     }
 
     @Override

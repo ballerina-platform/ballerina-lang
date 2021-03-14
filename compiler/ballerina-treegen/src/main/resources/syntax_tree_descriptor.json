@@ -571,7 +571,7 @@
                 },
                 {
                     "name": "blockStatement",
-                    "type": "StatementNode"
+                    "type": "BlockStatementNode"
                 },
                 {
                     "name": "onFailClause",
@@ -627,7 +627,7 @@
                 },
                 {
                     "name": "blockStatement",
-                    "type": "StatementNode"
+                    "type": "BlockStatementNode"
                 },
                 {
                     "name": "onFailClause",
@@ -1485,6 +1485,11 @@
                 {
                     "name": "metadata",
                     "type": "MetadataNode",
+                    "isOptional": true
+                },
+                {
+                    "name": "visibilityQualifier",
+                    "type": "Token",
                     "isOptional": true
                 },
                 {
@@ -2511,7 +2516,8 @@
                 },
                 {
                     "name": "functionSignature",
-                    "type": "FunctionSignatureNode"
+                    "type": "FunctionSignatureNode",
+                    "isOptional": true
                 }
             ]
         },
@@ -4068,9 +4074,9 @@
             ]
         },
         {
-            "name": "DocumentationReferenceNode",
+            "name": "BallerinaNameReferenceNode",
             "base": "DocumentationNode",
-            "kind": "DOCUMENTATION_REFERENCE",
+            "kind": "BALLERINA_NAME_REFERENCE",
             "attributes": [
                 {
                     "name": "referenceType",
@@ -4082,11 +4088,78 @@
                     "type": "Token"
                 },
                 {
-                    "name": "backtickContent",
+                    "name": "nameReference",
                     "type": "Node"
                 },
                 {
                     "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "InlineCodeReferenceNode",
+            "base": "DocumentationNode",
+            "kind": "INLINE_CODE_REFERENCE",
+            "attributes": [
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "codeReference",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "MarkdownCodeBlockNode",
+            "base": "DocumentationNode",
+            "kind": "MARKDOWN_CODE_BLOCK",
+            "attributes": [
+                {
+                    "name": "startLineHashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "startBacktick",
+                    "type": "Token"
+                },
+                {
+                    "name": "langAttribute",
+                    "type": "Token",
+                    "isOptional": true
+                },
+                {
+                    "name": "codeLines",
+                    "type": "MarkdownCodeLineNode",
+                    "occurrences": "MULTIPLE"
+                },
+                {
+                    "name": "endLineHashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "endBacktick",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
+            "name": "MarkdownCodeLineNode",
+            "base": "DocumentationNode",
+            "kind": "MARKDOWN_CODE_LINE",
+            "attributes": [
+                {
+                    "name": "hashToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "codeDescription",
                     "type": "Token"
                 }
             ]

@@ -441,6 +441,7 @@ public class QueryDesugar extends BLangNodeVisitor {
                 types.getSafeType(valueAccessExpr.expr.type, true, false));
         VariableDefinitionNode variableDefinitionNode = inputClause.variableDefinitionNode;
         BLangVariable variable = (BLangVariable) variableDefinitionNode.getVariable();
+        setSymbolOwner(variable, env.scope.owner);
         variable.setInitialExpression(desugar.addConversionExprIfRequired(valueAccessExpr, inputClause.varType));
         // add at 0, otherwise, this goes under existing stmts.
         body.stmts.add(0, (BLangStatement) variableDefinitionNode);
@@ -536,6 +537,7 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
             // add at 0, otherwise, this goes under existing stmts.
             body.stmts.add(0, (BLangStatement) letVariable.definitionNode);
+            setSymbolOwner((BLangVariable) letVariable.definitionNode.getVariable(), env.scope.owner);
         }
         lambda.accept(this);
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_LET_FUNCTION, Lists.of(lambda), pos);
@@ -847,8 +849,10 @@ public class QueryDesugar extends BLangNodeVisitor {
                                                      List<BLangSimpleVariable> requiredParams,
                                                      TypeNode returnType,
                                                      BLangFunctionBody lambdaBody) {
-        return desugar.createLambdaFunction(pos, "$streamLambda$",
+        BLangLambdaFunction lambdaFunction = desugar.createLambdaFunction(pos, "$streamLambda$",
                 requiredParams, returnType, lambdaBody);
+        lambdaFunction.capturedClosureEnv = env;
+        return lambdaFunction;
     }
 
     /**
@@ -954,9 +958,41 @@ public class QueryDesugar extends BLangNodeVisitor {
         for (BVarSymbol symbol : symbols) {
             // since the var decl is now within lambda, remove scope entry from encl env.
             env.scope.entries.remove(symbol.name);
+            env.enclPkg.globalVariableDependencies.values().forEach(d -> d.remove(symbol));
             BLangStatement addToFrameStmt = getAddToFrameStmt(pos, frameRef,
                     symbol.name.value, ASTBuilderUtil.createVariableRef(pos, symbol));
             lambdaBody.stmts.add(0, addToFrameStmt);
+        }
+    }
+
+    private void setSymbolOwner(BLangVariable variable, BSymbol owner) {
+        if (variable == null) {
+            return;
+        }
+        switch (variable.getKind()) {
+            case VARIABLE:
+                if (variable.symbol == null) {
+                    return;
+                }
+                variable.symbol.owner = owner;
+                break;
+            case TUPLE_VARIABLE:
+                BLangTupleVariable tupleVariable = (BLangTupleVariable) variable;
+                tupleVariable.memberVariables.forEach(v -> setSymbolOwner(v, owner));
+                setSymbolOwner(tupleVariable.restVariable, owner);
+                break;
+            case RECORD_VARIABLE:
+                BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
+                recordVariable.variableList.forEach(value -> setSymbolOwner(value.valueBindingPattern, owner));
+                setSymbolOwner((BLangVariable) recordVariable.restParam, owner);
+                break;
+            case ERROR_VARIABLE:
+                BLangErrorVariable errorVariable = (BLangErrorVariable) variable;
+                setSymbolOwner(errorVariable.message, owner);
+                setSymbolOwner(errorVariable.restDetail, owner);
+                errorVariable.detail.forEach(bLangErrorDetailEntry ->
+                        setSymbolOwner(bLangErrorDetailEntry.valueBindingPattern, owner));
+                break;
         }
     }
 
@@ -1389,12 +1425,13 @@ public class QueryDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVarRef bLangSimpleVarRef) {
         BSymbol symbol = bLangSimpleVarRef.symbol;
+        String identifier = bLangSimpleVarRef.variableName == null ? String.valueOf(bLangSimpleVarRef.varSymbol.name) :
+                String.valueOf(bLangSimpleVarRef.variableName);
         BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(env,
-                names.fromIdNode(bLangSimpleVarRef.variableName), SymTag.VARIABLE);
+                names.fromString(identifier), SymTag.VARIABLE);
         // check whether the symbol and resolved symbol are the same.
         // because, lookup using name produce unexpected results if there's variable shadowing.
         if (symbol != null && symbol != resolvedSymbol) {
-            String identifier = bLangSimpleVarRef.variableName.getValue();
             if (!FRAME_PARAMETER_NAME.equals(identifier) && !identifiers.containsKey(identifier)) {
                 Location pos = currentLambdaBody.pos;
                 BLangFieldBasedAccess frameAccessExpr = desugar.getFieldAccessExpression(pos, identifier,
@@ -1414,6 +1451,11 @@ public class QueryDesugar extends BLangNodeVisitor {
         } else if (resolvedSymbol != symTable.notFoundSymbol) {
             resolvedSymbol.closure = true;
         }
+    }
+
+    @Override
+    public void visit(BLangSimpleVarRef.BLangPackageVarRef bLangPackageVarRef) {
+        visit((BLangSimpleVarRef) bLangPackageVarRef);
     }
 
     @Override
@@ -1502,6 +1544,8 @@ public class QueryDesugar extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLAttribute xmlAttribute) {
+        xmlAttribute.name.accept(this);
+        xmlAttribute.value.accept(this);
     }
 
     @Override

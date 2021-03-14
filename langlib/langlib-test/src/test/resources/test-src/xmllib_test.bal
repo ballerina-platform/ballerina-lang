@@ -180,11 +180,11 @@ function testCreateText() {
     'xml:Text text4 = 'xml:createText("Thisisxmltext");
     'xml:Text text5 = 'xml:createText("XML\ntext");
 
-    assert(<string>text1, "This is xml text");
-    assert(<string>text2, "");
-    assert(<string>text3, "T");
-    assert(<string>text4, "Thisisxmltext");
-    assert(<string>text5, "XML\ntext");
+    assert(text1.toString(), "This is xml text");
+    assert(text2.toString(), "");
+    assert(text3.toString(), "T");
+    assert(text4.toString(), "Thisisxmltext");
+    assert(text5.toString(), "XML\ntext");
 }
 
 function testForEach() {
@@ -442,6 +442,34 @@ function testXMLIteratorInvocation() {
     } iter5 = seq5.iterator();
 
     assert((iter5.next()).toString(), "{\"value\":`<one>first</one>`}");
+}
+
+function testSelectingTextFromXml() {
+    xml:Element authors = xml `<authors><author><name>Enid<middleName/>Blyton</name></author></authors>`;
+    xml:Text authorsList = authors.text();
+    assert(authorsList.toString(), "");
+
+    xml:Text helloText = xml `hello text`;
+    xml:Text textValues = helloText.text();
+    assert(textValues.toString(), "hello text");
+
+    xml:Comment comment = xml `<!-- This is a comment -->`;
+    xml:Text commentText = comment.text();
+    assert(commentText.toString(), "");
+
+    xml:ProcessingInstruction instruction = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
+    xml:Text instructionText = instruction.text();
+    assert(instructionText.toString(), "");
+
+    xml<xml:Text> authorName = (authors/<author>/<name>/*).text();
+    assert(authorName.toString(),"EnidBlyton");
+
+    var name = xml `<name>Dan<lname>Gerhard</lname><!-- This is a comment -->Brown</name>`;
+    xml nameText = (name/*).text();
+    assert(nameText.toString(), "DanBrown");
+
+    xml<xml:Text> textValues2 = xml:text(helloText);
+    assert(textValues2.toString(), textValues.toString());
 }
 
 function assert(anydata actual, anydata expected) {

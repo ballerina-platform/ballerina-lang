@@ -205,6 +205,9 @@ public class TypeParamAnalyzer {
                 return false;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) type;
+                if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+                    return false;
+                }
                 for (BType paramType : invokableType.paramTypes) {
                     if (containsTypeParam(paramType, resolvedTypes)) {
                         return true;
@@ -299,6 +302,9 @@ public class TypeParamAnalyzer {
         switch (expType.tag) {
             case TypeTags.XML:
                 if (!TypeTags.isXMLTypeTag(actualType.tag)) {
+                    if (actualType.tag == TypeTags.UNION) {
+                        dlog.error(loc, DiagnosticErrorCode.XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE, actualType);
+                    }
                     return;
                 }
                 switch (actualType.tag) {

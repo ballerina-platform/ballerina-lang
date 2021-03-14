@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.ActionNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.tree.TopLevelNode;
 import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
@@ -366,7 +367,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeTopLevelNodes(BLangPackage pkgNode, SymbolEnv pkgEnv) {
-        pkgNode.topLevelNodes.forEach(topLevelNode -> analyzeNode((BLangNode) topLevelNode, pkgEnv));
+        List<TopLevelNode> topLevelNodes = pkgNode.topLevelNodes;
+        for (int i = 0; i < topLevelNodes.size(); i++) {
+            TopLevelNode topLevelNode = topLevelNodes.get(i);
+            analyzeNode((BLangNode) topLevelNode, pkgEnv);
+        }
         pkgNode.completedPhases.add(CompilerPhase.CODE_ANALYZE);
         parent = null;
     }
@@ -781,7 +786,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 commitRollbackAllowed = true;
         }
         boolean prevTxMode = this.withinTransactionScope;
-        if (ifStmt.expr.getKind() == NodeKind.TRANSACTIONAL_EXPRESSION) {
+        if ((ifStmt.expr.getKind() == NodeKind.GROUP_EXPR ?
+                ((BLangGroupExpr) ifStmt.expr).expression.getKind() :
+                ifStmt.expr.getKind()) == NodeKind.TRANSACTIONAL_EXPRESSION) {
             this.withinTransactionScope = true;
         }
         analyzeNode(ifStmt.body, env);
@@ -2259,6 +2266,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return;
             case TypeTags.INVOKABLE:
                 BInvokableType invokableType = (BInvokableType) symbol.type;
+                if (Symbols.isFlagOn(invokableType.flags, Flags.ANY_FUNCTION)) {
+                    return;
+                }
                 if (invokableType.paramTypes != null) {
                     for (BType paramType : invokableType.paramTypes) {
                         checkForExportableType(paramType.tsymbol, pos);
@@ -3059,7 +3069,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         analyzeExprs(actionInvocation.requiredArgs);
         analyzeExprs(actionInvocation.restArgs);
 
-        if (actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
+        if (actionInvocation.symbol != null && actionInvocation.symbol.kind == SymbolKind.FUNCTION &&
                 Symbols.isFlagOn(actionInvocation.symbol.flags, Flags.DEPRECATED)) {
             dlog.warning(actionInvocation.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT, actionInvocation);
         }
@@ -3077,9 +3087,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if ((actionInvocation.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
+        if (actionInvocation.symbol != null &&
+                (actionInvocation.symbol.tag & SymTag.CONSTRUCTOR) == SymTag.CONSTRUCTOR) {
             dlog.error(actionInvocation.pos, DiagnosticErrorCode.INVALID_FUNCTIONAL_CONSTRUCTOR_INVOCATION,
-                       actionInvocation.symbol);
+                    actionInvocation.symbol);
             return;
         }
 
@@ -3195,7 +3206,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.DESCENDANTS
                     || xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
-                dlog.error(xmlNavigation.pos, DiagnosticErrorCode.UNSUPPORTED_INDEX_IN_XML_NAVIGATION);
+                dlog.error(xmlNavigation.pos, DiagnosticErrorCode.UNSUPPORTED_MEMBER_ACCESS_IN_XML_NAVIGATION);
             }
             analyzeExpr(xmlNavigation.childIndex);
         }
@@ -3510,7 +3521,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-
+        if (functionTypeNode.flagSet.contains(Flag.ANY_FUNCTION)) {
+            return;
+        }
         functionTypeNode.params.forEach(node -> analyzeNode(node, env));
         analyzeTypeNode(functionTypeNode.returnTypeNode, env);
     }
@@ -3621,7 +3634,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangLetClause letClause) {
         for (BLangLetVariable letVariable : letClause.letVarDeclarations) {
-            analyzeNode((BLangNode) letVariable.definitionNode, env);
+            analyzeNode((BLangNode) letVariable.definitionNode.getVariable(), env);
         }
     }
 
@@ -3723,10 +3736,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private boolean indirectIntersectionExists(BLangExpression expression, BType testType) {
         BType expressionType = expression.type;
         SymbolEnv symbolEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
+        Types.IntersectionContext intersectionContext =
+                Types.IntersectionContext.compilerInternalIntersectionTestContext();
+
         switch (expressionType.tag) {
             case TypeTags.UNION:
                 if (types.getTypeForUnionTypeMembersAssignableToType((BUnionType) expressionType, testType,
-                        symbolEnv) !=
+                        symbolEnv, intersectionContext) !=
                         symTable.semanticError) {
                     return true;
                 }
@@ -3741,7 +3757,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         switch (testType.tag) {
             case TypeTags.UNION:
                 return types.getTypeForUnionTypeMembersAssignableToType((BUnionType) testType, expressionType,
-                        symbolEnv) !=
+                        symbolEnv, intersectionContext) !=
                         symTable.semanticError;
             case TypeTags.FINITE:
                 return types.getTypeForFiniteTypeValuesAssignableToType((BFiniteType) testType, expressionType) !=
