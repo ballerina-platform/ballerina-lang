@@ -519,7 +519,8 @@ public class TypeGuardTest {
                 {"testTypeNarrowingForIntersectingDirectUnion_1"},
                 {"testTypeNarrowingForIntersectingDirectUnion_2"},
                 {"testTypeNarrowingForIntersectingAssignableUnion_1"},
-                {"testTypeNarrowingForIntersectingAssignableUnion_2"}
+                {"testTypeNarrowingForIntersectingAssignableUnion_2"},
+                {"testTypeNarrowingForIntersectingUnionWithRecords"}
         };
     }
 

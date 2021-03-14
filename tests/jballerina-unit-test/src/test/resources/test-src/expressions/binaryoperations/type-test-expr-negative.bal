@@ -292,6 +292,9 @@ function testRecordNegative() {
     boolean b7 = val4 is Bar;
     boolean b8 = val4 is Qux;
     boolean b9 = val4 is record {|int i; boolean b;|};
+
+    ClosedRecordWithIntField val5 = {i: 100};
+    boolean b10 = val5 is record {| int i; string s; |};
 }
 
 type Baz record {
@@ -315,4 +318,8 @@ readonly class Class {
 
 type Quux record {|
     int...;
+|};
+
+type ClosedRecordWithIntField record {|
+    int i;
 |};

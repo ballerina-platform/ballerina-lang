@@ -160,6 +160,9 @@ public class TypeTestExprTest {
                 "incompatible types: 'Quux' will not be matched to 'Qux'", 293, 18);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'Quux' will not be matched to 'record {| int i; boolean b; |}'", 294, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'ClosedRecordWithIntField' will not be matched to " +
+                        "'record {| int i; string s; |}'", 297, 19);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

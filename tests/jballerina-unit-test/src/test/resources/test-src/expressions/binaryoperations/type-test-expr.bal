@@ -1115,6 +1115,23 @@ function testRecordIntersections() {
 
     Bar val5 = <Foo> {code: new, index: 0};
     assertTrue(val5 is Foo);
+
+    OpenRecordWithIntField val6 = {i: 1, "s": "hello"};
+    assertFalse(val6 is record {| int i; string s; |});
+
+    record {| int i; string s; |} v = {i: 2, s: "world"};
+    OpenRecordWithIntField val7 = v;
+    assertTrue(val7 is record {| int i; string s; |});
+
+    ClosedRecordWithIntField val8 = {i: 10};
+    assertFalse(val8 is record {| byte i; |});
+    assertTrue(<any> val8 is record {});
+    assertTrue(<any> val8 is record {| int...; |});
+
+    int|ClosedRecordWithIntField val9 = <record {| byte i; |}> {i: 10};
+    assertTrue(val9 is record {| byte i; |});
+    assertTrue(val9 is record {});
+    assertTrue(val9 is record {| int...; |});
 }
 
 type Baz record {|
@@ -1132,6 +1149,14 @@ readonly class Class {
 type Foo record {|
     readonly Class code;
     int index;
+|};
+
+type OpenRecordWithIntField record {
+    int i;
+};
+
+type ClosedRecordWithIntField record {|
+    int i;
 |};
 
 function assertTrue(anydata actual) {

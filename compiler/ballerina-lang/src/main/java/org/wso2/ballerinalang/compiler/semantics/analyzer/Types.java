@@ -3751,18 +3751,15 @@ public class Types {
 
         BRecordType newType = createAnonymousRecord(env);
 
-        BType restFieldTypeOne = recordTypeOne.restFieldType;
-        BType restFieldTypeTwo = recordTypeTwo.restFieldType;
-
-        BType constraintOne = restFieldTypeOne == symTable.noType ? null : restFieldTypeOne;
-        BType constraintTwo = restFieldTypeTwo == symTable.noType ? null : restFieldTypeTwo;
-
-        if (!populateRecordFields(diagnosticContext.switchLeft(), newType, recordTypeOne, env, constraintTwo) ||
-                !populateRecordFields(diagnosticContext.switchRight(), newType, recordTypeTwo, env, constraintOne)) {
+        if (!populateRecordFields(diagnosticContext.switchLeft(), newType, recordTypeOne, env,
+                                  getConstraint(recordTypeTwo)) ||
+                !populateRecordFields(diagnosticContext.switchRight(), newType, recordTypeTwo, env,
+                                      getConstraint(recordTypeOne))) {
             return symTable.semanticError;
         }
 
-        newType.restFieldType = getTypeIntersection(diagnosticContext, restFieldTypeOne, restFieldTypeTwo, env);
+        newType.restFieldType = getTypeIntersection(diagnosticContext, recordTypeOne.restFieldType,
+                                                    recordTypeTwo.restFieldType, env);
 
         if (newType.restFieldType == symTable.semanticError) {
             return symTable.semanticError;
@@ -3778,6 +3775,14 @@ public class Types {
         }
 
         return newType;
+    }
+
+    private BType getConstraint(BRecordType recordType) {
+        if (recordType.sealed) {
+            return symTable.neverType;
+        }
+
+        return recordType.restFieldType;
     }
 
     private BRecordType createAnonymousRecord(SymbolEnv env) {
