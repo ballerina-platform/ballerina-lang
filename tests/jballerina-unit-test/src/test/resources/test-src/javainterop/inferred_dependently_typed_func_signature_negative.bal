@@ -115,3 +115,19 @@ function testArgCombinations() {
 }
 
 function funcWithMultipleArgs(int i, typedesc<int|string> td = <>, string[] arr = []) returns td[] = external;
+
+function testTuples() {
+    [int] a = getTupleWithNoRestDesc();
+    [int, string, boolean] b = getTupleWithNoRestDesc();
+    [int...] c = getTupleWithNoRestDesc();
+
+    [int] d = getTupleWithRestDesc(int);
+    [int, string, boolean] e = getTupleWithRestDesc(int);
+    [int...] f = getTupleWithRestDesc(int);
+    [string] g = getTupleWithRestDesc(int);
+    [string] h = getTupleWithRestDesc(int, string);
+}
+
+function getTupleWithNoRestDesc(typedesc td = <>) returns [int, td] = external;
+
+function getTupleWithRestDesc(typedesc<int|string> td1, typedesc td2 = <>) returns [td1, td2...] = external;

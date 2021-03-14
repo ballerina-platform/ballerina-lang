@@ -136,6 +136,15 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 "expected 'typedesc<(int|string)>', found 'typedesc<float>'", 112, 17);
         validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
                 "expected 'typedesc<(int|string)>', found 'typedesc<json>'", 114, 16);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 120, 15);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 121, 32);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 122, 18);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td2'", 124, 15);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td2'", 125, 32);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td2'", 126, 18);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td2'", 127, 18);
+        validateError(negativeResult, index++, "incompatible types: expected '[string]', found '[int,string...]'",
+                128, 18);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }

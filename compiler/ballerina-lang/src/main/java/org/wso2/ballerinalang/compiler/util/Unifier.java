@@ -249,11 +249,27 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         boolean hasMatchedTupleType = matchingType != null;
         BTupleType expTupleType = hasMatchedTupleType ? matchingType : null;
 
+        if (hasMatchedTupleType) {
+            if (expTupleType.tupleTypes.size() != originalType.tupleTypes.size()) {
+                hasMatchedTupleType = false;
+            } else {
+                BType expRestType = expTupleType.restType;
+                BType originalRestType = originalType.restType;
+
+                if ((expRestType == null || originalRestType == null) && expRestType != originalRestType) {
+                    hasMatchedTupleType = false;
+                }
+            }
+        }
+
+        List<BType> expTupleTypes = hasMatchedTupleType ? List.copyOf(expTupleType.tupleTypes) :
+                Collections.singletonList(null);
+
         List<BType> members = new ArrayList<>();
-        List<BType> expTupleTypes = hasMatchedTupleType ? expTupleType.tupleTypes : Collections.singletonList(null);
         int delta = hasMatchedTupleType ? 1 : 0;
 
-        // TODO: Consider different tuple member list sizes
+        boolean errored = false;
+
         List<BType> tupleTypes = originalType.tupleTypes;
         for (int i = 0, j = 0; i < tupleTypes.size(); i++, j += delta) {
             BType member = tupleTypes.get(i);
@@ -261,7 +277,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType newMem = member.accept(this, expMember);
             members.add(newMem);
 
-            if (!isSameTypeOrError(newMem, member)) {
+            if (isSemanticErrorInInvocation(newMem)) {
+                errored = true;
+            } else if (!isSameType(newMem, member)) {
                 hasNewType = true;
             }
         }
@@ -272,13 +290,19 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType expRestType = hasMatchedTupleType ? matchingType.restType : null;
             newRestType = restType.accept(this, expRestType);
 
-            if (!isSameTypeOrError(newRestType, restType)) {
+            if (isSemanticErrorInInvocation(newRestType)) {
+                errored = true;
+            } else if (!isSameType(newRestType, restType)) {
                 hasNewType = true;
             }
         }
 
+        if (errored) {
+            return expType;
+        }
+
         if (!hasNewType) {
-            return originalType;
+            return expType != null ? expType : originalType;
         }
 
         BTupleType type = new BTupleType(null, members);
