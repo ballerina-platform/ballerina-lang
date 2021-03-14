@@ -34,6 +34,7 @@ import java.util.Set;
 public class MethodsTestResource {
 
     // Different instance method combinations
+
     private void privateMethod() {
     }
 
@@ -118,7 +119,7 @@ public class MethodsTestResource {
         return x;
     }
 
-    public short returnShort(short x, int y) throws ArithmeticException {
+    public short returnInt(short x, int y) throws ArithmeticException {
         return x;
     }
 
@@ -126,8 +127,8 @@ public class MethodsTestResource {
         return 5;
     }
 
-    public long returnLong(long x) {
-        return x;
+    public long returnInt() {
+        return 6;
     }
 
     public float returnFloat(float x) {
@@ -214,14 +215,6 @@ public class MethodsTestResource {
         return x;
     }
 
-//    public long[][] returnLongMultiArray(long[][] x, Object y, boolean[][] z) {
-//        return x;
-//    }
-
-    public float[][] returnFloatMultiArray(float[][] x, String y) throws ArithmeticException {
-        return x;
-    }
-
     public double[] returnDoubleMultiArray(double[] x, double[] y) {
         return x;
     }
@@ -229,11 +222,6 @@ public class MethodsTestResource {
     public boolean[] returnBooleanMultiArray() {
         return new boolean[2];
     }
-
-//    public String[][] returnStringMultiArray(String[][] x, StringBuffer y, int z)
-//            throws ArrayIndexOutOfBoundsException {
-//        return x;
-//    }
 
     // Different static method combinations
 
@@ -272,9 +260,6 @@ public class MethodsTestResource {
         return System.Logger.Level.INFO;
     }
 
-//    public static void errorStaticParam(IOException x, String[][] z) {
-//    }
-
     public static void interfaceStaticParam(Map x, boolean[] y) {
     }
 
@@ -293,149 +278,7 @@ public class MethodsTestResource {
         return new File("test.txt");
     }
 
-    public static File returnStaticObjectThrowable() throws FileNotFoundException {
-        return new File("test.txt");
-    }
-
     public static File[] returnStaticObjectThrowableError1() throws FileNotFoundException {
         return new File[2];
     }
-
-    public static File returnStaticObjectThrowableError2(int[] x) throws FileNotFoundException {
-        return new File("test.txt");
-    }
-
-    public static File[] returnStaticObjectError1() {
-        return new File[2];
-    }
-
-    public static File returnStaticObjectError2(int[] x) {
-        return new File("test.txt");
-    }
-
-    public static byte returnStaticByte(byte x) throws ArithmeticException {
-        return x;
-    }
-
-    public static char returnStaticChar(char x, int[] y) {
-        return x;
-    }
-
-    public static short returnStaticShort(short x, int y) throws ArithmeticException {
-        return x;
-    }
-
-    public static int returnStaticInt(long x) {
-        return 5;
-    }
-
-    public static long returnStaticLong(long x) {
-        return x;
-    }
-
-    public static float returnStaticFloat(float x, String y) {
-        return x;
-    }
-
-    public static float returnStaticFloat(float x) {
-        return x;
-    }
-
-    public static double returnStaticDouble(double x) {
-        return x;
-    }
-
-    public static boolean returnStaticBoolean(boolean x) {
-        return x;
-    }
-
-    public static double returnStaticDouble(double x, Object y, String[] z) {
-        return x;
-    }
-
-    public static boolean returnStaticBoolean(boolean x, Object[] y) throws ArithmeticException {
-        return x;
-    }
-
-    public static String returnStaticString(String x) {
-        return x;
-    }
-
-    public static String returnStaticString2(String x) throws IOException {
-        return x;
-    }
-
-    public static byte[] returnStaticByteArray(byte[] x) throws ArithmeticException {
-        return x;
-    }
-
-    public static char[] returnStaticCharArray(char[] x, int[] y) {
-        return x;
-    }
-
-    public static short[] returnStaticShortArray(short x, int y) throws ArithmeticException {
-        return new short[2];
-    }
-
-    public static int[] returnStaticIntArray(int[] x, boolean y, boolean[] z) {
-        return x;
-    }
-
-    public static long[] returnStaticLongArray(long[] x, Object y) throws ArithmeticException {
-        return x;
-    }
-
-//    public static float[] returnStaticFloatArray(float[] x, String y, Object[][] z) {
-//        return x;
-//    }
-
-    public static double[] returnStaticDoubleArray(double[] x, double[] y) {
-        return x;
-    }
-
-    public static boolean[] returnStaticBooleanArray() {
-        return new boolean[2];
-    }
-
-    public static String[] returnStaticStringArray(String[] x, StringBuffer y, int z)
-            throws ArrayIndexOutOfBoundsException {
-        return x;
-    }
-
-//    public static byte[][] returnStaticByteMultiArray(byte[][] x) throws ArithmeticException {
-//        return x;
-//    }
-//
-//    public static char[][] returnStaticCharMultiArray(char[][] x, int[] y, String[][] z) {
-//        return x;
-//    }
-//
-//    public static short[][] returnStaticShortMultiArray(short x, int y, short[][] z) {
-//        return new short[2][1];
-//    }
-//
-//    public static int[][] returnStaticIntMultiArray(int[][] x, boolean y) throws ArithmeticException {
-//        return x;
-//    }
-//
-//    public static long[][] returnStaticLongMultiArray(long[][] x, Object y, boolean[][] z) {
-//        return x;
-//    }
-//
-//    public static float[][] returnStaticFloatMultiArray(float[][] x, String y) throws ArithmeticException {
-//        return x;
-//    }
-//
-//    public static double[][] returnStaticDoubleMultiArray(double[][] x, double[] y) {
-//        return x;
-//    }
-
-//    public static boolean[][] returnStaticBooleanMultiArray() {
-//        return new boolean[2][1];
-//    }
-
-//    public static String[][] returnStaticStringMultiArray(String[][] x, StringBuffer y, int z)
-//            throws ArrayIndexOutOfBoundsException {
-//        return x;
-//    }
 }

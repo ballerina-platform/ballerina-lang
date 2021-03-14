@@ -40,6 +40,7 @@ public abstract class BFunction {
     private List<JError> throwables = new LinkedList<>();
     private boolean isStatic = true;
     private String returnType;
+    private String errorType = null;
 
     public BFunction(BFunctionKind functionType, BindgenEnv env) {
         this.functionType = functionType;
@@ -131,6 +132,14 @@ public abstract class BFunction {
 
     public void setReturnType(String returnType) {
         this.returnType = returnType;
+    }
+
+    public String getErrorType() {
+        return errorType;
+    }
+
+    public void setErrorType(String errorType) {
+        this.errorType = errorType;
     }
 
     /**

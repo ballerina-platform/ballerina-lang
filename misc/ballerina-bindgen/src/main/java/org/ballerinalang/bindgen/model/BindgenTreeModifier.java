@@ -47,7 +47,7 @@ public class BindgenTreeModifier {
 
     private NodeList<ImportDeclarationNode> modifyImportDeclarationNodes(NodeList<ImportDeclarationNode> imports) {
         if (jClass.isImportJavaArraysModule()) {
-            ImportDeclarationNode jArraysImport = BindgenNodeFactory.createImportDeclarationNode("ballerina",
+            ImportDeclarationNode jArraysImport = BindgenNodeFactory.createImportDeclarationNode("ballerinax",
                     "jarrays", new LinkedList<>(Arrays.asList("java", ".", "arrays")));
             imports = imports.add(jArraysImport);
         }
