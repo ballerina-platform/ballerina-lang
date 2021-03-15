@@ -16,10 +16,11 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.JoinClauseNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -74,6 +75,8 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
              * (3) join var test i<cursor> expression
              */
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
+        } else if (this.onSuggestOnKeyword(context, node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
         } else if (cursorAtTheEndOfClause(context, node)) {
             completionItems.addAll(this.getKeywordCompletions(context, node));
         } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
@@ -125,10 +128,65 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
     private boolean onSuggestInKeyword(BallerinaCompletionContext context, JoinClauseNode node) {
         int cursor = context.getCursorPositionInTree();
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
-        ExpressionNode expression = node.expression();
 
-        return node.inKeyword().isMissing() && !typedBindingPattern.isMissing()
-                && cursor > typedBindingPattern.textRange().endOffset()
-                && (expression.isMissing() || cursor < expression.textRange().startOffset());
+        if (!node.inKeyword().isMissing() || typedBindingPattern.isMissing()) {
+            return false;
+        } else if (cursor > typedBindingPattern.textRange().endOffset() &&
+                cursor <= node.expression().textRange().startOffset()) {
+            /*
+             * Captures:
+             * (1) join var varName <cursor>
+             */
+            return true;
+        } else {
+            Node nodeAtCursor = context.getNodeAtCursor();
+
+            /*
+             * Captures:
+             * (1) join var varName i<cursor>
+             * (2) join var varName i<cursor> expression
+             */
+            if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
+                return node.expression().textRange().startOffset() + 1 == cursor &&
+                        nameReferenceNode.textRange().startOffset() + 1 == cursor &&
+                        "i".equals(nameReferenceNode.name().text());
+            }
+        }
+
+        return false;
+    }
+
+    private boolean onSuggestOnKeyword(BallerinaCompletionContext context, JoinClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
+
+        if (node.typedBindingPattern().isMissing() ||
+                node.typedBindingPattern().isMissing() ||
+                node.inKeyword().isMissing() ||
+                node.expression().isMissing()) {
+            return false;
+        } else if (!node.joinOnCondition().onKeyword().isMissing()) {
+            return false;
+        } else if (node.expression().textRange().endOffset() < cursor &&
+                cursor <= node.joinOnCondition().textRange().startOffset()) {
+            // join var varName in expr <cursor>
+            return true;
+        } else {
+            Node nodeAtCursor = context.getNodeAtCursor();
+
+            /*
+             * Captures:
+             * (1) join var varName in expr o<cursor>
+             * (2) join var varName in expr o<cursor> expr
+             */
+            if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
+                return node.expression().textRange().endOffset() == cursor &&
+                        nameReferenceNode.textRange().endOffset() == cursor &&
+                        "o".equals(nameReferenceNode.name().text());
+            }
+        }
+
+        return false;
     }
 }

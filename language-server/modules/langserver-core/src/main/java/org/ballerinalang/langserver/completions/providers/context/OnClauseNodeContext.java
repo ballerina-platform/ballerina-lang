@@ -17,9 +17,11 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OnClauseNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -74,7 +76,7 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
             completionItems.addAll(this.expressionCompletions(context));
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
@@ -89,9 +91,29 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
         ExpressionNode rhs = node.rhsExpression();
         Token equalsKeyword = node.equalsKeyword();
 
-        return !lhs.isMissing() && cursor > lhs.textRange().endOffset()
-                && (rhs.isMissing() || cursor < rhs.textRange().startOffset())
-                && (equalsKeyword.isMissing() || (!equalsKeyword.isMissing()
-                && cursor < equalsKeyword.textRange().startOffset()));
+        if (lhs.isMissing()) {
+            return false;
+        } else if (!equalsKeyword.isMissing()) {
+            return false;
+        } else if (cursor > lhs.textRange().endOffset() &&
+                (!rhs.isMissing() && cursor < rhs.textRange().startOffset())) {
+            return true;
+        } else {
+            Node nodeAtCursor = context.getNodeAtCursor();
+
+            /*
+             * Captures:
+             * (1) join var varName in expr e<cursor>
+             * (2) join var varName in expr eq<cursor> expr
+             */
+            if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
+                return lhs.textRange().endOffset() == cursor &&
+                        nameReferenceNode.textRange().endOffset() == cursor &&
+                        "equals".startsWith(nameReferenceNode.name().text());
+            }
+        }
+        
+        return false;
     }
 }
