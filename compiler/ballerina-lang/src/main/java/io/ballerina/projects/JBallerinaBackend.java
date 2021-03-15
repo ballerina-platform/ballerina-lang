@@ -589,7 +589,10 @@ public class JBallerinaBackend extends CompilerBackend {
             JarLibrary conflictingJar = copiedEntries.get(entryName);
 
             // Ignore if conflicting jars has same name
-            if (jarLibrary.path().getFileName() != conflictingJar.path().getFileName()) {
+            Path jarFileName = jarLibrary.path().getFileName();
+            Path conflictingJarFileName = conflictingJar.path().getFileName();
+            if (jarFileName != null && conflictingJarFileName != null &&
+                    !jarFileName.toString().equals(conflictingJarFileName.toString())) {
                 JarConflict jarConflict = getJarConflict(conflictingJar);
 
                 // If jar conflict already exists
