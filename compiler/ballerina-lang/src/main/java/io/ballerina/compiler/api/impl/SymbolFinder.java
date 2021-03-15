@@ -616,6 +616,9 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
+        if (constRef.symbol != null && setEnclosingNode(constRef.symbol.owner, constRef.pkgAlias.pos)) {
+            return;
+        }
         this.symbolAtCursor = constRef.symbol;
     }
 
