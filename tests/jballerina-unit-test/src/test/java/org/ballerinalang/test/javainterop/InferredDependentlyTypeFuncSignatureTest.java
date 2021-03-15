@@ -68,7 +68,8 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 {"testUnionTypes"},
                 {"testXml"},
                 {"testArgCombinations"},
-                {"testBuiltInRefType"}
+                {"testBuiltInRefType"},
+                {"testParameterizedTypeInUnionWithNonParameterizedTypes"}
         };
     }
 

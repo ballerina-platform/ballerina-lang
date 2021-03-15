@@ -335,6 +335,22 @@ function testBuiltInRefType() {
     assert("hello world", str);
 }
 
+function testParameterizedTypeInUnionWithNonParameterizedTypes() {
+    record {| stream<int> x; |} rec = {x: (<int[]> [1, 2, 3]).toStream()};
+    object {}|record {| stream<int> x; |}|int|error a = getValueWithUnionReturnType(rec);
+    assert(101, <int> checkpanic a);
+
+    PersonObj pObj = new ("John", "Doe");
+    object {}|record {| stream<int> x; |}|string[]|error b = getValueWithUnionReturnType(pObj);
+    assertSame(pObj, b);
+
+    error|object {}|record {| stream<int> x; |}|boolean c = getValueWithUnionReturnType(true, boolean);
+    assert(false, <boolean> checkpanic c);
+
+    error|object {}|record {| stream<int> x; |}|boolean d = getValueWithUnionReturnType(td = boolean, val = false);
+    assert(true, <boolean> checkpanic d);
+}
+
 // Interop functions
 function getValue(typedesc<int|float|decimal|string|boolean> td = <>) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",
@@ -440,6 +456,12 @@ function funcWithMultipleArgs(int i, typedesc<int|string> td = <>, string[] arr 
 
 function funcReturningUnionWithBuiltInRefType(stream<int>? strm = (), typedesc<stream<int>> td = <>)
     returns readonly|td|handle =
+        @java:Method {
+            'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+        } external;
+
+function getValueWithUnionReturnType(object{}|record {| stream<int> x; |}|anydata val, typedesc<anydata> td = <>)
+   returns object{}|record {| stream<int> x; |}|error|td =
         @java:Method {
             'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
         } external;

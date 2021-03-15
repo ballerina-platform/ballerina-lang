@@ -32,7 +32,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BBuiltInRefType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFiniteType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
@@ -204,40 +203,6 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BRecordType originalType, BType expType) {
-        if (!Symbols.isFlagOn(originalType.tsymbol.flags, Flags.PARAMETERIZED)) {
-            return originalType;
-        }
-
-        LinkedHashMap<String, BField> newFields = new LinkedHashMap();
-        for (BField field : originalType.fields.values()) {
-            if (this.visitedTypes.contains(field.type)) {
-                continue;
-            }
-
-            this.visitedTypes.add(field.type);
-            BType newFieldType = field.type.accept(this, null);
-            this.visitedTypes.remove(field.type);
-
-            if (isSemanticErrorInInvocation(newFieldType)) {
-                return originalType;
-            }
-
-            if (newFieldType == field.type) {
-                newFields.put(field.name.value, field);
-                continue;
-            }
-
-            BField newField = new BField(field.name, field.pos, field.symbol);
-            newField.type = newFieldType;
-            newFields.put(newField.name.value, newField);
-        }
-
-        BType newRestType = originalType.restFieldType.accept(this, null);
-
-        BRecordType newRecordType = new BRecordType(null);
-        newRecordType.fields = newFields;
-        newRecordType.restFieldType = newRestType;
-        setFlags(newRecordType, originalType.flags);
         return originalType;
     }
 
@@ -504,21 +469,7 @@ public class Unifier implements BTypeVisitor<BType, BType> {
 
     @Override
     public BType visit(BErrorType originalType, BType expType) {
-        BType matchingType = getMatchingTypeForInferrableType(originalType, expType);
-        BType expDetailType = matchingType == null ? null : ((BErrorType) expType).detailType;
-        BType newDetail = originalType.detailType.accept(this, expDetailType);
-
-        if (isSameType(newDetail, originalType.detailType)) {
-            return originalType;
-        }
-
-        if (isSemanticErrorInInvocation(newDetail)) {
-            return symbolTable.semanticError;
-        }
-
-        BErrorType type = new BErrorType(null, newDetail);
-        setFlags(type, originalType.flags);
-        return type;
+        return originalType;
     }
 
     @Override

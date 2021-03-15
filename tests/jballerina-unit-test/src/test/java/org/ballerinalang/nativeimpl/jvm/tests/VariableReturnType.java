@@ -53,11 +53,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.runtime.api.TypeTags.ARRAY_TAG;
 import static io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG;
 import static io.ballerina.runtime.api.TypeTags.BYTE_TAG;
 import static io.ballerina.runtime.api.TypeTags.DECIMAL_TAG;
 import static io.ballerina.runtime.api.TypeTags.FLOAT_TAG;
 import static io.ballerina.runtime.api.TypeTags.INT_TAG;
+import static io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
 import static io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG;
@@ -452,5 +454,24 @@ public class VariableReturnType {
         }
 
         return "hello world";
+    }
+
+    public static Object getValueWithUnionReturnType(Object val, BTypedesc td) {
+        int tag = TypeUtils.getType(val).getTag();
+
+        Type describingType = td.getDescribingType();
+        if (tag == RECORD_TYPE_TAG) {
+            assert describingType.getTag() == INT_TAG;
+            return 101L;
+        }
+
+        if (tag == OBJECT_TYPE_TAG) {
+            assert describingType.getTag() == ARRAY_TAG &&
+                    ((BArrayType) describingType).getElementType().getTag() == STRING_TAG;
+            return val;
+        }
+
+        assert describingType.getTag() == BOOLEAN_TAG;
+        return !((boolean) val);
     }
 }
