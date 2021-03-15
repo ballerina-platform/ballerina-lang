@@ -34,7 +34,6 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_ENV_VARIABLE;
-
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
