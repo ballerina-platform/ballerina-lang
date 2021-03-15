@@ -246,9 +246,6 @@ public class BuildCommandTest extends BaseCommandTest {
                             getOutput("build-bal-project-with-jar-conflicts.txt"));
 
         Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("pramodya-conflictProject-any-0.1.7.bala")
-                        .toFile().exists());
-        Assert.assertTrue(
                 projectPath.resolve("target").resolve("bin").resolve("conflictProject.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
                                   .resolve("conflictProject").resolve("0.1.7").resolve("java11")
@@ -396,7 +393,11 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         String expectedLog = getOutput("build-bal-project-override-build-options.txt")
                 .replace("<TEST_RESULTS_JSON_PATH>",
@@ -425,7 +426,11 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         String expectedLog = getOutput("build-bal-project-override-build-options.txt")
                 .replace("<TEST_RESULTS_JSON_PATH>",
