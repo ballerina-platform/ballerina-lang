@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -74,6 +75,10 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
             completionItems.addAll(this.getCompletionItemList(exprEntries, context));
         } else {
             completionItems.addAll(this.expressionCompletions(context));
+            // If cursor at the end of clause, suggest other clauses
+            if (cursorAtEndOfClause(context, node)) {
+                completionItems.addAll(QueryExpressionUtil.getCommonKeywordCompletions(context));
+            }
         }
         this.sort(context, node, completionItems);
 
@@ -113,7 +118,12 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
                         "equals".startsWith(nameReferenceNode.name().text());
             }
         }
-        
+
         return false;
+    }
+
+    private boolean cursorAtEndOfClause(BallerinaCompletionContext context, OnClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
+        return !node.rhsExpression().isMissing() && node.rhsExpression().textRange().endOffset() < cursor;
     }
 }

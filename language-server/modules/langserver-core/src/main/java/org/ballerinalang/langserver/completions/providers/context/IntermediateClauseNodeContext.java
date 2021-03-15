@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  *  Licensed under the Apache License, Version 2.0 (the "License");
  *  you may not use this file except in compliance with the License.
@@ -18,11 +18,9 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -38,16 +36,6 @@ public abstract class IntermediateClauseNodeContext<T extends IntermediateClause
     }
 
     protected List<LSCompletionItem> getKeywordCompletions(BallerinaCompletionContext context, T node) {
-        return Arrays.asList(
-                new SnippetCompletionItem(context, Snippet.KW_WHERE.get()),
-                new SnippetCompletionItem(context, Snippet.KW_LET.get()),
-                new SnippetCompletionItem(context, Snippet.CLAUSE_LET.get()),
-                new SnippetCompletionItem(context, Snippet.KW_JOIN.get()),
-                new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()),
-                new SnippetCompletionItem(context, Snippet.KW_ORDERBY.get()),
-                new SnippetCompletionItem(context, Snippet.KW_LIMIT.get()),
-                new SnippetCompletionItem(context, Snippet.STMT_DO.get()),
-                new SnippetCompletionItem(context, Snippet.KW_SELECT.get())
-        );
+        return QueryExpressionUtil.getCommonKeywordCompletions(context);
     }
 }
