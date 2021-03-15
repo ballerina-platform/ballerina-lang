@@ -5641,6 +5641,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             default:
                 throw new IllegalArgumentException("Invalid backtick content transformation");
         }
+        if (bLangRefDoc.identifier != null) {
+            bLangRefDoc.identifier = IdentifierUtils.unescapeUnicodeCodepoints(bLangRefDoc.identifier);
+            if (stringStartsWithSingleQuote(bLangRefDoc.identifier)) {
+                bLangRefDoc.identifier = bLangRefDoc.identifier.substring(1);
+            }
+        }
     }
 
     private DocumentationReferenceType stringToRefType(String refTypeName) {

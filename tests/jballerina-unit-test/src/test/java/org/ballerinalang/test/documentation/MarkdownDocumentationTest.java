@@ -228,7 +228,7 @@ public class MarkdownDocumentationTest {
     public void testDocFunction() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_function.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 6);
+        Assert.assertEquals(compileResult.getWarnCount(), 7);
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
@@ -319,11 +319,16 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(7).type, DocumentationReferenceType.ANNOTATION);
         Assert.assertEquals(references.get(7).referenceName, "annot");
 
-        var fooFunction = packageNode.getFunctions().get(5).getMarkdownDocumentationAttachment();
-        var exampleParam = fooFunction.getParameterDocumentations().get("example");
+        documentationAttachment = packageNode.getFunctions().get(5).getMarkdownDocumentationAttachment();
+        var exampleParam = documentationAttachment.getParameterDocumentations().get("example");
         Assert.assertEquals(exampleParam.parameterName.getValue(), "example");
         Assert.assertEquals(exampleParam.parameterDocumentationLines.get(0),
                 "The error struct to be logged");
+
+        references = documentationAttachment.getReferences();
+        Assert.assertEquals(references.size(), 1);
+        Assert.assertEquals(references.get(0).type, DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(0).referenceName, "'testQuotedConst");
     }
 
     @Test(description = "Test doc function with function keyword", groups = { "disableOnOldParser" })
