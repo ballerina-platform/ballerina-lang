@@ -110,6 +110,9 @@ public class ArgumentParser {
         int providedRequiredArgsCount = 0;
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
+            if (arg.startsWith("-C")) {
+                continue;
+            }
             boolean isNameArg = isNameArg(arg);
             // handle named args
             if (isNameArg) {
