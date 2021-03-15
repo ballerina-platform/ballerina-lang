@@ -40,29 +40,34 @@ public class BNullValueTest {
 
     @Test(description = "Test negative test cases")
     void testNullValueSemanticsNegative() {
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 5);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 7);
         BAssertUtil.validateError(resultSemanticsNegative, 0, "operator '>' not defined for '()' and 'xml?'", 12, 13);
-        BAssertUtil.validateError(resultSemanticsNegative, 1, "incompatible types: expected 'int', found '()'", 16, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, 1, "incompatible types: expected 'int', found '()'",
+                16, 13);
         BAssertUtil.validateError(resultSemanticsNegative, 2, "operator '+' not defined for '()' and '()'", 20, 13);
         BAssertUtil.validateError(resultSemanticsNegative, 3, "incompatible types: expected 'string', found '()'", 24
                 , 16);
         BAssertUtil.validateError(resultSemanticsNegative, 4, "operator '+' not defined for '()' and '()'", 32, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, 5, "incompatible types: expected 'A', found '()'", 39, 11);
+        BAssertUtil.validateError(resultSemanticsNegative, 6, "incompatible types: expected 'B', found '()'", 40, 11);
     }
 
     @Test(description = "Test negative test cases")
     void testNullValueNegative() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        Assert.assertEquals(resultNegative.getErrorCount(), 6);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "'null' literal is only allowed in a json-related context",
                 20, 12);
         BAssertUtil.validateError(resultNegative, index++, "'null' literal is only allowed in a json-related context",
-                25, 22);
+                27, 22);
         BAssertUtil.validateError(resultNegative, index++, "'null' literal is only allowed in a json-related context",
-                26, 17);
+                28, 17);
         BAssertUtil.validateError(resultNegative, index++, "'null' literal is only allowed in a json-related context",
-                27, 18);
+                29, 18);
+        BAssertUtil.validateError(resultNegative, index++, "'null' literal is only allowed in a json-related context",
+                30, 20);
         BAssertUtil.validateError(resultNegative, index, "'null' literal is only allowed in a json-related context",
-                28, 20);
+                31, 12);
     }
 
     @AfterClass

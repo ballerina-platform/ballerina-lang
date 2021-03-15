@@ -62,3 +62,14 @@ function testNullWithArray() returns [string[]?, json[]?, string?[]] {
     string?[] c = [null, "ABC", "DEF"];
     return [a, b, c];
 }
+
+type A A[]|();
+type B B[]|map<string>;
+type C C[]|map<int?>;
+
+function testNullWithType() returns [A, B?, C] {
+    A a = null;
+    B? b = null;
+    C c = {"c": null};
+    return [a, b, c];
+}

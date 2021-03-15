@@ -31,3 +31,11 @@ function testNullForValueType3() {
 function testArithmaticOperationOnNull2() returns (any) {
     return (() + ());
 }
+
+type A A[]|int;
+type B B[]|map<string?>;
+
+function testNullWithTypeInvalid() {
+    A a = null;
+    B b = null;
+}

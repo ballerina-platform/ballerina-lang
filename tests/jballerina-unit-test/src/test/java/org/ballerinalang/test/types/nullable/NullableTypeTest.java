@@ -114,6 +114,15 @@ public class NullableTypeTest {
         Assert.assertEquals(returns[2].stringValue(), "[(), \"ABC\", \"DEF\"]");
     }
 
+    @Test(description = "Test null with type")
+    public void testNullWithType() {
+        BValue[] returns = BRunUtil.invoke(result, "testNullWithType");
+        Assert.assertEquals(returns.length, 3);
+        Assert.assertNull(returns[0]);
+        Assert.assertNull(returns[1]);
+        Assert.assertEquals(returns[2].stringValue(), "{\"c\":()}");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;

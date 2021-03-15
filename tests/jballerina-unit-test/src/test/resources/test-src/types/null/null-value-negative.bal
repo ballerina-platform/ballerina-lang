@@ -21,11 +21,14 @@ function testArithmaticOperationOnNull() returns (any) {
 }
 
 type Person record {| string name; |};
+type A A[]|map<A>;
+
 function testNullNegativeScenarios() {
     map<Person>? a = null;
     Person? b = null;
     Person[]? c= null;
     Person?[] d = [null , {"name": "John"}];
+    A? e = null;
 }
 
 //function testNullForValueType2() {
