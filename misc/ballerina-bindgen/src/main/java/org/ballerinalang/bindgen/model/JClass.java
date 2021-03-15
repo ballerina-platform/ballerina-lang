@@ -166,13 +166,13 @@ public class JClass {
     private void populateMethods(Class c) {
         List<JMethod> tempList = new ArrayList<>();
         for (Method method : getMethodsAsList(c)) {
-            tempList.add(new JMethod(method, env, prefix, currentClass, null));
+            tempList.add(new JMethod(method, env, prefix, currentClass, 0));
         }
         tempList.sort(Comparator.comparing(JMethod::getParamTypes));
         for (JMethod method : tempList) {
             setMethodCount(method.getJavaMethodName());
             JMethod jMethod = new JMethod(method.getMethod(), env, prefix, currentClass,
-                    shortClassName + getMethodCount(method.getJavaMethodName()));
+                    isOverloaded(method.getMethod()) ? getMethodCount(method.getJavaMethodName()) : 0);
             if (jMethod.requireJavaArrays()) {
                 importJavaArraysModule = true;
             }
@@ -218,6 +218,20 @@ public class JClass {
                 populateImplementedInterfaces(interfaceClass.getInterfaces());
             }
         }
+    }
+
+    private boolean isOverloaded(Method method) {
+        boolean overloaded = false;
+        int count = 0;
+        for (Method m : getMethodsAsList(currentClass)) {
+            if (m.getName().equals(method.getName())) {
+                count++;
+            }
+        }
+        if (count > 1) {
+            overloaded = true;
+        }
+        return overloaded;
     }
 
     public String getShortClassName() {

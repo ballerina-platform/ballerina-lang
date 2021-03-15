@@ -170,10 +170,7 @@ public class BindgenNodeFactory {
         MetadataNode metadata = null;
         if (!isExternal) {
             metadata = createMetadataNode(createMarkdownDocumentationNode(
-                    getFunctionMarkdownDocumentation(bFunction.getFunctionName(),
-                            bFunction.getDeclaringClass().getName(), bFunction.getErrorType(),
-                            bFunction.getReturnType(), bFunction.getParameters(),
-                            bFunction.getKind())), AbstractNodeFactory.createNodeList());
+                    getFunctionMarkdownDocumentation(bFunction)), AbstractNodeFactory.createNodeList());
         }
 
         NodeList<Token> qualifierList;
@@ -205,56 +202,53 @@ public class BindgenNodeFactory {
         }
     }
 
-    private static NodeList<Node> getFunctionMarkdownDocumentation(String methodName, String declaringClass,
-                                                                   String errorType, String returnType,
-                                                                   List<JParameter> argList,
-                                                                   BFunction.BFunctionKind functionKind) {
+    private static NodeList<Node> getFunctionMarkdownDocumentation(BFunction bFunction) {
         List<Node> documentationLines = new LinkedList<>();
-        documentationLines.addAll(getFunctionMarkdownDocumentationLine(methodName, declaringClass,
-                functionKind, (!argList.isEmpty() || returnType != null)));
-        documentationLines.addAll(getFunctionMarkdownParameterDocumentationLine(returnType,
-                errorType, argList, functionKind));
+        documentationLines.addAll(getFunctionMarkdownDocumentationLine(bFunction));
+        documentationLines.addAll(getFunctionMarkdownParameterDocumentationLine(bFunction));
 
         return AbstractNodeFactory.createNodeList(documentationLines);
     }
 
-    private static List<Node> getFunctionMarkdownDocumentationLine(String resourceName, String className,
-                                                                   BFunction.BFunctionKind functionKind,
-                                                                   boolean addNL) {
+    private static List<Node> getFunctionMarkdownDocumentationLine(BFunction bFunction) {
         List<Node> documentationLines = new LinkedList<>();
+        String className = bFunction.getDeclaringClass().getName();
         String documentationValue;
-        if (functionKind == BFunction.BFunctionKind.CONSTRUCTOR) {
+        if (bFunction.getKind() == BFunction.BFunctionKind.CONSTRUCTOR) {
             documentationValue = "The constructor function to generate an object of type `" + className + "`.";
-        } else if (functionKind == BFunction.BFunctionKind.METHOD) {
-            documentationValue = "The function that maps to the `" + resourceName + "` method of `" + className + "`.";
-        } else if (functionKind == BFunction.BFunctionKind.FIELD_GET) {
-            documentationValue = "The function that retrieves the value of the public field `" + resourceName + "`.";
-        } else if (functionKind == BFunction.BFunctionKind.FIELD_SET) {
-            documentationValue = "The function to set the value of the public field `" + resourceName + "`.";
+        } else if (bFunction.getKind() == BFunction.BFunctionKind.METHOD) {
+            JMethod jMethod = (JMethod) bFunction;
+            documentationValue = "The function that maps to the `" + jMethod.getJavaMethodName() + "` method of `"
+                    + className + "`.";
+        } else if (bFunction.getKind() == BFunction.BFunctionKind.FIELD_GET) {
+            JField jField = (JField) bFunction;
+            documentationValue = "The function that retrieves the value of the public field `"
+                    + jField.getFieldName() + "`.";
+        } else if (bFunction.getKind() == BFunction.BFunctionKind.FIELD_SET) {
+            JField jField = (JField) bFunction;
+            documentationValue = "The function to set the value of the public field `" + jField.getFieldName() + "`.";
         } else {
             return documentationLines;
         }
         documentationLines.add(createMarkdownDocumentationLineNode(documentationValue));
-        if (addNL) {
+        if (!bFunction.getParameters().isEmpty() || bFunction.getReturnType() != null) {
             documentationLines.add(createMarkdownDocumentationLineNode(""));
         }
         return documentationLines;
     }
 
-    private static List<Node> getFunctionMarkdownParameterDocumentationLine(String returnType, String errorType,
-                                                                            List<JParameter> argList,
-                                                                            BFunction.BFunctionKind functionKind) {
+    private static List<Node> getFunctionMarkdownParameterDocumentationLine(BFunction bFunction) {
         List<Node> parameterDocumentationLines = new LinkedList<>();
-        if (!argList.isEmpty()) {
-            for (JParameter jParameter : argList) {
-                String paramDescription = documentationParamDescription(functionKind, jParameter);
+        if (!bFunction.getParameters().isEmpty()) {
+            for (JParameter jParameter : bFunction.getParameters()) {
+                String paramDescription = documentationParamDescription(bFunction.getKind(), jParameter);
                 if (paramDescription != null) {
                     parameterDocumentationLines.add(createMarkdownParameterDocumentationLineNode(
                             jParameter.getFieldName(), paramDescription));
                 }
             }
         }
-        String returnDescription = documentationReturnDescription(functionKind, returnType, errorType);
+        String returnDescription = documentationReturnDescription(bFunction);
         if (returnDescription != null) {
             parameterDocumentationLines.add(createMarkdownParameterDocumentationLineNode(
                     "return", returnDescription));
@@ -276,22 +270,22 @@ public class BindgenNodeFactory {
         return paramDescription;
     }
 
-    private static String documentationReturnDescription(BFunction.BFunctionKind functionKind, String returnType,
-                                                         String errorType) {
+    private static String documentationReturnDescription(BFunction bFunction) {
         String paramDescription = null;
-        if (returnType == null) {
+        if (bFunction.getReturnType() == null) {
             return paramDescription;
         }
-        if (functionKind == BFunction.BFunctionKind.CONSTRUCTOR) {
-            if (errorType != null) {
-                paramDescription = "The new `" + returnType + "` class or `" + errorType + "` error generated.";
+        if (bFunction.getKind() == BFunction.BFunctionKind.CONSTRUCTOR) {
+            if (bFunction.getErrorType() != null) {
+                paramDescription = "The new `" + bFunction.getReturnType() + "` class or `"
+                        + bFunction.getErrorType() + "` error generated.";
             } else {
-                paramDescription = "The new `" + returnType + "` class generated.";
+                paramDescription = "The new `" + bFunction.getReturnType() + "` class generated.";
             }
-        } else if (functionKind == BFunction.BFunctionKind.METHOD) {
-            paramDescription = "The `" + returnType + "` value returning from the Java mapping.";
-        } else if (functionKind == BFunction.BFunctionKind.FIELD_GET) {
-            paramDescription = "The `" + returnType + "` value of the field.";
+        } else if (bFunction.getKind() == BFunction.BFunctionKind.METHOD) {
+            paramDescription = "The `" + bFunction.getReturnType() + "` value returning from the Java mapping.";
+        } else if (bFunction.getKind() == BFunction.BFunctionKind.FIELD_GET) {
+            paramDescription = "The `" + bFunction.getReturnType() + "` value of the field.";
         }
         return paramDescription;
     }
@@ -383,7 +377,7 @@ public class BindgenNodeFactory {
 
         if (bFunction.getKind() == BFunction.BFunctionKind.METHOD) {
             JMethod jMethod = (JMethod) bFunction;
-            fields.put(NAME, Collections.singletonList(jMethod.getMethodName()));
+            fields.put(NAME, Collections.singletonList(jMethod.getJavaMethodName()));
             fields.put(CLASS, Collections.singletonList(jMethod.getDeclaringClass().getName()));
             fields.put(PARAM_TYPES, getParameterList(jMethod.getParameters()));
 

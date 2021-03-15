@@ -68,7 +68,7 @@ public class BindgenUnitTest {
         String fields = Files.readString(resourceDirectory.resolve(fieldFilePath));
         SyntaxTree fSyntaxTree = bindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
                 .loadClass("org.ballerinalang.bindgen.FieldsTestResource"), bindgenEnv));
-        Assert.assertEquals(Formatter.format(fields), Formatter.format(fSyntaxTree.toSourceCode()));
+        Assert.assertEquals(Formatter.format(fSyntaxTree.toSourceCode()), Formatter.format(fields));
         Assert.assertFalse(fSyntaxTree.hasDiagnostics());
     }
 }

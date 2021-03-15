@@ -95,11 +95,11 @@ public class MethodsTestResource {
         return new File("test.txt");
     }
 
-    public File[] returnObjectThrowableError1() throws FileNotFoundException {
+    public File[] returnObjectThrowableError() throws FileNotFoundException {
         return new File[2];
     }
 
-    public File returnObjectThrowableError2(int[] x) throws FileNotFoundException {
+    public File returnObjectThrowableError(int[] x) throws FileNotFoundException {
         return new File("test.txt");
     }
 
