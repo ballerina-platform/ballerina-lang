@@ -24,7 +24,8 @@ import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
 
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.ConfigConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIGURATION_NOT_SUPPORTED_FOR_TOML;
 
 /**
  * Util methods required for configurable variables.
@@ -79,6 +80,14 @@ public class ConfigTomlUtils {
             case TypeTags.ARRAY_TAG:
                 tomlType = TomlType.ARRAY;
                 break;
+            case TypeTags.XML_ATTRIBUTES_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_TEXT_TAG:
+                throw new ConfigTomlException(
+                        String.format(CONFIGURATION_NOT_SUPPORTED_FOR_TOML, variableName, expectedType.toString()));
             case TypeTags.RECORD_TYPE_TAG:
                 tomlType = TomlType.TABLE;
                 break;

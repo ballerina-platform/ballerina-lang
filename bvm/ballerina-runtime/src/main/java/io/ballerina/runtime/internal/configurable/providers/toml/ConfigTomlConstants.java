@@ -33,10 +33,8 @@ public class ConfigTomlConstants {
 
     //Error messages
     public static final String INVALID_TOML_FILE = "invalid `" + CONFIG_FILE_NAME + "` file : ";
-    public static final String INVALID_TOML_TYPE = "configurable variable '%s' is expected to be of type '%s', " +
-            "but found '%s'";
-    public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
-            "supported";
+    public static final String CONFIGURATION_NOT_SUPPORTED_FOR_TOML = "configurable variable '%s' with type '%s' is " +
+            "not supported as a toml value";
     public static final String INVALID_ADDITIONAL_FIELD_IN_RECORD =
             "additional field '%s' provided for configurable variable '%s' of record '%s' is not supported";
     public static final String FIELD_TYPE_NOT_SUPPORTED =

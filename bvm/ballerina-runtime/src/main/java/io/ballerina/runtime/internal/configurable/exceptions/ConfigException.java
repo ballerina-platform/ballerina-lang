@@ -18,17 +18,21 @@
 
 package io.ballerina.runtime.internal.configurable.exceptions;
 
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.internal.values.ErrorValue;
+
 /**
  * Exception class used for configuration specific errors.
  *
  * @since 2.0.0
  */
-public class ConfigException extends RuntimeException {
+public class ConfigException extends ErrorValue {
+
     public ConfigException(String message) {
-        super(message);
+        super(StringUtils.fromString(message));
     }
 
     public ConfigException(String message, Throwable e) {
-        super(message, e);
+        super(StringUtils.fromString(message), e);
     }
 }
