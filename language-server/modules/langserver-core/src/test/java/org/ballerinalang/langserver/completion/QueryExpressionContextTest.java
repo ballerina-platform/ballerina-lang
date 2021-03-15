@@ -21,6 +21,9 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 
+/**
+ * Query expression context related tests. Covers query expressions and query actions.
+ */
 public class QueryExpressionContextTest extends CompletionTestNew {
 
     @Test(dataProvider = "completion-data-provider")
