@@ -18,9 +18,16 @@
 
 package io.ballerina.cli.cmd;
 
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.internal.ProjectFiles;
+import org.apache.commons.io.FileUtils;
+import org.powermock.api.mockito.PowerMockito;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
+import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.IOException;
@@ -38,6 +45,8 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  *
  * @since 2.0.0
  */
+@PrepareForTest({ RepoUtils.class })
+@PowerMockIgnore("jdk.internal.reflect.*")
 public class PushCommandTest extends BaseCommandTest {
 
     private static final String VALID_PROJECT = "validProject";
@@ -91,11 +100,11 @@ public class PushCommandTest extends BaseCommandTest {
         System.setProperty("user.dir", projectPath.toString());
 
         // Build project
-        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-bal-project.txt"));
+        Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("compile-bal-project.txt"));
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
@@ -137,5 +146,41 @@ public class PushCommandTest extends BaseCommandTest {
         pushCommand.execute();
 
         Assert.assertTrue(readOutput().contains("ballerina-push - Push packages to Ballerina Central"));
+    }
+
+    @Test
+    public void testPushToCustomRepo() throws IOException {
+        Path validBalProject = Paths.get("build").resolve("validProjectWithTarget");
+        FileUtils.copyDirectory(
+                this.testResources.resolve("validProjectWithTarget").toFile(), validBalProject.toFile());
+        FileUtils.moveDirectory(
+                validBalProject.resolve("target-dir").toFile(), validBalProject.resolve("target").toFile());
+
+        Path mockRepo = Paths.get("build").resolve("ballerina-home");
+        // Test if no arguments was passed in
+        String[] args = { "--repository=local" };
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
+        new CommandLine(pushCommand).parse(args);
+        PowerMockito.mockStatic(RepoUtils.class);
+        PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
+        pushCommand.execute();
+        try {
+            ProjectFiles.validateBalaProjectPath(mockRepo.resolve("repositories").resolve("local").resolve("bala")
+                    .resolve("foo").resolve("winery").resolve("0.1.0").resolve("any"));
+        } catch (ProjectException e) {
+            Assert.fail(e.getMessage());
+        }
+    }
+
+    @Test
+    public void testPushToAnUnsupportedRepo() throws IOException {
+        Path validBalProject = this.testResources.resolve(VALID_PROJECT);
+
+        String[] args = { "--repository=stdlib.local" };
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
+        new CommandLine(pushCommand).parse(args);
+        pushCommand.execute();
+        String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository is supported";
+        Assert.assertTrue(readOutput().contains(errMsg));
     }
 }

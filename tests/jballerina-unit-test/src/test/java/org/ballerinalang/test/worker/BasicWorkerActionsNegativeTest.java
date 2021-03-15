@@ -40,7 +40,7 @@ public class BasicWorkerActionsNegativeTest {
     @Test(description = "Test negative scenarios of worker actions", groups = {"disableOnOldParser"})
     public void testWorkerActionsSemanticsNegative() {
         int index = 0;
-        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 5, "Worker actions semantics negative test error" +
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), 8, "Worker actions semantics negative test error" +
                 " count");
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "invalid type for worker send 'Person', expected value:Cloneable", 44, 22);
@@ -49,8 +49,14 @@ public class BasicWorkerActionsNegativeTest {
                 61, 9);
         BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "action invocation as an expression not allowed here", 78, 15);
-        BAssertUtil.validateError(resultSemanticsNegative, index,
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
                 "invalid usage of receive expression, var not allowed", 112, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
+                "missing identifier", 139, 13);
+        BAssertUtil.validateError(resultSemanticsNegative, index++,
+                "missing identifier", 143, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, index,
+                "invalid token 'int'", 143, 16);
     }
 
     @Test(description = "Test negative scenarios of worker actions")
@@ -83,6 +89,17 @@ public class BasicWorkerActionsNegativeTest {
 
         Assert.assertEquals(resultNegative.getErrorCount(), index, "Worker actions negative test error count");
 
+    }
+
+    @Test
+    public void testAsyncSendAsExpression() {
+        // TODO: support async send as expression issue #24849
+        CompileResult compileResult = BCompileUtil.compile("test-src/workers/worker_async_send_as_expression.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResult, index++, "async send action not yet supported as expression",
+                19, 16);
+
+        Assert.assertEquals(compileResult.getErrorCount(), index);
     }
 
     @AfterClass

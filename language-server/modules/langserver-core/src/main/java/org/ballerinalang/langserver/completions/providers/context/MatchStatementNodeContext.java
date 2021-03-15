@@ -15,11 +15,14 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.MatchStatementNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +33,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class MatchStatementNodeContext extends AbstractCompletionProvider<MatchStatementNode> {
+public class MatchStatementNodeContext extends MatchStatementContext<MatchStatementNode> {
 
     public MatchStatementNodeContext() {
         super(MatchStatementNode.class);
@@ -39,10 +42,55 @@ public class MatchStatementNodeContext extends AbstractCompletionProvider<MatchS
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MatchStatementNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(this.actionKWCompletions(context));
-        completionItems.addAll(this.expressionCompletions(context));
+        if (this.isWithinBraces(context, node)) {
+            /*
+            Handles the following
+            eg: match v {
+                    <cursor>
+                }
+             */
+            completionItems.addAll(this.getPatternClauseCompletions(context));
+        } else {
+            /*
+            Handles the following
+            eg: 1) match <cursor>
+                2) match v<cursor>
+             */
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
+                List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
+                completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+            } else {
+                completionItems.addAll(this.actionKWCompletions(context));
+                completionItems.addAll(this.expressionCompletions(context));
+            }
+        }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
+    }
+
+    private boolean isWithinBraces(BallerinaCompletionContext context, MatchStatementNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token openBrace = node.openBrace();
+        Token closeBrace = node.closeBrace();
+
+        return cursor >= openBrace.textRange().endOffset() && cursor <= closeBrace.textRange().startOffset();
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, MatchStatementNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token matchKeyword = node.matchKeyword();
+        Token openBrace = node.openBrace();
+        Token closeBrace = node.closeBrace();
+        
+        /*
+        Validates the following
+        eg: 1) match ... {<cursor>}
+            2) match <cursor>
+         */
+        return !matchKeyword.isMissing() && cursor >= matchKeyword.textRange().endOffset() + 1
+                && (closeBrace.isMissing() || cursor < closeBrace.textRange().endOffset());
     }
 }

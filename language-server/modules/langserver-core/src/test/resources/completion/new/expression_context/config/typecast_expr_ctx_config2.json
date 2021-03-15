@@ -264,11 +264,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ErrorName",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "Q",
-      "insertText": "ErrorName",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -291,11 +291,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
+      "label": "ErrorName",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "ErrorName",
       "insertTextFormat": "Snippet"
     },
     {
@@ -368,6 +368,14 @@
       "detail": "Keyword",
       "sortText": "P",
       "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
     {

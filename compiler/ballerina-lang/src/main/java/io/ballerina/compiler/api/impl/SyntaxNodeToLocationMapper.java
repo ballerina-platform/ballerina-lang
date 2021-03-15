@@ -68,7 +68,9 @@ import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -284,6 +286,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     }
 
     @Override
+    public Optional<Location> transform(ServiceDeclarationNode serviceDeclarationNode) {
+        return Optional.of(serviceDeclarationNode.location());
+    }
+
+    @Override
     public Optional<Location> transform(Token token) {
         return Optional.of(token.location());
     }
@@ -460,6 +467,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     @Override
     public Optional<Location> transform(PositionalArgumentNode positionalArgumentNode) {
         return Optional.of(positionalArgumentNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(SpecificFieldNode specificFieldNode) {
+        return Optional.of(specificFieldNode.location());
     }
 
     @Override

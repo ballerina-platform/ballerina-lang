@@ -399,7 +399,7 @@ public class VariableVisibilityTest extends BaseTestCase {
     }
 
     @AfterClass(alwaysRun = true)
-    private void cleanup() {
+    public void cleanUp() {
         debugTestRunner.terminateDebugSession();
         globalVariables.clear();
         localVariables.clear();

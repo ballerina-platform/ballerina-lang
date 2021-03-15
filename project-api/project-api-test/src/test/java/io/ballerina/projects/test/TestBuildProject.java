@@ -23,6 +23,7 @@ import io.ballerina.projects.BallerinaToml;
 import io.ballerina.projects.BuildOptions;
 import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.CloudToml;
+import io.ballerina.projects.CompilerPluginToml;
 import io.ballerina.projects.DependenciesToml;
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DiagnosticResult;
@@ -795,6 +796,7 @@ public class TestBuildProject {
         Assert.assertTrue(currentPackage.ballerinaToml().isPresent());
         Assert.assertTrue(currentPackage.dependenciesToml().isPresent());
         Assert.assertTrue(currentPackage.cloudToml().isPresent());
+        Assert.assertTrue(currentPackage.compilerPluginToml().isPresent());
         Assert.assertTrue(currentPackage.packageMd().isPresent());
         // Check module.md files
         Module defaultModule = currentPackage.getDefaultModule();
@@ -815,6 +817,9 @@ public class TestBuildProject {
 
         TomlTableNode cloudToml = currentPackage.cloudToml().get().tomlAstNode();
         Assert.assertEquals(cloudToml.entries().size(), 1);
+
+        TomlTableNode compilerPluginToml = currentPackage.compilerPluginToml().get().tomlAstNode();
+        Assert.assertEquals(compilerPluginToml.entries().size(), 2);
     }
 
     @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md")
@@ -863,6 +868,17 @@ public class TestBuildProject {
         TomlTableNode cloudToml = newCloudToml.tomlAstNode();
         Assert.assertEquals(cloudToml.entries().size(), 2);
 
+        CompilerPluginToml newCompilerPluginToml = project.currentPackage().compilerPluginToml().get().modify()
+                .withContent("" +
+                            "[plugin]\n" +
+                            "id = \"openapi-validator\"\n" +
+                            "class = \"io.ballerina.openapi.Validator\"\n" +
+                            "\n" +
+                            "[[dependency]]\n" +
+                            "path = \"./libs/platform-io-1.3.0-java.txt\"\n").apply();
+        TomlTableNode compilerPluginToml = newCompilerPluginToml.tomlAstNode();
+        Assert.assertEquals(compilerPluginToml.entries().size(), 2);
+
         // Check if PackageMd is editable
         project.currentPackage().packageMd().get().modify().withContent("#Modified").apply();
         String packageMdContent = project.currentPackage().packageMd().get().content();
@@ -884,10 +900,12 @@ public class TestBuildProject {
         project.currentPackage().modify().removePackageMd().apply();
         project.currentPackage().modify().removeDependenciesToml().apply();
         project.currentPackage().modify().removeCloudToml().apply();
+        project.currentPackage().modify().removeCompilerPluginToml().apply();
         project.currentPackage().getDefaultModule().modify().removeModuleMd().apply();
 
         Assert.assertTrue(project.currentPackage().packageMd().isEmpty());
         Assert.assertTrue(project.currentPackage().cloudToml().isEmpty());
+        Assert.assertTrue(project.currentPackage().compilerPluginToml().isEmpty());
         Assert.assertTrue(project.currentPackage().dependenciesToml().isEmpty());
         Assert.assertTrue(project.currentPackage().getDefaultModule().moduleMd().isEmpty());
     }
@@ -908,6 +926,7 @@ public class TestBuildProject {
 
         Assert.assertTrue(currentPackage.dependenciesToml().isEmpty());
         Assert.assertTrue(currentPackage.cloudToml().isEmpty());
+        Assert.assertTrue(currentPackage.compilerPluginToml().isEmpty());
         // Assert.assertTrue(currentPackage.packageMd().isEmpty());
 
         DocumentConfig dependenciesToml = DocumentConfig.from(
@@ -942,6 +961,19 @@ public class TestBuildProject {
         Assert.assertEquals(((TomlTableArrayNode) dependenciesTomlTable.entries()
                 .get("dependency")).children().size(), 2);
 
+        DocumentConfig compilerPluginToml = DocumentConfig.from(
+                DocumentId.create(ProjectConstants.COMPILER_PLUGIN_TOML, null),
+                "[plugin]\n" +
+                        "id = \"openapi-validator\"\n" +
+                        "class = \"io.ballerina.openapi.Validator\"\n" +
+                        "\n" +
+                        "[[dependency]]\n" +
+                        "path = \"./libs/platform-io-1.3.0-java.txt\"\n",
+                ProjectConstants.COMPILER_PLUGIN_TOML);
+
+        currentPackage = currentPackage.modify().addCompilerPluginToml(compilerPluginToml).apply();
+        TomlTableNode compilerPluginTomlTable = currentPackage.compilerPluginToml().get().tomlAstNode();
+        Assert.assertEquals(compilerPluginTomlTable.entries().size(), 2);
     }
 
     @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md", enabled = true)

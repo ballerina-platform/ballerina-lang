@@ -17,8 +17,8 @@
  */
 package org.wso2.ballerinalang.compiler.diagnostic.properties;
 
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 
 /**
  * Represents non-categorical properties passed when diagnostic logging.

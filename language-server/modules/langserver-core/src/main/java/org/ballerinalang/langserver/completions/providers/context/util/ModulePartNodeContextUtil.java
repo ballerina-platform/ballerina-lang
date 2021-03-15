@@ -60,8 +60,9 @@ public class ModulePartNodeContextUtil {
      */
     public static List<LSCompletionItem> getTopLevelItems(BallerinaCompletionContext context) {
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
+        // Here we should add the function keyword as well, although it is added via #getTypeItems
         List<Snippet> snippets = Arrays.asList(
-                Snippet.KW_IMPORT, Snippet.KW_FUNCTION, Snippet.KW_TYPE, Snippet.KW_PUBLIC, Snippet.KW_ISOLATED,
+                Snippet.KW_IMPORT, Snippet.KW_TYPE, Snippet.KW_PUBLIC, Snippet.KW_ISOLATED,
                 Snippet.KW_FINAL, Snippet.KW_CONST, Snippet.KW_LISTENER, Snippet.KW_CLIENT, Snippet.KW_VAR,
                 Snippet.KW_ENUM, Snippet.KW_XMLNS, Snippet.KW_CLASS, Snippet.KW_TRANSACTIONAL,
                 Snippet.DEF_FUNCTION, Snippet.DEF_MAIN_FUNCTION, Snippet.DEF_SERVICE, Snippet.KW_CONFIGURABLE,
@@ -69,7 +70,7 @@ public class ModulePartNodeContextUtil {
                 Snippet.DEF_ANNOTATION, Snippet.DEF_RECORD, Snippet.STMT_NAMESPACE_DECLARATION,
                 Snippet.DEF_OBJECT_SNIPPET, Snippet.DEF_CLASS, Snippet.DEF_ENUM, Snippet.DEF_CLOSED_RECORD,
                 Snippet.DEF_ERROR_TYPE, Snippet.DEF_TABLE_TYPE_DESC, Snippet.DEF_TABLE_WITH_KEY_TYPE_DESC,
-                Snippet.DEF_STREAM
+                Snippet.DEF_STREAM, Snippet.DEF_SERVICE_COMMON
         );
 
         snippets.forEach(snippet -> completionItems.add(new SnippetCompletionItem(context, snippet.get())));

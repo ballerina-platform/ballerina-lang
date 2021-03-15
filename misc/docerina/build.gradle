@@ -114,6 +114,15 @@ jar {
     }
 }
 
+processResources {
+    include '**/properties'
+    include 'doc-ui/index.html'
+    include 'builtin-types-descriptions/'
+    include 'keywords-descriptions/'
+    include 'release-description.md'
+    filter { String line -> line.replace('${short.version}', "${project.shortVersion}")}
+}
+
 shadowJar {
     configurations = [project.configurations.runtimeClasspath]
     dependencies {

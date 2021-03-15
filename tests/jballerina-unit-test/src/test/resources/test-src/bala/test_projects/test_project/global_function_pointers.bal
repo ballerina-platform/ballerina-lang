@@ -4,6 +4,8 @@ function (string a, boolean b) returns string glf2 = function (string a, boolean
                                                                return a + b.toString();
                                                            };
 
+public function anyFunc = <function> glf1;
+
 function (string, int) returns string glf3 = function (string a, int b) returns string {
     return "llll";
 };
@@ -28,7 +30,15 @@ public function setGlf3(function (string, int) returns string func) {
     glf3 = func;
 }
 
-function concat (string x, int y) returns string {
+public function anyFunction1() returns function {
+    return glf2;
+}
+
+public function anyFunction2(function (string, int) returns string func) returns function {
+    return <function> func;
+}
+
+public function concat (string x, int y) returns string {
     string result = x + y.toString();
     return result;
 }

@@ -97,12 +97,14 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ENV;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_ERROR_REASONS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BAL_EXTENSION;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BERROR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BIG_DECIMAL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLANG_EXCEPTION_HELPER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BLOCKED_ON_EXTERN_FIELD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_FUNCTION_POINTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.B_OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CHANNEL_DETAILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DECIMAL_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.DEFAULT_STRAND_DISPATCHER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ERROR_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION;
@@ -141,6 +143,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_TH
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_VALUE_ANY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_OF_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WD_CHANNELS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_DATA_CHANNEL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.WORKER_UTILS;
@@ -236,6 +239,15 @@ public class JvmTerminatorGen {
             case TypeTags.READONLY:
             case TypeTags.STREAM:
                 mv.visitInsn(ACONST_NULL);
+                break;
+            case TypeTags.DECIMAL:
+                mv.visitTypeInsn(NEW, DECIMAL_VALUE);
+                mv.visitInsn(DUP);
+                mv.visitInsn(DCONST_0);
+                mv.visitMethodInsn(INVOKESTATIC, BIG_DECIMAL, VALUE_OF_METHOD, String.format("(D)L%s;", BIG_DECIMAL),
+                        false);
+                mv.visitMethodInsn(INVOKESPECIAL, DECIMAL_VALUE, JVM_INIT_METHOD, String.format("(L%s;)V", BIG_DECIMAL),
+                        false);
                 break;
             case JTypeTags.JTYPE:
                 loadDefaultJValue(mv, (JType) bType);

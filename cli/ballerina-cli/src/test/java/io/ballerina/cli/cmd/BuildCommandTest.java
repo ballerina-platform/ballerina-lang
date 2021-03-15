@@ -19,6 +19,7 @@
 package io.ballerina.cli.cmd;
 
 import io.ballerina.cli.launcher.BLauncherException;
+import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -37,8 +38,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
-import static io.ballerina.cli.utils.FileUtils.deleteDirectory;
-import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -154,7 +153,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), hippoJarLog);
 
         Assert.assertTrue(Files.exists(helloExecutableTmpDir.toAbsolutePath().resolve("hippo.jar")));
-        deleteDirectory(helloExecutableTmpDir);
+        ProjectUtils.deleteDirectory(helloExecutableTmpDir);
     }
 
     @Test(description = "Build non .bal file")
@@ -225,15 +224,35 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""),
                             getOutput("build-bal-project.txt"));
 
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("bir")
                 .resolve("winery.bir").toFile().exists());
+    }
+
+    @Test(description = "Build a valid ballerina project")
+    public void testBuildBalProjectWithJarConflicts() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithConflictedJars");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                            getOutput("build-bal-project-with-jar-conflicts.txt"));
+
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bin").resolve("conflictProject.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
+                                  .resolve("conflictProject").resolve("0.1.7").resolve("java11")
+                                  .resolve("conflictProject.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
+                                  .resolve("conflictProject").resolve("0.1.7").resolve("bir")
+                                  .resolve("conflictProject.bir").toFile().exists());
     }
 
     @Test(description = "Build a valid ballerina project with java imports")
@@ -248,35 +267,16 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
                 "\tfoo/winery:0.1.0\n" +
                 "\n" +
-                "Running Tests\n\n" +
-                "\twinery\n" +
-                "\tNo tests found\n" +
-                "\n" +
-                "Creating bala\n" +
-                "\ttarget/bala/foo-winery-java11-0.1.0.bala\n" +
-                "\n" +
                 "Generating executable\n" +
-                "\ttarget/bin/winery-0.1.0.jar\n");
+                "\ttarget/bin/winery.jar\n");
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-java11-0.1.0.bala")
-                                  .toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                                   .resolve("winery").resolve("0.1.0").resolve("java11")
                                   .resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                                   .resolve("winery").resolve("0.1.0").resolve("bir")
                                   .resolve("winery.bir").toFile().exists());
-
-        // check Dependencies.toml file
-        Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
-        String dependenciesTomlContent = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
-        Assert.assertEquals(dependenciesTomlContent, "[[dependency]]\n"
-                                                        + "org = \"ballerina\"\n"
-                                                        + "name = \"jballerina.java\"\n"
-                                                        + "version = \"0.9.0\"\n"
-                                                        + "\n"
-                                                        + "\n");
     }
 
     @Test(description = "Build a valid ballerina project")
@@ -289,9 +289,7 @@ public class BuildCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-bal-project.txt"));
 
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("winery.jar").toFile().exists());
@@ -311,9 +309,7 @@ public class BuildCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-bal-project-with-tests.txt"));
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala")
-                                  .toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("winery.jar").toFile().exists());
@@ -323,7 +319,7 @@ public class BuildCommandTest extends BaseCommandTest {
     }
 
     @Test(description = "Build a valid ballerina project")
-    public void testArtifactCreationWhenTestsFail() throws IOException {
+    public void testArtifactCreationWhenTestsFail() {
         Path projectPath = this.testResources.resolve("validProjectWithFailingTests");
         System.setProperty("user.dir", projectPath.toString());
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
@@ -333,10 +329,7 @@ public class BuildCommandTest extends BaseCommandTest {
             buildCommand.execute();
             Assert.fail("exception expected");
         } catch (BLauncherException e) {
-            Assert.assertFalse(projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala")
-                    .toFile().exists());
-            Assert.assertFalse(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile()
-                    .exists());
+            Assert.assertFalse(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         }
     }
 
@@ -354,9 +347,7 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(buildLog.replaceAll("\r", "").equals(actualOutput1)
                 || buildLog.replaceAll("\r", "").equals(actualOutput2));
 
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("winery.jar").toFile().exists());
@@ -383,9 +374,7 @@ public class BuildCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-project-default-build-options.txt"));
 
-        Assert.assertTrue(
-                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("winery.jar").toFile().exists());
@@ -404,16 +393,18 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         String expectedLog = getOutput("build-bal-project-override-build-options.txt")
                 .replace("<TEST_RESULTS_JSON_PATH>",
                          projectPath.resolve("target").resolve("report").resolve("test_results.json").toString());
         Assert.assertEquals(buildLog.replaceAll("\r", ""), expectedLog);
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala")
-                                  .toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("winery.jar").toFile().exists());
@@ -435,16 +426,18 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         String expectedLog = getOutput("build-bal-project-override-build-options.txt")
                 .replace("<TEST_RESULTS_JSON_PATH>",
                          projectPath.resolve("target").resolve("report").resolve("test_results.json").toString());
         Assert.assertEquals(buildLog.replaceAll("\r", ""), expectedLog);
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala")
-                                  .toFile().exists());
-        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery-0.1.0.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                 .resolve("winery").resolve("0.1.0").resolve("java11")
                 .resolve("winery.jar").toFile().exists());
@@ -509,11 +502,31 @@ public class BuildCommandTest extends BaseCommandTest {
         String buildLog = readOutput(true);
         Assert.assertEquals(buildLog.replaceAll("\r", ""), getOutput("build-project-with-empty-ballerina-toml.txt"));
 
-        Assert.assertTrue(projectPath.resolve("target").resolve("bala")
-                                  .resolve("john-validProjectWithEmptyBallerinaToml-any-0.1.0.bala").toFile().exists());
         Assert.assertTrue(
-                projectPath.resolve("target").resolve("bin").resolve("validProjectWithEmptyBallerinaToml-0.1.0.jar")
-                        .toFile().exists());
+                projectPath.resolve("target").resolve("bin").resolve("validProjectWithEmptyBallerinaToml.jar").toFile()
+                        .exists());
+    }
+
+    @Test(description = "Build a valid ballerina project with empty ballerina.toml")
+    public void testCompileProject() throws IOException {
+        Path projectPath = this.testResources.resolve("validProject");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        // non existing bal file
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("compile-bal-project.txt"));
+
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("java11")
+                .resolve("winery.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
+                .resolve("winery").resolve("0.1.0").resolve("bir")
+                .resolve("winery.bir").toFile().exists());
     }
 
     static class Copy extends SimpleFileVisitor<Path> {

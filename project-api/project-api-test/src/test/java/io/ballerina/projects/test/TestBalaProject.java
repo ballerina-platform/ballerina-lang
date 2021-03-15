@@ -35,6 +35,7 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.testng.Assert;
@@ -109,6 +110,13 @@ public class TestBalaProject {
         Assert.assertEquals(packageDescriptorDependencyGraph.getNodes().size(), 1);
         DependencyGraph<ModuleId> moduleIdDependencyGraph = currentPackage.moduleDependencyGraph();
         Assert.assertEquals(moduleIdDependencyGraph.getNodes().size(), 3);
+
+        // compiler plugin
+        Optional<CompilerPluginDescriptor> pluginDescriptor = currentPackage.compilerPluginDescriptor();
+        Assert.assertTrue(pluginDescriptor.isPresent());
+        Assert.assertEquals(pluginDescriptor.get().plugin().getId(), "openapi-validator");
+        Assert.assertEquals(pluginDescriptor.get().plugin().getClassName(), "io.ballerina.openapi.Validator");
+        Assert.assertEquals(pluginDescriptor.get().getCompilerPluginDependencies().size(), 2);
     }
 
     @Test (description = "test balo project load with newly created balo")
@@ -120,7 +128,7 @@ public class TestBalaProject {
         try {
             project = BuildProject.load(projectPath);
         } catch (Exception e) {
-            Assert.fail(e.getMessage());
+            Assert.fail(e.getMessage(), e);
         }
 
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
