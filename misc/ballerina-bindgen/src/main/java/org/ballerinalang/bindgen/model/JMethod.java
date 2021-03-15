@@ -84,14 +84,17 @@ public class JMethod extends BFunction {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    public JMethod(Method m, BindgenEnv env, String parentPrefix, Class jClass, String shortClassName) {
+    public JMethod(Method m, BindgenEnv env, String parentPrefix, Class jClass, int overloaded) {
         super(BFunctionKind.METHOD, env);
         this.env = env;
         this.parentPrefix = parentPrefix;
-        this.shortClassName = shortClassName;
         method = m;
         javaMethodName = m.getName();
-        methodName = m.getName();
+        if (overloaded != 0) {
+            methodName = m.getName() + overloaded;
+        } else {
+            methodName = m.getName();
+        }
         shortClassName = getAlias(m.getDeclaringClass());
         isStatic = isStaticMethod(m);
         super.setStatic(isStatic);
