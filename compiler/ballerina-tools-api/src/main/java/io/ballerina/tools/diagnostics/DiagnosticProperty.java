@@ -15,17 +15,16 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.tools.diagnostics.properties;
+package io.ballerina.tools.diagnostics;
 
 /**
- * Represents the kind of the diagnostic property.
+ * Represents properties passed when diagnostic logging.
  *
- * @since Swan Lake
+ * @param <T> Kind of property.
+ * @since 2.0.0
  */
-public enum DiagnosticPropertyKind {
-    SYMBOLIC,
-    STRING,
-    NUMERIC,
-    COLLECTION,
-    OTHER
+public interface DiagnosticProperty<T> {
+    DiagnosticPropertyKind kind();
+
+    T value();
 }

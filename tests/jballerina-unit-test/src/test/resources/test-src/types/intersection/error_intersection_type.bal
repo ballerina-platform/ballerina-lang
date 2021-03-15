@@ -118,12 +118,51 @@ public function testIntersectionAsFieldInAnonymousRecord() {
     assertEquality(errRec.err, err);
 }
 
+type IntersectionOfInlineErrorOne DistinctErrorOne & error<map<string>>;
+type IntersectionOfInlineErrorTwo DistinctErrorOne & error<Detail>;
+type IntersectionOfInlineErrorThree DistinctErrorOne & error<DetailFour>;
+
+type IntersectionOfDistinctAndInlineErrorOne distinct DistinctErrorOne & error<map<string>>;
+type IntersectionOfDistinctAndInlineErrorTwo distinct DistinctErrorOne & error<Detail>;
+type IntersectionOfDistinctAndInlineErrorThree distinct DistinctErrorOne & error<DetailFour>;
+
+public function testIntersectionOfErrorWithInlineError() {
+    IntersectionOfInlineErrorOne eOne = error IntersectionOfInlineErrorOne("eOne", x = "ex");
+    assertEquality(eOne.message(), "eOne");
+    assertEquality(eOne.detail().x, "ex");
+
+    IntersectionOfInlineErrorTwo eTwo = error IntersectionOfInlineErrorTwo("eTwo", x = "ex");
+    assertEquality(eTwo.message(), "eTwo");
+    assertEquality(eTwo.detail().x, "ex");
+
+    IntersectionOfInlineErrorThree eThree = error IntersectionOfInlineErrorThree("eThree", x = "ex");
+    assertEquality(eThree.message(), "eThree");
+    assertEquality(eThree.detail().x, "ex");
+
+    IntersectionOfInlineErrorOne eOneDash = eThree;
+    assertEquality(eOneDash.message(), "eThree");
+
+    var dErrorOne = error IntersectionOfDistinctAndInlineErrorOne("eOne", x = "ex");
+    assertEquality(dErrorOne.message(), "eOne");
+    assertEquality(dErrorOne.detail().x, "ex");
+
+    DistinctErrorOne dOneDash = dErrorOne;
+    assertEquality(dOneDash.message(), "eOne");
+    assertEquality(dOneDash.detail().x, "ex");
+
+    DistinctErrorOne dErrorTwo = error IntersectionOfDistinctAndInlineErrorTwo("eTwo", x = "ex");
+    assertEquality(dErrorTwo.message(), "eTwo");
+    assertEquality(dErrorTwo.detail().x, "ex");
+
+    DistinctErrorOne dErrorThree = error IntersectionOfDistinctAndInlineErrorThree("eThree", x = "ex");
+    assertEquality(dErrorThree.message(), "eThree");
+    assertEquality(dErrorThree.detail().x, "ex");
+}
+
 function getAnonymousRecord(IntersectionErrorThree err) returns record {IntersectionErrorThree err;} {
     record {IntersectionErrorThree err;} errRec = {err};
     return errRec;
 }
-
-const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
@@ -136,6 +175,6 @@ function assertEquality(any|error actual, any|error expected) {
 
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error(ASSERTION_ERROR_REASON,
+    panic error("AssertionError",
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

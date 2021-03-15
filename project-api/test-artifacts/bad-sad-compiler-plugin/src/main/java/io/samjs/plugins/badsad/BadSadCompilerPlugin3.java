@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -15,16 +15,13 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.tools.diagnostics.properties;
+package io.samjs.plugins.badsad;
 
 /**
- * Represents properties passed when diagnostic logging.
- * @param <T> Kind of property.
+ * A class that does not extend {@code CompilerPlugin}.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
-public interface DiagnosticProperty<T> {
-    DiagnosticPropertyKind kind();
+public class BadSadCompilerPlugin3 {
 
-    T value();
 }

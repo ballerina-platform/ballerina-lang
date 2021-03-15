@@ -45,20 +45,12 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
-import static org.ballerinalang.central.client.CentralClientConstants.SSL;
 
 /**
  * Utils class for this package.
@@ -74,20 +66,6 @@ public class Utils {
     public enum RequestMethod {
         GET, POST
     }
-
-    private static TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-            return new java.security.cert.X509Certificate[] {};
-        }
-
-        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-            //No need to implement.
-        }
-
-        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-            //No need to implement.
-        }
-    } };
 
     /**
      * Create the bala in home repo.
@@ -297,19 +275,6 @@ public class Utils {
             return new URL(url);
         } catch (MalformedURLException e) {
             throw new ConnectionErrorException("malformed url:" + url, e);
-        }
-    }
-
-    /**
-     * Initialize SSL.
-     */
-    static void initializeSsl() throws CentralClientException {
-        try {
-            SSLContext sc = SSLContext.getInstance(SSL);
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw new CentralClientException("initializing SSL failed: " + e.getMessage());
         }
     }
 

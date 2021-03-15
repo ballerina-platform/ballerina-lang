@@ -18,43 +18,24 @@
 package io.samjs.jarlibrary.diagnosticutils;
 
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-
-import java.util.Collections;
-import java.util.List;
 
 /**
  * A dummy diagnostic related util class.
+ *
+ * @since 2.0.0
  */
 public class DiagnosticUtils {
 
     public static Diagnostic createDiagnostic(String code,
-                                              String message,
+                                              String messageFormat,
                                               Location location,
-                                              DiagnosticSeverity severity) {
-        return new Diagnostic() {
-            @Override
-            public Location location() {
-                return location;
-            }
-
-            @Override
-            public DiagnosticInfo diagnosticInfo() {
-                return new DiagnosticInfo(code, "err.dummy.msg", severity);
-            }
-
-            @Override
-            public String message() {
-                return message;
-            }
-
-            @Override
-            public List<DiagnosticProperty<?>> properties() {
-                return Collections.emptyList();
-            }
-        };
+                                              DiagnosticSeverity severity,
+                                              Object... args) {
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(code, messageFormat, severity);
+        return DiagnosticFactory.createDiagnostic(diagnosticInfo, location, args);
     }
 }
