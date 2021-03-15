@@ -3739,7 +3739,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext(),
                 expressionType, testType, env);
 
-        if (intersectionType != null && intersectionType != symTable.semanticError) {
+        if (intersectionType != symTable.semanticError) {
             return true;
         }
 
