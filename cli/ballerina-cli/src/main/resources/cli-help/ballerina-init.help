@@ -47,12 +47,12 @@ EXAMPLES
         $ bal init
         $ bal init <package-name>
 
-     Initialise a package with a 'main' template.
+     Initialise a package with the 'main' function.
         $ bal init --template main
         $ bal init <package-name>
 
      Initialise a package with a Ballerina service.
         $ bal init <package-name> -t service
 
-     Initialise a package with a Ballerina library.
+     Initialise a package with the Ballerina library template.
         $ bal init <package-name> -t lib

@@ -38,6 +38,7 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 /**
  * Manages the various code analyzer tasks.
@@ -75,18 +76,18 @@ class CodeAnalyzerManager {
     private static CodeAnalyzerTasks initCodeAnalyzers(List<CompilerPluginContextIml> compilerPluginContexts) {
         CodeAnalyzerTasks codeAnalyzerTasks = new CodeAnalyzerTasks();
         for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
-            for (CodeAnalyzer codeAnalyzer : compilerPluginContext.codeAnalyzers()) {
+            for (CodeAnalyzerInfo codeAnalyzerInfo : compilerPluginContext.codeAnalyzers()) {
                 CodeAnalysisContextImpl codeAnalysisContext = new CodeAnalysisContextImpl(
-                        codeAnalyzer, codeAnalyzerTasks);
-                codeAnalyzer.init(codeAnalysisContext);
+                        codeAnalyzerInfo, codeAnalyzerTasks);
+                codeAnalyzerInfo.codeAnalyzer().init(codeAnalysisContext);
             }
         }
         return codeAnalyzerTasks;
     }
 
     private void runCompilationAnalysisTasks(List<Diagnostic> reportedDiagnostics) {
-        for (Map.Entry<CodeAnalyzer, List<CompilationAnalysisTask>> codeAnalyzerListEntry :
-                codeAnalyzerTasks.compilationAnalysisTaskMap.entrySet()) {
+        for (Map.Entry<CodeAnalyzerInfo, List<CompilationAnalysisTask>> codeAnalyzerListEntry :
+                codeAnalyzerTasks.compAnalysisTaskMap.entrySet()) {
             runCompilationAnalysisTask(codeAnalyzerListEntry.getValue(), reportedDiagnostics);
         }
     }
@@ -147,17 +148,18 @@ class CodeAnalyzerManager {
      */
     static class CodeAnalysisContextImpl implements CodeAnalysisContext {
         private final CodeAnalyzerTasks codeAnalyzerTasks;
-        private final CodeAnalyzer codeAnalyzer;
+        private final CodeAnalyzerInfo codeAnalyzerInfo;
 
-        CodeAnalysisContextImpl(CodeAnalyzer codeAnalyzer,
+        CodeAnalysisContextImpl(CodeAnalyzerInfo codeAnalyzerInfo,
                                 CodeAnalyzerTasks codeAnalyzerTasks) {
-            this.codeAnalyzer = codeAnalyzer;
+            this.codeAnalyzerInfo = codeAnalyzerInfo;
             this.codeAnalyzerTasks = codeAnalyzerTasks;
         }
 
         @Override
         public void addCompilationAnalysisTask(AnalysisTask<CompilationAnalysisContext> analysisTask) {
-            codeAnalyzerTasks.addCompilationAnalysisTask(codeAnalyzer, new CompilationAnalysisTask(analysisTask));
+            codeAnalyzerTasks.addCompilationAnalysisTask(codeAnalyzerInfo,
+                    new CompilationAnalysisTask(analysisTask, codeAnalyzerInfo));
         }
 
         @Override
@@ -169,8 +171,8 @@ class CodeAnalyzerManager {
         @Override
         public void addSyntaxNodeAnalysisTask(AnalysisTask<SyntaxNodeAnalysisContext> analysisTask,
                                               Collection<SyntaxKind> syntaxKinds) {
-            codeAnalyzerTasks.addSyntaxNodeAnalysisTask(codeAnalyzer,
-                    new SyntaxNodeAnalysisTask(analysisTask, syntaxKinds));
+            codeAnalyzerTasks.addSyntaxNodeAnalysisTask(codeAnalyzerInfo,
+                    new SyntaxNodeAnalysisTask(analysisTask, syntaxKinds, codeAnalyzerInfo));
         }
     }
 
@@ -180,29 +182,21 @@ class CodeAnalyzerManager {
      * @since 2.0.0
      */
     static class CodeAnalyzerTasks {
-        private final Map<CodeAnalyzer, List<CompilationAnalysisTask>> compilationAnalysisTaskMap = new HashMap<>();
-        private final Map<CodeAnalyzer, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap = new HashMap<>();
+        private final Map<CodeAnalyzerInfo, List<CompilationAnalysisTask>> compAnalysisTaskMap = new HashMap<>();
+        private final Map<CodeAnalyzerInfo, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap = new HashMap<>();
 
-        void addCompilationAnalysisTask(CodeAnalyzer codeAnalyzer, CompilationAnalysisTask analysisTask) {
-            addTask(codeAnalyzer, compilationAnalysisTaskMap, analysisTask);
+        void addCompilationAnalysisTask(CodeAnalyzerInfo codeAnalyzerInfo, CompilationAnalysisTask analysisTask) {
+            addTask(codeAnalyzerInfo, compAnalysisTaskMap, analysisTask);
 
         }
 
-        void addSyntaxNodeAnalysisTask(CodeAnalyzer codeAnalyzer, SyntaxNodeAnalysisTask analysisTask) {
-            addTask(codeAnalyzer, syntaxNodeAnalysisTaskMap, analysisTask);
+        void addSyntaxNodeAnalysisTask(CodeAnalyzerInfo codeAnalyzerInfo, SyntaxNodeAnalysisTask analysisTask) {
+            addTask(codeAnalyzerInfo, syntaxNodeAnalysisTaskMap, analysisTask);
         }
 
-        <T> void addTask(CodeAnalyzer codeAnalyzer, Map<CodeAnalyzer, List<T>> map, T task) {
-            List<T> tasks = map.computeIfAbsent(codeAnalyzer, key -> new ArrayList<>());
+        <T> void addTask(CodeAnalyzerInfo codeAnalyzerInfo, Map<CodeAnalyzerInfo, List<T>> map, T task) {
+            List<T> tasks = map.computeIfAbsent(codeAnalyzerInfo, key -> new ArrayList<>());
             tasks.add(task);
-        }
-
-        public Map<CodeAnalyzer, List<CompilationAnalysisTask>> compilationAnalysisTaskMap() {
-            return compilationAnalysisTaskMap;
-        }
-
-        public Map<CodeAnalyzer, List<SyntaxNodeAnalysisTask>> syntaxNodeAnalysisTaskMap() {
-            return syntaxNodeAnalysisTaskMap;
         }
     }
 
@@ -214,18 +208,26 @@ class CodeAnalyzerManager {
     static class SyntaxNodeAnalysisTask {
         private final AnalysisTask<SyntaxNodeAnalysisContext> analysisTask;
         private final Collection<SyntaxKind> syntaxKinds;
+        private final CodeAnalyzerInfo codeAnalyzerInfo;
 
         SyntaxNodeAnalysisTask(AnalysisTask<SyntaxNodeAnalysisContext> analysisTask,
-                               Collection<SyntaxKind> syntaxKinds) {
+                               Collection<SyntaxKind> syntaxKinds,
+                               CodeAnalyzerInfo codeAnalyzerInfo) {
             this.analysisTask = analysisTask;
             this.syntaxKinds = syntaxKinds;
+            this.codeAnalyzerInfo = codeAnalyzerInfo;
         }
 
         void perform(SyntaxNodeAnalysisContext syntaxNodeAnalysisContext) {
             try {
                 analysisTask.perform(syntaxNodeAnalysisContext);
             } catch (Throwable e) {
-                throw new ProjectException("A compiler extension failed to complete, " + e.getMessage(), e);
+                // Used Throwable here catch any sort of error produced by the third-party compiler plugin code
+                PackageDescriptor pkgDesc = codeAnalyzerInfo.compilerPluginInfo().packageDesc();
+                throw new ProjectException("The compiler extension in package '" +
+                        pkgDesc.org() +
+                        ":" + pkgDesc.name() +
+                        ":" + pkgDesc.version() + "' failed to complete. " + e.getMessage(), e);
             }
         }
 
@@ -241,16 +243,24 @@ class CodeAnalyzerManager {
      */
     static class CompilationAnalysisTask {
         private final AnalysisTask<CompilationAnalysisContext> analysisTask;
+        private final CodeAnalyzerInfo codeAnalyzerInfo;
 
-        CompilationAnalysisTask(AnalysisTask<CompilationAnalysisContext> analysisTask) {
+        CompilationAnalysisTask(AnalysisTask<CompilationAnalysisContext> analysisTask,
+                                CodeAnalyzerInfo codeAnalyzerInfo) {
             this.analysisTask = analysisTask;
+            this.codeAnalyzerInfo = codeAnalyzerInfo;
         }
 
         void perform(CompilationAnalysisContext compilationAnalysisContext) {
             try {
                 analysisTask.perform(compilationAnalysisContext);
             } catch (Throwable e) {
-                throw new ProjectException("A compiler extension failed to complete, " + e.getMessage(), e);
+                // Used Throwable here catch any sort of error produced by the third-party compiler plugin code
+                PackageDescriptor pkgDesc = codeAnalyzerInfo.compilerPluginInfo().packageDesc();
+                throw new ProjectException("The compiler extension in package '" +
+                        pkgDesc.org() +
+                        ":" + pkgDesc.name() +
+                        ":" + pkgDesc.version() + "' failed to complete. " + e.getMessage(), e);
             }
         }
     }
@@ -475,6 +485,50 @@ class CodeAnalyzerManager {
                 syntaxNodeAnalysisTask.perform(analysisContext);
                 diagnostics.addAll(analysisContext.reportedDiagnostics());
             }
+        }
+    }
+
+    /**
+     * This class holds a {@code CodeAnalyzer} instance with additional details such the
+     * containing compiler plugin's {@code CompilerPluginInfo} instance.
+     *
+     * @since 2.0.0
+     */
+    static class CodeAnalyzerInfo {
+        private final CodeAnalyzer codeAnalyzer;
+        private final CompilerPluginInfo compilerPluginInfo;
+
+        CodeAnalyzerInfo(CodeAnalyzer codeAnalyzer, CompilerPluginInfo compilerPluginInfo) {
+            this.codeAnalyzer = codeAnalyzer;
+            this.compilerPluginInfo = compilerPluginInfo;
+        }
+
+        CodeAnalyzer codeAnalyzer() {
+            return codeAnalyzer;
+        }
+
+        CompilerPluginInfo compilerPluginInfo() {
+            return compilerPluginInfo;
+        }
+
+        @Override
+        public boolean equals(Object o) {
+            if (this == o) {
+                return true;
+            }
+
+            if (o == null || getClass() != o.getClass()) {
+                return false;
+            }
+
+            CodeAnalyzerInfo that = (CodeAnalyzerInfo) o;
+            return Objects.equals(codeAnalyzer, that.codeAnalyzer) &&
+                    Objects.equals(compilerPluginInfo, that.compilerPluginInfo);
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(codeAnalyzer, compilerPluginInfo);
         }
     }
 }
