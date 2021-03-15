@@ -77,9 +77,6 @@ public function testNestedIterableObject() returns int[] {
 
 public function testIterableObjectReturnedByRangeExpression() returns int[] {
     object {
-        public int iStart;
-        public int iEnd;
-        public int iCurrent;
         public isolated function iterator() returns object {
                 public isolated function next() returns record {| int value; |}?;
             };
