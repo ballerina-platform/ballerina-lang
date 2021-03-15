@@ -695,7 +695,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangMatchStatement source) {
         BLangMatchStatement clone = new BLangMatchStatement();
         source.cloneRef = clone;
-        clone.setExpression(source.getExpression());
+        clone.setExpression(clone(source.getExpression()));
         clone.matchClauses = cloneList(source.matchClauses);
         clone.onFailClause = source.onFailClause;
     }
