@@ -27,7 +27,6 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -42,7 +41,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClauseNode> {
+public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinClauseNode> {
 
     public JoinClauseNodeContext() {
         super(JoinClauseNode.class);
@@ -75,6 +74,8 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
              * (3) join var test i<cursor> expression
              */
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
+        } else if (cursorAtTheEndOfClause(context, node)) {
+            completionItems.addAll(this.getKeywordCompletions(context, node));
         } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
              * Covers the remaining rule content,
@@ -94,6 +95,15 @@ public class JoinClauseNodeContext extends AbstractCompletionProvider<JoinClause
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    protected boolean cursorAtTheEndOfClause(BallerinaCompletionContext context, JoinClauseNode node) {
+        if (node.expression() == null || node.expression().isMissing()) {
+            return false;
+        }
+
+        int cursor = context.getCursorPositionInTree();
+        return node.expression().textRange().endOffset() < cursor;
     }
 
     @Override

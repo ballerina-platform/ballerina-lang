@@ -24,7 +24,6 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +34,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class LimitClauseNodeContext extends AbstractCompletionProvider<LimitClauseNode> {
+public class LimitClauseNodeContext extends IntermediateClauseNodeContext<LimitClauseNode> {
 
     public LimitClauseNodeContext() {
         super(LimitClauseNode.class);
@@ -46,7 +45,9 @@ public class LimitClauseNodeContext extends AbstractCompletionProvider<LimitClau
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (cursorAtTheEndOfExpression(context, node)) {
+            completionItems.addAll(this.getKeywordCompletions(context, node));
+        } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
             Covers the cases where the cursor is within the expression context
              */
@@ -56,9 +57,19 @@ public class LimitClauseNodeContext extends AbstractCompletionProvider<LimitClau
         } else {
             completionItems.addAll(this.expressionCompletions(context));
         }
-        this.sort(context, node, completionItems);
         
+        this.sort(context, node, completionItems);
+
         return completionItems;
+    }
+
+    protected boolean cursorAtTheEndOfExpression(BallerinaCompletionContext context, LimitClauseNode node) {
+        if (node.expression() == null || node.expression().isMissing()) {
+            return false;
+        }
+
+        int cursor = context.getCursorPositionInTree();
+        return node.expression().textRange().endOffset() < cursor;
     }
 
     @Override
