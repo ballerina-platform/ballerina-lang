@@ -29,9 +29,10 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class VariableKey {
-    Module module;
-    String variable;
-    Type type;
+    public final Module module;
+    public final String variable;
+    public final Type type;
+    boolean isRequired;
 
     public VariableKey(String org, String module, String version, String variable) {
         this.module = new Module(org, module, version);
@@ -51,10 +52,15 @@ public class VariableKey {
         this.type = type;
     }
 
-    public VariableKey(Module module, String variable, Type type) {
+    public VariableKey(Module module, String variable, Type type, boolean isRequired) {
         this.module = module;
         this.variable = variable;
         this.type = type;
+        this.isRequired = isRequired;
+    }
+
+    public boolean isRequired() {
+        return isRequired;
     }
 
     @Override

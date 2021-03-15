@@ -208,7 +208,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,33)");
 
         Assert.assertEquals(iterator.next().message(), "invalid 'org' under [package]: 'org' can only contain "
-                + "alphanumerics, underscores and periods and the maximum length is 256 characters");
+                + "alphanumerics, underscores and the maximum length is 256 characters");
         Assert.assertEquals(iterator.next().message(), "invalid 'version' under [package]: "
                 + "'version' should be compatible with semver");
     }
@@ -282,7 +282,7 @@ public class BallerinaTomlTests {
     private PackageManifest getPackageManifest(Path tomlPath) throws IOException {
         String tomlContent = Files.readString(tomlPath);
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, tomlContent);
-        return ManifestBuilder.from(ballerinaToml, null, tomlPath.getParent()).packageManifest();
+        return ManifestBuilder.from(ballerinaToml, null, null, tomlPath.getParent()).packageManifest();
     }
 
     private PackageManifest getPackageManifest(Path ballerinaTomlPath, Path dependenciesTomlPath) throws IOException {
@@ -292,6 +292,7 @@ public class BallerinaTomlTests {
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, ballerinaTomlContent);
         TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML, dependenciesTomlContent);
 
-        return ManifestBuilder.from(ballerinaToml, dependenciesToml, ballerinaTomlPath.getParent()).packageManifest();
+        return ManifestBuilder.from(ballerinaToml, dependenciesToml, null, ballerinaTomlPath.getParent())
+                .packageManifest();
     }
 }

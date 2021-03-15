@@ -149,6 +149,19 @@ public function testGetDefaultValueWithBEnv() {
      test:assertEquals(defaultValue, 2021);
 }
 
+public function testDefaultDecimalArgsAddition() {
+    decimal val = defaultDecimalArgsAddition(5);
+    decimal expected = 15.05;
+    test:assertEquals(val, expected);
+}
+
+public function testDefaultDecimalArgs() {
+    handle h = java:fromString("8");
+    anydata val = defaultDecimalArgs(h);
+    anydata expected = ();
+    test:assertEquals(val, expected);
+}
+
 function hashCode(int receiver) returns int = @java:Method {
     name: "hashCode",
     'class: "java.lang.Byte",
@@ -345,5 +358,13 @@ public function testCreateStudentUsingType() {
 }
 
 function createStudentUsingType() returns (Student & readonly) = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function defaultDecimalArgsAddition(decimal a, decimal b = 10.05) returns (decimal) = @java:Method {
+    'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
+} external;
+
+function defaultDecimalArgs(handle s, decimal d = -1) returns (anydata) = @java:Method {
     'class:"org/ballerinalang/nativeimpl/jvm/tests/StaticMethods"
 } external;

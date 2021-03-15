@@ -27,6 +27,7 @@ import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BMap;
@@ -689,6 +690,7 @@ public class ValueCreator {
      * @param packageId      the package id that the record type resides.
      * @param recordTypeName name of the record type.
      * @return value of the record.
+     * @throws BError if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName) {
         return ValueUtils.createRecordValue(packageId, recordTypeName);
@@ -702,6 +704,7 @@ public class ValueCreator {
      * @param recordTypeName name of the record type.
      * @param valueMap       values to be used for fields when creating the record.
      * @return value of the populated record.
+     * @throws BError if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createRecordValue(Module packageId, String recordTypeName,
                                                           Map<String, Object> valueMap) {
@@ -716,6 +719,7 @@ public class ValueCreator {
      * @param recordTypeName name of the record type.
      * @param valueMap       values to be used for fields when creating the record.
      * @return value of the populated record.
+     * @throws BError if given record type is not defined in the ballerina module.
      */
     public static BMap<BString, Object> createReadonlyRecordValue(Module packageId, String recordTypeName,
                                                                   Map<String, Object> valueMap) {
@@ -743,6 +747,7 @@ public class ValueCreator {
      * @param objectTypeName name of the object type.
      * @param fieldValues    values to be used for fields when creating the object value instance.
      * @return value of the object.
+     * @throws BError if given object type is not defined in the ballerina module.
      */
     public static BObject createObjectValue(Module packageId, String objectTypeName, Object... fieldValues) {
         return ValueUtils.createObjectValue(packageId, objectTypeName, fieldValues);

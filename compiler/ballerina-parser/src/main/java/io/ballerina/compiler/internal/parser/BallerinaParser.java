@@ -820,19 +820,16 @@ public class BallerinaParser extends AbstractParser {
                 // Here we assume that after recovering, we'll never reach here.
                 // Otherwise the tokenOffset will not be 1.
                 if (isModuleVarDeclStart(1)) {
-                    reportInvalidQualifier(publicQualifier);
-                    return parseModuleVarDecl(metadata, qualifiers);
+                    return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
                 }
                 // fall through
             default:
                 if (isPossibleServiceDecl(qualifiers)) {
-                    reportInvalidQualifier(publicQualifier);
-                    return parseServiceDeclOrVarDecl(metadata, qualifiers);
+                    return parseServiceDeclOrVarDecl(metadata, publicQualifier, qualifiers);
                 }
 
                 if (isTypeStartingToken(nextToken.kind) && nextToken.kind != SyntaxKind.IDENTIFIER_TOKEN) {
-                    reportInvalidQualifier(publicQualifier);
-                    return parseModuleVarDecl(metadata, qualifiers);
+                    return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
                 }
 
                 STToken token = peek();
@@ -843,8 +840,7 @@ public class BallerinaParser extends AbstractParser {
                     // If the solution is {@link Action#KEEP}, that means next immediate token is
                     // at the correct place, but some token after that is not. There only one such
                     // cases here, which is the `case IDENTIFIER_TOKEN`. So accept it, and continue.
-                    reportInvalidQualifier(publicQualifier);
-                    return parseModuleVarDecl(metadata, qualifiers);
+                    return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
                 }
 
                 return parseTopLevelNode(metadata, publicQualifier, qualifiers);
@@ -853,7 +849,8 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseModuleVarDecl(STNode metadata) {
         List<STNode> emptyList = new ArrayList<>();
-        return parseVariableDecl(metadata, emptyList, emptyList, true);
+        STNode publicQualifier = STNodeFactory.createEmptyNode();
+        return parseVariableDecl(metadata, publicQualifier, emptyList, emptyList, true);
     }
 
     /**
@@ -864,20 +861,22 @@ public class BallerinaParser extends AbstractParser {
      * <code>
      * module-var-decl := module-init-var-decl | module-no-init-var-decl
      * <br/><br/>
-     * module-init-var-decl := metadata isolated-final-quals typed-binding-pattern = expression ;
+     * module-init-var-decl := metadata [public] module-init-var-quals typed-binding-pattern = module-var-init ;
      * <br/><br/>
-     * module-no-init-var-decl := metadata [final] type-descriptor variable-name ;
+     * module-no-init-var-decl := metadata [public] [final] type-descriptor variable-name ;
      * <br/><br/>
-     * isolated-final-quals := (final | isolated-qual)*
+     * module-init-var-quals := (final | isolated-qual | configurable)*
+     * <br/><br/>
+     * module-var-init := expression | ?
      * </code>
      *
      * @param metadata           Preceding metadata
      * @param topLevelQualifiers Preceding top level qualifiers
      * @return Parsed node
      */
-    private STNode parseModuleVarDecl(STNode metadata, List<STNode> topLevelQualifiers) {
+    private STNode parseModuleVarDecl(STNode metadata, STNode publicQualifier, List<STNode> topLevelQualifiers) {
         List<STNode> varDeclQuals = extractVarDeclQualifiers(topLevelQualifiers);
-        return parseVariableDecl(metadata, varDeclQuals, topLevelQualifiers, true);
+        return parseVariableDecl(metadata, publicQualifier, varDeclQuals, topLevelQualifiers, true);
     }
 
     private List<STNode> extractVarDeclQualifiers(List<STNode> qualifiers) {
@@ -1116,24 +1115,85 @@ public class BallerinaParser extends AbstractParser {
         return funcDefOrType;
     }
 
+    private STNode parseFunctionDefinition(STNode metadata, STNode visibilityQualifier, STNode resourcePath,
+                                           List<STNode> qualifiers, STNode functionKeyword, STNode name,
+                                           boolean isObjectMember, boolean isObjectTypeDesc) {
+        switchContext(ParserRuleContext.FUNC_DEF);
+        STNode funcSignature = parseFuncSignature(false);
+        STNode funcDef = parseFuncDefOrMethodDeclEnd(metadata, visibilityQualifier, qualifiers, functionKeyword, name,
+                                                     resourcePath, funcSignature, isObjectMember, isObjectTypeDesc);
+        endContext();
+        return funcDef;
+    }
+
+    /**
+     * Parse function definition or function type descriptor identifier rhs.
+     *
+     * @param metadata Preceding metadata
+     * @param visibilityQualifier Preceding visibility qualifier
+     * @param qualifiers Preceding visibility qualifier
+     * @param functionKeyword `function` keyword
+     * @param isObjectMember Whether object member or not
+     * @param isObjectTypeDesc Whether object type or not
+     * @return Parsed node
+     */
+    private STNode parseFuncDefOrFuncTypeDescRhs(STNode metadata, STNode visibilityQualifier, List<STNode> qualifiers,
+                                                 STNode functionKeyword, STNode name, boolean isObjectMember,
+                                                 boolean isObjectTypeDesc) {
+        switch (peek().kind) {
+            case OPEN_PAREN_TOKEN:
+            case DOT_TOKEN:
+            case IDENTIFIER_TOKEN:
+            case OPEN_BRACKET_TOKEN:
+                STNode resourcePath = parseOptionalRelativePath(isObjectMember);
+                return parseFunctionDefinition(metadata, visibilityQualifier, resourcePath, qualifiers, functionKeyword,
+                                               name, isObjectMember, isObjectTypeDesc);
+            case EQUAL_TOKEN:
+            case SEMICOLON_TOKEN:
+                endContext();
+                List<STNode> extractQualifiersList = extractVarDeclOrObjectFieldQualifiers(qualifiers, isObjectMember,
+                                                                                           isObjectTypeDesc);
+                STNode typeDesc = createFunctionTypeDescriptor(qualifiers, functionKeyword,
+                                                               STNodeFactory.createEmptyNode(), false);
+
+                if (isObjectMember) {
+                    STNode objectFieldQualNodeList = STNodeFactory.createNodeList(extractQualifiersList);
+                    return parseObjectFieldRhs(metadata, visibilityQualifier, objectFieldQualNodeList, typeDesc, name,
+                                               isObjectTypeDesc);
+                }
+                startContext(ParserRuleContext.VAR_DECL_STMT);
+                STNode funcTypeName = STNodeFactory.createSimpleNameReferenceNode(name);
+                STNode bindingPattern = createCaptureOrWildcardBP(((STSimpleNameReferenceNode) funcTypeName).name);
+                STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(typeDesc, bindingPattern);
+                return parseVarDeclRhs(metadata, visibilityQualifier, extractQualifiersList, typedBindingPattern, true);
+            default:
+            STToken token = peek();
+            recover(token, ParserRuleContext.FUNC_DEF_OR_TYPE_DESC_RHS, metadata, visibilityQualifier, qualifiers,
+                    functionKeyword, isObjectMember, isObjectTypeDesc);
+            return parseFuncDefOrFuncTypeDescRhs(metadata, visibilityQualifier, qualifiers, functionKeyword, name,
+                                                 isObjectMember, isObjectTypeDesc);
+        }
+    }
+
     private STNode parseFunctionKeywordRhs(STNode metadata, STNode visibilityQualifier, List<STNode> qualifiers,
                                            STNode functionKeyword, boolean isObjectMember, boolean isObjectTypeDesc) {
         switch (peek().kind) {
             case IDENTIFIER_TOKEN:
-                STNode name = parseFunctionName();
-                STNode resourcePath = parseOptionalRelativePath(isObjectMember);
-                switchContext(ParserRuleContext.FUNC_DEF);
-                STNode funcSignature = parseFuncSignature(false);
-                STNode funcDef = parseFuncDefOrMethodDeclEnd(metadata, visibilityQualifier, qualifiers, functionKeyword,
-                        name, resourcePath, funcSignature, isObjectMember, isObjectTypeDesc);
-                endContext();
-                return funcDef;
+                STNode name = consume();
+                return parseFuncDefOrFuncTypeDescRhs(metadata, visibilityQualifier, qualifiers, functionKeyword, name,
+                                                     isObjectMember, isObjectTypeDesc);
             case OPEN_PAREN_TOKEN:
-                funcSignature = parseFuncSignature(true);
+                STNode funcSignature = parseFuncSignature(true);
                 return parseFunctionTypeDescRhs(metadata, visibilityQualifier, qualifiers, functionKeyword,
                         funcSignature, isObjectMember, isObjectTypeDesc);
             default:
                 STToken token = peek();
+                if (isValidTypeContinuationToken(token)) {
+                    return parseVarDeclWithFunctionType(metadata, visibilityQualifier, qualifiers, functionKeyword,
+                                                        STNodeFactory.createEmptyNode(), isObjectMember,
+                                                        isObjectTypeDesc, false);
+                }
+
                 recover(token, ParserRuleContext.FUNCTION_KEYWORD_RHS, metadata, visibilityQualifier, qualifiers,
                         functionKeyword, isObjectMember, isObjectTypeDesc);
                 return parseFunctionKeywordRhs(metadata, visibilityQualifier, qualifiers, functionKeyword,
@@ -1523,9 +1583,8 @@ public class BallerinaParser extends AbstractParser {
                 // Parse the remaining as var-decl, because its the only module-level construct
                 // that can start with a func-type-desc. Constants cannot have func-type-desc.
             default:
-                endContext(); // end the func-type
                 return parseVarDeclWithFunctionType(metadata, visibilityQualifier, qualifiers, functionKeyword,
-                        funcSignature, isObjectMember, isObjectTypeDesc);
+                                                    funcSignature, isObjectMember, isObjectTypeDesc, true);
         }
 
         // Treat as function definition.
@@ -1544,74 +1603,42 @@ public class BallerinaParser extends AbstractParser {
         return funcDef;
     }
 
+    private List<STNode> extractVarDeclOrObjectFieldQualifiers(List<STNode> qualifierList, boolean isObjectMember,
+                                                               boolean isObjectTypeDesc) {
+        if (isObjectMember) {
+            return extractObjectFieldQualifiers(qualifierList, isObjectTypeDesc);
+        }
+        return extractVarDeclQualifiers(qualifierList);
+    }
+
+    private STNode createFunctionTypeDescriptor(List<STNode> qualifierList, STNode functionKeyword,
+                                                STNode funcSignature, boolean hasFuncSignature) {
+        STNode qualifierNodeList = createFuncTypeQualNodeList(qualifierList, hasFuncSignature);
+        return STNodeFactory.createFunctionTypeDescriptorNode(qualifierNodeList, functionKeyword, funcSignature);
+    }
+
     private STNode parseVarDeclWithFunctionType(STNode metadata, STNode visibilityQualifier, List<STNode> qualifierList,
                                                 STNode functionKeyword, STNode funcSignature, boolean isObjectMember,
-                                                boolean isObjectTypeDesc) {
-
-        // --------------------------------------- Validate Qualifiers ---------------------------------------------
-
-        List<STNode> varDeclQualifiers = new ArrayList<>();
-        List<STNode> objectFieldQualifiers = new ArrayList<>();
-
-        if (isObjectMember) {
-            objectFieldQualifiers = extractObjectFieldQualifiers(qualifierList, isObjectTypeDesc);
-        } else {
-            if (visibilityQualifier != null) {
-                // Visibility qualifier is not allowed in the variable declaration
-                STToken invalidQualifier = (STToken) visibilityQualifier;
-                if (qualifierList.isEmpty()) {
-                    functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword,
-                            visibilityQualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
-                            ((STToken) visibilityQualifier).text());
-                } else {
-                    updateFirstNodeInListWithLeadingInvalidNode(qualifierList, invalidQualifier,
-                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, invalidQualifier.text());
-                }
-            }
-
-            varDeclQualifiers = extractVarDeclQualifiers(qualifierList);
-        }
-
-        // Validate qualifiers and create a STNodeList
-        List<STNode> validatedList = new ArrayList<>();
-
-        for (int i = 0; i < qualifierList.size(); i++) {
-            STNode qualifier = qualifierList.get(i);
-            int nextIndex = i + 1;
-
-            if (isSyntaxKindInList(validatedList, qualifier.kind)) {
-                updateLastNodeInListWithInvalidNode(validatedList, qualifier,
-                        DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
-            } else if (isRegularFuncQual(qualifier.kind)) {
-                validatedList.add(qualifier);
-            } else if (qualifierList.size() == nextIndex) {
-                functionKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(functionKeyword, qualifier,
-                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
-            } else {
-                updateANodeInListWithLeadingInvalidNode(qualifierList, nextIndex, qualifier,
-                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) qualifier).text());
-            }
-        }
-
-        STNode qualifierNodeList = STNodeFactory.createNodeList(validatedList);
-
-        // --------------------------------------- End of Validation -----------------------------------------------
-
-        STNode typeDesc = STNodeFactory.createFunctionTypeDescriptorNode(qualifierNodeList, functionKeyword,
-                funcSignature);
+                                                boolean isObjectTypeDesc, boolean hasFuncSignature) {
+        switchContext(ParserRuleContext.VAR_DECL_STMT);
+        List<STNode> extractQualifiersList = extractVarDeclOrObjectFieldQualifiers(qualifierList, isObjectMember,
+                                                                                   isObjectTypeDesc);
+        STNode typeDesc = createFunctionTypeDescriptor(qualifierList, functionKeyword, funcSignature, hasFuncSignature);
 
         // Check if it is a complex type desc starting with function type.
         typeDesc = parseComplexTypeDescriptor(typeDesc,
-                ParserRuleContext.TOP_LEVEL_FUNC_DEF_OR_FUNC_TYPE_DESC, false);
+                ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, false);
 
         if (isObjectMember) {
-            STNode objectFieldQualNodeList = STNodeFactory.createNodeList(objectFieldQualifiers);
+            endContext();
+            STNode objectFieldQualNodeList = STNodeFactory.createNodeList(extractQualifiersList);
             STNode fieldName = parseVariableName();
             return parseObjectFieldRhs(metadata, visibilityQualifier, objectFieldQualNodeList, typeDesc, fieldName,
                     isObjectTypeDesc);
         }
 
-        return parseVarDeclTypeDescRhs(typeDesc, metadata, varDeclQualifiers, false, true);
+        STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, ParserRuleContext.VAR_DECL_STMT);
+        return parseVarDeclRhs(metadata, visibilityQualifier, extractQualifiersList, typedBindingPattern, true);
     }
 
     /**
@@ -2756,7 +2783,8 @@ public class BallerinaParser extends AbstractParser {
 
                 // if function keyword follows by a identifier treat is as
                 // the function name. Only function def can have func-name
-                return peek(peekIndex + 1).kind == SyntaxKind.IDENTIFIER_TOKEN;
+                return peek(peekIndex + 1).kind == SyntaxKind.IDENTIFIER_TOKEN &&
+                        peek(peekIndex + 2).kind == SyntaxKind.OPEN_PAREN_TOKEN;
             default:
                 return false;
         }
@@ -4089,7 +4117,9 @@ public class BallerinaParser extends AbstractParser {
                     // If the statement starts with a type, then its a var declaration.
                     // This is an optimization since if we know the next token is a type, then
                     // we can parse the var-def faster.
-                    return parseVariableDecl(getAnnotations(annots), new ArrayList<>(), qualifiers, false);
+                    STNode publicQualifier = STNodeFactory.createEmptyNode();
+                    return parseVariableDecl(getAnnotations(annots), publicQualifier, new ArrayList<>(), qualifiers,
+                            false);
                 }
 
                 STToken token = peek();
@@ -4108,7 +4138,7 @@ public class BallerinaParser extends AbstractParser {
 
     /**
      * <p>
-     * Parse variable declaration. Variable declaration can be a local or module level.
+     * Parse local variable declaration.
      * </p>
      *
      * <code>
@@ -4129,19 +4159,26 @@ public class BallerinaParser extends AbstractParser {
         if (finalKeyword != null) {
             varDecQualifiers.add(finalKeyword);
         }
-        return parseVariableDecl(annots, varDecQualifiers, typeDescQualifiers, false);
+        STNode publicQualifier = STNodeFactory.createEmptyNode();
+        return parseVariableDecl(annots, publicQualifier, varDecQualifiers, typeDescQualifiers, false);
     }
 
-    private STNode parseVariableDecl(STNode annots, List<STNode> varDeclQuals,
-                                     List<STNode> typeDescQualifiers,
-                                     boolean isModuleVar) {
+    private STNode parseVariableDecl(STNode annots, STNode publicQualifier, List<STNode> varDeclQuals,
+                                     List<STNode> typeDescQualifiers, boolean isModuleVar) {
         startContext(ParserRuleContext.VAR_DECL_STMT);
         STNode typeBindingPattern = parseTypedBindingPattern(typeDescQualifiers,
                 ParserRuleContext.VAR_DECL_STMT);
-        return parseVarDeclRhs(annots, varDeclQuals, typeBindingPattern, isModuleVar);
+        return parseVarDeclRhs(annots, publicQualifier, varDeclQuals, typeBindingPattern, isModuleVar);
     }
 
     private STNode parseVarDeclTypeDescRhs(STNode typeDesc, STNode metadata, List<STNode> qualifiers,
+                                           boolean isTypedBindingPattern, boolean isModuleVar) {
+        STNode publicQualifier = STNodeFactory.createEmptyNode();
+        return parseVarDeclTypeDescRhs(typeDesc, metadata, publicQualifier, qualifiers, isTypedBindingPattern,
+                isModuleVar);
+    }
+
+    private STNode parseVarDeclTypeDescRhs(STNode typeDesc, STNode metadata, STNode publicQual, List<STNode> qualifiers,
                                            boolean isTypedBindingPattern, boolean isModuleVar) {
         startContext(ParserRuleContext.VAR_DECL_STMT);
         // Check for complex type desc
@@ -4150,7 +4187,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode typedBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc,
                 ParserRuleContext.VAR_DECL_STMT);
-        return parseVarDeclRhs(metadata, qualifiers, typedBindingPattern, isModuleVar);
+        return parseVarDeclRhs(metadata, publicQual, qualifiers, typedBindingPattern, isModuleVar);
     }
 
     /**
@@ -4166,8 +4203,14 @@ public class BallerinaParser extends AbstractParser {
      * @param typedBindingPattern     Typed binding pattern
      * @return Parsed node
      */
-    private STNode parseVarDeclRhs(STNode metadata, List<STNode> varDeclQuals, STNode typedBindingPattern,
-                                   boolean isModuleVar) {
+    private STNode parseVarDeclRhs(STNode metadata, List<STNode> varDeclQuals,
+                                   STNode typedBindingPattern, boolean isModuleVar) {
+        STNode publicQualifier = STNodeFactory.createEmptyNode();
+        return parseVarDeclRhs(metadata, publicQualifier, varDeclQuals, typedBindingPattern, isModuleVar);
+    }
+
+    private STNode parseVarDeclRhs(STNode metadata, STNode publicQualifier, List<STNode> varDeclQuals,
+                                   STNode typedBindingPattern, boolean isModuleVar) {
         STNode assign;
         STNode expr;
         STNode semicolon;
@@ -4202,7 +4245,7 @@ public class BallerinaParser extends AbstractParser {
             default:
                 recover(nextToken, ParserRuleContext.VAR_DECL_STMT_RHS, metadata, varDeclQuals,
                         typedBindingPattern, isModuleVar);
-                return parseVarDeclRhs(metadata, varDeclQuals, typedBindingPattern, isModuleVar);
+                return parseVarDeclRhs(metadata, publicQualifier, varDeclQuals, typedBindingPattern, isModuleVar);
         }
 
         endContext();
@@ -4220,8 +4263,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (isModuleVar) {
-            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr,
-                    semicolon, isConfigurable, hasVarInit);
+            return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign,
+                    expr, semicolon, isConfigurable, hasVarInit);
         }
 
         STNode finalKeyword;
@@ -4253,11 +4296,12 @@ public class BallerinaParser extends AbstractParser {
         return expr;
     }
 
-    private STNode createModuleVarDeclaration(STNode metadata, List<STNode> varDeclQuals,
+    private STNode createModuleVarDeclaration(STNode metadata, STNode publicQualifier, List<STNode> varDeclQuals,
                                               STNode typedBindingPattern, STNode assign, STNode expr, STNode semicolon,
                                               boolean isConfigurable, boolean hasVarInit) {
         if (hasVarInit || varDeclQuals.isEmpty()) {
-            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
+            return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign,
+                    expr, semicolon);
         }
 
         if (isConfigurable) {
@@ -4267,7 +4311,8 @@ public class BallerinaParser extends AbstractParser {
                     DiagnosticErrorCode.ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED);
             STToken questionMarkToken = SyntaxErrors.createMissingToken(SyntaxKind.QUESTION_MARK_TOKEN);
             expr = STNodeFactory.createRequiredExpressionNode(questionMarkToken);
-            return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
+            return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign,
+                    expr, semicolon);
         }
 
         // If following 3 conditions are satisfied, we should let isolated qualifier to be a part of the type.
@@ -4281,15 +4326,35 @@ public class BallerinaParser extends AbstractParser {
                     modifyTypedBindingPatternWithIsolatedQualifier(typedBindingPattern, lastQualifier);
         }
 
-        return createModuleVarDeclaration(metadata, varDeclQuals, typedBindingPattern, assign, expr, semicolon);
+        return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign, expr,
+                semicolon);
     }
 
     // Do not use this method directly.
-    private STNode createModuleVarDeclaration(STNode metadata, List<STNode> varDeclQuals,
+    private STNode createModuleVarDeclaration(STNode metadata, STNode publicQualifier, List<STNode> varDeclQuals,
                                               STNode typedBindingPattern, STNode assign,
                                               STNode expr, STNode semicolon) {
+        // Invalidate public qualifier with isolated qualifier and declared with var
+        if (publicQualifier != null) {
+            if (((STTypedBindingPatternNode) typedBindingPattern).typeDescriptor.kind == SyntaxKind.VAR_TYPE_DESC) {
+                if (varDeclQuals.size() > 0) {
+                    updateFirstNodeInListWithLeadingInvalidNode(varDeclQuals, publicQualifier,
+                            DiagnosticErrorCode.ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC);
+                } else {
+                    typedBindingPattern = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(typedBindingPattern,
+                            publicQualifier, DiagnosticErrorCode.ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC);
+                }
+                publicQualifier = STNodeFactory.createEmptyNode();
+
+            } else if (isSyntaxKindInList(varDeclQuals, SyntaxKind.ISOLATED_KEYWORD)) {
+                updateFirstNodeInListWithLeadingInvalidNode(varDeclQuals, publicQualifier,
+                        DiagnosticErrorCode.ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC);
+                publicQualifier = STNodeFactory.createEmptyNode();
+            }
+        }
+
         STNode varDeclQualifiersNode = STNodeFactory.createNodeList(varDeclQuals);
-        return STNodeFactory.createModuleVariableDeclarationNode(metadata, varDeclQualifiersNode,
+        return STNodeFactory.createModuleVariableDeclarationNode(metadata, publicQualifier, varDeclQualifiersNode,
                 typedBindingPattern, assign, expr, semicolon);
     }
 
@@ -7033,48 +7098,49 @@ public class BallerinaParser extends AbstractParser {
      * @param qualifiers     Preceding top level qualifiers
      * @return Parsed node
      */
-    private STNode parseServiceDeclOrVarDecl(STNode metadata, List<STNode> qualifiers) {
+    private STNode parseServiceDeclOrVarDecl(STNode metadata, STNode publicQualifier, List<STNode> qualifiers) {
         startContext(ParserRuleContext.SERVICE_DECL);
-        STNode serviceDeclQualNodeList = extractAndCreateServiceDeclQual(qualifiers);
+        List<STNode> serviceDeclQualList = extractServiceDeclQualifiers(qualifiers);
         STNode serviceKeyword = extractServiceKeyword(qualifiers);
         STNode typeDesc = parseServiceDeclTypeDescriptor(qualifiers);
 
         if (typeDesc != null && typeDesc.kind == SyntaxKind.OBJECT_TYPE_DESC) {
-            return parseServiceDeclOrVarDecl(metadata, serviceDeclQualNodeList, serviceKeyword, typeDesc);
+            return parseServiceDeclOrVarDecl(metadata, publicQualifier, serviceDeclQualList, serviceKeyword,
+                    typeDesc);
         } else {
-            return parseServiceDecl(metadata, serviceDeclQualNodeList, serviceKeyword, typeDesc);
+            return parseServiceDecl(metadata, publicQualifier, serviceDeclQualList, serviceKeyword, typeDesc);
         }
     }
 
-    private STNode parseServiceDeclOrVarDecl(STNode metadata, STNode serviceDeclQualNodeList, STNode serviceKeyword,
-                                             STNode typeDesc) {
+    private STNode parseServiceDeclOrVarDecl(STNode metadata, STNode publicQualifier, List<STNode> serviceDeclQualList,
+                                             STNode serviceKeyword, STNode typeDesc) {
         // Reaching here means service keyword is followed by an object type desc.
         // It could either be service declaration or variable declaration with service object type.
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case SLASH_TOKEN:
             case ON_KEYWORD:
-                return parseServiceDecl(metadata, serviceDeclQualNodeList, serviceKeyword, typeDesc);
+                return parseServiceDecl(metadata, publicQualifier, serviceDeclQualList, serviceKeyword, typeDesc);
             case OPEN_BRACKET_TOKEN: // List binding pattern
             case IDENTIFIER_TOKEN: // Binding pattern starts with identifier
             case OPEN_BRACE_TOKEN: // Mapping binding pattern
             case ERROR_KEYWORD: // Error binding pattern
                 endContext(); // End `SERVICE_DECL` context
                 typeDesc = modifyObjectTypeDescWithALeadingQualifier(typeDesc, serviceKeyword);
-                STNodeList qualifiers = (STNodeList) serviceDeclQualNodeList;
-                if (!qualifiers.isEmpty()) {
+                if (!serviceDeclQualList.isEmpty()) {
                     // Currently, service-decl-quals := isolated-qual only.
-                    STNode isolatedQualifier = qualifiers.get(0);
+                    STNode isolatedQualifier = serviceDeclQualList.get(0);
                     typeDesc = modifyObjectTypeDescWithALeadingQualifier(typeDesc, isolatedQualifier);
                 }
-                return parseVarDeclTypeDescRhs(typeDesc, metadata, new ArrayList<>(), true, true);
+                return parseVarDeclTypeDescRhs(typeDesc, metadata, publicQualifier, new ArrayList<>(), true, true);
             default:
                 recover(nextToken, ParserRuleContext.SERVICE_DECL_OR_VAR_DECL);
-                return parseServiceDeclOrVarDecl(metadata, serviceDeclQualNodeList, serviceKeyword, typeDesc);
+                return parseServiceDeclOrVarDecl(metadata, publicQualifier, serviceDeclQualList, serviceKeyword,
+                        typeDesc);
         }
     }
 
-    private STNode extractAndCreateServiceDeclQual(List<STNode> qualifierList) {
+    private List<STNode> extractServiceDeclQualifiers(List<STNode> qualifierList) {
         // We only reach here for a qualifierList containing service keyword/s.
         // Validate qualifierList until first service keyword is reached.
         List<STNode> validatedList = new ArrayList<>();
@@ -7109,7 +7175,7 @@ public class BallerinaParser extends AbstractParser {
             }
         }
 
-        return STNodeFactory.createNodeList(validatedList);
+        return validatedList;
     }
 
     private STNode extractServiceKeyword(List<STNode> qualifierList) {
@@ -7133,13 +7199,28 @@ public class BallerinaParser extends AbstractParser {
      * object-constructor-block := { object-member* }
      * </code>
      *
-     * @param metadata       Metadata
-     * @param qualNodeList   Qualifiers that precede service keyword
-     * @param serviceKeyword Service keyword
-     * @param serviceType    Type descriptor
+     * @param metadata        Metadata
+     * @param publicQualifier Public qualifier to invalidate if present
+     * @param qualList        Qualifiers that precede service keyword
+     * @param serviceKeyword  Service keyword
+     * @param serviceType     Type descriptor
      * @return Parsed node
      */
-    private STNode parseServiceDecl(STNode metadata, STNode qualNodeList, STNode serviceKeyword, STNode serviceType) {
+    private STNode parseServiceDecl(STNode metadata, STNode publicQualifier, List<STNode> qualList,
+                                    STNode serviceKeyword, STNode serviceType) {
+        // Invalidate public qualifier if present
+        if (publicQualifier != null) {
+            if (qualList.size() > 0) {
+                updateFirstNodeInListWithLeadingInvalidNode(qualList, publicQualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+            } else {
+                serviceKeyword = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(serviceKeyword, publicQualifier,
+                        DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+            }
+        }
+
+        STNode qualNodeList = STNodeFactory.createNodeList(qualList);
+
         STNode resourcePath = parseOptionalAbsolutePathOrStringLiteral();
         STNode onKeyword = parseOnKeyword();
         STNode expressionList = parseListeners();
@@ -10250,14 +10331,25 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseFunctionTypeDesc(List<STNode> qualifiers) {
         startContext(ParserRuleContext.FUNC_TYPE_DESC);
-        STNode qualifierList = createFuncTypeQualNodeList(qualifiers);
+        STNode qualifierList;
         STNode functionKeyword = parseFunctionKeyword();
-        STNode signature = parseFuncSignature(true);
+        STNode signature;
+        switch (peek().kind) {
+            case OPEN_PAREN_TOKEN:
+                signature = parseFuncSignature(true);
+                qualifierList = createFuncTypeQualNodeList(qualifiers, true);
+                break;
+            default:
+                signature = STNodeFactory.createEmptyNode();
+                qualifierList = createFuncTypeQualNodeList(qualifiers, false);
+                break;
+        }
+
         endContext();
         return STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword, signature);
     }
 
-    private STNode createFuncTypeQualNodeList(List<STNode> qualifierList) {
+    private STNode createFuncTypeQualNodeList(List<STNode> qualifierList, boolean hasFuncSignature) {
         // Validate qualifiers and create a STNodeList
         List<STNode> validatedList = new ArrayList<>();
 
@@ -10268,7 +10360,9 @@ public class BallerinaParser extends AbstractParser {
             if (isSyntaxKindInList(validatedList, qualifier.kind)) {
                 updateLastNodeInListWithInvalidNode(validatedList, qualifier,
                         DiagnosticErrorCode.ERROR_DUPLICATE_QUALIFIER, ((STToken) qualifier).text());
-            } else if (isRegularFuncQual(qualifier.kind)) {
+            } else if (hasFuncSignature && isRegularFuncQual(qualifier.kind)) {
+                validatedList.add(qualifier);
+            } else if (qualifier.kind == SyntaxKind.ISOLATED_KEYWORD) {
                 validatedList.add(qualifier);
             } else if (qualifierList.size() == nextIndex) {
                 addInvalidNodeToNextToken(qualifier, DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED,
@@ -10305,7 +10399,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseExplicitFunctionExpression(STNode annots, List<STNode> qualifiers, boolean isRhsExpr) {
         startContext(ParserRuleContext.ANON_FUNC_EXPRESSION);
-        STNode qualifierList = createFuncTypeQualNodeList(qualifiers);
+        STNode qualifierList = createFuncTypeQualNodeList(qualifiers, true);
         STNode funcKeyword = parseFunctionKeyword();
         STNode funcSignature = parseFuncSignature(false);
         // Context ended inside parseAnonFuncBody method
@@ -14199,7 +14293,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         STNode closeParen = parseCloseParenthesis();
-        return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typeOrExpr, closeParen);
+        STNode typeDescNode = getTypeDescFromExpr(typeOrExpr);
+        return STNodeFactory.createParenthesisedTypeDescriptorNode(openParen, typeDescNode, closeParen);
     }
 
     /**
@@ -14314,11 +14409,27 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseAnonFuncExprOrFuncTypeDesc(List<STNode> qualifiers) {
         startContext(ParserRuleContext.FUNC_TYPE_DESC_OR_ANON_FUNC);
-        STNode qualifierList = createFuncTypeQualNodeList(qualifiers);
+        STNode qualifierList;
         STNode functionKeyword = parseFunctionKeyword();
-        STNode funcSignature = parseFuncSignature(true);
-        endContext();
+        STNode funcSignature;
+        if (peek().kind == SyntaxKind.OPEN_PAREN_TOKEN) {
+            funcSignature = parseFuncSignature(true);
+            qualifierList = createFuncTypeQualNodeList(qualifiers, true);
+            endContext();
+            return parseAnonFuncExprOrFuncTypeDesc(qualifierList, functionKeyword, funcSignature);
+        }
+        funcSignature = STNodeFactory.createEmptyNode();
+        qualifierList = createFuncTypeQualNodeList(qualifiers, false);
+        STNode funcTypeDesc = STNodeFactory.createFunctionTypeDescriptorNode(qualifierList, functionKeyword,
+                                                                             funcSignature);
+        if (getCurrentContext() != ParserRuleContext.STMT_START_BRACKETED_LIST) {
+            switchContext(ParserRuleContext.VAR_DECL_STMT);
+            return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true);
+        }
+        return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
+    }
 
+    private STNode parseAnonFuncExprOrFuncTypeDesc(STNode qualifierList, STNode functionKeyword, STNode funcSignature) {
         ParserRuleContext currentCtx = getCurrentContext();
         switch (peek().kind) {
             case OPEN_BRACE_TOKEN:
@@ -14344,8 +14455,7 @@ public class BallerinaParser extends AbstractParser {
                     return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN,
                             true);
                 }
-                return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE,
-                        false);
+                return parseComplexTypeDescriptor(funcTypeDesc, ParserRuleContext.TYPE_DESC_IN_TUPLE, false);
         }
     }
 
@@ -15382,7 +15492,8 @@ public class BallerinaParser extends AbstractParser {
                 }
                 break;
             default:
-                if (!isTypedBindingPattern && isValidExpressionStart(nextToken.kind, 1)) {
+                if ((!isTypedBindingPattern && isValidExpressionStart(nextToken.kind, 1)) ||
+                        isQualifiedIdentifierPredeclaredPrefix(nextToken.kind)) {
                     break;
                 }
 
@@ -15550,12 +15661,16 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode createTypedBindingPattern(STNode typeDescOrExpr, STNode openBracket, STNode member,
                                              STNode closeBracket) {
-        STNode bindingPatterns;
-        if (isEmpty(member)) {
-            bindingPatterns = STNodeFactory.createEmptyNodeList();
-        } else {
-            STNode bindingPattern = getBindingPattern(member);
-            bindingPatterns = STNodeFactory.createNodeList(bindingPattern);
+        STNode bindingPatterns = STNodeFactory.createEmptyNodeList();
+        if (!isEmpty(member)) {
+            // Invalidate Field binding pattern inside list binding pattern
+            if (member.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                openBracket = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(openBracket, member,
+                        DiagnosticErrorCode.ERROR_FIELD_BP_INSIDE_LIST_BP);
+            } else {
+                STNode bindingPattern = getBindingPattern(member);
+                bindingPatterns = STNodeFactory.createNodeList(bindingPattern);
+            }
         }
 
         STNode bindingPattern = STNodeFactory.createListBindingPatternNode(openBracket, bindingPatterns, closeBracket);
@@ -17102,8 +17217,10 @@ public class BallerinaParser extends AbstractParser {
         STTypedBindingPatternNode typedBP = (STTypedBindingPatternNode) typedBPOrExpr;
         STNode qualifiedNameRef = STNodeFactory.createQualifiedNameReferenceNode(identifier, colon, secondIdentifier);
         STNode newTypeDesc = mergeQualifiedNameWithTypeDesc(qualifiedNameRef, typedBP.typeDescriptor);
+
         STNode newTypeBP = STNodeFactory.createTypedBindingPatternNode(newTypeDesc, typedBP.bindingPattern);
-        return parseVarDeclRhs(annots, varDeclQualifiers, newTypeBP, false);
+        STNode publicQualifier = STNodeFactory.createEmptyNode();
+        return parseVarDeclRhs(annots, publicQualifier, varDeclQualifiers, newTypeBP, false);
     }
 
     /**

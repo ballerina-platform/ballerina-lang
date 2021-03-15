@@ -32,11 +32,13 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectConstants;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.RUN_COMMAND;
@@ -56,7 +58,7 @@ public class RunCommand implements BLauncherCmd {
     private boolean exitWhenFinish;
 
     @CommandLine.Parameters(description = "Program arguments")
-    private List<String> argList;
+    private List<String> argList = new ArrayList<>();
 
     @CommandLine.Option(names = {"--help", "-h", "?"}, hidden = true)
     private boolean helpFlag;
@@ -83,9 +85,10 @@ public class RunCommand implements BLauncherCmd {
     private Boolean taintCheck;
 
     private static final String runCmd = "bal run [--experimental] [--offline] [--taint-check]\n" +
-            "                  <executable-jar | ballerina-file | . | package-path> [program-args] [(--key=value)...]";
+            "                  [<executable-jar | ballerina-file | package-path>] [-- program-args...]";
 
     public RunCommand() {
+        this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
         this.outStream = System.err;
         this.errStream = System.err;
     }
@@ -110,14 +113,24 @@ public class RunCommand implements BLauncherCmd {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
         }
 
-        String[] args;
-        if (this.argList == null) {
-            CommandUtil.printError(this.errStream, "no package path provided.", runCmd, false);
-            CommandUtil.exitError(this.exitWhenFinish);
-            return;
-        } else {
-            args = argList.subList(1, argList.size()).toArray(new String[0]);
-            this.projectPath = Paths.get(argList.get(0)).toAbsolutePath().normalize();
+        String[] args = new String[0];
+        if (!argList.isEmpty()) {
+            if (!argList.get(0).equals("--")) { // project path provided
+                this.projectPath = Paths.get(argList.get(0));
+                if (argList.size() > 1 && !argList.get(1).equals("--")) {
+                    CommandUtil.printError(this.errStream,
+                            "unmatched command argument found: " + argList.get(1), runCmd, false);
+                    CommandUtil.exitError(this.exitWhenFinish);
+                    return;
+                }
+                if (argList.size() > 2 && argList.get(1).equals("--")) { // args to main provided
+                    args = argList.subList(2, argList.size()).toArray(new String[0]);
+                }
+            } else { // current directory is the project path
+                if (argList.size() > 1 && argList.get(0).equals("--")) { // args to main provided
+                    args = argList.subList(1, argList.size()).toArray(new String[0]);
+                }
+            }
         }
 
         // load project
@@ -174,9 +187,8 @@ public class RunCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal run {<balfile> | <project-path> | executable-jar}[--offline]\n" +
-                "                 [(--key=value)...] "
-                + "[--] [args...] \n");
+        out.append("  bal run [--offline] [<balfile> | <project-path> | executable-jar]\n" +
+                "[--] [args...] \n");
     }
 
     @Override
