@@ -231,6 +231,9 @@ public class Types {
             case TypeTags.ARRAY:
                 return isJSONContext(((BArrayType) type).eType);
             case TypeTags.UNION:
+                if (((BUnionType) type).isCyclic) {
+                    return type.isNullable();
+                }
                 return hasJsonContextInUnion(((BUnionType) type).getMemberTypes());
             default:
                 return isSimpleBasicType(type.tag) || type.tag == TypeTags.JSON;
@@ -239,7 +242,12 @@ public class Types {
 
     public boolean hasJsonContextInUnion(LinkedHashSet<BType> memberTypes) {
         for (BType type : memberTypes) {
-            return isJSONContext(type);
+            if (type.tag == TypeTags.NIL) {
+                continue;
+            }
+            if (isJSONContext(type)) {
+                return true;
+            }
         }
         return false;
     }

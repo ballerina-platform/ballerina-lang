@@ -870,8 +870,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     dlog.error(matchPattern.pos, DiagnosticErrorCode.MATCH_STMT_PATTERN_UNREACHABLE);
                 }
             }
-
-            this.isJSONContext = types.isJSONContext(matchExprType);
+            if (matchExprType.isNullable()) {
+                this.isJSONContext = types.isJSONContext(matchExprType);
+            }
             analyzeNode(matchPattern, env);
             hasLastPatternInClause = hasLastPatternInClause || matchPattern.isLastPattern;
         }
@@ -1604,8 +1605,9 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 dlog.error(patternClause.pos, DiagnosticErrorCode.MATCH_STMT_UNMATCHED_PATTERN);
                 continue;
             }
-
-            this.isJSONContext = types.isJSONContext(matchStmt.expr.type);
+            if (matchStmt.expr.type.isNullable()) {
+                this.isJSONContext = types.isJSONContext(matchStmt.expr.type);
+            }
             analyzeNode(patternClause.literal, env);
             matchedPatterns.add(patternClause);
         }
@@ -4027,7 +4029,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
         for (BType type : arg) {
-            if (types.isJSONContext(type)) {
+            if (type.isNullable() && types.isJSONContext(type)) {
                 return true;
             }
         }
