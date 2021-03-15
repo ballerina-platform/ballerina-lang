@@ -508,6 +508,30 @@ public function testConstPattern16() {
     assertEquals("!Mouse", constPattern16("Dog"));
 }
 
+function constPattern17(any x) returns int {
+    match x {
+        () => {
+            return 1;
+        }
+        true => {
+            return 2;
+        }
+        -1 => {
+            return 3;
+        }
+        _ => {
+            return 4;
+        }
+    }
+}
+
+public function testConstPattern17() {
+    assertEquals(1, constPattern17(()));
+    assertEquals(2, constPattern17(true));
+    assertEquals(3, constPattern17(-1));
+    assertEquals(4, constPattern17(5));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
