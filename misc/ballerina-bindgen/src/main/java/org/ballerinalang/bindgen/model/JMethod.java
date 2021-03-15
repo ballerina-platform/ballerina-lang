@@ -36,7 +36,6 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_BRACKETS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.METHOD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
@@ -56,7 +55,6 @@ public class JMethod extends BFunction {
     private boolean hasReturn = false;
     private boolean returnError = false;
     public boolean objectReturn = false;
-    private boolean reservedWord = false;
     private boolean isArrayReturn = false;
     private boolean hasException = false;
     private boolean handleException = false;
@@ -67,7 +65,6 @@ public class JMethod extends BFunction {
     private String parentPrefix;
 
     private Class parentClass;
-    private Class jClass;
     private Method method;
     private String methodName;
     private String returnType;
@@ -78,7 +75,6 @@ public class JMethod extends BFunction {
     private String javaMethodName;
     private String exceptionConstName;
     private String returnComponentType;
-    private String interopType = METHOD_INTEROP_TYPE;
 
     private List<JParameter> parameters = new ArrayList<>();
     private StringBuilder paramTypes = new StringBuilder();
@@ -141,7 +137,7 @@ public class JMethod extends BFunction {
 
         List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
         if (reservedWords.contains(methodName)) {
-            reservedWord = true;
+            methodName = "'" + methodName;
         }
         if (objectReturn && !getAllJavaClasses().contains(returnTypeClass.getName())) {
             if (isArrayReturn) {

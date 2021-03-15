@@ -1,5 +1,6 @@
 package org.ballerinalang.bindgen.model;
 
+import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
@@ -46,6 +47,9 @@ public class BindgenTreeModifier {
     }
 
     private NodeList<ImportDeclarationNode> modifyImportDeclarationNodes(NodeList<ImportDeclarationNode> imports) {
+        if (imports == null) {
+            return AbstractNodeFactory.createNodeList();
+        }
         if (jClass.isImportJavaArraysModule()) {
             ImportDeclarationNode jArraysImport = BindgenNodeFactory.createImportDeclarationNode("ballerinax",
                     "jarrays", new LinkedList<>(Arrays.asList("java", ".", "arrays")));

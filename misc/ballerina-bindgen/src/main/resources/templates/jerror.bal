@@ -1,9 +1,9 @@
-// Ballerina error type for FULL_CLASS_NAME.
+// Ballerina error type for `FULL_CLASS_NAME`.
 
-const SHORT_CLASS_NAME_CAPS = "SIMPLE_CLASS_NAME";
+ACCESS_MODIFIERconst SIMPLE_CLASS_NAME_CAPS = "SIMPLE_CLASS_NAME";
 
-type SHORT_CLASS_NAMEData record {
+type SIMPLE_CLASS_NAMEData record {
     string message;
 };
 
-type SHORT_CLASS_NAME distinct error<SHORT_CLASS_NAMEData>;
+ACCESS_MODIFIERtype SIMPLE_CLASS_NAME distinct error<SIMPLE_CLASS_NAMEData>;

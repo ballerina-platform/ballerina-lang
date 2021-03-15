@@ -215,7 +215,7 @@ public class BindgenNodeFactory {
         String className = bFunction.getDeclaringClass().getName();
         String documentationValue;
         if (bFunction.getKind() == BFunction.BFunctionKind.CONSTRUCTOR) {
-            documentationValue = "The constructor function to generate an object of type `" + className + "`.";
+            documentationValue = "The constructor function to generate an object of `" + className + "`.";
         } else if (bFunction.getKind() == BFunction.BFunctionKind.METHOD) {
             JMethod jMethod = (JMethod) bFunction;
             documentationValue = "The function that maps to the `" + jMethod.getJavaMethodName() + "` method of `"
