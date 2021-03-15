@@ -69,7 +69,8 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 {"testXml"},
                 {"testArgCombinations"},
                 {"testBuiltInRefType"},
-                {"testParameterizedTypeInUnionWithNonParameterizedTypes"}
+                {"testParameterizedTypeInUnionWithNonParameterizedTypes"},
+                {"testUsageWithVarWithUserSpecifiedArg"}
         };
     }
 
@@ -156,6 +157,8 @@ public class InferredDependentlyTypeFuncSignatureTest {
         validateError(negativeResult, index++, "incompatible types: expected '(stream<boolean>|readonly)', found '" +
                 "(readonly|stream<int>|handle)'", 146, 34);
         validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 147, 25);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 151, 13);
+        validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 152, 13);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }

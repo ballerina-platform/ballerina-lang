@@ -525,7 +525,19 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BTypedescType paramSymbolTypedescType = (BTypedescType) originalType.paramSymbol.type;
             BType paramSymbolType = paramSymbolTypedescType.constraint;
             if (expType != null) {
-                if (expType != symbolTable.noType && !types.isAssignable(expType, paramSymbolType)) {
+                if (expType == symbolTable.noType) {
+                    if (!paramValueTypes.containsKey(paramVarName)) {
+                        // Log an error only if the user has not explicitly passed an argument. If the passed
+                        // argument is invalid, the type checker will log the error.
+                        dlog.error(invocation.pos, DiagnosticErrorCode.CANNOT_INFER_TYPE_FOR_PARAM, paramVarName);
+                        return symbolTable.semanticError;
+                    }
+
+                    BType type = paramValueTypes.get(paramVarName);
+                    return type == symbolTable.semanticError ? expType : ((BTypedescType) type).constraint;
+                }
+
+                if (!types.isAssignable(expType, paramSymbolType)) {
                     if (!paramValueTypes.containsKey(paramVarName)) {
                         // Log an error only if the user has not explicitly passed an argument. If the passed
                         // argument is invalid, the type checker will log the error.

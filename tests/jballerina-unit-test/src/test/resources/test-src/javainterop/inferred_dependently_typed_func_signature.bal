@@ -351,6 +351,12 @@ function testParameterizedTypeInUnionWithNonParameterizedTypes() {
     assert(true, <boolean> checkpanic d);
 }
 
+function testUsageWithVarWithUserSpecifiedArg() {
+    stream<int> strm = (<int[]> [1, 2, 3]).toStream();
+    var x = funcReturningUnionWithBuiltInRefType(strm, IntStream);
+    assertSame(strm, x);
+}
+
 // Interop functions
 function getValue(typedesc<int|float|decimal|string|boolean> td = <>) returns td = @java:Method {
     'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType",

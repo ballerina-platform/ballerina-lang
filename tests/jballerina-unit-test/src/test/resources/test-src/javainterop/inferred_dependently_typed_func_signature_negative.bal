@@ -146,3 +146,8 @@ function testBuiltInRefType() {
     stream<boolean>|readonly d = funcReturningUnionWithBuiltInRefType(strm, IntStream);
     readonly|handle e = funcReturningUnionWithBuiltInRefType();
 }
+
+function testUsageWithVar() {
+    var x = funcReturningUnionWithBuiltInRefType(());
+    var y = funcReturningUnionWithBuiltInRefType();
+}
