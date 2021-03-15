@@ -306,10 +306,13 @@ public class BalaFiles {
             Path libPath = balaPath.getParent().resolve(dependencyPath).normalize();
             if (!Files.exists(libPath)) {
                 try {
-                    Path libPathInZip = Paths.get(dependencyPath);
                     Files.createDirectories(libPath.getParent());
-                    Files.copy(zipFileSystem.getPath(
-                            String.valueOf(Paths.get(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip)))), libPath);
+                    // TODO: Need to refactor this fix
+                    Path libPathInZip = Paths.get(dependencyPath);
+                    if (!dependencyPath.contains(COMPILER_PLUGIN_DIR)) {
+                        libPathInZip = Paths.get(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip));
+                    }
+                    Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
                 } catch (IOException e) {
                     throw new ProjectException(
                             "Failed to extract compiler plugin dependency:" + libPath.getFileName(), e);
