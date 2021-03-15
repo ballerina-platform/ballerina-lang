@@ -4,5 +4,14 @@
     "character": 50
   },
   "source": "query_expression/source/query_expr_ctx_join_clause_source6.bal",
-  "items": []
+  "items": [
+    {
+      "label": "on",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "on ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
 }

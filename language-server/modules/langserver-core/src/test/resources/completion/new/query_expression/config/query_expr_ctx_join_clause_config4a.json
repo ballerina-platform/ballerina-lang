@@ -1,16 +1,16 @@
 {
   "position": {
-    "line": 17,
-    "character": 16
+    "line": 16,
+    "character": 35
   },
-  "source": "query_expression/source/query_expr_ctx_join_clause_source6a.bal",
+  "source": "query_expression/source/query_expr_ctx_join_clause_source4a.bal",
   "items": [
     {
-      "label": "on",
+      "label": "in",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "on ",
+      "insertText": "in ",
       "insertTextFormat": "Snippet"
     }
   ]

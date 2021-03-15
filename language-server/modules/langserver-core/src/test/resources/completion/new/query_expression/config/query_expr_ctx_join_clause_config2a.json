@@ -6,33 +6,6 @@
   "source": "query_expression/source/query_expr_ctx_join_clause_source2a.bal",
   "items": [
     {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Client",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
-      },
-      "insertText": "Client",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Response",
-      "kind": "Interface",
-      "detail": "Object",
-      "documentation": {
-        "left": "Represents a response.\n"
-      },
-      "insertText": "Response",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ResponseMessage",
       "kind": "Enum",
       "detail": "Union",
@@ -53,13 +26,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Object",
-      "insertText": "Listener",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
@@ -74,29 +40,15 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord3",
-      "kind": "Struct",
-      "detail": "Record",
-      "insertText": "TestRecord3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap1",
-      "kind": "Unit",
-      "detail": "Map",
-      "insertText": "TestMap1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestMap2",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Map",
       "insertText": "TestMap2",
       "insertTextFormat": "Snippet"
     },
     {
       "label": "TestMap3",
-      "kind": "Unit",
+      "kind": "TypeParameter",
       "detail": "Map",
       "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
@@ -106,6 +58,61 @@
       "kind": "Interface",
       "detail": "Object",
       "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorOne",
+      "kind": "Event",
+      "detail": "Error",
+      "insertText": "ErrorOne",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorTwo",
+      "kind": "Event",
+      "detail": "Error",
+      "insertText": "ErrorTwo",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Client",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
+      },
+      "insertText": "Client",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Response",
+      "kind": "Interface",
+      "detail": "Class",
+      "documentation": {
+        "left": "Represents a response.\n"
+      },
+      "insertText": "Response",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "insertText": "TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Listener",
+      "kind": "Interface",
+      "detail": "Class",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     }
   ]
