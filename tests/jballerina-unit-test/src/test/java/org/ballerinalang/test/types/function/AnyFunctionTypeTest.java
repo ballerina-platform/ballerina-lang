@@ -40,7 +40,7 @@ public class AnyFunctionTypeTest {
     }
 
     @Test
-    public void testNeverTypeNegative() {
+    public void testAnyFunctionTypeNegative() {
         CompileResult negativeCompileResult =
                 BCompileUtil.compile("test-src/types/function/test_any_function_type_negative.bal");
         int i = 0;
