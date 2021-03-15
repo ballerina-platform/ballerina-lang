@@ -1997,19 +1997,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, env);
         Map<String, BVarSymbol> clauseVariables = matchClause.declaredVars;
 
-        BLangMatchPattern matchPattern = matchPatterns.get(0);
-        SymbolEnv patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
-        analyzeNode(matchPattern, patternEnv);
-        resolveMatchClauseVariableTypes(matchPattern, clauseVariables, blockEnv);
-        if (matchPattern.getKind() != NodeKind.CONST_MATCH_PATTERN) {
-            matchClause.patternsType = matchPattern.type;
-        }
-        for (int i = 1; i < matchPatterns.size(); i++) {
-            matchPattern = matchPatterns.get(i);
-            patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
+        for (BLangMatchPattern matchPattern : matchPatterns) {
+            SymbolEnv patternEnv = SymbolEnv.createPatternEnv(matchPattern, env);
             analyzeNode(matchPattern, patternEnv);
             resolveMatchClauseVariableTypes(matchPattern, clauseVariables, blockEnv);
             if (matchPattern.getKind() == NodeKind.CONST_MATCH_PATTERN) {
+                continue;
+            }
+            if (matchClause.patternsType == null) {
+                matchClause.patternsType = matchPattern.type;
                 continue;
             }
             matchClause.patternsType = types.mergeTypes(matchClause.patternsType, matchPattern.type);
@@ -2123,9 +2119,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
-            if (fieldMatchPattern.matchPattern == null) {
-                return;
-            }
             analyzeNode(fieldMatchPattern, env);
             String fieldName = fieldMatchPattern.fieldName.value;
             BVarSymbol fieldSymbol = new BVarSymbol(0, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
@@ -2257,10 +2250,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangFieldMatchPattern fieldMatchPattern) {
         BLangMatchPattern matchPattern = fieldMatchPattern.matchPattern;
-        if (matchPattern != null) {
-            matchPattern.accept(this);
-            fieldMatchPattern.declaredVars.putAll(matchPattern.declaredVars);
-        }
+        matchPattern.accept(this);
+        fieldMatchPattern.declaredVars.putAll(matchPattern.declaredVars);
     }
 
 
@@ -2569,14 +2560,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangConstPattern constMatchPattern) {
         BLangExpression constPatternExpr = constMatchPattern.expr;
         typeChecker.checkExpr(constPatternExpr, env);
-        if (constPatternExpr instanceof BLangSimpleVarRef) {
+        if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef constRef = (BLangSimpleVarRef) constPatternExpr;
-            if (!(constRef.symbol != null && constRef.symbol.kind == SymbolKind.CONSTANT)) {
+            if (constRef.symbol.kind != SymbolKind.CONSTANT) {
                 dlog.error(constMatchPattern.pos, DiagnosticErrorCode.VARIABLE_SHOULD_BE_DECLARED_AS_CONSTANT,
                         constRef.variableName);
             }
         }
-        constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern, constMatchPattern.expr);
+        constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern, constPatternExpr);
     }
 
     @Override
@@ -2964,7 +2955,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
             if (attachExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 final BLangSimpleVarRef attachVarRef = (BLangSimpleVarRef) attachExpr;
-                if (attachVarRef.symbol != null && !Symbols.isFlagOn(attachVarRef.symbol.flags, Flags.LISTENER)) {
+                if (attachVarRef.symbol != null && attachVarRef.symbol != symTable.notFoundSymbol &&
+                        !Symbols.isFlagOn(attachVarRef.symbol.flags, Flags.LISTENER)) {
                     dlog.error(attachVarRef.pos, DiagnosticErrorCode.INVALID_LISTENER_ATTACHMENT);
                 }
             } else if (attachExpr.getKind() != NodeKind.TYPE_INIT_EXPR) {
