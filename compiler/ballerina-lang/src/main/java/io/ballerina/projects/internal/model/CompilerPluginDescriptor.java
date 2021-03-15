@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -53,7 +53,8 @@ public class CompilerPluginDescriptor {
         if (tomlTableNode.entries().isEmpty()) {
             return new CompilerPluginDescriptor(null, Collections.emptyList());
         }
-        return new CompilerPluginDescriptor(new Plugin(getPluginClass(tomlTableNode)), getDependencies(tomlTableNode));
+        return new CompilerPluginDescriptor(new Plugin(getPluginID(tomlTableNode), getPluginClass(tomlTableNode)),
+                                            getDependencies(tomlTableNode));
     }
 
     public static CompilerPluginDescriptor from(CompilerPluginJson compilerPluginJson) {
@@ -61,7 +62,8 @@ public class CompilerPluginDescriptor {
         for (String path : compilerPluginJson.dependencyPaths()) {
             dependencyList.add(new Dependency(path));
         }
-        return new CompilerPluginDescriptor(new Plugin(compilerPluginJson.pluginClass()), dependencyList);
+        return new CompilerPluginDescriptor(new Plugin(compilerPluginJson.pluginId(), compilerPluginJson.pluginClass()),
+                                            dependencyList);
     }
 
     public Plugin plugin() {
@@ -84,9 +86,11 @@ public class CompilerPluginDescriptor {
      * {@code Plugin} Model for plugin toml table of `Compiler-plugin.toml` file.
      */
     public static class Plugin {
+        private String id;
         private String className;
 
-        Plugin(String className) {
+        Plugin(String id, String className) {
+            this.id = id;
             this.className = className;
         }
 
@@ -96,6 +100,14 @@ public class CompilerPluginDescriptor {
 
         public void setClassName(String className) {
             this.className = className;
+        }
+
+        public String getId() {
+            return id;
+        }
+
+        public void setId(String id) {
+            this.id = id;
         }
     }
 
@@ -131,6 +143,17 @@ public class CompilerPluginDescriptor {
             }
         }
         return dependencies;
+    }
+
+    private static String getPluginID(TomlTableNode tomlTableNode) {
+        TomlTableNode pluginNode = (TomlTableNode) tomlTableNode.entries().get("plugin");
+        if (pluginNode != null && pluginNode.kind() != TomlType.NONE && pluginNode.kind() == TomlType.TABLE) {
+            TopLevelNode topLevelNode = pluginNode.entries().get("id");
+            if (!(topLevelNode == null || topLevelNode.kind() == TomlType.NONE)) {
+                return getStringFromTomlTableNode(topLevelNode);
+            }
+        }
+        return null;
     }
 
     private static String getPluginClass(TomlTableNode tomlTableNode) {

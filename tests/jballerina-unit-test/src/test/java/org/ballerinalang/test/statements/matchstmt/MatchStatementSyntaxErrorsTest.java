@@ -58,7 +58,7 @@ public class MatchStatementSyntaxErrorsTest {
         BAssertUtil.validateError(result, ++i, "missing close brace token", 18, 1);
         BAssertUtil.validateError(result, ++i, "missing colon token", 21, 11);
         BAssertUtil.validateError(result, ++i, "missing identifier", 21, 11);
-        BAssertUtil.validateError(result, ++i, "unsupported match pattern", 21, 11);
+        BAssertUtil.validateError(result, ++i, "variable '$missingNode$_1' should be declared as constant", 21, 11);
     }
 
     @AfterClass

@@ -72,10 +72,10 @@ EXAMPLES
           $ bal run hello.jar
 
        Run the 'main' function and/or services in the current package.
-          $ bal run .
+          $ bal run
 
        Run the 'main' function in the `math` package with three program args:
        add, 10, and 5. If the second and third parameters of the 'main'
        function are of types int and int, the second and third arguments
        would be passed as integer values 10 and 5.
-          $ bal run math add 10 5
+          $ bal run math -- add 10 5

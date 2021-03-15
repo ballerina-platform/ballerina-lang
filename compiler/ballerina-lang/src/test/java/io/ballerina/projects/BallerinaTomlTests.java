@@ -208,7 +208,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,33)");
 
         Assert.assertEquals(iterator.next().message(), "invalid 'org' under [package]: 'org' can only contain "
-                + "alphanumerics, underscores and periods and the maximum length is 256 characters");
+                + "alphanumerics, underscores and the maximum length is 256 characters");
         Assert.assertEquals(iterator.next().message(), "invalid 'version' under [package]: "
                 + "'version' should be compatible with semver");
     }

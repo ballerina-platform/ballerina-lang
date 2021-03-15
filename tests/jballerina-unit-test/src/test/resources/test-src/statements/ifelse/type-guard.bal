@@ -1169,3 +1169,121 @@ function testTypeDescTypeTest2() returns boolean {
 
     return false;
 }
+
+function testTypeNarrowingForIntersectingUnionWithRecords() returns boolean {
+    AnydataOrObjectOpenRecord|int val = 11;
+    if val is OpenRecordWithObjectField {
+        return false;
+    } else if <int> val != 11 {
+        return false;
+    }
+
+    AnydataOrObjectOpenRecord|int val2 = {};
+    if val2 is OpenRecordWithObjectField {
+        return false;
+    } else if val2 is int {
+        return false;
+    }
+
+    AnydataOrObjectOpenRecord|int val3 = <OpenRecordWithObjectField> {code: new (10)};
+    if val3 is OpenRecordWithObjectField {
+        Class cl = val3.code;
+        if cl.val != 10 {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    OpenRecordWithObjectField val4 = {code: new (20)};
+    if val4 is ClosedRecordWithObjectAndIntFields {
+        return false;
+    }
+
+    OpenRecordWithObjectField val5 = <ClosedRecordWithObjectAndIntFields> {code: new (30), index: 0};
+    if val5 is ClosedRecordWithObjectAndIntFields {
+        if val5.code.val != 30 || val5.index != 0 {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    OpenRecordWithIntField val6 = {i: 1, "s": "hello"};
+    if val6 is record {| int i; string s; |} {
+        return false;
+    } else if val6.i != 1 || val6["s"] != "hello" {
+       return false;
+    }
+
+    record {| int i; string s; |} v = {i: 2, s: "world"};
+    OpenRecordWithIntField val7 = v;
+    if val7 is record {| int i; string s; |} {
+        if val7.i != 2 || val7.s != "world" {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    ClosedRecordWithIntField val8 = {i: 10};
+    if val8 is record {| byte i; |} {
+        return false;
+    }
+
+    int|ClosedRecordWithIntField val9 = <record {| byte i; |}> {i: 10};
+    if val9 is record {| byte i; |} {
+        if val9.i != 10 {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    byte b = 10;
+    if val9 is record {} {
+        if val9["i"] != b {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    if val9 is record {| int...; |} {
+        if val9["i"] != b {
+            return false;
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
+type AnydataOrObjectOpenRecord record {|
+    anydata|object {}...;
+|};
+
+type OpenRecordWithObjectField record {
+    readonly Class code = new (0);
+};
+
+readonly class Class {
+    int val;
+
+    isolated function init(int val) {
+        self.val = val;
+    }
+}
+
+type ClosedRecordWithObjectAndIntFields record {|
+    readonly Class code;
+    int index;
+|};
+
+type OpenRecordWithIntField record {
+    int i;
+};
+
+type ClosedRecordWithIntField record {|
+    int i;
+|};
