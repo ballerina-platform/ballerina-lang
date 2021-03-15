@@ -163,8 +163,8 @@ public class MainMethodGen {
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigPath", "()L" + PATH + ";", false);
-        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "(L" + PATH + ";)V", false);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigPath", "()[L" + PATH + ";", false);
+        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "([L" + PATH + ";)V", false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {

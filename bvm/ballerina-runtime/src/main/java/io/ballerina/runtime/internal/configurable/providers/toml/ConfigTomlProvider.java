@@ -45,6 +45,7 @@ import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.ListInitialValueEntry;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
 import io.ballerina.runtime.internal.values.TableValueImpl;
+import io.ballerina.toml.api.Toml;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlArrayValueNode;
 import io.ballerina.toml.semantic.ast.TomlBasicValueNode;
@@ -66,8 +67,11 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_DATA;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILE_NOT_FOUND;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONSTRAINT_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_CONFIG_PATH;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_FIELD_UNSUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_MODULE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.EMPTY_CONFIG_FILE;
@@ -248,6 +252,13 @@ public class ConfigTomlProvider implements ConfigProvider {
     }
 
     private static TomlTableNode getConfigurationData(Path configFilePath, boolean hasRequired) {
+        TomlTableNode tomlNode;
+        if (configFilePath.equals(DEFAULT_CONFIG_PATH)) {
+            String configData = System.getenv().get(CONFIG_DATA);
+            if (configData != null) {
+                return Toml.read(configData, CONFIG_FILE_NAME).rootNode();
+            }
+        }
         if (!Files.exists(configFilePath)) {
             if (hasRequired) {
                 throw new ConfigTomlException(String.format(CONFIG_FILE_NOT_FOUND, configFilePath));
@@ -256,8 +267,7 @@ public class ConfigTomlProvider implements ConfigProvider {
             }
         }
         ConfigToml configToml = new ConfigToml(configFilePath);
-
-        TomlTableNode tomlNode = configToml.tomlAstNode();
+        tomlNode = configToml.tomlAstNode();
         if (tomlNode.entries().isEmpty() && hasRequired) {
             throw new ConfigTomlException(String.format(EMPTY_CONFIG_FILE, configFilePath));
         }

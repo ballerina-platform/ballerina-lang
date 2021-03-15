@@ -28,6 +28,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.io.File;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
@@ -72,8 +73,9 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testAPIConfigFilePathOverRiding() throws BallerinaTestException {
-        executeBalCommand("/testPathProject", new LogLeecher("4 passing"), "test", "configPkg", null);
+    public void testAPIConfigFileNegative() throws BallerinaTestException {
+        String error = "configuration file is not found in path 'configPkg/tests/Config.toml'";
+        executeBalCommand("/testPathProject", new LogLeecher(error, ERROR), "test", "configPkg", null);
     }
 
     @Test
@@ -87,7 +89,50 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testEnvironmentVariableBasedConfigFile() throws BallerinaTestException {
         String configFilePath = Paths.get(testFileLocation, "config_files", "Config.toml").toString();
-        executeBalCommand("", testsPassed, "run", "envVarPkg", addEnvVariables(configFilePath));
+        executeBalCommand("", testsPassed, "run", "envVarPkg", addConfigPathVariable(configFilePath));
+    }
+
+    @Test
+    public void testMultipleConfigFiles() throws BallerinaTestException {
+        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml").toString() +
+                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml").toString();
+        executeBalCommand("", testsPassed, "run", "envVarPkg", addConfigPathVariable(configFilePaths));
+    }
+
+    @Test
+    public void testConfigFileOverriding() throws BallerinaTestException {
+        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config.toml").toString() +
+                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-Second.toml").toString();
+        executeBalCommand("", testsPassed, "run", "envVarPkg", addConfigPathVariable(configFilePaths));
+    }
+
+    @Test
+    public void testConfigFileNegative() throws BallerinaTestException {
+        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-Negative-1.toml").toString() +
+                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-Negative-2.toml").toString();
+        LogLeecher errorLog = new LogLeecher("value not provided for required configurable variable " +
+                "'envVarPkg:stringVar'", ERROR);
+        executeBalCommand("", errorLog, "run", "envVarPkg", addConfigPathVariable(configFilePaths));
+    }
+
+    @Test
+    public void testConfigDataAsString() throws BallerinaTestException {
+        String configData = "[envVarPkg] intVar = 42 floatVar = 3.5 stringVar = \"abc\" booleanVar = true " +
+                "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6] " +
+                "stringArr = [\"red\", \"yellow\", \"green\"] booleanArr = [true, false,false, true] " +
+                "decimalArr = [8.9, 4.5, 6.2]";
+        executeBalCommand("", testsPassed, "run", "envVarPkg", addConfigDataVariable(configData));
+    }
+
+    @Test
+    public void testConfigDataAsStringNegative() throws BallerinaTestException {
+        String configData = "[envVarPkg] intVar = 42.22 floatVar = 3 stringVar = 11 booleanVar = \"true\" " +
+                "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6] " +
+                "stringArr = [\"red\", \"yellow\", \"green\"] booleanArr = [true, false,false, true] " +
+                "decimalArr = [8.9, 4.5, 6.2]";
+        LogLeecher errorLog = new LogLeecher("[Config.toml:(1:22,1:27)] configurable variable 'envVarPkg:intVar'" +
+                " is expected to be of type 'int', but found 'float'", ERROR);
+        executeBalCommand("", errorLog, "run", "envVarPkg", addConfigDataVariable(configData));
     }
 
     @Test
@@ -161,7 +206,7 @@ public class ConfigurableTest extends BaseTest {
         Path projectPath = Paths.get(negativeTestFileLocation, "configProject").toAbsolutePath();
         Path tomlPath = Paths.get(negativeTestFileLocation, "config_files", tomlFileName  + ".toml").toAbsolutePath();
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
-        bMainInstance.runMain("run", new String[]{"main"}, addEnvVariables(tomlPath.toString()), new String[]{},
+        bMainInstance.runMain("run", new String[]{"main"}, addConfigPathVariable(tomlPath.toString()), new String[]{},
                 new LogLeecher[]{errorLog}, projectPath.toString());
         errorLog.waitForText(5000);
     }
@@ -261,7 +306,7 @@ public class ConfigurableTest extends BaseTest {
         LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
                 "'main:password' : Input byte array has wrong 4-byte ending unit", ERROR);
         executeBalCommand("/encryptedConfigProject", runLeecher, "run", "main",
-                addEnvVariables(configFilePath, secretFilePath));
+                addConfigPathVariable(configFilePath, secretFilePath));
     }
 
     private void executeBalCommand(String projectPath, LogLeecher log, String command, String packageName,
@@ -276,9 +321,15 @@ public class ConfigurableTest extends BaseTest {
      *
      * @return env directory variable array
      */
-    private Map<String, String> addEnvVariables(String configFilePath) {
+    private Map<String, String> addConfigPathVariable(String configFilePaths) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(ConfigTomlConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        envVariables.put(ConfigTomlConstants.CONFIG_ENV_VARIABLE, configFilePaths);
+        return envVariables;
+    }
+
+    private Map<String, String> addConfigDataVariable(String configValues) {
+        Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
+        envVariables.put(ConfigTomlConstants.CONFIG_DATA, configValues);
         return envVariables;
     }
 
@@ -288,7 +339,7 @@ public class ConfigurableTest extends BaseTest {
         return envVariables;
     }
 
-    private Map<String, String> addEnvVariables(String configFilePath, String secretFilePath) {
+    private Map<String, String> addConfigPathVariable(String configFilePath, String secretFilePath) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
         envVariables.put(ConfigTomlConstants.CONFIG_ENV_VARIABLE, configFilePath);
         envVariables.put(ConfigTomlConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);

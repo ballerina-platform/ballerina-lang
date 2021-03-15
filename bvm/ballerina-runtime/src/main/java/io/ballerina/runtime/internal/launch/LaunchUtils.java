@@ -32,8 +32,8 @@ import io.ballerina.runtime.internal.values.ErrorValue;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 
+import java.io.File;
 import java.io.IOException;
-import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -53,8 +53,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_C
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
-import static io.ballerina.runtime.internal.configurable.ConfigConstants.CONFIG_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILE_NAME;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_CONFIG_PATH;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
@@ -63,12 +63,14 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTo
  */
 public class LaunchUtils {
 
+    private LaunchUtils() {
+    }
+
     static {
         System.setProperty(UTIL_LOGGING_CONFIG_CLASS_PROPERTY, UTIL_LOGGING_CONFIG_CLASS_VALUE);
         System.setProperty(UTIL_LOGGING_MANAGER_CLASS_PROPERTY, UTIL_LOGGING_MANAGER_CLASS_VALUE);
     }
 
-    private static PrintStream errStream = System.err;
 
     public static String[] initConfigurations(String[] args) {
 
@@ -133,10 +135,12 @@ public class LaunchUtils {
         }
     }
 
-    public static void initConfigurableVariables(Path configFilePath, Map<Module, VariableKey[]> configurationData) {
+    public static void initConfigurableVariables(Path[] configFilePaths, Map<Module, VariableKey[]> configurationData) {
         try {
             List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-            supportedConfigProviders.add(new ConfigTomlProvider(configFilePath, configurationData));
+            for (int i = configFilePaths.length - 1; i >= 0; i--) {
+                supportedConfigProviders.add(new ConfigTomlProvider(configFilePaths[i], configurationData));
+            }
             ConfigResolver configResolver = new ConfigResolver(configurationData, supportedConfigProviders);
             ConfigMap.setConfigurableMap(configResolver.resolveConfigs());
         } catch (ConfigException exception) {
@@ -145,9 +149,17 @@ public class LaunchUtils {
         }
     }
 
-    public static Path getConfigPath() {
-        Map<String, String> envVariables = System.getenv();
-        return Paths.get(envVariables.getOrDefault(CONFIG_ENV_VARIABLE, Paths.get(RuntimeUtils.USER_DIR,
-                                                                                  CONFIG_FILE_NAME).toString()));
+    public static Path[] getConfigPath() {
+        String configFiles = System.getenv().get(CONFIG_ENV_VARIABLE);
+        List<Path> configPaths = new ArrayList<>();
+        if (configFiles == null) {
+            configPaths.add(DEFAULT_CONFIG_PATH);
+        } else {
+            String[] pathList = configFiles.split(File.pathSeparator);
+            for (String path: pathList) {
+                configPaths.add(Paths.get(path));
+            }
+        }
+        return configPaths.toArray(new Path[0]);
     }
 }

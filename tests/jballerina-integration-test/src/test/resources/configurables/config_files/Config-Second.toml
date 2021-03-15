@@ -1,0 +1,12 @@
+[envVarPkg]
+booleanVar = false
+decimalVar = 54.32
+floatVar = 7.6
+intVar = 98
+stringVar = "xyz"
+
+booleanArr = [false, false, true, false]
+decimalArr = [2.1, 2.3, 4.5]
+floatArr = [6.5, 4.3]
+intArr = [9, 8, 7]
+stringArr = ["ll", "mm", "nn"]

@@ -1,0 +1,4 @@
+[envVarPkg]
+intVar = 42
+floatVar = 3.5
+

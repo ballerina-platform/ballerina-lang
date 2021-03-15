@@ -18,6 +18,11 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
+import io.ballerina.runtime.internal.util.RuntimeUtils;
+
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 /**
  * Constants used by toml parser.
  *
@@ -27,9 +32,11 @@ public class ConfigTomlConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
     public static final String DEFAULT_MODULE = ".";
     public static final String SUBMODULE_DELIMITER = ".";
-    public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
+    public static final String CONFIG_ENV_VARIABLE = "BAL_CONFIG_FILES";
+    public static final String CONFIG_DATA = "BAL_CONFIG_DATA";
     public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
     public static final String SECRET_FILE_NAME = "secret.txt";
+    public static final Path DEFAULT_CONFIG_PATH = Paths.get(RuntimeUtils.USER_DIR, CONFIG_FILE_NAME);
 
     //Error messages
     public static final String INVALID_TOML_FILE = "invalid `" + CONFIG_FILE_NAME + "` file : ";

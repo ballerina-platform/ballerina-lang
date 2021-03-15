@@ -38,7 +38,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -60,7 +59,6 @@ import java.io.OutputStreamWriter;
 import java.io.PrintStream;
 import java.io.Writer;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
@@ -534,7 +532,8 @@ public class BTestRunner {
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
 
-        Object response = configInit.directInvoke(new Class[]{Path.class}, new Object[]{getConfigPath(suite)});
+        Object response = configInit.directInvoke(new Class[]{Path[].class},
+                new Object[]{new Path[]{getConfigPath(suite)}});
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
                     response.toString(), (Throwable) response);
@@ -580,9 +579,6 @@ public class BTestRunner {
             configFilePath = configFilePath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
         }
         configFilePath = configFilePath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
-        if (!Files.exists(configFilePath)) {
-            configFilePath = Paths.get(RuntimeUtils.USER_DIR).resolve(CONFIG_FILE_NAME);
-        }
         return configFilePath;
     }
 

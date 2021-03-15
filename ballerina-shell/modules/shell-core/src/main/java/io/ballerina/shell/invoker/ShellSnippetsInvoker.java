@@ -326,7 +326,7 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
             // First run configure initialization
             invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                    new Class[]{Path.class}, new Object[]{CONFIG_PATH});
+                    new Class[]{Path[].class}, new Object[]{new Path[]{CONFIG_PATH}});
             // Initialize the module
             invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
             // Start the module
