@@ -51,6 +51,7 @@ public class VariableDeclaredWithWithVarIncludingErrorTest {
         validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e2"), 30, 43);
         validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e1"), 33, 25);
         validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("e3"), 33, 76);
+        validateError(negativeResult, index++, getInvalidUnusedVarErrorMessage("x"), 44, 7);
         assertEquals(index, negativeResult.getErrorCount());
     }
 
