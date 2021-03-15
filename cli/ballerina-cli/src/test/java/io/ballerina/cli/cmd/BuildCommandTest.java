@@ -38,7 +38,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
-import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -281,16 +280,6 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                                   .resolve("winery").resolve("0.1.0").resolve("bir")
                                   .resolve("winery.bir").toFile().exists());
-
-        // check Dependencies.toml file
-        Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
-        String dependenciesTomlContent = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
-        Assert.assertEquals(dependenciesTomlContent, "[[dependency]]\n"
-                                                        + "org = \"ballerina\"\n"
-                                                        + "name = \"jballerina.java\"\n"
-                                                        + "version = \"0.9.0\"\n"
-                                                        + "\n"
-                                                        + "\n");
     }
 
     @Test(description = "Build a valid ballerina project")
