@@ -59,8 +59,13 @@ public class LangLibValueTest {
 
     @Test void testNegativeCases() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/valuelib_test_negative.bal");
-        assertEquals(negativeResult.getErrorCount(), 1);
-        validateError(negativeResult, 0, "incompatible types: expected 'any', found 'Cloneable'", 21, 13);
+        int index = 0;
+        validateError(negativeResult, index++, "incompatible types: expected 'any', found 'Cloneable'", 21, 13);
+        validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
+                "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 30, 23);
+        validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
+                "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 31, 23);
+        assertEquals(negativeResult.getErrorCount(), index);
     }
 
     @Test
@@ -296,7 +301,7 @@ public class LangLibValueTest {
 
     @Test(dataProvider = "cloneWithTypeFunctions")
     public void testCloneWithType(String function) {
-        BValue[] returns = BRunUtil.invoke(compileResult, function);
+        BRunUtil.invoke(compileResult, function);
     }
 
     @DataProvider(name = "cloneWithTypeFunctions")
@@ -315,7 +320,8 @@ public class LangLibValueTest {
                 { "testCloneWithTypeNumeric5" },
                 { "testCloneWithTypeNumeric6" },
                 { "testCloneWithTypeNumeric7" },
-                { "testCloneWithTypeStringArray" }
+                { "testCloneWithTypeStringArray" },
+                { "testCloneWithTypeWithInferredArgument" }
         };
     }
 

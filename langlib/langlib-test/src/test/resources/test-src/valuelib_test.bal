@@ -711,6 +711,128 @@ function testCloneWithTypeStringArray() {
     assert(s[1], "world");
 }
 
+function testCloneWithTypeWithInferredArgument() {
+   Person2 a = {name: "N", age: 3};
+   json|error b = a.cloneWithType();
+   assert(b is json, true);
+   assert((checkpanic b).toJsonString(), "{\"name\":\"N\", \"age\":3}");
+
+   json c = {name: "tom", age: 2};
+   Person2 d = checkpanic c.cloneWithType();
+   assert(d.name, "tom");
+   assert(d.age, 2);
+
+   Person2 e = {name: "bob", age: 4};
+   json|error f = e.cloneWithType();
+   assert(f is json, true);
+   assert((checkpanic f).toJsonString(), "{\"name\":\"bob\", \"age\":4}");
+
+   CRec g = {};
+   BRec|error h = g.cloneWithType();
+   assert(h is error, true);
+   error err = <error>h;
+   var message = err.detail()["message"];
+   string messageString = message is error ? message.toString() : message.toString();
+   assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+   assert(messageString, "'CRec' value cannot be converted to 'BRec'");
+
+   Foo i = {s: "test string"};
+   Bar|Baz|error j = i.cloneWithType();
+   assert(j is error, true);
+
+   err = <error>j;
+   message = err.detail()["message"];
+   messageString = message is error ? message.toString() : message.toString();
+   assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+   assert(messageString, "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
+
+   anydata k = ();
+   string|error? l = k.cloneWithType();
+   json|error m = k.cloneWithType();
+   assert(l is (), true);
+   assert(m is (), true);
+
+   anydata n = ();
+   string|int|error o = n.cloneWithType();
+   Foo|Bar|error p = n.cloneWithType();
+   assert(o is error, true);
+   assert(p is error, true);
+
+   err = <error>o;
+   message = err.detail()["message"];
+   messageString = message is error ? message.toString() : message.toString();
+   assert(messageString, "cannot convert '()' to type 'string|int'");
+
+   int q = 1234;
+   float|error r = q.cloneWithType();
+   assert(r is float, true);
+   assert(checkpanic r, 1234.0);
+
+   anydata s = 1234.6;
+   int|error t = s.cloneWithType();
+   assert(t is int, true);
+   assert(checkpanic t, 1235);
+
+   X u = {a: 21, b: "Alice", c: 1000.5};
+   Y|error v = value:cloneWithType(u);
+   assert(v is Y, true);
+
+   Y w = checkpanic v;
+   assert(w.a, 21.0);
+   assert(w.b, "Alice");
+   assert(w["c"], <decimal>1000.5);
+
+   json x = {a: 21.3, b: "Alice", c: 1000};
+   X|error y = x.cloneWithType();
+   assert(y is X, true);
+
+   X z = checkpanic y;
+   assert(z.a, 21);
+   assert(z.b, "Alice");
+   assert(z.c, 1000.0);
+
+   int[] a2 = [1, 2];
+   float[]|error b2 = a2.cloneWithType();
+   (float|boolean)[] o2 = checkpanic value:cloneWithType(a2);
+   assert(b2 is float[], true);
+
+   float[] c2 = checkpanic b2;
+   assert(c2.length(), a2.length());
+   assert(c2[0], 1.0);
+   assert(c2[1], 2.0);
+   assert(c2, <(float|boolean)[]>o2);
+
+   map<float> d2 = {a: 1.2, b: 2.7};
+   map<int>|error e2 = d2.cloneWithType();
+   map<string|int> f2 = checkpanic d2.cloneWithType();
+   assert(e2 is map<int>, true);
+
+   map<int> g2 = checkpanic e2;
+   assert(g2.length(), d2.length());
+   assert(g2["a"], 1);
+   assert(g2["b"], 3);
+   assert(g2, <map<string|int>>f2);
+
+   int[] h2 = [1, 2, 3];
+   decimal[]|error i2 = value:cloneWithType(h2);
+   assert(i2 is decimal[], true);
+
+   decimal[] j2 = checkpanic i2;
+   assert(j2.length(), h2.length());
+   assert(j2[0], <decimal>1);
+   assert(j2[1], <decimal>2);
+   assert(j2[2], <decimal>3);
+
+   string k2 = "[\"hello\", \"world\"]";
+   json l2 = <json>checkpanic k2.fromJsonString();
+   string[]|error m2 = l2.cloneWithType();
+   assert(m2 is string[], true);
+
+   string[] n2 = checkpanic m2;
+   assert(n2[0], "hello");
+   assert(n2[1], "world");
+}
+
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
 type Student2 record {
     string name;
