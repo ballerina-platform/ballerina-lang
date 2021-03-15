@@ -28,7 +28,7 @@ import java.io.IOException;
  *
  * @since 2.0.0
  */
-public class ChangeVariableTypeCodeAction extends AbstractCodeActionTest {
+public class ChangeVariableTypeCodeActionTest extends AbstractCodeActionTest {
 
     @Override
     public String getResourceDir() {
