@@ -42,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
 /**
@@ -228,7 +229,7 @@ public class BCompileUtil {
     private static class TestCompilationCache extends FileSystemCache {
 
         private TestCompilationCache(Project project, Path cacheDirPath) {
-            super(project, cacheDirPath);
+            super(project, cacheDirPath.resolve(CACHES_DIR_NAME));
         }
 
         private static TestCompilationCache from(Project project) {

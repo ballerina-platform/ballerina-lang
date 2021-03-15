@@ -65,6 +65,13 @@ public abstract class DiagnosticReporter {
     }
 
     /**
+     * Adds a warning diagnostic.
+     */
+    protected void addWarnDiagnostic(String message) {
+        addDiagnostic(Diagnostic.warn(message));
+    }
+
+    /**
      * Adds a list of diagnostics to the object.
      * Helpful to combine diagnostics from several objects.
      *

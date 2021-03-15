@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
@@ -87,7 +86,7 @@ public class ConfigTomlUtils {
                 tomlType = TomlType.TABLE_ARRAY;
                 break;
             default:
-                throw new ConfigException(
+                throw new ConfigTomlException(
                         String.format(CONFIGURATION_NOT_SUPPORTED, variableName, expectedType.toString()));
         }
         return tomlType;

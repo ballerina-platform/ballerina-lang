@@ -20,18 +20,22 @@ package org.ballerinalang.test.runtime.entity;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
 import org.jacoco.core.analysis.CoverageBuilder;
 import org.jacoco.core.analysis.IBundleCoverage;
+import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
@@ -51,6 +55,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
@@ -162,8 +167,30 @@ public class CoverageReport {
     }
 
     private IBundleCoverage getPartialCoverageModifiedBundle(CoverageBuilder coverageBuilder) {
-        return new BundleCoverageImpl(title, coverageBuilder.getClasses(),
+        return new BundleCoverageImpl(title, modifyClasses(coverageBuilder.getClasses()),
                 modifySourceFiles(coverageBuilder.getSourceFiles()));
+    }
+
+    /**
+     * Modify Classes in CoverageBuilder to reflect ballerina source root.
+     *
+     * @param classesList Collection<IClassCoverage>
+     * @return Collection<IClassCoverage>
+     */
+    private Collection<IClassCoverage> modifyClasses(Collection<IClassCoverage> classesList) {
+        Collection<IClassCoverage> modifiedClasses = new ArrayList<>();
+        for (IClassCoverage classCoverage : classesList) {
+            if (classCoverage.getSourceFileName() != null) {
+                //Normalize package name and class name for classes generated for bal files
+                IClassCoverage modifiedClassCoverage = new NormalizedCoverageClass(classCoverage,
+                        normalizeFileName(classCoverage.getPackageName()),
+                        normalizeFileName(classCoverage.getName()));
+                modifiedClasses.add(modifiedClassCoverage);
+            } else {
+                modifiedClasses.add(classCoverage);
+            }
+        }
+        return modifiedClasses;
     }
 
     private void createXMLReport(IBundleCoverage bundleCoverage) throws IOException {
@@ -273,10 +300,11 @@ public class CoverageReport {
         }
     }
 
-    private List<Path> filterPaths(Collection<Path> pathCollection, JBallerinaBackend jBallerinaBackend) {
+    private List<Path> filterPaths(Collection<JarLibrary> pathCollection, JBallerinaBackend jBallerinaBackend) {
         List<Path> filteredPathList = new ArrayList<>();
         List<Path> exclusionPathList = getExclusionJarList(jBallerinaBackend);
-        for (Path path : pathCollection) {
+        for (JarLibrary library : pathCollection) {
+            Path path = library.path();
             if (!exclusionPathList.contains(path)) {
                 filteredPathList.add(path);
             }
@@ -320,10 +348,11 @@ public class CoverageReport {
     }
 
     private List<Path> getExclusionJarList(JBallerinaBackend jBallerinaBackend) {
-        List<Path> exclusionPathList = new ArrayList<>();
-        exclusionPathList.addAll(getDependencyJarList(jBallerinaBackend));
+        List<Path> exclusionPathList = new ArrayList<>(getDependencyJarList(jBallerinaBackend));
         exclusionPathList.add(jBallerinaBackend.runtimeLibrary().path());
-        exclusionPathList.addAll(ProjectUtils.testDependencies());
+        for (JarLibrary library : ProjectUtils.testDependencies()) {
+            exclusionPathList.add(library.path());
+        }
         return exclusionPathList;
     }
 
@@ -355,16 +384,50 @@ public class CoverageReport {
     private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
         Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
         for (ISourceFileCoverage sourcefile : sourcefiles) {
+            ISourceFileCoverage modifiedSourceFile;
+            List<ILine> modifiedLines;
             if (sourcefile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                List<ILine> modifiedLines = modifyLines(sourcefile);
-                ISourceFileCoverage modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
-                        modifiedLines);
+                modifiedLines = modifyLines(sourcefile);
+                //Normalize source file package name
+                modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
+                        modifiedLines, normalizeFileName(sourcefile.getPackageName()));
                 modifiedSourceFiles.add(modifiedSourceFile);
             } else {
                 modifiedSourceFiles.add(sourcefile);
             }
+
         }
         return modifiedSourceFiles;
+    }
+
+    private String normalizeFileName(String fileName) {
+        String orgName = IdentifierUtils.encodeNonFunctionIdentifier(
+                this.module.packageInstance().packageOrg().toString());
+        //Get package instance and traverse through all the modules
+        for (Module module : this.module.packageInstance().modules()) {
+            String packageName = IdentifierUtils.encodeNonFunctionIdentifier(
+                    module.moduleName().toString());
+            String sourceRoot = module.project().sourceRoot().getFileName().toString();
+            if (!module.isDefaultModule()) {
+                sourceRoot = sourceRoot + "/" + ProjectConstants.MODULES_ROOT + "/" +
+                        module.moduleName().moduleNamePart();
+            }
+            if (fileName.contains(orgName + "/" + packageName + "/")) {
+                //Escape special characters before using in regex
+                orgName = Pattern.quote(orgName);
+                packageName = Pattern.quote(packageName);
+                // Capture file paths with the format "orgName/packageName/xxxx/file-name" and replace with
+                // "<source-root>/file-name"
+                String normalizedFileName = fileName.replaceAll("^" + orgName + "/" +
+                        packageName + "/.*/", sourceRoot + "/");
+                // Capture remaining file paths with the format "orgName/packageName/file-name" and replace
+                // with "<source-root>"
+                normalizedFileName = normalizedFileName.replaceAll("^" + orgName + "/" +
+                        packageName + "/.*", sourceRoot);
+                return normalizedFileName;
+            }
+        }
+        return fileName;
     }
 
     private List<ILine> modifyLines(ISourceFileCoverage sourcefile) {

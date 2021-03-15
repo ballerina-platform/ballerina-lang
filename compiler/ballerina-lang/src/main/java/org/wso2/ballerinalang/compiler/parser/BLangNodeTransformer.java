@@ -3039,28 +3039,32 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         functionTypeNode.pos = getPosition(functionTypeDescriptorNode);
         functionTypeNode.returnsKeywordExists = true;
 
-        FunctionSignatureNode funcSignature = functionTypeDescriptorNode.functionSignature();
+        if (functionTypeDescriptorNode.functionSignature().isPresent()) {
+            FunctionSignatureNode funcSignature = functionTypeDescriptorNode.functionSignature().get();
 
-        // Set Parameters
-        for (ParameterNode child : funcSignature.parameters()) {
-            SimpleVariableNode param = (SimpleVariableNode) child.apply(this);
-            if (child instanceof RestParameterNode) {
-                functionTypeNode.restParam = (BLangSimpleVariable) param;
-            } else {
-                functionTypeNode.params.add((BLangVariable) param);
+            // Set Parameters
+            for (ParameterNode child : funcSignature.parameters()) {
+                SimpleVariableNode param = (SimpleVariableNode) child.apply(this);
+                if (child.kind() == SyntaxKind.REST_PARAM) {
+                    functionTypeNode.restParam = (BLangSimpleVariable) param;
+                } else {
+                    functionTypeNode.params.add((BLangVariable) param);
+                }
             }
-        }
 
-        // Set Return Type
-        Optional<ReturnTypeDescriptorNode> retNode = funcSignature.returnTypeDesc();
-        if (retNode.isPresent()) {
-            ReturnTypeDescriptorNode returnType = retNode.get();
-            functionTypeNode.returnTypeNode = createTypeNode(returnType.type());
+            // Set Return Type
+            Optional<ReturnTypeDescriptorNode> retNode = funcSignature.returnTypeDesc();
+            if (retNode.isPresent()) {
+                ReturnTypeDescriptorNode returnType = retNode.get();
+                functionTypeNode.returnTypeNode = createTypeNode(returnType.type());
+            } else {
+                BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
+                bLValueType.pos = getPosition(funcSignature);
+                bLValueType.typeKind = TypeKind.NIL;
+                functionTypeNode.returnTypeNode = bLValueType;
+            }
         } else {
-            BLangValueType bLValueType = (BLangValueType) TreeBuilder.createValueTypeNode();
-            bLValueType.pos = getPosition(funcSignature);
-            bLValueType.typeKind = TypeKind.NIL;
-            functionTypeNode.returnTypeNode = bLValueType;
+            functionTypeNode.flagSet.add(Flag.ANY_FUNCTION);
         }
 
         functionTypeNode.flagSet.add(Flag.PUBLIC);
@@ -4068,11 +4072,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangMatchPattern transformMatchPattern(Node matchPattern) {
         Location matchPatternPos = matchPattern.location();
         SyntaxKind kind = matchPattern.kind();
-        if (kind == SyntaxKind.SIMPLE_NAME_REFERENCE &&
-                ((SimpleNameReferenceNode) matchPattern).name().isMissing()) {
-            dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
-            return null;
-        }
 
         if (kind == SyntaxKind.SIMPLE_NAME_REFERENCE &&
                 ((SimpleNameReferenceNode) matchPattern).name().text().equals("_")) {
@@ -4088,20 +4087,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     (BLangWildCardMatchPattern) TreeBuilder.createWildCardMatchPattern();
             bLangWildCardMatchPattern.pos = matchPatternPos;
             return bLangWildCardMatchPattern;
-        }
-
-        if (kind == SyntaxKind.NUMERIC_LITERAL ||
-                kind == SyntaxKind.STRING_LITERAL ||
-                kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
-                kind == SyntaxKind.IDENTIFIER_TOKEN ||
-                kind == SyntaxKind.NULL_LITERAL ||
-                kind == SyntaxKind.NIL_LITERAL ||
-                kind == SyntaxKind.BOOLEAN_LITERAL) {
-            BLangConstPattern bLangConstMatchPattern =
-                    (BLangConstPattern) TreeBuilder.createConstMatchPattern();
-            bLangConstMatchPattern.setExpression(createExpression(matchPattern));
-            bLangConstMatchPattern.pos = matchPatternPos;
-            return bLangConstMatchPattern;
         }
 
         if (kind == SyntaxKind.TYPED_BINDING_PATTERN) { // var a
@@ -4137,9 +4122,22 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             return transformFieldMatchPattern((FieldMatchPatternNode) matchPattern, matchPatternPos);
         }
 
-        // TODO : Remove this after all binding patterns are implemented
-        dlog.error(matchPatternPos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
-        return null;
+        // We reach here for simple-const-expr
+        assert (kind == SyntaxKind.NUMERIC_LITERAL ||
+                kind == SyntaxKind.STRING_LITERAL ||
+                kind == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                kind == SyntaxKind.QUALIFIED_NAME_REFERENCE ||
+                kind == SyntaxKind.IDENTIFIER_TOKEN ||
+                kind == SyntaxKind.NULL_LITERAL ||
+                kind == SyntaxKind.NIL_LITERAL ||
+                kind == SyntaxKind.BOOLEAN_LITERAL ||
+                // [Sign] int/float -> unary-expr
+                kind == SyntaxKind.UNARY_EXPRESSION);
+
+        BLangConstPattern bLangConstMatchPattern = (BLangConstPattern) TreeBuilder.createConstMatchPattern();
+        bLangConstMatchPattern.setExpression(createExpression(matchPattern));
+        bLangConstMatchPattern.pos = matchPatternPos;
+        return bLangConstMatchPattern;
     }
 
     private BLangErrorMatchPattern transformErrorMatchPattern(ErrorMatchPatternNode errorMatchPatternNode,
@@ -4275,8 +4273,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Location pos = getPosition(bindingPattern);
         SyntaxKind patternKind = bindingPattern.kind();
         switch (patternKind) {
-            case WILDCARD_BINDING_PATTERN:
-                return transformWildCardBindingPattern(pos);
             case CAPTURE_BINDING_PATTERN:
                 return transformCaptureBindingPattern((CaptureBindingPatternNode) bindingPattern, pos);
             case LIST_BINDING_PATTERN:
@@ -4291,10 +4287,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 return transformFieldBindingPattern(bindingPattern, pos);
             case ERROR_BINDING_PATTERN:
                 return transformErrorBindingPattern((ErrorBindingPatternNode) bindingPattern, pos);
+            case WILDCARD_BINDING_PATTERN:
             default:
-                // TODO : Remove this after all binding patterns are implemented
-                dlog.error(pos, DiagnosticErrorCode.MATCH_PATTERN_NOT_SUPPORTED);
-                return null;
+                assert patternKind == SyntaxKind.WILDCARD_BINDING_PATTERN;
+                return transformWildCardBindingPattern(pos);
         }
     }
 
@@ -5210,12 +5206,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         } else if (type == SyntaxKind.NIL_LITERAL) {
             originalValue = "()";
             typeTag = TypeTags.NIL;
-            value = null;
+            value = "()";
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         }  else if (type == SyntaxKind.NULL_LITERAL) {
             originalValue = "null";
             typeTag = TypeTags.NIL;
-            value = null;
+            value = "null";
             bLiteral = (BLangLiteral) TreeBuilder.createLiteralExpression();
         } else if (type == SyntaxKind.BINARY_EXPRESSION) { // Should be base16 and base64
             typeTag = TypeTags.BYTE_ARRAY;

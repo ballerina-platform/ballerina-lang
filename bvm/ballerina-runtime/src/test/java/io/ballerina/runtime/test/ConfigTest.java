@@ -53,17 +53,17 @@ public class ConfigTest {
         Module module = new Module("myorg", "simple_types", "1.0.0");
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {
-                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT),
-                new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE),
-                new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT),
-                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING),
-                new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN),
-                new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL),
+                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true),
+                new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true),
+                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true),
+                new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true),
         };
         configVarMap.put(module, keys);
 
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")));
+        supportedConfigProviders.add(new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml"), configVarMap));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
@@ -88,22 +88,22 @@ public class ConfigTest {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {
                 new VariableKey(module, "intArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_INT), 0, false)),
+                        .createArrayType(PredefinedTypes.TYPE_INT), 0, false), true),
                 new VariableKey(module, "byteArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_BYTE), 0, false)),
+                        .createArrayType(PredefinedTypes.TYPE_BYTE), 0, false), true),
                 new VariableKey(module, "floatArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_FLOAT), 0, false)),
+                        .createArrayType(PredefinedTypes.TYPE_FLOAT), 0, false), true),
                 new VariableKey(module, "stringArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_STRING), 0, false)),
+                        .createArrayType(PredefinedTypes.TYPE_STRING), 0, false), true),
                 new VariableKey(module, "booleanArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false)),
+                        .createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true),
                 new VariableKey(module, "decimalArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_DECIMAL), 0, false))
+                        .createArrayType(PredefinedTypes.TYPE_DECIMAL), 0, false), true)
         };
         configVarMap.put(module, keys);
 
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new ConfigTomlProvider(getConfigPath("Array_Config.toml")));
+        supportedConfigProviders.add(new ConfigTomlProvider(getConfigPath("Array_Config.toml"), configVarMap));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 

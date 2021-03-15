@@ -19,12 +19,19 @@
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Test implementation for debug expression evaluation negative scenarios.
  */
 public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTest {
+
+    @BeforeClass(alwaysRun = true)
+    public void setup() throws BallerinaTestException {
+        prepareForEvaluation();
+    }
 
     @Override
     @Test
@@ -345,5 +352,11 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
         debugTestRunner.assertEvaluationError(context, "new()",
                 String.format(EvaluationExceptionKind.UNSUPPORTED_EXPRESSION.getString(),
                         "'new()' - IMPLICIT_NEW_EXPRESSION"));
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void cleanUp() {
+        debugTestRunner.terminateDebugSession();
+        this.context = null;
     }
 }
