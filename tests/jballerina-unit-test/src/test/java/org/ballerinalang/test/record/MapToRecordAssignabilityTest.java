@@ -97,6 +97,8 @@ public class MapToRecordAssignabilityTest {
                 {"testBasicDataTypeMaps"},
                 {"testInclusiveRecordTypes"},
                 {"testRecordsWithOptionalFields"},
+                {"testImmutableJsonMappingToExclusiveRecord"},
+                {"testImmutableJsonMappingToInclusiveRecord"},
         };
     }
 
