@@ -277,7 +277,7 @@ public class SymbolLookupTest {
 
         Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 50, 25, moduleID);
         assertList(symbolsForOrderBy, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "p1",
-                "p2", "personList", "p"));
+                "p2", "personList", "res5"));
     }
 
     @Test
