@@ -2130,6 +2130,7 @@ public class TypeChecker extends BLangNodeVisitor {
         varRefExpr.pkgSymbol =
                 symResolver.resolvePrefixSymbol(env, names.fromIdNode(varRefExpr.pkgAlias), compUnitName);
         if (varRefExpr.pkgSymbol == symTable.notFoundSymbol) {
+            varRefExpr.symbol = symTable.notFoundSymbol;
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDEFINED_MODULE, varRefExpr.pkgAlias);
         }
 
@@ -2177,6 +2178,7 @@ public class TypeChecker extends BLangNodeVisitor {
                     dlog.error(varRefExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_CONSTANT_VALUE);
                 }
             } else {
+                varRefExpr.symbol = symbol; // Set notFoundSymbol
                 logUndefinedSymbolError(varRefExpr.pos, varName.value);
             }
         }
@@ -2202,14 +2204,15 @@ public class TypeChecker extends BLangNodeVisitor {
 
         boolean unresolvedReference = false;
         for (BLangRecordVarRef.BLangRecordVarRefKeyValue recordRefField : varRefExpr.recordRefFields) {
-            ((BLangVariableReference) recordRefField.variableReference).lhsVar = true;
+            BLangVariableReference bLangVarReference = (BLangVariableReference) recordRefField.variableReference;
+            bLangVarReference.lhsVar = true;
             checkExpr(recordRefField.variableReference, env);
-            if (((BLangVariableReference) recordRefField.variableReference).symbol == null ||
+            if (bLangVarReference.symbol == null || bLangVarReference.symbol == symTable.notFoundSymbol ||
                     !isValidVariableReference(recordRefField.variableReference)) {
                 unresolvedReference = true;
                 continue;
             }
-            BVarSymbol bVarSymbol = (BVarSymbol) ((BLangVariableReference) recordRefField.variableReference).symbol;
+            BVarSymbol bVarSymbol = (BVarSymbol) bLangVarReference.symbol;
             BField field = new BField(names.fromIdNode(recordRefField.variableName), varRefExpr.pos,
                                       new BVarSymbol(0, names.fromIdNode(recordRefField.variableName),
                                                      env.enclPkg.symbol.pkgID, bVarSymbol.type, recordSymbol,

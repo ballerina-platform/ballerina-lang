@@ -3634,7 +3634,8 @@ public class Types {
                 return intersectionType;
             }
         } else if (type.tag == TypeTags.RECORD && lhsType.tag == TypeTags.RECORD) {
-            BType intersectionType = createRecordIntersection(intersectionContext, lhsType, type, env);
+            BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) lhsType,
+                                                              (BRecordType) type, env);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
@@ -3711,6 +3712,10 @@ public class Types {
             tupleMemberTypes.add(intersectionType);
         }
 
+        if (tupleType.restType == null) {
+            return new BTupleType(null, tupleMemberTypes);
+        }
+
         BType restIntersectionType = getTypeIntersection(intersectionContext,
                 tupleType.restType, arrayType.eType, env);
         if (restIntersectionType == symTable.semanticError) {
@@ -3750,17 +3755,19 @@ public class Types {
     }
 
     private BType createRecordIntersection(IntersectionContext diagnosticContext,
-                                           BType recordTypeOne, BType recordTypeTwo, SymbolEnv env) {
+                                           BRecordType recordTypeOne, BRecordType recordTypeTwo, SymbolEnv env) {
 
         BRecordType newType = createAnonymousRecord(env);
 
-        if (!populateRecordFields(diagnosticContext.switchLeft(), newType, recordTypeOne, env, null) ||
-                !populateRecordFields(diagnosticContext.switchRight(), newType, recordTypeTwo, env, null)) {
+        if (!populateRecordFields(diagnosticContext.switchLeft(), newType, recordTypeOne, env,
+                                  getConstraint(recordTypeTwo)) ||
+                !populateRecordFields(diagnosticContext.switchRight(), newType, recordTypeTwo, env,
+                                      getConstraint(recordTypeOne))) {
             return symTable.semanticError;
         }
 
-        newType.restFieldType = getTypeIntersection(diagnosticContext, ((BRecordType) recordTypeOne).restFieldType,
-                                                       ((BRecordType) recordTypeTwo).restFieldType, env);
+        newType.restFieldType = getTypeIntersection(diagnosticContext, recordTypeOne.restFieldType,
+                                                    recordTypeTwo.restFieldType, env);
 
         if (newType.restFieldType == symTable.semanticError) {
             return symTable.semanticError;
@@ -3776,6 +3783,14 @@ public class Types {
         }
 
         return newType;
+    }
+
+    private BType getConstraint(BRecordType recordType) {
+        if (recordType.sealed) {
+            return symTable.neverType;
+        }
+
+        return recordType.restFieldType;
     }
 
     private BRecordType createAnonymousRecord(SymbolEnv env) {
@@ -3923,16 +3938,15 @@ public class Types {
 
     private BType validateRecordField(IntersectionContext intersectionContext,
                                       BRecordType newType, BField origField, BType constraint, SymbolEnv env) {
-        BType fieldType = validateOverlappingFields(newType, origField);
-        if (fieldType == symTable.semanticError) {
-            return fieldType;
+        if (hasField(newType, origField)) {
+            return validateOverlappingFields(newType, origField);
         }
 
         if (constraint == null) {
-            return fieldType;
+            return origField.type;
         }
 
-        fieldType = getTypeIntersection(intersectionContext, fieldType, constraint, env);
+        BType fieldType = getTypeIntersection(intersectionContext, origField.type, constraint, env);
         if (fieldType != symTable.semanticError) {
             return fieldType;
         }
@@ -3944,12 +3958,16 @@ public class Types {
         return symTable.semanticError;
     }
 
+    private boolean hasField(BRecordType recordType, BField origField) {
+        return recordType.fields.containsKey(origField.name.value);
+    }
+
     private BType validateOverlappingFields(BRecordType newType, BField origField) {
-        BField overlappingField = newType.fields.get(origField.name.value);
-        if (overlappingField == null) {
+        if (!hasField(newType, origField)) {
             return origField.type;
         }
 
+        BField overlappingField = newType.fields.get(origField.name.value);
         if (isAssignable(overlappingField.type, origField.type)) {
             return overlappingField.type;
         }
