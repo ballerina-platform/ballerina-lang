@@ -1069,6 +1069,24 @@ function testFromJsonWithTypeWithNullValuesNegative() {
     }
 }
 
+function testFromJsonWithTypeWithInferredArgument() {
+    json movie = {
+        title: "Some",
+        year: 2010
+    };
+    map<anydata> movieMap = checkpanic movie.fromJsonWithType();
+    assert(movieMap["title"], "Some");
+    assert(movieMap["year"], 2010);
+
+    movieMap = checkpanic value:fromJsonWithType(v = movie);
+    assert(movieMap["title"], "Some");
+    assert(movieMap["year"], 2010);
+
+    json arr = [1, 2];
+    string[]|error s = arr.fromJsonWithType();
+    assert(s is error, true);
+}
+
 /////////////////////////// Tests for `fromJsonStringWithType()` ///////////////////////////
 
 function testFromJsonStringWithTypeJson() {
@@ -1147,6 +1165,24 @@ function testFromJsonStringWithTypeIntArray() {
     int[] intArr = <int[]> arr;
     assert(intArr[0], 1);
     assert(intArr[1], 2);
+}
+
+function testFromJsonStringWithTypeWithInferredArgument() {
+    string s = "[1, 2]";
+    int[] arr = checkpanic s.fromJsonStringWithType();
+    int[] intArr = <int[]> arr;
+    assert(intArr[0], 1);
+    assert(intArr[1], 2);
+
+    string str = "{\"name\":\"Name\",\"age\":35}";
+    Student3|error studentOrError = str.fromJsonStringWithType();
+    assert(studentOrError is Student3, true);
+    Student3 student = checkpanic studentOrError;
+    assert(student.name, "Name");
+
+    string arrStr = "[1, 2]";
+    string[]|error a = value:fromJsonStringWithType(arrStr);
+    assert(a is error, true);
 }
 
 /////////////////////////// Tests for `toJson()` ///////////////////////////
@@ -1508,6 +1544,21 @@ function testEnsureTypeNegative() {
     assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float[]'\")", e4.toString());
     assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: '()' cannot be cast to 'int'\")", e5.toString());
     assertEquality("error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'children' not found in JSON mapping\")", e6.toString());
+}
+
+function testEnsureTypeWithInferredArgument() {
+    int|error age = p.age.ensureType();
+    assertEquality(24, age);
+
+    // https://github.com/ballerina-platform/ballerina-lang/issues/29219
+    //any a = <string[]> ["hello", "world"];
+    //string[] strArray = checkpanic a.ensureType();
+    //assertEquality(a, strArray);
+    //string[]|error strArray2 = value:ensureType(a);
+    //assertEquality(a, strArray2);
+
+    //int[]|error intArr = a.ensureType();
+    //assertEquality(a, intArr);
 }
 
 type OpenRecordWithUnionTarget record {|

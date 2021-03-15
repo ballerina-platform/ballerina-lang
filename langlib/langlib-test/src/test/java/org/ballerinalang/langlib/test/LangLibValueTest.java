@@ -354,7 +354,8 @@ public class LangLibValueTest {
                 { "tesFromJsonWithTypeMapWithDecimal" },
                 { "testConvertJsonToAmbiguousType" },
                 { "testFromJsonWithTypeWithNullValues" },
-                { "testFromJsonWithTypeWithNullValuesNegative" }
+                { "testFromJsonWithTypeWithNullValuesNegative" },
+                { "testFromJsonWithTypeWithInferredArgument" }
         };
     }
 
@@ -373,6 +374,7 @@ public class LangLibValueTest {
                 { "testFromJsonStringWithTypeStringArray" },
                 { "testFromJsonStringWithTypeArrayNegative" },
                 { "testFromJsonStringWithTypeIntArray" },
+                { "testFromJsonStringWithTypeWithInferredArgument" }
         };
     }
 
@@ -397,9 +399,17 @@ public class LangLibValueTest {
         };
     }
 
-    @Test
-    public void testEnsureType() {
-        BRunUtil.invokeFunction(compileResult, "testEnsureType");
+    @Test(dataProvider = "ensureTypeFunctions")
+    public void testEnsureType(String function) {
+        BRunUtil.invokeFunction(compileResult, function);
+    }
+
+    @DataProvider(name = "ensureTypeFunctions")
+    public Object[][] ensureTypeFunctions() {
+        return new Object[][] {
+                { "testEnsureType" },
+                { "testEnsureTypeWithInferredArgument" }
+        };
     }
 
     @Test
