@@ -25,7 +25,7 @@ distinct class ConstructorsTestResource {
     *Object;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + return - The new `ConstructorsTestResource` class generated.
 function newConstructorsTestResource1() returns ConstructorsTestResource {
@@ -34,7 +34,7 @@ function newConstructorsTestResource1() returns ConstructorsTestResource {
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `boolean` value required to map with the Java constructor parameter.
 # + arg1 - The `string` value required to map with the Java constructor parameter.
@@ -47,7 +47,7 @@ function newConstructorsTestResource2(boolean arg0, string arg1, StringBuffer ar
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `float` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class or `IOException` error generated.
@@ -62,7 +62,7 @@ function newConstructorsTestResource3(float arg0) returns ConstructorsTestResour
     }
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `File` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
@@ -72,7 +72,7 @@ function newConstructorsTestResource4(File arg0) returns ConstructorsTestResourc
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `File` value required to map with the Java constructor parameter.
 # + arg1 - The `boolean` value required to map with the Java constructor parameter.
@@ -90,7 +90,7 @@ function newConstructorsTestResource5(File arg0, boolean arg1) returns Construct
     }
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `File` value required to map with the Java constructor parameter.
 # + arg1 - The `int` value required to map with the Java constructor parameter.
@@ -102,7 +102,7 @@ function newConstructorsTestResource6(File arg0, int arg1) returns ConstructorsT
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `File` value required to map with the Java constructor parameter.
 # + arg1 - The `StringBuffer` value required to map with the Java constructor parameter.
@@ -114,7 +114,7 @@ function newConstructorsTestResource7(File arg0, StringBuffer arg1) returns Cons
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `int` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
@@ -124,7 +124,7 @@ function newConstructorsTestResource8(int arg0) returns ConstructorsTestResource
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `int[]` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
@@ -135,7 +135,7 @@ function newConstructorsTestResource9(int[] arg0) returns ConstructorsTestResour
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `int[]` value required to map with the Java constructor parameter.
 # + arg1 - The `string` value required to map with the Java constructor parameter.
@@ -147,7 +147,7 @@ function newConstructorsTestResource10(int[] arg0, string arg1) returns Construc
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `int` value required to map with the Java constructor parameter.
 # + arg1 - The `int` value required to map with the Java constructor parameter.
@@ -158,7 +158,7 @@ function newConstructorsTestResource11(int arg0, int arg1) returns ConstructorsT
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `Object[]` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
@@ -169,7 +169,7 @@ function newConstructorsTestResource12(Object[] arg0) returns ConstructorsTestRe
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `Object[]` value required to map with the Java constructor parameter.
 # + arg1 - The `boolean` value required to map with the Java constructor parameter.
@@ -183,7 +183,7 @@ returns ConstructorsTestResource|error {
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `string` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
@@ -194,7 +194,7 @@ function newConstructorsTestResource14(string arg0) returns ConstructorsTestReso
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `string[]` value required to map with the Java constructor parameter.
 # + return - The new `ConstructorsTestResource` class generated.
@@ -205,7 +205,7 @@ function newConstructorsTestResource15(string[] arg0) returns ConstructorsTestRe
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `string[]` value required to map with the Java constructor parameter.
 # + arg1 - The `string[]` value required to map with the Java constructor parameter.
@@ -217,7 +217,7 @@ function newConstructorsTestResource16(string[] arg0, string[] arg1) returns Con
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `string` value required to map with the Java constructor parameter.
 # + arg1 - The `byte` value required to map with the Java constructor parameter.
@@ -230,7 +230,7 @@ function newConstructorsTestResource17(string arg0, byte arg1, int arg2) returns
     return newObj;
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `string` value required to map with the Java constructor parameter.
 # + arg1 - The `int` value required to map with the Java constructor parameter.
@@ -247,7 +247,7 @@ function newConstructorsTestResource18(string arg0, int arg1) returns Constructo
     }
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.ConstructorsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
 #
 # + arg0 - The `string` value required to map with the Java constructor parameter.
 # + arg1 - The `string` value required to map with the Java constructor parameter.

@@ -40,15 +40,12 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BAL_EXTENSION;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.ERROR_TEMPLATE_NAME;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.MODULES_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.USER_DIR;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.createDirectory;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getClassLoader;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.outputSyntaxTreeFile;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.writeOutputFile;
 
 /**
  * Class for generating Ballerina bindings for Java APIs.
@@ -225,15 +222,13 @@ public class BindingsGenerator {
 
         // Create the .bal files for Ballerina error types.
         for (JError jError : exceptionList) {
-            jError.setAccessModifier(accessModifier);
             String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
             if (env.getModulesFlag()) {
                 utilsDirStrPath = Paths.get(modulePath.toString(), jError.getPackageName()).toString();
                 createDirectory(utilsDirStrPath);
             }
             // The folder structure is flattened to address the Project API changes.
-            writeOutputFile(jError, DEFAULT_TEMPLATE_DIR, ERROR_TEMPLATE_NAME,
-                    Paths.get(utilsDirStrPath, fileName).toString(), false);
+            outputSyntaxTreeFile(jError, env, Paths.get(utilsDirStrPath, fileName).toString(), false);
         }
     }
 

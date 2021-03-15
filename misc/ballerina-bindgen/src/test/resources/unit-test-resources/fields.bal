@@ -545,7 +545,7 @@ distinct class FieldsTestResource {
     }
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.FieldsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.FieldsTestResource`.
 #
 # + return - The new `FieldsTestResource` class generated.
 function newFieldsTestResource1() returns FieldsTestResource {

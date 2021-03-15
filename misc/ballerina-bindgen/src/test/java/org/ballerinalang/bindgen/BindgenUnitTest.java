@@ -21,6 +21,7 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.model.BindingsGenerator;
 import org.ballerinalang.bindgen.model.JClass;
+import org.ballerinalang.bindgen.model.JError;
 import org.ballerinalang.bindgen.utils.BindgenEnv;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
@@ -70,5 +71,13 @@ public class BindgenUnitTest {
                 .loadClass("org.ballerinalang.bindgen.FieldsTestResource"), bindgenEnv));
         Assert.assertEquals(Formatter.format(fSyntaxTree.toSourceCode()), Formatter.format(fields));
         Assert.assertFalse(fSyntaxTree.hasDiagnostics());
+
+        // Test the error types generated
+        Path errorFilePath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "error.bal");
+        String error = Files.readString(resourceDirectory.resolve(errorFilePath));
+        SyntaxTree eSyntaxTree = bindingsGenerator.generate(new JError(this.getClass().getClassLoader()
+                .loadClass("java.io.IOException")));
+        Assert.assertEquals(Formatter.format(eSyntaxTree.toSourceCode()), Formatter.format(error));
+        Assert.assertFalse(eSyntaxTree.hasDiagnostics());
     }
 }

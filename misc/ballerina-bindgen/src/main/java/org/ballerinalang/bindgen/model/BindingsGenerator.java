@@ -17,17 +17,19 @@
  */
 package org.ballerinalang.bindgen.model;
 
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocuments;
+import org.apache.commons.io.IOUtils;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
 import org.ballerinalang.bindgen.utils.BindgenEnv;
 
-import java.io.IOException;
-import java.nio.file.Files;
+import java.io.InputStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Locale;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_DIR;
 
 /**
  * Class for generating the Ballerina bindings as a syntax tree for a given Java class.
@@ -37,19 +39,26 @@ import java.util.Locale;
 public class BindingsGenerator {
 
     private JClass jClass;
+    private Class currentClass;
     private SyntaxTree syntaxTree;
     private BindgenEnv env;
-    private String templateDirectory = Paths.get("src", "main", "resources", "templates").toString();
-    private Path jClassTemplatePath = Paths.get(templateDirectory, "jclass.bal");
-    private Path jEmptyClassTemplatePath = Paths.get(templateDirectory, "empty_jclass.bal");
-    private Path jErrorTemplatePath = Paths.get(templateDirectory, "jerror.bal");
+    private Path jClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "jclass.bal");
+    private Path jEmptyClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "empty_jclass.bal");
+    private Path jErrorTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "jerror.bal");
 
     public BindingsGenerator(BindgenEnv env) {
         this.env = env;
     }
 
+    public SyntaxTree generate(JError jError) throws BindgenException {
+        this.currentClass = jError.getCurrentClass();
+        setClassNameAlias();
+        return generateFromTemplate(jErrorTemplatePath);
+    }
+
     public SyntaxTree generate(JClass jClass) throws BindgenException {
         this.jClass = jClass;
+        this.currentClass = jClass.getCurrentClass();
         setClassNameAlias();
         if (Throwable.class.isAssignableFrom(jClass.getCurrentClass())) {
             // Generate Ballerina error bindings for Java throwable classes.
@@ -66,25 +75,25 @@ public class BindingsGenerator {
 
     private SyntaxTree generateSyntaxTree() throws BindgenException {
         if (syntaxTree.containsModulePart()) {
-            return new BindgenTreeModifier(jClass, env).transform((ModulePartNode) syntaxTree.rootNode()).syntaxTree();
+            return new BindgenTreeModifier(jClass, env).transform(syntaxTree.rootNode()).syntaxTree();
         } else {
             throw new BindgenException("error: unable to generate the binding class `"
                     + jClass.getCurrentClass().getName() + "`");
         }
     }
 
-    private SyntaxTree generateFromTemplate(Path templatePath) throws BindgenException {
-        String content = readTemplateFile(templatePath);
+    private SyntaxTree generateFromTemplate(Path filePath) throws BindgenException {
+        String content = readTemplateFile(filePath);
         return replacePlaceholders(content);
     }
 
 
     private SyntaxTree replacePlaceholders(String content) {
-        Class javaClass = jClass.getCurrentClass();
-        String modifiedContent = content.replace("FULL_CLASS_NAME", javaClass.getName())
-                .replace("CLASS_TYPE", javaClass.isInterface() ? "interface" : "class")
-                .replace("SHORT_CLASS_NAME_CAPS", javaClass.getSimpleName().toUpperCase(Locale.getDefault()))
-                .replace("SIMPLE_CLASS_NAME", env.getAliasClassName(javaClass.getName()))
+        String modifiedContent = content.replace("FULL_CLASS_NAME", currentClass.getName())
+                .replace("CLASS_TYPE", currentClass.isInterface() ? "interface" : "class")
+                .replace("SIMPLE_CLASS_NAME_CAPS", env.getAliasClassName(currentClass.getName())
+                        .toUpperCase(Locale.getDefault()))
+                .replace("SIMPLE_CLASS_NAME", env.getAliasClassName(currentClass.getName()))
                 .replace("ACCESS_MODIFIER", env.hasPublicFlag() ? "public " : "");
         return SyntaxTree.from(TextDocuments.from(modifiedContent));
     }
@@ -94,8 +103,8 @@ public class BindingsGenerator {
      * If conflicting class names are found, an incremental integer is appended to the Ballerina class name.
      * */
     private void setClassNameAlias() {
-        String className = jClass.getCurrentClass().getName();
-        String simpleClassName = jClass.getCurrentClass().getSimpleName();
+        String className = currentClass.getName();
+        String simpleClassName = currentClass.getSimpleName();
         if (env.getAliasValue(simpleClassName) == null) {
             env.setAlias(simpleClassName, className);
         } else {
@@ -114,10 +123,11 @@ public class BindingsGenerator {
         }
     }
 
-    private String readTemplateFile(Path path) throws BindgenException {
+    private String readTemplateFile(Path filePath) throws BindgenException {
         try {
-            return Files.readString(path);
-        } catch (IOException e) {
+            InputStream stream = this.getClass().getClassLoader().getResourceAsStream(filePath.toString());
+            return IOUtils.toString(stream, UTF_8);
+        } catch (Exception e) {
             throw new BindgenException("error: unable to read the internal template file", e);
         }
     }

@@ -506,7 +506,7 @@ distinct class MethodsTestResource {
     }
 }
 
-# The constructor function to generate an object of type `org.ballerinalang.bindgen.MethodsTestResource`.
+# The constructor function to generate an object of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
 # + return - The new `MethodsTestResource` class generated.
 function newMethodsTestResource1() returns MethodsTestResource {

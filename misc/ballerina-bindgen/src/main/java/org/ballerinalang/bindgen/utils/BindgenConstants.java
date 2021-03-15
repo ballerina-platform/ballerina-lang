@@ -38,7 +38,7 @@ public class BindgenConstants {
     public static final String METHOD_INTEROP_TYPE = "@java:Method";
     public static final String MUTATE_FIELD = "mutate";
     public static final String MUTATE_FIELD_INTEROP_TYPE = "@java:FieldSet";
-    public static final String DEFAULT_TEMPLATE_DIR = "/templates";
+    public static final String DEFAULT_TEMPLATE_DIR = "templates";
     public static final String USER_DIR = "user.dir";
     public static final String CONSTANTS_FILE_NAME = "Constants.bal";
     public static final String ARRAY_BRACKETS = "[]";
@@ -51,7 +51,7 @@ public class BindgenConstants {
     static final String MVN_REPO = "platform-libs";
     static final String FILE_SEPARATOR = "file.separator";
     static final String MUSTACHE_FILE_EXTENSION = ".mustache";
-    static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
+    public static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
     static final String FLOAT = "float";
     static final String INT = "int";
     static final String BOOLEAN = "boolean";
