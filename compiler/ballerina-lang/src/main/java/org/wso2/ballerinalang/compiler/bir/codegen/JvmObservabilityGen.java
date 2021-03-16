@@ -121,9 +121,11 @@ class JvmObservabilityGen {
     private int defaultServiceIndex;
 
     private final Map<Object, BIROperand> compileTimeConstants;
+    private final Map<Name, List<String>> svcAttachPoints;
 
     JvmObservabilityGen(PackageCache packageCache, SymbolTable symbolTable) {
         this.compileTimeConstants = new HashMap<>();
+        this.svcAttachPoints = new HashMap<>();
         this.packageCache = packageCache;
         this.symbolTable = symbolTable;
         this.lambdaIndex = 0;
@@ -152,6 +154,9 @@ class JvmObservabilityGen {
                 rewriteObservableFunctionBody(func, pkg, null, func.workerName.value, null, false, false, false, true);
             }
         }
+        for (BIRNode.BIRServiceDeclaration serviceDecl : pkg.serviceDecls) {
+            svcAttachPoints.put(serviceDecl.associatedClassName, serviceDecl.attachPoint);
+        }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
             if ((typeDef.flags & Flags.CLASS) != Flags.CLASS && typeDef.type.tag == TypeTags.OBJECT) {
                 continue;
@@ -170,8 +175,13 @@ class JvmObservabilityGen {
                     }
                 }
                 if (serviceName == null) {
-                    serviceName = pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_svc_" +
-                            defaultServiceIndex++;
+                    List<String> attachPoint = this.svcAttachPoints.get(typeDef.name);
+                    if (attachPoint != null) {
+                        serviceName = String.join("/", attachPoint);
+                    } else {
+                        serviceName = pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_svc_" +
+                                defaultServiceIndex++;
+                    }
                 }
             }
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {

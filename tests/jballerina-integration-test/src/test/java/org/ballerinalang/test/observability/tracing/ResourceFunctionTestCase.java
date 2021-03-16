@@ -47,8 +47,8 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
     @DataProvider(name = "success-response-data-provider")
     public Object[][] getSuccessResponseData() {
         return new Object[][] {
-                {"resourceOne", "15", FILE_NAME + ":23:5", FILE_NAME + ":29:20", "Sum of numbers: 120"},
-                {"resourceTwo", "16", FILE_NAME + ":33:5", FILE_NAME + ":39:20", "Sum of numbers: 136"}
+                {"resourceOne", "15", FILE_NAME + ":22:5", FILE_NAME + ":28:20", "Sum of numbers: 120"},
+                {"resourceTwo", "16", FILE_NAME + ":32:5", FILE_NAME + ":38:20", "Sum of numbers: 136"}
         };
     }
 
@@ -118,22 +118,22 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
     @DataProvider(name = "error-response-data-provider")
     public Object[][] getErrorResponseData() {
         return new Object[][] {
-                {"resourceThree", FILE_NAME + ":43:5", "Test Error 1", "Test Error 1\n" +
+                {"resourceThree", FILE_NAME + ":42:5", "Test Error 1", "Test Error 1\n" +
                         "    at intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceThree" +
-                        "(02_resource_function.bal:54)"},
-                {"resourceFour", FILE_NAME + ":59:5", "Test Error 2", "Test Error 2\n" +
+                        "(02_resource_function.bal:53)"},
+                {"resourceFour", FILE_NAME + ":58:5", "Test Error 2", "Test Error 2\n" +
                         "    at intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceFour" +
-                        "(02_resource_function.bal:70),"},
-                {"resourceFive", FILE_NAME + ":76:5", "Test Error. Sum: 91", "Test Error. Sum: 91\n" +
+                        "(02_resource_function.bal:69),"},
+                {"resourceFive", FILE_NAME + ":75:5", "Test Error. Sum: 91", "Test Error. Sum: 91\n" +
                         "    at intg_tests.tracing_tests.0_0_1:panicAfterCalculatingSum(commons.bal:36)\n" +
                         "       intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceFive" +
-                        "(02_resource_function.bal:77)"},
-                {"resourceSix", FILE_NAME + ":82:5", "Test Error. Sum: 153", "Test Error. Sum: 153\n" +
+                        "(02_resource_function.bal:76)"},
+                {"resourceSix", FILE_NAME + ":81:5", "Test Error. Sum: 153", "Test Error. Sum: 153\n" +
                         "    at intg_tests.tracing_tests.0_0_1:panicAfterCalculatingSum(commons.bal:36)\n" +
                         "       intg_tests.tracing_tests.0_0_1.$anonType$_0:panicAfterCalculatingSum$lambda0$" +
-                        "(02_resource_function.bal:83)\n" +
+                        "(02_resource_function.bal:82)\n" +
                         "       intg_tests.tracing_tests.0_0_1.$anonType$_0:$post$resourceSix" +
-                        "(02_resource_function.bal:84)"}
+                        "(02_resource_function.bal:83)"}
         };
     }
 
@@ -190,9 +190,9 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
     @DataProvider(name = "simple-remote-call-data-provider")
     public Object[][] getSimpleRemoteCallData() {
         return new Object[][] {
-                {"resourceSeven", FILE_NAME + ":89:5", FILE_NAME + ":91:30", FILE_NAME + ":98:20",
+                {"resourceSeven", FILE_NAME + ":88:5", FILE_NAME + ":90:30", FILE_NAME + ":97:20",
                         "Sum of numbers: 12"},
-                {"resourceEight", FILE_NAME + ":102:5", FILE_NAME + ":103:24", FILE_NAME + ":105:24",
+                {"resourceEight", FILE_NAME + ":101:5", FILE_NAME + ":102:24", FILE_NAME + ":104:24",
                         "Successfully executed"}
         };
     }
