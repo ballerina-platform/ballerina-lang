@@ -156,7 +156,7 @@ public class BindgenNodeFactory {
     public static TypeReferenceNode createTypeReferenceNode(String type) {
         Token asteriskToken = AbstractNodeFactory.createToken(SyntaxKind.ASTERISK_TOKEN);
         Node typeName = createSimpleNameReferenceNode(type);
-        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN);
+        Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, emptyML(), singleNLML());
 
         return NodeFactory.createTypeReferenceNode(asteriskToken, typeName, semicolonToken);
     }

@@ -100,6 +100,8 @@ public class BindgenTreeModifier {
 
         ClassDefinitionNode modifiedClassDefinition = classDefinitionDetails.getValue();
         NodeList<Node> memberList = modifiedClassDefinition.members();
+        NodeList<Node> newMemberList = AbstractNodeFactory.createEmptyNodeList();
+        List<Node> newTypeReferences = new LinkedList<>();
         for (Map.Entry<String, String> superClass : jClass.getSuperClassPackage().entrySet()) {
             String completeSuperClassName = superClass.getKey();
             if (env.getModulesFlag() && (!superClass.getValue().equals(jClass.getPackageName().replace(".", "")))) {
@@ -108,11 +110,17 @@ public class BindgenTreeModifier {
             if (!isFieldExists(completeSuperClassName, typeReferences)) {
                 TypeReferenceNode typeReferenceNode = generateTypeReference(completeSuperClassName);
                 if (typeReferenceNode != null) {
-                    memberList = memberList.add(typeReferenceNode);
+                    newTypeReferences.add(typeReferenceNode);
                 }
             }
         }
-        modifiedClassDefinition = modifiedClassDefinition.modify().withMembers(memberList).apply();
+        for (Node node : memberList) {
+            newMemberList = newMemberList.add(node);
+            if (node.kind() == SyntaxKind.TYPE_REFERENCE) {
+                newMemberList = newMemberList.addAll(newTypeReferences);
+            }
+        }
+        modifiedClassDefinition = modifiedClassDefinition.modify().withMembers(newMemberList).apply();
         return members.set(classDefinitionDetails.getKey(), modifiedClassDefinition);
     }
 
