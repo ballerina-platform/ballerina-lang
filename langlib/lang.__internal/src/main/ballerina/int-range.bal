@@ -72,10 +72,13 @@ public class __IntRange {
 # + e - The upper bound if the integer range inclusive
 # + return - `Iterable<int,()>` object
 public isolated function createIntRange(int s, int e) returns object {
-                                            *IterableIntegerRange;
-                                            public isolated function iterator() returns object {
-                                                    public isolated function next() returns record {| int value; |}?;
-                                            };} {
-    __IntRange intRange = new(s, e);
+                                                                  *IterableIntegerRange;
+                                                                  public isolated function iterator()
+                                                                  returns object {
+                                                                              public isolated function next()
+                                                                              returns record {| int value; |}?;
+                                                                          };
+                                                              } {
+    __IntRange intRange = new (s, e);
     return intRange;
 }
