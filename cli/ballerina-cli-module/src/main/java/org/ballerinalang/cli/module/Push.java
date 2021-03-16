@@ -30,19 +30,18 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Authenticator;
-import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 
 import static org.ballerinalang.cli.module.util.CliModuleConstants.PUSH_ORGANIZATION;
 import static org.ballerinalang.cli.module.util.Utils.convertToUrl;
-import static org.ballerinalang.cli.module.util.Utils.createHttpUrlConnection;
+import static org.ballerinalang.cli.module.util.Utils.createHttpsUrlConnection;
 import static org.ballerinalang.cli.module.util.Utils.getStatusCode;
-import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
 import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
 
 /**
@@ -76,9 +75,8 @@ public class Push {
      */
     public static void execute(String url, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword,
             String accessToken, String orgName, String moduleName, String version, Path baloPath) {
-        initializeSsl();
-        HttpURLConnection conn = createHttpUrlConnection(convertToUrl(url), proxyHost, proxyPort, proxyUsername,
-                proxyPassword);
+        HttpsURLConnection conn = createHttpsUrlConnection(convertToUrl(url), proxyHost, proxyPort, proxyUsername,
+                                                           proxyPassword);
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.POST);
 
@@ -115,21 +113,21 @@ public class Push {
     /**
      * Handle the http response.
      *
-     * @param conn       http connection
+     * @param conn       https connection
      * @param orgName    org name
      * @param moduleName module name
      * @param version    module version
      */
-    private static void handleResponse(HttpURLConnection conn, String orgName, String moduleName, String version) {
+    private static void handleResponse(HttpsURLConnection conn, String orgName, String moduleName, String version) {
         try {
             int statusCode = getStatusCode(conn);
             // 200 - Module pushed successfully
             // Other - Error occurred, json returned with the error message
-            if (statusCode == HttpURLConnection.HTTP_OK) {
+            if (statusCode == HttpsURLConnection.HTTP_OK) {
                 outStream.println(orgName + "/" + moduleName + ":" + version + " pushed to central successfully");
-            } else if (statusCode == HttpURLConnection.HTTP_UNAUTHORIZED) {
+            } else if (statusCode == HttpsURLConnection.HTTP_UNAUTHORIZED) {
                 errStream.println("unauthorized access token for organization: " + orgName);
-            } else if (statusCode == HttpURLConnection.HTTP_BAD_REQUEST) {
+            } else if (statusCode == HttpsURLConnection.HTTP_BAD_REQUEST) {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {
                     StringBuilder result = new StringBuilder();

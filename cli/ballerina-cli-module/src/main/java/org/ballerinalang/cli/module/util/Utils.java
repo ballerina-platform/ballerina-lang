@@ -18,22 +18,14 @@ package org.ballerinalang.cli.module.util;
 
 import java.io.IOException;
 import java.net.Authenticator;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.MalformedURLException;
 import java.net.PasswordAuthentication;
 import java.net.ProtocolException;
 import java.net.Proxy;
 import java.net.URL;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
-
-import static org.ballerinalang.cli.module.util.CliModuleConstants.SSL;
 
 /**
  * Class contains miscellaneous utility methods.
@@ -48,20 +40,6 @@ public class Utils {
     public enum RequestMethod {
         GET, POST
     }
-
-    private static TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-        public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-            return new java.security.cert.X509Certificate[] {};
-        }
-
-        public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-            //No need to implement.
-        }
-
-        public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-            //No need to implement.
-        }
-    } };
 
     /**
      * Get proxy for http connection.
@@ -103,20 +81,7 @@ public class Utils {
     }
 
     /**
-     * Initialize SSL.
-     */
-    public static void initializeSsl() {
-        try {
-            SSLContext sc = SSLContext.getInstance(SSL);
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            throw ErrorUtil.createCommandException("initializing SSL failed: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Create http URL connection.
+     * Create https URL connection.
      *
      * @param url           connection URL
      * @param proxyHost     proxy host
@@ -125,15 +90,15 @@ public class Utils {
      * @param proxyPassword proxy password
      * @return http URL connection
      */
-    public static HttpURLConnection createHttpUrlConnection(URL url, String proxyHost, int proxyPort,
+    public static HttpsURLConnection createHttpsUrlConnection(URL url, String proxyHost, int proxyPort,
             String proxyUsername, String proxyPassword) {
         try {
             Proxy proxy = getProxy(proxyHost, proxyPort, proxyUsername, proxyPassword);
             // set proxy if exists.
             if (proxy == null) {
-                return (HttpURLConnection) url.openConnection();
+                return (HttpsURLConnection) url.openConnection();
             } else {
-                return (HttpURLConnection) url.openConnection(proxy);
+                return (HttpsURLConnection) url.openConnection(proxy);
             }
         } catch (IOException e) {
             throw ErrorUtil.createCommandException(e.getMessage());
@@ -143,10 +108,10 @@ public class Utils {
     /**
      * Set request method of the http connection.
      *
-     * @param conn   http connection
+     * @param conn   https connection
      * @param method request method
      */
-    public static void setRequestMethod(HttpURLConnection conn, RequestMethod method) {
+    public static void setRequestMethod(HttpsURLConnection conn, RequestMethod method) {
         try {
             conn.setRequestMethod(getRequestMethodAsString(method));
         } catch (ProtocolException e) {
@@ -168,10 +133,10 @@ public class Utils {
     /**
      * Get status code of http response.
      *
-     * @param conn http connection
+     * @param conn https connection
      * @return status code
      */
-    public static int getStatusCode(HttpURLConnection conn) {
+    public static int getStatusCode(HttpsURLConnection conn) {
         try {
             return conn.getResponseCode();
         } catch (IOException e) {

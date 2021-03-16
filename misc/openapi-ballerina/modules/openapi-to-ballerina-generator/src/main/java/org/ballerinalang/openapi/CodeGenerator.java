@@ -122,7 +122,6 @@ public class CodeGenerator {
         writeGeneratedSources(genFiles, srcPath, implPath, type);
     }
 
-
     /**
      * Generates ballerina source for provided Open API Definition in {@code definitionPath}.
      * Generated source will be written to a ballerina module at {@code outPath}
@@ -130,6 +129,7 @@ public class CodeGenerator {
      *
      * @param executionPath  Command execution path
      * @param definitionPath Input Open Api Definition file path
+     * @param serviceName    service name
      * @param outPath        Destination file path to save generated source files. If not provided
      *                       {@code definitionPath} will be used as the default destination path
      * @throws IOException               when file operations fail

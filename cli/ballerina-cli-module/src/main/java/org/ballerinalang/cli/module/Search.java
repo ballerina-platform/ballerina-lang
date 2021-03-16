@@ -27,16 +27,16 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Authenticator;
-import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import static org.ballerinalang.cli.module.util.Utils.convertToUrl;
-import static org.ballerinalang.cli.module.util.Utils.createHttpUrlConnection;
+import static org.ballerinalang.cli.module.util.Utils.createHttpsUrlConnection;
 import static org.ballerinalang.cli.module.util.Utils.getStatusCode;
-import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
 import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
 
 /**
@@ -63,9 +63,8 @@ public class Search {
      */
     public static void execute(String url, String proxyHost, int proxyPort, String proxyUsername, String proxyPassword,
             String terminalWidth) {
-        initializeSsl();
-        HttpURLConnection conn = createHttpUrlConnection(convertToUrl(url), proxyHost, proxyPort, proxyUsername,
-                proxyPassword);
+        HttpsURLConnection conn = createHttpsUrlConnection(convertToUrl(url), proxyHost, proxyPort, proxyUsername,
+                                                           proxyPassword);
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.GET);
         handleResponse(conn, getStatusCode(conn), terminalWidth);
@@ -75,16 +74,16 @@ public class Search {
     /**
      * Handle http response.
      *
-     * @param conn          http connection
+     * @param conn          https connection
      * @param statusCode    status code of the response
      * @param terminalWidth terminal width of the CLI
      */
-    private static void handleResponse(HttpURLConnection conn, int statusCode, String terminalWidth) {
+    private static void handleResponse(HttpsURLConnection conn, int statusCode, String terminalWidth) {
         try {
             // 200 - modules found
             // Other - Error occurred, json returned with the error message
             MapValue payload;
-            if (statusCode == HttpURLConnection.HTTP_OK) {
+            if (statusCode == HttpsURLConnection.HTTP_OK) {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getInputStream(), Charset.defaultCharset()))) {
                     StringBuilder result = new StringBuilder();
