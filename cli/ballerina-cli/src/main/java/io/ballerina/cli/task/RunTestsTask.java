@@ -248,7 +248,10 @@ public class RunTestsTask implements Task {
     private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
             throws IOException {
         // Generate code coverage
-        if (testReport == null) {
+        if (!coverage) {
+            return;
+        }
+        if (testReport == null) { // This to avoid the spotbugs failure.
             return;
         }
         Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
