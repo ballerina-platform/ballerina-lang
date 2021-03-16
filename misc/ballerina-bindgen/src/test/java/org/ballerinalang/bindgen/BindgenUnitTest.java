@@ -79,5 +79,20 @@ public class BindgenUnitTest {
                 .loadClass("java.io.IOException")));
         Assert.assertEquals(Formatter.format(eSyntaxTree.toSourceCode()), Formatter.format(error));
         Assert.assertFalse(eSyntaxTree.hasDiagnostics());
+
+        BindgenEnv moduleBindgenEnv = new BindgenEnv();
+        moduleBindgenEnv.setDirectJavaClass(true);
+        moduleBindgenEnv.setModulesFlag(true);
+        moduleBindgenEnv.setPackageName("test");
+        moduleBindgenEnv.setPublicFlag(true);
+        BindingsGenerator moduleBindingsGenerator = new BindingsGenerator(moduleBindgenEnv);
+
+        // Test the module level bindings generated
+        Path moduleMappingPath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "moduleMapping.bal");
+        String moduleMappingValue = Files.readString(resourceDirectory.resolve(moduleMappingPath));
+        SyntaxTree moduleSyntaxTree = moduleBindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("java.io.FileInputStream"), moduleBindgenEnv));
+        Assert.assertEquals(Formatter.format(moduleSyntaxTree.toSourceCode()), Formatter.format(moduleMappingValue));
+        Assert.assertFalse(eSyntaxTree.hasDiagnostics());
     }
 }
