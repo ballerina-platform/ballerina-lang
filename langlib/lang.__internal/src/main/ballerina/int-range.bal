@@ -16,17 +16,25 @@
 
 import ballerina/lang.'object as lang_object;
 
-# Integer range expression is represented using `__IntRange` object.
+# Integer range expression is represented using `IterableIntegerRange` object.
+#
+# This type is created to have an Iterable object without having to expose actual
+# implementation details with private fields
+type IterableIntegerRange object {
+    *lang_object:Iterable;
+};
+
+# Integer range expression is implemented using `__IntRange` object.
 #
 # + iStart - start expression of range expression
 # + iEnd - second expression on range expression
 # + iCurrent - current cursor
 public class __IntRange {
 
-    *lang_object:Iterable;
-    int iStart;
-    int iEnd;
-    int iCurrent;
+    *IterableIntegerRange;
+    private int iStart;
+    private int iEnd;
+    private int iCurrent;
 
     public isolated function init(int s, int e) {
         self.iStart = s;
@@ -62,16 +70,12 @@ public class __IntRange {
 #
 # + s - The lower bound of the integer range inclusive
 # + e - The upper bound if the integer range inclusive
-# + return - `__IntRange` object
-public isolated function createIntRange(int s, int e) returns
-        object {
-            *__IntRange;
-            public isolated function iterator() returns
-                object {
-                    public isolated function next() returns
-                        record {|int value;|}?;
-                };
-        } {
+# + return - `Iterable<int,()>` object
+public isolated function createIntRange(int s, int e) returns object {
+                                            *IterableIntegerRange;
+                                            public isolated function iterator() returns object {
+                                                    public isolated function next() returns record {| int value; |}?;
+                                            };} {
     __IntRange intRange = new(s, e);
     return intRange;
 }
