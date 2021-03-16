@@ -42,44 +42,48 @@ public class BindgenUnitTest {
 
     private final Path resourceDirectory = Paths.get("src").resolve("test").resolve("resources").toAbsolutePath();
 
-    @Test()
-    public void test() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
-        BindgenEnv bindgenEnv = new BindgenEnv();
-        bindgenEnv.setDirectJavaClass(true);
-        BindingsGenerator bindingsGenerator = new BindingsGenerator(bindgenEnv);
-
-        // Test the constructor functions generated
+    @Test(description = "Test the constructor bindings generated")
+    public void constructorMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         Path constructorFilePath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "constructors.bal");
         String constructors = Files.readString(resourceDirectory.resolve(constructorFilePath));
-        SyntaxTree cSyntaxTree = bindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
-                .loadClass("org.ballerinalang.bindgen.ConstructorsTestResource"), bindgenEnv));
+        SyntaxTree cSyntaxTree = getBindingsGenerator().generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("org.ballerinalang.bindgen.ConstructorsTestResource"), getBindgenEnv()));
         Assert.assertEquals(Formatter.format(cSyntaxTree.toSourceCode()), Formatter.format(constructors));
         Assert.assertFalse(cSyntaxTree.hasDiagnostics());
+    }
 
-        // Test the method functions generated
+    @Test(description = "Test the method bindings generated, includes scenarios for static and instance fields.")
+    public void methodMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         Path methodFilePath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "methods.bal");
         String methods = Files.readString(resourceDirectory.resolve(methodFilePath));
-        SyntaxTree mSyntaxTree = bindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
-                .loadClass("org.ballerinalang.bindgen.MethodsTestResource"), bindgenEnv));
+        SyntaxTree mSyntaxTree = getBindingsGenerator().generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("org.ballerinalang.bindgen.MethodsTestResource"), getBindgenEnv()));
         Assert.assertEquals(Formatter.format(mSyntaxTree.toSourceCode()), Formatter.format(methods));
         Assert.assertFalse(mSyntaxTree.hasDiagnostics());
+    }
 
-        // Test the field functions generated
+    @Test(description = "Test the field bindings generated, includes scenarios for static and instance fields.")
+    public void fieldMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         Path fieldFilePath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "fields.bal");
         String fields = Files.readString(resourceDirectory.resolve(fieldFilePath));
-        SyntaxTree fSyntaxTree = bindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
-                .loadClass("org.ballerinalang.bindgen.FieldsTestResource"), bindgenEnv));
+        SyntaxTree fSyntaxTree = getBindingsGenerator().generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("org.ballerinalang.bindgen.FieldsTestResource"), getBindgenEnv()));
         Assert.assertEquals(Formatter.format(fSyntaxTree.toSourceCode()), Formatter.format(fields));
         Assert.assertFalse(fSyntaxTree.hasDiagnostics());
+    }
 
-        // Test the error types generated
+    @Test(description = "Test the error bindings generated for a throwable.")
+    public void errorMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         Path errorFilePath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "error.bal");
         String error = Files.readString(resourceDirectory.resolve(errorFilePath));
-        SyntaxTree eSyntaxTree = bindingsGenerator.generate(new JError(this.getClass().getClassLoader()
+        SyntaxTree eSyntaxTree = getBindingsGenerator().generate(new JError(this.getClass().getClassLoader()
                 .loadClass("java.io.IOException")));
         Assert.assertEquals(Formatter.format(eSyntaxTree.toSourceCode()), Formatter.format(error));
         Assert.assertFalse(eSyntaxTree.hasDiagnostics());
+    }
 
+    @Test(description = "Test the bindings generated for a module level mapping.")
+    public void moduleLevelMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         BindgenEnv moduleBindgenEnv = new BindgenEnv();
         moduleBindgenEnv.setDirectJavaClass(true);
         moduleBindgenEnv.setModulesFlag(true);
@@ -87,12 +91,21 @@ public class BindgenUnitTest {
         moduleBindgenEnv.setPublicFlag(true);
         BindingsGenerator moduleBindingsGenerator = new BindingsGenerator(moduleBindgenEnv);
 
-        // Test the module level bindings generated
         Path moduleMappingPath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "moduleMapping.bal");
         String moduleMappingValue = Files.readString(resourceDirectory.resolve(moduleMappingPath));
         SyntaxTree moduleSyntaxTree = moduleBindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
                 .loadClass("java.io.FileInputStream"), moduleBindgenEnv));
         Assert.assertEquals(Formatter.format(moduleSyntaxTree.toSourceCode()), Formatter.format(moduleMappingValue));
-        Assert.assertFalse(eSyntaxTree.hasDiagnostics());
+        Assert.assertFalse(moduleSyntaxTree.hasDiagnostics());
+    }
+
+    private BindgenEnv getBindgenEnv() {
+        BindgenEnv bindgenEnv = new BindgenEnv();
+        bindgenEnv.setDirectJavaClass(true);
+        return bindgenEnv;
+    }
+
+    private BindingsGenerator getBindingsGenerator() {
+        return new BindingsGenerator(getBindgenEnv());
     }
 }
