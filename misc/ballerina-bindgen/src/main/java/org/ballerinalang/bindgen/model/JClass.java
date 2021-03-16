@@ -33,8 +33,8 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setAllClasses;
+import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.isAbstractClass;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isFinalField;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicField;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicMethod;
@@ -50,15 +50,12 @@ public class JClass {
     private String prefix;
     private String className;
     private String packageName;
-    private String accessModifier;
     private String shortClassName;
-    private String balPackageName;
     private Class currentClass;
 
-    private boolean modulesFlag = false;
+    private boolean modulesFlag;
     private boolean isInterface = false;
     private boolean isDirectClass = false;
-    private boolean isAbstract = false;
     private boolean importJavaArraysModule = false;
 
     private Set<String> superClasses = new HashSet<>();
@@ -80,32 +77,24 @@ public class JClass {
         shortClassName = getExceptionName(c, shortClassName);
         superClassNames.add(c.getName());
         modulesFlag = env.getModulesFlag();
-        balPackageName = env.getPackageName();
 
         setAllClasses(shortClassName);
         if (c.isInterface()) {
             isInterface = true;
             setAllClasses(getAlias(Object.class));
-            superClassNames.add(Object.class.getName());
-            superClasses.add(getAlias(Object.class));
-            superClassPackage.put(getAlias(Object.class), Object.class.getPackageName().replace(".", ""));
         }
         populateImplementedInterfaces(c.getInterfaces());
 
         Class sClass = c.getSuperclass();
-        while (sClass != null) {
-            populateImplementedInterfaces(sClass.getInterfaces());
+        if (sClass != null) {
+            setClassListForLooping(sClass.getName());
             String simpleClassName = getAlias(sClass).replace("$", "");
             superClassNames.add(sClass.getName());
             superClasses.add(simpleClassName);
             superClassPackage.put(simpleClassName, sClass.getPackageName().replace(".", ""));
             setAllClasses(simpleClassName);
-            sClass = sClass.getSuperclass();
         }
 
-        if (isAbstractClass(c)) {
-            isAbstract = true;
-        }
         if (env.isDirectJavaClass()) {
             isDirectClass = true;
             populateConstructors(c.getConstructors());
@@ -132,7 +121,7 @@ public class JClass {
     }
 
     private List<Method> getMethodsAsList(Class classObject) {
-        Method[] declaredMethods = classObject.getDeclaredMethods();
+        Method[] declaredMethods = classObject.getMethods();
         List<Method> classMethods = new LinkedList<>();
         for (Method m : declaredMethods) {
             if (!m.isSynthetic() && (!m.getName().equals("toString")) && isPublicMethod(m)) {
@@ -211,12 +200,10 @@ public class JClass {
 
     private void populateImplementedInterfaces(Class[] interfaces) {
         for (Class interfaceClass : interfaces) {
+//            setClassListForLooping(interfaceClass.getName());
             setAllClasses(getAlias(interfaceClass));
             superClasses.add(getAlias(interfaceClass));
             superClassNames.add(interfaceClass.getName());
-            if (interfaceClass.getInterfaces() != null) {
-                populateImplementedInterfaces(interfaceClass.getInterfaces());
-            }
         }
     }
 
@@ -240,10 +227,6 @@ public class JClass {
 
     public String getPackageName() {
         return packageName;
-    }
-
-    public void setAccessModifier(String accessModifier) {
-        this.accessModifier = accessModifier;
     }
 
     public void setMethodCount(String methodName) {

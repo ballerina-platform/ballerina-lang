@@ -91,9 +91,9 @@ public class BindingsGenerator {
     private SyntaxTree replacePlaceholders(String content) {
         String modifiedContent = content.replace("FULL_CLASS_NAME", currentClass.getName())
                 .replace("CLASS_TYPE", currentClass.isInterface() ? "interface" : "class")
-                .replace("SIMPLE_CLASS_NAME_CAPS", env.getAliasClassName(currentClass.getName())
+                .replace("SIMPLE_CLASS_NAME_CAPS", env.getAlias(currentClass.getName())
                         .toUpperCase(Locale.getDefault()))
-                .replace("SIMPLE_CLASS_NAME", env.getAliasClassName(currentClass.getName()))
+                .replace("SIMPLE_CLASS_NAME", env.getAlias(currentClass.getName()))
                 .replace("ACCESS_MODIFIER", env.hasPublicFlag() ? "public " : "");
         return SyntaxTree.from(TextDocuments.from(modifiedContent));
     }
@@ -103,22 +103,27 @@ public class BindingsGenerator {
      * If conflicting class names are found, an incremental integer is appended to the Ballerina class name.
      * */
     private void setClassNameAlias() {
+        if (env.getAlias(currentClass.getName()) != null) {
+            return;
+        }
         String className = currentClass.getName();
         String simpleClassName = currentClass.getSimpleName();
-        if (env.getAliasValue(simpleClassName) == null) {
+        if (env.getAliasClassName(simpleClassName) == null && env.getAliasClassName(simpleClassName + 1) == null) {
             env.setAlias(simpleClassName, className);
         } else {
-            for (int i = 1; i < 10; i++) {
+            int i = 1;
+            while (true) {
                 String alias = simpleClassName + i;
-                if (i == 1 && env.getAliasValue(alias) == null) {
+                if (i == 1 && env.getAliasClassName(alias) == null) {
                     // If Ballerina classes requiring duplicate short names exist, rename the initial one
                     // to hold a prefix. By default the initial one does not have a prefix.
-                    String previousValue = env.removeAlias(simpleClassName);
-                    env.setAlias(alias, previousValue);
-                } else if (env.getAliasValue(alias) == null) {
+                    String previousClassName = env.removeAlias(simpleClassName);
+                    env.setAlias(alias, previousClassName);
+                } else if (env.getAliasClassName(alias) == null) {
                     env.setAlias(alias, className);
                     break;
                 }
+                i++;
             }
         }
     }
