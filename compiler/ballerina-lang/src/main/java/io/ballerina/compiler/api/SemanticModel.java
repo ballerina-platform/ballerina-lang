@@ -93,8 +93,9 @@ public interface SemanticModel {
     List<Location> references(Document sourceDocument, LinePosition position);
 
     /**
-     * Retrieves the type of the expression in the specified text range. If it's not a valid expression, returns an
-     * empty {@link Optional} value!.
+     * Retrieves the type of the expression (or part of an expression e.g., specific field of a mapping constructor) in
+     * the specified text range. If it's not a valid expression nor a part of an expression, returns an empty {@link
+     * Optional} value.
      *
      * @param range the text range of the expression
      * @return the type of the expression
@@ -102,8 +103,8 @@ public interface SemanticModel {
     Optional<TypeSymbol> type(LineRange range);
 
     /**
-     * Given a syntax tree node, returns the type of that node, if it is an expression node. For any other node, this
-     * will return empty.
+     * Given a syntax tree node, returns the type of that node, if it is an expression node or a node which makes up the
+     * expression (e.g., specific field of a mapping constructor). For any other node, this will return empty.
      *
      * @param node The expression node of which the type is needed
      * @return The type if it's a valid expression node, if not, returns empty

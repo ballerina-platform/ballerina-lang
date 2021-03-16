@@ -52,7 +52,6 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TUPLE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.UNION;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.XML;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.XML_ELEMENT;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
