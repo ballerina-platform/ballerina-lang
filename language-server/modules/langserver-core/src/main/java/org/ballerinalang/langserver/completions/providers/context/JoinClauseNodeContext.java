@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -150,7 +151,7 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
                 SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
                 return node.expression().textRange().startOffset() + 1 == cursor &&
                         nameReferenceNode.textRange().startOffset() + 1 == cursor &&
-                        "i".equals(nameReferenceNode.name().text());
+                        ItemResolverConstants.IN_KEYWORD.startsWith(nameReferenceNode.name().text());
             }
         }
 
@@ -183,7 +184,7 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
                 SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
                 return node.expression().textRange().endOffset() == cursor &&
                         nameReferenceNode.textRange().endOffset() == cursor &&
-                        "o".equals(nameReferenceNode.name().text());
+                        ItemResolverConstants.ON.startsWith(nameReferenceNode.name().text());
             }
         }
 
