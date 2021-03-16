@@ -17,10 +17,13 @@ package org.ballerinalang.datamapper;
 
 import com.google.common.cache.Cache;
 import com.google.common.cache.CacheBuilder;
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
+import com.google.gson.internal.LinkedTreeMap;
+import com.google.gson.reflect.TypeToken;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
@@ -77,11 +80,13 @@ class AIDataMapperCodeActionUtil {
     private static final int LEFT_SYMBOL_INDEX = 0;
     private static Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
+    private static HashMap<String, String> isOptionalMap = new HashMap<>();
 
     private static final String SCHEMA = "schema";
     private static final String ID = "id";
     private static final String TYPE = "type";
     private static final String PROPERTIES = "properties";
+    private static final String OPTIONAL = "optional";
 
 
     /**
@@ -115,7 +120,7 @@ class AIDataMapperCodeActionUtil {
         if (props.size() != 2 || props.get(RIGHT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
                 props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
                 ((leftSymbolType != TypeDescKind.TYPE_REFERENCE) && (leftSymbolType != TypeDescKind.RECORD) &&
-                (leftSymbolType != TypeDescKind.UNION))) {
+                        (leftSymbolType != TypeDescKind.UNION))) {
             return fEdits;
         } else {
             Symbol lftTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
@@ -313,6 +318,12 @@ class AIDataMapperCodeActionUtil {
             rightRecordJSON.addProperty(TYPE, "object");
             rightRecordJSON.add(PROPERTIES, rightSchema);
 
+            Map<String, Object> rightSchemaMap = new Gson().fromJson(rightSchema, new TypeToken<HashMap<String, Object>>() {
+            }.getType());
+            isOptionalMap.clear();
+            generateOptionalMap(rightSchemaMap, foundTypeRight);
+
+
             // Schema 2
             Map<String, RecordFieldSymbol> leftSchemaFields = symbolList.get(1).fieldDescriptors();
             JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields.values());
@@ -326,20 +337,36 @@ class AIDataMapperCodeActionUtil {
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
         schemas.add(rightRecordJSON);
-        return getMapping(schemas, context, foundTypeLeft, foundTypeRight);
+        return getMapping(schemas, context);
+    }
+
+    private static void generateOptionalMap(Map<String, Object> rightSchemaMap, String foundTypeRight) {
+        for (Map.Entry<String, Object> field : rightSchemaMap.entrySet()) {
+            StringBuilder optionKey = new StringBuilder(foundTypeRight.toLowerCase());
+            if(!checkForOptional(field)) {
+                optionKey.append(".").append(field.getKey());
+                generateOptionalMap((Map<String, Object>) ((LinkedTreeMap)field.getValue()).get(PROPERTIES), optionKey.toString());
+            } else if((boolean)((LinkedTreeMap) field.getValue()).get(OPTIONAL)){
+                optionKey.append(".").append(field.getKey());
+                isOptionalMap.put(optionKey.toString(), ((LinkedTreeMap) field.getValue()).get(TYPE).toString());
+            }
+        }
+    }
+
+    private static Boolean checkForOptional(Map.Entry<String, Object> field) {
+        return ((LinkedTreeMap) field.getValue()).containsKey(OPTIONAL);
     }
 
     /**
      * For a give array of schemas, return a mapping function.
      *
-     * @param schemas        {@link JsonArray}
-     * @param foundTypeLeft  {@link String}
-     * @param foundTypeRight {@link String}
+     * @param schemas {@link JsonArray}
+     *                //     * @param foundTypeLeft  {@link String}
+     *                //     * @param foundTypeRight {@link String}
      * @return mapped function
      * @throws IOException throws if an error occurred in HTTP request
      */
-    private static String getMapping(JsonArray schemas, CodeActionContext context, String foundTypeLeft,
-                                     String foundTypeRight) throws IOException {
+    private static String getMapping(JsonArray schemas, CodeActionContext context) throws IOException {
         int hashCode = schemas.hashCode();
         if (mappingCache.asMap().containsKey(hashCode)) {
             return mappingCache.asMap().get(hashCode);
@@ -386,7 +413,8 @@ class AIDataMapperCodeActionUtil {
                     }
                 }
             } else {
-                fieldDetails.addProperty(TYPE, attributeType.typeKind().toString());
+                fieldDetails.addProperty(TYPE, attributeType.typeKind().getName());
+                fieldDetails.addProperty(OPTIONAL, attribute.isOptional());
             }
             properties.add(attribute.getName().get(), fieldDetails);
         }
@@ -429,11 +457,11 @@ class AIDataMapperCodeActionUtil {
      * Create the mapping function.
      *
      * @param mappingFromServer {@link String}
-     * @param foundTypeLeft {@link String}
-     * @param foundTypeRight {@link String}
-     * @param leftModule {@link String}
-     * @param rightModule {@link String}
-     * @param rhsSignature {@link String}
+     * @param foundTypeLeft     {@link String}
+     * @param foundTypeRight    {@link String}
+     * @param leftModule        {@link String}
+     * @param rightModule       {@link String}
+     * @param rhsSignature      {@link String}
      * @return - Generated mapping Function
      */
     private static String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
@@ -452,6 +480,15 @@ class AIDataMapperCodeActionUtil {
         mappingFromServer = mappingFromServer.replaceAll("\"", "");
         mappingFromServer = mappingFromServer.replaceAll(",", ", ");
         mappingFromServer = mappingFromServer.replaceAll(":", ": ");
+
+        if(!isOptionalMap.isEmpty()){
+            for (Map.Entry<String, String> field : isOptionalMap.entrySet()) {
+                int i = field.getKey().lastIndexOf(".");
+                String[] splitKey =  {field.getKey().substring(0, i), field.getKey().substring(i)};
+                String replacement = splitKey[0] + "?" + splitKey[1];
+                mappingFromServer = mappingFromServer.replace(field.getKey(), "<"+field.getValue()+"> "+ replacement);
+            }
+        }
 
         if (leftModule != null) {
             leftType = leftModule + ":" + foundTypeLeft;
