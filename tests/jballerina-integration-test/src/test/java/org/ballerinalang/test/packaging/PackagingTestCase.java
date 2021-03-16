@@ -38,7 +38,6 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -47,11 +46,12 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Map;
 
+import javax.net.ssl.HttpsURLConnection;
+
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.cli.module.util.Utils.convertToUrl;
-import static org.ballerinalang.cli.module.util.Utils.createHttpUrlConnection;
-import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
+import static org.ballerinalang.cli.module.util.Utils.createHttpsUrlConnection;
 import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
 import static org.ballerinalang.test.packaging.ModulePushTestCase.REPO_TO_CENTRAL_SUCCESS_MSG;
 import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT;
@@ -182,9 +182,8 @@ public class PackagingTestCase extends BaseTest {
 
     @Test(description = "Test pullCount of a package from central", dependsOnMethods = "testPull", enabled = false)
     public void testPullCount() throws IOException {
-        initializeSsl();
         String url = RepoUtils.getRemoteRepoURL() + "/modules/info/" + orgName + "/" + moduleName + "/*/";
-        HttpURLConnection conn = createHttpUrlConnection(convertToUrl(url), "", 0, "", "");
+        HttpsURLConnection conn = createHttpsUrlConnection(convertToUrl(url), "", 0, "", "");
         conn.setInstanceFollowRedirects(false);
         setRequestMethod(conn, Utils.RequestMethod.GET);
 

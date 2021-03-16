@@ -30,12 +30,12 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Authenticator;
-import java.net.HttpURLConnection;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import javax.net.ssl.HttpsURLConnection;
 import javax.ws.rs.core.HttpHeaders;
 
 import static org.ballerinalang.cli.module.util.CliModuleConstants.BALLERINA_PLATFORM;
@@ -43,9 +43,8 @@ import static org.ballerinalang.cli.module.util.CliModuleConstants.BAL_LANG_SPEC
 import static org.ballerinalang.cli.module.util.CliModuleConstants.IDENTITY;
 import static org.ballerinalang.cli.module.util.CliModuleConstants.RESOLVED_REQUESTED_URI;
 import static org.ballerinalang.cli.module.util.Utils.convertToUrl;
-import static org.ballerinalang.cli.module.util.Utils.createHttpUrlConnection;
+import static org.ballerinalang.cli.module.util.Utils.createHttpsUrlConnection;
 import static org.ballerinalang.cli.module.util.Utils.getStatusCode;
-import static org.ballerinalang.cli.module.util.Utils.initializeSsl;
 import static org.ballerinalang.cli.module.util.Utils.setRequestMethod;
 
 /**
@@ -84,11 +83,10 @@ public class Pull {
             logFormatter = new BuildLogFormatter();
         }
 
-        HttpURLConnection conn = null;
+        HttpsURLConnection conn = null;
         try {
-            initializeSsl();
-            conn = createHttpUrlConnection(convertToUrl(url + supportedVersionRange), proxyHost, proxyPort,
-                    proxyUsername, proxyPassword);
+            conn = createHttpsUrlConnection(convertToUrl(url + supportedVersionRange), proxyHost, proxyPort,
+                                            proxyUsername, proxyPassword);
 
             conn.setInstanceFollowRedirects(false);
             setRequestMethod(conn, Utils.RequestMethod.GET);
@@ -101,7 +99,7 @@ public class Pull {
             boolean redirect = false;
             // 302 - Module is found
             // Other - Error occurred, json returned with the error message
-            if (getStatusCode(conn) == HttpURLConnection.HTTP_MOVED_TEMP) {
+            if (getStatusCode(conn) == HttpsURLConnection.HTTP_MOVED_TEMP) {
                 redirect = true;
             } else {
                 handleErrorResponse(conn, url, moduleNameWithOrg);
@@ -112,8 +110,8 @@ public class Pull {
                 String newUrl = conn.getHeaderField(HttpHeaders.LOCATION);
                 String contentDisposition = conn.getHeaderField(HttpHeaders.CONTENT_DISPOSITION);
 
-                conn = createHttpUrlConnection(convertToUrl(newUrl), proxyHost, proxyPort, proxyUsername,
-                        proxyPassword);
+                conn = createHttpsUrlConnection(convertToUrl(newUrl), proxyHost, proxyPort, proxyUsername,
+                                                proxyPassword);
                 conn.setRequestProperty(HttpHeaders.CONTENT_DISPOSITION, contentDisposition);
 
                 createBaloInHomeRepo(conn, modulePathInBaloCache, moduleNameWithOrg, isNightlyBuild, newUrl,
@@ -132,14 +130,14 @@ public class Pull {
     /**
      * Create the balo in home repo.
      *
-     * @param conn                  http connection
+     * @param conn                  https connection
      * @param modulePathInBaloCache module path in balo cache, <user.home>.ballerina/balo_cache/<org-name>/<module-name>
      * @param moduleNameWithOrg     module name with org, <org-name>/<module-name>
      * @param isNightlyBuild        is nightly build
      * @param newUrl                new redirect url
      * @param contentDisposition    content disposition header
      */
-    private static void createBaloInHomeRepo(HttpURLConnection conn, String modulePathInBaloCache,
+    private static void createBaloInHomeRepo(HttpsURLConnection conn, String modulePathInBaloCache,
             String moduleNameWithOrg, boolean isNightlyBuild, String newUrl, String contentDisposition) {
         long responseContentLength = conn.getContentLengthLong();
         if (responseContentLength <= 0) {
@@ -170,12 +168,12 @@ public class Pull {
     /**
      * Write balo file to the home repo.
      *
-     * @param conn             http connection
+     * @param conn             https connection
      * @param baloPath         path of the balo file
      * @param fullModuleName   full module name, <org-name>/<module-name>:<module-version>
      * @param resContentLength response content length
      */
-    private static void writeBaloFile(HttpURLConnection conn, Path baloPath, String fullModuleName,
+    private static void writeBaloFile(HttpsURLConnection conn, Path baloPath, String fullModuleName,
             long resContentLength) {
         try (InputStream inputStream = conn.getInputStream();
                 FileOutputStream outputStream = new FileOutputStream(baloPath.toString())) {
@@ -268,11 +266,11 @@ public class Pull {
     /**
      * Handle error response.
      *
-     * @param conn           http connection
+     * @param conn           https connection
      * @param url            remote repository url
      * @param moduleFullName module name with org and version
      */
-    private static void handleErrorResponse(HttpURLConnection conn, String url, String moduleFullName) {
+    private static void handleErrorResponse(HttpsURLConnection conn, String url, String moduleFullName) {
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {
             StringBuilder result = new StringBuilder();

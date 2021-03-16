@@ -31,14 +31,11 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Authenticator;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.Proxy;
 import java.net.URI;
 import java.nio.charset.Charset;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -46,9 +43,6 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 /**
  *  Checks if there is a latest version in central if version is not mentioned. If there is then the version of the
@@ -64,20 +58,6 @@ public class URIDryConverter extends URIConverter {
     private PrintStream errStream = System.err;
     private Proxy proxy;
 
-    private static TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                    return new java.security.cert.X509Certificate[]{};
-                }
-                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-                    //No need to implement.
-                }
-                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-                    //No need to implement.
-                }
-            }
-    };
-
     public URIDryConverter(URI base, Map<PackageID, Manifest> dependencyManifests) {
         this(base, dependencyManifests, false);
     }
@@ -85,14 +65,7 @@ public class URIDryConverter extends URIConverter {
     public URIDryConverter(URI base, Map<PackageID, Manifest> dependencyManifests, boolean isBuild) {
         super(base, dependencyManifests, isBuild);
         this.base = URI.create(base.toString() + "/modules/info/");
-        try {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            proxy = getProxy();
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            // ignore errors
-        }
+        proxy = getProxy();
     }
 
     public Stream<CompilerInput> finalize(URI remoteURI, PackageID moduleID) {
@@ -101,12 +74,12 @@ public class URIDryConverter extends URIConverter {
             // Ballerina.lock already.
             Matcher matcher = semVerPatchPattern.matcher(moduleID.version.value);
             if ("".equals(moduleID.version.value) || "*".equals(moduleID.version.value) || matcher.matches()) {
-                HttpURLConnection conn;
+                HttpsURLConnection conn;
                 // set proxy if exists.
                 if (null == this.proxy) {
-                    conn = (HttpURLConnection) remoteURI.toURL().openConnection();
+                    conn = (HttpsURLConnection) remoteURI.toURL().openConnection();
                 } else {
-                    conn = (HttpURLConnection) remoteURI.toURL().openConnection(this.proxy);
+                    conn = (HttpsURLConnection) remoteURI.toURL().openConnection(this.proxy);
                 }
                 conn.setInstanceFollowRedirects(false);
                 conn.setRequestMethod("GET");
