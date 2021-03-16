@@ -32,6 +32,7 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import org.apache.commons.compress.utils.IOUtils;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.ByteArrayInputStream;
@@ -413,6 +414,6 @@ public abstract class BalaWriter {
      */
     private boolean isBallerinaiOrBallerinaObservePackage(PackageOrg packageOrg, PackageName packageName) {
         return BALLERINA_INTERNAL_ORG.getValue().equals(packageOrg.value()) ||
-                (packageOrg.isBallerinaOrg() && packageName.value().equals("observe"));
+                (packageOrg.isBallerinaOrg() && packageName.value().equals(Names.OBSERVE.getValue()));
     }
 }
