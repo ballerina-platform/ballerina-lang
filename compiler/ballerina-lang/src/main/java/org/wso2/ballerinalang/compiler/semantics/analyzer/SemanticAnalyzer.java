@@ -2565,6 +2565,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (constRef.symbol.kind != SymbolKind.CONSTANT) {
                 dlog.error(constMatchPattern.pos, DiagnosticErrorCode.VARIABLE_SHOULD_BE_DECLARED_AS_CONSTANT,
                         constRef.variableName);
+                constMatchPattern.type = symTable.noType;
+                return;
             }
         }
         constMatchPattern.type = types.resolvePatternTypeFromMatchExpr(constMatchPattern, constPatternExpr);

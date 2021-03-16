@@ -481,9 +481,6 @@ public class Types {
 
         if (constPatternExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef constVarRef = (BLangSimpleVarRef) constPatternExpr;
-            if (constVarRef.symbol == null) {
-                return symTable.noType;
-            }
             BType constVarRefSymbolType = constVarRef.symbol.type;
             if (isAssignable(constVarRefSymbolType, matchExprType)) {
                 return constVarRefSymbolType;
