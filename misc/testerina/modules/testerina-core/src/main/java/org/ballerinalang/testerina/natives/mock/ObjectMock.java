@@ -17,10 +17,12 @@
  */
 package org.ballerinalang.testerina.natives.mock;
 
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
+import io.ballerina.runtime.api.types.ParameterizedType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -324,6 +326,12 @@ public class ObjectMock {
                     List<Type> memberTypes =
                             ((UnionType) attachedFunction.getType().getReturnParameterType()).getMemberTypes();
                     for (Type memberType : memberTypes) {
+                        if (memberType.getTag() == TypeTags.PARAMETERIZED_TYPE_TAG) {
+                            Type bObjectType = ((ParameterizedType) memberType).getParamValueType();
+                            if (TypeChecker.checkIsType(returnVal, bObjectType)) {
+                                return true;
+                            }
+                        }
                         if (TypeChecker.checkIsType(returnVal, memberType)) {
                             return true;
                         }
