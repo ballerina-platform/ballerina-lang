@@ -8,6 +8,7 @@ import test.java.nio.channels as javaniochannels;
 public distinct class FileInputStream {
 
     *java:JObject;
+    *InputStream;
 
     # The `handle` field that stores the reference to the `java.io.FileInputStream` object.
     public handle jObj;
@@ -25,7 +26,7 @@ public distinct class FileInputStream {
     public function toString() returns string {
         return java:toString(self.jObj) ?: "null";
     }
-    *InputStream;
+
     # The function that maps to the `equals` method of `java.io.FileInputStream`.
     #
     # + arg0 - The `javalang:Object` value required to map with the Java method parameter.

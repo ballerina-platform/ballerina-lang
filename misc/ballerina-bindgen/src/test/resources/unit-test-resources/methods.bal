@@ -6,6 +6,7 @@ import ballerinax/java.arrays as jarrays;
 distinct class MethodsTestResource {
 
     *java:JObject;
+    *Object;
 
     # The `handle` field that stores the reference to the `org.ballerinalang.bindgen.MethodsTestResource` object.
     handle jObj;
@@ -23,7 +24,7 @@ distinct class MethodsTestResource {
     function toString() returns string {
         return java:toString(self.jObj) ?: "null";
     }
-    *Object;
+
     # The function that maps to the `equals` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `Object` value required to map with the Java method parameter.
