@@ -186,8 +186,7 @@ public abstract class AbstractParserErrorHandler {
             // We catch the exception and since we don't have any other path, return the solution as a REMOVE.
             // We should never reach here. If we do, please open an issue.
             assert false : "Oh no, something went bad with parser error handler: \n" +
-                    "seekMatch caught " +
-                    exception.toString();
+                    "seekMatch caught " + exception.toString();
             bestMatch = new Result(new ArrayDeque<>(), LOOKAHEAD_LIMIT - 1);
             bestMatch.solution = new Solution(Action.REMOVE, currentCtx, SyntaxKind.NONE, currentCtx.toString());
         }
@@ -268,8 +267,7 @@ public abstract class AbstractParserErrorHandler {
                 // The best alternative path would get picked from the remaining contenders.
                 // We should never reach here. If we do, please open an issue.
                 assert false : "Oh no, something went bad with parser error handler: \n" +
-                        "seekInAlternativesPaths caught " +
-                        exception.toString();
+                        "seekInAlternativesPaths caught " + exception.toString();
                 continue;
             }
 

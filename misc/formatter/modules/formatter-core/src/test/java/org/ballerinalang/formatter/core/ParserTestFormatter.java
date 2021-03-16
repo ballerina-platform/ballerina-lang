@@ -145,6 +145,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "xml_template_source_27.bal", "xml_template_source_24.bal",
                 "explicit-new-with-object-keyword-with-one-arg-negative02.bal",
                 "explicit-new-with-object-keyword-with-multiple-args-negative02.bal",
+                "explicit-new-with-object-keyword-with-multiple-args.bal", "new_expr_source_03.bal",
                 "explicit-new-with-object-keyword-with-one-arg-negative01.bal",
                 "explicit-new-with-object-keyword-with-multiple-args-negative01.bal", "trap_action_source_02.bal",
                 "query_action_source_03.bal", "query_action_source_06.bal", "remote_method_call_source_10.bal",
