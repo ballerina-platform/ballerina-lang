@@ -62,6 +62,7 @@ public enum TypeDescKind {
     SINGLETON("singleton"),
     READONLY("readonly"),
     NEVER("never"),
+    PARAMETERIZED("parameterized"),
     COMPILATION_ERROR("CompilationError");
 
     private final String name;
