@@ -130,7 +130,7 @@ public class ConfigurableTest extends BaseTest {
                 "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6] " +
                 "stringArr = [\"red\", \"yellow\", \"green\"] booleanArr = [true, false,false, true] " +
                 "decimalArr = [8.9, 4.5, 6.2]";
-        LogLeecher errorLog = new LogLeecher("[Config.toml:(1:22,1:27)] configurable variable 'envVarPkg:intVar'" +
+        LogLeecher errorLog = new LogLeecher("[BAL_CONFIG_DATA:(1:22,1:27)] configurable variable 'envVarPkg:intVar'" +
                 " is expected to be of type 'int', but found 'float'", ERROR);
         executeBalCommand("", errorLog, "run", "envVarPkg", addConfigDataVariable(configData));
     }

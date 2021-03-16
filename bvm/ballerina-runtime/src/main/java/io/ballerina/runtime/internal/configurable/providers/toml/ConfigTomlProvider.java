@@ -68,7 +68,6 @@ import java.util.Set;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIGURATION_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_DATA;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILE_NAME;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILE_NOT_FOUND;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONSTRAINT_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_CONFIG_PATH;
@@ -256,7 +255,7 @@ public class ConfigTomlProvider implements ConfigProvider {
         if (configFilePath.equals(DEFAULT_CONFIG_PATH)) {
             String configData = System.getenv().get(CONFIG_DATA);
             if (configData != null) {
-                return Toml.read(configData, CONFIG_FILE_NAME).rootNode();
+                return Toml.read(configData, CONFIG_DATA).rootNode();
             }
         }
         if (!Files.exists(configFilePath)) {
