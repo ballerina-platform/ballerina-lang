@@ -28,7 +28,6 @@ import java.util.Locale;
 import java.util.Set;
 
 import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.CONSTRUCTOR_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 
 /**
@@ -36,15 +35,11 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
  *
  * @since 1.2.0
  */
-public class JConstructor extends BFunction implements Cloneable  {
+public class JConstructor extends BFunction  {
 
-    private JClass jClass;
     private Class parentClass;
-    private String interopType;
     private String exceptionName;
     private String shortClassName;
-    private String initObjectName;
-    private String constructorName;
     private String exceptionConstName;
     private Constructor constructor;
 
@@ -60,14 +55,10 @@ public class JConstructor extends BFunction implements Cloneable  {
     public JConstructor(Constructor c, BindgenEnv env, JClass jClass, String constructorName) {
         super(BFunctionKind.CONSTRUCTOR, env);
         this.constructor = c;
-        this.jClass = jClass;
-        this.constructorName = constructorName;
         parentClass = c.getDeclaringClass();
         super.setDeclaringClass(parentClass);
         shortClassName = getAlias(c.getDeclaringClass());
         setExternalReturnType("handle");
-        interopType = CONSTRUCTOR_INTEROP_TYPE;
-        initObjectName = "_" + Character.toLowerCase(this.shortClassName.charAt(0)) + shortClassName.substring(1);
 
         // Loop through the parameters of the constructor to populate a list.
         for (Parameter param : c.getParameters()) {
@@ -121,24 +112,8 @@ public class JConstructor extends BFunction implements Cloneable  {
         return shortClassName;
     }
 
-    void setConstructorName(String name) {
-        this.constructorName = name;
-    }
-
-    protected Object clone() throws CloneNotSupportedException {
-        return super.clone();
-    }
-
-    String getConstructorName() {
-        return constructorName;
-    }
-
     String getParamTypes() {
         return paramTypes.toString();
-    }
-
-    void setShortClassName(String shortClassName) {
-        this.shortClassName = shortClassName;
     }
 
     boolean requireJavaArrays() {

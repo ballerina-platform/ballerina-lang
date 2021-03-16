@@ -62,7 +62,6 @@ public class BindingsGenerator {
     private String mvnGroupId;
     private String mvnArtifactId;
     private String mvnVersion;
-    private String accessModifier;
     private PrintStream errStream;
     private PrintStream outStream;
     private Set<String> classNames = new HashSet<>();
@@ -307,7 +306,6 @@ public class BindingsGenerator {
 
     void setPublic() {
         this.env.setPublicFlag(true);
-        this.accessModifier = "public ";
     }
 
     void setModulesFlag(boolean modulesFlag) {

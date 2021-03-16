@@ -52,7 +52,7 @@ public class JParameter {
     private Boolean hasNext = true;
     private Boolean isString = false;
     private Boolean isObjArray = false;
-    private boolean modulesFlag = false;
+    private boolean modulesFlag;
     private Boolean isStringArray = false;
     private Boolean isPrimitiveArray = false;
 

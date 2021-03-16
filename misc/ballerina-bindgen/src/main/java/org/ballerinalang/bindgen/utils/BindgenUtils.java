@@ -20,7 +20,6 @@ package org.ballerinalang.bindgen.utils;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.apache.commons.io.output.FileWriterWithEncoding;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
-import org.ballerinalang.bindgen.model.BindingsGenerator;
 import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JError;
 import org.ballerinalang.formatter.core.Formatter;
@@ -78,14 +77,14 @@ public class BindgenUtils {
     public static void outputSyntaxTreeFile(JError jError, BindgenEnv bindgenEnv,
                                             String outPath, Boolean append) throws BindgenException {
 
-        SyntaxTree syntaxTree = new BindingsGenerator(bindgenEnv).generate(jError);
+        SyntaxTree syntaxTree = new BindgenFileGenerator(bindgenEnv).generate(jError);
         printOutputFile(syntaxTree.toSourceCode(), outPath, append);
     }
 
     public static void outputSyntaxTreeFile(JClass jClass, BindgenEnv bindgenEnv,
                                             String outPath, Boolean append) throws BindgenException {
 
-        SyntaxTree syntaxTree = new BindingsGenerator(bindgenEnv).generate(jClass);
+        SyntaxTree syntaxTree = new BindgenFileGenerator(bindgenEnv).generate(jClass);
         printOutputFile(syntaxTree.toSourceCode(), outPath, append);
     }
 
