@@ -111,7 +111,10 @@ public class BindgenNodeFactory {
     public static ImportDeclarationNode createImportDeclarationNode(String orgNameValue, String prefixValue,
                                                                     List<String> moduleNames) {
         Token importKeyword = AbstractNodeFactory.createToken(SyntaxKind.IMPORT_KEYWORD, emptyML(), singleWSML());
-        ImportOrgNameNode orgName = createImportOrgNameNode(orgNameValue);
+        ImportOrgNameNode orgName = null;
+        if (orgNameValue != null) {
+            orgName = createImportOrgNameNode(orgNameValue);
+        }
         SeparatedNodeList<IdentifierToken> moduleName = AbstractNodeFactory
                 .createSeparatedNodeList(getTokenList(moduleNames));
 
@@ -231,7 +234,8 @@ public class BindgenNodeFactory {
             return documentationLines;
         }
         documentationLines.add(createMarkdownDocumentationLineNode(documentationValue));
-        if (!bFunction.getParameters().isEmpty() || bFunction.getReturnType() != null) {
+        if (!bFunction.getParameters().isEmpty() || bFunction.getReturnType() != null
+                || bFunction.getErrorType() != null) {
             documentationLines.add(createMarkdownDocumentationLineNode(""));
         }
         return documentationLines;
@@ -272,7 +276,7 @@ public class BindgenNodeFactory {
 
     private static String documentationReturnDescription(BFunction bFunction) {
         String paramDescription = null;
-        if (bFunction.getReturnType() == null) {
+        if (bFunction.getReturnType() == null && bFunction.getErrorType() == null) {
             return paramDescription;
         }
         if (bFunction.getKind() == BFunction.BFunctionKind.CONSTRUCTOR) {
@@ -283,7 +287,14 @@ public class BindgenNodeFactory {
                 paramDescription = "The new `" + bFunction.getReturnType() + "` class generated.";
             }
         } else if (bFunction.getKind() == BFunction.BFunctionKind.METHOD) {
-            paramDescription = "The `" + bFunction.getReturnType() + "` value returning from the Java mapping.";
+            if (bFunction.getReturnType() != null && bFunction.getErrorType() != null) {
+                paramDescription = "The `" + bFunction.getReturnType() + "` or the `" + bFunction.getErrorType()
+                        + "` value returning from the Java mapping.";
+            } else if (bFunction.getReturnType() != null) {
+                paramDescription = "The `" + bFunction.getReturnType() + "` value returning from the Java mapping.";
+            } else {
+                paramDescription = "The `" + bFunction.getErrorType() + "` value returning from the Java mapping.";
+            }
         } else if (bFunction.getKind() == BFunction.BFunctionKind.FIELD_GET) {
             paramDescription = "The `" + bFunction.getReturnType() + "` value of the field.";
         }

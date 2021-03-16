@@ -255,7 +255,6 @@ public class BindingsGenerator {
                     Class classInstance = classLoader.loadClass(c);
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance, env);
-                        jClass.setAccessModifier(accessModifier);
                         allPackages.add(jClass.getPackageName());
                         String filePath;
                         if (env.getModulesFlag()) {
@@ -281,7 +280,9 @@ public class BindingsGenerator {
     }
 
     public static void setClassListForLooping(String classListForLooping) {
-        BindingsGenerator.classListForLooping.add(classListForLooping);
+        if (!allJavaClasses.contains(classListForLooping)) {
+            BindingsGenerator.classListForLooping.add(classListForLooping);
+        }
     }
 
     public static void setAllClasses(String allClasses) {
@@ -305,10 +306,12 @@ public class BindingsGenerator {
     }
 
     void setPublic() {
+        this.env.setPublicFlag(true);
         this.accessModifier = "public ";
     }
 
     void setModulesFlag(boolean modulesFlag) {
+        this.env.setPublicFlag(true);
         this.env.setModulesFlag(modulesFlag);
     }
 

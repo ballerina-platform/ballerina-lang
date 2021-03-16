@@ -7,6 +7,7 @@ distinct class ConstructorsTestResource {
 
     *java:JObject;
 
+    # The `handle` field that stores the reference to the `org.ballerinalang.bindgen.ConstructorsTestResource` object.
     handle jObj;
 
     # The init function of the Ballerina class mapping the `org.ballerinalang.bindgen.ConstructorsTestResource` Java class.
@@ -23,6 +24,78 @@ distinct class ConstructorsTestResource {
         return java:toString(self.jObj) ?: "null";
     }
     *Object;
+    # The function that maps to the `equals` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
+    #
+    # + arg0 - The `Object` value required to map with the Java method parameter.
+    # + return - The `boolean` value returning from the Java mapping.
+    function 'equals(Object arg0) returns boolean {
+        return org_ballerinalang_bindgen_ConstructorsTestResource_equals(self.jObj, arg0.jObj);
+    }
+
+    # The function that maps to the `getClass` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
+    #
+    # + return - The `Class` value returning from the Java mapping.
+    function getClass() returns Class {
+        handle externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_getClass(self.jObj);
+        Class newObj = new (externalObj);
+        return newObj;
+    }
+
+    # The function that maps to the `hashCode` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
+    #
+    # + return - The `int` value returning from the Java mapping.
+    function hashCode() returns int {
+        return org_ballerinalang_bindgen_ConstructorsTestResource_hashCode(self.jObj);
+    }
+
+    # The function that maps to the `notify` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
+    function notify() {
+        org_ballerinalang_bindgen_ConstructorsTestResource_notify(self.jObj);
+    }
+
+    # The function that maps to the `notifyAll` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
+    function notifyAll() {
+        org_ballerinalang_bindgen_ConstructorsTestResource_notifyAll(self.jObj);
+    }
+
+    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
+    #
+    # + return - The `InterruptedException` value returning from the Java mapping.
+    function wait1() returns InterruptedException? {
+        error|() externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_wait1(self.jObj);
+        if (externalObj is error) {
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
+            message());
+            return e;
+        }
+    }
+
+    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
+    #
+    # + arg0 - The `int` value required to map with the Java method parameter.
+    # + return - The `InterruptedException` value returning from the Java mapping.
+    function wait2(int arg0) returns InterruptedException? {
+        error|() externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_wait2(self.jObj, arg0);
+        if (externalObj is error) {
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
+            message());
+            return e;
+        }
+    }
+
+    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
+    #
+    # + arg0 - The `int` value required to map with the Java method parameter.
+    # + arg1 - The `int` value required to map with the Java method parameter.
+    # + return - The `InterruptedException` value returning from the Java mapping.
+    function wait3(int arg0, int arg1) returns InterruptedException? {
+        error|() externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_wait3(self.jObj, arg0, arg1);
+        if (externalObj is error) {
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
+            message());
+            return e;
+        }
+    }
 }
 
 # The constructor function to generate an object of `org.ballerinalang.bindgen.ConstructorsTestResource`.
@@ -258,6 +331,54 @@ function newConstructorsTestResource19(string arg0, string arg1) returns Constru
     ConstructorsTestResource newObj = new (externalObj);
     return newObj;
 }
+
+function org_ballerinalang_bindgen_ConstructorsTestResource_equals(handle receiver, handle arg0) returns boolean = @java:Method {
+    name: "equals",
+    'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
+    paramTypes: ["java.lang.Object"]
+} external;
+
+function org_ballerinalang_bindgen_ConstructorsTestResource_getClass(handle receiver) returns handle = @java:Method {
+    name: "getClass",
+    'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
+    paramTypes: []
+} external;
+
+function org_ballerinalang_bindgen_ConstructorsTestResource_hashCode(handle receiver) returns int = @java:Method {
+    name: "hashCode",
+    'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
+    paramTypes: []
+} external;
+
+function org_ballerinalang_bindgen_ConstructorsTestResource_notify(handle receiver) = @java:Method {
+    name: "notify",
+    'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
+    paramTypes: []
+} external;
+
+function org_ballerinalang_bindgen_ConstructorsTestResource_notifyAll(handle receiver) = @java:Method {
+    name: "notifyAll",
+    'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
+    paramTypes: []
+} external;
+
+function org_ballerinalang_bindgen_ConstructorsTestResource_wait1(handle receiver) returns error? = @java:Method {
+    name: "wait",
+    'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
+    paramTypes: []
+} external;
+
+function org_ballerinalang_bindgen_ConstructorsTestResource_wait2(handle receiver, int arg0) returns error? = @java:Method {
+    name: "wait",
+    'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
+    paramTypes: ["long"]
+} external;
+
+function org_ballerinalang_bindgen_ConstructorsTestResource_wait3(handle receiver, int arg0, int arg1) returns error? = @java:Method {
+    name: "wait",
+    'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
+    paramTypes: ["long", "int"]
+} external;
 
 function org_ballerinalang_bindgen_ConstructorsTestResource_newConstructorsTestResource1() returns handle = @java:Constructor {
     'class: "org.ballerinalang.bindgen.ConstructorsTestResource",

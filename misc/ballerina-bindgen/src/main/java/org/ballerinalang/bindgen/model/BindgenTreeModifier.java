@@ -57,11 +57,11 @@ public class BindgenTreeModifier {
         }
         if (env.getModulesFlag() && env.getPackageName() != null) {
             for (String packageName : jClass.getImportedPackages()) {
-                ImportDeclarationNode jArraysImport = BindgenNodeFactory
-                        .createImportDeclarationNode(env.getPackageName(),
+                ImportDeclarationNode packageImport = BindgenNodeFactory
+                        .createImportDeclarationNode(null,
                                 packageName.replace(".", ""),
-                                new LinkedList<>(Collections.singletonList(packageName)));
-                imports = imports.add(jArraysImport);
+                                new LinkedList<>(Collections.singletonList(env.getPackageName() + "." + packageName)));
+                imports = imports.add(packageImport);
             }
         }
         return imports;
@@ -102,7 +102,7 @@ public class BindgenTreeModifier {
         NodeList<Node> memberList = modifiedClassDefinition.members();
         for (Map.Entry<String, String> superClass : jClass.getSuperClassPackage().entrySet()) {
             String completeSuperClassName = superClass.getKey();
-            if (env.getModulesFlag()) {
+            if (env.getModulesFlag() && (!superClass.getValue().equals(jClass.getPackageName().replace(".", "")))) {
                 completeSuperClassName = superClass.getValue() + ":" + superClass.getKey();
             }
             if (!isFieldExists(completeSuperClassName, typeReferences)) {

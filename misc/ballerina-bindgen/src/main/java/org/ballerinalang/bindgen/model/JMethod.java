@@ -94,7 +94,7 @@ public class JMethod extends BFunction {
         shortClassName = getAlias(m.getDeclaringClass());
         isStatic = isStaticMethod(m);
         super.setStatic(isStatic);
-        this.parentClass = m.getDeclaringClass();
+        this.parentClass = jClass;
         setDeclaringClass(parentClass);
 
         // Set the attributes required to identify different return types.
@@ -125,6 +125,7 @@ public class JMethod extends BFunction {
             } catch (ClassNotFoundException ignore) {
             }
         }
+        setErrorType(exceptionName);
 
         // Set the attributes required to identify different parameters.
         setParameters(m.getParameters());
@@ -253,15 +254,15 @@ public class JMethod extends BFunction {
         return paramTypes.toString();
     }
 
-    public Boolean getHasException() {
+    public boolean getHasException() {
         return hasException;
     }
 
-    public Boolean getIsStringReturn() {
+    public boolean getIsStringReturn() {
         return isStringReturn;
     }
 
-    public Boolean getHasPrimitiveParam() {
+    public boolean getHasPrimitiveParam() {
         return hasPrimitiveParam;
     }
 
@@ -364,8 +365,15 @@ public class JMethod extends BFunction {
                     returnString.append("|error");
                 }
             }
-        } else if (getHasException() || getHasPrimitiveParam()) {
-            returnString.append("error?");
+        } else if (getHasException()) {
+            if (isHandleException()) {
+                returnString.append(getExceptionName()).append("?");
+                if (isReturnError()) {
+                    returnString.append("|error?");
+                }
+            } else {
+                returnString.append("error?");
+            }
         }
 
         return returnString.toString();
