@@ -1,4 +1,4 @@
-package org.ballerinalang.bindgen.model;
+package org.ballerinalang.bindgen.utils;
 
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
@@ -12,7 +12,11 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
-import org.ballerinalang.bindgen.utils.BindgenEnv;
+import org.ballerinalang.bindgen.model.BFunction;
+import org.ballerinalang.bindgen.model.JClass;
+import org.ballerinalang.bindgen.model.JConstructor;
+import org.ballerinalang.bindgen.model.JField;
+import org.ballerinalang.bindgen.model.JMethod;
 
 import java.util.AbstractMap;
 import java.util.Arrays;
@@ -21,8 +25,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
-import static org.ballerinalang.bindgen.model.BindgenNodeFactory.createFunctionDefinitionNode;
-import static org.ballerinalang.bindgen.model.BindgenNodeFactory.createTypeReferenceNode;
+import static org.ballerinalang.bindgen.utils.BindgenNodeFactory.createFunctionDefinitionNode;
+import static org.ballerinalang.bindgen.utils.BindgenNodeFactory.createTypeReferenceNode;
 
 /**
  * Class for traversing the Ballerina syntax tree used for creating the bindings.

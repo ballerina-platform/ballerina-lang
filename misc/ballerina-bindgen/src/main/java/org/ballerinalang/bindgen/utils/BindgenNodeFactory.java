@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.bindgen.model;
+package org.ballerinalang.bindgen.utils;
 
 import io.ballerina.compiler.syntax.tree.AbstractNodeFactory;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
@@ -78,6 +78,11 @@ import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
+import org.ballerinalang.bindgen.model.BFunction;
+import org.ballerinalang.bindgen.model.JConstructor;
+import org.ballerinalang.bindgen.model.JField;
+import org.ballerinalang.bindgen.model.JMethod;
+import org.ballerinalang.bindgen.model.JParameter;
 
 import java.util.ArrayList;
 import java.util.Arrays;

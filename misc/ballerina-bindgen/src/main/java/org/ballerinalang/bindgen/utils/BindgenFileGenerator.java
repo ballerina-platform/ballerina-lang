@@ -15,13 +15,14 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.bindgen.model;
+package org.ballerinalang.bindgen.utils;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.tools.text.TextDocuments;
 import org.apache.commons.io.IOUtils;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
-import org.ballerinalang.bindgen.utils.BindgenEnv;
+import org.ballerinalang.bindgen.model.JClass;
+import org.ballerinalang.bindgen.model.JError;
 
 import java.io.InputStream;
 import java.nio.file.Path;
@@ -36,7 +37,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.DEFAULT_TEMPLATE_
  *
  * @since 2.0.0
  */
-public class BindingsGenerator {
+public class BindgenFileGenerator {
 
     private JClass jClass;
     private Class currentClass;
@@ -46,7 +47,7 @@ public class BindingsGenerator {
     private Path jEmptyClassTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "empty_jclass.bal");
     private Path jErrorTemplatePath = Paths.get(DEFAULT_TEMPLATE_DIR, "jerror.bal");
 
-    public BindingsGenerator(BindgenEnv env) {
+    public BindgenFileGenerator(BindgenEnv env) {
         this.env = env;
     }
 

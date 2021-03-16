@@ -19,10 +19,10 @@ package org.ballerinalang.bindgen;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.bindgen.exceptions.BindgenException;
-import org.ballerinalang.bindgen.model.BindingsGenerator;
 import org.ballerinalang.bindgen.model.JClass;
 import org.ballerinalang.bindgen.model.JError;
 import org.ballerinalang.bindgen.utils.BindgenEnv;
+import org.ballerinalang.bindgen.utils.BindgenFileGenerator;
 import org.ballerinalang.formatter.core.Formatter;
 import org.ballerinalang.formatter.core.FormatterException;
 import org.testng.Assert;
@@ -89,7 +89,7 @@ public class BindgenUnitTest {
         moduleBindgenEnv.setModulesFlag(true);
         moduleBindgenEnv.setPackageName("test");
         moduleBindgenEnv.setPublicFlag(true);
-        BindingsGenerator moduleBindingsGenerator = new BindingsGenerator(moduleBindgenEnv);
+        BindgenFileGenerator moduleBindingsGenerator = new BindgenFileGenerator(moduleBindgenEnv);
 
         Path moduleMappingPath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "moduleMapping.bal");
         String moduleMappingValue = Files.readString(resourceDirectory.resolve(moduleMappingPath));
@@ -105,7 +105,7 @@ public class BindgenUnitTest {
         return bindgenEnv;
     }
 
-    private BindingsGenerator getBindingsGenerator() {
-        return new BindingsGenerator(getBindgenEnv());
+    private BindgenFileGenerator getBindingsGenerator() {
+        return new BindgenFileGenerator(getBindgenEnv());
     }
 }

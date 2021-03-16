@@ -23,14 +23,11 @@ import org.ballerinalang.bindgen.utils.BindgenEnv;
 import java.lang.reflect.Field;
 import java.util.Collections;
 
-import static org.ballerinalang.bindgen.utils.BindgenConstants.ACCESS_FIELD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.MUTATE_FIELD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.getJavaType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticField;
 
 /**
@@ -43,9 +40,7 @@ public class JField extends BFunction {
     private JClass jClass;
     private String fieldName;
     private String fieldType;
-    private String interopType;
     private String externalType;
-    private String returnTypeJava;
     private String fieldMethodName;
     private String returnComponentType;
 
@@ -55,7 +50,6 @@ public class JField extends BFunction {
     private boolean isStringArray;
     private boolean isObject = true;
     private boolean isObjectArray;
-    private boolean isSetter = false;
     private boolean returnError = false;
     private boolean javaArraysModule = false;
 
@@ -100,12 +94,8 @@ public class JField extends BFunction {
 
         if (fieldKind == BFunctionKind.FIELD_GET) {
             fieldMethodName = "get" + StringUtils.capitalize(fieldName);
-            interopType = ACCESS_FIELD_INTEROP_TYPE;
-            returnTypeJava = getJavaType(type);
         } else if (fieldKind == BFunctionKind.FIELD_SET) {
             fieldMethodName = "set" + StringUtils.capitalize(fieldName);
-            interopType = MUTATE_FIELD_INTEROP_TYPE;
-            isSetter = true;
         }
         setExternalReturnType(externalType);
         setExternalFunctionName(field.getDeclaringClass().getName().replace(".", "_")
@@ -130,16 +120,8 @@ public class JField extends BFunction {
         return isString;
     }
 
-    public String getExternalType() {
-        return externalType;
-    }
-
     public boolean isStatic() {
         return isStatic;
-    }
-
-    public boolean isSetter() {
-        return isSetter;
     }
 
     public String getFieldName() {
@@ -148,10 +130,6 @@ public class JField extends BFunction {
 
     boolean requireJavaArrays() {
         return javaArraysModule;
-    }
-
-    public JParameter getFieldObj() {
-        return fieldObj;
     }
 
     public String getFunctionReturnType() {
@@ -182,10 +160,6 @@ public class JField extends BFunction {
 
     public String getFieldType() {
         return fieldType;
-    }
-
-    public String getReturnComponentType() {
-        return returnComponentType;
     }
 
     public boolean isObjectArray() {

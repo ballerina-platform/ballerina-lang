@@ -24,7 +24,6 @@ import java.lang.reflect.Parameter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Locale;
 import java.util.Set;
@@ -51,7 +50,6 @@ public class JMethod extends BFunction {
 
     private BindgenEnv env;
     private boolean isStatic;
-    private boolean hasParams = true;
     private boolean hasReturn = false;
     private boolean returnError = false;
     public boolean objectReturn = false;
@@ -61,7 +59,6 @@ public class JMethod extends BFunction {
     public boolean isStringReturn = false;
     public boolean isStringArrayReturn = false;
     private boolean javaArraysModule = false;
-    private boolean hasPrimitiveParam = false;
     private String parentPrefix;
 
     private Class parentClass;
@@ -132,8 +129,6 @@ public class JMethod extends BFunction {
         if (!parameters.isEmpty()) {
             JParameter lastParam = parameters.get(parameters.size() - 1);
             lastParam.setHasNext(false);
-        } else {
-            hasParams = false;
         }
 
         List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
@@ -173,7 +168,6 @@ public class JMethod extends BFunction {
         returnType = getBallerinaParamType(returnTypeClass);
         returnType = getExceptionName(returnTypeClass, returnType);
         if (returnTypeClass.isArray()) {
-            setArrayReturnType(true);
             javaArraysModule = true;
             hasException = true;
             returnError = true;
@@ -235,7 +229,6 @@ public class JMethod extends BFunction {
             if (parameter.getIsPrimitiveArray()) {
                 javaArraysModule = true;
                 returnError = true;
-                hasPrimitiveParam = true;
                 hasException = true;
             }
             if (parameter.isObjArrayParam() || parameter.getIsStringArray()) {
@@ -262,10 +255,6 @@ public class JMethod extends BFunction {
         return isStringReturn;
     }
 
-    public boolean getHasPrimitiveParam() {
-        return hasPrimitiveParam;
-    }
-
     public String getReturnType() {
         return returnType;
     }
@@ -278,24 +267,12 @@ public class JMethod extends BFunction {
         return methodName;
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
-    }
-
     public List<JParameter> getParameters() {
         return parameters;
     }
 
     public boolean isStatic() {
         return isStatic;
-    }
-
-    public boolean hasParams() {
-        return hasParams;
-    }
-
-    public String getExternalType() {
-        return externalType;
     }
 
     public boolean isHandleException() {
@@ -326,26 +303,8 @@ public class JMethod extends BFunction {
         return isArrayReturn;
     }
 
-    public List<String> getExternalFunctionCallArguments() {
-        List<String> argTypes = new LinkedList<>();
-        if (!isStatic) {
-            argTypes.add("self.jObj");
-        }
-        for (JParameter jParameter : parameters) {
-            argTypes.add(jParameter.getFieldName());
-        }
-        return argTypes;
-    }
-
     public String getBalFunctionName() {
         return parentPrefix + "_" + methodName;
-    }
-
-    public String getAccessModifier() {
-        if (env.hasPublicFlag()) {
-            return "public";
-        }
-        return null;
     }
 
     public String getFunctionReturnType() {
@@ -377,23 +336,6 @@ public class JMethod extends BFunction {
         }
 
         return returnString.toString();
-    }
-
-    public String externalFunctionReturnType() {
-        StringBuilder returnString = new StringBuilder();
-        if (getHasReturn()) {
-            returnString.append(externalType);
-            if (handleException) {
-                returnString.append("|error");
-            }
-        } else if (getHasException() || getHasPrimitiveParam()) {
-            returnString.append("error?");
-        }
-        return returnString.toString();
-    }
-
-    public String getParentPrefix() {
-        return parentPrefix;
     }
 
     public String getReturnComponentType() {

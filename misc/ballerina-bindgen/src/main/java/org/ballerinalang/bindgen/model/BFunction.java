@@ -33,7 +33,6 @@ public abstract class BFunction {
     private final BindgenEnv env;
     private String externalFunctionName;
     private String externalReturnType;
-    private boolean isArrayReturnType;
     private String functionName;
     private Class declaringClass;
     private List<JParameter> parameters;
@@ -109,21 +108,6 @@ public abstract class BFunction {
 
     public void setExternalReturnType(String externalReturnType) {
         this.externalReturnType = externalReturnType;
-    }
-
-    public String getPackageAlias() {
-        if (declaringClass != null) {
-            return declaringClass.getPackageName().replace(".", "");
-        }
-        return "";
-    }
-
-    public boolean isArrayReturnType() {
-        return isArrayReturnType;
-    }
-
-    public void setArrayReturnType(boolean arrayReturnType) {
-        isArrayReturnType = arrayReturnType;
     }
 
     public String getReturnType() {

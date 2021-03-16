@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -48,20 +47,15 @@ public class JClass {
 
     private BindgenEnv env;
     private String prefix;
-    private String className;
     private String packageName;
     private String shortClassName;
     private Class currentClass;
 
     private boolean modulesFlag;
-    private boolean isInterface = false;
-    private boolean isDirectClass = false;
     private boolean importJavaArraysModule = false;
 
-    private Set<String> superClasses = new HashSet<>();
     private Map<String, String> superClassPackage = new HashMap<>();
     private Set<String> importedPackages = new HashSet<>();
-    private Set<String> superClassNames = new LinkedHashSet<>();
     private List<JField> fieldList = new ArrayList<>();
     private List<JMethod> methodList = new ArrayList<>();
     private List<JConstructor> constructorList = new ArrayList<>();
@@ -70,17 +64,14 @@ public class JClass {
     public JClass(Class c, BindgenEnv env) {
         this.env = env;
         currentClass = c;
-        className = c.getName();
-        prefix = className.replace(".", "_").replace("$", "_");
+        prefix = c.getName().replace(".", "_").replace("$", "_");
         shortClassName = getAlias(c);
         packageName = c.getPackage().getName();
         shortClassName = getExceptionName(c, shortClassName);
-        superClassNames.add(c.getName());
         modulesFlag = env.getModulesFlag();
 
         setAllClasses(shortClassName);
         if (c.isInterface()) {
-            isInterface = true;
             setAllClasses(getAlias(Object.class));
         }
         populateImplementedInterfaces(c.getInterfaces());
@@ -89,14 +80,11 @@ public class JClass {
         if (sClass != null) {
             setClassListForLooping(sClass.getName());
             String simpleClassName = getAlias(sClass).replace("$", "");
-            superClassNames.add(sClass.getName());
-            superClasses.add(simpleClassName);
             superClassPackage.put(simpleClassName, sClass.getPackageName().replace(".", ""));
             setAllClasses(simpleClassName);
         }
 
         if (env.isDirectJavaClass()) {
-            isDirectClass = true;
             populateConstructors(c.getConstructors());
             populateMethods(c);
             populateFields(c.getFields());
@@ -200,10 +188,7 @@ public class JClass {
 
     private void populateImplementedInterfaces(Class[] interfaces) {
         for (Class interfaceClass : interfaces) {
-//            setClassListForLooping(interfaceClass.getName());
             setAllClasses(getAlias(interfaceClass));
-            superClasses.add(getAlias(interfaceClass));
-            superClassNames.add(interfaceClass.getName());
         }
     }
 
