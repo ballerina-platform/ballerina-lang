@@ -20,6 +20,7 @@ package io.ballerina.runtime.observability.tracer;
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.api.trace.Span;
 import io.opentelemetry.api.trace.SpanBuilder;
+import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
@@ -51,6 +52,7 @@ public class BSpan {
         builder.setAttribute(TraceConstants.TAG_KEY_SPAN_KIND, isClient
                 ? TraceConstants.TAG_SPAN_KIND_CLIENT
                 : TraceConstants.TAG_SPAN_KIND_SERVER);
+        builder.setSpanKind(isClient ? SpanKind.CLIENT : SpanKind.SERVER);
         Span span = builder.startSpan();
         return new BSpan(tracer, span);
     }
