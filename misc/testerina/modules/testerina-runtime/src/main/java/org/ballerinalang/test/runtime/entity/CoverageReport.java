@@ -39,6 +39,8 @@ import org.jacoco.core.analysis.IClassCoverage;
 import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
+import org.jacoco.core.data.ExecutionData;
+import org.jacoco.core.data.SessionInfo;
 import org.jacoco.core.internal.analysis.BundleCoverageImpl;
 import org.jacoco.core.tools.ExecFileLoader;
 import org.jacoco.report.IReportVisitor;
@@ -97,7 +99,11 @@ public class CoverageReport {
      * @throws IOException when file operations are failed
      */
     public void generateReport(Map<String, ModuleCoverage> moduleCoverageMap,
-                               JBallerinaBackend jBallerinaBackend, String includesInCoverage)
+                               List<IClassCoverage> packageNativeClassCoverageList,
+                               List<IClassCoverage> packageBalClassCoverageList,
+                               List<ISourceFileCoverage> packageSourceCoverageList, JBallerinaBackend jBallerinaBackend,
+                               String includesInCoverage,
+                               List<ExecutionData> packageExecData, List<SessionInfo> sessionInfoList)
             throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
@@ -127,10 +133,14 @@ public class CoverageReport {
                        true, includesInCoverage);
                 execFileLoader.load(executionDataFile.toFile());
                 final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
-                // Create XML coverage report for code coverage
-                createXMLReport(getPartialCoverageModifiedBundle(xmlCoverageBuilder));
+                updatePackageLevelCoverage(orgName + "/" + packageName, packageExecData, sessionInfoList,
+                        xmlCoverageBuilder, packageNativeClassCoverageList, packageBalClassCoverageList,
+                        packageSourceCoverageList);
             } else {
-                createXMLReport(getPartialCoverageModifiedBundle(coverageBuilder));
+                updatePackageLevelCoverage(orgName + "/" + packageName,
+                        packageExecData, sessionInfoList,
+                        coverageBuilder, packageNativeClassCoverageList,
+                        packageBalClassCoverageList, packageSourceCoverageList);
             }
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
         } else {
@@ -139,9 +149,71 @@ public class CoverageReport {
         }
     }
 
+    /**
+     * Add/Update package level coverage information into the relevant package level lists.
+     * @param packagePrefix "orgName"/"pakageName" as String
+     * @param packageExecData ExecutionData list for package
+     * @param sessionInfoList SessionInfo list for package
+     * @param coverageBuilder CoverageBuilder after processing this module
+     * @param packageNativeClassCoverageList List of package native IClassCoverage
+     * @param packageBalClassCoverageList List of bal IClassCoverage for package
+     * @param packageSourceCoverageList List of ISourceFileCoverage for package
+     */
+    private void updatePackageLevelCoverage(String packagePrefix, List<ExecutionData> packageExecData,
+                                            List<SessionInfo> sessionInfoList,
+                                            CoverageBuilder coverageBuilder,
+                                            List<IClassCoverage> packageNativeClassCoverageList,
+                                            List<IClassCoverage> packageBalClassCoverageList,
+                                            List<ISourceFileCoverage> packageSourceCoverageList) {
+        for (ISourceFileCoverage sourceFileCoverage : coverageBuilder.getSourceFiles()) {
+            if (sourceFileCoverage.getPackageName().contains(packagePrefix)) {
+                packageSourceCoverageList.add(sourceFileCoverage);
+            }
+        }
+        for (IClassCoverage classCov : coverageBuilder.getClasses()) {
+            // Store only the package specific bal classes in list
+            if (classCov.getSourceFileName() != null && classCov.getName().startsWith(packagePrefix)) {
+                packageBalClassCoverageList.add(classCov);
+            } else {
+                // Replace and store the updated native classes in another list
+                if (removeFromCoverageList(packageNativeClassCoverageList, classCov)) {
+                    packageNativeClassCoverageList.add(classCov);
+                }
+            }
+        }
+        // Update module wise session info to a list
+        for (SessionInfo sessionInfo : execFileLoader.getSessionInfoStore().getInfos()) {
+            if (!sessionInfoList.contains(sessionInfo)) {
+                sessionInfoList.add(sessionInfo);
+            }
+        }
+        // Update module wise execution data to a list
+        for (ExecutionData executionData : execFileLoader.getExecutionDataStore().getContents()) {
+            packageExecData.add(executionData);
+        }
+    }
+
+    /**
+     * Remove IClassCoverage from package Class coverage list if it exists already.
+     *
+     * @param packageClassCoverageList list of IClassCoverage for package
+     * @param classCoverage IClassCoverage to check if already exixts
+     * @return boolean flag to track whether an existing IClassCoverage was removed from list
+     */
+    private boolean removeFromCoverageList(List<IClassCoverage> packageClassCoverageList,
+                                           IClassCoverage classCoverage) {
+        for (IClassCoverage coverage : packageClassCoverageList) {
+            if (classCoverage.getName().equals(coverage.getName())) {
+                //Remove existing coverage class from the list
+                packageClassCoverageList.remove(coverage);
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void addCompiledSources(List<Path> pathList, String orgName, String packageName, String version,
-                                    boolean enableIncludesFilter, String includesInCoverage) throws
-            IOException {
+                                    boolean enableIncludesFilter, String includesInCoverage) throws IOException {
         if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
             for (Path jarPath : pathList) {
@@ -160,7 +232,7 @@ public class CoverageReport {
     }
 
     private CoverageBuilder analyzeStructure() throws IOException {
-        final CoverageBuilder coverageBuilder = new CoverageBuilder();
+        CoverageBuilder coverageBuilder = new CoverageBuilder();
         final Analyzer analyzer = new Analyzer(execFileLoader.getExecutionDataStore(), coverageBuilder);
         analyzer.analyzeAll(classesDirectory.toFile());
         return coverageBuilder;

@@ -46,6 +46,10 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.core.TestProcessor;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.jacoco.core.analysis.IClassCoverage;
+import org.jacoco.core.analysis.ISourceFileCoverage;
+import org.jacoco.core.data.ExecutionData;
+import org.jacoco.core.data.SessionInfo;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
@@ -259,10 +263,18 @@ public class RunTestsTask implements Task {
             return;
         }
         Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
+        // Following lists will hold the coverage information needed for the coverage XML file generation.
+        List<ISourceFileCoverage> packageSourceCoverageList = new ArrayList();
+        List<IClassCoverage> packageNativeClassCoverageList = new ArrayList();
+        List<IClassCoverage> packageBalClassCoverageList = new ArrayList();
+        List<ExecutionData> packageExecData = new ArrayList();
+        List<SessionInfo> packageSessionInfo = new ArrayList();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
             CoverageReport coverageReport = new CoverageReport(module);
-            coverageReport.generateReport(moduleCoverageMap, jBallerinaBackend, this.includesInCoverage);
+            coverageReport.generateReport(moduleCoverageMap, packageNativeClassCoverageList,
+                    packageBalClassCoverageList, packageSourceCoverageList, jBallerinaBackend, this.includesInCoverage,
+                    packageExecData, packageSessionInfo);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
@@ -270,6 +282,9 @@ public class RunTestsTask implements Task {
             ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
             testReport.addCoverage(moduleName, moduleCoverage);
         }
+        // Generate coverage XML report
+        CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
+                packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);
     }
 
     private void filterTestGroups() {

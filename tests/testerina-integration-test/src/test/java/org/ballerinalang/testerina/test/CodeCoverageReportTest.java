@@ -77,27 +77,30 @@ public class CodeCoverageReportTest extends BaseTestCase {
         if (validatePackageNames(expectedPackageNames)) {
             Assert.assertTrue(true);
         } else {
-            Assert.fail("Package Name Validation for coverage XML falied");
+            Assert.fail("Package Name Validation for coverage XML falied for single module project");
         }
     }
 
     @Test
     public void multipleModulePkgCoverageTest() throws BallerinaTestException {
         projectPath = projectBasedTestsPath.resolve(multiModuleTestRoot).toString();
+        coverageXMLPath = projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").resolve("report")
+                .resolve("foo").resolve("coverage-report.xml");
         balClient.runMain("test", new String[]{"--code-coverage"}, null, new String[]{},
                 new LogLeecher[]{}, projectPath);
+        copyReportDTDFile(projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").
+                resolve("report").resolve("foo"));
         ArrayList<String> expectedPackageNames = new ArrayList<>();
         Collections.addAll(expectedPackageNames, new String[]{"testerina_report/foo/0_0_0",
-                multiModuleTestRoot, "testerina_report/foo$0046math/0_0_0", multiModuleTestRoot + "/modules/bar",
-                "testerina_report/foo$0046bar/0_0_0", "testerina_report/foo$0046bar$0046tests/0_0_0",
-                multiModuleTestRoot + "/modules/math"});
-        // Validate Package names in XML File per module
-        validatePkgNamesForModule("foo", expectedPackageNames);
-        validatePkgNamesForModule("foo.bar", expectedPackageNames);
-        validatePkgNamesForModule("foo.math", expectedPackageNames);
-        // Add the tests only module(bar.tests) to the package name list
-        expectedPackageNames.add(multiModuleTestRoot + "/modules/bar.tests");
-        validatePkgNamesForModule("foo.bar.tests", expectedPackageNames);
+                multiModuleTestRoot, "testerina_report/foo$0046math/0_0_0", multiModuleTestRoot + "/modules/bar"
+                , "testerina_report/foo$0046bar$0046tests/0_0_0",
+                multiModuleTestRoot + "/modules/math", multiModuleTestRoot + "/modules/bar.tests"});
+        // Validate Package names in XML File
+        if (validatePackageNames(expectedPackageNames)) {
+            Assert.assertTrue(true);
+        } else {
+            Assert.fail("Package Name Validation for coverage XML falied for multi module project");
+        }
     }
 
     @Test
@@ -105,26 +108,10 @@ public class CodeCoverageReportTest extends BaseTestCase {
         projectPath = projectBasedTestsPath.resolve(multiModuleTestRoot).toString();
         balClient.runMain("test", new String[]{"--code-coverage"}, null, new String[]{},
                 new LogLeecher[]{}, projectPath);
-        //Validate class names in XML File per module
-        validateClassNamesForModule("foo");
-        validateClassNamesForModule("foo.bar");
-        validateClassNamesForModule("foo.math");
-        validateClassNamesForModule("foo.bar.tests");
-    }
-
-    /**
-     * Validate class names in class elements for a given module.
-     *
-     * @param moduleName String
-     * @throws BallerinaTestException
-     */
-    private void validateClassNamesForModule(String moduleName) throws BallerinaTestException {
-        HashMap<String, List<String>> expectedClassMap = getExpectedCoverageClasses();
         copyReportDTDFile(projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").
-                resolve("report").resolve(moduleName));
-        coverageXMLPath = projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").resolve("report")
-                .resolve(moduleName).resolve("coverage-report.xml");
-        validateClassNames(expectedClassMap);
+                resolve("report").resolve("foo"));
+        //Validate class names in XML File per module
+        validateClassNames(getExpectedCoverageClasses());
     }
 
     /**
@@ -144,26 +131,6 @@ public class CodeCoverageReportTest extends BaseTestCase {
         coverageClassMap.put(multiModuleTestRoot + "/modules/bar.tests",
                 Arrays.asList(new String[]{multiModuleTestRoot + "/modules/bar.tests/foo$$$bar$$$tests"}));
         return coverageClassMap;
-    }
-
-    /**
-     * Validate package names in package element per module.
-     *
-     * @param moduleName           String
-     * @param expectedPackageNames List<String>
-     * @throws BallerinaTestException
-     */
-    private void validatePkgNamesForModule(String moduleName, List<String> expectedPackageNames)
-            throws BallerinaTestException {
-        copyReportDTDFile(projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").
-                resolve("report").resolve(moduleName));
-        coverageXMLPath = projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").resolve("report")
-                .resolve(moduleName).resolve("coverage-report.xml");
-        if (validatePackageNames(expectedPackageNames)) {
-            Assert.assertTrue(true);
-        } else {
-            Assert.fail("Package Name Validation for coverage XML falied for the module " + moduleName);
-        }
     }
 
     /**
