@@ -171,6 +171,9 @@ public class JvmConstants {
     public static final String ERROR_UTILS = "io/ballerina/runtime/internal/ErrorUtils";
     public static final String ERROR_CREATOR = "io/ballerina/runtime/api/ErrorCreator";
     public static final String RUNTIME_UTILS = "io/ballerina/runtime/internal/util/RuntimeUtils";
+    public static final String OPTION = "io/ballerina/runtime/internal/cli/Option";
+    public static final String OPERAND = "io/ballerina/runtime/internal/cli/Operand";
+    public static final String CLI_SPEC = "io/ballerina/runtime/internal/cli/CliSpec";
     public static final String ARGUMENT_PARSER = "io/ballerina/runtime/internal/util/ArgumentParser";
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
     public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
