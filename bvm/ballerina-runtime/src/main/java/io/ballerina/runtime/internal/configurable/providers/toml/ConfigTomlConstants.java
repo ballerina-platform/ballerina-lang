@@ -63,6 +63,8 @@ public class ConfigTomlConstants {
     public static final String CONFIG_FILE_NOT_FOUND = "configuration file is not found in path '%s'";
     public static final String EMPTY_CONFIG_FILE = "an empty configuration file is found in path '%s'. Please " +
             "provide values for configurable variables";
+    public static final String EMPTY_CONFIG_STRING = "environment variable `" + CONFIG_DATA + "` contains an empty " +
+            "string. Please provide values for configurable variables";
     public static final String VALUE_NOT_PROVIDED = "value not provided for required configurable variable '%s'";
 
     private ConfigTomlConstants() {

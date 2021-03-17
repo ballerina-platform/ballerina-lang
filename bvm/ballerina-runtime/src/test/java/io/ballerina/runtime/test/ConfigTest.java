@@ -28,7 +28,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlProvider;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -63,7 +63,7 @@ public class ConfigTest {
         configVarMap.put(module, keys);
 
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml"), configVarMap));
+        supportedConfigProviders.add(new TomlProvider(getConfigPath("Simple_Types_Config.toml"), configVarMap));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
@@ -103,7 +103,7 @@ public class ConfigTest {
         configVarMap.put(module, keys);
 
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new ConfigTomlProvider(getConfigPath("Array_Config.toml"), configVarMap));
+        supportedConfigProviders.add(new TomlProvider(getConfigPath("Array_Config.toml"), configVarMap));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 

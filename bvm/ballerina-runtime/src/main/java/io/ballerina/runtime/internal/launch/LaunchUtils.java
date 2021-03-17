@@ -26,7 +26,8 @@ import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
-import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlProvider;
+import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlException;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import org.ballerinalang.config.ConfigRegistry;
@@ -53,8 +54,10 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_C
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_DATA;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_CONFIG_PATH;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.EMPTY_CONFIG_STRING;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
@@ -137,16 +140,33 @@ public class LaunchUtils {
 
     public static void initConfigurableVariables(Path[] configFilePaths, Map<Module, VariableKey[]> configurationData) {
         try {
-            List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-            for (int i = configFilePaths.length - 1; i >= 0; i--) {
-                supportedConfigProviders.add(new ConfigTomlProvider(configFilePaths[i], configurationData));
-            }
+            List<ConfigProvider> supportedConfigProviders = getConfigProviders(configFilePaths, configurationData);
             ConfigResolver configResolver = new ConfigResolver(configurationData, supportedConfigProviders);
             ConfigMap.setConfigurableMap(configResolver.resolveConfigs());
         } catch (ConfigException exception) {
             // TODO : Need to collect all the errors from each providers separately. Issue #29055
             throw new ErrorValue(StringUtils.fromString(exception.getMessage()));
         }
+    }
+
+    private static List<ConfigProvider> getConfigProviders(Path[] configFilePaths,
+                                                           Map<Module, VariableKey[]> configurationData) {
+        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+        if (configFilePaths.length == 1 && configFilePaths[0].equals(DEFAULT_CONFIG_PATH)) {
+            String configData = System.getenv().get(CONFIG_DATA);
+            if (configData != null) {
+                if (!configData.isEmpty()) {
+                    supportedConfigProviders.add(new TomlProvider(configData, configurationData));
+                    return supportedConfigProviders;
+                } else {
+                    throw new ConfigTomlException(EMPTY_CONFIG_STRING);
+                }
+            }
+        }
+        for (int i = configFilePaths.length - 1; i >= 0; i--) {
+            supportedConfigProviders.add(new TomlProvider(configFilePaths[i], configurationData));
+        }
+        return supportedConfigProviders;
     }
 
     public static Path[] getConfigPath() {
