@@ -23,7 +23,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 /**
- * The class holds the mapping for a function definition in the Ballerina bridge code generation.
+ * The class that holds the mapping for a function definition in the Ballerina bridge code generation.
  *
  * @since 2.0.0
  */
