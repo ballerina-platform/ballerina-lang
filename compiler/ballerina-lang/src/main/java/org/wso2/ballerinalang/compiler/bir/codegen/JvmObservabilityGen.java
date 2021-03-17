@@ -177,7 +177,7 @@ class JvmObservabilityGen {
                 if (serviceName == null) {
                     List<String> attachPoint = this.svcAttachPoints.get(typeDef.name);
                     if (attachPoint != null) {
-                        serviceName = String.join("/", attachPoint);
+                        serviceName = "/" + String.join("/", attachPoint);
                     } else {
                         serviceName = pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_svc_" +
                                 defaultServiceIndex++;
