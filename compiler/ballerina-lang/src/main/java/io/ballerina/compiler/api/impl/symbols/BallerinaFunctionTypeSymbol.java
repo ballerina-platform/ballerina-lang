@@ -60,8 +60,13 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     @Override
     public List<ParameterSymbol> parameters() {
         if (this.requiredParams == null) {
-            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+            // Becomes null for the function typedesc.
+            if (this.typeSymbol.params == null) {
+                this.requiredParams = Collections.emptyList();
+                return this.requiredParams;
+            }
 
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
             this.requiredParams = this.typeSymbol.params.stream()
                     .filter(symbol -> symbol.kind != SymbolKind.PATH_PARAMETER
                             && symbol.kind != SymbolKind.PATH_REST_PARAMETER)
