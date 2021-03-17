@@ -41,7 +41,7 @@ public class MatchStatementSyntaxErrorsTest {
 
     @Test
     public void testSyntaxErrors() {
-        Assert.assertEquals(result.getErrorCount(), 17);
+        Assert.assertEquals(result.getErrorCount(), 15);
 
         int i = -1;
         BAssertUtil.validateError(result, ++i, "undefined symbol 'v'", 5, 9);
@@ -52,15 +52,13 @@ public class MatchStatementSyntaxErrorsTest {
         BAssertUtil.validateError(result, ++i, "match statement should have one or more match clauses", 12, 1);
         BAssertUtil.validateError(result, ++i, "missing open brace token", 12, 1);
         BAssertUtil.validateError(result, ++i, "missing close brace token", 13, 1);
-        BAssertUtil.validateError(result, ++i, "invalid token '}'", 19, 1);
-        BAssertUtil.validateError(result, ++i, "invalid token 'func4'", 19, 15);
+        BAssertUtil.validateError(result, ++i, "match statement should have one or more match clauses", 17, 1);
+        BAssertUtil.validateError(result, ++i, "missing identifier", 17, 1);
+        BAssertUtil.validateError(result, ++i, "missing open brace token", 17, 1);
+        BAssertUtil.validateError(result, ++i, "missing close brace token", 18, 1);
         BAssertUtil.validateError(result, ++i, "missing colon token", 21, 11);
         BAssertUtil.validateError(result, ++i, "missing identifier", 21, 11);
-        BAssertUtil.validateError(result, ++i, "variable '$missingNode$_0' should be declared as constant", 21, 11);
-        BAssertUtil.validateError(result, ++i, "match statement should have one or more match clauses", 24, 1);
-        BAssertUtil.validateError(result, ++i, "missing close brace token", 24, 1);
-        BAssertUtil.validateError(result, ++i, "missing close brace token", 24, 1);
-        BAssertUtil.validateError(result, ++i, "missing open brace token", 24, 1);
+        BAssertUtil.validateError(result, ++i, "variable '$missingNode$_1' should be declared as constant", 21, 11);
     }
 
     @AfterClass
