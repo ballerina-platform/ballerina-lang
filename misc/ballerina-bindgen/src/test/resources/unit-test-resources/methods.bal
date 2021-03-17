@@ -45,11 +45,11 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `enumParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + arg0 - The `Level` value required to map with the Java method parameter.
-    # + return - The `Level` value returning from the Java mapping.
-    function enumParam(Level arg0) returns Level {
+    # + arg0 - The `Level2` value required to map with the Java method parameter.
+    # + return - The `Level2` value returning from the Java mapping.
+    function enumParam(Level2 arg0) returns Level2 {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_enumParam(self.jObj, arg0.jObj);
-        Level newObj = new (externalObj);
+        Level2 newObj = new (externalObj);
         return newObj;
     }
 
@@ -258,10 +258,10 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `returnEnum` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
-    # + return - The `Level` value returning from the Java mapping.
-    function returnEnum() returns Level {
+    # + return - The `Level2` value returning from the Java mapping.
+    function returnEnum() returns Level2 {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnEnum(self.jObj);
-        Level newObj = new (externalObj);
+        Level2 newObj = new (externalObj);
         return newObj;
     }
 
@@ -603,13 +603,13 @@ function MethodsTestResource_abstractObjectStaticParam(AbstractSet arg0, int arg
 
 # The function that maps to the `enumStaticParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
-# + arg0 - The `Level` value required to map with the Java method parameter.
+# + arg0 - The `Level2` value required to map with the Java method parameter.
 # + arg1 - The `Object[]` value required to map with the Java method parameter.
-# + return - The `Level` value returning from the Java mapping.
-function MethodsTestResource_enumStaticParam(Level arg0, Object[] arg1) returns Level|error {
+# + return - The `Level2` value returning from the Java mapping.
+function MethodsTestResource_enumStaticParam(Level2 arg0, Object[] arg1) returns Level2|error {
     handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_enumStaticParam(arg0.jObj, check jarrays:toHandle(
     arg1, "java.lang.Object"));
-    Level newObj = new (externalObj);
+    Level2 newObj = new (externalObj);
     return newObj;
 }
 
@@ -643,10 +643,10 @@ function MethodsTestResource_returnStaticAbstractObject() returns AbstractSet {
 
 # The function that maps to the `returnStaticEnum` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
-# + return - The `Level` value returning from the Java mapping.
-function MethodsTestResource_returnStaticEnum() returns Level {
+# + return - The `Level2` value returning from the Java mapping.
+function MethodsTestResource_returnStaticEnum() returns Level2 {
     handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnStaticEnum();
-    Level newObj = new (externalObj);
+    Level2 newObj = new (externalObj);
     return newObj;
 }
 

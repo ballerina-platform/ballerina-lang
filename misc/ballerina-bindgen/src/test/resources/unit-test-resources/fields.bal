@@ -517,17 +517,17 @@ distinct class FieldsTestResource {
 
     # The function that retrieves the value of the public field `getInstanceEnumeration`.
     #
-    # + return - The `Level` value of the field.
-    function getGetInstanceEnumeration(Level arg) returns Level {
+    # + return - The `Level2` value of the field.
+    function getGetInstanceEnumeration(Level2 arg) returns Level2 {
         handle externalObj = org_ballerinalang_bindgen_FieldsTestResource_getGetInstanceEnumeration(self.jObj, arg.jObj);
-        Level newObj = new (externalObj);
+        Level2 newObj = new (externalObj);
         return newObj;
     }
 
     # The function to set the value of the public field `getInstanceEnumeration`.
     #
-    # + arg - The `Level` value that is to be set for the field.
-    function setGetInstanceEnumeration(Level arg) {
+    # + arg - The `Level2` value that is to be set for the field.
+    function setGetInstanceEnumeration(Level2 arg) {
         org_ballerinalang_bindgen_FieldsTestResource_setGetInstanceEnumeration(self.jObj, arg.jObj);
     }
 
@@ -1028,17 +1028,17 @@ function FieldsTestResource_setGetStaticGenericObject(Set arg) {
 
 # The function that retrieves the value of the public field `getStaticEnumeration`.
 #
-# + return - The `Level` value of the field.
-function FieldsTestResource_getGetStaticEnumeration(Level arg) returns Level {
+# + return - The `Level2` value of the field.
+function FieldsTestResource_getGetStaticEnumeration(Level2 arg) returns Level2 {
     handle externalObj = org_ballerinalang_bindgen_FieldsTestResource_getGetStaticEnumeration(arg.jObj);
-    Level newObj = new (externalObj);
+    Level2 newObj = new (externalObj);
     return newObj;
 }
 
 # The function to set the value of the public field `getStaticEnumeration`.
 #
-# + arg - The `Level` value that is to be set for the field.
-function FieldsTestResource_setGetStaticEnumeration(Level arg) {
+# + arg - The `Level2` value that is to be set for the field.
+function FieldsTestResource_setGetStaticEnumeration(Level2 arg) {
     org_ballerinalang_bindgen_FieldsTestResource_setGetStaticEnumeration(arg.jObj);
 }
 
