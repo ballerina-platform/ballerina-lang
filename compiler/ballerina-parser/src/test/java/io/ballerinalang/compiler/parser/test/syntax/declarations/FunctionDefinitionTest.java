@@ -173,6 +173,12 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     }
 
     @Test
+    public void testRecoveryWithinFuncDefWithOtherTopLvlConstructs() {
+        testFile("func-definition/func_def_source_29.bal", "func-definition/func_def_assert_29.json");
+        testFile("func-definition/func_def_source_30.bal", "func-definition/func_def_assert_30.json");
+    }
+
+    @Test
     public void testReturnTypeDescRecoveryInFunDef() {
         testFile("func-definition/func_def_source_31.bal", "func-definition/func_def_assert_31.json");
     }

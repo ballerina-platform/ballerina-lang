@@ -51,7 +51,6 @@ public class ParserTestRunner {
         // TODO: categorize and create issues
         hashSet.add("array_type_source_17.bal");
         hashSet.add("singleton_type_source_08.bal");
-        hashSet.add("singleton_type_source_01.bal");
         hashSet.add("singleton_type_source_02.bal");
         hashSet.add("xml_template_source_24.bal");
         hashSet.add("explicit-new-with-object-keyword-with-multiple-args-negative02.bal");
