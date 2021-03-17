@@ -83,3 +83,9 @@ function testExprs()  {
     RSA rsa = "RSA";
     string s = RSA;
 }
+
+type Function function ();
+
+function testNilableFunctionType() {
+    Function? fn = ();
+}
