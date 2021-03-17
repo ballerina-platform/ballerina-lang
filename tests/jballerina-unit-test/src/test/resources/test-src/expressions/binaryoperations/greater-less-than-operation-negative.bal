@@ -110,3 +110,30 @@ function checkComparisonWithUnorderedTypes5() {
     boolean a3 = p1 > p2;
     boolean a4 = p1 >= p2;
 }
+
+function checkComparisonWithDifferentStaticTypes1() {
+    int a1 = 12;
+    float b1 = 13.23;
+    boolean x1 = a1 < b1;
+    boolean x2 = a1 <= b1;
+    boolean x3 = a1 > b1;
+    boolean x4 = a1 >= b1;
+}
+
+function checkComparisonWithDifferentStaticTypes2() {
+    int a1 = 12;
+    decimal b1 = 5;
+    boolean x1 = a1 < b1;
+    boolean x2 = a1 <= b1;
+    boolean x3 = a1 > b1;
+    boolean x4 = a1 >= b1;
+}
+
+function checkComparisonWithDifferentStaticTypes3() {
+    float a1 = 12.5;
+    decimal b1 = 5;
+    boolean x1 = a1 < b1;
+    boolean x2 = a1 <= b1;
+    boolean x3 = a1 > b1;
+    boolean x4 = a1 >= b1;
+}

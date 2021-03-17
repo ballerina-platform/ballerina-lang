@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.expressions.binaryoperations;
 
-import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
@@ -99,45 +98,10 @@ public class GreaterLessThanOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test Integer and long comparison")
-    public void testIntAndFloatComparison() {
-        int a = 10;
-        float b = 20f;
-
-        boolean expectedResult = a > b;
-
-        BValue[] args = {new BInteger(a), new BFloat(b)};
-        BValue[] returns = BRunUtil.invoke(result, "testIntAndFloatCompare", args);
-
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BBoolean.class);
-
-        boolean actualResult = ((BBoolean) returns[0]).booleanValue();
-
-        Assert.assertEquals(actualResult, expectedResult);
-    }
-
-    @Test
-    public void testIntGTFloat() {
-        BValue[] args = {new BInteger(110), new BFloat(22L)};
-        BValue[] returns = BRunUtil.invoke(result, "intGTFloat", args);
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        final String expected = "true";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
-
-    @Test
-    public void testFloatGTInt() {
-        BValue[] args = {new BFloat(110f), new BInteger(22)};
-        BValue[] returns = BRunUtil.invoke(result, "floatGTInt", args);
-        Assert.assertTrue(returns[0] instanceof BBoolean);
-        final String expected = "true";
-        Assert.assertEquals(returns[0].stringValue(), expected);
-    }
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 28);
+        Assert.assertEquals(resultNegative.getErrorCount(), 40);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
@@ -185,8 +149,32 @@ public class GreaterLessThanOperationTest {
                 "'[int,Person...]'", 109, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '[int,Person...]' and " +
                 "'[int,Person...]'", 110, 18);
-        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for '[int,Person...]' and " +
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '[int,Person...]' and " +
                 "'[int,Person...]'", 111, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'int' and " +
+                "'float'", 117, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'int' and " +
+                "'float'", 118, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'int' and " +
+                "'float'", 119, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'int' and " +
+                "'float'", 120, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'int' and " +
+                "'decimal'", 126, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'int' and " +
+                "'decimal'", 127, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'int' and " +
+                "'decimal'", 128, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'int' and " +
+                "'decimal'", 129, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'float' and " +
+                "'decimal'", 135, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'float' and " +
+                "'decimal'", 136, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'float' and " +
+                "'decimal'", 137, 18);
+        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for 'float' and " +
+                "'decimal'", 138, 18);
     }
 
     @Test(description = "Test decimal greater than, less than expression")
@@ -210,7 +198,9 @@ public class GreaterLessThanOperationTest {
                 "testTupleComparison1",
                 "testTupleComparison2",
                 "testUnionComparison",
-                "testTypeComparison"
+                "testTypeComparison1",
+                "testTypeComparison2",
+                "testTypeComparison3"
         };
     }
 

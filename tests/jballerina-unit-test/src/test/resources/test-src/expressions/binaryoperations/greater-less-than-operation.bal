@@ -24,42 +24,6 @@ function testFloatRanges(float a) returns (int) {
     return retunType;
 }
 
-function testIntAndFloatCompare(int a, float b) returns (boolean) {
-    return a > b;
-}
-
-function intGTFloat(int a, float b) returns (boolean) {
-    return a > b;
-}
-
-function floatGTInt(float a, int b) returns (boolean) {
-    return a > b;
-}
-
-function intLTFloat(int a, float b) returns (boolean) {
-    return a < b;
-}
-
-function floatLTInt(float a, int b) returns (boolean) {
-    return a < b;
-}
-
-function intLTEFloat(int a, float b) returns (boolean) {
-    return a <= b;
-}
-
-function floatLTEInt(float a, int b) returns (boolean) {
-    return a <= b;
-}
-
-function intGTEFloat(int a, float b) returns (boolean) {
-    return a >= b;
-}
-
-function floatGTEInt(float a, int b) returns (boolean) {
-    return a >= b;
-}
-
 function testDecimalComparison() {
     decimal lowValue = 3;
     decimal highValue = 5;
@@ -168,6 +132,11 @@ function testArrayComparison1() {
     test:assertFalse(a <= e);
     test:assertTrue(a > e);
     test:assertTrue(a >= e);
+
+    test:assertTrue(e < a);
+    test:assertTrue(e <= a);
+    test:assertFalse(e > a);
+    test:assertFalse(e >= a);
 
     test:assertFalse(e > f);
     test:assertTrue(e >= f);
@@ -302,9 +271,36 @@ function testUnionComparison() {
 
 type Utc readonly & [int,decimal];
 
-function testTypeComparison() {
+function testTypeComparison1() {
     Utc a = [59215, 9945];
     Utc b = [59283, 24345];
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
+type IntOrString int|string;
+
+function testTypeComparison2() {
+    IntOrString a = 12;
+    int|string b = 13;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
+const float ONE = 1.0;
+const float TWO = 2.0;
+
+type OneOrTwo ONE|TWO;
+
+function testTypeComparison3() {
+    OneOrTwo[] a = [1, 2];
+    float[] b = [3, 2];
 
     test:assertTrue(a < b);
     test:assertTrue(a <= b);
@@ -363,7 +359,7 @@ function testUnorderedTypeComparison7() {
 
 function testUnorderedTypeComparison8() {
     float a = (0.0/0.0);
-    float b = (0.0/0.0);
+    float b = 40.34;
 
     boolean x = a > b;
 }
