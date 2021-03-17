@@ -149,6 +149,11 @@ public class TypeDefinitionsTest {
         BRunUtil.invoke(compileResult, "testTupleTypeDef");
     }
 
+    @Test
+    public void testTypeDefReferringToTypeDefDefinedAfter() {
+        BRunUtil.invoke(compileResult, "testTypeDefReferringToTypeDefDefinedAfter");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
