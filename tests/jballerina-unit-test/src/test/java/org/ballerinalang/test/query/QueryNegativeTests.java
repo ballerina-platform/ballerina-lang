@@ -35,7 +35,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 25);
+        Assert.assertEquals(compileResult.getErrorCount(), 27);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -69,8 +69,12 @@ public class QueryNegativeTests {
         validateError(compileResult, index++, "redeclared symbol 'age'", 381, 44);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
                 "but found 'int'", 401, 22);
-        validateError(compileResult, index, "invalid constraint type. expected subtype of 'map<any|error>' " +
+        validateError(compileResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
                 "but found 'int'", 411, 22);
+        validateError(compileResult, index++, "incompatible types: expected 'int[]', found '(int[]|other)'",
+                416, 15);
+        validateError(compileResult, index, "incompatible types: 'int' is not an iterable collection",
+                416, 29);
     }
 
     @Test

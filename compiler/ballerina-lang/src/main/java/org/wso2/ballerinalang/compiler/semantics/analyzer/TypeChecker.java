@@ -4556,9 +4556,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 returnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
                 break;
             default:
-                BInvokableSymbol itrSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                BSymbol itrSymbol = symResolver.lookupLangLibMethod(collectionType,
                         names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
-                returnType = types.getResultTypeOfNextInvocation((BObjectType) itrSymbol.retType);
+                if (itrSymbol == this.symTable.notFoundSymbol) {
+                    return symTable.semanticError;
+                }
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) itrSymbol;
+                returnType = types.getResultTypeOfNextInvocation((BObjectType) invokableSymbol.retType);
         }
         if (returnType != null) {
             List<BType> errorTypes = types.getAllTypes(returnType).stream()
