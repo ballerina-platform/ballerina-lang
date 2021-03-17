@@ -25,6 +25,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenNodeFactory.createFunctionDefinitionNode;
 import static org.ballerinalang.bindgen.utils.BindgenNodeFactory.createTypeReferenceNode;
 
@@ -64,7 +65,8 @@ public class BindgenTreeModifier {
                 ImportDeclarationNode packageImport = BindgenNodeFactory
                         .createImportDeclarationNode(null,
                                 packageName.replace(".", ""),
-                                new LinkedList<>(Collections.singletonList(env.getPackageName() + "." + packageName)));
+                                new LinkedList<>(Collections.singletonList(env.getPackageName() + "."
+                                        + processModuleName(packageName))));
                 imports = imports.add(packageImport);
             }
         }
@@ -333,5 +335,17 @@ public class BindgenTreeModifier {
             }
         }
         return false;
+    }
+
+    private String processModuleName(String packageName) {
+        List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
+        List<String> moduleName = new LinkedList<>();
+        String[] components = packageName.split("\\.");
+        for (String component : components) {
+            if (reservedWords.contains(component)) {
+                moduleName.add("'" + component);
+            }
+        }
+        return String.join("\\.", moduleName);
     }
 }
