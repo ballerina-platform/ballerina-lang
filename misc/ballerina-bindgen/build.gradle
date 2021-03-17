@@ -48,16 +48,3 @@ test {
         suites 'src/test/resources/testng.xml'
     }
 }
-
-task createTestJar(type: Jar) {
-    from sourceSets.test.output
-}
-
-//task copyTestJar(type: Copy) {
-//    from "$buildDir/libs/*tests.jar"
-//    into "$buildDir/resources/test/mvn-test-resources/balProject"
-//    include "*.jar"
-//}
-//
-//tasks.copyTestJar.dependsOn("createTestJar")
-//tasks.test.dependsOn("copyTestJar")
