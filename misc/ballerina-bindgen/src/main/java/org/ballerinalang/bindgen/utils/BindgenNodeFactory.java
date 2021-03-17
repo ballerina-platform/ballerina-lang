@@ -990,7 +990,7 @@ class BindgenNodeFactory {
      */
     private static ForEachStatementNode createForEachStatementNode(TypedBindingPatternNode typedBindingPattern,
                                                                    Node actionOrExpressionNode,
-                                                                   StatementNode blockStatement) {
+                                                                   BlockStatementNode blockStatement) {
         Token forEachKeyword = AbstractNodeFactory.createToken(SyntaxKind.FOREACH_KEYWORD, emptyML(), singleWSML());
         Token inKeyword = AbstractNodeFactory.createToken(SyntaxKind.IN_KEYWORD, singleWSML(), singleWSML());
 
