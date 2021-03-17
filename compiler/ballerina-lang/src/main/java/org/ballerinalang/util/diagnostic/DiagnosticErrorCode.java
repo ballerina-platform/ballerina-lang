@@ -389,6 +389,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2648", "expression.does.not.support.field.access"),
     CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2649",
             "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
+    METHOD_CALL_NOT_ALLOWED_FOR_FIELD("BCE2650", "method.call.expr.not.allowed"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
