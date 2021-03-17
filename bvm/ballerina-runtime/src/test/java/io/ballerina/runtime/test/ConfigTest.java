@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlException;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
@@ -47,10 +48,10 @@ import java.util.Map;
  * Test cases for configuration related implementations.
  */
 public class ConfigTest {
+    Module module = new Module("myorg", "test_module", "1.0.0");
 
     @Test
     public void testTomlConfigProviderWithSimpleTypes() {
-        Module module = new Module("myorg", "simple_types", "1.0.0");
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {
                 new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
@@ -84,7 +85,6 @@ public class ConfigTest {
 
     @Test
     public void testTomlConfigProviderWithArrays() {
-        Module module = new Module("myorg", "arrays", "1.0.0");
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {
                 new VariableKey(module, "intArr", new BIntersectionType(module, new BType[]{}, TypeCreator
@@ -129,6 +129,83 @@ public class ConfigTest {
         expectedDecimalArray[1] = ValueCreator.createDecimalValue("4.5");
         expectedDecimalArray[2] = ValueCreator.createDecimalValue("6.2");
         Assert.assertEquals(((BArray) configValueMap.get(keys[5])).getValues(), expectedDecimalArray);
+    }
+
+    @Test
+    public void testTomlProviderWithString() {
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(module, "stringArr", new BIntersectionType(module, new BType[]{}, TypeCreator
+                        .createArrayType(PredefinedTypes.TYPE_STRING), 0, false), true),
+                new VariableKey(module, "booleanArr", new BIntersectionType(module, new BType[]{}, TypeCreator
+                        .createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true),
+        };
+        configVarMap.put(module, keys);
+        String tomlContent = "[test_module] intVar = 33 stringVar = \"xyz\" " +
+                "stringArr = [\"aa\", \"bb\", \"cc\"] booleanArr = [false, true, true, false]";
+        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+        supportedConfigProviders.add(new TomlProvider(tomlContent, configVarMap));
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        Assert.assertTrue(configValueMap.get(keys[0]) instanceof Long);
+        Assert.assertTrue(configValueMap.get(keys[1]) instanceof BString);
+        Assert.assertTrue(configValueMap.get(keys[2]) instanceof BArray);
+        Assert.assertTrue(configValueMap.get(keys[3]) instanceof BArray);
+
+        Assert.assertEquals(((Long) configValueMap.get(keys[0])).intValue(), 33);
+        Assert.assertEquals(((BString) configValueMap.get(keys[1])).getValue(), "xyz");
+        Assert.assertEquals(((BArray) configValueMap.get(keys[2])).getStringArray(),
+                new String[]{"aa", "bb", "cc"});
+        Assert.assertEquals(((BArray) configValueMap.get(keys[3])).getBooleanArray(),
+                new boolean[]{false, true, true, false});
+    }
+
+    @Test(expectedExceptions = ConfigTomlException.class, expectedExceptionsMessageRegExp = "environment variable " +
+            "`BAL_CONFIG_DATA` contains an empty string. Please provide values for configurable variables")
+    public void testTomlProviderWithEmptyString() {
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true),
+        };
+        configVarMap.put(module, keys);
+        new TomlProvider("", configVarMap);
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = ConfigTomlException.class, expectedExceptionsMessageRegExp = "environment variable " +
+            "`BAL_CONFIG_DATA` contains an empty string. Please provide values for configurable variables")
+    public void testTomlProviderWithCommentedString() {
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true),
+        };
+        String tomlContent = "# [test_module] # intVar = 22 # stringVar = \"Hello World\"";
+        configVarMap.put(module, keys);
+        new TomlProvider(tomlContent, configVarMap);
+        Assert.fail();
+    }
+
+    @Test(expectedExceptions = ConfigTomlException.class, expectedExceptionsMessageRegExp =
+            "\\[BAL_CONFIG_DATA:\\(1:24,1:29\\)] configurable variable 'test_module:intVar' is expected to be of " +
+                    "type 'int', but found 'float'")
+    public void testTomlProviderWithStringNegative() {
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true),
+        };
+        String tomlContent = "[test_module] intVar = 42.22 floatVar = 3 stringVar = 11";
+        configVarMap.put(module, keys);
+        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+        supportedConfigProviders.add(new TomlProvider(tomlContent, configVarMap));
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
+        configResolver.resolveConfigs();
+        Assert.fail();
     }
 
     private Path getConfigPath(String configFileName) {

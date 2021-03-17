@@ -1,4 +1,4 @@
-[myorg.simple_types]
+[myorg.test_module]
 
 intVar = 42
 byteVar = 5

@@ -1,4 +1,4 @@
-[myorg.arrays]
+[myorg.test_module]
 
 intArr = [123456,1234567,987654321]
 byteArr = [1,2,3]

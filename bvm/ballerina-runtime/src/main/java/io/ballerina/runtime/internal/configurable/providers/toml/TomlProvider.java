@@ -73,6 +73,7 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTo
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_FIELD_UNSUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_MODULE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.EMPTY_CONFIG_FILE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.EMPTY_CONFIG_STRING;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.FIELD_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.INVALID_ADDITIONAL_FIELD_IN_RECORD;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.INVALID_BYTE_RANGE;
@@ -100,12 +101,12 @@ public class TomlProvider implements ConfigProvider {
 
     public TomlProvider(Path configPath, Map<Module, VariableKey[]> configVarMap) {
         this.requiredModules = getRequiredModules(configVarMap);
-        this.tomlNode = getConfigurationData(configPath, !requiredModules.isEmpty());
+        this.tomlNode = getConfigTomlData(configPath, !requiredModules.isEmpty());
     }
 
     public TomlProvider(String tomlContent, Map<Module, VariableKey[]> configVarMap) {
         this.requiredModules = getRequiredModules(configVarMap);
-        this.tomlNode = Toml.read(tomlContent, CONFIG_DATA).rootNode();
+        this.tomlNode = getConfigStringData(tomlContent);
     }
 
     @Override
@@ -254,7 +255,7 @@ public class TomlProvider implements ConfigProvider {
         return tomlValue;
     }
 
-    private static TomlTableNode getConfigurationData(Path configFilePath, boolean hasRequired) {
+    private TomlTableNode getConfigTomlData(Path configFilePath, boolean hasRequired) {
         if (!Files.exists(configFilePath)) {
             if (hasRequired) {
                 throw new ConfigTomlException(String.format(CONFIG_FILE_NOT_FOUND, configFilePath));
@@ -263,11 +264,19 @@ public class TomlProvider implements ConfigProvider {
             }
         }
         ConfigToml configToml = new ConfigToml(configFilePath);
-        TomlTableNode tomlNode = configToml.tomlAstNode();
-        if (tomlNode.entries().isEmpty() && hasRequired) {
+        TomlTableNode rootNode = configToml.tomlAstNode();
+        if (rootNode.entries().isEmpty() && hasRequired) {
             throw new ConfigTomlException(String.format(EMPTY_CONFIG_FILE, configFilePath));
         }
-        return tomlNode;
+        return rootNode;
+    }
+
+    private TomlTableNode getConfigStringData(String tomlContent) {
+        TomlTableNode rootNode = Toml.read(tomlContent, CONFIG_DATA).rootNode();
+        if (rootNode.entries().isEmpty()) {
+            throw new ConfigTomlException(EMPTY_CONFIG_STRING);
+        }
+        return rootNode;
     }
 
     private Set<String> getRequiredModules(Map<Module, VariableKey[]> configVarMap) {
