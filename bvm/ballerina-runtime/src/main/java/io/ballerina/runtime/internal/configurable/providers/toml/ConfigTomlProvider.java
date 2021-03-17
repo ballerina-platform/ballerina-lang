@@ -169,7 +169,7 @@ public class ConfigTomlProvider implements ConfigProvider {
     @Override
     public Optional<BArray> getAsArrayAndMark(Module module, VariableKey key) {
         Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
-        TomlTableNode moduleNode = getModuleTomlNode(module);
+        TomlTableNode moduleNode = getModuleTomlNode(module, key);
         if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
             TomlNode tomlValue = moduleNode.entries().get(key.variable);
             return Optional.of(retrieveArrayValues(tomlValue, key.module.getName() + ":" + key.variable,
@@ -180,7 +180,7 @@ public class ConfigTomlProvider implements ConfigProvider {
 
     @Override
     public Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key) {
-        TomlTableNode moduleNode = getModuleTomlNode(module);
+        TomlTableNode moduleNode = getModuleTomlNode(module, key);
         if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
             TomlNode tomlValue = moduleNode.entries().get(key.variable);
             return Optional.of(retrieveRecordValues(tomlValue, key.module.getName() + ":" + key.variable, key.type));
@@ -191,7 +191,7 @@ public class ConfigTomlProvider implements ConfigProvider {
     @Override
     public Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key) {
         Type effectiveType = ((BIntersectionType) key.type).getConstituentTypes().get(0);
-        TomlTableNode moduleNode = getModuleTomlNode(module);
+        TomlTableNode moduleNode = getModuleTomlNode(module, key);
         if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
             TomlNode tomlValue = moduleNode.entries().get(key.variable);
             return Optional.of(retrieveTableValues(tomlValue, key.module.getName() + ":" + key.variable,
@@ -212,7 +212,7 @@ public class ConfigTomlProvider implements ConfigProvider {
 
     private Object getPrimitiveTomlValue(Module module, VariableKey key) {
         String variableName = key.variable;
-        TomlTableNode moduleNode = getModuleTomlNode(module);
+        TomlTableNode moduleNode = getModuleTomlNode(module, key);
         if (moduleNode != null && moduleNode.entries().containsKey(variableName)) {
             TomlNode tomlValue = moduleNode.entries().get(variableName);
             tomlValue = getTomlNode(tomlValue, key.module.getName() + ":" + key.variable, key.type);
@@ -257,7 +257,7 @@ public class ConfigTomlProvider implements ConfigProvider {
         return tomlNode;
     }
 
-    private static TomlTableNode retrieveModuleNode(TomlTableNode tomlNode, Module module) {
+    private static TomlTableNode retrieveModuleNode(TomlTableNode tomlNode, Module module, boolean hasRequired) {
         String orgName = module.getOrg();
         String moduleName = module.getName();
         if (moduleName.equals(DEFAULT_MODULE)) {
@@ -266,7 +266,7 @@ public class ConfigTomlProvider implements ConfigProvider {
         if (tomlNode.entries().containsKey(orgName)) {
             tomlNode = validateAndGetModuleStructure(tomlNode, orgName, orgName + SUBMODULE_DELIMITER + moduleName);
         }
-        return extractModuleNode(tomlNode, moduleName, moduleName);
+        return extractModuleNode(tomlNode, moduleName, moduleName, hasRequired);
     }
 
     private static TomlTableNode validateAndGetModuleStructure(TomlTableNode tomlNode, String key, String moduleName) {
@@ -278,7 +278,8 @@ public class ConfigTomlProvider implements ConfigProvider {
         return (TomlTableNode) retrievedNode;
     }
 
-    private static TomlTableNode extractModuleNode(TomlTableNode orgNode, String moduleName, String fullModuleName) {
+    private static TomlTableNode extractModuleNode(TomlTableNode orgNode, String moduleName, String fullModuleName,
+                                                   boolean hasRequired) {
         if (orgNode == null) {
             return null;
         }
@@ -286,11 +287,15 @@ public class ConfigTomlProvider implements ConfigProvider {
         int subModuleIndex = moduleName.indexOf(SUBMODULE_DELIMITER);
         if (subModuleIndex == -1) {
             moduleNode = validateAndGetModuleStructure(orgNode, moduleName, fullModuleName);
+            if (moduleNode == null && hasRequired) {
+                throw new ConfigTomlException(String.format(INVALID_MODULE_STRUCTURE, fullModuleName, fullModuleName),
+                                              orgNode);
+            }
         } else if (subModuleIndex != moduleName.length()) {
             String parent = moduleName.substring(0, subModuleIndex);
             String submodule = moduleName.substring(subModuleIndex + 1);
             moduleNode = extractModuleNode(validateAndGetModuleStructure(moduleNode, parent, fullModuleName), submodule,
-                                           fullModuleName);
+                                           fullModuleName, hasRequired);
         }
         return moduleNode;
     }
@@ -524,15 +529,17 @@ public class ConfigTomlProvider implements ConfigProvider {
         return tomlValue;
     }
 
-    private TomlTableNode getModuleTomlNode(Module module) {
-        TomlTableNode tomlTableNode = moduleTomlNodeMap.get(module);
-        if (tomlTableNode != null) {
-            return tomlTableNode;
+    private TomlTableNode getModuleTomlNode(Module module, VariableKey key) {
+        if (moduleTomlNodeMap.containsKey(module)) {
+            return moduleTomlNodeMap.get(module);
         }
-        tomlTableNode = retrieveModuleNode(tomlNode, module);
-        if (tomlTableNode != null) {
+
+        try {
+            TomlTableNode tomlTableNode = retrieveModuleNode(tomlNode, module, key.isRequired());
             moduleTomlNodeMap.put(module, tomlTableNode);
+            return tomlTableNode;
+        } finally {
+            moduleTomlNodeMap.put(module, null);
         }
-        return tomlTableNode;
     }
 }

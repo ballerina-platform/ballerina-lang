@@ -48,16 +48,16 @@ public class ConfigResolver {
 
     private Map<Module, VariableKey[]> configVarMap;
 
-    private List<ConfigProvider> supportedConfigProviders;
+    private ConfigProvider[] supportedConfigProviders;
 
-    List<ConfigProvider> runtimeConfigProviders;
+    private List<ConfigProvider> runtimeConfigProviders;
 
     private Module rootModule;
 
     private DiagnosticLog diagnosticLog;
 
     public ConfigResolver(Module rootModule, Map<Module, VariableKey[]> configVarMap,
-                          List<ConfigProvider> supportedConfigProviders, DiagnosticLog diagnosticLog) {
+                          DiagnosticLog diagnosticLog, ConfigProvider... supportedConfigProviders) {
         this.rootModule = rootModule;
         this.configVarMap = configVarMap;
         this.supportedConfigProviders = supportedConfigProviders;
@@ -115,14 +115,6 @@ public class ConfigResolver {
             case TypeTags.RECORD_TYPE_TAG:
                 return getConfigValue(module, key, configProvider -> configProvider
                         .getAsRecordAndMark(module, key));
-            case TypeTags.XML_ATTRIBUTES_TAG:
-            case TypeTags.XML_COMMENT_TAG:
-            case TypeTags.XML_ELEMENT_TAG:
-            case TypeTags.XML_PI_TAG:
-            case TypeTags.XML_TAG:
-            case TypeTags.XML_TEXT_TAG:
-                return getConfigValue(module, key, configProvider -> configProvider
-                        .getAsXmlAndMark(module, key));
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 switch (effectiveType.getTag()) {
@@ -135,6 +127,13 @@ public class ConfigResolver {
                     case TypeTags.TABLE_TAG:
                         return getConfigValue(module, key, configProvider -> configProvider
                                 .getAsTableAndMark(module, key));
+                    case TypeTags.XML_TAG:
+                    case TypeTags.XML_ELEMENT_TAG:
+                    case TypeTags.XML_COMMENT_TAG:
+                    case TypeTags.XML_PI_TAG:
+                    case TypeTags.XML_TEXT_TAG:
+                        return getConfigValue(module, key, configProvider -> configProvider
+                                .getAsXmlAndMark(module, key));
                     default:
                         throw new ErrorValue(StringUtils.fromString(
                                 String.format(CONFIGURATION_NOT_SUPPORTED, key.module.getName() + ":" + key.variable,

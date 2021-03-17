@@ -32,8 +32,12 @@ import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.INCOMPATIBLE_TYPE_ERROR_MESSAGE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.INVALID_BYTE_RANGE;
@@ -43,6 +47,8 @@ public class CliConfigProvider implements ConfigProvider {
     String[] cliConfigArgs;
 
     public static final String CLI_PREFIX = "-C";
+
+    public static final String CLI_ARG_REGEX = "(?<!\\\\)=";
 
     private Map<String, String> cliVarKeyValueMap;
 
@@ -58,13 +64,14 @@ public class CliConfigProvider implements ConfigProvider {
     public void initialize() {
         for (String cliConfigArg : cliConfigArgs) {
             if (cliConfigArg.startsWith(CLI_PREFIX)) {
-                String[] keyValuePair = cliConfigArg.substring(2).split("(?<!\\\\)=", 2);
+                String configKeyValue = cliConfigArg.substring(2);
+                String[] keyValuePair = configKeyValue.split(CLI_ARG_REGEX, 2);
                 if (keyValuePair.length == 2) {
                     String key = keyValuePair[0].trim();
                     if (key.endsWith("\\")) {
                         key = key + " ";
                     }
-                    String previousValue = cliVarKeyValueMap.put(key, keyValuePair[1]);
+                    cliVarKeyValueMap.put(key, keyValuePair[1]);
                 }
             }
         }

@@ -27,10 +27,6 @@ public class ConfigConstants {
 
     public static final String CONFIG_FILE_NAME = "Config.toml";
 
-    public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
-
-    public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
-
     public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
             "supported";
 

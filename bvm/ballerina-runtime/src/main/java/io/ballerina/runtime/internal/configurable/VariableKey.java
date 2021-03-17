@@ -73,12 +73,8 @@ public class VariableKey {
             return false;
         }
         VariableKey variableKey = (VariableKey) o;
-        boolean isEqual = Objects.equals(module, variableKey.module) &&
+        return Objects.equals(module, variableKey.module) &&
                 Objects.equals(variable, variableKey.variable);
-        if (type == null || variableKey.type == null) {
-            return isEqual;
-        }
-        return isEqual && Objects.equals(type, variableKey.type);
     }
 
     @Override
