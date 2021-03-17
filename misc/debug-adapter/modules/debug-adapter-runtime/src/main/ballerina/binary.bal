@@ -159,18 +159,14 @@ function lessThan(any lhs, any rhs) returns boolean|error {
         result = trap (lhs < rhs); // float < float
     } else if (lhs is decimal && rhs is decimal) {
         result = trap (lhs < rhs); // decimal < decimal
-    } else if (lhs is int && rhs is float) {
-        result = trap (lhs < rhs); // int < float
-    } else if (lhs is float && rhs is int) {
-        result = trap (lhs < rhs); // float < int
-    } else if (lhs is int && rhs is decimal) {
-        result = trap (lhs < rhs); // int < decimal
-    } else if (lhs is decimal && rhs is int) {
-        result = trap (lhs < rhs); // decimal < int
-    } else if (lhs is float && rhs is decimal) {
-        result = trap (lhs < rhs); // float < decimal
-    } else if (lhs is decimal && rhs is float) {
-        result = trap (lhs < rhs); // decimal < float
+    } else if (lhs is string && rhs is string) {
+        result = trap (lhs < rhs); // string < string
+    } else if (lhs is boolean && rhs is boolean) {
+        result = trap (lhs < rhs); // boolean < boolean
+    } else if (lhs is () && rhs is ()) {
+        result = trap (lhs < rhs); // () < ()
+    } else if (lhs is (()|boolean|int|float|decimal|string)[] && rhs is (()|boolean|int|float|decimal|string)[]) {
+        result = trap (lhs < rhs); // orderedType[] < orderedType[]
     } else {
         result = error("operator '<' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
     }
@@ -181,23 +177,19 @@ function lessThanOrEquals(any lhs, any rhs) returns boolean|error {
 
     boolean|error result;
     if (lhs is int && rhs is int) {
-        result = trap (lhs <= rhs); // int <= int
+        result = trap (lhs <= rhs); // int < int
     } else if (lhs is float && rhs is float) {
-        result = trap (lhs <= rhs); // float <= float
+        result = trap (lhs <= rhs); // float < float
     } else if (lhs is decimal && rhs is decimal) {
-        result = trap (lhs <= rhs); // decimal <= decimal
-    } else if (lhs is int && rhs is float) {
-        result = trap (lhs <= rhs); // int <= float
-    } else if (lhs is float && rhs is int) {
-        result = trap (lhs <= rhs); // float <= int
-    } else if (lhs is int && rhs is decimal) {
-        result = trap (lhs <= rhs); // int <= decimal
-    } else if (lhs is decimal && rhs is int) {
-        result = trap (lhs <= rhs); // decimal <= int
-    } else if (lhs is float && rhs is decimal) {
-        result = trap (lhs <= rhs); // float <= decimal
-    } else if (lhs is decimal && rhs is float) {
-        result = trap (lhs <= rhs); // decimal <= float
+        result = trap (lhs <= rhs); // decimal < decimal
+    } else if (lhs is string && rhs is string) {
+        result = trap (lhs <= rhs); // string < string
+    } else if (lhs is boolean && rhs is boolean) {
+        result = trap (lhs <= rhs); // boolean < boolean
+    } else if (lhs is () && rhs is ()) {
+        result = trap (lhs <= rhs); // () < ()
+    } else if (lhs is (()|boolean|int|float|decimal|string)[] && rhs is (()|boolean|int|float|decimal|string)[]) {
+        result = trap (lhs <= rhs); // orderedType[] < orderedType[]
     } else {
         result = error("operator '<=' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
     }
