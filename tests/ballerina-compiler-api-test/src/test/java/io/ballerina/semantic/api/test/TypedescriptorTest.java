@@ -642,6 +642,7 @@ public class TypedescriptorTest {
         assertEquals(symbol.typeDescriptor().parameters().size(), 0);
         assertTrue(symbol.typeDescriptor().restParam().isEmpty());
         assertTrue(symbol.typeDescriptor().returnTypeDescriptor().isEmpty());
+        assertEquals(symbol.typeDescriptor().signature(), "function");
     }
 
     private Symbol getSymbol(int line, int column) {
