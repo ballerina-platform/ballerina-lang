@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
@@ -80,20 +81,24 @@ public class ConfigTomlUtils {
             case TypeTags.ARRAY_TAG:
                 tomlType = TomlType.ARRAY;
                 break;
-            case TypeTags.XML_ATTRIBUTES_TAG:
-            case TypeTags.XML_COMMENT_TAG:
-            case TypeTags.XML_ELEMENT_TAG:
-            case TypeTags.XML_PI_TAG:
-            case TypeTags.XML_TAG:
-            case TypeTags.XML_TEXT_TAG:
-                throw new ConfigTomlException(
-                        String.format(CONFIGURATION_NOT_SUPPORTED_FOR_TOML, variableName, expectedType.toString()));
             case TypeTags.RECORD_TYPE_TAG:
                 tomlType = TomlType.TABLE;
                 break;
             case TypeTags.TABLE_TAG:
                 tomlType = TomlType.TABLE_ARRAY;
                 break;
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((IntersectionType) expectedType).getEffectiveType();
+                switch (effectiveType.getTag()) {
+                    case TypeTags.XML_ATTRIBUTES_TAG:
+                    case TypeTags.XML_COMMENT_TAG:
+                    case TypeTags.XML_ELEMENT_TAG:
+                    case TypeTags.XML_PI_TAG:
+                    case TypeTags.XML_TAG:
+                    case TypeTags.XML_TEXT_TAG:
+                        throw new ConfigTomlException(String.format(CONFIGURATION_NOT_SUPPORTED_FOR_TOML, variableName,
+                                                                    effectiveType.toString()));
+                }
             default:
                 throw new ConfigTomlException(
                         String.format(CONFIGURATION_NOT_SUPPORTED, variableName, expectedType.toString()));

@@ -22,20 +22,16 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
-import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.function.Function;
 
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider.CLI_ARG_REGEX;
 
@@ -77,8 +73,6 @@ public class CLIConfigProviderTest {
                 {"-Cmyorg.mod.x =   4.675   ", "myorg", "mod", "x", PredefinedTypes.TYPE_FLOAT, 4.675},
                 {"-Cmyorg.mod.x = hello world ", "myorg", "mod", "x", PredefinedTypes.TYPE_STRING,
                         StringUtils.fromString(" hello world ")},
-                {"-Cmyorg.mod.x = <book>The Lost World</book> ", "myorg", "mod", "x", PredefinedTypes.TYPE_XML,
-                        TypeConverter.stringToXml("<book>The Lost World</book>")},
                 {"-CintVar=123", "rootOrg", "rootMod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 {"-Cmod.intVar=123", "rootOrg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L}
         };

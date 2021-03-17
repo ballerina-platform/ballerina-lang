@@ -119,7 +119,7 @@ public class ConfigurableTest extends BaseTest {
                                                   ERROR);
         LogLeecher errorLeecher3 = new LogLeecher("error: [testOrg.main.floatVar=eee] configurable variable " +
                                                           "'floatVar' is expected to be of type 'float', but found " +
-                                                          "'eee'",ERROR);
+                                                          "'eee'", ERROR);
         LogLeecher errorLeecher4 = new LogLeecher("error: value not provided for required configurable variable " +
                                                           "'stringVar'", ERROR);
         LogLeecher errorLeecher5 = new LogLeecher("error: [xmlVar=123<?????] configurable variable 'xmlVar' is " +
@@ -127,10 +127,10 @@ public class ConfigurableTest extends BaseTest {
                                                           ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>" +
                                                           " & readonly)', but found '123<?????'", ERROR);
         bMainInstance.runMain("run", new String[]{"main", "--", "-CintVar=waruna", "-CbyteVar=2200", "-CbooleanVar" +
-                                      "=true", "-CxmlVar=123<?????", "-CtestOrg.main.floatVar=eee",
-                                      "-Cmain.decimalVar=24.87"}, null, new String[]{},new LogLeecher[]{errorLeecher1,
+                "=true", "-CxmlVar=123<?????", "-CtestOrg.main.floatVar=eee",
+                "-Cmain.decimalVar=24.87"}, null, new String[]{}, new LogLeecher[]{errorLeecher1,
                 errorLeecher2, errorLeecher3, errorLeecher4, errorLeecher5}, testFileLocation +
-                "/configurableCliProject");
+                                      "/configurableCliProject");
         errorLeecher1.waitForText(5000);
         errorLeecher2.waitForText(5000);
         errorLeecher3.waitForText(5000);

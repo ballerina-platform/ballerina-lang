@@ -42,7 +42,8 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 //)
 public class FromString {
 
-    private static BString ERROR_REASON = getModulePrefixedReason(FLOAT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER);
+    private static final BString ERROR_REASON = getModulePrefixedReason(FLOAT_LANG_LIB,
+                                                                        NUMBER_PARSING_ERROR_IDENTIFIER);
 
     public static Object fromString(BString s) {
         try {

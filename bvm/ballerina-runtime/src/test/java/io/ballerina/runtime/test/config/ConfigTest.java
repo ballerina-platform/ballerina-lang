@@ -31,6 +31,7 @@ import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -96,8 +97,12 @@ public class ConfigTest {
                         new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
                         new DecimalValue("876.54")},
                 {new CliConfigProvider(ROOT_MODULE,
-                                       "-Cmyorg.simple_types.xmlVar=<book>The Lost World</book>\n<!--I am a comment-->"),
-                        new VariableKey(module, "xmlVar", PredefinedTypes.TYPE_XML, true), BXml.class,
+                                       "-Cmyorg.simple_types.xmlVar=<book>The Lost World</book>\n<!--I am a " +
+                                               "comment-->"),
+                        new VariableKey(module, "xmlVar",
+                                        new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0,
+                                                              true), true),
+                        BXml.class,
                         XmlUtils.parse("<book>The Lost World</book>\n<!--I am a comment-->")}
         };
     }

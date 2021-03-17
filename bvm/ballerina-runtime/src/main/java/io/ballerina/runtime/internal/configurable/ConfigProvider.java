@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
 
-import java.util.Map;
 import java.util.Optional;
 
 /**

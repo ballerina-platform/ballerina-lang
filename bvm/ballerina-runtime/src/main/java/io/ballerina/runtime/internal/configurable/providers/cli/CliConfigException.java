@@ -19,11 +19,6 @@
 package io.ballerina.runtime.internal.configurable.providers.cli;
 
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
-import io.ballerina.toml.semantic.ast.TomlNode;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
-
-import static io.ballerina.runtime.internal.configurable.ConfigConstants.CONFIG_FILE_NAME;
 
 /**
  * Exception class used for cli related configuration specific errors.

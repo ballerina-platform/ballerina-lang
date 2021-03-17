@@ -19,6 +19,8 @@
 package io.ballerina.runtime.internal.configurable.providers.cli;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
@@ -32,16 +34,17 @@ import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 
 import java.util.HashMap;
-import java.util.HashSet;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.INCOMPATIBLE_TYPE_ERROR_MESSAGE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.INVALID_BYTE_RANGE;
 
+/**
+ * This class implements @{@link ConfigProvider} tp provide values for configurable variables through cli args.
+ *
+ * @since 2.0.0
+ */
 public class CliConfigProvider implements ConfigProvider {
 
     String[] cliConfigArgs;
@@ -195,6 +198,7 @@ public class CliConfigProvider implements ConfigProvider {
 
     @Override
     public Optional<BXml> getAsXmlAndMark(Module module, VariableKey key) {
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();
@@ -203,7 +207,7 @@ public class CliConfigProvider implements ConfigProvider {
             return Optional.of(TypeConverter.stringToXml(cliArg.value));
         } catch (BError e) {
             throw new CliConfigException(cliArg, String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, key.variable,
-                                                               key.type, cliArg.value));
+                                                               effectiveType, cliArg.value));
         }
     }
 

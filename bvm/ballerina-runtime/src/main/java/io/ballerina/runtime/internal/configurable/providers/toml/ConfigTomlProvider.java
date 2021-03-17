@@ -66,7 +66,6 @@ import java.util.Optional;
 
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.CONFIGURATION_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.INCOMPATIBLE_TYPE_ERROR_MESSAGE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIGURATION_NOT_SUPPORTED_FOR_TOML;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONSTRAINT_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_FIELD_UNSUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_MODULE;
@@ -84,7 +83,7 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTo
 import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 
 /**
- * Toml parser for configurable implementation.
+ * Toml value provider for configurable implementation.
  *
  * @since 2.0.0
  */
@@ -202,12 +201,9 @@ public class ConfigTomlProvider implements ConfigProvider {
 
     @Override
     public Optional<BXml> getAsXmlAndMark(Module module, VariableKey key) {
-        Object tomlValue = getPrimitiveTomlValue(module, key);
-        if (tomlValue == null) {
-            return Optional.empty();
-        }
-        throw new ConfigTomlException(String.format(CONFIGURATION_NOT_SUPPORTED_FOR_TOML, key.variable,
-                                                    key.type), (TomlNode) tomlValue);
+        // This will throw error if user has configured xml variable in the toml
+        getPrimitiveTomlValue(module, key);
+        return Optional.empty();
     }
 
     private Object getPrimitiveTomlValue(Module module, VariableKey key) {
@@ -304,14 +300,14 @@ public class ConfigTomlProvider implements ConfigProvider {
                                               String errorPrefix) {
         TomlType tomlType = tomlValue.kind();
         if (tomlType != TomlType.KEY_VALUE) {
-            throw new ConfigTomlException(errorPrefix + String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, variableName, type,
-                    getTomlTypeString(tomlValue)), tomlValue);
+            throw new ConfigTomlException(errorPrefix + String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, variableName,
+                                                                      type, getTomlTypeString(tomlValue)), tomlValue);
         }
         TomlValueNode value = ((TomlKeyValueNode) tomlValue).value();
         tomlType = value.kind();
         if (tomlType != getEffectiveTomlType(type, variableName)) {
-            throw new ConfigTomlException(errorPrefix + String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, variableName, type,
-                    getTomlTypeString(tomlValue)), value);
+            throw new ConfigTomlException(errorPrefix + String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, variableName,
+                                                                      type, getTomlTypeString(tomlValue)), value);
         }
         return getBalValue(variableName, type.getTag(), value);
     }

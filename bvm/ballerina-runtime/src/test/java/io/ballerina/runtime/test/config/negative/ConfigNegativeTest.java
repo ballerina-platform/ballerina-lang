@@ -21,6 +21,7 @@ package io.ballerina.runtime.test.config.negative;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider;
@@ -82,7 +83,7 @@ public class ConfigNegativeTest {
                 {new String[]{}, null,
                         new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true)}, 1, 0,
                         new String[]{
-                                "error: value not provided for required configurable variable 'org/mod1:intVar'",}},
+                                "error: value not provided for required configurable variable 'org/mod1:intVar'"}},
                 // Invalid toml value only
                 {new String[]{}, "MismatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true)}, 1, 0,
@@ -129,7 +130,10 @@ public class ConfigNegativeTest {
                                         "[Invalid.toml:(0:6,0:6)] missing value\n"}},
                 // supported cli type but not toml type
                 {new String[]{"-Corg.mod1.xmlVar=<book/>"}, "MatchedTypeValues.toml",
-                        new VariableKey[]{new VariableKey(module, "xmlVar", PredefinedTypes.TYPE_XML, true)}, 0, 1,
+                        new VariableKey[]{new VariableKey(module, "xmlVar",
+                                                          new BIntersectionType(module, new Type[]{},
+                                                                                PredefinedTypes.TYPE_XML, 0, true),
+                                                          true)}, 0, 1,
                         new String[]{
                                 "warning: configurable variable 'mod1:xmlVar' with type 'xml<lang.xml:Element|lang" +
                                         ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>' is not supported" +
