@@ -22,6 +22,7 @@ import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PlatformLibraryScope;
@@ -87,6 +88,7 @@ import static io.ballerina.projects.util.ProjectConstants.PROPERTIES_FILE;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
+import static org.wso2.ballerinalang.compiler.util.Names.BALLERINA_INTERNAL_ORG;
 
 /**
  * Project related util methods.
@@ -519,25 +521,30 @@ public class ProjectUtils {
      * Get `Dependencies.toml` content as a string.
      *
      * @param pkgDependencies direct dependencies of the package
-     * @param dependencies list of dependencies as of root package manifest
+     * @param dependencies    list of dependencies as of root package manifest
      * @return Dependencies.toml` content
      */
     public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgDependencies,
-                                                    List<PackageManifest.Dependency> dependencies) {
+            List<PackageManifest.Dependency> dependencies) {
         StringBuilder content = new StringBuilder();
         for (ResolvedPackageDependency dependency : pkgDependencies) {
-            content.append("[[dependency]]\n");
-            content.append("org = \"").append(dependency.packageInstance().packageOrg().value()).append("\"\n");
-            content.append("name = \"").append(dependency.packageInstance().packageName().value()).append("\"\n");
-            content.append("version = \"").append(dependency.packageInstance().packageVersion().value()).append("\"\n");
-            dependencies.forEach(dependency1 -> {
-                if (dependency1.org().value().equals(dependency.packageInstance().packageOrg().value()) &&
-                        dependency1.name().value().equals(dependency.packageInstance().packageName().value()) &&
-                        dependency1.repository() != null) {
-                    content.append("repository = \"").append(dependency1.repository()).append("\"\n");
-                }
-            });
-            content.append("\n");
+            PackageDescriptor descriptor = dependency.packageInstance().descriptor();
+
+            // ignore lang libs & ballerina internal packages
+            if (!(descriptor.isLangLibPackage() || descriptor.org().value().equals(BALLERINA_INTERNAL_ORG.value))) {
+                content.append("[[dependency]]\n");
+                content.append("org = \"").append(descriptor.org().value()).append("\"\n");
+                content.append("name = \"").append(descriptor.name().value()).append("\"\n");
+                content.append("version = \"").append(descriptor.version().value()).append("\"\n");
+                dependencies.forEach(dependency1 -> {
+                    if (dependency1.org().value().equals(dependency.packageInstance().packageOrg().value())
+                            && dependency1.name().value().equals(dependency.packageInstance().packageName().value())
+                            && dependency1.repository() != null) {
+                        content.append("repository = \"").append(dependency1.repository()).append("\"\n");
+                    }
+                });
+                content.append("\n");
+            }
         }
         return String.valueOf(content);
     }
