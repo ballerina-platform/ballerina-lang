@@ -6799,11 +6799,7 @@ public class TypeChecker extends BLangNodeVisitor {
             // Note: out of range member access returns empty xml value unlike lists
             // hence, this needs to be set to xml type
             indexBasedAccessExpr.originalType = varRefType;
-            if (varRefType.tag == TypeTags.XML || varRefType.tag == TypeTags.XML_TEXT) {
-                actualType = varRefType;
-            } else {
-                actualType = BUnionType.create(null, varRefType, symTable.xmlNeverType);
-            }
+            actualType = varRefType;
         } else if (varRefType.tag == TypeTags.TABLE) {
             if (indexBasedAccessExpr.lhsVar) {
                 dlog.error(indexBasedAccessExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_TABLE_USING_MEMBER_ACCESS,
