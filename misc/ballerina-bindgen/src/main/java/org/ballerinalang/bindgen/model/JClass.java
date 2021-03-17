@@ -214,7 +214,7 @@ public class JClass {
         return packageName;
     }
 
-    public void setMethodCount(String methodName) {
+    private void setMethodCount(String methodName) {
         Integer methodCount = overloadedMethods.get(methodName);
         if (methodCount == null) {
             overloadedMethods.put(methodName, 1);
@@ -223,7 +223,7 @@ public class JClass {
         }
     }
 
-    public Integer getMethodCount(String methodName) {
+    private Integer getMethodCount(String methodName) {
         return overloadedMethods.get(methodName);
     }
 

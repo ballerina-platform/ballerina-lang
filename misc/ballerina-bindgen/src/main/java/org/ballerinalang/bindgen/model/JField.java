@@ -25,7 +25,6 @@ import java.util.Collections;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
-import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticField;
@@ -37,12 +36,9 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticField;
  */
 public class JField extends BFunction {
 
-    private JClass jClass;
     private String fieldName;
     private String fieldType;
-    private String externalType;
     private String fieldMethodName;
-    private String returnComponentType;
 
     private boolean isArray;
     private boolean isStatic;
@@ -57,15 +53,12 @@ public class JField extends BFunction {
 
     JField(Field field, BFunction.BFunctionKind fieldKind, BindgenEnv env, JClass jClass) {
         super(fieldKind, env);
-        this.jClass = jClass;
         Class type = field.getType();
         fieldType = getBallerinaParamType(type);
-        externalType = getBallerinaHandleType(type);
         isStatic = isStaticField(field);
         super.setStatic(isStatic);
         fieldName = field.getName();
         fieldObj = new JParameter(type, field.getDeclaringClass(), env);
-        fieldObj.setHasNext(false);
         setParameters(Collections.singletonList(fieldObj));
         setDeclaringClass(jClass.getCurrentClass());
         if (type.isPrimitive() || type.equals(String.class)) {
@@ -83,11 +76,6 @@ public class JField extends BFunction {
             if (!type.getComponentType().isPrimitive() && !isStringArray) {
                 isObject = false;
                 isObjectArray = true;
-            } else if (!fieldType.equals(BALLERINA_STRING_ARRAY)) {
-                returnComponentType = getAlias(type.getComponentType());
-                if (env.getModulesFlag()) {
-                    returnComponentType = getPackageAlias(returnComponentType, type.getComponentType());
-                }
             }
             javaArraysModule = true;
         }
@@ -97,7 +85,7 @@ public class JField extends BFunction {
         } else if (fieldKind == BFunctionKind.FIELD_SET) {
             fieldMethodName = "set" + StringUtils.capitalize(fieldName);
         }
-        setExternalReturnType(externalType);
+        setExternalReturnType(getBallerinaHandleType(type));
         setExternalFunctionName(field.getDeclaringClass().getName().replace(".", "_")
                 .replace("$", "_") + "_" + fieldMethodName);
         setReturnType(fieldType);
@@ -107,13 +95,6 @@ public class JField extends BFunction {
         } else {
             super.setFunctionName(fieldMethodName);
         }
-    }
-
-    private String getPackageAlias(String shortClassName, Class objectType) {
-        if (objectType.getPackage() != jClass.getCurrentClass().getPackage()) {
-            return objectType.getPackageName().replace(".", "") + ":" + shortClassName;
-        }
-        return shortClassName;
     }
 
     public boolean isString() {

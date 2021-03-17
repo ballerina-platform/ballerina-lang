@@ -35,15 +35,15 @@ import static org.ballerinalang.bindgen.utils.BindgenNodeFactory.createTypeRefer
  */
 public class BindgenTreeModifier {
 
-    public final JClass jClass;
+    private final JClass jClass;
     public final BindgenEnv env;
 
-    public BindgenTreeModifier(JClass jClass, BindgenEnv env) {
+    BindgenTreeModifier(JClass jClass, BindgenEnv env) {
         this.jClass = jClass;
         this.env = env;
     }
 
-    public ModulePartNode transform(ModulePartNode modulePartNode) throws BindgenException {
+    ModulePartNode transform(ModulePartNode modulePartNode) throws BindgenException {
         NodeList<ImportDeclarationNode> imports = modifyImportDeclarationNodes(modulePartNode.imports());
         NodeList<ModuleMemberDeclarationNode> members = modifyModuleMemberDeclarationNode(modulePartNode.members());
         Token eofToken = modulePartNode.eofToken();

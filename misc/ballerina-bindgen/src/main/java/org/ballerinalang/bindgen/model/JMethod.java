@@ -52,12 +52,12 @@ public class JMethod extends BFunction {
     private boolean isStatic;
     private boolean hasReturn = false;
     private boolean returnError = false;
-    public boolean objectReturn = false;
+    private boolean objectReturn = false;
     private boolean isArrayReturn = false;
     private boolean hasException = false;
     private boolean handleException = false;
-    public boolean isStringReturn = false;
-    public boolean isStringArrayReturn = false;
+    private boolean isStringReturn = false;
+    private boolean isStringArrayReturn = false;
     private boolean javaArraysModule = false;
     private String parentPrefix;
 
@@ -126,10 +126,6 @@ public class JMethod extends BFunction {
 
         // Set the attributes required to identify different parameters.
         setParameters(m.getParameters());
-        if (!parameters.isEmpty()) {
-            JParameter lastParam = parameters.get(parameters.size() - 1);
-            lastParam.setHasNext(false);
-        }
 
         List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
         if (reservedWords.contains(methodName)) {
@@ -348,5 +344,17 @@ public class JMethod extends BFunction {
 
     public String getExceptionConstName() {
         return exceptionConstName;
+    }
+
+    public boolean isObjectReturn() {
+        return objectReturn;
+    }
+
+    public boolean isStringReturn() {
+        return isStringReturn;
+    }
+
+    public boolean isStringArrayReturn() {
+        return isStringArrayReturn;
     }
 }

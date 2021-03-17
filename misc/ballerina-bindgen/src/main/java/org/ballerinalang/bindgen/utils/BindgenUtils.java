@@ -88,7 +88,7 @@ public class BindgenUtils {
         printOutputFile(syntaxTree.toSourceCode(), outPath, append);
     }
 
-    public static void printOutputFile(String content, String outPath, boolean append) throws BindgenException {
+    private static void printOutputFile(String content, String outPath, boolean append) throws BindgenException {
         PrintWriter writer = null;
         FileWriterWithEncoding fileWriter = null;
         try {
@@ -153,11 +153,6 @@ public class BindgenUtils {
     public static boolean isFinalField(Field field) {
         int modifiers = field.getModifiers();
         return Modifier.isFinal(modifiers);
-    }
-
-    public static boolean isAbstractClass(Class javaClass) {
-        int modifiers = javaClass.getModifiers();
-        return Modifier.isAbstract(modifiers) && !javaClass.isInterface();
     }
 
     public static String getBallerinaParamType(Class javaType) {

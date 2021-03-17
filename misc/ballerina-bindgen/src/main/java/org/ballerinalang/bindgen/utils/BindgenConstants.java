@@ -27,31 +27,18 @@ public class BindgenConstants {
     private BindgenConstants() {
     }
 
-    public static final String ACCESS_FIELD = "access";
-    public static final String ACCESS_FIELD_INTEROP_TYPE = "@java:FieldGet";
     public static final String BAL_EXTENSION = ".bal";
-    public static final String BBGEN_CLASS_TEMPLATE_NAME = "bridge_class";
-    public static final String CONSTANTS_TEMPLATE_NAME = "constants";
-    public static final String ERROR_TEMPLATE_NAME = "exception";
     public static final String COMPONENT_IDENTIFIER = "bindgen";
-    public static final String CONSTRUCTOR_INTEROP_TYPE = "@java:Constructor";
-    public static final String METHOD_INTEROP_TYPE = "@java:Method";
-    public static final String MUTATE_FIELD = "mutate";
-    public static final String MUTATE_FIELD_INTEROP_TYPE = "@java:FieldSet";
-    public static final String DEFAULT_TEMPLATE_DIR = "templates";
+    static final String DEFAULT_TEMPLATE_DIR = "templates";
     public static final String USER_DIR = "user.dir";
-    public static final String CONSTANTS_FILE_NAME = "Constants.bal";
     public static final String ARRAY_BRACKETS = "[]";
     public static final String MODULES_DIR = "modules";
-    public static final String NAME = "name";
-    public static final String CLASS = "'class";
-    public static final String PARAM_TYPES = "paramTypes";
-    public static final String JAVA = "java";
+    static final String NAME = "name";
+    static final String CLASS = "'class";
+    static final String PARAM_TYPES = "paramTypes";
     static final String TARGET_DIR = "target";
     static final String MVN_REPO = "platform-libs";
     static final String FILE_SEPARATOR = "file.separator";
-    static final String MUSTACHE_FILE_EXTENSION = ".mustache";
-    public static final String TEMPLATES_DIR_PATH_KEY = "templates.dir.path";
     static final String FLOAT = "float";
     static final String INT = "int";
     static final String BOOLEAN = "boolean";
@@ -66,7 +53,7 @@ public class BindgenConstants {
     static final String LONG = "long";
     public static final String JAVA_STRING = "String";
     public static final String JAVA_STRING_ARRAY = "String[]";
-    public static final String HANDLE = "handle";
+    static final String HANDLE = "handle";
     public static final String BALLERINA_STRING = "string";
     public static final String BALLERINA_STRING_ARRAY = "string[]";
     public static final String[] BALLERINA_RESERVED_WORDS = {"import", "as", "public", "private", "external", "final",

@@ -103,7 +103,7 @@ import static org.ballerinalang.bindgen.utils.BindgenConstants.PARAM_TYPES;
  *
  * @since 2.0.0
  */
-public class BindgenNodeFactory {
+class BindgenNodeFactory {
 
     /**
      * Create an import declaration name node while providing the organization name, optional prefix, and module names.
@@ -113,7 +113,7 @@ public class BindgenNodeFactory {
      * @param moduleNames - list of module names with separators
      * @return the import declaration node created
      */
-    public static ImportDeclarationNode createImportDeclarationNode(String orgNameValue, String prefixValue,
+    static ImportDeclarationNode createImportDeclarationNode(String orgNameValue, String prefixValue,
                                                                     List<String> moduleNames) {
         Token importKeyword = AbstractNodeFactory.createToken(SyntaxKind.IMPORT_KEYWORD, emptyML(), singleWSML());
         ImportOrgNameNode orgName = null;
@@ -158,7 +158,7 @@ public class BindgenNodeFactory {
      * @param type - the type reference value as a string
      * @return the type reference node created
      */
-    public static TypeReferenceNode createTypeReferenceNode(String type) {
+    static TypeReferenceNode createTypeReferenceNode(String type) {
         Token asteriskToken = AbstractNodeFactory.createToken(SyntaxKind.ASTERISK_TOKEN);
         Node typeName = createSimpleNameReferenceNode(type);
         Token semicolonToken = AbstractNodeFactory.createToken(SyntaxKind.SEMICOLON_TOKEN, emptyML(), singleNLML());
@@ -173,7 +173,7 @@ public class BindgenNodeFactory {
      * @param isExternal - Specifies if the external function needs to be created instead of the mapping function.
      * @return the function definition node created
      */
-    public static FunctionDefinitionNode createFunctionDefinitionNode(BFunction bFunction, boolean isExternal)
+    static FunctionDefinitionNode createFunctionDefinitionNode(BFunction bFunction, boolean isExternal)
             throws BindgenException {
         MetadataNode metadata = null;
         if (!isExternal) {
@@ -453,7 +453,7 @@ public class BindgenNodeFactory {
     private static List<StatementNode> getConstructorWithoutException(JConstructor jConstructor) {
         List<StatementNode> statementNodes = new LinkedList<>();
 
-        statementNodes.add(getExternalFunctionCallStatement("handle", jConstructor));
+        statementNodes.add(getExternalFunctionCallStatement(HANDLE, jConstructor));
         statementNodes.add(createVariableDeclarationNode(
                 createTypedBindingPatternNode(jConstructor.getReturnType(), "newObj"),
                 createImplicitNewExpressionNode(Collections.singletonList("externalObj"))));
@@ -515,7 +515,7 @@ public class BindgenNodeFactory {
     private static List<StatementNode> getFieldGetPrimitiveArrayStatements(JField jField) {
         List<StatementNode> statementNodes = new LinkedList<>();
 
-        statementNodes.add(getExternalFunctionCallStatement("handle", jField));
+        statementNodes.add(getExternalFunctionCallStatement(HANDLE, jField));
         statementNodes.add(createReturnStatementNode(createTypeCastExpressionNode(jField.getReturnType(),
                 createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
                         new LinkedList<>(Arrays.asList("externalObj", "\"" + jField.getFieldType() + "\"")))))));
@@ -526,7 +526,7 @@ public class BindgenNodeFactory {
     private static List<StatementNode> getFieldGetObjectArrayStatements(JField jField) {
         List<StatementNode> statementNodes = new LinkedList<>();
 
-        statementNodes.add(getExternalFunctionCallStatement("handle", jField));
+        statementNodes.add(getExternalFunctionCallStatement(HANDLE, jField));
         statementNodes.add(createVariableDeclarationNode(
                 createTypedBindingPatternNode(jField.getReturnShortName(), "newObj"),
                 createListConstructorExpressionNode(new LinkedList<>())));
@@ -565,7 +565,7 @@ public class BindgenNodeFactory {
     private static List<StatementNode> getFieldGetObjectStatements(JField jField) {
         List<StatementNode> statementNodes = new LinkedList<>();
 
-        statementNodes.add(getExternalFunctionCallStatement("handle", jField));
+        statementNodes.add(getExternalFunctionCallStatement(HANDLE, jField));
         statementNodes.add(createVariableDeclarationNode(createTypedBindingPatternNode(
                 jField.getReturnShortName(), "newObj"),
                 createImplicitNewExpressionNode(Collections.singletonList("externalObj"))));
@@ -603,10 +603,10 @@ public class BindgenNodeFactory {
         } else {
             if (!jMethod.isHandleException()) {
                 if (!jMethod.isArrayReturn()) {
-                    if (jMethod.isStringReturn) {
+                    if (jMethod.isStringReturn()) {
                         // string, no arrays, no errors
                         statementNodes.add(getStringReturnStatement(jMethod));
-                    } else if (jMethod.objectReturn) {
+                    } else if (jMethod.isObjectReturn()) {
                         // object, no arrays, no errors
                         statementNodes.addAll(getObjectReturnStatements(jMethod));
                     } else {
@@ -614,10 +614,10 @@ public class BindgenNodeFactory {
                         statementNodes.add(getPrimitiveReturnStatement(jMethod));
                     }
                 } else {
-                    if (jMethod.isStringArrayReturn) {
+                    if (jMethod.isStringArrayReturn()) {
                         // string, has simple error
                         statementNodes.addAll(getStringArrayReturnStatements(jMethod));
-                    } else if (jMethod.objectReturn) {
+                    } else if (jMethod.isObjectReturn()) {
                         // object, has simple error
                         statementNodes.addAll(getObjectArrayReturnStatements(jMethod));
                     } else {
@@ -627,10 +627,10 @@ public class BindgenNodeFactory {
                 }
             } else {
                 if (!jMethod.isArrayReturn()) {
-                    if (jMethod.isStringReturn) {
+                    if (jMethod.isStringReturn()) {
                         // string, no arrays, has user defined errors
                         statementNodes.addAll(getStringReturnWithException(jMethod));
-                    } else if (jMethod.objectReturn) {
+                    } else if (jMethod.isObjectReturn()) {
                         // object, no arrays, has user defined errors
                         statementNodes.addAll(getObjectReturnWithException(jMethod));
                     } else {
@@ -638,10 +638,10 @@ public class BindgenNodeFactory {
                         statementNodes.addAll(getPrimitiveReturnWithException(jMethod));
                     }
                 } else {
-                    if (jMethod.isStringArrayReturn) {
+                    if (jMethod.isStringArrayReturn()) {
                         // string, have arrays, has simple error and user defined errors
                         statementNodes.addAll(getStringArrayWithException(jMethod));
-                    } else if (jMethod.objectReturn) {
+                    } else if (jMethod.isObjectReturn()) {
                         // object, have arrays, has simple error and user defined errors
                         statementNodes.addAll(getObjectArrayWithException(jMethod));
                     } else {
@@ -782,7 +782,7 @@ public class BindgenNodeFactory {
     private static List<StatementNode> getObjectReturnStatements(JMethod jMethod) {
         List<StatementNode> statementNodes = new LinkedList<>();
 
-        statementNodes.add(getExternalFunctionCallStatement("handle", jMethod));
+        statementNodes.add(getExternalFunctionCallStatement(HANDLE, jMethod));
         statementNodes.add(createVariableDeclarationNode(createTypedBindingPatternNode(
                 jMethod.getReturnType(), "newObj"),
                 createImplicitNewExpressionNode(Collections.singletonList("externalObj"))));
@@ -794,7 +794,7 @@ public class BindgenNodeFactory {
     private static List<StatementNode> getObjectArrayReturnStatements(JMethod jMethod) {
         List<StatementNode> statementNodes = new LinkedList<>();
 
-        statementNodes.add(getExternalFunctionCallStatement("handle", jMethod));
+        statementNodes.add(getExternalFunctionCallStatement(HANDLE, jMethod));
         statementNodes.add(createVariableDeclarationNode(
                 createTypedBindingPatternNode(jMethod.getReturnType(), "newObj"),
                 createListConstructorExpressionNode(new LinkedList<>())));
@@ -815,7 +815,7 @@ public class BindgenNodeFactory {
     private static List<StatementNode> getStringArrayReturnStatements(JMethod jMethod) {
         List<StatementNode> statementNodes = new LinkedList<>();
 
-        statementNodes.add(getExternalFunctionCallStatement("handle", jMethod));
+        statementNodes.add(getExternalFunctionCallStatement(HANDLE, jMethod));
         statementNodes.add(createReturnStatementNode(createTypeCastExpressionNode("string[]",
                 createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
                         new LinkedList<>(Arrays.asList("externalObj", "\"string\"")))))));
@@ -826,7 +826,7 @@ public class BindgenNodeFactory {
     private static List<StatementNode> getPrimitiveArrayReturnStatements(JMethod jMethod) {
         List<StatementNode> statementNodes = new LinkedList<>();
 
-        statementNodes.add(getExternalFunctionCallStatement("handle", jMethod));
+        statementNodes.add(getExternalFunctionCallStatement(HANDLE, jMethod));
         statementNodes.add(createReturnStatementNode(createTypeCastExpressionNode(jMethod.getReturnType(),
                 createCheckExpressionNode(createFunctionCallExpressionNode("jarrays:fromHandle",
                         new LinkedList<>(Arrays.asList("externalObj", "\"" + jMethod.getReturnTypeJava() + "\"")))))));

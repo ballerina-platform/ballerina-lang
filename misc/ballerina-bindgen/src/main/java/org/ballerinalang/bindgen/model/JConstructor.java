@@ -52,7 +52,7 @@ public class JConstructor extends BFunction  {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    public JConstructor(Constructor c, BindgenEnv env, JClass jClass, String constructorName) {
+    JConstructor(Constructor c, BindgenEnv env, JClass jClass, String constructorName) {
         super(BFunctionKind.CONSTRUCTOR, env);
         this.constructor = c;
         parentClass = c.getDeclaringClass();
@@ -71,12 +71,6 @@ public class JConstructor extends BFunction  {
                 returnError = true;
                 hasException = true;
             }
-        }
-
-        // Set an identifier for the last parameter in the list.
-        if (!parameters.isEmpty()) {
-            JParameter lastParam = parameters.get(parameters.size() - 1);
-            lastParam.setHasNext(false);
         }
 
         // Populate fields to identify error return types.
