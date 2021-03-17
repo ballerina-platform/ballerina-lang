@@ -344,8 +344,10 @@ public class BindgenTreeModifier {
         for (String component : components) {
             if (reservedWords.contains(component)) {
                 moduleName.add("'" + component);
+            } else {
+                moduleName.add(component);
             }
         }
-        return String.join("\\.", moduleName);
+        return String.join(".", moduleName);
     }
 }
