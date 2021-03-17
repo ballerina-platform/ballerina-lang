@@ -123,6 +123,17 @@ public isolated function setName(Element elem, string xName) = @java:Method {
     name: "setName"
 } external;
 
+# Returns the map representing the attributes of `elem`.
+# This includes namespace attributes.
+# The keys in the map are the expanded names of the attributes.
+#
+# + x - xml element
+# + return - attributes of `x`
+public isolated function getAttributes(Element x) returns map<string> = @java:Method {
+    'class: "org.ballerinalang.langlib.xml.GetAttributes",
+    name: "getAttributes"
+} external;
+
 # Returns the children of `elem`.
 #
 # + elem - xml element
@@ -143,15 +154,19 @@ public isolated function setChildren(Element elem, xml|string children) = @java:
     name: "setChildren"
 } external;
 
-# Returns the map representing the attributes of `elem`.
-# This includes namespace attributes.
-# The keys in the map are the expanded names of the attributes.
+# Returns the descendants of `elem`.
 #
-# + x - xml element
-# + return - attributes of `x`
-public isolated function getAttributes(Element x) returns map<string> = @java:Method {
-    'class: "org.ballerinalang.langlib.xml.GetAttributes",
-    name: "getAttributes"
+# + elem - xml element
+# + return - descendants of `elem`
+# The descendants of an element are the children of the element and
+# the descendants of those children that are elements, ordered so that
+# each element immediately precedes all its descendants.
+# The order of the items in the returned sequence will thus correspond
+# to the order in which the first character of the representation
+# of the item would occur in the representation of the element in XML syntax.
+public isolated function getDescendants(Element elem) returns xml = @java:Method {
+    'class: "org.ballerinalang.langlib.xml.GetDescendants",
+    name: "getDescendants"
 } external;
 
 # Returns the target part of the processing instruction.
