@@ -534,7 +534,8 @@ public class BTestRunner {
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
 
-        Object response = configInit.directInvoke(new Class[]{Path.class}, new Object[]{getConfigPath(suite)});
+        Object response = configInit.directInvoke(new Class[]{String[].class, Path.class},
+                                                  new Object[]{new String[]{}, getConfigPath(suite)});
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
                     response.toString(), (Throwable) response);

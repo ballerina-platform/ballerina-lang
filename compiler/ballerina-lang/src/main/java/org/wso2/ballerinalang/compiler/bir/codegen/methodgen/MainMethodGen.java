@@ -64,6 +64,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -163,8 +164,10 @@ public class MainMethodGen {
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
+        mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigPath", "()L" + PATH + ";", false);
-        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "(L" + PATH + ";)V", false);
+        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, String.format("([L%s;L%s;)V", STRING_VALUE,
+                                                                                    PATH), false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {
