@@ -67,7 +67,7 @@ public class BindgenEnv {
         }
     }
 
-    public String getPackageName() {
+    String getPackageName() {
         return packageName;
     }
 
@@ -115,15 +115,15 @@ public class BindgenEnv {
         this.classPaths.add(classpath);
     }
 
-    public String getAliasClassName(String alias) {
+    String getAliasClassName(String alias) {
         return aliases.get(alias);
     }
 
-    public void setAlias(String alias, String className) {
+    void setAlias(String alias, String className) {
         this.aliases.put(alias, className);
     }
 
-    public String getAlias(String className) {
+    String getAlias(String className) {
         for (Map.Entry<String, String> entry : aliases.entrySet()) {
             if (className.equals(entry.getValue())) {
                 return entry.getKey();
@@ -132,11 +132,11 @@ public class BindgenEnv {
         return null;
     }
 
-    public String removeAlias(String alias) {
+    String removeAlias(String alias) {
         return this.aliases.remove(alias);
     }
 
-    public boolean hasPublicFlag() {
+    boolean hasPublicFlag() {
         return publicFlag;
     }
 

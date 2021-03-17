@@ -49,7 +49,6 @@ public class JParameter {
     private Class parameterClass;
 
     private Boolean isObj = false;
-    private Boolean hasNext = true;
     private Boolean isString = false;
     private Boolean isObjArray = false;
     private boolean modulesFlag;
@@ -137,10 +136,6 @@ public class JParameter {
         return shortTypeName;
     }
 
-    void setHasNext(boolean hasNext) {
-        this.hasNext = hasNext;
-    }
-
     Boolean isObjArrayParam() {
         return this.isObjArray;
     }
@@ -161,23 +156,15 @@ public class JParameter {
         return isString;
     }
 
-    public Boolean getIsObjArray() {
-        return isObjArray;
-    }
-
-    public Boolean getIsPrimitiveArray() {
+    Boolean getIsPrimitiveArray() {
         return isPrimitiveArray;
-    }
-
-    public Boolean getHasNext() {
-        return hasNext;
     }
 
     public String getExternalType() {
         return externalType;
     }
 
-    public Boolean getIsStringArray() {
+    Boolean getIsStringArray() {
         return isStringArray;
     }
 

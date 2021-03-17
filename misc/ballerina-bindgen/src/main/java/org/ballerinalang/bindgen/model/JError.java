@@ -43,7 +43,7 @@ public class JError {
         return shortExceptionName;
     }
 
-    public String getExceptionConstName() {
+    String getExceptionConstName() {
         return exceptionConstName;
     }
 

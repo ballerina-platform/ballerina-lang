@@ -41,7 +41,7 @@ public abstract class BFunction {
     private String returnType;
     private String errorType = null;
 
-    public BFunction(BFunctionKind functionType, BindgenEnv env) {
+    BFunction(BFunctionKind functionType, BindgenEnv env) {
         this.functionType = functionType;
         this.env = env;
     }
@@ -54,7 +54,7 @@ public abstract class BFunction {
         return env;
     }
 
-    public void setExternalFunctionName(String name) {
+    void setExternalFunctionName(String name) {
         this.externalFunctionName = name;
     }
 
@@ -62,7 +62,7 @@ public abstract class BFunction {
         return externalFunctionName;
     }
 
-    public void setFunctionName(String name) {
+    void setFunctionName(String name) {
         this.functionName = name;
     }
 
@@ -74,7 +74,7 @@ public abstract class BFunction {
         return declaringClass;
     }
 
-    public void setDeclaringClass(Class declaringClass) {
+    void setDeclaringClass(Class declaringClass) {
         this.declaringClass = declaringClass;
     }
 
@@ -82,7 +82,7 @@ public abstract class BFunction {
         return parameters;
     }
 
-    public void setParameters(List<JParameter> parameters) {
+    void setParameters(List<JParameter> parameters) {
         this.parameters = parameters;
     }
 
@@ -90,7 +90,7 @@ public abstract class BFunction {
         return throwables;
     }
 
-    public void setThrowable(JError throwable) {
+    void setThrowable(JError throwable) {
         this.throwables.add(throwable);
     }
 
@@ -106,7 +106,7 @@ public abstract class BFunction {
         return externalReturnType;
     }
 
-    public void setExternalReturnType(String externalReturnType) {
+    void setExternalReturnType(String externalReturnType) {
         this.externalReturnType = externalReturnType;
     }
 
@@ -114,7 +114,7 @@ public abstract class BFunction {
         return returnType;
     }
 
-    public void setReturnType(String returnType) {
+    void setReturnType(String returnType) {
         this.returnType = returnType;
     }
 
@@ -122,7 +122,7 @@ public abstract class BFunction {
         return errorType;
     }
 
-    public void setErrorType(String errorType) {
+    void setErrorType(String errorType) {
         this.errorType = errorType;
     }
 
