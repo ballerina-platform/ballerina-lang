@@ -164,9 +164,8 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
         if (node.typedBindingPattern().isMissing() ||
                 node.typedBindingPattern().isMissing() ||
                 node.inKeyword().isMissing() ||
-                node.expression().isMissing()) {
-            return false;
-        } else if (!node.joinOnCondition().onKeyword().isMissing()) {
+                node.expression().isMissing() ||
+                !node.joinOnCondition().onKeyword().isMissing()) {
             return false;
         } else if (node.expression().textRange().endOffset() < cursor &&
                 cursor <= node.joinOnCondition().textRange().startOffset()) {

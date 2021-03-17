@@ -68,7 +68,7 @@ public class WhereClauseNodeContext extends IntermediateClauseNodeContext<WhereC
     }
 
     private boolean cursorAtTheEndOfExpression(BallerinaCompletionContext context, WhereClauseNode node) {
-        if (node.expression() == null || node.expression().isMissing()) {
+        if (node.expression().isMissing()) {
             return false;
         }
 

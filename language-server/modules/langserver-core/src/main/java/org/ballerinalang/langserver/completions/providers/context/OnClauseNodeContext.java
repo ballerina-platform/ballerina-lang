@@ -97,9 +97,7 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
         ExpressionNode rhs = node.rhsExpression();
         Token equalsKeyword = node.equalsKeyword();
 
-        if (lhs.isMissing()) {
-            return false;
-        } else if (!equalsKeyword.isMissing()) {
+        if (lhs.isMissing() || !equalsKeyword.isMissing()) {
             return false;
         } else if (cursor > lhs.textRange().endOffset() &&
                 (!rhs.isMissing() && cursor < rhs.textRange().startOffset())) {

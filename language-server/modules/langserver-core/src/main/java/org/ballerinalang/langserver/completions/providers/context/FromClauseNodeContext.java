@@ -122,7 +122,7 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
     private boolean onBindingPatternContext(BallerinaCompletionContext context, FromClauseNode node) {
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
 
-        if (typedBindingPattern == null || typedBindingPattern.isMissing()) {
+        if (typedBindingPattern.isMissing()) {
             return false;
         }
 
@@ -137,7 +137,7 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
     }
 
     protected boolean cursorAtTheEndOfClause(BallerinaCompletionContext context, FromClauseNode node) {
-        if (node.expression() == null || node.expression().isMissing()) {
+        if (node.expression().isMissing()) {
             return false;
         }
 
