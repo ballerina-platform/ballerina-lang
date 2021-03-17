@@ -771,12 +771,12 @@ public class CommonUtil {
             String[] aliasParts = moduleNameParts[1].split("\\.");
             boolean preDeclaredLangLib = BALLERINA_ORG_NAME.equals(orgName) && PRE_DECLARED_LANG_LIBS.contains(alias);
             if (aliasParts.length > 1) {
-                String aliasPart1 = aliasParts[0];
-                String aliasPart2 = aliasParts[1];
-                if (CommonUtil.BALLERINA_KEYWORDS.contains(aliasPart2) && !preDeclaredLangLib) {
-                    aliasPart2 = "'" + aliasPart2;
+                String aliasLastPart = aliasParts[aliasParts.length - 1];
+                if (CommonUtil.BALLERINA_KEYWORDS.contains(aliasLastPart) && !preDeclaredLangLib) {
+                    aliasLastPart = "'" + aliasLastPart;
                 }
-                alias = aliasPart1 + "." + aliasPart2;
+                String aliasPart = Arrays.stream(aliasParts, 0, aliasParts.length - 1).collect(Collectors.joining());
+                alias = aliasPart + "." + aliasLastPart;
             } else {
                 if (CommonUtil.BALLERINA_KEYWORDS.contains(alias) && !preDeclaredLangLib) {
                     alias = "'" + alias;
