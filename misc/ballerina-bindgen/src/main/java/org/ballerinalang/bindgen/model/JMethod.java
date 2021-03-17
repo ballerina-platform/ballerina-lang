@@ -28,9 +28,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import static org.ballerinalang.bindgen.command.BindingsGenerator.getAllJavaClasses;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_BRACKETS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
@@ -65,10 +62,8 @@ public class JMethod extends BFunction {
     private Method method;
     private String methodName;
     private String returnType;
-    private String externalType;
     private String exceptionName;
     private String returnTypeJava;
-    private String shortClassName;
     private String javaMethodName;
     private String exceptionConstName;
     private String returnComponentType;
@@ -77,7 +72,7 @@ public class JMethod extends BFunction {
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    public JMethod(Method m, BindgenEnv env, String parentPrefix, Class jClass, int overloaded) {
+    JMethod(Method m, BindgenEnv env, String parentPrefix, Class jClass, int overloaded) {
         super(BFunctionKind.METHOD, env);
         this.env = env;
         this.parentPrefix = parentPrefix;
@@ -88,7 +83,6 @@ public class JMethod extends BFunction {
         } else {
             methodName = m.getName();
         }
-        shortClassName = getAlias(m.getDeclaringClass());
         isStatic = isStaticMethod(m);
         super.setStatic(isStatic);
         this.parentClass = jClass;
@@ -114,7 +108,7 @@ public class JMethod extends BFunction {
                         exceptionName = getPackageAlias(exceptionName, exceptionType);
                         exceptionConstName = getPackageAlias(exceptionConstName, exceptionType);
                     }
-                    setExceptionList(jError);
+                    env.setExceptionList(jError);
                     hasException = true;
                     handleException = true;
                     break;
@@ -131,16 +125,16 @@ public class JMethod extends BFunction {
         if (reservedWords.contains(methodName)) {
             methodName = "'" + methodName;
         }
-        if (objectReturn && !getAllJavaClasses().contains(returnTypeClass.getName())) {
+        if (objectReturn && !env.getAllJavaClasses().contains(returnTypeClass.getName())) {
             if (isArrayReturn) {
-                setClassListForLooping(returnTypeClass.getComponentType().getName());
+                env.setClassListForLooping(returnTypeClass.getComponentType().getName());
             } else {
-                setClassListForLooping(returnTypeClass.getName());
+                env.setClassListForLooping(returnTypeClass.getName());
             }
         }
 
         if (isStatic) {
-            super.setFunctionName(shortClassName + "_" + methodName);
+            super.setFunctionName(getAlias(jClass, env.getAliases()) + "_" + methodName);
         } else {
             super.setFunctionName(methodName);
         }
@@ -159,9 +153,8 @@ public class JMethod extends BFunction {
         }
 
         returnTypeJava = getJavaType(returnTypeClass);
-        externalType = getBallerinaHandleType(returnTypeClass);
-        setExternalReturnType(externalType);
-        returnType = getBallerinaParamType(returnTypeClass);
+        setExternalReturnType(getBallerinaHandleType(returnTypeClass));
+        returnType = getBallerinaParamType(returnTypeClass, env.getAliases());
         returnType = getExceptionName(returnTypeClass, returnType);
         if (returnTypeClass.isArray()) {
             javaArraysModule = true;
@@ -170,11 +163,11 @@ public class JMethod extends BFunction {
             isArrayReturn = true;
             if (returnTypeClass.getComponentType().isPrimitive()) {
                 objectReturn = false;
-            } else if (getAlias(returnTypeClass).equals(JAVA_STRING_ARRAY)) {
+            } else if (getAlias(returnTypeClass, env.getAliases()).equals(JAVA_STRING_ARRAY)) {
                 objectReturn = false;
                 isStringArrayReturn = true;
             } else {
-                returnComponentType = getAlias(returnTypeClass.getComponentType());
+                returnComponentType = getAlias(returnTypeClass.getComponentType(), env.getAliases());
                 returnComponentType = getExceptionName(returnTypeClass.getComponentType(), returnComponentType);
                 returnType = returnComponentType + ARRAY_BRACKETS;
                 if (env.getModulesFlag()) {
@@ -185,7 +178,7 @@ public class JMethod extends BFunction {
             }
         } else if (returnTypeClass.isPrimitive()) {
             objectReturn = false;
-        } else if (getAlias(returnTypeClass).equals(JAVA_STRING)) {
+        } else if (getAlias(returnTypeClass, env.getAliases()).equals(JAVA_STRING)) {
             isStringReturn = true;
         } else {
             if (env.getModulesFlag()) {
@@ -219,7 +212,7 @@ public class JMethod extends BFunction {
     private void setParameters(Parameter[] paramArr) {
         for (Parameter param : paramArr) {
             importedPackages.add(param.getType().getPackageName());
-            paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
+            paramTypes.append(getAlias(param.getType(), env.getAliases()).toLowerCase(Locale.ENGLISH));
             JParameter parameter = new JParameter(param, parentClass, env);
             parameters.add(parameter);
             if (parameter.getIsPrimitiveArray()) {

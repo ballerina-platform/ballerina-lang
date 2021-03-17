@@ -40,9 +40,9 @@ import java.security.AccessController;
 import java.security.PrivilegedAction;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.bindgen.command.BindingsGenerator.aliases;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BOOLEAN;
@@ -155,13 +155,13 @@ public class BindgenUtils {
         return Modifier.isFinal(modifiers);
     }
 
-    public static String getBallerinaParamType(Class javaType) {
+    public static String getBallerinaParamType(Class javaType, Map<String, String> aliases) {
         if (javaType.isArray() && javaType.getComponentType().isPrimitive()) {
             return getPrimitiveArrayBalType(javaType.getComponentType().getSimpleName());
         } else {
-            String returnType = getBalType(getAlias(javaType));
+            String returnType = getBalType(getAlias(javaType, aliases));
             if (returnType.equals(HANDLE)) {
-                return getAlias(javaType);
+                return getAlias(javaType, aliases);
             }
             return returnType;
         }
@@ -324,7 +324,7 @@ public class BindgenUtils {
         BindgenUtils.outStream = outStream;
     }
 
-    public static String getAlias(Class className) {
+    public static String getAlias(Class className, Map<String, String> aliases) {
         if (!aliases.containsKey(className.getName())) {
             int i = 2;
             boolean notAdded = true;

@@ -23,8 +23,6 @@ import java.lang.reflect.Parameter;
 import java.util.Arrays;
 import java.util.List;
 
-import static org.ballerinalang.bindgen.command.BindingsGenerator.getAllJavaClasses;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
@@ -39,6 +37,7 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.getPrimitiveArrayType
  */
 public class JParameter {
 
+    private BindgenEnv env;
     private String type;
     private String externalType;
     private String shortTypeName;
@@ -56,10 +55,11 @@ public class JParameter {
     private Boolean isPrimitiveArray = false;
 
     JParameter(Class parameterClass, Class parentClass, BindgenEnv env) {
+        this.env = env;
         this.parameterClass = parameterClass;
         this.parentClass = parentClass;
         type = parameterClass.getName();
-        shortTypeName = getBallerinaParamType(parameterClass);
+        shortTypeName = getBallerinaParamType(parameterClass, env.getAliases());
         modulesFlag = env.getModulesFlag();
 
         // Append the prefix "J" in front of bindings generated for Java exceptions.
@@ -91,8 +91,8 @@ public class JParameter {
                         shortTypeName = getPackageAlias(shortTypeName, parameterClass);
                     }
                     String paramType = parameterClass.getName();
-                    if (!getAllJavaClasses().contains(paramType)) {
-                        setClassListForLooping(paramType);
+                    if (!env.getAllJavaClasses().contains(paramType)) {
+                        env.setClassListForLooping(paramType);
                     }
                 }
             }
@@ -120,8 +120,8 @@ public class JParameter {
                 shortTypeName = getPackageAlias(shortTypeName, component);
             }
             String componentClass = parameterClass.getComponentType().getName();
-            if (!getAllJavaClasses().contains(componentClass)) {
-                setClassListForLooping(componentClass);
+            if (!env.getAllJavaClasses().contains(componentClass)) {
+                env.setClassListForLooping(componentClass);
             }
         } else {
             shortTypeName = getPrimitiveArrayType(type);
