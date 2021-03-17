@@ -1372,8 +1372,8 @@ public class BRunUtil {
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
-        directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit", new Class[]{Path.class},
-                new Object[]{LaunchUtils.getConfigPath()});
+        directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
+                  new Class[]{String[].class, Path.class}, new Object[]{new String[]{}, LaunchUtils.getConfigPath()});
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
 //        if (temp) {
