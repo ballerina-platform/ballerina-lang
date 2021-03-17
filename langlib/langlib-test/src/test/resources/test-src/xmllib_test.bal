@@ -472,6 +472,11 @@ function testSelectingTextFromXml() {
     assert(textValues2.toString(), textValues.toString());
 }
 
+function testGetDescendants() returns xml {
+    xml descendantSeq  = catalog.getDescendants();
+    return descendantSeq;
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
