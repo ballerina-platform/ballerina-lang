@@ -51,7 +51,7 @@ class CompilerPluginManager {
                 packageResolution.packageContext().project().currentPackage(), PackageDependencyScope.DEFAULT);
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = packageResolution.dependencyGraph();
         List<Package> directDependencies = getDirectDependencies(rootPkgNode, dependencyGraph);
-        List<CompilerPlugin> compilerPlugins = loadEngagedCompilerPlugins(directDependencies);
+        List<CompilerPluginInfo> compilerPlugins = loadEngagedCompilerPlugins(directDependencies);
         List<CompilerPluginContextIml> compilerPluginContexts = initializePlugins(compilerPlugins);
         return new CompilerPluginManager(compilation, compilerPluginContexts);
     }
@@ -69,8 +69,8 @@ class CompilerPluginManager {
         return codeAnalyzerManager;
     }
 
-    private static List<CompilerPlugin> loadEngagedCompilerPlugins(List<Package> dependencies) {
-        List<CompilerPlugin> compilerPlugins = new ArrayList<>();
+    private static List<CompilerPluginInfo> loadEngagedCompilerPlugins(List<Package> dependencies) {
+        List<CompilerPluginInfo> compilerPlugins = new ArrayList<>();
         for (Package pkgDependency : dependencies) {
             PackageManifest pkgManifest = pkgDependency.manifest();
             pkgManifest.compilerPluginDescriptor()
@@ -79,22 +79,26 @@ class CompilerPluginManager {
         return compilerPlugins;
     }
 
-    private static CompilerPlugin loadCompilerPlugin(CompilerPluginDescriptor pluginDescriptor,
-                                                     PackageManifest pkgManifest) {
-        try {
-            String pluginClassName = pluginDescriptor.plugin().getClassName();
-            List<Path> jarLibraryPaths = pluginDescriptor.getCompilerPluginDependencies()
-                    .stream()
-                    .map(Paths::get)
-                    .collect(Collectors.toList());
+    private static CompilerPluginInfo loadCompilerPlugin(CompilerPluginDescriptor pluginDescriptor,
+                                                         PackageManifest pkgManifest) {
+        String pluginClassName = pluginDescriptor.plugin().getClassName();
+        List<Path> jarLibraryPaths = pluginDescriptor.getCompilerPluginDependencies()
+                .stream()
+                .map(Paths::get)
+                .collect(Collectors.toList());
 
-            return CompilerPlugins.loadCompilerPlugin(pluginClassName, jarLibraryPaths);
-        } catch (ProjectException e) {
-            throw new ProjectException("Failed to load the compiler plugin in package: " +
-                    "org=" + pkgManifest.org() +
-                    ", name=" + pkgManifest.name() +
-                    ", version=" + pkgManifest.version() + ". " + e.getMessage());
+        CompilerPlugin compilerPlugin;
+        try {
+            compilerPlugin = CompilerPlugins.loadCompilerPlugin(pluginClassName, jarLibraryPaths);
+        } catch (Throwable e) {
+            // Used Throwable here catch any sort of error produced by the third-party compiler plugin code
+            throw new ProjectException("Failed to load the compiler plugin in package: '"
+                    + pkgManifest.org() +
+                    ":" + pkgManifest.name() +
+                    ":" + pkgManifest.version() + "'. " + e.getMessage(), e);
         }
+
+        return new CompilerPluginInfo(compilerPlugin, pkgManifest.descriptor(), pluginDescriptor);
     }
 
     private static List<Package> getDirectDependencies(ResolvedPackageDependency rootPkgNode,
@@ -105,13 +109,27 @@ class CompilerPluginManager {
                 .collect(Collectors.toList());
     }
 
-    private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPlugin> compilerPlugins) {
+    private static List<CompilerPluginContextIml> initializePlugins(List<CompilerPluginInfo> compilerPlugins) {
         List<CompilerPluginContextIml> compilerPluginContexts = new ArrayList<>(compilerPlugins.size());
-        for (CompilerPlugin compilerPlugin : compilerPlugins) {
-            CompilerPluginContextIml pluginContext = new CompilerPluginContextIml(compilerPlugin);
-            compilerPlugin.init(pluginContext);
+        for (CompilerPluginInfo compilerPluginInfo : compilerPlugins) {
+            CompilerPluginContextIml pluginContext = new CompilerPluginContextIml(compilerPluginInfo);
+            initializePlugin(compilerPluginInfo, pluginContext);
             compilerPluginContexts.add(pluginContext);
         }
         return compilerPluginContexts;
+    }
+
+    private static void initializePlugin(CompilerPluginInfo compilerPluginInfo,
+                                         CompilerPluginContextIml pluginContext) {
+        try {
+            compilerPluginInfo.compilerPlugin().init(pluginContext);
+        } catch (Throwable e) {
+            // Used Throwable here catch any sort of error produced by the third-party compiler plugin code
+            PackageDescriptor packageDesc = compilerPluginInfo.packageDesc();
+            throw new ProjectException("Failed to initialize the compiler plugin in package: '"
+                    + packageDesc.org() +
+                    ":" + packageDesc.name() +
+                    ":" + packageDesc.version() + "'. " + e.getMessage(), e);
+        }
     }
 }

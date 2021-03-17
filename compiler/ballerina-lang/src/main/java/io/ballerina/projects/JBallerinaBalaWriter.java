@@ -134,10 +134,11 @@ public class JBallerinaBalaWriter extends BalaWriter {
             }
 
             CompilerPluginJson compilerPluginJson = new CompilerPluginJson(
+                    this.compilerPluginToml.get().plugin().getId(),
                     this.compilerPluginToml.get().plugin().getClassName(),
                     compilerPluginLibPaths);
 
-            // Remove fields with empty values from `package.json`
+            // Remove fields with empty values from `compiler-plugin.json`
             Gson gson = new GsonBuilder().registerTypeHierarchyAdapter(Collection.class, new JsonCollectionsAdaptor())
                     .registerTypeHierarchyAdapter(String.class, new JsonStringsAdaptor()).setPrettyPrinting().create();
 

@@ -19,6 +19,7 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.internal.ManifestBuilder;
+import io.ballerina.projects.providers.SemverDataProvider;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.testng.Assert;
@@ -208,7 +209,7 @@ public class BallerinaTomlTests {
         Assert.assertEquals(firstDiagnostic.location().textRange().toString(), "(17,33)");
 
         Assert.assertEquals(iterator.next().message(), "invalid 'org' under [package]: 'org' can only contain "
-                + "alphanumerics, underscores and periods and the maximum length is 256 characters");
+                + "alphanumerics, underscores and the maximum length is 256 characters");
         Assert.assertEquals(iterator.next().message(), "invalid 'version' under [package]: "
                 + "'version' should be compatible with semver");
     }
@@ -277,6 +278,26 @@ public class BallerinaTomlTests {
         Assert.assertTrue(packageManifest.diagnostics().hasErrors());
         Assert.assertEquals(packageManifest.diagnostics().errors().iterator().next().message(),
                             "incompatible type for key 'dependency': expected 'ARRAY', found 'OBJECT'");
+    }
+
+    @Test(dataProvider = "semverVersions", dataProviderClass = SemverDataProvider.class)
+    public void testSemverVersions(String version) throws IOException {
+        String tomlContent = Files.readString(BAL_TOML_REPO.resolve("simple-ballerina.toml"));
+        String replacedContent = tomlContent.replace("1.0.0", version);
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, replacedContent);
+        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, null, BAL_TOML_REPO).packageManifest();
+        Assert.assertFalse(manifest.diagnostics().hasErrors());
+    }
+
+    @Test(dataProvider = "invalidSemverVersions", dataProviderClass = SemverDataProvider.class)
+    public void testInvalidSemverVersions(String version) throws IOException {
+        String tomlContent = Files.readString(BAL_TOML_REPO.resolve("simple-ballerina.toml"));
+        String replacedContent = tomlContent.replace("1.0.0", version);
+        TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, replacedContent);
+        PackageManifest manifest = ManifestBuilder.from(ballerinaToml, null, null, BAL_TOML_REPO).packageManifest();
+        Assert.assertTrue(manifest.diagnostics().hasErrors());
+        Assert.assertEquals(manifest.diagnostics().errors().iterator().next().message(),
+                            "invalid 'version' under [package]: 'version' should be compatible with semver");
     }
 
     private PackageManifest getPackageManifest(Path tomlPath) throws IOException {

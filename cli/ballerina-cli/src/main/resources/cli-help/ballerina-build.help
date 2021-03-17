@@ -62,6 +62,18 @@ OPTIONS
        --taint-check
            Perform taint flow analysis.
 
+       --list-conflicted-classes
+       		List conflicting classes of conflicting jars in the project.
+
+
+CONFIG PROPERTIES
+       (--key=value)...
+           Set the Ballerina environment parameters as key/value pairs.
+           If multiple parameters need to be provided, each parameter
+           has to be prefixed with '--'. Details of the environment parameters
+           supported by the Ballerina standard library packages are specified
+           in the relevant API documentation.
+
 
 EXAMPLES
        Compile a Ballerina source file and create an executable JAR.

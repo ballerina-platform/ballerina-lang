@@ -21,6 +21,7 @@ package io.ballerina.cli.task;
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
@@ -60,7 +61,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -248,7 +248,10 @@ public class RunTestsTask implements Task {
     private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
             throws IOException {
         // Generate code coverage
-        if (testReport == null) {
+        if (!coverage) {
+            return;
+        }
+        if (testReport == null) { // This to avoid the spotbugs failure.
             return;
         }
         Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
@@ -352,6 +355,9 @@ public class RunTestsTask implements Task {
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
+        cmdArgs.add("-Djava.util.logging.config.class=org.ballerinalang.logging.util.LogConfigReader");
+        cmdArgs.add("-Djava.util.logging.manager=org.ballerinalang.logging.BLogManager");
+
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
 
         if (coverage) {
@@ -465,11 +471,11 @@ public class RunTestsTask implements Task {
             Module module = currentPackage.module(moduleId);
 
             // Skip getting file paths for execution if module doesnt contain a testable jar
-            if (!module.testDocumentIds().isEmpty() ||
-                    module.project().kind().equals(ProjectKind.SINGLE_FILE_PROJECT)) {
-                Collection<Path> jarFilePathsRequiredForTestExecution =
-                        jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName());
-                dependencies.addAll(jarFilePathsRequiredForTestExecution);
+            if (!module.testDocumentIds().isEmpty() || module.project().kind()
+                    .equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                for (JarLibrary jarLibs : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+                    dependencies.add(jarLibs.path());
+                }
             }
         }
         dependencies = dependencies.stream().distinct().collect(Collectors.toList());

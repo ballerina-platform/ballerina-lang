@@ -20,7 +20,6 @@ package io.ballerina.projects.internal.model;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.apache.commons.io.FileUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
@@ -178,11 +177,11 @@ public class Target {
      */
     public void clean() throws IOException {
         // Remove from cache
-        FileUtils.deleteDirectory(this.cache.toFile());
+        ProjectUtils.deleteDirectory(this.cache);
         // Remove any generated bala
-        FileUtils.deleteDirectory(this.balaCachePath.toFile());
-        FileUtils.deleteDirectory(this.binPath.toFile());
-        FileUtils.deleteDirectory(this.docPath.toFile());
-        FileUtils.deleteDirectory(this.reportPath.toFile());
+        ProjectUtils.deleteDirectory(this.balaCachePath);
+        ProjectUtils.deleteDirectory(this.binPath);
+        ProjectUtils.deleteDirectory(this.docPath);
+        ProjectUtils.deleteDirectory(this.reportPath);
     }
 }

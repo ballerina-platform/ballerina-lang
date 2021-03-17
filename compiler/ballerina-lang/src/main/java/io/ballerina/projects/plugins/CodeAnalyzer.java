@@ -36,4 +36,14 @@ public abstract class CodeAnalyzer {
      * @param analysisContext the context to which {@code AnalysisTask}s can be added
      */
     public abstract void init(CodeAnalysisContext analysisContext);
+
+    @Override
+    public final int hashCode() {
+        return super.hashCode();
+    }
+
+    @Override
+    public final boolean equals(Object obj) {
+        return super.equals(obj);
+    }
 }

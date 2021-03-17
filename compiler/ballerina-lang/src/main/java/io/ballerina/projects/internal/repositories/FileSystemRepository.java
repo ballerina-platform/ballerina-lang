@@ -22,6 +22,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
@@ -171,14 +172,20 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     private List<PackageVersion> pathToVersions(List<Path> versions) {
-        return versions.stream()
-                .map(path -> {
-                    String version = Optional.ofNullable(path)
-                            .map(parent -> parent.getFileName())
-                            .map(file -> file.toString())
-                            .orElse("0.0.0");
-                    return PackageVersion.from(version);
-                })
-                .collect(Collectors.toList());
+        List<PackageVersion> availableVersions = new ArrayList<>();
+        versions.stream().map(path -> Optional.ofNullable(path)
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .orElse("0.0.0")).forEach(version -> {
+                    try {
+                        availableVersions.add(PackageVersion.from(version));
+                    } catch (ProjectException ignored) {
+                        // We consider only the semver compatible versions as valid
+                        // bala directories. Since we only allow building and pushing
+                        // semver compatible packages, it is safe to pick only
+                        // the semver compatible versions.
+                    }
+        });
+        return availableVersions;
     }
 }

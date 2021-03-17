@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType.NarrowedTypes;
@@ -220,13 +221,16 @@ public class TypeNarrower extends BLangNodeVisitor {
             return;
         }
 
-        BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeTestExpr.expr).symbol;
-        if (varSymbol == null) {
+        BSymbol symbol = ((BLangSimpleVarRef) typeTestExpr.expr).symbol;
+        if (symbol == null || symbol == symTable.notFoundSymbol) {
             // Terminate for undefined symbols
             return;
         }
+        BVarSymbol varSymbol = (BVarSymbol) symbol;
 
-        BType trueType = types.getTypeIntersection(varSymbol.type, typeTestExpr.typeNode.type, this.env);
+        BType trueType = types.getTypeIntersection(
+                Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext(),
+                varSymbol.type, typeTestExpr.typeNode.type, this.env);
         BType falseType = types.getRemainingType(varSymbol.type, typeTestExpr.typeNode.type);
         typeTestExpr.narrowedTypeInfo.put(getOriginalVarSymbol(varSymbol), new NarrowedTypes(trueType, falseType));
     }
@@ -292,14 +296,15 @@ public class TypeNarrower extends BLangNodeVisitor {
             rhsTrueType = rhsFalseType = symbol.type;
         }
         BType trueType, falseType;
+        var nonLoggingContext = Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext();
         if (operator == OperatorKind.AND) {
-            trueType = types.getTypeIntersection(lhsTrueType, rhsTrueType, this.env);
-            BType tmpType = types.getTypeIntersection(lhsTrueType, rhsFalseType, this.env);
+            trueType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsTrueType, this.env);
+            BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsTrueType, rhsFalseType, this.env);
             falseType = getTypeUnion(lhsFalseType, tmpType);
         } else {
-            BType tmpType = types.getTypeIntersection(lhsFalseType, rhsTrueType, this.env);
+            BType tmpType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsTrueType, this.env);
             trueType = getTypeUnion(lhsTrueType, tmpType);
-            falseType = types.getTypeIntersection(lhsFalseType, rhsFalseType, this.env);
+            falseType = types.getTypeIntersection(nonLoggingContext, lhsFalseType, rhsFalseType, this.env);
         }
         return new NarrowedTypes(trueType, falseType);
     }
