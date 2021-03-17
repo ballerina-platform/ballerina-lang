@@ -6601,6 +6601,19 @@ public class BallerinaParser extends AbstractParser {
         if (isAction(expr)) {
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr);
         } else {
+            if (getCurrentContext() != ParserRuleContext.EXPRESSION_STATEMENT || expr.kind == SyntaxKind.METHOD_CALL ||
+                    expr.kind == SyntaxKind.FUNCTION_CALL || expr.kind == SyntaxKind.CHECK_EXPRESSION) {
+                return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkingKeyword, expr);
+            }
+            checkingKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(checkingKeyword, expr,
+                                                        DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_CALL_EXPRESSION);
+            STNode funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
+            STNode openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
+            STNode arguments = STNodeFactory.createEmptyNodeList();
+            STNode closeParenToken = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+            expr = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
+                    closeParenToken);
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkingKeyword, expr);
         }
     }

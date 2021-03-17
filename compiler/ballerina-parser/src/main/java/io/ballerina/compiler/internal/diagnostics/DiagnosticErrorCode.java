@@ -320,7 +320,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED("BCE667", "error.complex.variable.must.be.initialized"),
     ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC("BCE668", "error.isolated.var.cannot.be.declared.as.public"),
     ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC("BCE669", "error.variable.declared.with.var.cannot.be.public"),
-    ERROR_FIELD_BP_INSIDE_LIST_BP("BCE670", "error.field.binding.pattern.inside.list.binding.pattern")
+    ERROR_FIELD_BP_INSIDE_LIST_BP("BCE670", "error.field.binding.pattern.inside.list.binding.pattern"),
+    ERROR_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.expression.expected.call.expression")
     ;
 
     String diagnosticId;
