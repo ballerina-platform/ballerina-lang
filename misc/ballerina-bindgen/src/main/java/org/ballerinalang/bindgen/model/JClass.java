@@ -31,8 +31,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import static org.ballerinalang.bindgen.command.BindingsGenerator.setAllClasses;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isFinalField;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicField;
@@ -65,23 +63,16 @@ public class JClass {
         this.env = env;
         currentClass = c;
         prefix = c.getName().replace(".", "_").replace("$", "_");
-        shortClassName = getAlias(c);
+        shortClassName = getAlias(c, env.getAliases());
         packageName = c.getPackage().getName();
         shortClassName = getExceptionName(c, shortClassName);
         modulesFlag = env.getModulesFlag();
 
-        setAllClasses(shortClassName);
-        if (c.isInterface()) {
-            setAllClasses(getAlias(Object.class));
-        }
-        populateImplementedInterfaces(c.getInterfaces());
-
         Class sClass = c.getSuperclass();
         if (sClass != null) {
-            setClassListForLooping(sClass.getName());
-            String simpleClassName = getAlias(sClass).replace("$", "");
+            env.setClassListForLooping(sClass.getName());
+            String simpleClassName = getAlias(sClass, env.getAliases()).replace("$", "");
             superClassPackage.put(simpleClassName, sClass.getPackageName().replace(".", ""));
-            setAllClasses(simpleClassName);
         }
 
         if (env.isDirectJavaClass()) {
@@ -183,12 +174,6 @@ public class JClass {
                     }
                 }
             }
-        }
-    }
-
-    private void populateImplementedInterfaces(Class[] interfaces) {
-        for (Class interfaceClass : interfaces) {
-            setAllClasses(getAlias(interfaceClass));
         }
     }
 

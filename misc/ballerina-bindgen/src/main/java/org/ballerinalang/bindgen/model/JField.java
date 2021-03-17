@@ -54,7 +54,7 @@ public class JField extends BFunction {
     JField(Field field, BFunction.BFunctionKind fieldKind, BindgenEnv env, JClass jClass) {
         super(fieldKind, env);
         Class type = field.getType();
-        fieldType = getBallerinaParamType(type);
+        fieldType = getBallerinaParamType(type, env.getAliases());
         isStatic = isStaticField(field);
         super.setStatic(isStatic);
         fieldName = field.getName();

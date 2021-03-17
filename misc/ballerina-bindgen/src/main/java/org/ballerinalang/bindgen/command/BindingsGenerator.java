@@ -33,7 +33,6 @@ import java.io.PrintStream;
 import java.net.URLClassLoader;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -67,15 +66,6 @@ public class BindingsGenerator {
     private Set<String> classNames = new HashSet<>();
     private Path userDir = Paths.get(System.getProperty(USER_DIR));
 
-    private static Set<String> allClasses = new HashSet<>();
-    private static Set<String> allPackages = new HashSet<>();
-    private static Set<String> classListForLooping = new HashSet<>();
-    private static Set<String> allJavaClasses = new HashSet<>();
-    private static Set<JError> exceptionList = new HashSet<>();
-    private static Map<String, String> failedClassGens = new HashMap<>();
-
-    public static Map<String, String> aliases = new HashMap<>();
-
     BindingsGenerator(PrintStream out, PrintStream err) {
         this.outStream = out;
         this.errStream = err;
@@ -102,15 +92,15 @@ public class BindingsGenerator {
             generateBindings(classNames, classLoader, modulePath);
 
             // Generate bindings for dependent Java classes.
-            if (!classListForLooping.isEmpty()) {
+            if (!env.getClassListForLooping().isEmpty()) {
                 outStream.println("\nGenerating dependency bindings for: ");
                 env.setDirectJavaClass(false);
             }
-            while (!classListForLooping.isEmpty()) {
-                Set<String> newSet = new HashSet<>(classListForLooping);
+            while (!env.getClassListForLooping().isEmpty()) {
+                Set<String> newSet = new HashSet<>(env.getClassListForLooping());
                 newSet.removeAll(classNames);
-                allJavaClasses.addAll(newSet);
-                classListForLooping.clear();
+                env.setAllJavaClasses(newSet);
+                env.clearClassListForLooping();
                 generateBindings(newSet, classLoader, dependenciesPath);
             }
 
@@ -118,7 +108,7 @@ public class BindingsGenerator {
             generateUtilFiles();
 
             // Handle failed binding generations.
-            if (failedClassGens != null) {
+            if (env.getFailedClassGens() != null) {
                 handleFailedClassGens();
             }
             try {
@@ -207,7 +197,7 @@ public class BindingsGenerator {
 
     private void handleFailedClassGens() {
         errStream.print("\n");
-        for (Map.Entry<String, String> entry : failedClassGens.entrySet()) {
+        for (Map.Entry<String, String> entry : env.getFailedClassGens().entrySet()) {
             if (classNames.contains(entry.getKey())) {
                 errStream.println("Bindings for '" + entry.getKey() + "' class could not be generated.\n\t" +
                         entry.getValue() + "\n");
@@ -220,7 +210,7 @@ public class BindingsGenerator {
         createDirectory(utilsDirStrPath);
 
         // Create the .bal files for Ballerina error types.
-        for (JError jError : exceptionList) {
+        for (JError jError : env.getExceptionList()) {
             String fileName = jError.getShortExceptionName() + BAL_EXTENSION;
             if (env.getModulesFlag()) {
                 utilsDirStrPath = Paths.get(modulePath.toString(), jError.getPackageName()).toString();
@@ -254,7 +244,6 @@ public class BindingsGenerator {
                     Class classInstance = classLoader.loadClass(c);
                     if (classInstance != null && isPublicClass(classInstance)) {
                         JClass jClass = new JClass(classInstance, env);
-                        allPackages.add(jClass.getPackageName());
                         String filePath;
                         if (env.getModulesFlag()) {
                             String outputFile = Paths.get(modulePath.toString(), jClass.getPackageName()).toString();
@@ -269,27 +258,9 @@ public class BindingsGenerator {
                     }
                 }
             } catch (ClassNotFoundException | NoClassDefFoundError e) {
-                failedClassGens.put(c, e.toString());
+                env.setFailedClassGens(c, e.toString());
             }
         }
-    }
-
-    public static Set<String> getAllJavaClasses() {
-        return allJavaClasses;
-    }
-
-    public static void setClassListForLooping(String classListForLooping) {
-        if (!allJavaClasses.contains(classListForLooping)) {
-            BindingsGenerator.classListForLooping.add(classListForLooping);
-        }
-    }
-
-    public static void setAllClasses(String allClasses) {
-        BindingsGenerator.allClasses.add(allClasses);
-    }
-
-    public static void setExceptionList(JError exception) {
-        BindingsGenerator.exceptionList.add(exception);
     }
 
     void setMvnGroupId(String mvnGroupId) {

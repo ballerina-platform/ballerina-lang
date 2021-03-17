@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 
 /**
@@ -57,7 +56,7 @@ public class JConstructor extends BFunction  {
         this.constructor = c;
         parentClass = c.getDeclaringClass();
         super.setDeclaringClass(parentClass);
-        shortClassName = getAlias(c.getDeclaringClass());
+        shortClassName = getAlias(c.getDeclaringClass(), env.getAliases());
         setExternalReturnType("handle");
 
         // Loop through the parameters of the constructor to populate a list.
@@ -65,7 +64,7 @@ public class JConstructor extends BFunction  {
             JParameter parameter = new JParameter(param, parentClass, env);
             parameters.add(parameter);
             importedPackages.add(param.getType().getPackageName());
-            paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
+            paramTypes.append(getAlias(param.getType(), env.getAliases()).toLowerCase(Locale.ENGLISH));
             if (parameter.getIsPrimitiveArray() || param.getType().isArray()) {
                 javaArraysModule = true;
                 returnError = true;
@@ -85,7 +84,7 @@ public class JConstructor extends BFunction  {
                         exceptionName = getPackageAlias(exceptionName, exceptionType);
                         exceptionConstName = getPackageAlias(exceptionConstName, exceptionType);
                     }
-                    setExceptionList(jError);
+                    env.setExceptionList(jError);
                     setThrowable(jError);
                     hasException = true;
                     handleException = true;

@@ -20,6 +20,7 @@ package org.ballerinalang.bindgen.utils;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.TomlDocument;
+import org.ballerinalang.bindgen.model.JError;
 
 import java.nio.file.Path;
 import java.util.HashMap;
@@ -46,6 +47,10 @@ public class BindgenEnv {
     private boolean directJavaClass = true;
     private Set<String> classPaths = new HashSet<>();
     private Map<String, String> aliases = new HashMap<>();
+    private Set<String> classListForLooping = new HashSet<>();
+    private Set<String> allJavaClasses = new HashSet<>();
+    private Set<JError> exceptionList = new HashSet<>();
+    private Map<String, String> failedClassGens = new HashMap<>();
 
     public void setModulesFlag(boolean modulesFlag) {
         this.modulesFlag = modulesFlag;
@@ -115,6 +120,10 @@ public class BindgenEnv {
         this.classPaths.add(classpath);
     }
 
+    public Map<String, String> getAliases() {
+        return aliases;
+    }
+
     String getAliasClassName(String alias) {
         return aliases.get(alias);
     }
@@ -142,5 +151,43 @@ public class BindgenEnv {
 
     public void setPublicFlag(boolean publicFlag) {
         this.publicFlag = publicFlag;
+    }
+
+    public void setClassListForLooping(String classListForLooping) {
+        if (!allJavaClasses.contains(classListForLooping)) {
+            this.classListForLooping.add(classListForLooping);
+        }
+    }
+
+    public Set<String> getClassListForLooping() {
+        return classListForLooping;
+    }
+
+    public void clearClassListForLooping() {
+        classListForLooping.clear();
+    }
+
+    public Set<String> getAllJavaClasses() {
+        return allJavaClasses;
+    }
+
+    public void setAllJavaClasses(Set<String> newClasses) {
+        allJavaClasses.addAll(newClasses);
+    }
+
+    public Set<JError> getExceptionList() {
+        return exceptionList;
+    }
+
+    public void setExceptionList(JError jError) {
+        this.exceptionList.add(jError);
+    }
+
+    public Map<String, String> getFailedClassGens() {
+        return failedClassGens;
+    }
+
+    public void setFailedClassGens(String className, String errorDescription) {
+        this.failedClassGens.put(className, errorDescription);
     }
 }

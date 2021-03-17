@@ -334,7 +334,7 @@ public function newFileInputStream3(string arg0) returns FileInputStream|FileNot
 # The function that maps to the `nullInputStream` method of `java.io.FileInputStream`.
 #
 # + return - The `InputStream` value returning from the Java mapping.
-public function InputStream_nullInputStream() returns InputStream {
+public function FileInputStream_nullInputStream() returns InputStream {
     handle externalObj = java_io_FileInputStream_nullInputStream();
     InputStream newObj = new (externalObj);
     return newObj;
