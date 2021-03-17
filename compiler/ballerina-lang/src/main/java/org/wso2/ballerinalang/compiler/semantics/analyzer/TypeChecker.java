@@ -3730,10 +3730,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
                     if (opSymbol == symTable.notFoundSymbol || (isBinaryComparisonOperator(binaryExpr.opKind) &&
                             !(types.isOrderedType(lhsType) && types.isOrderedType(rhsType) &&
-                                    isSameOrderedType(lhsType, rhsType)))) {
+                                    types.isSameOrderedType(lhsType, rhsType)))) {
                         dlog.error(binaryExpr.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
                                 lhsType, rhsType);
-                    } else if (opSymbol != symTable.notFoundSymbol) {
+                    } else {
                         if ((binaryExpr.opKind == OperatorKind.EQUAL || binaryExpr.opKind == OperatorKind.NOT_EQUAL) &&
                                 (couldHoldTableValues(lhsType, new ArrayList<>()) &&
                                         couldHoldTableValues(rhsType, new ArrayList<>()))) {
@@ -3752,14 +3752,6 @@ public class TypeChecker extends BLangNodeVisitor {
     private boolean isBinaryComparisonOperator(OperatorKind operatorKind) {
         return operatorKind == OperatorKind.LESS_THAN || operatorKind == OperatorKind.LESS_EQUAL
                 || operatorKind == OperatorKind.GREATER_THAN || operatorKind == OperatorKind.GREATER_EQUAL;
-    }
-
-    private boolean isSameOrderedType(BType lhsType, BType rhsType) {
-        if ((lhsType.tag == TypeTags.FLOAT || lhsType.tag == TypeTags.INT || lhsType.tag == TypeTags.DECIMAL) &&
-                (rhsType.tag == TypeTags.FLOAT || rhsType.tag == TypeTags.INT || rhsType.tag == TypeTags.DECIMAL)) {
-            return true;
-        }
-        return types.isSameType(lhsType, rhsType);
     }
 
     private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
@@ -5766,26 +5758,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 dlog.error(iExpr.argExprs.get(0).pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
                         iExpr.argExprs.get(0).type);
             }
-            return;
-        }
-
-        Location pos;
-        BType returnType;
-
-        if (keyFunction.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            pos = keyFunction.pos;
-            returnType = ((BLangSimpleVarRef) keyFunction).type.getReturnType();
-        } else if (keyFunction.getKind() == NodeKind.ARROW_EXPR) {
-            BLangArrowFunction arrowFunction = ((BLangArrowFunction) keyFunction);
-            pos = arrowFunction.body.expr.pos;
-            returnType = arrowFunction.body.expr.type;
-            if (returnType.tag == TypeTags.SEMANTIC_ERROR) {
-                return;
-            }
-        } else {
-            BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
-            pos = keyLambdaFunction.function.pos;
-            returnType = keyLambdaFunction.function.type.getReturnType();
         }
     }
 

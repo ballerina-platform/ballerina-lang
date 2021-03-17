@@ -422,28 +422,6 @@ public class TypeChecker {
     }
 
     /**
-     * Check if left hand side decimal value is less than the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is less than right hand side value, else false.
-     */
-    public static boolean checkDecimalLessThan(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return !checkDecimalEqual(lhsValue, rhsValue) && checkDecimalGreaterThanOrEqual(rhsValue, lhsValue);
-    }
-
-    /**
-     * Check if left hand side decimal value is less than or equal the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is less than or equal right hand side value, else false.
-     */
-    public static boolean checkDecimalLessThanOrEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return checkDecimalEqual(lhsValue, rhsValue) || checkDecimalGreaterThan(rhsValue, lhsValue);
-    }
-
-    /**
      * Check if left hand side decimal value is greater than the right hand side decimal value.
      *
      * @param lhsValue The value on the left hand side
@@ -461,19 +439,6 @@ public class TypeChecker {
             default:
                 return false;
         }
-    }
-
-    /**
-     * Check if left hand side decimal value is greater than or equal the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is greater than or equal right hand side value, else false.
-     */
-    public static boolean checkDecimalGreaterThanOrEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return checkDecimalGreaterThan(lhsValue, rhsValue) ||
-               (isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
-                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0);
     }
 
     /**
@@ -3149,10 +3114,7 @@ q     * Check if left hand side ordered type value is less than right hand side 
             return Long.compare((long) lhsValue, (long) rhsValue);
         }
         if (lhsTypeTag == TypeTags.BYTE_TAG && rhsTypeTag == TypeTags.BYTE_TAG) {
-            return lhsValue instanceof Integer && rhsValue instanceof Integer ? Integer.compare((int) lhsValue,
-                    (int) rhsValue) : lhsValue instanceof Byte && rhsValue instanceof Integer ?
-                    Integer.compare(Byte.toUnsignedInt((byte) lhsValue), (int) rhsValue) :
-                    Integer.compare((int) lhsValue, Byte.toUnsignedInt((byte) rhsValue));
+            return Integer.compare((int) lhsValue, (int) rhsValue);
         }
         if (lhsTypeTag == TypeTags.FLOAT_TAG && rhsTypeTag == TypeTags.FLOAT_TAG) {
             // Compare(x, y) is UN if x or y or both is NaN

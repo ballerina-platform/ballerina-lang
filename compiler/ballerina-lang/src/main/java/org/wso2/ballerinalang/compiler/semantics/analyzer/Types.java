@@ -150,6 +150,7 @@ public class Types {
     private final BLangAnonymousModelHelper anonymousModelHelper;
     private int recordCount = 0;
     private SymbolEnv env;
+    private boolean inOrderedType;
 
     public static Types getInstance(CompilerContext context) {
         Types types = context.get(TYPES_KEY);
@@ -315,6 +316,11 @@ public class Types {
 
     public boolean isSameType(BType source, BType target) {
         return isSameType(source, target, new HashSet<>());
+    }
+
+    public boolean isSameOrderedType(BType source, BType target) {
+        this.inOrderedType = true;
+        return isSameType(source, target);
     }
 
     public boolean isPureType(BType type) {
@@ -2532,6 +2538,10 @@ public class Types {
         @Override
         public Boolean visit(BUnionType tUnionType, BType s) {
             if (s.tag != TypeTags.UNION || !hasSameReadonlyFlag(s, tUnionType)) {
+                if (inOrderedType) {
+                    inOrderedType = false;
+                    return isSimpleBasicType(s.tag) && checkUnionHasSameFiniteType(tUnionType.getMemberTypes(), s);
+                }
                 return false;
             }
 
@@ -2638,6 +2648,23 @@ public class Types {
         }
 
     };
+
+    private boolean checkUnionHasSameFiniteType(LinkedHashSet<BType> memberTypes, BType baseType) {
+        for (BType type : memberTypes) {
+            if (type.tag != TypeTags.FINITE) {
+                return false;
+            }
+            boolean isValueSpaceSameType = false;
+            for (BLangExpression expr : ((BFiniteType) type).getValueSpace()) {
+                isValueSpaceSameType = isSameType(expr.type, baseType);
+                if (!isValueSpaceSameType) {
+                    break;
+                }
+            }
+            return isValueSpaceSameType;
+        }
+        return false;
+    }
 
     private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, Set<TypePair> unresolvedTypes) {
         Map<String, BField> rhsFields = new LinkedHashMap<>(rhsType.fields);
@@ -4515,6 +4542,15 @@ public class Types {
                 }
                 BType restType = ((BTupleType) type).restType;
                 return restType == null || isOrderedType(restType);
+            case TypeTags.FINITE:
+                boolean isValueSpaceOrdered = false;
+                for (BLangExpression expr : ((BFiniteType) type).getValueSpace()) {
+                    isValueSpaceOrdered = isOrderedType(expr.type);
+                    if (!isValueSpaceOrdered) {
+                        break;
+                    }
+                }
+                return isValueSpaceOrdered;
             default:
                 return isSimpleBasicType(type.tag);
         }
