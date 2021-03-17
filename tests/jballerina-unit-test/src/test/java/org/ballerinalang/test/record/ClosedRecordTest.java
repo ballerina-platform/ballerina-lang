@@ -245,7 +245,7 @@ public class ClosedRecordTest {
     public void testNilableFunctionPtrInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_nil-able_fn_ptr.bal");
         String errMsg =
-                "method call expression not allowed on field 'getName': expected a function type, but found 'function" +
+                "invalid method call expression: expected a function type, but found 'function" +
                         " (string,string) returns (string)?'";
         int indx = 0;
         BAssertUtil.validateError(result, indx++, errMsg, 28, 17);

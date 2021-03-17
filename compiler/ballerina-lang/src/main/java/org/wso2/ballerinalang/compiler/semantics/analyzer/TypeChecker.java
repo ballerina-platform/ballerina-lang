@@ -2981,8 +2981,8 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (fieldSymbol.kind != SymbolKind.FUNCTION) {
-            checkIfLangLibMethodExists(iExpr, type, iExpr.pos, DiagnosticErrorCode.METHOD_CALL_NOT_ALLOWED_FOR_FIELD,
-                                       invocationIdentifier, fieldSymbol.type);
+            checkIfLangLibMethodExists(iExpr, type, iExpr.pos, DiagnosticErrorCode.INVALID_METHOD_CALL_EXPR_ON_FIELD,
+                                       fieldSymbol.type);
             return false;
         }
 
