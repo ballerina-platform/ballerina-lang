@@ -1,0 +1,5 @@
+[org.mod1]
+
+intVar = 1234
+xmlVar = "<book/>"
+intArr = [123456,1234567,987654321]
