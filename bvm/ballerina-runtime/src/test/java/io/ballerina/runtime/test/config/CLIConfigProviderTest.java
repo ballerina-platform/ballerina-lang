@@ -22,18 +22,22 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
+import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
+import java.util.function.Function;
+
+import static io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider.CLI_ARG_REGEX;
 
 /**
  * Test cases specific for configuration provided via cli.
@@ -57,8 +61,8 @@ public class CLIConfigProviderTest {
         };
         configVarMap.put(module, keys);
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
-                                                           List.of(new CliConfigProvider(ROOT_MODULE, arg)),
-                                                           diagnosticLog);
+                                                           diagnosticLog,
+                                                           new CliConfigProvider(ROOT_MODULE, arg));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
@@ -66,7 +70,7 @@ public class CLIConfigProviderTest {
     }
 
     @DataProvider(name = "different-cli_args-data-provider")
-    public Object[][] specialCharactersConfigProviders() {
+    public Object[][] specialCharactersConfigProvider() {
         return new Object[][]{
                 {"-Cmyorg.mod.intVar=123", "myorg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 {"-Cmyorg.mod.intVar\\ =123", "myorg", "mod", "intVar\\ ", PredefinedTypes.TYPE_INT, 123L},
@@ -77,6 +81,27 @@ public class CLIConfigProviderTest {
                         TypeConverter.stringToXml("<book>The Lost World</book>")},
                 {"-CintVar=123", "rootOrg", "rootMod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 {"-Cmod.intVar=123", "rootOrg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L}
+        };
+    }
+
+    @Test(dataProvider = "cli_args-data-provider")
+    public void testCliArgRegex(String cliArg, String[] expectedKeyValuePair) {
+        String[] keyValuePair = cliArg.split(CLI_ARG_REGEX, 2);
+        Assert.assertEquals(keyValuePair.length, expectedKeyValuePair.length);
+        for (int i = 0; i < keyValuePair.length; i++) {
+            Assert.assertEquals(keyValuePair[i], expectedKeyValuePair[i]);
+        }
+    }
+
+    @DataProvider(name = "cli_args-data-provider")
+    public Object[][] cliArgsProvider() {
+        return new Object[][]{
+                {"myorg.mod.stringVar=123", new String[]{"myorg.mod.stringVar", "123"}},
+                {"myorg.mod.stringVar\\==123", new String[]{"myorg.mod.stringVar\\=", "123"}},
+                {"myorg.mod.stringVar\\==myorg.mod.stringVar\\=",
+                        new String[]{"myorg.mod.stringVar\\=", "myorg.mod.stringVar\\="}},
+                {"myorg.mod.stringVar=myorg=mod=stringVar", new String[]{"myorg.mod.stringVar", "myorg=mod=stringVar"}},
+                {"myorg.mod.stringVar", new String[]{"myorg.mod.stringVar"}},
         };
     }
 }

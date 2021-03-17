@@ -16,122 +16,121 @@
  * under the License.
  */
 
-package io.ballerina.runtime.test;
+package io.ballerina.runtime.test.config;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
-import io.ballerina.runtime.api.creators.TypeCreator;
-import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.utils.XmlUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlProvider;
-import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BType;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
+import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
+import io.ballerina.runtime.internal.values.DecimalValue;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.math.BigDecimal;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.HashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
+
+import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 
 /**
  * Test cases for configuration related implementations.
  */
 public class ConfigTest {
 
-    @Test
-    public void testTomlConfigProviderWithSimpleTypes() {
+    private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1.0.0");
+
+    @Test(dataProvider = "simple-type-values-data-provider")
+    public void testTomlConfigProviderWithSimpleTypes(ConfigProvider configProvider, VariableKey key,
+                                                      Class<?> expectedJClass, Object expectedValue) {
         Module module = new Module("myorg", "simple_types", "1.0.0");
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
-        VariableKey[] keys = {
-                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
-                new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true),
-                new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true),
-                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true),
-                new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true),
-                new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true),
-        };
+        VariableKey[] keys = {key};
         configVarMap.put(module, keys);
-
-        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml"), configVarMap));
-        ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog, configProvider);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-
-        Assert.assertTrue(configValueMap.get(keys[0]) instanceof Long);
-        Assert.assertTrue(configValueMap.get(keys[1]) instanceof Integer);
-        Assert.assertTrue(configValueMap.get(keys[2]) instanceof Double);
-        Assert.assertTrue(configValueMap.get(keys[3]) instanceof BString);
-        Assert.assertTrue(configValueMap.get(keys[4]) instanceof Boolean);
-        Assert.assertTrue(configValueMap.get(keys[5]) instanceof BDecimal);
-
-        Assert.assertEquals(((Long) configValueMap.get(keys[0])).intValue(), 42);
-        Assert.assertEquals(((Integer) configValueMap.get(keys[1])).intValue(), 5);
-        Assert.assertEquals(configValueMap.get(keys[2]), 3.5);
-        Assert.assertEquals(((BString) configValueMap.get(keys[3])).getValue(), "abc");
-        Assert.assertTrue((Boolean) configValueMap.get(keys[4]));
-        Assert.assertEquals(((BDecimal) configValueMap.get(keys[5])).decimalValue(), new BigDecimal("24.87"));
+        Assert.assertTrue(expectedJClass.isInstance(configValueMap.get(key)));
+        Assert.assertEquals(configValueMap.get(key), expectedValue);
     }
 
-    @Test
-    public void testTomlConfigProviderWithArrays() {
-        Module module = new Module("myorg", "arrays", "1.0.0");
-        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
-        VariableKey[] keys = {
-                new VariableKey(module, "intArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_INT), 0, false), true),
-                new VariableKey(module, "byteArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_BYTE), 0, false), true),
-                new VariableKey(module, "floatArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_FLOAT), 0, false), true),
-                new VariableKey(module, "stringArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_STRING), 0, false), true),
-                new VariableKey(module, "booleanArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true),
-                new VariableKey(module, "decimalArr", new BIntersectionType(module, new BType[]{}, TypeCreator
-                        .createArrayType(PredefinedTypes.TYPE_DECIMAL), 0, false), true)
+    @DataProvider(name = "simple-type-values-data-provider")
+    public Object[][] simpleTypeConfigProviders() {
+        Module module = new Module("myorg", "simple_types", "1.0.0");
+        return new Object[][]{
+                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                        new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L},
+                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                        new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 5},
+                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                        new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 3.5},
+                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                        new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
+                        StringUtils.fromString("abc")},
+                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                        new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class, true},
+                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                        new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
+                        new DecimalValue("24.87")},
+                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.intVar=123"),
+                        new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 123L},
+                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.byteVar=7"),
+                        new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 7},
+                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.floatVar=99.9"),
+                        new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 99.9},
+                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.stringVar=efg"),
+                        new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
+                        StringUtils.fromString("efg")},
+                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.booleanVar=false"),
+                        new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class,
+                        false},
+                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.decimalVar=876.54"),
+                        new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
+                        new DecimalValue("876.54")},
+                {new CliConfigProvider(ROOT_MODULE,
+                                       "-Cmyorg.simple_types.xmlVar=<book>The Lost World</book>\n<!--I am a comment-->"),
+                        new VariableKey(module, "xmlVar", PredefinedTypes.TYPE_XML, true), BXml.class,
+                        XmlUtils.parse("<book>The Lost World</book>\n<!--I am a comment-->")}
         };
-        configVarMap.put(module, keys);
-
-        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new ConfigTomlProvider(getConfigPath("Array_Config.toml"), configVarMap));
-        ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-
-        Assert.assertTrue(configValueMap.get(keys[0]) instanceof BArray);
-        Assert.assertTrue(configValueMap.get(keys[1]) instanceof BArray);
-        Assert.assertTrue(configValueMap.get(keys[2]) instanceof BArray);
-        Assert.assertTrue(configValueMap.get(keys[3]) instanceof BArray);
-        Assert.assertTrue(configValueMap.get(keys[4]) instanceof BArray);
-        Assert.assertTrue(configValueMap.get(keys[5]) instanceof BArray);
-
-        Assert.assertEquals(((BArray) configValueMap.get(keys[0])).getIntArray(),
-                            new long[]{123456, 1234567, 987654321});
-        Assert.assertEquals(((BArray) configValueMap.get(keys[1])).getByteArray(),
-                            new byte[]{1, 2, 3});
-        Assert.assertEquals(((BArray) configValueMap.get(keys[2])).getFloatArray(),
-                            new double[]{9.0, 5.6});
-        Assert.assertEquals(((BArray) configValueMap.get(keys[3])).getStringArray(),
-                            new String[]{"red", "yellow", "green"});
-        Assert.assertEquals(((BArray) configValueMap.get(keys[4])).getBooleanArray(),
-                            new boolean[]{true, false, false, true});
-        BDecimal[] expectedDecimalArray = new BDecimal[100];
-        expectedDecimalArray[0] = ValueCreator.createDecimalValue("8.9");
-        expectedDecimalArray[1] = ValueCreator.createDecimalValue("4.5");
-        expectedDecimalArray[2] = ValueCreator.createDecimalValue("6.2");
-        Assert.assertEquals(((BArray) configValueMap.get(keys[5])).getValues(), expectedDecimalArray);
     }
 
-    private Path getConfigPath(String configFileName) {
-        return Paths.get(RuntimeUtils.USER_DIR, "src", "test", "resources", "config_files", configFileName);
+    @Test(dataProvider = "special-characters-data-provider")
+    public void testConfigVarsWithSpecialCharacters(ConfigProvider configProvider,
+                                                    String orgName,
+                                                    String moduleName,
+                                                    String variableName,
+                                                    Type type,
+                                                    Object expectedValue) {
+        Module module = new Module(orgName, moduleName, "1.0.0");
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(module, variableName, type, true),
+        };
+        configVarMap.put(module, keys);
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+                                                           configProvider);
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        Assert.assertEquals(configValueMap.get(keys[0]), expectedValue);
+    }
+
+    @DataProvider(name = "special-characters-data-provider")
+    public Object[][] specialCharactersConfigProviders() {
+        return new Object[][]{
+                {new CliConfigProvider(ROOT_MODULE,
+                                       "-Corg453.io.http2.socket_transport." +
+                                               "uti123ls.i\\$nt\\=va/*r\\===abc~!@#$%^&*()_+=-210|}{?>\\=<"),
+                        "org453", "io.http2.socket_transport.uti123ls", "i\\$nt\\=va/*r\\=",
+                        PredefinedTypes.TYPE_STRING,
+                        StringUtils.fromString("=abc~!@#$%^&*()_+=-210|}{?>\\=<")}
+        };
     }
 }
