@@ -28,8 +28,8 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider;
-import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlProvider;
+import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -67,37 +67,37 @@ public class ConfigTest {
     public Object[][] simpleTypeConfigProviders() {
         Module module = new Module("myorg", "simple_types", "1.0.0");
         return new Object[][]{
-                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
                         new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L},
-                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
                         new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 5},
-                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
                         new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 3.5},
-                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
                         new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
                         StringUtils.fromString("abc")},
-                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
                         new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class, true},
-                {new ConfigTomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
                         new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
                         new DecimalValue("24.87")},
-                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.intVar=123"),
+                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.intVar=123"),
                         new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 123L},
-                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.byteVar=7"),
+                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.byteVar=7"),
                         new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 7},
-                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.floatVar=99.9"),
+                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.floatVar=99.9"),
                         new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 99.9},
-                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.stringVar=efg"),
+                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.stringVar=efg"),
                         new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
                         StringUtils.fromString("efg")},
-                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.booleanVar=false"),
+                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.booleanVar=false"),
                         new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class,
                         false},
-                {new CliConfigProvider(ROOT_MODULE, "-Cmyorg.simple_types.decimalVar=876.54"),
+                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.decimalVar=876.54"),
                         new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
                         new DecimalValue("876.54")},
-                {new CliConfigProvider(ROOT_MODULE,
-                                       "-Cmyorg.simple_types.xmlVar=<book>The Lost World</book>\n<!--I am a " +
+                {new CliProvider(ROOT_MODULE,
+                                 "-Cmyorg.simple_types.xmlVar=<book>The Lost World</book>\n<!--I am a " +
                                                "comment-->"),
                         new VariableKey(module, "xmlVar",
                                         new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0,
@@ -130,8 +130,8 @@ public class ConfigTest {
     @DataProvider(name = "special-characters-data-provider")
     public Object[][] specialCharactersConfigProviders() {
         return new Object[][]{
-                {new CliConfigProvider(ROOT_MODULE,
-                                       "-Corg453.io.http2.socket_transport." +
+                {new CliProvider(ROOT_MODULE,
+                                 "-Corg453.io.http2.socket_transport." +
                                                "uti123ls.i\\$nt\\=va/*r\\===abc~!@#$%^&*()_+=-210|}{?>\\=<"),
                         "org453", "io.http2.socket_transport.uti123ls", "i\\$nt\\=va/*r\\=",
                         PredefinedTypes.TYPE_STRING,

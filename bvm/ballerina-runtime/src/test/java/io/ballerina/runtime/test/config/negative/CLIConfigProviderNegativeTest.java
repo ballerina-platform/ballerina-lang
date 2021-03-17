@@ -23,7 +23,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider;
+import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -55,7 +55,7 @@ public class CLIConfigProviderNegativeTest {
         configVarMap.put(module, keys);
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
                                                            diagnosticLog,
-                                                           new CliConfigProvider(ROOT_MODULE, args));
+                                                           new CliProvider(ROOT_MODULE, args));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), expectedErrorMessages.length);
         for (int i = 0; i < expectedErrorMessages.length; i++) {

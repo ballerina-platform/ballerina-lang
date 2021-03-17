@@ -37,7 +37,7 @@ import java.util.function.Function;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.CONFIGURATION_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.VALUE_NOT_PROVIDED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.VALUE_NOT_PROVIDED;
 
 /**
  * Class that resolve the configurations on given providers.

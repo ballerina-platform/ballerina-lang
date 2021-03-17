@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlProvider;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
@@ -56,7 +56,7 @@ public class TomlProviderTest {
         configVarMap.put(module, keys);
         DiagnosticLog diagnosticLog = new DiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                                                           new ConfigTomlProvider(getConfigPath("Array_Config.toml")));
+                                                           new TomlProvider(getConfigPath("Array_Config.toml")));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
         Assert.assertTrue(configValueMap.get(arrayKey) instanceof BArray);
         Object[] configuredArrayValues = arrayGetFunction.apply((BArray) configValueMap.get(arrayKey));

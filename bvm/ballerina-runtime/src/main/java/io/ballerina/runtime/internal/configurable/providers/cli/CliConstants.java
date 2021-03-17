@@ -23,11 +23,11 @@ package io.ballerina.runtime.internal.configurable.providers.cli;
  *
  * @since 2.0.0
  */
-public class CliConfigConstants {
+public class CliConstants {
 
     public static final String CONFIGURATION_NOT_SUPPORTED_FOR_CLI = "value for configurable variable '%s' with type " +
             "'%s' is not supported as a cli arg";
 
-    private CliConfigConstants() {
+    private CliConstants() {
     }
 }

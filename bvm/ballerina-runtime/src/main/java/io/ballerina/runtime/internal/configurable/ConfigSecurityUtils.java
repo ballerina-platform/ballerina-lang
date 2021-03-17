@@ -20,7 +20,7 @@ package io.ballerina.runtime.internal.configurable;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.config.cipher.AESCipherTool;
 import org.ballerinalang.config.cipher.AESCipherToolException;
@@ -34,7 +34,7 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.SECRET_FILE_NAME;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.SECRET_FILE_NAME;
 
 /**
  * Singleton class that holds security functions related to configurable values.
@@ -100,7 +100,7 @@ public class ConfigSecurityUtils {
 
     private static Path getSecretPath() {
         Map<String, String> envVariables = System.getenv();
-        return Paths.get(envVariables.getOrDefault(ConfigTomlConstants.CONFIG_SECRET_ENV_VARIABLE,
+        return Paths.get(envVariables.getOrDefault(TomlConstants.CONFIG_SECRET_ENV_VARIABLE,
                                                    Paths.get(RuntimeUtils.USER_DIR, SECRET_FILE_NAME).toString()));
     }
 }

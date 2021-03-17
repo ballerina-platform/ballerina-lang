@@ -24,8 +24,8 @@ import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider;
-import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlProvider;
+import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
@@ -60,12 +60,12 @@ public class ConfigNegativeTest {
         if (tomlFilePath != null) {
             configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
                                                 diagnosticLog,
-                                                new CliConfigProvider(ROOT_MODULE, args),
-                                                new ConfigTomlProvider(getConfigPathForNegativeCases(tomlFilePath)));
+                                                new CliProvider(ROOT_MODULE, args),
+                                                new TomlProvider(getConfigPathForNegativeCases(tomlFilePath)));
 
         } else {
             configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
-                                                diagnosticLog, new CliConfigProvider(ROOT_MODULE, args));
+                                                diagnosticLog, new CliProvider(ROOT_MODULE, args));
         }
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), errorCount);

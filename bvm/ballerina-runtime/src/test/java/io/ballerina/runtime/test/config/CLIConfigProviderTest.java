@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider;
+import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
@@ -33,7 +33,7 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider.CLI_ARG_REGEX;
+import static io.ballerina.runtime.internal.configurable.providers.cli.CliProvider.CLI_ARG_REGEX;
 
 /**
  * Test cases specific for configuration provided via cli.
@@ -58,7 +58,7 @@ public class CLIConfigProviderTest {
         configVarMap.put(module, keys);
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
                                                            diagnosticLog,
-                                                           new CliConfigProvider(ROOT_MODULE, arg));
+                                                           new CliProvider(ROOT_MODULE, arg));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);

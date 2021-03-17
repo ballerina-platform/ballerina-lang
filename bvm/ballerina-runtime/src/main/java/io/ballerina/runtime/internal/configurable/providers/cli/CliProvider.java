@@ -38,14 +38,14 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.INCOMPATIBLE_TYPE_ERROR_MESSAGE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.INVALID_BYTE_RANGE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.INVALID_BYTE_RANGE;
 
 /**
  * This class implements @{@link ConfigProvider} tp provide values for configurable variables through cli args.
  *
  * @since 2.0.0
  */
-public class CliConfigProvider implements ConfigProvider {
+public class CliProvider implements ConfigProvider {
 
     String[] cliConfigArgs;
 
@@ -57,7 +57,7 @@ public class CliConfigProvider implements ConfigProvider {
 
     private Module rootModule;
 
-    public CliConfigProvider(Module rootModule, String... cliConfigArgs) {
+    public CliProvider(Module rootModule, String... cliConfigArgs) {
         this.rootModule = rootModule;
         this.cliConfigArgs = cliConfigArgs;
         this.cliVarKeyValueMap = new HashMap<>();
@@ -172,7 +172,7 @@ public class CliConfigProvider implements ConfigProvider {
         if (cliArg.value == null) {
             return Optional.empty();
         }
-        throw new CliConfigException(cliArg, String.format(CliConfigConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
+        throw new CliConfigException(cliArg, String.format(CliConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
                                                            key.variable, key.type));
     }
 
@@ -182,7 +182,7 @@ public class CliConfigProvider implements ConfigProvider {
         if (cliArg.value == null) {
             return Optional.empty();
         }
-        throw new CliConfigException(cliArg, String.format(CliConfigConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
+        throw new CliConfigException(cliArg, String.format(CliConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
                                                            key.variable, key.type));
     }
 
@@ -192,7 +192,7 @@ public class CliConfigProvider implements ConfigProvider {
         if (cliArg.value == null) {
             return Optional.empty();
         }
-        throw new CliConfigException(cliArg, String.format(CliConfigConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
+        throw new CliConfigException(cliArg, String.format(CliConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
                                                            key.variable, key.type));
     }
 

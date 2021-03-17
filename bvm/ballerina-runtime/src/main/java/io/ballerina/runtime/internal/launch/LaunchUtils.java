@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.launch.LaunchListener;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.providers.cli.CliConfigProvider;
-import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlProvider;
+import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.config.ConfigRegistry;
@@ -50,8 +50,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_C
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILE_NAME;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
@@ -133,8 +133,8 @@ public class LaunchUtils {
     public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
                                                  String[] args, Path configFilePath) {
         DiagnosticLog diagnosticLog = new DiagnosticLog();
-        CliConfigProvider cliConfigProvider = new CliConfigProvider(rootModule, args);
-        ConfigTomlProvider configTomlProvider = new ConfigTomlProvider(configFilePath);
+        CliProvider cliConfigProvider = new CliProvider(rootModule, args);
+        TomlProvider configTomlProvider = new TomlProvider(configFilePath);
         ConfigResolver configResolver = new ConfigResolver(rootModule, configurationData,
                                                            diagnosticLog, cliConfigProvider, configTomlProvider);
         ConfigMap.setConfigurableMap(configResolver.resolveConfigs());

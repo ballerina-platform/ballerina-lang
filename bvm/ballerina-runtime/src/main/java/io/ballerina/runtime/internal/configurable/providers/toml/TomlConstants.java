@@ -23,7 +23,7 @@ package io.ballerina.runtime.internal.configurable.providers.toml;
  *
  * @since 2.0.0
  */
-public class ConfigTomlConstants {
+public class TomlConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
     public static final String DEFAULT_MODULE = ".";
     public static final String SUBMODULE_DELIMITER = ".";
@@ -55,6 +55,6 @@ public class ConfigTomlConstants {
             "provide values for configurable variables";
     public static final String VALUE_NOT_PROVIDED = "value not provided for required configurable variable '%s'";
 
-    private ConfigTomlConstants() {
+    private TomlConstants() {
     }
 }
