@@ -171,4 +171,9 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testTopLevelFunctionKeywordRecovery() {
         testFile("func-definition/func_def_source_28.bal", "func-definition/func_def_assert_28.json");
     }
+
+    @Test
+    public void testReturnTypeDescRecoveryInFunDef() {
+        testFile("func-definition/func_def_source_31.bal", "func-definition/func_def_assert_31.json");
+    }
 }
