@@ -121,7 +121,7 @@ class JvmObservabilityGen {
     private int defaultServiceIndex;
 
     private final Map<Object, BIROperand> compileTimeConstants;
-    private final Map<Name, List<String>> svcAttachPoints;
+    private final Map<Name, String> svcAttachPoints;
 
     JvmObservabilityGen(PackageCache packageCache, SymbolTable symbolTable) {
         this.compileTimeConstants = new HashMap<>();
@@ -155,7 +155,13 @@ class JvmObservabilityGen {
             }
         }
         for (BIRNode.BIRServiceDeclaration serviceDecl : pkg.serviceDecls) {
-            svcAttachPoints.put(serviceDecl.associatedClassName, serviceDecl.attachPoint);
+            List<String> attachPoint = serviceDecl.attachPoint;
+            String attachPointLiteral = serviceDecl.attachPointLiteral;
+            if (attachPoint != null) {
+                svcAttachPoints.put(serviceDecl.associatedClassName, "/" + String.join("/", attachPoint));
+            } else if (attachPointLiteral != null) {
+                svcAttachPoints.put(serviceDecl.associatedClassName, attachPointLiteral);
+            }
         }
         for (BIRTypeDefinition typeDef : pkg.typeDefs) {
             if ((typeDef.flags & Flags.CLASS) != Flags.CLASS && typeDef.type.tag == TypeTags.OBJECT) {
@@ -175,13 +181,10 @@ class JvmObservabilityGen {
                     }
                 }
                 if (serviceName == null) {
-                    List<String> attachPoint = this.svcAttachPoints.get(typeDef.name);
-                    if (attachPoint != null) {
-                        serviceName = "/" + String.join("/", attachPoint);
-                    } else {
-                        serviceName = pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_svc_" +
-                                defaultServiceIndex++;
-                    }
+                    String basePath = this.svcAttachPoints.get(typeDef.name);
+                    serviceName = Objects.requireNonNullElseGet(basePath, () ->
+                            pkg.packageID.orgName.value + "_" + pkg.packageID.name.value + "_svc_" +
+                            defaultServiceIndex++);
                 }
             }
             for (int i = 0; i < typeDef.attachedFuncs.size(); i++) {
