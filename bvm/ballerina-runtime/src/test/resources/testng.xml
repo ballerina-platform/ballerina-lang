@@ -24,6 +24,8 @@
     <test name="ballerina-runtime-test" parallel="false">
         <packages>
             <package name="io.ballerina.runtime.test.*"/>
+            <package name="io.ballerina.runtime.test.config.*"/>
+            <package name="io.ballerina.runtime.test.config.negative.*"/>
         </packages>
     </test>
 </suite>
