@@ -45,14 +45,14 @@ jobs:
           with:
             files: ./.jacoco/reports/jacoco/report.xml
 
-#      -   name: Trigger Standard Library Module Builds
-#          run: |
-#            echo "Triggering stdlib module builds"
-#            curl --request \
-#            POST 'https://api.github.com/repos/ballerina-platform/ballerina-standard-library/dispatches' \
-#            --header 'Accept: application/vnd.github.v3+json' \
-#            --header 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
-#            --header 'Content-Type: application/json' \
-#            --data-raw '{
-#                "event_type": "ballerina-lang-push"
-#            }'
+      -   name: Trigger Standard Library Module Builds
+          run: |
+            echo "Triggering stdlib module builds"
+            curl --request \
+            POST 'https://api.github.com/repos/ballerina-platform/ballerina-standard-library/dispatches' \
+            --header 'Accept: application/vnd.github.v3+json' \
+            --header 'Authorization: Bearer ${{ secrets.BALLERINA_BOT_TOKEN }}' \
+            --header 'Content-Type: application/json' \
+            --data-raw '{
+                "event_type": "ballerina-lang-push"
+            }'
