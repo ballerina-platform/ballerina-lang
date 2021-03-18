@@ -264,11 +264,8 @@ public class BuildCommandTest extends BaseCommandTest {
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
         String buildLog = readOutput(true);
-        Assert.assertEquals(buildLog.replaceAll("\r", ""), "\nCompiling source\n" +
-                "\tfoo/winery:0.1.0\n" +
-                "\n" +
-                "Generating executable\n" +
-                "\ttarget/bin/winery.jar\n");
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                getOutput("build-bal-project.txt"));
 
         Assert.assertTrue(projectPath.resolve("target").resolve("bin").resolve("winery.jar").toFile().exists());
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
