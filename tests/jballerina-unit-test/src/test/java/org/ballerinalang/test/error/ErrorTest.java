@@ -151,8 +151,8 @@ public class ErrorTest {
 
         Assert.assertEquals(message,
                 "error: largeNumber {\"message\":\"large number\"}\n" +
-                        "\tat error_test:errorPanicCallee(error_test.bal:38)\n" +
-                        "\t   error_test:errorPanicTest(error_test.bal:32)");
+                        "\tat error_test:errorPanicCallee(error_test.bal:37)\n" +
+                        "\t   error_test:errorPanicTest(error_test.bal:31)");
     }
 
     @Test
@@ -261,10 +261,8 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail rest arg 'one' passed to open detail record 'Foo'", 45, 17);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "error constructor does not accept additional detail args 'one' " +
-                        "when error detail type 'Foo' contains individual field descriptors", 45, 58);
+                "error constructor does not accept additional detail args 'one' when error detail type 'Foo' " +
+                        "contains individual field descriptors", 45, 58);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 48, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -277,7 +275,11 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
                 "args 'other' when error detail type 'Bee' contains individual field descriptors", 95, 53);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 96, 32);
+        BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
+                "args 'other' when error detail type 'Bee' contains individual field descriptors", 96, 60);
         BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 97, 38);
+        BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
+                "args 'other' when error detail type 'Bee' contains individual field descriptors", 97, 66);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error', found '(error|int)'", 118, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -343,7 +345,7 @@ public class ErrorTest {
         Assert.assertEquals(returns[0].stringValue(), "Foo {message:\"error msg\"}");
     }
 
-    @Test(groups = { "disableOnOldParser" })
+    @Test
     public void testStackTraceInNative() {
         Exception expectedException = null;
         try {
@@ -356,7 +358,7 @@ public class ErrorTest {
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
                 "at ballerina.lang.array.1_1_0:slice(array.bal:132)\n\t" +
-                "   error_test:testStackTraceInNative(error_test.bal:278)");
+                "   error_test:testStackTraceInNative(error_test.bal:277)");
     }
 
     @Test
@@ -389,9 +391,9 @@ public class ErrorTest {
     public void testStackOverFlow() {
         BValue[] result = BRunUtil.invoke(errorTestResult, "testStackOverFlow");
         String expected1 = "{callableName:\"bar\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:342}";
+                "lineNumber:341}";
         String expected2 = "{callableName:\"bar2\", moduleName:\"error_test\", fileName:\"error_test.bal\", " +
-                "lineNumber:346}";
+                "lineNumber:345}";
         String resultStack = ((BValueArray) result[0]).getRefValue(0).toString();
         Assert.assertTrue(resultStack.equals(expected1) || resultStack.equals(expected2), "Received unexpected " +
                 "stacktrace element: " + resultStack);

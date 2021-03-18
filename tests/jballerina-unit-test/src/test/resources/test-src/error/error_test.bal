@@ -1,4 +1,3 @@
-import ballerina/lang.'error;
 import ballerina/lang.'value;
 
 function errorConstructReasonTest() returns [error, error, error, string, any, string] {
@@ -346,7 +345,7 @@ function bar2(){
     bar();
 }
 
-function testStackOverFlow() returns ['error:CallStackElement[], string]? {
+function testStackOverFlow() returns [error:CallStackElement[], string]? {
     error? e = trap bar();
     if (e is error){
         return [e.stackTrace().callStack, e.message()];

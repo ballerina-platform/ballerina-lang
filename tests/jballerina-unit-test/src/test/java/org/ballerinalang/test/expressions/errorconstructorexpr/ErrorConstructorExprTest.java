@@ -28,6 +28,8 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+
 /**
  * Test error-constructor-expr.
  *
@@ -73,45 +75,35 @@ public class ErrorConstructorExprTest {
         CompileResult negativeSemanticResult = BCompileUtil.compile(
                 "test-src/expressions/errorconstructorexpr/error-constructor-expr-negative.bal");
         int i = 0;
-        BAssertUtil.validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 20, 21);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'",
-                21, 22);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'",
-                22, 22);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found " +
-                "'string'", 23, 28);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 24,
-                27);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 26, 27);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'",
-                27, 28);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'",
-                28, 16);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'",
-                28, 16);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'",
-                28, 28);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found " +
-                "'string'", 29, 34);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'",
-                30, 17);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'",
-                30, 17);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 30,
-                34);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "undefined error type descriptor 'MyError'", 36, 20);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'c', expected " +
+        validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 20, 21);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'", 21, 22);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'", 22, 22);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found 'string'", 23, 28);
+        validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 24, 27);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'", 26, 16);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 26, 16);
+        validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 26, 27);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'", 27, 16);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 27, 16);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'", 27, 28);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'", 28, 16);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 28, 16);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'", 28, 28);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'", 29, 16);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 29, 16);
+        validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found 'string'", 29, 34);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'", 30, 17);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 30, 17);
+        validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 30, 34);
+        validateError(negativeSemanticResult, i++, "undefined error type descriptor 'MyError'", 36, 26);
+        validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'c', expected " +
                 "'string', found 'int'", 37, 46);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'j', expected " +
-                "'string', found 'int'", 42, 11);
-        BAssertUtil.validateError(negativeSemanticResult, i++,
-                "invalid error detail rest arg 'k' passed to open detail record " +
-                        "'record {| int i; string j; anydata...; |}'", 42, 11);
-        BAssertUtil.validateError(negativeSemanticResult, i++,
+        validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'j', expected " +
+                "'string', found 'int'", 42, 31);
+        validateError(negativeSemanticResult, i++,
                 "error constructor does not accept additional detail args 'k' when error detail type " +
                         "'record {| int i; string j; anydata...; |}' contains individual field descriptors", 42, 38);
-        BAssertUtil.validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'",
-                43, 12);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 43, 12);
         Assert.assertEquals(negativeSemanticResult.getErrorCount(), i);
     }
 
@@ -119,7 +111,7 @@ public class ErrorConstructorExprTest {
     public void testCodeAnalysisNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/expressions/errorconstructorexpr/error-constructor-expr-code-analysis-negative.bal");
-        BAssertUtil.validateError(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
+        validateError(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
                 "'true'", 19, 37);
     }
 }
