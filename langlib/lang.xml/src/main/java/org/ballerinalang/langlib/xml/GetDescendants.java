@@ -24,7 +24,7 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 /**
  * Returns the descendants of xml element.
  *
- * @since 1.0
+ * @since 2.0.0
  */
 public class GetDescendants {
 

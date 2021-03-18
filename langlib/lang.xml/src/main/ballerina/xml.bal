@@ -158,8 +158,9 @@ public isolated function setChildren(Element elem, xml|string children) = @java:
 #
 # + elem - xml element
 # + return - descendants of `elem`
-# The descendants of an element are the children of the element and
-# the descendants of those children that are elements, ordered so that
+# The descendants of an element are the children of the element
+# together with, for each of those children that is an element,
+# the descendants of that element, ordered so that
 # each element immediately precedes all its descendants.
 # The order of the items in the returned sequence will thus correspond
 # to the order in which the first character of the representation
