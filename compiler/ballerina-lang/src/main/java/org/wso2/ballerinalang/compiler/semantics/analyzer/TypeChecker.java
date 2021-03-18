@@ -2783,7 +2783,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
             LinkedList<String> missingRequiredFields = targetErrorDetailRec.fields.values().stream()
                     .filter(f -> (f.symbol.flags & Flags.REQUIRED) == Flags.REQUIRED)
-                    .map( f -> f.name.value)
+                    .map(f -> f.name.value)
                     .collect(Collectors.toCollection(LinkedList::new));
 
             LinkedHashMap<String, BField> targetFields = targetErrorDetailRec.fields;

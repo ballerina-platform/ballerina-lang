@@ -18,7 +18,6 @@
  */
 package org.ballerinalang.test.expressions.errorconstructorexpr;
 
-import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
