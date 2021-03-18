@@ -38,6 +38,8 @@ import java.util.Map;
 import java.util.Optional;
 
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.INCOMPATIBLE_TYPE_ERROR_MESSAGE;
+import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_ARG_REGEX;
+import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_PREFIX;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.INVALID_BYTE_RANGE;
 
 /**
@@ -48,10 +50,6 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.TomlCons
 public class CliProvider implements ConfigProvider {
 
     String[] cliConfigArgs;
-
-    public static final String CLI_PREFIX = "-C";
-
-    public static final String CLI_ARG_REGEX = "(?<!\\\\)=";
 
     private Map<String, String> cliVarKeyValueMap;
 

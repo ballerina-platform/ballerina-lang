@@ -33,8 +33,6 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.ballerina.runtime.internal.configurable.providers.cli.CliProvider.CLI_ARG_REGEX;
-
 /**
  * Test cases specific for configuration provided via cli.
  */
@@ -66,36 +64,34 @@ public class CLIConfigProviderTest {
     }
 
     @DataProvider(name = "different-cli_args-data-provider")
-    public Object[][] specialCharactersConfigProvider() {
+    public Object[][] differentCliArgsProvider() {
         return new Object[][]{
+                // Variable with no special characters
                 {"-Cmyorg.mod.intVar=123", "myorg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L},
+                // Variable with space
                 {"-Cmyorg.mod.intVar\\ =123", "myorg", "mod", "intVar\\ ", PredefinedTypes.TYPE_INT, 123L},
+                // Key with space and float value with space
                 {"-Cmyorg.mod.x =   4.675   ", "myorg", "mod", "x", PredefinedTypes.TYPE_FLOAT, 4.675},
+                // Key with space and string value with space
                 {"-Cmyorg.mod.x = hello world ", "myorg", "mod", "x", PredefinedTypes.TYPE_STRING,
                         StringUtils.fromString(" hello world ")},
+                // module = root Module
                 {"-CintVar=123", "rootOrg", "rootMod", "intVar", PredefinedTypes.TYPE_INT, 123L},
-                {"-Cmod.intVar=123", "rootOrg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L}
-        };
-    }
-
-    @Test(dataProvider = "cli_args-data-provider")
-    public void testCliArgRegex(String cliArg, String[] expectedKeyValuePair) {
-        String[] keyValuePair = cliArg.split(CLI_ARG_REGEX, 2);
-        Assert.assertEquals(keyValuePair.length, expectedKeyValuePair.length);
-        for (int i = 0; i < keyValuePair.length; i++) {
-            Assert.assertEquals(keyValuePair[i], expectedKeyValuePair[i]);
-        }
-    }
-
-    @DataProvider(name = "cli_args-data-provider")
-    public Object[][] cliArgsProvider() {
-        return new Object[][]{
-                {"myorg.mod.stringVar=123", new String[]{"myorg.mod.stringVar", "123"}},
-                {"myorg.mod.stringVar\\==123", new String[]{"myorg.mod.stringVar\\=", "123"}},
-                {"myorg.mod.stringVar\\==myorg.mod.stringVar\\=",
-                        new String[]{"myorg.mod.stringVar\\=", "myorg.mod.stringVar\\="}},
-                {"myorg.mod.stringVar=myorg=mod=stringVar", new String[]{"myorg.mod.stringVar", "myorg=mod=stringVar"}},
-                {"myorg.mod.stringVar", new String[]{"myorg.mod.stringVar"}},
+                // module org = root Module org
+                {"-Cmod.intVar=123", "rootOrg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L},
+                // Variable with '='
+                {"-Cmyorg.mod.stringVar\\==hello", "myorg", "mod", "stringVar\\=", PredefinedTypes.TYPE_STRING,
+                        StringUtils.fromString("hello")},
+                // Variable and value with '='
+                {"-Cmyorg.mod.stringVar\\==myorg.mod.stringVar\\=", "myorg", "mod", "stringVar\\=",
+                        PredefinedTypes.TYPE_STRING, StringUtils.fromString("myorg.mod.stringVar\\=")},
+                // Variable and value with multiple '='
+                {"-Cmyorg.mod.stringVar\\==myorg.mod.stringVar\\=", "myorg", "mod", "stringVar\\=",
+                        PredefinedTypes.TYPE_STRING, StringUtils.fromString("myorg.mod.stringVar\\=")},
+                // Module and Value with multiple special characters
+                {"-Corg453.io.http2.socket_transport.uti123ls.i\\$nt\\=va/*r\\===abc~!@#$%^&*()_+=-210|}{?>\\=<",
+                        "org453", "io.http2.socket_transport.uti123ls", "i\\$nt\\=va/*r\\=",
+                        PredefinedTypes.TYPE_STRING, StringUtils.fromString("=abc~!@#$%^&*()_+=-210|}{?>\\=<")}
         };
     }
 }

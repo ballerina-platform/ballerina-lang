@@ -66,18 +66,27 @@ public class CLIConfigProviderNegativeTest {
     @DataProvider(name = "different-cli_args-data-provider")
     public Object[][] cliArgsDataProvider() {
         return new Object[][]{
-                {new String[]{"-Cmyorg.mod.x = 123  "}, "myorg", "mod", "x", PredefinedTypes.TYPE_INT,
-                        "error: [myorg.mod.x= 123  ] configurable variable 'x' is expected to be of type 'int', but " +
-                                "found ' 123  '"},
+                // Config value with invalid type value
                 {new String[]{"-Cmyorg.mod.x = hello  "}, "myorg", "mod", "x", PredefinedTypes.TYPE_INT,
                         "error: [myorg.mod.x= hello  ] configurable variable 'x' is expected to be of type 'int', but" +
                                 " found ' hello  '"},
+                // Config int value with spaces
+                {new String[]{"-Cmyorg.mod.x = 123  "}, "myorg", "mod", "x", PredefinedTypes.TYPE_INT,
+                        "error: [myorg.mod.x= 123  ] configurable variable 'x' is expected to be of type 'int', but " +
+                                "found ' 123  '"},
+                // Config byte value with spaces
                 {new String[]{"-Cmyorg.mod.x = 5 "}, "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
                         "error: [myorg.mod.x= 5 ] configurable variable 'x' is expected to be of type 'byte', but " +
                                 "found ' 5 '"},
+                // Config boolean value with spaces
+                {new String[]{"-Cmyorg.mod.x = true "}, "myorg", "mod", "x", PredefinedTypes.TYPE_BOOLEAN,
+                        "error: [myorg.mod.x= true ] configurable variable 'x' is expected to be of type 'boolean', " +
+                                "but found ' true '"},
+                // Config decimal value with spaces
                 {new String[]{"-Cmyorg.mod.x = 27.5 "}, "myorg", "mod", "x", PredefinedTypes.TYPE_DECIMAL,
                         "error: [myorg.mod.x= 27.5 ] configurable variable 'x' is expected to be of type 'decimal', " +
                                 "but found ' 27.5 '"},
+                // Config byte value with invalid byte range
                 {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
                         "error: [myorg.mod.x=345] value provided for byte variable 'x' is out of range. Expected " +
                                 "range is (0-255), found '345'"}

@@ -126,8 +126,8 @@ public class ConfigNegativeTest {
                         new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true)}, 0, 1,
                         new String[]{
                                 "warning: invalid `Config.toml` file : \n" +
-                                        "[Invalid.toml:(0:6,0:6)] missing equal token\n" +
-                                        "[Invalid.toml:(0:6,0:6)] missing value\n"}},
+                                        "[Invalid.toml:(2:0,2:0)] missing equal token\n" +
+                                        "[Invalid.toml:(2:0,2:0)] missing value\n"}},
                 // supported cli type but not toml type
                 {new String[]{"-Corg.mod1.xmlVar=<book/>"}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(module, "xmlVar",

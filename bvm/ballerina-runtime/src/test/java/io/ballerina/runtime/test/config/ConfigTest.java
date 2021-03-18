@@ -50,8 +50,8 @@ public class ConfigTest {
     private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1.0.0");
 
     @Test(dataProvider = "simple-type-values-data-provider")
-    public void testTomlConfigProviderWithSimpleTypes(ConfigProvider configProvider, VariableKey key,
-                                                      Class<?> expectedJClass, Object expectedValue) {
+    public void testTomlConfigProviderWithSimpleTypes(VariableKey key, Class<?> expectedJClass,
+                                                      Object expectedValue, ConfigProvider... configProvider) {
         Module module = new Module("myorg", "simple_types", "1.0.0");
         DiagnosticLog diagnosticLog = new DiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
@@ -67,75 +67,58 @@ public class ConfigTest {
     public Object[][] simpleTypeConfigProviders() {
         Module module = new Module("myorg", "simple_types", "1.0.0");
         return new Object[][]{
-                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
-                        new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L},
-                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
-                        new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 5},
-                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
-                        new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 3.5},
-                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
-                        new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
-                        StringUtils.fromString("abc")},
-                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
-                        new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class, true},
-                {new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
-                        new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
-                        new DecimalValue("24.87")},
-                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.intVar=123"),
-                        new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 123L},
-                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.byteVar=7"),
-                        new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 7},
-                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.floatVar=99.9"),
-                        new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 99.9},
-                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.stringVar=efg"),
-                        new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
-                        StringUtils.fromString("efg")},
-                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.booleanVar=false"),
-                        new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class,
-                        false},
-                {new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.decimalVar=876.54"),
-                        new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
-                        new DecimalValue("876.54")},
-                {new CliProvider(ROOT_MODULE,
-                                 "-Cmyorg.simple_types.xmlVar=<book>The Lost World</book>\n<!--I am a " +
-                                               "comment-->"),
-                        new VariableKey(module, "xmlVar",
-                                        new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0,
-                                                              true), true),
-                        BXml.class,
-                        XmlUtils.parse("<book>The Lost World</book>\n<!--I am a comment-->")}
-        };
-    }
-
-    @Test(dataProvider = "special-characters-data-provider")
-    public void testConfigVarsWithSpecialCharacters(ConfigProvider configProvider,
-                                                    String orgName,
-                                                    String moduleName,
-                                                    String variableName,
-                                                    Type type,
-                                                    Object expectedValue) {
-        Module module = new Module(orgName, moduleName, "1.0.0");
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
-        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
-        VariableKey[] keys = {
-                new VariableKey(module, variableName, type, true),
-        };
-        configVarMap.put(module, keys);
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                                                           configProvider);
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-        Assert.assertEquals(configValueMap.get(keys[0]), expectedValue);
-    }
-
-    @DataProvider(name = "special-characters-data-provider")
-    public Object[][] specialCharactersConfigProviders() {
-        return new Object[][]{
-                {new CliProvider(ROOT_MODULE,
-                                 "-Corg453.io.http2.socket_transport." +
-                                               "uti123ls.i\\$nt\\=va/*r\\===abc~!@#$%^&*()_+=-210|}{?>\\=<"),
-                        "org453", "io.http2.socket_transport.uti123ls", "i\\$nt\\=va/*r\\=",
-                        PredefinedTypes.TYPE_STRING,
-                        StringUtils.fromString("=abc~!@#$%^&*()_+=-210|}{?>\\=<")}
+                // Int value given only with toml
+                {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L,
+                        new TomlProvider(getConfigPath("Simple_Types_Config.toml"))},
+                // Byte value given only with toml
+                {new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 5,
+                        new TomlProvider(getConfigPath("Simple_Types_Config.toml"))},
+                // Float value given only with toml
+                {new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 3.5,
+                        new TomlProvider(getConfigPath("Simple_Types_Config.toml"))},
+                // String value given only with toml
+                {new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
+                        StringUtils.fromString("abc"), new TomlProvider(getConfigPath("Simple_Types_Config.toml"))},
+                // Boolean value given only with toml
+                {new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class, true,
+                        new TomlProvider(getConfigPath("Simple_Types_Config.toml"))},
+                // Decimal value given only with toml
+                {new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
+                        new DecimalValue("24.87"), new TomlProvider(getConfigPath("Simple_Types_Config.toml"))},
+                // Int value given only with cli
+                {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 123L,
+                        new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.intVar=123")},
+                // Byte value given only with cli
+                {new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 7,
+                        new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.byteVar=7")},
+                // Float value given only with cli
+                {new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 99.9,
+                        new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.floatVar=99.9")},
+                // String value given only with cli
+                {new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
+                        StringUtils.fromString("efg"),
+                        new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.stringVar=efg")},
+                // Boolean value given only with cli
+                {new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class, false,
+                        new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.booleanVar=0")},
+                // Decimal value given only with cli
+                {new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
+                        new DecimalValue("876.54"),
+                        new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.decimalVar=876.54")},
+                // Xml value given only with cli
+                {new VariableKey(module, "xmlVar",
+                                 new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true), true),
+                        BXml.class, XmlUtils.parse("<book>The Lost World</book>\n<!--I am a comment-->"),
+                        new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.xmlVar=<book>The Lost World</book>\n<!--I " +
+                                "am a comment-->")},
+                // Multiple provider but use the first registered provider ( CLI arg as final value)
+                {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 13579L,
+                        new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.intVar=13579"),
+                        new TomlProvider(getConfigPath("Simple_Types_Config.toml"))},
+                // Multiple provider but use the first registered provider ( Toml file value as final value)
+                {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L,
+                        new TomlProvider(getConfigPath("Simple_Types_Config.toml")),
+                        new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.intVar=13579")}
         };
     }
 }

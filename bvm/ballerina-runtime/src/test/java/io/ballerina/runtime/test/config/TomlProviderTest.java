@@ -79,22 +79,28 @@ public class TomlProviderTest {
         expectedDecimalArray[1] = ValueCreator.createDecimalValue("4.5");
         expectedDecimalArray[2] = ValueCreator.createDecimalValue("6.2");
         return new Object[][]{
+                // Int array
                 {new VariableKey(module, "intArr", new BIntersectionType(module, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_INT), 0, false), true), intArrayGetFunction,
                         new long[]{123456, 1234567, 987654321}
                 },
+                // Byte array
                 {new VariableKey(module, "byteArr", new BIntersectionType(module, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_BYTE), 0, false), true), byteArrayGetFunction,
                         new byte[]{1, 2, 3}},
+                // Float array
                 {new VariableKey(module, "floatArr", new BIntersectionType(module, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_FLOAT), 0, false), true), floatArrayGetFunction,
                         new double[]{9.0, 5.6}},
+                // String array
                 {new VariableKey(module, "stringArr", new BIntersectionType(module, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_STRING), 0, false), true), stringArrayGetFunction,
                         new String[]{"red", "yellow", "green"}},
+                // Boolean array
                 {new VariableKey(module, "booleanArr", new BIntersectionType(module, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true), booleanArrayGetFunction,
                         new boolean[]{true, false, false, true}},
+                // Decimal array
                 {new VariableKey(module, "decimalArr", new BIntersectionType(module, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_DECIMAL), 0, false), true), decimalArrayGetFunction,
                         expectedDecimalArray}
