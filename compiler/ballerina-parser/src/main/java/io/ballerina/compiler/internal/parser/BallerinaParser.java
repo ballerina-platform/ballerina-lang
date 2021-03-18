@@ -15663,7 +15663,7 @@ public class BallerinaParser extends AbstractParser {
 
         ParserRuleContext recoveryCtx = ParserRuleContext.BRACKETED_LIST_RHS;
         if (isTypedBindingPattern) {
-            recoveryCtx = ParserRuleContext.TYPE_DESC_RHS_IN_TYPED_BP;
+            recoveryCtx = ParserRuleContext.TYPE_DESC_RHS_OR_BP_RHS;
         }
 
         recover(peek(), recoveryCtx, typeDescOrExpr, openBracket, member, closeBracket,
