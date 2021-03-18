@@ -16,12 +16,14 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.IntermediateClauseNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * An abstract completion provider for child nodes of {@link IntermediateClauseNode}.
@@ -38,4 +40,21 @@ public abstract class IntermediateClauseNodeContext<T extends IntermediateClause
     protected List<LSCompletionItem> getKeywordCompletions(BallerinaCompletionContext context, T node) {
         return QueryExpressionUtil.getCommonKeywordCompletions(context);
     }
+
+    protected boolean cursorAtTheEndOfClause(BallerinaCompletionContext context, T node) {
+        Optional<Node> lastNode = getLastNodeOfClause(node);
+        if (lastNode.isEmpty() || lastNode.get().isMissing()) {
+            return false;
+        }
+
+        int cursor = context.getCursorPositionInTree();
+        return lastNode.get().textRange().endOffset() < cursor;
+    }
+
+    /**
+     * This method is supposed to return the last node in 
+     * @param node
+     * @return
+     */
+    protected abstract Optional<Node> getLastNodeOfClause(T node);
 }

@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -33,6 +34,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link FromClauseNode} context.
@@ -136,12 +138,8 @@ public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromCla
                 && (bindingPattern.isMissing() || bindingPattern.textRange().endOffset() >= cursor);
     }
 
-    protected boolean cursorAtTheEndOfClause(BallerinaCompletionContext context, FromClauseNode node) {
-        if (node.expression().isMissing()) {
-            return false;
-        }
-
-        int cursor = context.getCursorPositionInTree();
-        return node.expression().textRange().endOffset() < cursor;
+    @Override
+    protected Optional<Node> getLastNodeOfClause(FromClauseNode node) {
+        return Optional.of(node.expression());
     }
 }

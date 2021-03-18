@@ -31,7 +31,6 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -113,8 +112,7 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
             if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                 SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
                 return lhs.textRange().endOffset() == cursor &&
-                        nameReferenceNode.textRange().endOffset() == cursor &&
-                        ItemResolverConstants.EQUALS_KEYWORD.startsWith(nameReferenceNode.name().text());
+                        nameReferenceNode.textRange().endOffset() == cursor;
             }
         }
 

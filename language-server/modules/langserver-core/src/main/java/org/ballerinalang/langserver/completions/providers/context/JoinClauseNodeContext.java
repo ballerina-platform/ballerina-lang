@@ -28,11 +28,11 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link JoinClauseNode} context.
@@ -101,18 +101,14 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
         return completionItems;
     }
 
-    protected boolean cursorAtTheEndOfClause(BallerinaCompletionContext context, JoinClauseNode node) {
-        if (node.expression() == null || node.expression().isMissing()) {
-            return false;
-        }
-
-        int cursor = context.getCursorPositionInTree();
-        return node.expression().textRange().endOffset() < cursor;
-    }
-
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, JoinClauseNode node) {
         return !node.joinKeyword().isMissing();
+    }
+
+    @Override
+    protected Optional<Node> getLastNodeOfClause(JoinClauseNode node) {
+        return Optional.of(node.joinOnCondition());
     }
 
     private boolean onSuggestBindingPattern(BallerinaCompletionContext context, JoinClauseNode node) {
@@ -150,8 +146,7 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
             if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                 SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
                 return node.expression().textRange().startOffset() + 1 == cursor &&
-                        nameReferenceNode.textRange().startOffset() + 1 == cursor &&
-                        ItemResolverConstants.IN_KEYWORD.startsWith(nameReferenceNode.name().text());
+                        nameReferenceNode.textRange().startOffset() + 1 == cursor;
             }
         }
 
@@ -182,8 +177,7 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
             if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                 SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
                 return node.expression().textRange().endOffset() == cursor &&
-                        nameReferenceNode.textRange().endOffset() == cursor &&
-                        ItemResolverConstants.ON.startsWith(nameReferenceNode.name().text());
+                        nameReferenceNode.textRange().endOffset() == cursor;
             }
         }
 

@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.LimitClauseNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -27,6 +28,7 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link LimitClauseNode} context.
@@ -45,7 +47,7 @@ public class LimitClauseNodeContext extends IntermediateClauseNodeContext<LimitC
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (cursorAtTheEndOfExpression(context, node)) {
+        if (cursorAtTheEndOfClause(context, node)) {
             completionItems.addAll(this.getKeywordCompletions(context, node));
         } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
@@ -63,17 +65,13 @@ public class LimitClauseNodeContext extends IntermediateClauseNodeContext<LimitC
         return completionItems;
     }
 
-    protected boolean cursorAtTheEndOfExpression(BallerinaCompletionContext context, LimitClauseNode node) {
-        if (node.expression() == null || node.expression().isMissing()) {
-            return false;
-        }
-
-        int cursor = context.getCursorPositionInTree();
-        return node.expression().textRange().endOffset() < cursor;
-    }
-
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, LimitClauseNode node) {
         return !node.limitKeyword().isMissing();
+    }
+
+    @Override
+    protected Optional<Node> getLastNodeOfClause(LimitClauseNode node) {
+        return Optional.of(node.expression());
     }
 }

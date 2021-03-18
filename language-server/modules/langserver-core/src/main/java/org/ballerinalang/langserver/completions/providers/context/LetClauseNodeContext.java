@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.LetClauseNode;
 import io.ballerina.compiler.syntax.tree.LetVariableDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -30,6 +31,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link LetClauseNode} context.
@@ -68,14 +70,14 @@ public class LetClauseNodeContext extends IntermediateClauseNodeContext<LetClaus
         return completionItems;
     }
 
-    protected boolean cursorAtTheEndOfClause(BallerinaCompletionContext context, LetClauseNode node) {
+    @Override
+    protected Optional<Node> getLastNodeOfClause(LetClauseNode node) {
         if (node.letVarDeclarations().isEmpty()) {
-            return false;
+            return Optional.empty();
         }
 
         LetVariableDeclarationNode letVar = node.letVarDeclarations().get(node.letVarDeclarations().size() - 1);
-        return letVar.expression() != null && !letVar.expression().isMissing() &&
-                letVar.expression().textRange().endOffset() < context.getCursorPositionInTree();
+        return Optional.of(letVar.expression());
     }
 
     @Override

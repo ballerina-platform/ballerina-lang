@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OrderByClauseNode;
 import io.ballerina.compiler.syntax.tree.OrderKeyNode;
@@ -31,6 +32,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link OrderByClauseNode} context.
@@ -106,5 +108,20 @@ public class OrderByClauseNodeContext extends IntermediateClauseNodeContext<Orde
         }
 
         return false;
+    }
+
+    @Override
+    protected Optional<Node> getLastNodeOfClause(OrderByClauseNode node) {
+        if (node.orderKey().isEmpty()) {
+            return Optional.empty();
+        }
+
+        OrderKeyNode lastOrderKey = node.orderKey().get(node.orderKey().size() - 1);
+
+        if (lastOrderKey.orderDirection().isPresent()) {
+            return lastOrderKey.orderDirection().flatMap(Optional::of);
+        } else {
+            return Optional.of(lastOrderKey.expression());
+        }
     }
 }
