@@ -417,8 +417,17 @@ public class CodeActionUtil {
 
         String returnText = "";
         Range returnRange = null;
-        if (optEnclosedFuncSymbol.isPresent() && optEnclosedFuncSymbol.get().kind() == SymbolKind.FUNCTION) {
-            FunctionSymbol enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+
+        FunctionSymbol enclosedFuncSymbol = null;
+        if (optEnclosedFuncSymbol.isPresent()) {
+            Symbol funcSymbol = optEnclosedFuncSymbol.get();
+            if (funcSymbol.kind() == SymbolKind.FUNCTION || funcSymbol.kind() == SymbolKind.METHOD ||
+                    funcSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
+                enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+            }
+        }
+
+        if (enclosedFuncSymbol != null) {
             boolean hasFuncNodeReturn = enclosedFunc.get().functionSignature().returnTypeDesc().isPresent();
             boolean hasFuncSymbolReturn = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent();
             if (hasFuncNodeReturn && hasFuncSymbolReturn) {
@@ -760,12 +769,27 @@ public class CodeActionUtil {
             if (parentNode == null) {
                 break;
             }
+
+            if (parentNode.parent() == null) {
+                break;
+            }
+
+            // A function definition can be within a class, service or in the module part
             if (parentNode.kind() == SyntaxKind.FUNCTION_DEFINITION &&
-                    parentNode.parent() != null && parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
+                    parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
+                functionDefNode = (FunctionDefinitionNode) parentNode;
+                break;
+            } else if (parentNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
+                    parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
+                functionDefNode = (FunctionDefinitionNode) parentNode;
+                break;
+            } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
+                    parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
                 functionDefNode = (FunctionDefinitionNode) parentNode;
                 break;
             }
         }
+
         return Optional.ofNullable(functionDefNode);
     }
 

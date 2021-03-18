@@ -1,0 +1,99 @@
+{
+  "line": 13,
+  "character": 4,
+  "expected": [
+    {
+      "title": "Create variable and type guard",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 24
+            },
+            "end": {
+              "line": 13,
+              "character": 24
+            }
+          },
+          "newText": "\n    if (intWithError is int) {\n\n    }"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 4
+            },
+            "end": {
+              "line": 13,
+              "character": 4
+            }
+          },
+          "newText": "int|error intWithError = "
+        }
+      ]
+    },
+    {
+      "title": "Create variable and check error",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 4
+            },
+            "end": {
+              "line": 13,
+              "character": 4
+            }
+          },
+          "newText": "int intWithError = "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 4
+            },
+            "end": {
+              "line": 13,
+              "character": 4
+            }
+          },
+          "newText": "check "
+        },
+        {
+          "range": {
+            "start": {
+              "line": 12,
+              "character": 24
+            },
+            "end": {
+              "line": 12,
+              "character": 35
+            }
+          },
+          "newText": "returns int|error"
+        }
+      ]
+    },
+    {
+      "title": "Create variable",
+      "edits": [
+        {
+          "range": {
+            "start": {
+              "line": 13,
+              "character": 4
+            },
+            "end": {
+              "line": 13,
+              "character": 4
+            }
+          },
+          "newText": "int|error intWithError = "
+        }
+      ]
+    }
+  ]
+}
