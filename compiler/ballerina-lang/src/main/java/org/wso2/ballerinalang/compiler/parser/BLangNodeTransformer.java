@@ -1415,6 +1415,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangExternalFunctionBody externFunctionBodyNode =
                 (BLangExternalFunctionBody) TreeBuilder.createExternFunctionBodyNode();
         externFunctionBodyNode.annAttachments = applyAll(externalFunctionBodyNode.annotations());
+        externFunctionBodyNode.pos = getPosition(externalFunctionBodyNode);
         return externFunctionBodyNode;
     }
 
@@ -2973,7 +2974,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
         }
         simpleVar.flagSet.add(Flag.REQUIRED_PARAM);
-        simpleVar.pos = trimLeft(simpleVar.pos, getPosition(requiredParameter.typeName()));
         return simpleVar;
     }
 

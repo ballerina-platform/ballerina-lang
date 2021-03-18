@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 4,
+    "character": 8
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source25.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "name",
+      "kind": "Field",
+      "detail": "record {| string first; string last; anydata...; |} & readonly",
+      "sortText": "G",
+      "insertText": "name: {\n\tfirst: \"${1}\",\n\tlast: \"${1}\"\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "salary",
+      "kind": "Field",
+      "detail": "int",
+      "sortText": "G",
+      "insertText": "salary: ${1:0}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "Q",
+      "insertText": "name: {},\nsalary: 0",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
