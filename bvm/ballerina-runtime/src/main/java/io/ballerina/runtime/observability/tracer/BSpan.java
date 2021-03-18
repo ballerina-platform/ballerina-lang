@@ -24,6 +24,7 @@ import io.opentelemetry.api.trace.SpanKind;
 import io.opentelemetry.api.trace.Tracer;
 import io.opentelemetry.context.Context;
 import io.opentelemetry.context.propagation.TextMapGetter;
+import io.opentelemetry.context.propagation.TextMapPropagator;
 import io.opentelemetry.context.propagation.TextMapSetter;
 
 import java.util.Collections;
@@ -144,8 +145,8 @@ public class BSpan {
             };
 
             carrierMap = new HashMap<>();
-            TracersStore.getInstance().getPropagators().getTextMapPropagator()
-                    .inject(Context.current(), carrierMap, setter);
+            TextMapPropagator propagator = TracersStore.getInstance().getPropagators().getTextMapPropagator();
+            propagator.inject(Context.current().with(span), carrierMap, setter);
         } else {
             carrierMap = Collections.emptyMap();
         }
