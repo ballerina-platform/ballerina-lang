@@ -20,7 +20,6 @@ package org.ballerinalang.testerina.test.negative;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.BaseTestCase;
-import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -49,8 +48,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while skipping test when depends on " +
-                    "function fails");
+            throw new BallerinaTestException("Test failed due to error while skipping test when using dependsOn.");
         }
     }
 
@@ -63,7 +61,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while skipping test when before test fails");
+            throw new BallerinaTestException("Test failed due to error while skipping test when before test fails.");
         }
     }
 
@@ -76,7 +74,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while skipping test when after test fails");
+            throw new BallerinaTestException("Test failed due to error while skipping test when after test fails.");
         }
     }
 
@@ -89,7 +87,8 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while skipping test when before each fails");
+            throw new BallerinaTestException("Test failed due to error while skipping test when before " +
+                    "each test fails.");
         }
     }
 
@@ -103,7 +102,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while skipping test when after each fails");
+            throw new BallerinaTestException("Test failed due to error while skipping test when after each fails.");
         }
     }
 
@@ -116,7 +115,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while skipping test when before suite fails");
+            throw new BallerinaTestException("Test failed due to error while skipping test when before suite fails.");
         }
     }
 
@@ -129,7 +128,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while skipping test when before groups fails");
+            throw new BallerinaTestException("Test failed due to error while skipping test when before groups fails.");
         }
     }
 
@@ -142,7 +141,7 @@ public class SkipTestsTestCase extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            AssertionUtils.assertForTestFailures(output, "error while skipping test when after groups fails");
+            throw new BallerinaTestException("Test failed due to error while skipping test when after groups fails.");
         }
     }
 }

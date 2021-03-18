@@ -70,7 +70,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            AssertionUtils.assertForTestFailures(output, "non existing function execution failure");
+            throw new BallerinaTestException("Test failed due to non existing function execution failure.");
         }
     }
 

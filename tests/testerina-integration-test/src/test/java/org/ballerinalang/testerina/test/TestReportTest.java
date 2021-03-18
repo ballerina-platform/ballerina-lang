@@ -24,7 +24,6 @@ import com.google.gson.JsonParser;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -58,11 +57,11 @@ public class TestReportTest extends BaseTestCase {
     @Test ()
     public void testWarningForReportTools() throws BallerinaTestException, IOException {
         String msg = "warning: Could not find the required HTML report tools for code coverage";
-        String[] args = mergeCoverageArgs(new String[]{"--code-coverage", "--includes=*"});
+        String[] args = mergeCoverageArgs(new String[]{});
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            AssertionUtils.assertForTestFailures(output, "report tools validation failure");
+            throw new BallerinaTestException("Test failed due to report tools validation failure.");
         }
     }
 

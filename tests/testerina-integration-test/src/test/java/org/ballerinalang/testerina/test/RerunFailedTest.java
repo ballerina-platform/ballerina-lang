@@ -20,7 +20,6 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
-import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
@@ -52,7 +51,7 @@ public class RerunFailedTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
-            AssertionUtils.assertForTestFailures(output, "running test suite with failed tests failure");
+            throw new BallerinaTestException("Test failed due to running test suite with failed tests failure.");
         }
     }
 
@@ -64,7 +63,7 @@ public class RerunFailedTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
-            AssertionUtils.assertForTestFailures(output, "rerun failed tests failure");
+            throw new BallerinaTestException("Test failed due to rerun failed tests failure.");
         }
     }
 
