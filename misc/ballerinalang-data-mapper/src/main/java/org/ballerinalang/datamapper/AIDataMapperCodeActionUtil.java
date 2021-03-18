@@ -36,7 +36,9 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -59,14 +61,20 @@ import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.ListIterator;
 import java.util.Map;
 import java.util.Optional;
 import java.util.regex.Matcher;
+import java.util.stream.Collectors;
+
+import static org.ballerinalang.datamapper.utils.DefaultValueGenerator.generateDefaultValues;
 
 /**
  * Automatic data mapping code action related utils.
@@ -81,6 +89,8 @@ class AIDataMapperCodeActionUtil {
     private static Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
     private static HashMap<String, String> isOptionalMap = new HashMap<>();
+    private static HashMap<String, String> leftFieldMap = new HashMap<>();
+    private static HashMap<String, String> responseFieldMap = new HashMap<>();
 
     private static final String SCHEMA = "schema";
     private static final String ID = "id";
@@ -228,8 +238,8 @@ class AIDataMapperCodeActionUtil {
                 return fEdits;
             } else {
                 // Get the last line of the file
-                TextDocument fileContentTextDocument = context.workspace().syntaxTree(context.filePath()).get().
-                        textDocument();
+                SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).get();
+                TextDocument fileContentTextDocument = syntaxTree.textDocument();
                 int numberOfLinesInFile = fileContentTextDocument.toString().split("\n").length;
                 Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
                 Position endPosOfLastLine = new Position(numberOfLinesInFile + 2, 1);
@@ -238,7 +248,7 @@ class AIDataMapperCodeActionUtil {
                 // Get the generated record mapping function
                 String mappingFromServer =
                         getGeneratedRecordMapping(context, foundTypeLeft,
-                                foundTypeRight, lftTypeSymbol, rhsTypeSymbol);
+                                foundTypeRight, lftTypeSymbol, rhsTypeSymbol, syntaxTree, semanticModel);
 
                 // To handle the multi-module projects
                 String rightModule = null;
@@ -267,7 +277,7 @@ class AIDataMapperCodeActionUtil {
                 }
 
                 String generatedRecordMappingFunction = generateMappingFunction(mappingFromServer, foundTypeLeft,
-                        foundTypeRight, leftModule, rightModule, rhsSignature);
+                        foundTypeRight, leftModule, rightModule, rhsSignature, syntaxTree);
                 fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
                 return fEdits;
             }
@@ -295,22 +305,26 @@ class AIDataMapperCodeActionUtil {
      * @param context
      * @param foundTypeLeft  {@link String}
      * @param foundTypeRight {@link String}
+     * @param syntaxTree
+     * @param semanticModel
      * @return function string with mapped schemas
      * @throws IOException throws if error occurred when getting mapped function
      */
     private static String getGeneratedRecordMapping(CodeActionContext context, String foundTypeLeft,
                                                     String foundTypeRight,
-                                                    Symbol lftTypeSymbol, Symbol rhsTypeSymbol)
+                                                    Symbol lftTypeSymbol, Symbol rhsTypeSymbol, SyntaxTree syntaxTree, SemanticModel semanticModel)
 
             throws IOException {
         JsonObject rightRecordJSON = new JsonObject();
         JsonObject leftRecordJSON = new JsonObject();
 
-
         List<RecordTypeSymbol> symbolList = checkMappingCapability(lftTypeSymbol, rhsTypeSymbol);
         if (!symbolList.contains(null)) {
             // Schema 1
             Map<String, RecordFieldSymbol> rightSchemaFields = symbolList.get(0).fieldDescriptors();
+            DataMapperNodeVisitor nodeVisitor = new DataMapperNodeVisitor(semanticModel);
+            syntaxTree.rootNode().accept(nodeVisitor);
+
             JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields.values());
 
             rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
@@ -331,6 +345,11 @@ class AIDataMapperCodeActionUtil {
             leftRecordJSON.addProperty(ID, "dummy_id");
             leftRecordJSON.addProperty(TYPE, "object");
             leftRecordJSON.add(PROPERTIES, leftSchema);
+
+            Map<String, Object> leftSchemaMap = new Gson().fromJson(leftSchema, new TypeToken<HashMap<String, Object>>() {
+            }.getType());
+            leftFieldMap.clear();
+            getLeftFields(leftSchemaMap, "");
         }
 
 
@@ -343,12 +362,49 @@ class AIDataMapperCodeActionUtil {
     private static void generateOptionalMap(Map<String, Object> rightSchemaMap, String foundTypeRight) {
         for (Map.Entry<String, Object> field : rightSchemaMap.entrySet()) {
             StringBuilder optionKey = new StringBuilder(foundTypeRight.toLowerCase());
-            if(!checkForOptional(field)) {
+            if (!checkForOptional(field)) {
                 optionKey.append(".").append(field.getKey());
-                generateOptionalMap((Map<String, Object>) ((LinkedTreeMap)field.getValue()).get(PROPERTIES), optionKey.toString());
-            } else if((boolean)((LinkedTreeMap) field.getValue()).get(OPTIONAL)){
+                generateOptionalMap((Map<String, Object>) ((LinkedTreeMap) field.getValue()).get(PROPERTIES), optionKey.toString());
+            } else if ((boolean) ((LinkedTreeMap) field.getValue()).get(OPTIONAL)) {
                 optionKey.append(".").append(field.getKey());
                 isOptionalMap.put(optionKey.toString(), ((LinkedTreeMap) field.getValue()).get(TYPE).toString());
+            }
+        }
+    }
+
+    private static void getLeftFields(Map<String, Object> leftSchemaMap, String fieldName) {
+        for (Map.Entry<String, Object> field : leftSchemaMap.entrySet()) {
+            StringBuilder fieldKey = new StringBuilder();
+            if (!fieldName.isEmpty()) {
+                fieldKey.append(fieldName).append(".");
+            }
+            if (!checkForOptional(field)) {
+                fieldKey.append(field.getKey());
+                getLeftFields((Map<String, Object>) ((LinkedTreeMap) field.getValue()).get(PROPERTIES), fieldKey.toString());
+            } else {
+                fieldKey.append(field.getKey());
+                leftFieldMap.put(fieldKey.toString(), ((LinkedTreeMap) field.getValue()).get(TYPE).toString());
+            }
+        }
+    }
+
+    private static void getResponseKeys(Map<String, Object> leftSchemaMap, String keyName) {
+        for (Map.Entry<String, Object> field : leftSchemaMap.entrySet()) {
+            StringBuilder fieldKey = new StringBuilder();
+            LinkedTreeMap linkedTreeMap = null;
+            if (!keyName.isEmpty()) {
+                fieldKey.append(keyName).append(".");
+            }
+            try {
+                linkedTreeMap = (LinkedTreeMap) field.getValue();
+            } catch (Exception e) {
+                //ignore
+            }
+            fieldKey.append(field.getKey());
+            if (linkedTreeMap != null) {
+                getResponseKeys((Map<String, Object>) linkedTreeMap, fieldKey.toString());
+            } else {
+                responseFieldMap.put(fieldKey.toString(), field.getValue().toString());
             }
         }
     }
@@ -361,8 +417,6 @@ class AIDataMapperCodeActionUtil {
      * For a give array of schemas, return a mapping function.
      *
      * @param schemas {@link JsonArray}
-     *                //     * @param foundTypeLeft  {@link String}
-     *                //     * @param foundTypeRight {@link String}
      * @return mapped function
      * @throws IOException throws if an error occurred in HTTP request
      */
@@ -462,11 +516,12 @@ class AIDataMapperCodeActionUtil {
      * @param leftModule        {@link String}
      * @param rightModule       {@link String}
      * @param rhsSignature      {@link String}
+     * @param syntaxTree
      * @return - Generated mapping Function
      */
     private static String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
                                                   String foundTypeRight, String leftModule, String rightModule,
-                                                  String rhsSignature) {
+                                                  String rhsSignature, SyntaxTree syntaxTree) {
 
         String leftType = foundTypeLeft;
         String rightType;
@@ -481,14 +536,18 @@ class AIDataMapperCodeActionUtil {
         mappingFromServer = mappingFromServer.replaceAll(",", ", ");
         mappingFromServer = mappingFromServer.replaceAll(":", ": ");
 
-        if(!isOptionalMap.isEmpty()){
+        if (!isOptionalMap.isEmpty()) {
             for (Map.Entry<String, String> field : isOptionalMap.entrySet()) {
                 int i = field.getKey().lastIndexOf(".");
-                String[] splitKey =  {field.getKey().substring(0, i), field.getKey().substring(i)};
+                String[] splitKey = {field.getKey().substring(0, i), field.getKey().substring(i)};
                 String replacement = splitKey[0] + "?" + splitKey[1];
-                mappingFromServer = mappingFromServer.replace(field.getKey(), "<"+field.getValue()+"> "+ replacement);
+                mappingFromServer = mappingFromServer.replace(field.getKey(), "<" + field.getValue() + "> " + replacement);
             }
         }
+
+        Map<String, Object> responseMap = new Gson().fromJson(new JsonParser().parse(mappingFromServer).getAsJsonObject(), new TypeToken<HashMap<String, Object>>() {
+        }.getType());
+        getDefaultValues(responseMap);
 
         if (leftModule != null) {
             leftType = leftModule + ":" + foundTypeLeft;
@@ -533,5 +592,49 @@ class AIDataMapperCodeActionUtil {
         }
 
         return Arrays.asList(rightSymbol, leftSymbol);
+    }
+
+    private static void getDefaultValues(Map<String, Object> responseMap) {
+        getResponseKeys(responseMap, "");
+        HashSet<String> unionKeys = new HashSet<>(responseFieldMap.keySet());
+        unionKeys.addAll(leftFieldMap.keySet());
+        unionKeys.removeAll(responseFieldMap.keySet());
+
+        for (String key : unionKeys) {
+            responseFieldMap.put(key, generateDefaultValues(leftFieldMap.get(key)).toString());
+        }
+
+        HashMap<String, Object> modifiedResponseMap = new HashMap<>();
+        for (Map.Entry<String, String> field : responseFieldMap.entrySet()) {
+            if (field.getKey().contains(".")) {
+                Map<String, Object> concatResponse = generateResponseMap(field);
+                modifiedResponseMap.put(concatResponse.keySet().toString(), concatResponse.values());
+            } else {
+                modifiedResponseMap.put(field.getKey(), field.getValue());
+            }
+        }
+
+        Gson gson = new Gson();
+        JsonObject json = gson.toJsonTree(responseFieldMap).getAsJsonObject();
+    }
+
+    private static Map<String, Object> generateResponseMap(Map.Entry<String, String> mapEntry) {
+        HashMap<String, Object> responseMap = new HashMap<>();
+        String returnKey = "";
+        String[] keyArray = mapEntry.getKey().split("\\.");
+        for (int i = keyArray.length - 1; i >= 0; i--) {
+            if (i == keyArray.length - 1) {
+                responseMap.put(keyArray[i], mapEntry.getValue());
+            } else {
+                HashMap<String, Object> tempMap = new HashMap<>(responseMap);
+                responseMap.put(keyArray[i], tempMap);
+                if (i == 0) {
+                    returnKey = keyArray[i];
+                }
+            }
+        }
+        HashMap<String, Object> returnMap = new HashMap<>();
+        returnMap.put(returnKey, responseMap.get(returnKey));
+        return returnMap;
     }
 }
