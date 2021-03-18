@@ -21,6 +21,7 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +38,7 @@ public class VariableUtils {
     public static final String FIELD_CONSTRAINT = "constraint";
     public static final String METHOD_STRINGVALUE = "stringValue";
     public static final String UNKNOWN_VALUE = "unknown";
+    private static final String LAMBDA_PARAM_MAP_PREFIX = "$paramMap$";
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
     private static final String ADDITIONAL_QUOTES_REMOVE_REGEX = "^\"|\"$";
 
@@ -158,6 +160,17 @@ public class VariableUtils {
         } catch (DebugVariableException e) {
             return false;
         }
+    }
+
+    /**
+     * Returns whether the given local variable is a map which consists of local variables used within lambda
+     * functions. (Since all the ballerina variables used inside lambda functions are converted into maps during the
+     * the runtime code generation, such local variables should be accessed in a different manner.)
+     *
+     * @param localVar local variable instance.
+     */
+    public static boolean isLambdaParamMap(LocalVariableProxyImpl localVar) {
+        return localVar.name().startsWith(LAMBDA_PARAM_MAP_PREFIX);
     }
 
     /**
