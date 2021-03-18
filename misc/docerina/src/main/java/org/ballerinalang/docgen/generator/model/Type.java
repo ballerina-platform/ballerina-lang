@@ -320,7 +320,8 @@ public class Type {
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
                 return getTypeCategory(((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor());
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.INTERSECTION) ||
-                    typeDescriptor.typeKind().equals(TypeDescKind.DECIMAL)) {
+                    typeDescriptor.typeKind().equals(TypeDescKind.DECIMAL) ||
+                    typeDescriptor.typeKind().isXMLType()) {
                 return "types";
             }
         } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {
