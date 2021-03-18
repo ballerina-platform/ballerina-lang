@@ -46,6 +46,8 @@ public class QueryExpressionContextTest extends CompletionTestNew {
                 // table
                 "query_expr_ctx_config2.json",
                 "query_expr_ctx_config5.json",
+                // TODO ST identifies the wrong token when there's a newline. Need to look at that.
+                "query_expr_ctx_join_clause_config6a.json",
                 // TODO: Suggestions in join's on clause should be limited to lists being joined
                 "query_expr_ctx_join_clause_config8.json",
                 // On Conflict

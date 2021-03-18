@@ -52,9 +52,12 @@ public abstract class IntermediateClauseNodeContext<T extends IntermediateClause
     }
 
     /**
-     * This method is supposed to return the last node in 
-     * @param node
-     * @return
+     * This method is supposed to return the last node (can be an expression or another node) of the child clause. This
+     * method is used to determine if the cursor is at the end of a clause in
+     * {@link #cursorAtTheEndOfClause(BallerinaCompletionContext, IntermediateClauseNode)}
+     *
+     * @param node Node related to the context
+     * @return Optional node which is the last node in the clause
      */
     protected abstract Optional<Node> getLastNodeOfClause(T node);
 }
