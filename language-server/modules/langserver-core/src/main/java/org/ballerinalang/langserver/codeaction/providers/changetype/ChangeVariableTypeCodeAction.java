@@ -71,15 +71,13 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
         }
 
         // Skip, non-local var declarations
-        Node matchedNode = positionDetails.matchedNode();
-        if (matchedNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
-                matchedNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
-                matchedNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
+        Optional<NonTerminalNode> variableNode = getVariableNode(positionDetails.matchedNode());
+        if (variableNode.isEmpty()) {
             return Collections.emptyList();
         }
 
-        Optional<ExpressionNode> typeNode = getTypeNode(matchedNode, context);
-        Optional<String> variableName = getVariableName(matchedNode);
+        Optional<ExpressionNode> typeNode = getTypeNode(variableNode.get(), context);
+        Optional<String> variableName = getVariableName(variableNode.get());
         if (typeNode.isEmpty() || variableName.isEmpty()) {
             return Collections.emptyList();
         }
@@ -100,6 +98,18 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;
+    }
+
+    private Optional<NonTerminalNode> getVariableNode(NonTerminalNode sNode) {
+        // Find var node
+        while (sNode != null &&
+                sNode.kind() != SyntaxKind.LOCAL_VAR_DECL &&
+                sNode.kind() != SyntaxKind.MODULE_VAR_DECL &&
+                sNode.kind() != SyntaxKind.ASSIGNMENT_STATEMENT) {
+            sNode = sNode.parent();
+        }
+
+        return Optional.ofNullable(sNode);
     }
 
     private Optional<String> getTypeNodeStr(ExpressionNode expressionNode) {
