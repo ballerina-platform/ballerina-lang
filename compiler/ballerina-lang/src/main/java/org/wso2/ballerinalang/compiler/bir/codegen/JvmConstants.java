@@ -227,6 +227,7 @@ public class JvmConstants {
 
     // union related constants
     public static final String SET_MEMBERS_METHOD = "setMemberTypes";
+    public static final String SET_ORIGINAL_MEMBERS_METHOD = "setOriginalMemberTypes";
     public static final String SET_CYCLIC_METHOD = "setCyclic";
 
     // Immutable type related constants.

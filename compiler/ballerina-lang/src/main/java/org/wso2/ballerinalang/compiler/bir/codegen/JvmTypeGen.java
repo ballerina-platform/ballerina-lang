@@ -172,6 +172,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_CYCLI
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_DETAIL_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_IMMUTABLE_TYPE_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_MEMBERS_METHOD;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_ORIGINAL_MEMBERS_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.SET_TYPEID_SET_METHOD;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_CLASS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRAND_METADATA;
@@ -388,6 +389,7 @@ public class JvmTypeGen {
                  case TypeTags.UNION:
                     BUnionType unionType = (BUnionType) bType;
                     mv.visitTypeInsn(CHECKCAST, UNION_TYPE_IMPL);
+                    mv.visitInsn(DUP);
                     mv.visitInsn(DUP);
                     mv.visitInsn(DUP);
 
@@ -946,8 +948,12 @@ public class JvmTypeGen {
      * @param unionType   unionType
      */
     private void addUnionMembers(MethodVisitor mv, BUnionType unionType) {
-        createMembersArray(mv, unionType);
+        createMembersArray(mv, unionType.getMemberTypes());
         mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_MEMBERS_METHOD,
+                String.format("([L%s;)V", TYPE), false);
+
+        createMembersArray(mv, unionType.getOriginalMemberTypes());
+        mv.visitMethodInsn(INVOKEVIRTUAL, UNION_TYPE_IMPL, SET_ORIGINAL_MEMBERS_METHOD,
                 String.format("([L%s;)V", TYPE), false);
     }
 
@@ -1671,7 +1677,8 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        createMembersArray(mv, unionType);
+        createMembersArray(mv, unionType.getMemberTypes());
+        createMembersArray(mv, unionType.getOriginalMemberTypes());
 
         boolean nameLoaded = loadUnionName(mv, unionType);
 
@@ -1684,20 +1691,15 @@ public class JvmTypeGen {
 
         // initialize the union type using the members array
         if (nameLoaded) {
-            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;L%s;IZZ)V", TYPE,
-                    STRING_VALUE), false);
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;[L%s;L%s;IZZ)V",
+                    TYPE, TYPE, STRING_VALUE), false);
         } else {
-            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;IZZ)V", TYPE),
-                    false);
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;[L%s;IZZ)V",
+                    TYPE, TYPE), false);
         }
     }
 
-    // It does not have to be a cyclic type to have a name but loading name only for cyclic types
-    // as it is not clear to read a cyclic union without its name
     private boolean loadUnionName(MethodVisitor mv, BUnionType unionType) {
-        if (!unionType.isCyclic) {
-            return false;
-        }
         if ((unionType.tsymbol != null) && (unionType.tsymbol.name != null)) {
             mv.visitLdcInsn(unionType.tsymbol.name.getValue());
         } else if (unionType.name != null) {
@@ -1712,9 +1714,7 @@ public class JvmTypeGen {
         mv.visitInsn(unionType.isCyclic ? ICONST_1 : ICONST_0);
     }
 
-    private void createMembersArray(MethodVisitor mv, BUnionType unionType) {
-        Set<BType> members = unionType.getMemberTypes();
-
+    private void createMembersArray(MethodVisitor mv, Set<BType> members) {
         mv.visitLdcInsn((long) members.size());
         mv.visitInsn(L2I);
         mv.visitTypeInsn(ANEWARRAY, TYPE);
