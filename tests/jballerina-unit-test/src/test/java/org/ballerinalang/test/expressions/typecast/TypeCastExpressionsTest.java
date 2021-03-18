@@ -45,12 +45,10 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 public class TypeCastExpressionsTest {
 
     private CompileResult result;
-    private CompileResult resultNegative;
 
     @BeforeClass
     public void setup() {
         result = BCompileUtil.compile("test-src/expressions/typecast/type_cast_expr.bal");
-        resultNegative = BCompileUtil.compile("test-src/expressions/typecast/type_cast_expr_negative.bal");
     }
 
     @Test(dataProvider = "positiveTests")
@@ -275,6 +273,9 @@ public class TypeCastExpressionsTest {
 
     @Test
     public void testCastNegatives() {
+        CompileResult resultNegative = BCompileUtil.compile(
+                "test-src/expressions/typecast/type_cast_expr_negative.bal");
+
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be cast to 'Abc'", 19, 15);
         validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to '(int|foo)'",
@@ -356,6 +357,5 @@ public class TypeCastExpressionsTest {
     @AfterClass
     public void tearDown() {
         result = null;
-        resultNegative = null;
     }
 }

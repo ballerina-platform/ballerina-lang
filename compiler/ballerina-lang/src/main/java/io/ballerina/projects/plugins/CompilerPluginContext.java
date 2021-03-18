@@ -17,23 +17,17 @@
  */
 package io.ballerina.projects.plugins;
 
-import java.util.ArrayList;
-import java.util.List;
-
 /**
  * This class can be used to add various compiler plugin tasks to the current compilation.
  *
  * @since 2.0.0
  */
-public abstract class CompilerPluginContext {
-    protected final CompilerPlugin compilerPlugin;
-    protected final List<CodeAnalyzer> codeAnalyzers = new ArrayList<>();
+public interface CompilerPluginContext {
 
-    protected CompilerPluginContext(CompilerPlugin compilerPlugin) {
-        this.compilerPlugin = compilerPlugin;
-    }
-
-    public void addCodeAnalyzer(CodeAnalyzer codeAnalyzer) {
-        codeAnalyzers.add(codeAnalyzer);
-    }
+    /**
+     * Add a {@code CodeAnalyzer} instance to the current compilation.
+     *
+     * @param codeAnalyzer the {@code CodeAnalyzer} instance
+     */
+    void addCodeAnalyzer(CodeAnalyzer codeAnalyzer);
 }

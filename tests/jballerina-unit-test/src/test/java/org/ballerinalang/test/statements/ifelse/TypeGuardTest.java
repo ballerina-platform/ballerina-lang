@@ -43,7 +43,7 @@ public class TypeGuardTest {
         result = BCompileUtil.compile("test-src/statements/ifelse/type-guard.bal");
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testTypeGuardNegative() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/statements/ifelse/type-guard-negative.bal");
         int i = 0;
@@ -56,8 +56,8 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: '(float|boolean)' will not be matched to 'string'", 53, 16);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 84, 5);
-        BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(string|int)' will not be matched to 'float'", 91, 23);
+//        BAssertUtil.validateError(negativeResult, i++,
+//                                  "incompatible types: '(string|int)' will not be matched to 'float'", 91, 23);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: '(int|boolean)' will not be matched to 'float'", 99, 63);
         BAssertUtil.validateError(negativeResult, i++,
@@ -76,13 +76,17 @@ public class TypeGuardTest {
                                   "incompatible types: '(Person|Student)' will not be matched to 'float'", 147, 40);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: '(Person|Student)' will not be matched to 'boolean'", 147, 56);
+//        BAssertUtil.validateError(negativeResult, i++,
+//                                  "incompatible types: 'any' will not be matched to 'error'", 157, 18);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: 'any' will not be matched to 'error'", 157, 18);
+                "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 167, 15);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 173, 15);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
-    @Test(groups = { "brokenOnNewParser" })
+    @Test
     public void testTypeGuardSemanticsNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/statements/ifelse/type-guard-semantics-negative.bal");
@@ -515,7 +519,8 @@ public class TypeGuardTest {
                 {"testTypeNarrowingForIntersectingDirectUnion_1"},
                 {"testTypeNarrowingForIntersectingDirectUnion_2"},
                 {"testTypeNarrowingForIntersectingAssignableUnion_1"},
-                {"testTypeNarrowingForIntersectingAssignableUnion_2"}
+                {"testTypeNarrowingForIntersectingAssignableUnion_2"},
+                {"testTypeNarrowingForIntersectingUnionWithRecords"}
         };
     }
 

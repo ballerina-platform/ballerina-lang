@@ -82,7 +82,8 @@ public class BallerinaDocGenerator {
     private static final String API_DOCS_JS = "api-docs.js";
     private static final String CENTRAL_STDLIB_INDEX_JSON = "stdlib-index.json";
     private static final String CENTRAL_STDLIB_SEARCH_JSON = "stdlib-search.json";
-    private static final String BUILTIN_TYPES_KEYWORDS_DESCRIPTION_DIR = "builtin-types-keywords-descriptions";
+    private static final String BUILTIN_TYPES_DESCRIPTION_DIR = "builtin-types-descriptions";
+    private static final String BUILTIN_KEYWORDS_DESCRIPTION_DIR = "keywords-descriptions";
     private static final String RELEASE_DESCRIPTION_MD = "/release-description.md";
     public static final String PROPERTIES_FILE = "/META-INF/properties";
 
@@ -160,9 +161,13 @@ public class BallerinaDocGenerator {
                 }
             }
         }
-        List<BuiltInType> builtInTypesAndKeywords = getBuiltInTypesAndKeywords(packageLib.packages);
-        packageLib.builtinTypesAndKeywords = builtInTypesAndKeywords;
-        centralLib.builtinTypesAndKeywords = builtInTypesAndKeywords;
+        List<BuiltInType> builtInTypes = getBuiltInTypesOrKeywords(packageLib.packages, BUILTIN_TYPES_DESCRIPTION_DIR);
+        List<BuiltInType> keywords = getBuiltInTypesOrKeywords(packageLib.packages, BUILTIN_KEYWORDS_DESCRIPTION_DIR);
+
+        packageLib.builtinTypes = builtInTypes;
+        packageLib.keywords = keywords;
+        centralLib.builtinTypes = builtInTypes;
+        centralLib.keywords = keywords;
         packageLib.packages.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
         centralLib.packages.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
         writeAPIDocs(packageLib, apiDocsRoot, true, false);
@@ -460,9 +465,9 @@ public class BallerinaDocGenerator {
         return "";
     }
 
-    private static List<BuiltInType> getBuiltInTypesAndKeywords(List<DocPackage> packages) {
+    private static List<BuiltInType> getBuiltInTypesOrKeywords(List<DocPackage> packages, String dir) {
 
-        List<BuiltInType> builtInTypesAndKeywords = new ArrayList<>();
+        List<BuiltInType> builtInTypesOrKeywords = new ArrayList<>();
         // Iterate through JAR resources and add builtin types and descriptions
         CodeSource src = BallerinaDocGenerator.class.getProtectionDomain().getCodeSource();
         if (src != null) {
@@ -475,12 +480,12 @@ public class BallerinaDocGenerator {
                         break;
                     }
                     String name = e.getName();
-                    if (name.startsWith(BUILTIN_TYPES_KEYWORDS_DESCRIPTION_DIR + "/")
-                            && !name.equals(BUILTIN_TYPES_KEYWORDS_DESCRIPTION_DIR + "/")) {
+                    if (name.startsWith(dir + "/")
+                            && !name.equals(dir + "/")) {
                         InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
                         if (in != null) {
                             String builtinTypename = name
-                                    .replace(BUILTIN_TYPES_KEYWORDS_DESCRIPTION_DIR + "/", "")
+                                    .replace(dir + "/", "")
                                     .replace(".md", "");
                             String desc = new BufferedReader(new InputStreamReader(in)).lines()
                                     .collect(Collectors.joining("\n"));
@@ -494,7 +499,7 @@ public class BallerinaDocGenerator {
                                 relevantLangLibMetaData.version = relevantLangLib.get().version;
                                 builtInType.langlib = relevantLangLibMetaData;
                             }
-                            builtInTypesAndKeywords.add(builtInType);
+                            builtInTypesOrKeywords.add(builtInType);
                         }
                     }
                 }
@@ -504,8 +509,8 @@ public class BallerinaDocGenerator {
                 log.error("API documentation generation failed at getting builtin type mds:", exp);
             }
         }
-        builtInTypesAndKeywords.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-        return builtInTypesAndKeywords;
+        builtInTypesOrKeywords.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
+        return builtInTypesOrKeywords;
     }
 
     public static void setPrintStream(PrintStream out) {
