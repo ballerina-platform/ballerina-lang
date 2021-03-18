@@ -18,9 +18,9 @@
 package io.ballerina.projects;
 
 import io.ballerina.projects.plugins.CodeAnalyzer;
-import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,16 +28,20 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-class CompilerPluginContextIml extends CompilerPluginContext {
-    CompilerPluginContextIml(CompilerPlugin compilerPlugin) {
-        super(compilerPlugin);
+class CompilerPluginContextIml implements CompilerPluginContext {
+
+    private final CompilerPluginInfo compilerPluginInfo;
+    private final List<CodeAnalyzerManager.CodeAnalyzerInfo> codeAnalyzers = new ArrayList<>();
+
+    CompilerPluginContextIml(CompilerPluginInfo compilerPluginInfo) {
+        this.compilerPluginInfo = compilerPluginInfo;
     }
 
-    CompilerPlugin compilerPlugin() {
-        return compilerPlugin;
+    public void addCodeAnalyzer(CodeAnalyzer codeAnalyzer) {
+        codeAnalyzers.add(new CodeAnalyzerManager.CodeAnalyzerInfo(codeAnalyzer, compilerPluginInfo));
     }
 
-    List<CodeAnalyzer> codeAnalyzers() {
+    List<CodeAnalyzerManager.CodeAnalyzerInfo> codeAnalyzers() {
         return codeAnalyzers;
     }
 }

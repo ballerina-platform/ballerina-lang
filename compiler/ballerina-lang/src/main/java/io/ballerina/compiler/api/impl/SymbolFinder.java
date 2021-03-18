@@ -260,6 +260,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(funcNode.annAttachments);
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
+        lookupNodes(funcNode.returnTypeAnnAttachments);
         lookupNode(funcNode.returnTypeNode);
         lookupNode(funcNode.body);
     }
@@ -321,6 +322,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(varNode.annAttachments);
         lookupNode(varNode.typeNode);
         lookupNode(varNode.expr);
     }
@@ -336,6 +338,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(annotationNode.annAttachments);
         lookupNode(annotationNode.typeNode);
     }
 
@@ -1242,6 +1245,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
+        lookupNodes(bLangTupleVariable.annAttachments);
         lookupNodes(bLangTupleVariable.memberVariables);
         lookupNode(bLangTupleVariable.restVariable);
         lookupNode(bLangTupleVariable.expr);

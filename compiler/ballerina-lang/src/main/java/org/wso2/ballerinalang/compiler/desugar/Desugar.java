@@ -8096,7 +8096,7 @@ public class Desugar extends BLangNodeVisitor {
                 // If a vararg is provided, no parameter defaults are added and no named args are specified.
                 // Thus, any missing args should come from the vararg.
                 if (varargRef.type.tag == TypeTags.RECORD) {
-                    if (param.defaultableParam) {
+                    if (param.isDefaultable) {
                         BLangInvocation hasKeyInvocation = createLangLibInvocationNode(HAS_KEY, varargRef,
                                 List.of(createStringLiteral(param.pos, param.name.value)), null, varargRef.pos);
                         BLangExpression indexExpr = rewriteExpr(createStringLiteral(param.pos, param.name.value));

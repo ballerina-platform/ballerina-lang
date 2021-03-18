@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -25,12 +25,18 @@ import java.util.List;
  * @since 2.0.0
  */
 public class CompilerPluginJson {
+    private String plugin_id;
     private String plugin_class;
     private List<String> dependency_paths;
 
-    public CompilerPluginJson(String pluginClass, List<String> dependencyPaths) {
+    public CompilerPluginJson(String pluginId, String pluginClass, List<String> dependencyPaths) {
+        this.plugin_id = pluginId;
         this.plugin_class = pluginClass;
         this.dependency_paths = dependencyPaths;
+    }
+
+    public String pluginId() {
+        return plugin_id;
     }
 
     public String pluginClass() {

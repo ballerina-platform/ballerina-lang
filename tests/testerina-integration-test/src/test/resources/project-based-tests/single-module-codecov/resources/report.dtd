@@ -1,0 +1,85 @@
+<!--
+   Copyright (c) 2009, 2021 Mountainminds GmbH & Co. KG and Contributors
+   This program and the accompanying materials are made available under
+   the terms of the Eclipse Public License 2.0 which is available at
+   http://www.eclipse.org/legal/epl-2.0
+
+   SPDX-License-Identifier: EPL-2.0
+
+   Contributors:
+      Brock Janiczak - initial API and implementation
+      Marc R. Hoffmann - generalized report structure, line info, documentation
+-->
+
+<!-- This DTD describes the JaCoCo XML report format. It is identified by the
+     following identifiers:
+
+        PUBID  = "-//JACOCO//DTD Report 1.1//EN"
+        SYSTEM = "report.dtd"
+-->
+
+<!-- report root node -->
+<!ELEMENT report (sessioninfo*, (group* | package*), counter*)>
+  <!ATTLIST report name CDATA #REQUIRED>
+
+<!-- information about a session which contributed execution data -->
+<!ELEMENT sessioninfo EMPTY>
+  <!-- session id -->
+  <!ATTLIST sessioninfo id CDATA #REQUIRED>
+  <!-- start time stamp -->
+  <!ATTLIST sessioninfo start CDATA #REQUIRED>
+  <!-- dump time stamp -->
+  <!ATTLIST sessioninfo dump CDATA #REQUIRED>
+
+<!-- representation of a group -->
+<!ELEMENT group ((group* | package*), counter*)>
+  <!-- group name -->
+  <!ATTLIST group name CDATA #REQUIRED>
+
+<!-- representation of a package -->
+<!ELEMENT package ((class | sourcefile)*, counter*)>
+  <!-- package name in VM notation -->
+  <!ATTLIST package name CDATA #REQUIRED>
+
+<!-- representation of a class -->
+<!ELEMENT class (method*, counter*)>
+  <!-- fully qualified VM name -->
+  <!ATTLIST class name CDATA #REQUIRED>
+  <!-- name of the corresponding source file -->
+  <!ATTLIST class sourcefilename CDATA #IMPLIED>
+
+<!-- representation of a method -->
+<!ELEMENT method (counter*)>
+  <!-- method name -->
+  <!ATTLIST method name CDATA #REQUIRED>
+  <!-- method descriptor -->
+  <!ATTLIST method desc CDATA #REQUIRED>
+  <!-- first source line number of this method -->
+  <!ATTLIST method line CDATA #IMPLIED>
+
+<!-- representation of a source file -->
+<!ELEMENT sourcefile (line*, counter*)>
+  <!-- local source file name -->
+  <!ATTLIST sourcefile name CDATA #REQUIRED>
+
+<!-- representation of a source line -->
+<!ELEMENT line EMPTY>
+  <!-- line number -->
+  <!ATTLIST line nr CDATA #REQUIRED>
+  <!-- number of missed instructions -->
+  <!ATTLIST line mi CDATA #IMPLIED>
+  <!-- number of covered instructions -->
+  <!ATTLIST line ci CDATA #IMPLIED>
+  <!-- number of missed branches -->
+  <!ATTLIST line mb CDATA #IMPLIED>
+  <!-- number of covered branches -->
+  <!ATTLIST line cb CDATA #IMPLIED>
+
+<!-- coverage data counter for different metrics -->
+<!ELEMENT counter EMPTY>
+  <!-- metric type -->
+  <!ATTLIST counter type (INSTRUCTION|BRANCH|LINE|COMPLEXITY|METHOD|CLASS) #REQUIRED>
+  <!-- number of missed items -->
+  <!ATTLIST counter missed CDATA #REQUIRED>
+  <!-- number of covered items -->
+  <!ATTLIST counter covered CDATA #REQUIRED>

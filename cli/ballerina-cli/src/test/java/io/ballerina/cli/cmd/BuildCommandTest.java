@@ -38,7 +38,6 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Objects;
 
 import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
-import static io.ballerina.projects.util.ProjectConstants.DEPENDENCIES_TOML;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
 
 /**
@@ -234,6 +233,28 @@ public class BuildCommandTest extends BaseCommandTest {
                 .resolve("winery.bir").toFile().exists());
     }
 
+    @Test(description = "Build a valid ballerina project")
+    public void testBuildBalProjectWithJarConflicts() throws IOException {
+        Path projectPath = this.testResources.resolve("projectWithConflictedJars");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                            getOutput("build-bal-project-with-jar-conflicts.txt"));
+
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bin").resolve("conflictProject.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
+                                  .resolve("conflictProject").resolve("0.1.7").resolve("java11")
+                                  .resolve("conflictProject.jar").toFile().exists());
+        Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("pramodya")
+                                  .resolve("conflictProject").resolve("0.1.7").resolve("bir")
+                                  .resolve("conflictProject.bir").toFile().exists());
+    }
+
     @Test(description = "Build a valid ballerina project with java imports")
     public void testBuildJava11BalProject() throws IOException {
         Path projectPath = this.testResources.resolve("validJava11Project");
@@ -256,16 +277,6 @@ public class BuildCommandTest extends BaseCommandTest {
         Assert.assertTrue(projectPath.resolve("target").resolve("cache").resolve("foo")
                                   .resolve("winery").resolve("0.1.0").resolve("bir")
                                   .resolve("winery.bir").toFile().exists());
-
-        // check Dependencies.toml file
-        Assert.assertTrue(projectPath.resolve(DEPENDENCIES_TOML).toFile().exists());
-        String dependenciesTomlContent = Files.readString(projectPath.resolve(DEPENDENCIES_TOML));
-        Assert.assertEquals(dependenciesTomlContent, "[[dependency]]\n"
-                                                        + "org = \"ballerina\"\n"
-                                                        + "name = \"jballerina.java\"\n"
-                                                        + "version = \"0.9.0\"\n"
-                                                        + "\n"
-                                                        + "\n");
     }
 
     @Test(description = "Build a valid ballerina project")
@@ -382,7 +393,11 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         String expectedLog = getOutput("build-bal-project-override-build-options.txt")
                 .replace("<TEST_RESULTS_JSON_PATH>",
@@ -411,7 +426,11 @@ public class BuildCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, false, true);
         // non existing bal file
         new CommandLine(buildCommand).parse();
-        buildCommand.execute();
+        try {
+            buildCommand.execute();
+        } catch (BLauncherException e) {
+            Assert.fail(e.getDetailedMessages().get(0));
+        }
         String buildLog = readOutput(true);
         String expectedLog = getOutput("build-bal-project-override-build-options.txt")
                 .replace("<TEST_RESULTS_JSON_PATH>",
