@@ -21,6 +21,7 @@ import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType.NarrowedTypes;
@@ -220,11 +221,12 @@ public class TypeNarrower extends BLangNodeVisitor {
             return;
         }
 
-        BVarSymbol varSymbol = (BVarSymbol) ((BLangSimpleVarRef) typeTestExpr.expr).symbol;
-        if (varSymbol == null) {
+        BSymbol symbol = ((BLangSimpleVarRef) typeTestExpr.expr).symbol;
+        if (symbol == null || symbol == symTable.notFoundSymbol) {
             // Terminate for undefined symbols
             return;
         }
+        BVarSymbol varSymbol = (BVarSymbol) symbol;
 
         BType trueType = types.getTypeIntersection(
                 Types.IntersectionContext.compilerInternalNonGenerativeIntersectionContext(),

@@ -47,6 +47,6 @@ function test() {
     Person p2 = {firstName: "Frank", lastName: "James", age: 30};
     Person[] personList = [p1, p2];
 
-    var res4 =  from Person p in personList
+    var res5 =  from Person p in personList
                 order by
 }

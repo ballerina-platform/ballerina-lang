@@ -51,7 +51,6 @@ public class TypeTestExprTest {
     public void testTypeTestExprNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/expressions/binaryoperations/type-test-expr-negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 42);
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 19, 9);
@@ -140,9 +139,31 @@ public class TypeTestExprTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'xml<xml<never>>' will not be matched to 'string'",
                 274, 9);
-        BAssertUtil.validateError(negativeResult, i,
+        BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'xml' will not be matched to 'string'",
                 275, 9);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 280, 17);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 281, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Bar' will not be matched to 'Baz'", 284, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Bar' will not be matched to 'Quux'", 285, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Qux' will not be matched to 'Baz'", 288, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Qux' will not be matched to 'Quux'", 289, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Quux' will not be matched to 'Bar'", 292, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Quux' will not be matched to 'Qux'", 293, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'Quux' will not be matched to 'record {| int i; boolean b; |}'", 294, 18);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'ClosedRecordWithIntField' will not be matched to " +
+                        "'record {| int i; string s; |}'", 297, 19);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @Test
@@ -724,5 +745,10 @@ public class TypeTestExprTest {
     @Test
     public void testMapAsRecord() {
         BRunUtil.invoke(result, "testMapAsRecord");
+    }
+
+    @Test
+    public void testRecordIntersections() {
+        BRunUtil.invoke(result, "testRecordIntersections");
     }
 }

@@ -190,6 +190,9 @@ public class BuildProject extends Project {
                 createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML),
                                           getDependenciesTomlContent(pkgDependencies,
                         currentPackage.manifest().dependencies()));
+            } else {
+                // check Dependencies.toml already exists, then delete it
+                deleteIfExists(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML));
             }
         }
     }
@@ -209,5 +212,13 @@ public class BuildProject extends Project {
             throw new ProjectException("Failed to write dependencies to the 'Dependencies.toml' file");
         }
 
+    }
+
+    private static void deleteIfExists(Path filePath) {
+        if (filePath.toFile().exists()) {
+            if (!filePath.toFile().delete()) {
+                throw new ProjectException("Failed to delete 'Dependencies.toml' file");
+            }
+        }
     }
 }
