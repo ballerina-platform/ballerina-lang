@@ -39,8 +39,11 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
@@ -157,7 +160,9 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 ModuleId moduleId = balaProject.currentPackage().moduleIds().stream()
                         .filter(modId -> modId.moduleName().equals(request.getModule())).findFirst().get();
                 Module module = balaProject.currentPackage().module(moduleId);
-                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+
+                PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
+                SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
 
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
                 module.documentIds().forEach(documentId -> {
@@ -323,7 +328,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
                 ModuleId moduleId = balaProject.currentPackage().moduleIds().stream().findFirst().get();
                 Module module = balaProject.currentPackage().module(moduleId);
-                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+                PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
+                SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
 
                 Map<String, JsonElement> recordDefJsonMap = new HashMap<>();
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
