@@ -33,7 +33,6 @@ import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.util.exceptions.BLangRuntimeException;
 
 import java.util.List;
 import java.util.Map;
@@ -213,8 +212,8 @@ public class ObjectMock {
         String functionName;
         try {
             functionName = caseObj.getStringValue(StringUtils.fromString("functionName")).toString();
-        } catch (BLangRuntimeException e) {
-            if (!e.getMessage().contains("No such field or method: functionName")) {
+        } catch (Exception e) {
+            if (!e.getMessage().contains("No such field: functionName")) {
                 throw e;
             }
             functionName = null;
