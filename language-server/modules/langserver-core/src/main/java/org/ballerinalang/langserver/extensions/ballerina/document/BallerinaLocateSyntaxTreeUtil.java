@@ -33,7 +33,7 @@ import java.util.Optional;
 
 /**
  * This is the BallerinaLocateSyntaxTreeUtil class for related utils in mapping the location of syntax nodes
- * for a given selection.
+ * for a given range.
  *
  * @since 2.0.0
  */
@@ -41,6 +41,11 @@ public class BallerinaLocateSyntaxTreeUtil {
     private static final String POSITION = "position";
     private static final String LOCATE_PATH_PROPERTY = "isNodePath";
     private static final String LOCATED_NODE_PROPERTY = "isLocatedNode";
+    private static final String START_LINE = "startLine";
+    private static final String START_COLUMN = "startColumn";
+    private static final String END_LINE = "endLine";
+    private static final String END_COLUMN = "endColumn";
+
     private enum NodeRange {
         INCLUSIVE,
         EQUALS,
@@ -114,10 +119,10 @@ public class BallerinaLocateSyntaxTreeUtil {
                                            JsonElement jsonNode,
                                            JsonObject position) {
         TextDocument textDocument = syntaxTree.textDocument();
-        int start = textDocument.textPositionFrom(LinePosition.from(position.get("startLine").getAsInt(),
-                position.get("startColumn").getAsInt()));
-        int end = textDocument.textPositionFrom(LinePosition.from(position.get("endLine").getAsInt(),
-                position.get("endColumn").getAsInt()));
+        int start = textDocument.textPositionFrom(LinePosition.from(position.get(START_LINE).getAsInt(),
+                position.get(START_COLUMN).getAsInt()));
+        int end = textDocument.textPositionFrom(LinePosition.from(position.get(END_LINE).getAsInt(),
+                position.get(END_COLUMN).getAsInt()));
         TextRange textRange = TextRange.from(start, end - start);
 
         if (node.textRange().startOffset() >= textRange.startOffset()

@@ -115,7 +115,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 NonTerminalNode node = CommonUtil.findNode(request.getLineRange(), syntaxTree);
 
                 // Get the generated syntax tree JSON with type info.
-                JsonElement subSyntaxTreeJSON = DiagramUtil.getSyntaxTreeJSONByRange(node, semanticModel.get());
+                JsonElement subSyntaxTreeJSON = DiagramUtil.getSyntaxTreeJSON(node, semanticModel.get());
 
                 // Preparing the response.
                 reply.setSource(node.toSourceCode());

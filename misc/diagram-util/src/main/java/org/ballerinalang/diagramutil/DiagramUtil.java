@@ -56,13 +56,13 @@ public class DiagramUtil {
     }
 
     /**
-     * Get the Modified JSON ST with type info for the node.
+     * Get the Modified JSON ST with type info for a node.
      *
      * @param node  {@link NonTerminalNode} The node that needs to be mapped
      * @param semanticModel {@link SemanticModel} Semantic model for the syntax tree.
      * @return {@link JsonObject}   ST as a Json Object
      */
-    public static JsonElement getSyntaxTreeJSONByRange(NonTerminalNode node, SemanticModel semanticModel) {
+    public static JsonElement getSyntaxTreeJSON(NonTerminalNode node, SemanticModel semanticModel) {
         JsonElement syntaxTreeJson;
         try {
             SyntaxTreeMapGenerator mapGenerator = new SyntaxTreeMapGenerator(semanticModel);
