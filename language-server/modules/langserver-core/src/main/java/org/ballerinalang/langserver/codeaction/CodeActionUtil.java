@@ -777,17 +777,20 @@ public class CodeActionUtil {
         FunctionDefinitionNode functionDefNode = null;
         Node parentNode = matchedNode;
         while (parentNode.parent() != null) {
+            boolean isFunctionDef = false;
             // A function definition can be within a class, service or in the module part
             if (parentNode.kind() == SyntaxKind.FUNCTION_DEFINITION &&
                     parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
-                functionDefNode = (FunctionDefinitionNode) parentNode;
-                break;
+                isFunctionDef = true;
             } else if (parentNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
                     parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
-                functionDefNode = (FunctionDefinitionNode) parentNode;
-                break;
+                isFunctionDef = true;
             } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
                     parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
+                isFunctionDef = true;
+            }
+
+            if (isFunctionDef) {
                 functionDefNode = (FunctionDefinitionNode) parentNode;
                 break;
             }
