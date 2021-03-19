@@ -312,6 +312,7 @@ public class LangLibXMLTest {
                 assertEquals(((BXMLItem) descendants.getRefValue(j)).stringValue(), expectedDescendants[j]);
             }
         }
+        BRunUtil.invoke(compileResult, "testDescendantsFilterNonElements");
     }
 
     @Test

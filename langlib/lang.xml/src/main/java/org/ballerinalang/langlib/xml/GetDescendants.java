@@ -34,11 +34,6 @@ public class GetDescendants {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,
                     "getDescendants", "element");
         }
-        try {
-            return (BXml) element.descendants();
-        } catch (Throwable e) {
-            BLangExceptionHelper.handleXMLException("getDescendants", e);
-        }
-        return null;
+        return element.descendants();
     }
 }

@@ -477,6 +477,24 @@ function testGetDescendants() returns xml {
     return descendantSeq;
 }
 
+function testDescendantsFilterNonElements() {
+    xml:Element books = xml
+    `<bs><?xml-stylesheet type="text/xsl"?><bk><t><en><!-- english --><txt>Everyday Italian</txt></en></t></bk></bs>`;
+
+    xml descendants = books.getDescendants();
+
+    xml:Element e1 = xml `<bk><t><en><!-- english --><txt>Everyday Italian</txt></en></t></bk>`;
+    xml:Element e2 = xml `<t><en><!-- english --><txt>Everyday Italian</txt></en></t>`;
+    xml:Element e3 = xml `<en><!-- english --><txt>Everyday Italian</txt></en>`;
+    xml:Element e4 = xml `<txt>Everyday Italian</txt>`;
+
+    assert(descendants.length(), 4);
+    assert(descendants[0], e1);
+    assert(descendants[1], e2);
+    assert(descendants[2], e3);
+    assert(descendants[3], e4);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
