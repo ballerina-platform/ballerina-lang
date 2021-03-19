@@ -85,7 +85,7 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "missing close brace token", 27, 1);
         BAssertUtil.validateError(result, i++, "invalid token '}'", 31, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
-                "'(xml & readonly)'", 31, 14);
+                "'(json & readonly)'", 31, 14);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
