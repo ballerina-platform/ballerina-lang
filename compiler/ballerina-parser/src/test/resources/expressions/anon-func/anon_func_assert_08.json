@@ -293,7 +293,7 @@
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "PARAMETER_NAME",
+                          "kind": "IDENTIFIER_TOKEN",
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [

@@ -10499,7 +10499,7 @@ public class BallerinaParser extends AbstractParser {
                 params = getAnonFuncParam((STBracedExpressionNode) params);
                 break;
             default:
-                STToken syntheticParam = STNodeFactory.createMissingToken(SyntaxKind.PARAMETER_NAME);
+                STToken syntheticParam = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
                 syntheticParam = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(syntheticParam, params,
                         DiagnosticErrorCode.ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR);
                 params = STNodeFactory.createSimpleNameReferenceNode(syntheticParam);
