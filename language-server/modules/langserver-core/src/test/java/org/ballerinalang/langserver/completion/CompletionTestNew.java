@@ -50,7 +50,7 @@ public abstract class CompletionTestNew {
 
     private Endpoint serviceEndpoint;
 
-    private final Path testRoot = FileUtils.RES_DIR.resolve("completion").resolve("new");
+    private final Path testRoot = FileUtils.RES_DIR.resolve("completion");
 
     private final String configDir = "config";
     
@@ -65,7 +65,7 @@ public abstract class CompletionTestNew {
 
     @Test(dataProvider = "completion-data-provider")
     public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
-        String configJsonPath = "completion" + File.separator + "new" + File.separator + configPath
+        String configJsonPath = "completion" + File.separator + configPath
                 + File.separator + configDir + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
 
