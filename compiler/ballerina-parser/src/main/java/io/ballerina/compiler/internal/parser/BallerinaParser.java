@@ -10499,7 +10499,7 @@ public class BallerinaParser extends AbstractParser {
                 params = getAnonFuncParam((STBracedExpressionNode) params);
                 break;
             default:
-                STToken syntheticParam = STNodeFactory.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+                STToken syntheticParam = STNodeFactory.createMissingToken(SyntaxKind.PARAMETER_NAME);
                 syntheticParam = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(syntheticParam, params,
                         DiagnosticErrorCode.ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR);
                 params = STNodeFactory.createSimpleNameReferenceNode(syntheticParam);
@@ -10515,14 +10515,21 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Create a new anon-func-param node from a braced expression.
      *
-     * @param params Braced expression
+     * @param bracedExpression Braced expression
      * @return Anon-func param node
      */
-    private STNode getAnonFuncParam(STBracedExpressionNode params) {
+    private STNode getAnonFuncParam(STBracedExpressionNode bracedExpression) {
         List<STNode> paramList = new ArrayList<>();
-        paramList.add(params.expression);
-        return STNodeFactory.createImplicitAnonymousFunctionParameters(params.openParen,
-                STNodeFactory.createNodeList(paramList), params.closeParen);
+        STNode innerExpression = bracedExpression.expression;
+        STNode openParen = bracedExpression.openParen;
+        if (innerExpression.kind == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            paramList.add(innerExpression);
+        } else {
+            openParen = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(openParen, innerExpression,
+                    DiagnosticErrorCode.ERROR_INVALID_PARAM_LIST_IN_INFER_ANONYMOUS_FUNCTION_EXPR);
+        }
+        return STNodeFactory.createImplicitAnonymousFunctionParameters(openParen,
+                STNodeFactory.createNodeList(paramList), bracedExpression.closeParen);
     }
 
     /**
