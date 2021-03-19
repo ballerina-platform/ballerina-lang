@@ -164,8 +164,8 @@ public class VariableUtils {
 
     /**
      * Returns whether the given local variable is a map which consists of local variables used within lambda
-     * functions. (Since all the ballerina variables used inside lambda functions are converted into maps during the
-     * the runtime code generation, such local variables should be accessed in a different manner.)
+     * functions. (As all the ballerina variables which are being used inside lambda functions are converted into maps
+     * during the the runtime code generation, such local variables should be accessed in a different manner.)
      *
      * @param localVar local variable instance.
      */
