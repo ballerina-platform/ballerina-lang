@@ -46,7 +46,7 @@ import java.util.List;
 /**
  * Completion Test Interface.
  */
-public abstract class CompletionTestNew {
+public abstract class CompletionTest {
 
     private Endpoint serviceEndpoint;
 
