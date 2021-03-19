@@ -430,13 +430,7 @@
                                                   "children": [
                                                     {
                                                       "kind": "IDENTIFIER_TOKEN",
-                                                      "value": "s",
-                                                      "trailingMinutiae": [
-                                                        {
-                                                          "kind": "WHITESPACE_MINUTIAE",
-                                                          "value": " "
-                                                        }
-                                                      ]
+                                                      "value": "s"
                                                     }
                                                   ]
                                                 }
@@ -1046,13 +1040,7 @@
                                                               "children": [
                                                                 {
                                                                   "kind": "IDENTIFIER_TOKEN",
-                                                                  "value": "s",
-                                                                  "trailingMinutiae": [
-                                                                    {
-                                                                      "kind": "WHITESPACE_MINUTIAE",
-                                                                      "value": " "
-                                                                    }
-                                                                  ]
+                                                                  "value": "s"
                                                                 }
                                                               ]
                                                             }
