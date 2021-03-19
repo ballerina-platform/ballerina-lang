@@ -28,6 +28,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlException;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
 import io.ballerina.runtime.internal.types.BIntersectionType;
@@ -48,7 +49,7 @@ import java.util.Map;
  * Test cases for configuration related implementations.
  */
 public class ConfigTest {
-    Module module = new Module("myorg", "test_module", "1.0.0");
+    Module module = new Module("myOrg", "test_module", "1.0.0");
 
     @Test
     public void testTomlConfigProviderWithSimpleTypes() {
@@ -206,6 +207,56 @@ public class ConfigTest {
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         configResolver.resolveConfigs();
         Assert.fail();
+    }
+
+    @Test
+    public void testMultipleTomlProviders() {
+        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
+        Map<Module, VariableKey[]> configVarMap =
+                Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}));
+        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_A.toml"), configVarMap));
+        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_B.toml"), configVarMap));
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        Assert.assertTrue(configValueMap.get(intVar) instanceof Long);
+        Assert.assertTrue(configValueMap.get(stringVar) instanceof BString);
+        Assert.assertEquals(((Long) configValueMap.get(intVar)).intValue(), 77);
+        Assert.assertEquals(((BString) configValueMap.get(stringVar)).getValue(), "test string");
+    }
+
+    @Test
+    public void testMultipleTomlProvidersOverriding() {
+        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
+        Map<Module, VariableKey[]> configVarMap =
+                Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}));
+        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_2.toml"), configVarMap));
+        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_1.toml"), configVarMap));
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        Assert.assertTrue(configValueMap.get(intVar) instanceof Long);
+        Assert.assertTrue(configValueMap.get(stringVar) instanceof BString);
+        Assert.assertEquals(((Long) configValueMap.get(intVar)).intValue(), 54);
+        Assert.assertEquals(((BString) configValueMap.get(stringVar)).getValue(), "final string");
+    }
+
+    @Test(expectedExceptions = ConfigException.class, expectedExceptionsMessageRegExp = "value not provided for " +
+            "required configurable variable 'test_module:stringVar'")
+    public void testMultipleTomlProvidersNegative() {
+        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
+        Map<Module, VariableKey[]> configVarMap =
+                Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}));
+        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_First.toml"), configVarMap));
+        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_Second.toml"), configVarMap));
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
+        configResolver.resolveConfigs();
     }
 
     private Path getConfigPath(String configFileName) {

@@ -87,36 +87,14 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testEnvironmentVariableBasedConfigFile() throws BallerinaTestException {
-        String configFilePath = Paths.get(testFileLocation, "config_files", "Config.toml").toString();
-        executeBalCommand("", testsPassed, "run", "envVarPkg", addConfigPathVariable(configFilePath));
-    }
+    public void testEnvironmentVariableBasedConfigurable() throws BallerinaTestException {
 
-    @Test
-    public void testMultipleConfigFiles() throws BallerinaTestException {
+        // test config file location through `BAL_CONFIG_FILES` env variable
         String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml").toString() +
                 File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml").toString();
         executeBalCommand("", testsPassed, "run", "envVarPkg", addConfigPathVariable(configFilePaths));
-    }
 
-    @Test
-    public void testConfigFileOverriding() throws BallerinaTestException {
-        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config.toml").toString() +
-                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-Second.toml").toString();
-        executeBalCommand("", testsPassed, "run", "envVarPkg", addConfigPathVariable(configFilePaths));
-    }
-
-    @Test
-    public void testConfigFileNegative() throws BallerinaTestException {
-        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-Negative-1.toml").toString() +
-                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-Negative-2.toml").toString();
-        LogLeecher errorLog = new LogLeecher("value not provided for required configurable variable " +
-                "'envVarPkg:stringVar'", ERROR);
-        executeBalCommand("", errorLog, "run", "envVarPkg", addConfigPathVariable(configFilePaths));
-    }
-
-    @Test
-    public void testConfigDataAsString() throws BallerinaTestException {
+        // test configuration through `BAL_CONFIG_DATA` env variable
         String configData = "[envVarPkg] intVar = 42 floatVar = 3.5 stringVar = \"abc\" booleanVar = true " +
                 "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6] " +
                 "stringArr = [\"red\", \"yellow\", \"green\"] booleanArr = [true, false,false, true] " +

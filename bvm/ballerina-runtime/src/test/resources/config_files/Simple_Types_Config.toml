@@ -1,5 +1,4 @@
-[myorg.test_module]
-
+[myOrg.test_module]
 intVar = 42
 byteVar = 5
 floatVar = 3.5
