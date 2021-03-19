@@ -416,12 +416,17 @@ public class ImmutableTypeCloner {
                 BType immutableEffectiveType;
                 LinkedHashSet<BType> originalMemberList = origUnionType.getMemberTypes();
                 LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>(originalMemberList.size());
-                immutableEffectiveType = BUnionType.create(origUnionType.tsymbol);
+                BTypeSymbol origUnionTypeSymbol = origUnionType.tsymbol;
+                immutableEffectiveType = BUnionType.create(origUnionTypeSymbol);
 
                 BUnionType unionEffectiveImmutableType = (BUnionType) immutableEffectiveType;
-                unionEffectiveImmutableType.name = origUnionType.name;
                 unionEffectiveImmutableType.isCyclic = origUnionType.isCyclic;
                 unionEffectiveImmutableType.setMemberTypes(readOnlyMemTypes);
+
+                String originalTypeName = origUnionTypeSymbol == null ? "" : origUnionTypeSymbol.name.getValue();
+                if (!originalTypeName.isEmpty()) {
+                    unionEffectiveImmutableType.name = getImmutableTypeName(names, originalTypeName);
+                }
 
                 for (BType memberType : originalMemberList) {
                     if (types.isInherentlyImmutableType(memberType)) {
@@ -446,11 +451,10 @@ public class ImmutableTypeCloner {
 
                 if (readOnlyMemTypes.size() == 1) {
                     immutableEffectiveType = readOnlyMemTypes.iterator().next();
-                } else if (origUnionType.tsymbol != null) {
-                    BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionType.tsymbol, env, pkgId,
-                                                                                owner);
+                } else if (origUnionTypeSymbol != null) {
+                    BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionTypeSymbol, env, pkgId,
+                                                                           owner);
                     immutableEffectiveType.tsymbol = immutableUnionTSymbol;
-                    immutableUnionTSymbol.name = origUnionType.tsymbol.name;
                     immutableEffectiveType.flags |= (origUnionType.flags | Flags.READONLY);
 
                     if (immutableUnionTSymbol != null) {
@@ -762,6 +766,10 @@ public class ImmutableTypeCloner {
     }
 
     private static Name getImmutableTypeName(Names names, String origName) {
+        if (origName.isEmpty()) {
+            return Names.EMPTY;
+        }
+
         return names.fromString("(".concat(origName).concat(AND_READONLY_SUFFIX).concat(")"));
     }
 

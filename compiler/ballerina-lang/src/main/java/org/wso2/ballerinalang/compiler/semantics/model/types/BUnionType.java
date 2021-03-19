@@ -46,6 +46,7 @@ public class BUnionType extends BType implements UnionType {
     public boolean resolvingToString = false;
 
     private boolean nullable;
+    private String cachedToString;
 
     protected LinkedHashSet<BType> memberTypes;
     public Boolean isAnyData = null;
@@ -118,48 +119,35 @@ public class BUnionType extends BType implements UnionType {
 
     @Override
     public String toString() {
+        if (this.cachedToString != null) {
+            return this.cachedToString;
+        }
 
         // This logic is added to prevent duplicate recursive calls to toString
         if (this.resolvingToString) {
-            if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
+            if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
                 return this.tsymbol.getName().getValue();
             }
             return "...";
         }
 
-        if ((tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
-            return this.tsymbol.getName().getValue();
+        if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
+            String typeStr = this.tsymbol.getName().getValue();
+            // improve readability of cyclic union types
+            if (isCyclic && (pCloneable.matcher(typeStr).matches() ||
+                    Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches())) {
+                return CLONEABLE;
+            }
+
+            if (!Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM)) {
+                return typeStr;
+            }
         }
 
         this.resolvingToString = true;
-
-        StringJoiner joiner = new StringJoiner(getKind().typeName());
-
-        // This logic is added to prevent duplicate recursive calls to toString
-        long numberOfNotNilTypes = 0L;
-        for (BType bType : this.originalMemberTypes) {
-            if (bType.tag != TypeTags.NIL) {
-                joiner.add(bType.toString());
-                numberOfNotNilTypes++;
-            }
-        }
-
-        String typeStr;
-        // improve readability of cyclic union types
-        if (isCyclic && (tsymbol != null) && !tsymbol.getName().getValue().isEmpty()) {
-            typeStr = this.tsymbol.getName().getValue();
-            if (pCloneable.matcher(typeStr).matches()) {
-                typeStr = CLONEABLE;
-            } else if (Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches()) {
-                typeStr = CLONEABLE;
-            }
-        } else {
-            typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
-        }
-
+        this.cachedToString = computeStringRepresentation();
         this.resolvingToString = false;
-        boolean hasNilType = this.originalMemberTypes.size() > numberOfNotNilTypes;
-        return (nullable && hasNilType) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
+        return this.cachedToString;
     }
 
     public void setNullable(boolean nullable) {
@@ -408,5 +396,50 @@ public class BUnionType extends BType implements UnionType {
     @Override
     public BIntersectionType getImmutableType() {
         return this.immutableType;
+    }
+
+    private String computeStringRepresentation() {
+        LinkedHashSet<BType> uniqueTypes = new LinkedHashSet<>();
+        for (BType bType : this.originalMemberTypes) {
+            if (bType.tag != TypeTags.UNION) {
+                uniqueTypes.add(bType);
+                continue;
+            }
+
+            BTypeSymbol tsymbol = bType.tsymbol;
+            if (tsymbol != null &&  !tsymbol.getName().getValue().isEmpty()) {
+                uniqueTypes.add(bType);
+                continue;
+            }
+
+            uniqueTypes.addAll(((BUnionType) bType).originalMemberTypes);
+        }
+
+        StringJoiner joiner = new StringJoiner(getKind().typeName());
+
+        boolean hasNilableMember = false;
+        // This logic is added to prevent duplicate recursive calls to toString
+        long numberOfNotNilTypes = 0L;
+        for (BType bType : uniqueTypes) {
+            if (bType.tag == TypeTags.NIL) {
+                continue;
+            }
+            String memToString = bType.toString();
+
+            if (bType.tag == TypeTags.UNION && memToString.startsWith("(") && memToString.endsWith(")")) {
+                joiner.add(memToString.substring(1, memToString.length() - 1));
+            } else {
+                joiner.add(memToString);
+            }
+            numberOfNotNilTypes++;
+
+            if (!hasNilableMember && bType.isNullable()) {
+                hasNilableMember = true;
+            }
+        }
+
+        String typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
+        boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
+        return (nullable && hasNilType && !hasNilableMember) ? (typeStr + Names.QUESTION_MARK.value) : typeStr;
     }
 }

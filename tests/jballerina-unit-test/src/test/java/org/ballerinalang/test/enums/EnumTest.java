@@ -72,9 +72,8 @@ public class EnumTest {
         validateError(negativeTest, i++, "incompatible types: expected 'string', found 'float'", 30, 13);
         validateError(negativeTest, i++, "incompatible types: expected 'int', found 'string'", 34, 18);
         validateError(negativeTest, i++, "incompatible types: expected 'float', found 'string'", 35, 16);
-        validateError(negativeTest, i++, "incompatible types: expected '(SQUARE|CIRCLE)', found 'string'", 39, 15);
-        validateError(negativeTest, i++, "incompatible types: expected '(Ed Shereen|LANA|EMINEM)', found 'string'",
-                40, 16);
+        validateError(negativeTest, i++, "incompatible types: expected 'Shape', found 'string'", 39, 15);
+        validateError(negativeTest, i++, "incompatible types: expected 'Artist', found 'string'", 40, 16);
         validateError(negativeTest, i++, "incompatible types: expected 'Ed Shereen', found 'string'", 41, 12);
         assertEquals(negativeTest.getErrorCount(), i);
     }

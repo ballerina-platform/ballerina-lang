@@ -59,8 +59,8 @@ public class DependentlyTypedFunctionsTest {
                           + "found 'typedesc<json>'", 41, 23);
         validateError(errors, indx++, "unknown type 'aTypeVar'", 44, 60);
         validateError(errors, indx++, "incompatible types: expected 'map<int>', found 'map<other>'", 51, 18);
-        validateError(errors, indx++, "incompatible types: expected 'int', found '(int|float)'", 61, 13);
-        validateError(errors, indx++, "incompatible types: expected 'float', found '(int|float)'", 62, 15);
+        validateError(errors, indx++, "incompatible types: expected 'int', found 'customType'", 61, 13);
+        validateError(errors, indx++, "incompatible types: expected 'float', found 'customType'", 62, 15);
         validateError(errors, indx++, "unknown type 'td'", 65, 73);
         validateError(errors, indx++, "unknown type 'td'", 73, 54);
         validateError(errors, indx++, "invalid error detail type 'detail', expected a subtype of " +
@@ -103,13 +103,13 @@ public class DependentlyTypedFunctionsTest {
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 199, 13);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 200, 13);
         validateError(errors, indx++, "incompatible types: expected 'int', found 'string'", 201, 13);
-        validateError(errors, indx++, "incompatible types: expected 'future<int>', found 'future<(int|string|error)>'",
+        validateError(errors, indx++, "incompatible types: expected 'future<int>', found 'future<(IntOrString|error)>'",
                       209, 21);
         validateError(errors, indx++,
-                      "incompatible types: expected '(int|string|error)', found 'future<(int|string|error)>'",
+                      "incompatible types: expected '(int|string|error)', found 'future<(IntOrString|error)>'",
                       210, 26);
         validateError(errors, indx++,
-                      "incompatible types: expected 'future<(int|string)>', found 'future<(int|string|error)>'",
+                      "incompatible types: expected 'future<(int|string)>', found 'future<(IntOrString|error)>'",
                       211, 28);
         validateError(errors, indx++, "incompatible types: expected 'future<int>', found 'future<(int|error)>'",
                       213, 21);

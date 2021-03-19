@@ -275,11 +275,9 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 63, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found " +
-                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 64, 16);
+                "incompatible types: expected 'string', found 'Cloneable'", 64, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found " +
-                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 70, 16);
+                "incompatible types: expected 'string', found 'Cloneable'", 70, 16);
         Assert.assertEquals(resultNegative.getErrorCount(), ++i);
     }
 

@@ -154,8 +154,8 @@ function testInvalidInsertionToTupleUsingFiniteType() {
     var a = tuple[f1]; // incompatible types: expected 'int', found 'S1|S2'
     var b = tuple[f2]; // invalid tuple index expression: value space '3|4|5' out of range
     var c = tuple[f3]; // incompatible types: expected 'int', found '0|1|2|S1'
-    var d = tuple[f4]; // incompatible types: expected 'int', found '0|1|2|S1|S2'
-    var e = tuple[f5]; // invalid tuple index expression: value space '3|4|5|6' out of range
+    var d = tuple[f4]; // incompatible types: expected 'int', found 'FiniteFour'
+    var e = tuple[f5]; // invalid tuple index expression: value space 'FiniteFive' out of range
 }
 
 const INDEX_NEG_ONE = -1;
