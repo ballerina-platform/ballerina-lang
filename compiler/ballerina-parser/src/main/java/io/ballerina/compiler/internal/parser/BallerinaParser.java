@@ -16994,6 +16994,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (isBindingPattern(expr.kind)) {
+            key = STNodeFactory.createSimpleNameReferenceNode(key);
             return STNodeFactory.createFieldBindingPatternFullNode(key, colon, expr);
         }
 
