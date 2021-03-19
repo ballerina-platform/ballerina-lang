@@ -2725,7 +2725,10 @@ public class TypeChecker extends BLangNodeVisitor {
 
         List<BType> errorDetailTypes = new ArrayList<>();
         for (BType expandedCandidate : expandedCandidates) {
-            errorDetailTypes.add(((BErrorType) expandedCandidate).detailType);
+            BType detailType = ((BErrorType) expandedCandidate).detailType;
+            if (types.isAssignable(detailType, symTable.detailType)) {
+                errorDetailTypes.add(detailType);
+            }
         }
 
         BType detailCandidate;

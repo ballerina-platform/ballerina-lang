@@ -144,6 +144,39 @@ function testContextuallyExpectedErrorCtor() {
     assertEquals(eTuple[1].detail().no, 2);
     assertEquals(eTuple[2][0].detail().code, 0);
     assertEquals(eTuple[2][0].detail().no, 0);
+
+    // Test picking correct type from a union
+    AppError|CodeError|AppCodeError u = error("msg", code = 100);
+    assertEquals(u is AppError, true);
+    if (u is AppError) {
+        assertEquals(u.detail().code, 100);
+    }
+
+    u = error("msg", no = 100);
+    assertEquals(u is CodeError, true);
+    if (u is CodeError) {
+        assertEquals(u.detail().no, 100);
+    }
+
+    // https://github.com/ballerina-platform/ballerina-lang/issues/29345
+    //u = error("msg", code = 100, no = 100);
+    //assertEquals(u is AppCodeError, true);
+    //if (u is AppCodeError) {
+    //    assertEquals(u.detail().code, 100);
+    //    assertEquals(u.detail().no, 100);
+    //}
+
+    readonly r = error("msg", code = 100, no = 100);
+    if (r is error) {
+        var code = r.detail()["code"];
+        var no = r.detail()["no"];
+        if (code is anydata && no is anydata) {
+            assertEquals(code, 100);
+            assertEquals(no, 100);
+        } else {
+            panic error("Invalid State");
+        }
+    }
 }
 
 function getError(AppError ae) returns [AppError, CodeError, AppCodeError[]] {

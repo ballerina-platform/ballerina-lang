@@ -103,6 +103,8 @@ public class ErrorConstructorExprTest {
                 "error constructor does not accept additional detail args 'k' when error detail type " +
                         "'record {| int i; string j; anydata...; |}' contains individual field descriptors", 42, 38);
         validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 43, 12);
+        validateError(negativeSemanticResult, i++, "cannot infer type of the error from '(error|ErrorB)'", 50, 20);
+        validateError(negativeSemanticResult, i++, "cannot infer type of the error from '(error|ErrorB)'", 51, 20);
         Assert.assertEquals(negativeSemanticResult.getErrorCount(), i);
     }
 

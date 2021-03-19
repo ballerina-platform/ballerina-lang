@@ -41,3 +41,16 @@ function testErrorTypeRefNegative() {
 type Error error<record { int i; string j; }>;
 Error e = error("msg", i = 1, j = 2, k = error("msg"));
 Error e2 = error("msg", i = 1);
+
+type ErrorA error;
+type ErrorB error<map<string>>;
+
+ErrorA|ErrorB u0 = error ErrorA("msg");
+ErrorA|ErrorB u1 = error ErrorA("msg", a = "a");
+ErrorA|ErrorB u2 = error("msg");           // cannot infer type of the error from '(error|ErrorB)'
+ErrorA|ErrorB u3 = error("msg", a = "a");  // cannot infer type of the error from '(error|ErrorB)'
+ErrorA|ErrorB u4 = error("msg", a = 22);
+
+readonly|ErrorA u5 = error("msg");
+readonly|ErrorA u6 = error("msg", a = "a");
+readonly|ErrorA u7 = error("msg", a = 22);
