@@ -581,7 +581,7 @@ function testCloneWithTypeAmbiguousTargetType() {
     var message = bbe.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
     assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
-    assert(messageString, "'Foo' value cannot be converted to 'Bar|Baz': ambiguous target type");
+    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
 }
 
 type StringOrNull string?;
@@ -605,7 +605,7 @@ function testCloneWithTypeForNilNegative() {
     error c1e = <error> c1;
     var message = c1e.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
-    assert(messageString, "cannot convert '()' to type 'string|int'");
+    assert(messageString, "cannot convert '()' to type 'StringOrInt'");
 }
 
 function testCloneWithTypeNumeric1() {

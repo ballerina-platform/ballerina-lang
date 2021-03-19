@@ -197,8 +197,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'Employee' value cannot be converted to 'xml<lang.xml:Element" +
-                                    "|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
+                            "'Employee' value cannot be converted to 'xml<(lang.xml:Element" +
+                                    "|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
     }
 
     @Test
@@ -254,8 +254,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<json>' value cannot be converted to 'xml<lang.xml:Element|" +
-                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
+                            "'map<json>' value cannot be converted to 'xml<(lang.xml:Element|" +
+                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
     }
 
     @Test
@@ -322,8 +322,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'map<anydata>' value cannot be converted to 'xml<lang.xml:Element|" +
-                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
+                            "'map<anydata>' value cannot be converted to 'xml<(lang.xml:Element|" +
+                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
     }
 
     @Test
@@ -361,8 +361,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'anydata[]' value cannot be converted to 'xml<lang.xml:Element|" +
-                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
+                            "'anydata[]' value cannot be converted to 'xml<(lang.xml:Element|" +
+                                    "lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
     }
 
     //----------------------------- Tuple NegativeTest cases ------------------------------------------------------
@@ -391,8 +391,8 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'[string,string,string]' value cannot be converted to 'xml<lang.xml:Element" +
-                                    "|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>'");
+                            "'[string,string,string]' value cannot be converted to 'xml<(lang.xml:Element" +
+                                    "|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>'");
     }
 
     @Test
@@ -421,7 +421,7 @@ public class StampInbuiltFunctionNegativeTest {
         BValue error = results[0];
         Assert.assertEquals(error.getType().getClass(), BErrorType.class);
         Assert.assertEquals(((BMap<String, BString>) ((BError) results[0]).getDetails()).get("message").stringValue(),
-                            "'int' value cannot be converted to 'float|decimal|[string,int]': ambiguous target type");
+                "'int' value cannot be converted to '(float|decimal|[string,int])': ambiguous target type");
     }
 
     @AfterClass

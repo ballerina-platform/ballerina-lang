@@ -733,7 +733,7 @@ function testTupleArrayTypeToString() {
 function testTypeDescValuePrint() {
 	map<int|string> m1 = { one: 1, two: 2 };
     typedesc<map<anydata>> t1 = typeof m1;
-    assertEquality("typedesc map<int|string>", t1.toString());
+    assertEquality("typedesc map<(int|string)>", t1.toString());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

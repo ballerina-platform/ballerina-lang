@@ -28,9 +28,11 @@ import io.ballerina.runtime.internal.values.ReadOnlyUtils;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
 /**
@@ -41,7 +43,7 @@ import java.util.regex.Pattern;
 public class BUnionType extends BType implements UnionType {
 
     public boolean isCyclic = false;
-    public static final char PIPE = '|';
+    public static final String  PIPE = "|";
     private List<Type> memberTypes;
     private List<Type> originalMemberTypes;
     private Boolean nullable;
@@ -306,23 +308,13 @@ public class BUnionType extends BType implements UnionType {
             }
         }
 
-        if (this.typeName != null) {
+        if (this.typeName != null && !this.typeName.isEmpty()) {
             return this.typeName;
         }
 
         resolving = true;
         if (cachedToString == null) {
-            StringBuilder sb = new StringBuilder();
-            int size = originalMemberTypes != null ? originalMemberTypes.size() : 0;
-            int i = 0;
-            while (i < size) {
-                sb.append(originalMemberTypes.get(i).toString());
-                if (++i < size) {
-                    sb.append(PIPE);
-                }
-            }
-            cachedToString = sb.toString();
-
+            cachedToString = computeStringRepresentation();
         }
         resolving = false;
         return cachedToString;
@@ -453,5 +445,52 @@ public class BUnionType extends BType implements UnionType {
             this.addMember(member);
         }
         setFlagsBasedOnMembers();
+    }
+
+    private String computeStringRepresentation() {
+        LinkedHashSet<Type> uniqueTypes = new LinkedHashSet<>();
+        for (Type type : this.originalMemberTypes) {
+            if (type.getTag() != TypeTags.UNION_TAG) {
+                uniqueTypes.add(type);
+                continue;
+            }
+
+            BUnionType unionMemType = (BUnionType) type;
+            String typeName = unionMemType.typeName;
+            if (typeName != null && !typeName.isEmpty()) {
+                uniqueTypes.add(type);
+                continue;
+            }
+
+            uniqueTypes.addAll(unionMemType.originalMemberTypes);
+        }
+
+        StringJoiner joiner = new StringJoiner(PIPE);
+
+        boolean hasNilableMember = false;
+        // This logic is added to prevent duplicate recursive calls to toString
+        long numberOfNotNilTypes = 0L;
+        for (Type type : uniqueTypes) {
+            int tag = type.getTag();
+            if (tag == TypeTags.NULL_TAG) {
+                continue;
+            }
+            String memToString = type.toString();
+
+            if (tag == TypeTags.UNION_TAG && memToString.startsWith("(") && memToString.endsWith(")")) {
+                joiner.add(memToString.substring(1, memToString.length() - 1));
+            } else {
+                joiner.add(memToString);
+            }
+            numberOfNotNilTypes++;
+
+            if (!hasNilableMember && type.isNilable()) {
+                hasNilableMember = true;
+            }
+        }
+
+        String typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
+        boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
+        return (hasNilType && !hasNilableMember) ? (typeStr + "?") : typeStr;
     }
 }
