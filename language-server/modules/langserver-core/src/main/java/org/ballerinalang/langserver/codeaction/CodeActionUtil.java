@@ -801,13 +801,13 @@ public class CodeActionUtil {
     private static String generateIfElseText(String varName, String spaces, String padding,
                                              List<String> memberTypes) {
         if (memberTypes.size() == 1) {
-            return LINE_SEPARATOR + String.format("%sif (%s is %s) {%s}", spaces, varName, memberTypes.get(0), padding);
+            return LINE_SEPARATOR + String.format("%sif %s is %s {%s}", spaces, varName, memberTypes.get(0), padding);
         }
         StringBuilder newTextBuilder = new StringBuilder();
         for (int i = 0; i < memberTypes.size() - 1; i++) {
             String memberType = memberTypes.get(i);
             String prefix = (i == 0) ? spaces : " else ";
-            newTextBuilder.append(String.format("%sif (%s is %s) {%s}", prefix, varName, memberType, padding));
+            newTextBuilder.append(String.format("%sif %s is %s {%s}", prefix, varName, memberType, padding));
         }
         newTextBuilder.append(String.format(" else {%s}%s", padding, LINE_SEPARATOR));
         return LINE_SEPARATOR + newTextBuilder.toString();

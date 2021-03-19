@@ -16,7 +16,7 @@
               "character": 28
             }
           },
-          "newText": "\n        if (intWithError is int) {\n\n        }"
+          "newText": "\n        if intWithError is int {\n\n        }"
         },
         {
           "range": {
