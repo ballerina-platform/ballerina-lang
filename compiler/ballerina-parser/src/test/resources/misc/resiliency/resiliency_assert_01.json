@@ -165,7 +165,7 @@
                                       "hasDiagnostics": true,
                                       "children": [
                                         {
-                                          "kind": "IDENTIFIER_TOKEN",
+                                          "kind": "PARAMETER_NAME",
                                           "isMissing": true,
                                           "hasDiagnostics": true,
                                           "diagnostics": [

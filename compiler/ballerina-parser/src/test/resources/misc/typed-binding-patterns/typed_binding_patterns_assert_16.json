@@ -357,8 +357,13 @@
                                   "kind": "FIELD_BINDING_PATTERN",
                                   "children": [
                                     {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": "b"
+                                      "kind": "SIMPLE_NAME_REFERENCE",
+                                      "children": [
+                                        {
+                                          "kind": "IDENTIFIER_TOKEN",
+                                          "value": "b"
+                                        }
+                                      ]
                                     },
                                     {
                                       "kind": "COLON_TOKEN",
@@ -968,8 +973,13 @@
                                               "kind": "FIELD_BINDING_PATTERN",
                                               "children": [
                                                 {
-                                                  "kind": "IDENTIFIER_TOKEN",
-                                                  "value": "b"
+                                                  "kind": "SIMPLE_NAME_REFERENCE",
+                                                  "children": [
+                                                    {
+                                                      "kind": "IDENTIFIER_TOKEN",
+                                                      "value": "b"
+                                                    }
+                                                  ]
                                                 },
                                                 {
                                                   "kind": "COLON_TOKEN",
