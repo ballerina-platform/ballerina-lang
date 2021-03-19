@@ -24,7 +24,6 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 public class ExpressionTypeRequest {
     private TextDocumentIdentifier documentIdentifier;
     private LinePosition startPosition;
-    private LinePosition endPosition;
 
     public LinePosition getStartPosition() {
         return startPosition;
@@ -32,14 +31,6 @@ public class ExpressionTypeRequest {
 
     public void setStartPosition(LinePosition startPosition) {
         this.startPosition = startPosition;
-    }
-
-    public LinePosition getEndPosition() {
-        return endPosition;
-    }
-
-    public void setEndPosition(LinePosition endPosition) {
-        this.endPosition = endPosition;
     }
 
     public TextDocumentIdentifier getDocumentIdentifier() {

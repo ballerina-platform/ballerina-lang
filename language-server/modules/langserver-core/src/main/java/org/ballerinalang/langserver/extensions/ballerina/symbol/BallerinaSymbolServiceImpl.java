@@ -16,8 +16,9 @@
 package org.ballerinalang.langserver.extensions.ballerina.symbol;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.tools.text.LineRange;
+import io.ballerina.compiler.api.symbols.VariableSymbol;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -30,6 +31,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+
+import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
 
 /**
  * Ballerina Symbol Service LS Extension.
@@ -72,15 +75,13 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
             }
 
             try {
-                LineRange lineRange = LineRange.from(null, request.getStartPosition(), request.getEndPosition());
-
                 // Get the semantic model.
                 Optional<SemanticModel> semanticModel = this.workspaceManager.semanticModel(filePath.get());
 
                 if (semanticModel.isPresent()) {
-                    Optional<TypeSymbol> typeSymbol = semanticModel.get().type(lineRange);
-                    if (typeSymbol.isPresent()) {
-                        return typeSymbol.get();
+                    Optional<Symbol> symbol = semanticModel.get().symbol(workspaceManager.document(filePath.get()).get(), request.getStartPosition());
+                    if (symbol.isPresent() && symbol.get().kind() == VARIABLE) {
+                        return ((VariableSymbol)symbol.get()).typeDescriptor();
                     }
                 }
                 return null;
