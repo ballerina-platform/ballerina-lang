@@ -219,13 +219,13 @@ public class PushCommand implements BLauncherCmd {
 
         if (Files.notExists(balaOutputDir)) {
             throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
-                    + "'bal build' to compile and generate the bala.");
+                    + "'bal build -c' to compile and generate the bala.");
         }
 
         Path packageBalaFile = findBalaFile(pkgName, orgName, balaOutputDir);
         if (null == packageBalaFile) {
             throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
-                    + "'bal build' to compile and generate the bala.");
+                    + "'bal build -c' to compile and generate the bala.");
         }
 
         // bala file path
