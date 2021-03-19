@@ -181,11 +181,15 @@ public class CoverageReport {
         Collection<IClassCoverage> modifiedClasses = new ArrayList<>();
         for (IClassCoverage classCoverage : classesList) {
             if (classCoverage.getSourceFileName() != null) {
-                //Normalize package name and class name for classes generated for bal files
-                IClassCoverage modifiedClassCoverage = new NormalizedCoverageClass(classCoverage,
-                        normalizeFileName(classCoverage.getPackageName()),
-                        normalizeFileName(classCoverage.getName()));
-                modifiedClasses.add(modifiedClassCoverage);
+                if (classCoverage.getSourceFileName().startsWith("tests/")) {
+                    continue;
+                } else {
+                    //Normalize package name and class name for classes generated for bal files
+                    IClassCoverage modifiedClassCoverage = new NormalizedCoverageClass(classCoverage,
+                            normalizeFileName(classCoverage.getPackageName()),
+                            normalizeFileName(classCoverage.getName()));
+                    modifiedClasses.add(modifiedClassCoverage);
+                }
             } else {
                 modifiedClasses.add(classCoverage);
             }
@@ -387,11 +391,15 @@ public class CoverageReport {
             ISourceFileCoverage modifiedSourceFile;
             List<ILine> modifiedLines;
             if (sourcefile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                modifiedLines = modifyLines(sourcefile);
-                //Normalize source file package name
-                modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
-                        modifiedLines, normalizeFileName(sourcefile.getPackageName()));
-                modifiedSourceFiles.add(modifiedSourceFile);
+                if (sourcefile.getName().startsWith("tests/")) {
+                    continue;
+                } else {
+                    modifiedLines = modifyLines(sourcefile);
+                    //Normalize source file package name
+                    modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
+                            modifiedLines, normalizeFileName(sourcefile.getPackageName()));
+                    modifiedSourceFiles.add(modifiedSourceFile);
+                }
             } else {
                 modifiedSourceFiles.add(sourcefile);
             }
