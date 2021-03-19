@@ -28,7 +28,6 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
  */
 public class GetDescendants {
 
-    @SuppressWarnings("unchecked")
     public static BXml getDescendants(BXml element) {
         if (!IsElement.isElement(element)) {
             throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.XML_FUNC_TYPE_ERROR,

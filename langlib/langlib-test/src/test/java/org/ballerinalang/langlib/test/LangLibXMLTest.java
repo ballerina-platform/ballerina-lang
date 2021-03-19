@@ -286,33 +286,7 @@ public class LangLibXMLTest {
 
     @Test
     public void testGetDescendants() {
-        String[] expectedDescendants = {"<CD>\n" +
-                "                           <TITLE>Empire Burlesque</TITLE>\n" +
-                "                           <ARTIST>Bob Dylan</ARTIST>\n" +
-                "                       </CD>",
-                "<TITLE>Empire Burlesque</TITLE>",
-                "<ARTIST>Bob Dylan</ARTIST>", "<CD>\n" +
-                "                           <TITLE>Hide your heart</TITLE>\n" +
-                "                           <ARTIST>Bonnie Tyler</ARTIST>\n" +
-                "                       </CD>",
-                "<TITLE>Hide your heart</TITLE>",
-                "<ARTIST>Bonnie Tyler</ARTIST>", "<CD>\n" +
-                "                           <TITLE>Greatest Hits</TITLE>\n" +
-                "                           <ARTIST>Dolly Parton</ARTIST>\n" +
-                "                       </CD>",
-                "<TITLE>Greatest Hits</TITLE>",
-                "<ARTIST>Dolly Parton</ARTIST>"
-        };
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetDescendants");
-        for (int i = 0; i < returns.length; i++) {
-            BValueArray descendants = ((BXMLSequence) returns[i]).value();
-            long size = descendants.size();
-            for (int j = 0; j < size; j++) {
-                assertTrue(descendants.getRefValue(j) instanceof BXMLItem);
-                assertEquals(((BXMLItem) descendants.getRefValue(j)).stringValue(), expectedDescendants[j]);
-            }
-        }
-        BRunUtil.invoke(compileResult, "testDescendantsFilterNonElements");
+        BRunUtil.invoke(compileResult, "testGetDescendants");
     }
 
     @Test

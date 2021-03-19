@@ -472,12 +472,56 @@ function testSelectingTextFromXml() {
     assert(textValues2.toString(), textValues.toString());
 }
 
-function testGetDescendants() returns xml {
-    xml descendantSeq  = catalog.getDescendants();
-    return descendantSeq;
+function testGetDescendants() {
+    getDescendantsSimpleElement();
+    getDescendantsWithNS();
+    getDescendantsFilterNonElements();
 }
 
-function testDescendantsFilterNonElements() {
+function getDescendantsSimpleElement() {
+    xml:Element bookCatalog = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>
+                           <CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD></CATALOG>`;
+
+    xml descendantSeq  = bookCatalog.getDescendants();
+
+    xml:Element e1 = xml `<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>`;
+    xml:Element e2 = xml `<TITLE>Empire Burlesque</TITLE>`;
+    xml:Element e3 = xml `<ARTIST>Bob Dylan</ARTIST>`;
+    xml:Element e4 = xml `<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>`;
+    xml:Element e5 = xml `<TITLE>Hide your heart</TITLE>`;
+    xml:Element e6 = xml `<ARTIST>Bonnie Tyler</ARTIST>`;
+
+    assert(descendantSeq.length(), 6);
+    assert(descendantSeq[0], e1);
+    assert(descendantSeq[1], e2);
+    assert(descendantSeq[2], e3);
+    assert(descendantSeq[3], e4);
+    assert(descendantSeq[4], e5);
+    assert(descendantSeq[5], e6);
+}
+
+function getDescendantsWithNS() {
+    xmlns "foo" as ns;
+    xml:Element presidents = xml `<Leaders><!-- Comment --><ns:US><fn>Obama</fn></ns:US><US><fn>Trump</fn></US></Leaders>`;
+    xml descendants = presidents.getDescendants();
+
+    xml usNs = descendants.elements("{foo}US");
+    assert(usNs.length(), 1);
+    assert(usNs.toString(), "<ns:US xmlns:ns=\"foo\"><fn>Obama</fn></ns:US>");
+
+    xml:Element e1 = xml `<ns:US><fn>Obama</fn></ns:US>`;
+    xml:Element e2 = xml `<fn>Obama</fn>`;
+    xml:Element e3 = xml `<US><fn>Trump</fn></US>`;
+    xml:Element e4 = xml `<fn>Trump</fn>`;
+
+    assert(descendants.length(), 4);
+    assert(descendants[0], e1);
+    assert(descendants[1], e2);
+    assert(descendants[2], e3);
+    assert(descendants[3], e4);
+}
+
+function getDescendantsFilterNonElements() {
     xml:Element books = xml
     `<bs><?xml-stylesheet type="text/xsl"?><bk><t><en><!-- english --><txt>Everyday Italian</txt></en></t></bk></bs>`;
 
