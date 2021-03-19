@@ -48,12 +48,10 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
  */
 public class SimpleNameReferenceEvaluator extends Evaluator {
 
-    private final SimpleNameReferenceNode syntaxNode;
     private final String nameReference;
 
     public SimpleNameReferenceEvaluator(SuspendedContext context, SimpleNameReferenceNode node) {
         super(context);
-        this.syntaxNode = node;
         this.nameReference = node.name().text();
     }
 
@@ -98,9 +96,9 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
 
     private Optional<BExpressionValue> searchInLocalVariables() {
         try {
-            Value jvmValue = context.getFrame().visibleValueByName(nameReference);
-            if (jvmValue != null) {
-                return Optional.of(new BExpressionValue(context, jvmValue));
+            LocalVariableProxyImpl jvmVar = context.getFrame().visibleVariableByName(nameReference);
+            if (jvmVar != null) {
+                return Optional.of(new BExpressionValue(context, context.getFrame().getValue(jvmVar)));
             }
 
             // As all the ballerina variables which are being used inside lambda functions are converted into maps
