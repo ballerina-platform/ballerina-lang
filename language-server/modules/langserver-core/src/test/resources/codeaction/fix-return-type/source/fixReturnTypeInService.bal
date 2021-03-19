@@ -8,6 +8,6 @@ public listener module1:Listener lst = new module1:Listener(23);
 
 service / on lst {
     resource function get getResource() {
-        createIntWithError()
+        return createIntWithError()
     }
 }

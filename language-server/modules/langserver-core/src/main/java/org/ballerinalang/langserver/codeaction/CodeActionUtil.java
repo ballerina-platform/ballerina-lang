@@ -761,19 +761,22 @@ public class CodeActionUtil {
         return Optional.of(new ImmutablePair<>(matchedNode, matchedSymbol));
     }
 
-    private static Optional<FunctionDefinitionNode> getEnclosedFunction(Node matchedNode) {
+    /**
+     * Given a node, tries to find the {@link FunctionDefinitionNode} which is enclosing the given node. Supports
+     * {@link SyntaxKind#FUNCTION_DEFINITION}, {@link SyntaxKind#OBJECT_METHOD_DEFINITION} and
+     * {@link SyntaxKind#RESOURCE_ACCESSOR_DEFINITION}s
+     *
+     * @param matchedNode Node which is enclosed within a function
+     * @return Optional function defintion node
+     */
+    public static Optional<FunctionDefinitionNode> getEnclosedFunction(Node matchedNode) {
+        if (matchedNode == null) {
+            return Optional.empty();
+        }
+
         FunctionDefinitionNode functionDefNode = null;
         Node parentNode = matchedNode;
-        while (parentNode.kind() != SyntaxKind.FUNCTION_DEFINITION || parentNode.kind() != SyntaxKind.MODULE_PART) {
-            parentNode = parentNode.parent();
-            if (parentNode == null) {
-                break;
-            }
-
-            if (parentNode.parent() == null) {
-                break;
-            }
-
+        while (parentNode.parent() != null) {
             // A function definition can be within a class, service or in the module part
             if (parentNode.kind() == SyntaxKind.FUNCTION_DEFINITION &&
                     parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
@@ -788,6 +791,8 @@ public class CodeActionUtil {
                 functionDefNode = (FunctionDefinitionNode) parentNode;
                 break;
             }
+
+            parentNode = parentNode.parent();
         }
 
         return Optional.ofNullable(functionDefNode);

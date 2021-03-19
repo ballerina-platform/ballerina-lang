@@ -1,6 +1,6 @@
 {
-  "line": 13,
-  "character": 4,
+  "line": 10,
+  "character": 8,
   "expected": [
     {
       "title": "Create variable and type guard",
@@ -8,25 +8,25 @@
         {
           "range": {
             "start": {
-              "line": 13,
-              "character": 24
+              "line": 10,
+              "character": 28
             },
             "end": {
-              "line": 13,
-              "character": 24
+              "line": 10,
+              "character": 28
             }
           },
-          "newText": "\n    if (intWithError is int) {\n\n    }"
+          "newText": "\n        if (intWithError is int) {\n\n        }"
         },
         {
           "range": {
             "start": {
-              "line": 13,
-              "character": 4
+              "line": 10,
+              "character": 8
             },
             "end": {
-              "line": 13,
-              "character": 4
+              "line": 10,
+              "character": 8
             }
           },
           "newText": "int|error intWithError = "
@@ -39,12 +39,12 @@
         {
           "range": {
             "start": {
-              "line": 13,
-              "character": 4
+              "line": 10,
+              "character": 8
             },
             "end": {
-              "line": 13,
-              "character": 4
+              "line": 10,
+              "character": 8
             }
           },
           "newText": "int intWithError = "
@@ -52,12 +52,12 @@
         {
           "range": {
             "start": {
-              "line": 13,
-              "character": 4
+              "line": 10,
+              "character": 8
             },
             "end": {
-              "line": 13,
-              "character": 4
+              "line": 10,
+              "character": 8
             }
           },
           "newText": "check "
@@ -65,15 +65,15 @@
         {
           "range": {
             "start": {
-              "line": 12,
-              "character": 24
+              "line": 9,
+              "character": 39
             },
             "end": {
-              "line": 12,
-              "character": 35
+              "line": 9,
+              "character": 39
             }
           },
-          "newText": "returns int|error"
+          "newText": " returns error?"
         }
       ]
     },
@@ -83,12 +83,12 @@
         {
           "range": {
             "start": {
-              "line": 13,
-              "character": 4
+              "line": 10,
+              "character": 8
             },
             "end": {
-              "line": 13,
-              "character": 4
+              "line": 10,
+              "character": 8
             }
           },
           "newText": "int|error intWithError = "
