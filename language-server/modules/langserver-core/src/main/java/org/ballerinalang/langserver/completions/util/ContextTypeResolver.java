@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.MapTypeSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TableTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -41,7 +42,6 @@ import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
@@ -149,44 +149,23 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
 
     @Override
     public Optional<TypeSymbol> transform(VariableDeclarationNode node) {
-        TypeDescriptorNode typeDescriptorNode = node.typedBindingPattern().typeDescriptor();
-        if (typeDescriptorNode.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE
-                && typeDescriptorNode.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
-            /*
-            Resolved by the variable name when the type desc is not a simple name ref or a qualified name ref
-            eg: record {...} x = ...
-             */
-            return this.visit(node.typedBindingPattern().bindingPattern());
-        }
-        /*
-        eg: TypeName x = ...
-            module1:TypeName x = ...
-         */
-        return this.visit(typeDescriptorNode);
+        return this.visit(node.typedBindingPattern().bindingPattern());
     }
 
     @Override
     public Optional<TypeSymbol> transform(IndexedExpressionNode node) {
         Optional<TypeSymbol> containerType = this.visit(node.containerExpression());
-        TypeSymbol rawType = CommonUtil.getRawType(containerType.orElseThrow());
-        if (rawType.typeKind() == TypeDescKind.ARRAY) {
-            return Optional.of(((ArrayTypeSymbol) rawType).memberTypeDescriptor());
-        }
-        if (rawType.typeKind() == TypeDescKind.MAP) {
-            return ((MapTypeSymbol) rawType).typeParameter();
-        }
-
-        return Optional.empty();
+        return containerType.flatMap(this::getRawContextType);
     }
 
     @Override
     public Optional<TypeSymbol> transform(CaptureBindingPatternNode node) {
         Optional<Symbol> variableSymbol = this.getSymbolByName(node.variableName().text());
-        if (variableSymbol.isEmpty()) {
+        Optional<TypeSymbol> typeSymbol = variableSymbol.flatMap(SymbolUtil::getTypeDescriptor);
+        if (typeSymbol.isEmpty()) {
             return Optional.empty();
         }
-
-        return SymbolUtil.getTypeDescriptor(variableSymbol.get());
+        return this.getRawContextType(typeSymbol.get());
     }
 
     @Override
@@ -267,5 +246,19 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         return this.context.visibleSymbols(context.getCursorPosition()).stream()
                 .filter(namePredicate.and(predicate))
                 .findFirst();
+    }
+
+    private Optional<TypeSymbol> getRawContextType(TypeSymbol typeSymbol) {
+        TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
+        switch (rawType.typeKind()) {
+            case MAP:
+                return ((MapTypeSymbol) rawType).typeParameter();
+            case ARRAY:
+                return Optional.of(((ArrayTypeSymbol) rawType).memberTypeDescriptor());
+            case TABLE:
+                return Optional.of(((TableTypeSymbol) rawType).rowTypeParameter());
+            default:
+                return Optional.of(rawType);
+        }
     }
 }
