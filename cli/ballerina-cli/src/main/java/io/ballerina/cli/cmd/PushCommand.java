@@ -22,6 +22,7 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.bala.BalaProject;
@@ -212,6 +213,7 @@ public class PushCommand implements BLauncherCmd {
     private static Path validateBalaFile(BuildProject project) {
         final PackageName pkgName = project.currentPackage().packageName();
         final PackageOrg orgName = project.currentPackage().packageOrg();
+        PackageVersion packageVersion = project.currentPackage().packageVersion();
 
         // Get bala output path
         Path balaOutputDir = project.currentPackage().project().sourceRoot().resolve(ProjectConstants.TARGET_DIR_NAME)
@@ -226,6 +228,14 @@ public class PushCommand implements BLauncherCmd {
         if (null == packageBalaFile) {
             throw new ProjectException("cannot find bala file for the package: " + pkgName + ". Run "
                     + "'bal build -c' to compile and generate the bala.");
+        }
+
+        if (!packageBalaFile.toString().endsWith(
+                packageVersion.toString() + ProjectConstants.BLANG_COMPILED_PKG_BINARY_EXT)) {
+            throw new ProjectException(
+                    "'" + packageBalaFile + "' does not match with the package version '" + packageVersion.toString()
+                            + "' in " + ProjectConstants.BALLERINA_TOML
+                            + " file. Run 'bal build -c' to recompile and generate the bala.");
         }
 
         // bala file path
