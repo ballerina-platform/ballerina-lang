@@ -60,6 +60,10 @@ public class BallerinaStackFrame {
         this.jStackFrame = stackFrameProxy;
     }
 
+    public StackFrameProxyImpl getJStackFrame() {
+        return jStackFrame;
+    }
+
     /**
      * Returns a debugger adapter protocol compatible instance of this breakpoint.
      *
