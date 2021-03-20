@@ -998,39 +998,16 @@
                                                   "hasDiagnostics": true,
                                                   "children": [
                                                     {
-                                                      "kind": "OBJECT_CONSTRUCTOR",
+                                                      "kind": "SIMPLE_NAME_REFERENCE",
                                                       "hasDiagnostics": true,
                                                       "children": [
                                                         {
-                                                          "kind": "LIST",
-                                                          "children": []
-                                                        },
-                                                        {
-                                                          "kind": "LIST",
-                                                          "children": []
-                                                        },
-                                                        {
-                                                          "kind": "OBJECT_KEYWORD",
+                                                          "kind": "IDENTIFIER_TOKEN",
                                                           "isMissing": true,
                                                           "hasDiagnostics": true,
                                                           "diagnostics": [
-                                                            "ERROR_MISSING_OBJECT_KEYWORD"
+                                                            "ERROR_MISSING_IDENTIFIER"
                                                           ]
-                                                        },
-                                                        {
-                                                          "kind": "OPEN_BRACE_TOKEN",
-                                                          "isMissing": true,
-                                                          "hasDiagnostics": true,
-                                                          "diagnostics": [
-                                                            "ERROR_MISSING_OPEN_BRACE_TOKEN"
-                                                          ]
-                                                        },
-                                                        {
-                                                          "kind": "LIST",
-                                                          "children": []
-                                                        },
-                                                        {
-                                                          "kind": "CLOSE_BRACE_TOKEN"
                                                         }
                                                       ]
                                                     }
@@ -1038,6 +1015,23 @@
                                                 },
                                                 {
                                                   "kind": "CLOSE_BRACKET_TOKEN",
+                                                  "hasDiagnostics": true,
+                                                  "diagnostics": [
+                                                    "ERROR_INVALID_TOKEN"
+                                                  ],
+                                                  "leadingMinutiae": [
+                                                    {
+                                                      "kind": "INVALID_NODE_MINUTIAE",
+                                                      "invalidNode": {
+                                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                                        "children": [
+                                                          {
+                                                            "kind": "CLOSE_BRACE_TOKEN"
+                                                          }
+                                                        ]
+                                                      }
+                                                    }
+                                                  ],
                                                   "trailingMinutiae": [
                                                     {
                                                       "kind": "WHITESPACE_MINUTIAE",
