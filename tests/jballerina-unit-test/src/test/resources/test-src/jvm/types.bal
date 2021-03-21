@@ -736,6 +736,20 @@ function testTypeDescValuePrint() {
     assertEquality("typedesc map<(int|string)>", t1.toString());
 }
 
+enum MyEnum {
+    A,
+    B
+}
+
+type NonEnum A|B;
+
+function func1() returns MyEnum? => ();
+function func2() returns NonEnum? => A;
+
+function testEnumFlagAndMembers() returns [typedesc<function>, typedesc<function>] {
+    return [typeof func1, typeof func2];
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

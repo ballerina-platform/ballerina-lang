@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.flags.TypeFlags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
@@ -48,6 +49,7 @@ public class BUnionType extends BType implements UnionType {
     private List<Type> originalMemberTypes;
     private Boolean nullable;
     private String cachedToString;
+    private long flags = 0;
     private int typeFlags;
     private boolean readonly;
     protected IntersectionType immutableType;
@@ -59,14 +61,20 @@ public class BUnionType extends BType implements UnionType {
     private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE + "([12])?");
 
     public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly,  boolean isCyclic) {
-        this(memberTypes, memberTypes, typeFlags, readonly, isCyclic);
-    }
-
-    private BUnionType(List<Type> memberTypes, List<Type> originalMemberTypes, int typeFlags, boolean readonly,
-                      boolean isCyclic) {
         super(null, null, Object.class);
         this.typeFlags = typeFlags;
         this.readonly = readonly;
+        this.flags = readonly ? SymbolFlags.READONLY : 0;
+        setMemberTypes(memberTypes, memberTypes);
+        this.isCyclic = isCyclic;
+    }
+
+    private BUnionType(List<Type> memberTypes, List<Type> originalMemberTypes, int typeFlags, boolean isCyclic,
+                       long flags) {
+        super(null, null, Object.class);
+        this.typeFlags = typeFlags;
+        this.readonly = isReadOnlyFlagOn(flags);
+        this.flags = flags;
         setMemberTypes(memberTypes, originalMemberTypes);
         this.isCyclic = isCyclic;
     }
@@ -94,20 +102,20 @@ public class BUnionType extends BType implements UnionType {
     }
 
     public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, int typeFlags) {
-        this(memberTypes, originalMemberTypes, typeFlags, false, false);
+        this(memberTypes, originalMemberTypes, typeFlags, false, 0);
     }
 
-    public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, int typeFlags, boolean readonly,
-                      boolean isCyclic) {
-        this(Arrays.asList(memberTypes), Arrays.asList(originalMemberTypes), typeFlags, readonly, isCyclic);
+    public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, int typeFlags, boolean isCyclic, long flags) {
+        this(Arrays.asList(memberTypes), Arrays.asList(originalMemberTypes), typeFlags, isCyclic, flags);
     }
 
-    public BUnionType(String name, Module pkg, int typeFlags, boolean readonly, boolean isCyclic) {
+    public BUnionType(String name, Module pkg, int typeFlags, boolean isCyclic, long flags) {
         super(name, pkg, Object.class);
         this.typeFlags = typeFlags;
-        this.readonly = readonly;
+        this.readonly = isReadOnlyFlagOn(flags);
         this.memberTypes = null;
         this.isCyclic = isCyclic;
+        this.flags = flags;
     }
 
     protected BUnionType(String typeName, Module pkg, boolean readonly, Class<? extends Object> valueClass) {
@@ -131,11 +139,12 @@ public class BUnionType extends BType implements UnionType {
     }
 
     public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, String name, Module pkg, int typeFlags,
-                      boolean readonly, boolean isCyclic) {
+                      boolean isCyclic, long flags) {
         super(name, pkg, Object.class);
         this.typeFlags = typeFlags;
-        this.readonly = readonly;
+        this.readonly = isReadOnlyFlagOn(flags);
         this.isCyclic = isCyclic;
+        this.flags = flags;
         setMemberTypes(Arrays.asList(memberTypes), Arrays.asList(originalMemberTypes));
         this.typeName = name;
     }
@@ -249,6 +258,11 @@ public class BUnionType extends BType implements UnionType {
 
     public List<Type> getMemberTypes() {
         return memberTypes;
+    }
+
+    @Override
+    public List<Type> getOriginalMemberTypes() {
+        return this.originalMemberTypes;
     }
 
     public boolean isNullable() {
@@ -380,6 +394,10 @@ public class BUnionType extends BType implements UnionType {
         return this.typeFlags;
     }
 
+    public long getFlags() {
+        return this.flags;
+    }
+
     @Override
     public boolean isReadOnly() {
         if (this.resolvingReadonly) {
@@ -497,5 +515,9 @@ public class BUnionType extends BType implements UnionType {
     private String getQualifiedName(String name) {
         return (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ? name :
                 pkg.toString() + ":" + name;
+    }
+
+    private boolean isReadOnlyFlagOn(long flags) {
+        return SymbolFlags.isFlagOn(flags, SymbolFlags.READONLY);
     }
 }

@@ -939,13 +939,13 @@ public class JvmTypeGen {
 
         mv.visitLdcInsn(typeFlag(unionType));
 
-        loadReadonlyFlag(mv, unionType);
-
         loadCyclicFlag(mv, unionType);
+
+        mv.visitLdcInsn(unionType.flags);
 
         // initialize the union type without the members array
         mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
-                           String.format("(L%s;L%s;IZZ)V", STRING_VALUE, MODULE), false);
+                           String.format("(L%s;L%s;IZJ)V", STRING_VALUE, MODULE), false);
     }
 
     /**
@@ -1707,19 +1707,18 @@ public class JvmTypeGen {
             }
         }
 
-        // Load type flags
         mv.visitLdcInsn(typeFlag(unionType));
 
-        loadReadonlyFlag(mv, unionType);
-
         loadCyclicFlag(mv, unionType);
+
+        mv.visitLdcInsn(unionType.flags);
 
         // initialize the union type using the members array
         if (nameLoaded) {
             mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
-                               String.format("([L%s;[L%s;L%s;L%s;IZZ)V", TYPE, TYPE, STRING_VALUE, MODULE), false);
+                               String.format("([L%s;[L%s;L%s;L%s;IZJ)V", TYPE, TYPE, STRING_VALUE, MODULE), false);
         } else {
-            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;[L%s;IZZ)V",
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;[L%s;IZJ)V",
                     TYPE, TYPE), false);
         }
     }
