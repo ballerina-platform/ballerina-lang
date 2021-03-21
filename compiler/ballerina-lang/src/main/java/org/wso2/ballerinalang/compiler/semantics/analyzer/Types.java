@@ -4518,13 +4518,20 @@ public class Types {
      * @param type type.
      * @return boolean whether the type is an ordered type or not.
      */
-    public boolean isOrderedType(BType type) {
+    public boolean isOrderedType(BType type, boolean hasCycle) {
         switch (type.tag) {
             case TypeTags.UNION:
-                Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+                BUnionType unionType = (BUnionType) type;
+                if (hasCycle) {
+                    return true;
+                }
+                if (unionType.isCyclic) {
+                    hasCycle = true;
+                }
+                Set<BType> memberTypes = unionType.getMemberTypes();
                 boolean allMembersOrdered = false;
                 for (BType memType : memberTypes) {
-                    allMembersOrdered = isOrderedType(memType);
+                    allMembersOrdered = isOrderedType(memType, hasCycle);
                     if (!allMembersOrdered) {
                         break;
                     }
@@ -4532,20 +4539,20 @@ public class Types {
                 return allMembersOrdered;
             case TypeTags.ARRAY:
                 BType elementType = ((BArrayType) type).eType;
-                return isOrderedType(elementType);
+                return isOrderedType(elementType, hasCycle);
             case TypeTags.TUPLE:
                 List<BType> tupleMemberTypes = ((BTupleType) type).tupleTypes;
                 for (BType memType : tupleMemberTypes) {
-                    if (!isOrderedType(memType)) {
+                    if (!isOrderedType(memType, hasCycle)) {
                         return false;
                     }
                 }
                 BType restType = ((BTupleType) type).restType;
-                return restType == null || isOrderedType(restType);
+                return restType == null || isOrderedType(restType, hasCycle);
             case TypeTags.FINITE:
                 boolean isValueSpaceOrdered = false;
                 for (BLangExpression expr : ((BFiniteType) type).getValueSpace()) {
-                    isValueSpaceOrdered = isOrderedType(expr.type);
+                    isValueSpaceOrdered = isOrderedType(expr.type, hasCycle);
                     if (!isValueSpaceOrdered) {
                         break;
                     }
