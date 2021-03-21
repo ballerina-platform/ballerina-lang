@@ -35,6 +35,8 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
+import io.ballerina.compiler.syntax.tree.Minutiae;
+import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -44,7 +46,6 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.apache.commons.lang3.ClassUtils;
@@ -89,6 +90,13 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         }
         nodeJson.addProperty("source", node.toSourceCode());
         nodeJson.addProperty("kind", prettifyKind(node.kind().toString()));
+        // TODO: Generalize the diagnostic implementation.
+        Iterable<Diagnostic> syntaxDiagnostics = node.diagnostics();
+        if (syntaxDiagnostics != null) {
+            nodeJson.add("syntaxDiagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(syntaxDiagnostics));
+        }
+        nodeJson.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
+        nodeJson.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
 
         if (node.lineRange() != null) {
             LineRange lineRange = node.lineRange();
@@ -156,20 +164,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
 
                 List<Diagnostic> diagnostics = this.semanticModel.diagnostics(lineRange);
                 if (diagnostics != null) {
-                    JsonArray diagnosticsArray = new JsonArray();
-                    for (Diagnostic diagnostic : diagnostics) {
-                        JsonObject diagnosticJson = new JsonObject();
-                        diagnosticJson.addProperty("message", diagnostic.message());
-                        DiagnosticInfo diagnosticInfo = diagnostic.diagnosticInfo();
-                        if (diagnosticInfo != null) {
-                            JsonObject diagnosticInfoJson = new JsonObject();
-                            diagnosticInfoJson.addProperty("code", diagnosticInfo.code());
-                            diagnosticInfoJson.addProperty("severity", diagnosticInfo.severity().name());
-                            diagnosticJson.add("diagnosticInfo", diagnosticInfoJson);
-                        }
-                        diagnosticsArray.add(diagnosticJson);
-                    }
-                    symbolJson.add("diagnostics", diagnosticsArray);
+                    symbolJson.add("diagnostics", SyntaxTreeDiagnosticsUtil.getDiagnostics(diagnostics));
                 }
 
                 nodeJson.add("typeData", symbolJson);
@@ -336,6 +331,7 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
         if (node instanceof Token) {
             nodeInfo.addProperty("isToken", true);
             nodeInfo.addProperty("value", ((Token) node).text());
+            nodeInfo.addProperty("isMissing", node.isMissing());
             if (node.lineRange() != null) {
                 LineRange lineRange = node.lineRange();
                 LinePosition startLine = lineRange.startLine();
@@ -353,6 +349,8 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 nodeInfo.add(memberEntry.getKey(), memberEntry.getValue());
             });
         }
+        nodeInfo.add("leadingMinutiae", evaluateMinutiae(node.leadingMinutiae()));
+        nodeInfo.add("trailingMinutiae", evaluateMinutiae(node.trailingMinutiae()));
         return nodeInfo;
     }
 
@@ -361,5 +359,18 @@ public class SyntaxTreeMapGenerator extends NodeTransformer<JsonElement> {
                 .map(String::toLowerCase)
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining());
+    }
+
+    private JsonArray evaluateMinutiae(MinutiaeList minutiaeList) {
+        JsonArray nodeMinutiae = new JsonArray();
+        for (Minutiae minutiae : minutiaeList) {
+            JsonObject minutiaeJson = new JsonObject();
+            minutiaeJson.addProperty("kind", minutiae.kind().toString());
+            minutiaeJson.addProperty("minutiae", minutiae.text());
+            minutiaeJson.addProperty("isInvalid", minutiae.isInvalidNodeMinutiae());
+            nodeMinutiae.add(minutiaeJson);
+        }
+
+        return nodeMinutiae;
     }
 }

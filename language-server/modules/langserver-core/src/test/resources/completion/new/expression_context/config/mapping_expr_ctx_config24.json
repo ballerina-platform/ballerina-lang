@@ -1,0 +1,41 @@
+{
+  "position": {
+    "line": 6,
+    "character": 16
+  },
+  "source": "expression_context/source/mapping_expr_ctx_source24.bal",
+  "items": [
+    {
+      "label": "readonly",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "readonly ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "first",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "G",
+      "insertText": "first: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "last",
+      "kind": "Field",
+      "detail": "string",
+      "sortText": "G",
+      "insertText": "last: \"${1}\"",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Add All Attributes",
+      "kind": "Property",
+      "detail": "none",
+      "sortText": "Q",
+      "insertText": "first: \"\",\nlast: \"\"",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}
