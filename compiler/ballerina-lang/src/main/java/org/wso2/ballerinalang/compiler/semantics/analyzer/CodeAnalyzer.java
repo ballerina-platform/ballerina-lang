@@ -3034,13 +3034,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 dlog.warning(invocationExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
                              invocationExpr);
             }
-
-            if (((BInvokableSymbol) funcSymbol).getReturnType().tag == TypeTags.NEVER &&
-                    invocationExpr.parent.getKind() != NodeKind.EXPRESSION_STATEMENT) {
-                // Log an error if the function returns never and invoked invalidly.
-                dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION,
-                        funcSymbol);
-            }
         }
     }
 

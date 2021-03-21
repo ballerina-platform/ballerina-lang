@@ -1614,6 +1614,9 @@ public class Types {
                     case TypeTags.XML_PI:
                         varType = symTable.xmlPIType;
                         break;
+                    case TypeTags.NEVER:
+                        varType = symTable.neverType;
+                        break;
                     default:
                         Set<BType> collectionTypes = getEffectiveMemberTypes((BUnionType) constraint);
                         Set<BType> builtinXMLConstraintTypes = getEffectiveMemberTypes
@@ -1931,8 +1934,7 @@ public class Types {
         if (!recordType.sealed) {
             unionType.add(recordType.restFieldType);
         } else if (fields.size() == 0) {
-            dlog.error(recordType.tsymbol.pos, DiagnosticErrorCode.CANNOT_ITERATE_A_CLOSED_RECORD_WITH_NO_FIELDS);
-            return symTable.semanticError;
+            unionType.add(symTable.neverType);
         }
 
         for (BField field : fields.values()) {
@@ -4248,6 +4250,7 @@ public class Types {
             case TypeTags.ANYDATA:
             case TypeTags.MAP:
             case TypeTags.ANY:
+            case TypeTags.NEVER:
                 return true;
             case TypeTags.ARRAY:
                 return checkFillerValue((BArrayType) type);
@@ -4572,6 +4575,32 @@ public class Types {
         }
 
         return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
+    }
+
+    boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+        switch (type.tag) {
+            case TypeTags.NEVER:
+                return true;
+            case TypeTags.RECORD:
+                for (BField field : ((BRecordType) type).fields.values()) {
+                    if (isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type) &&
+                            Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.TUPLE:
+                BTupleType tupleType = (BTupleType) type;
+                List<BType> tupleTypes = tupleType.tupleTypes;
+                for (BType mem : tupleTypes) {
+                    if (isNeverTypeOrStructureTypeWithARequiredNeverMember(mem)) {
+                        return true;
+                    }
+                }
+                return false;
+            default:
+                return false;
+        }
     }
 
     private static class ListenerValidationModel {
