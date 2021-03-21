@@ -51,21 +51,21 @@ function testUnionRuntimeToString() {
     assertTrue(b is error);
     error err = <error> b;
     assertEquals("{ballerina}TypeCastError", err.message());
-    assertEquals("incompatible types: 'any[]' cannot be cast to 'IntOrString'",
+    assertEquals("incompatible types: 'any[]' cannot be cast to 'testorg/foo:1.0.0:IntOrString'",
                  <string> checkpanic err.detail()["message"]);
 
     foo:FooBar|error c = trap <foo:FooBar> a;
     assertTrue(c is error);
     err = <error> c;
     assertEquals("{ballerina}TypeCastError", err.message());
-    assertEquals("incompatible types: 'any[]' cannot be cast to 'FooBar'",
+    assertEquals("incompatible types: 'any[]' cannot be cast to 'testorg/foo:1.0.0:FooBar'",
                  <string> checkpanic err.detail()["message"]);
 
     foo:BazQux|error d = trap <foo:BazQux> a;
     assertTrue(d is error);
     err = <error> d;
     assertEquals("{ballerina}TypeCastError", err.message());
-    assertEquals("incompatible types: 'any[]' cannot be cast to 'BazQux'",
+    assertEquals("incompatible types: 'any[]' cannot be cast to 'testorg/foo:1.0.0:BazQux'",
                  <string> checkpanic err.detail()["message"]);
 }
 
@@ -82,5 +82,5 @@ function assertEquals(anydata expected, anydata actual) {
         return;
     }
 
-    panic error(string `expected ${expected.toString()}, found ${actual.toString()}`);
+    panic error(string `expected [${expected.toString()}], found [${actual.toString()}]`);
 }

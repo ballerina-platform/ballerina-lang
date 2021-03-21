@@ -102,8 +102,8 @@ public class BUnionType extends BType implements UnionType {
         this(Arrays.asList(memberTypes), Arrays.asList(originalMemberTypes), typeFlags, readonly, isCyclic);
     }
 
-    public BUnionType(String name, int typeFlags, boolean readonly, boolean isCyclic) {
-        super(name, null, Object.class);
+    public BUnionType(String name, Module pkg, int typeFlags, boolean readonly, boolean isCyclic) {
+        super(name, pkg, Object.class);
         this.typeFlags = typeFlags;
         this.readonly = readonly;
         this.memberTypes = null;
@@ -130,9 +130,9 @@ public class BUnionType extends BType implements UnionType {
         this.mergeUnionType(unionType);
     }
 
-    public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, String name, int typeFlags, boolean readonly,
-                      boolean isCyclic) {
-        super(name, null, Object.class);
+    public BUnionType(Type[] memberTypes, Type[] originalMemberTypes, String name, Module pkg, int typeFlags,
+                      boolean readonly, boolean isCyclic) {
+        super(name, pkg, Object.class);
         this.typeFlags = typeFlags;
         this.readonly = readonly;
         this.isCyclic = isCyclic;
@@ -300,16 +300,16 @@ public class BUnionType extends BType implements UnionType {
             // show name when visited repeatedly
             if (this.typeName != null) {
                 if (pCloneable.matcher(this.typeName).matches()) {
-                    return CLONEABLE;
+                    return getQualifiedName(CLONEABLE);
                 }
-                return this.typeName;
+                return getQualifiedName(this.typeName);
             } else {
                 return "...";
             }
         }
 
         if (this.typeName != null && !this.typeName.isEmpty()) {
-            return this.typeName;
+            return getQualifiedName(this.typeName);
         }
 
         resolving = true;
@@ -492,5 +492,10 @@ public class BUnionType extends BType implements UnionType {
         String typeStr = numberOfNotNilTypes > 1 ? "(" + joiner.toString() + ")" : joiner.toString();
         boolean hasNilType = uniqueTypes.size() > numberOfNotNilTypes;
         return (hasNilType && !hasNilableMember) ? (typeStr + "?") : typeStr;
+    }
+
+    private String getQualifiedName(String name) {
+        return (pkg == null || pkg.getName() == null || pkg.getName().equals(".")) ? name :
+                pkg.toString() + ":" + name;
     }
 }

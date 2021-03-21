@@ -130,21 +130,21 @@ public class BUnionType extends BType implements UnionType {
         // This logic is added to prevent duplicate recursive calls to toString
         if (this.resolvingToString) {
             if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
-                return this.tsymbol.getName().getValue();
+                return this.tsymbol.toString();
             }
             return "...";
         }
 
         if (tsymbol != null && !tsymbol.getName().getValue().isEmpty()) {
-            String typeStr = this.tsymbol.getName().getValue();
+            String typeName = this.tsymbol.getName().getValue();
             // improve readability of cyclic union types
-            if (isCyclic && (pCloneable.matcher(typeStr).matches() ||
-                    Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches())) {
-                return CLONEABLE;
+            if (isCyclic && (pCloneable.matcher(typeName).matches() ||
+                    Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeName).matches())) {
+                return this.tsymbol.pkgID.toString() + ":" + CLONEABLE;
             }
 
             if (!Symbols.isFlagOn(this.flags, Flags.TYPE_PARAM)) {
-                return typeStr;
+                return this.tsymbol.toString();
             }
         }
 

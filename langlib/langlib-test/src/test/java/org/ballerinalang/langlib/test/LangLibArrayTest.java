@@ -441,14 +441,14 @@ public class LangLibArrayTest {
                                   "cannot call 'shift' on fixed length list(s) of type '[string,int]'",
                                   119, 24);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'SortDirection', found 'function (int) returns (int)'",
-                126, 32);
+                "incompatible types: expected 'ballerina/lang.array:1.1.0:SortDirection', " +
+                        "found 'function (int) returns (int)'", 126, 32);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'SortDirection', found 'function (int) returns (int)'",
-                130, 33);
+                "incompatible types: expected 'ballerina/lang.array:1.1.0:SortDirection', " +
+                        "found 'function (int) returns (int)'", 130, 33);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns (OrderedType)?', " +
-                        "found 'string'", 132, 8);
+                "incompatible types: expected 'isolated function ((any|error)) returns (ballerina/lang.array:1.1" +
+                        ".0:OrderedType)?', found 'string'", 132, 8);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
                 136, 33);
@@ -465,9 +465,8 @@ public class LangLibArrayTest {
                 "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type",
                 148, 35);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'isolated function ((any|error)) returns (OrderedType)?', " +
-                        "found 'isolated function (map<string>?) returns (map<string>?)'",
-                150, 62);
+                "incompatible types: expected 'isolated function ((any|error)) returns (ballerina/lang.array:1.1" +
+                        ".0:OrderedType)?', found 'isolated function (map<string>?) returns (map<string>?)'", 150, 62);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "too many arguments in call to 'sort()'", 154, 24);
         BAssertUtil.validateError(negativeResult, errorIndex++,
@@ -483,8 +482,8 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid sort key function return type: '(int|string)' is not an ordered type", 173, 52);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected '(boolean|int|float|decimal|string|OrderedType[])?', " +
-                        "found 'any'", 176, 60);
+                "incompatible types: expected '(boolean|int|float|decimal|string|ballerina/lang.array:1.1" +
+                        ".0:OrderedType[])?', found 'any'", 176, 60);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 

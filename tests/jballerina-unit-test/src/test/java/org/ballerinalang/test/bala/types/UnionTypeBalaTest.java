@@ -62,9 +62,12 @@ public class UnionTypeBalaTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/bala/test_bala/types/test_union_type_negative.bal");
         int i = 0;
-        validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'IntOrString'", 21, 17);
-        validateError(negativeResult, i++, "incompatible types: expected 'FooBar', found 'string'", 23, 20);
-        validateError(negativeResult, i++, "incompatible types: expected 'BazQux', found 'string'", 25, 20);
+        validateError(negativeResult, i++,
+                "incompatible types: expected 'boolean', found 'testorg/foo:1.0.0:IntOrString'", 21, 17);
+        validateError(negativeResult, i++,
+                "incompatible types: expected 'testorg/foo:1.0.0:FooBar', found 'string'", 23, 20);
+        validateError(negativeResult, i++,
+                "incompatible types: expected 'testorg/foo:1.0.0:BazQux', found 'string'", 25, 20);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

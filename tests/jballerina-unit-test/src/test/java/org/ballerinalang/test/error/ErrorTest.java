@@ -257,13 +257,16 @@ public class ErrorTest {
     public void testErrorNegative() {
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'map<any>', expected a subtype of 'map<Cloneable>'", 41, 28);
+                "invalid error detail type 'map<any>', expected a subtype of " +
+                        "'map<ballerina/lang.value:1.0.0:Cloneable>'", 41, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 42, 28);
+                "invalid error detail type 'boolean', expected a subtype of '" +
+                        "map<ballerina/lang.value:1.0.0:Cloneable>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<Foo>', found 'error'", 45, 17);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 48, 11);
+                "invalid error detail type 'boolean', expected a subtype of " +
+                        "'map<ballerina/lang.value:1.0.0:Cloneable>'", 48, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<boolean>', found 'error'", 48, 24);
         BAssertUtil.validateError(negativeCompileResult, i++,

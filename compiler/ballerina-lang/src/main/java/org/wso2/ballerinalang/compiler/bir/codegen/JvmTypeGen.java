@@ -924,7 +924,18 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, UNION_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        boolean nameLoaded = loadUnionName(mv, unionType);
+        loadUnionName(mv, unionType);
+
+        mv.visitTypeInsn(NEW, MODULE);
+        mv.visitInsn(DUP);
+
+        PackageID packageID = unionType.tsymbol.pkgID;
+
+        mv.visitLdcInsn(packageID.orgName.value);
+        mv.visitLdcInsn(packageID.name.value);
+        mv.visitLdcInsn(packageID.version.value);
+        mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
 
         mv.visitLdcInsn(typeFlag(unionType));
 
@@ -933,12 +944,8 @@ public class JvmTypeGen {
         loadCyclicFlag(mv, unionType);
 
         // initialize the union type without the members array
-        if (nameLoaded) {
-            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;IZZ)V",
-                    STRING_VALUE), false);
-        } else {
-            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("(IZZ)V"), false);
-        }
+        mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
+                           String.format("(L%s;L%s;IZZ)V", STRING_VALUE, MODULE), false);
     }
 
     /**
@@ -1682,6 +1689,24 @@ public class JvmTypeGen {
 
         boolean nameLoaded = loadUnionName(mv, unionType);
 
+        if (nameLoaded) {
+            BTypeSymbol tsymbol = unionType.tsymbol;
+            if (tsymbol == null) {
+                mv.visitInsn(ACONST_NULL);
+            } else {
+                mv.visitTypeInsn(NEW, MODULE);
+                mv.visitInsn(DUP);
+
+                PackageID packageID = tsymbol.pkgID;
+
+                mv.visitLdcInsn(packageID.orgName.value);
+                mv.visitLdcInsn(packageID.name.value);
+                mv.visitLdcInsn(packageID.version.value);
+                mv.visitMethodInsn(INVOKESPECIAL, MODULE, JVM_INIT_METHOD,
+                        String.format("(L%s;L%s;L%s;)V", STRING_VALUE, STRING_VALUE, STRING_VALUE), false);
+            }
+        }
+
         // Load type flags
         mv.visitLdcInsn(typeFlag(unionType));
 
@@ -1691,8 +1716,8 @@ public class JvmTypeGen {
 
         // initialize the union type using the members array
         if (nameLoaded) {
-            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;[L%s;L%s;IZZ)V",
-                    TYPE, TYPE, STRING_VALUE), false);
+            mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD,
+                               String.format("([L%s;[L%s;L%s;L%s;IZZ)V", TYPE, TYPE, STRING_VALUE, MODULE), false);
         } else {
             mv.visitMethodInsn(INVOKESPECIAL, UNION_TYPE_IMPL, JVM_INIT_METHOD, String.format("([L%s;[L%s;IZZ)V",
                     TYPE, TYPE), false);

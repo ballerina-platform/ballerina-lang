@@ -60,7 +60,8 @@ public class LangLibValueTest {
     @Test void testNegativeCases() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/valuelib_test_negative.bal");
         assertEquals(negativeResult.getErrorCount(), 1);
-        validateError(negativeResult, 0, "incompatible types: expected 'any', found 'Cloneable'", 21, 13);
+        validateError(negativeResult, 0,
+                "incompatible types: expected 'any', found 'ballerina/lang.value:1.0.0:Cloneable'", 21, 13);
     }
 
     @Test
