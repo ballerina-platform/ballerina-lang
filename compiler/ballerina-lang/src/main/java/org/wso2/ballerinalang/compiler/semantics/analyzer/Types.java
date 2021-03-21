@@ -4516,6 +4516,7 @@ public class Types {
      * Check whether a type is an ordered type.
      *
      * @param type type.
+     * @param hasCycle whether there is a cycle.
      * @return boolean whether the type is an ordered type or not.
      */
     public boolean isOrderedType(BType type, boolean hasCycle) {
