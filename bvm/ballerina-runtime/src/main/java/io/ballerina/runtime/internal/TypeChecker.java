@@ -2977,7 +2977,7 @@ public class TypeChecker {
     }
 
     /**
-q     * Check if left hand side ordered type value is less than right hand side ordered type value.
+     * Check if left hand side ordered type value is less than right hand side ordered type value.
      *
      * @param lhsValue The value on the left hand side
      * @param rhsValue The value on the right hand side
