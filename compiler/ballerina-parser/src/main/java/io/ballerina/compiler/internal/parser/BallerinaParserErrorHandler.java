@@ -766,10 +766,13 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             { ParserRuleContext.VAR_DECL_STMT, ParserRuleContext.MODULE_VAR_THIRD_QUAL };
 
     private static final ParserRuleContext[] EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START =
-            { ParserRuleContext.TERMINAL_EXPRESSION, ParserRuleContext.INFERRED_TYPEDESC_DEFAULT_START_LT };
+            { ParserRuleContext.EXPRESSION, ParserRuleContext.INFERRED_TYPEDESC_DEFAULT_START_LT };
 
     private static final ParserRuleContext[] TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END =
             { ParserRuleContext.TYPE_CAST_PARAM_START, ParserRuleContext.INFERRED_TYPEDESC_DEFAULT_END_GT };
+
+    private static final ParserRuleContext[] END_OF_PARAMS_OR_NEXT_PARAM_START =
+            { ParserRuleContext.CLOSE_PARENTHESIS, ParserRuleContext.COMMA };
 
     public BallerinaParserErrorHandler(AbstractTokenReader tokenReader) {
         super(tokenReader);
@@ -1626,6 +1629,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case FUNC_DEF_OR_TYPE_DESC_RHS:
             case EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START:
             case TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END:
+            case END_OF_PARAMS_OR_NEXT_PARAM_START:
                 return true;
             default:
                 return false;
@@ -1952,6 +1956,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END:
                 alternativeRules = TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END;
+                break;
+            case END_OF_PARAMS_OR_NEXT_PARAM_START:
+                alternativeRules = END_OF_PARAMS_OR_NEXT_PARAM_START;
                 break;
             default:
                 return seekMatchInStmtRelatedAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
@@ -3017,7 +3024,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case GT:
                 return getNextRuleForGt(nextLookahead);
             case INFERRED_TYPEDESC_DEFAULT_END_GT:
-                return getNextRuleForExpr();
+                return ParserRuleContext.END_OF_PARAMS_OR_NEXT_PARAM_START;
             case TYPE_CAST_PARAM_START:
                 startContext(ParserRuleContext.TYPE_CAST);
                 return ParserRuleContext.TYPE_CAST_PARAM;
@@ -4133,6 +4140,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return ParserRuleContext.EXTERNAL_FUNC_BODY_OPTIONAL_ANNOTS;
             case REQUIRED_PARAM:
             case DEFAULTABLE_PARAM:
+                return ParserRuleContext.EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START;
             case RECORD_FIELD:
             case ARG_LIST:
             case OBJECT_MEMBER:

@@ -612,6 +612,7 @@ public enum ParserRuleContext {
     INFERRED_TYPEDESC_DEFAULT_END_GT("inferred-typedesc-default-end-gt"),
     EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START("expr-start-or-inferred-typedesc-default-start"),
     TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END("type-cast-param-start-or-inferred-typedesc-default-end"),
+    END_OF_PARAMS_OR_NEXT_PARAM_START("end-of-params-or-next-param-start"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

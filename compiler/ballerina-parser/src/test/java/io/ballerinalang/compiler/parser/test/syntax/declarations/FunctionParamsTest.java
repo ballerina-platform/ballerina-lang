@@ -126,4 +126,15 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
     public void testDefaultableParamWithInferredTypedescDefaultMissingEndGT() {
         test("func-definition/func_params_source_20.bal", "func-definition/func_params_assert_20.json");
     }
+
+    @Test
+    public void testDefaultableParamWithIncompleteCastWithAnnotation() {
+        test("func-definition/func_params_source_21.bal", "func-definition/func_params_assert_21.json");
+    }
+
+    @Test
+    public void testDefaultableParamWithInvalidToken() {
+        test("func-definition/func_params_source_22.bal", "func-definition/func_params_assert_22.json");
+        test("func-definition/func_params_source_23.bal", "func-definition/func_params_assert_23.json");
+    }
 }

@@ -17283,7 +17283,7 @@ public class BallerinaParser extends AbstractParser {
             return parseInferredTypeDescDefaultOrExpression(consume());
         }
 
-         if (isValidExprStart(nextTokenKind)) {
+        if (isValidExprStart(nextTokenKind)) {
             return parseExpression();
         }
 
@@ -17303,6 +17303,7 @@ public class BallerinaParser extends AbstractParser {
             STNode expr = parseTypeCastExpr(ltToken, true, false, false);
             return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, expr, true, false);
         }
+
         recover(nextToken, ParserRuleContext.TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END);
         return parseInferredTypeDescDefaultOrExpression(ltToken);
     }
