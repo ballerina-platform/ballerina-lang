@@ -22,7 +22,9 @@ import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.DiagnosticKind;
 import io.ballerina.shell.Evaluator;
 import io.ballerina.shell.cli.handlers.CommandHandler;
+import io.ballerina.shell.cli.handlers.DeleteCommand;
 import io.ballerina.shell.cli.handlers.ExitCommand;
+import io.ballerina.shell.cli.handlers.FileCommand;
 import io.ballerina.shell.cli.handlers.HelpCommand;
 import io.ballerina.shell.cli.handlers.ResetStateCommand;
 import io.ballerina.shell.cli.handlers.StringListCommand;
@@ -34,10 +36,14 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.time.Duration;
 import java.time.Instant;
+import java.util.List;
+import java.util.Optional;
 
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_DCLNS;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_DEBUG;
+import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_DELETE;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_EXIT;
+import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_FILE;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_HELP;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_IMPORTS;
 import static io.ballerina.shell.cli.PropertiesLoader.COMMAND_RESET;
@@ -79,10 +85,17 @@ public class BallerinaShell {
         // If this fails, an error would be directly thrown.
         try {
             evaluator.initialize();
+            // If a start file is given, run it in initialization
+            Optional<String> startFile = configuration.getStartFile();
+            if (startFile.isPresent()) {
+                evaluator.evaluateDeclarationFile(startFile.get());
+            }
         } catch (BallerinaShellException e) {
-            evaluator.diagnostics().forEach(this::outputDiagnostic);
             terminal.println("\nShell Initialization Failed!!!");
             return;
+        } finally {
+            evaluator.diagnostics().forEach(this::outputDiagnostic);
+            evaluator.resetDiagnostics();
         }
 
         Instant end = Instant.now();
@@ -114,6 +127,33 @@ public class BallerinaShell {
                 evaluator.resetDiagnostics();
                 terminal.println("");
             }
+        }
+    }
+
+    /**
+     * Runs a file to load declarations.
+     *
+     * @param fileName File path relative to the cwd.
+     */
+    public void runFile(String fileName) {
+        try {
+            evaluator.evaluateDeclarationFile(fileName);
+        } catch (BallerinaShellException e) {
+            outputException(e);
+        }
+    }
+
+    /**
+     * Deletes a collection of declaration names from REPL.
+     * All must be defined names.
+     *
+     * @param declarationNames Names to delete.
+     */
+    public void delete(List<String> declarationNames) {
+        try {
+            evaluator.delete(declarationNames);
+        } catch (BallerinaShellException e) {
+            outputException(e);
         }
     }
 
@@ -163,6 +203,8 @@ public class BallerinaShell {
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_HELP), new HelpCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_RESET), new ResetStateCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_DEBUG), new ToggleDebugCommand(this));
+        commandHandler.attach(PropertiesLoader.getProperty(COMMAND_FILE), new FileCommand(this));
+        commandHandler.attach(PropertiesLoader.getProperty(COMMAND_DELETE), new DeleteCommand(this));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_VARS),
                 new StringListCommand(this, evaluator::availableVariables));
         commandHandler.attach(PropertiesLoader.getProperty(COMMAND_IMPORTS),

@@ -19,6 +19,7 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
 import io.ballerina.projects.PackageResolution.DependencyResolution;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -44,6 +45,7 @@ class PackageContext {
     private final TomlDocumentContext ballerinaTomlContext;
     private final TomlDocumentContext dependenciesTomlContext;
     private final TomlDocumentContext cloudTomlContext;
+    private final TomlDocumentContext compilerPluginTomlContext;
     private final MdDocumentContext packageMdContext;
 
     private final CompilationOptions compilationOptions;
@@ -68,6 +70,7 @@ class PackageContext {
                    TomlDocumentContext ballerinaTomlContext,
                    TomlDocumentContext dependenciesTomlContext,
                    TomlDocumentContext cloudTomlContext,
+                   TomlDocumentContext compilerPluginTomlContext,
                    MdDocumentContext packageMdContext,
                    CompilationOptions compilationOptions,
                    Map<ModuleId, ModuleContext> moduleContextMap,
@@ -78,6 +81,7 @@ class PackageContext {
         this.ballerinaTomlContext = ballerinaTomlContext;
         this.dependenciesTomlContext = dependenciesTomlContext;
         this.cloudTomlContext = cloudTomlContext;
+        this.compilerPluginTomlContext = compilerPluginTomlContext;
         this.packageMdContext = packageMdContext;
         this.compilationOptions = compilationOptions;
         this.moduleIds = Collections.unmodifiableCollection(moduleContextMap.keySet());
@@ -96,12 +100,12 @@ class PackageContext {
         }
 
         return new PackageContext(project, packageConfig.packageId(), packageConfig.packageManifest(),
-                packageConfig.ballerinaToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                packageConfig.dependenciesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                packageConfig.cloudToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
-                packageConfig.packageMd().map(c ->MdDocumentContext.from(c)).orElse(null),
-                compilationOptions,
-                moduleContextMap, packageConfig.packageDescDependencyGraph());
+                          packageConfig.ballerinaToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                          packageConfig.dependenciesToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                          packageConfig.cloudToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                          packageConfig.compilerPluginToml().map(c -> TomlDocumentContext.from(c)).orElse(null),
+                          packageConfig.packageMd().map(c -> MdDocumentContext.from(c)).orElse(null),
+                          compilationOptions, moduleContextMap, packageConfig.packageDescDependencyGraph());
     }
 
     PackageId packageId() {
@@ -124,6 +128,10 @@ class PackageContext {
         return packageManifest.descriptor();
     }
 
+    Optional<CompilerPluginDescriptor> compilerPluginDescriptor() {
+        return packageManifest.compilerPluginDescriptor();
+    }
+
     PackageManifest manifest() {
         return packageManifest;
     }
@@ -138,6 +146,10 @@ class PackageContext {
 
     Optional<TomlDocumentContext> cloudTomlContext() {
         return Optional.ofNullable(cloudTomlContext);
+    }
+
+    Optional<TomlDocumentContext> compilerPluginTomlContext() {
+        return Optional.ofNullable(compilerPluginTomlContext);
     }
 
     Optional<MdDocumentContext> packageMdContext() {

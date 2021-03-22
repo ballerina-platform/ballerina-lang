@@ -18,10 +18,14 @@
 package io.ballerina.projects.util;
 
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
@@ -36,6 +40,8 @@ import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
@@ -54,11 +60,15 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Properties;
+import java.util.StringJoiner;
 import java.util.jar.JarFile;
 import java.util.jar.Manifest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
 import static io.ballerina.projects.util.ProjectConstants.ASM_COMMONS_JAR;
@@ -78,6 +88,7 @@ import static io.ballerina.projects.util.ProjectConstants.PROPERTIES_FILE;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
+import static org.wso2.ballerinalang.compiler.util.Names.BALLERINA_INTERNAL_ORG;
 
 /**
  * Project related util methods.
@@ -196,6 +207,23 @@ public class ProjectUtils {
         return org + "-" + pkgName + "-" + platform + "-" + version + BLANG_COMPILED_PKG_BINARY_EXT;
     }
 
+    /**
+     * Returns the relative path of extracted bala beginning from the package org.
+     *
+     * @param org package org
+     * @param pkgName package name
+     * @param version package version
+     * @param platform version, null converts to `any`
+     * @return relative bala path
+     */
+    public static Path getRelativeBalaPath(String org, String pkgName, String version, String platform) {
+        // <orgname>-<packagename>-<platform>-<version>.bala
+        if (platform == null || "".equals(platform)) {
+            platform = "any";
+        }
+        return Paths.get(org, pkgName, version, platform);
+    }
+
     public static String getJarFileName(Package pkg) {
         // <orgname>-<packagename>-<version>.jar
         return pkg.packageOrg().toString() + "-" + pkg.packageName().toString()
@@ -203,8 +231,8 @@ public class ProjectUtils {
     }
 
     public static String getExecutableName(Package pkg) {
-        // <packagename>-<version>.jar
-        return pkg.packageName().toString() + "-" + pkg.packageVersion() + BLANG_COMPILED_JAR_EXT;
+        // <packagename>.jar
+        return pkg.packageName().toString() + BLANG_COMPILED_JAR_EXT;
     }
 
     public static String getOrgFromBalaName(String balaName) {
@@ -244,8 +272,10 @@ public class ProjectUtils {
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
 
-    public static List<Path> testDependencies() {
-        List<Path> dependencies = new ArrayList<>();
+    public static List<JarLibrary> testDependencies() {
+        List<JarLibrary> dependencies = new ArrayList<>();
+        String testPkgName = "ballerina/test";
+
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         Path homeLibPath = getBalHomePath().resolve(BALLERINA_HOME_BRE).resolve(LIB_DIR);
         String testRuntimeJarName = TEST_RUNTIME_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
@@ -255,22 +285,22 @@ public class ProjectUtils {
         Path testRuntimeJarPath = homeLibPath.resolve(testRuntimeJarName);
         Path testCoreJarPath = homeLibPath.resolve(testCoreJarName);
         Path langJarPath = homeLibPath.resolve(langJarName);
-        Path jacocoCoreJarPath =  homeLibPath.resolve(JACOCO_CORE_JAR);
+        Path jacocoCoreJarPath = homeLibPath.resolve(JACOCO_CORE_JAR);
         Path jacocoReportJarPath = homeLibPath.resolve(JACOCO_REPORT_JAR);
         Path asmJarPath = homeLibPath.resolve(ASM_JAR);
         Path asmTreeJarPath = homeLibPath.resolve(ASM_TREE_JAR);
         Path asmCommonsJarPath = homeLibPath.resolve(ASM_COMMONS_JAR);
         Path diffUtilsJarPath = homeLibPath.resolve(DIFF_UTILS_JAR);
 
-        dependencies.add(testRuntimeJarPath);
-        dependencies.add(testCoreJarPath);
-        dependencies.add(langJarPath);
-        dependencies.add(jacocoCoreJarPath);
-        dependencies.add(jacocoReportJarPath);
-        dependencies.add(asmJarPath);
-        dependencies.add(asmTreeJarPath);
-        dependencies.add(asmCommonsJarPath);
-        dependencies.add(diffUtilsJarPath);
+        dependencies.add(new JarLibrary(testRuntimeJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(testCoreJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(langJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(jacocoCoreJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(jacocoReportJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(asmJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(asmTreeJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(asmCommonsJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(diffUtilsJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
         return dependencies;
     }
 
@@ -491,17 +521,114 @@ public class ProjectUtils {
      * Get `Dependencies.toml` content as a string.
      *
      * @param pkgDependencies direct dependencies of the package
+     * @param dependencies    list of dependencies as of root package manifest
      * @return Dependencies.toml` content
      */
-    public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgDependencies) {
+    public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgDependencies,
+            List<PackageManifest.Dependency> dependencies) {
         StringBuilder content = new StringBuilder();
         for (ResolvedPackageDependency dependency : pkgDependencies) {
-            content.append("[[dependency]]\n");
-            content.append("org = \"").append(dependency.packageInstance().packageOrg().value()).append("\"\n");
-            content.append("name = \"").append(dependency.packageInstance().packageName().value()).append("\"\n");
-            content.append("version = \"").append(dependency.packageInstance().packageVersion().value()).append("\"\n");
-            content.append("\n");
+            PackageDescriptor descriptor = dependency.packageInstance().descriptor();
+
+            // ignore lang libs & ballerina internal packages
+            if (!(descriptor.isLangLibPackage() || descriptor.org().value().equals(BALLERINA_INTERNAL_ORG.value))) {
+                content.append("[[dependency]]\n");
+                content.append("org = \"").append(descriptor.org().value()).append("\"\n");
+                content.append("name = \"").append(descriptor.name().value()).append("\"\n");
+                content.append("version = \"").append(descriptor.version().value()).append("\"\n");
+                dependencies.forEach(dependency1 -> {
+                    if (dependency1.org().value().equals(dependency.packageInstance().packageOrg().value())
+                            && dependency1.name().value().equals(dependency.packageInstance().packageName().value())
+                            && dependency1.repository() != null) {
+                        content.append("repository = \"").append(dependency1.repository()).append("\"\n");
+                    }
+                });
+                content.append("\n");
+            }
         }
         return String.valueOf(content);
+    }
+
+    public static List<PackageName> getPossiblePackageNames(String moduleName) {
+        String[] modNameParts = moduleName.split("\\.");
+        StringJoiner pkgNameBuilder = new StringJoiner(".");
+        List<PackageName> possiblePkgNames = new ArrayList<>(modNameParts.length);
+        for (String modNamePart : modNameParts) {
+            pkgNameBuilder.add(modNamePart);
+            possiblePkgNames.add(PackageName.from(pkgNameBuilder.toString()));
+        }
+        return possiblePkgNames;
+    }
+
+    /**
+     * Extracts a .bala file into the provided destination directory.
+     *
+     * @param balaFilePath .bala file path
+     * @param balaFileDestPath directory into which the .bala should be extracted
+     * @throws IOException if extraction fails
+     */
+    public static void extractBala(Path balaFilePath, Path balaFileDestPath) throws IOException {
+        if (Files.exists(balaFileDestPath) && Files.isDirectory(balaFilePath)) {
+            deleteDirectory(balaFileDestPath);
+        } else {
+            Files.createDirectories(balaFileDestPath);
+        }
+
+        byte[] buffer = new byte[1024 * 4];
+        try (FileInputStream fileInputStream = new FileInputStream(balaFilePath.toString())) {
+            // Get the zip file content.
+            try (ZipInputStream zipInputStream = new ZipInputStream(fileInputStream)) {
+                // Get the zipped file entry.
+                ZipEntry zipEntry = zipInputStream.getNextEntry();
+                while (zipEntry != null) {
+                    // Get the name.
+                    String fileName = zipEntry.getName();
+                    // Construct the output file.
+                    Path outputPath = balaFileDestPath.resolve(fileName);
+                    // If the zip entry is for a directory, we create the directory and continue with the next entry.
+                    if (zipEntry.isDirectory()) {
+                        Files.createDirectories(outputPath);
+                        zipEntry = zipInputStream.getNextEntry();
+                        continue;
+                    }
+
+                    // Create all non-existing directories.
+                    Files.createDirectories(Optional.of(outputPath.getParent()).get());
+                    // Create a new file output stream.
+                    try (FileOutputStream fileOutputStream = new FileOutputStream(outputPath.toFile())) {
+                        // Write the content from zip input stream to the file output stream.
+                        int len;
+                        while ((len = zipInputStream.read(buffer)) > 0) {
+                            fileOutputStream.write(buffer, 0, len);
+                        }
+                    }
+                    // Continue with the next entry.
+                    zipEntry = zipInputStream.getNextEntry();
+                }
+                // Close zip input stream.
+                zipInputStream.closeEntry();
+            }
+        }
+    }
+
+    /**
+     * Delete the given directory along with all files and sub directories.
+     *
+     * @param directoryPath Directory to delete.
+     */
+    public static boolean deleteDirectory(Path directoryPath) {
+        File directory = new File(String.valueOf(directoryPath));
+        if (directory.isDirectory()) {
+            File[] files = directory.listFiles();
+            if (files != null) {
+                for (File f : files) {
+                    boolean success = deleteDirectory(f.toPath());
+                    if (!success) {
+                        return false;
+                    }
+                }
+            }
+        }
+        return directory.delete();
     }
 }

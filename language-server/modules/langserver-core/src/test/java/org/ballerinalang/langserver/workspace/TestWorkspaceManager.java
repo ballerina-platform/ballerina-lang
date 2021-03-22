@@ -249,6 +249,55 @@ public class TestWorkspaceManager {
     }
 
     @Test
+    public void testWSEventsCreateCompilerPluginToml() throws WorkspaceDocumentException, IOException {
+        Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath();
+
+        // Open project
+        openFile(filePath);
+
+        // Create a Compiler-plugin.toml and send CREATED event
+        Path compilerPluginTomlFile = RESOURCE_DIRECTORY.resolve("myproject")
+                .resolve(ProjectConstants.COMPILER_PLUGIN_TOML).toAbsolutePath();
+        Files.write(compilerPluginTomlFile, "".getBytes());
+        FileEvent fileEvent = new FileEvent(compilerPluginTomlFile.toUri().toString(), FileChangeType.Created);
+        try {
+            workspaceManager.didChangeWatched(compilerPluginTomlFile, fileEvent);
+
+            Optional<Project> project = workspaceManager.project(filePath);
+            // Project should not empty
+            Assert.assertTrue(project.isPresent());
+            // Project should contain Compiler-plugin.toml
+            Assert.assertTrue(project.get().currentPackage().compilerPluginToml().isPresent());
+        } finally {
+            Files.deleteIfExists(compilerPluginTomlFile);
+        }
+    }
+
+    @Test
+    public void testWSEventsDeleteCompilerPluginToml() throws WorkspaceDocumentException, IOException {
+        Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath();
+
+        // Create a Compiler-plugin.toml file
+        Path compilerPluginToml = RESOURCE_DIRECTORY.resolve("myproject").resolve(ProjectConstants.COMPILER_PLUGIN_TOML)
+                .toAbsolutePath();
+        Files.write(compilerPluginToml, "".getBytes());
+
+        // Open project
+        openFile(filePath);
+
+        // Delete a file and send DELETED event
+        Files.delete(compilerPluginToml);
+        FileEvent fileEvent = new FileEvent(compilerPluginToml.toUri().toString(), FileChangeType.Deleted);
+        workspaceManager.didChangeWatched(compilerPluginToml, fileEvent);
+
+        Optional<Project> project = workspaceManager.project(filePath);
+        // Project should not empty
+        Assert.assertTrue(project.isPresent());
+        // Project should not contain Compiler-plugin.toml
+        Assert.assertTrue(project.get().currentPackage().compilerPluginToml().isEmpty());
+    }
+
+    @Test
     public void testWSEventsCreateDependenciesToml() throws WorkspaceDocumentException, IOException {
         Path filePath = RESOURCE_DIRECTORY.resolve("myproject").resolve("main.bal").toAbsolutePath();
 

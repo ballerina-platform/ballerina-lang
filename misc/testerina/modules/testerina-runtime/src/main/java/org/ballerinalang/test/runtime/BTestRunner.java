@@ -107,12 +107,12 @@ public class BTestRunner {
      *
      * @param suite test meta data for module
      */
-    public void runTest(TestSuite suite)  {
+    public void runTest(TestSuite suite, ClassLoader classLoader)  {
         int[] testExecutionOrder = checkCyclicDependencies(suite.getTests());
         List<Test> sortedTests = orderTests(suite.getTests(), testExecutionOrder);
         suite.setTests(sortedTests);
         // execute the test programs
-        execute(suite);
+        execute(suite, classLoader);
     }
 
     private static List<Test> orderTests(List<Test> tests, int[] testExecutionOrder) {
@@ -207,10 +207,11 @@ public class BTestRunner {
      * Run all tests.
      *
      */
-    private void execute(TestSuite suite) {
+    private void execute(TestSuite suite, ClassLoader testClassLoader) {
         // Check if there are tests in the test suite
         if (suite.getTests().size() == 0) {
-            outStream.println("\tNo tests found\n");
+            outStream.println();
+            outStream.println("\t\tNo tests found\n");
             return;
         }
 
@@ -218,7 +219,7 @@ public class BTestRunner {
         AtomicBoolean shouldSkipAfterSuite = new AtomicBoolean();
         AtomicBoolean shouldSkipAfterGroups = new AtomicBoolean();
         String packageName = suite.getPackageName();
-        ClassLoader classLoader = ClassLoader.getSystemClassLoader();
+        ClassLoader classLoader = testClassLoader;
         // Load module init class
         String initClassName = TesterinaUtils.getQualifiedClassName(suite.getOrgName(),
                                                                     suite.getPackageID(),
@@ -575,7 +576,7 @@ public class BTestRunner {
     private Path getConfigPath(TestSuite testSuite) {
         String moduleName = testSuite.getModuleName();
         Path configFilePath = Paths.get(testSuite.getSourceRootPath());
-        if (!moduleName.equals("")) {
+        if (!moduleName.equals(testSuite.getPackageName())) {
             configFilePath = configFilePath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
         }
         configFilePath = configFilePath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);

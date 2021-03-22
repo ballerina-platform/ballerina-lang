@@ -195,6 +195,63 @@ function testCustomErrorTypeDescWithoutConstraint() {
 
 }
 
+type ImmutableIntArray int[] & readonly;
+
+function testTypeDefWithIntersectionTypeDescAsTypedesc() {
+    typedesc<anydata> a = ImmutableIntArray;
+    (int|string)[] arr = [1, 2, 3];
+    var b = arr.cloneWithType(a);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/28912
+    //assertEquality(true, (typeof b).toString());
+    //assertEquality(true, b is int[]);
+    //assertEquality(true, (<int[]> checkpanic b).isReadOnly());
+    //assertEquality(<int[]> [1, 2, 3], b);
+
+    var c = arr.fromJsonWithType(ImmutableIntArray);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/28912
+    //assertEquality(true, c is int[]);
+    //assertEquality(true, (<int[]> checkpanic c).isReadOnly());
+    //assertEquality(<int[]> [1, 2, 3], c);
+
+    typedesc<readonly> d = ImmutableIntArray;
+}
+
+type Foo "foo";
+type FooBar "foo"|"bar";
+
+function testFiniteTypeAsTypedesc() {
+    typedesc<string> a = Foo;
+    typedesc<anydata> b = FooBar;
+
+    string foo = "foo";
+    string bar = "bar";
+    string baz = "baz";
+
+    var c = foo.cloneWithType(a);
+    assertEquality(true, c is Foo);
+
+    var d = baz.cloneWithType(a);
+    assertEquality(true, d is error);
+
+    var e = bar.fromJsonWithType(FooBar);
+    assertEquality(false, e is Foo);
+    assertEquality(true, e is FooBar);
+}
+
+type FunctionTypeOne function (int i) returns string;
+type FunctionTypeTwo function () returns string;
+
+function testTypeDefWithFunctionTypeDescAsTypedesc() {
+    typedesc a = FunctionTypeOne;
+    typedesc b = FunctionTypeTwo;
+
+    any c = function () returns string => "hello";
+    typedesc d = typeof c;
+
+    assertEquality(false, a.toString() == b.toString());
+    assertEquality(true, b.toString() == d.toString());
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

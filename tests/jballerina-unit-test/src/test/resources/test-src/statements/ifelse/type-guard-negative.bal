@@ -158,3 +158,38 @@ function testTypeGuardsWithErrorInmatch() returns string {
         var p => {return "Internal server error";}
     }
 }
+
+function testTypeGuardWithRecordNegative() {
+    Foo|Baz|int val = 10;
+
+    if val is Foo {
+
+    } else if val is Bar {
+        var v = val.code;
+    }
+
+    if val is Foo {
+
+    } else if val is Qux {
+        var v = val.code;
+    }
+}
+
+type Baz record {
+};
+
+type Foo record {
+    readonly Class code = new;
+};
+
+type Bar record {
+    readonly Class code = new;
+};
+
+type Qux record {
+    readonly Class code;
+};
+
+readonly class Class {
+
+}

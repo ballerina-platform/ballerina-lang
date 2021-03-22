@@ -1,16 +1,13 @@
 NAME
-       ballerina-push - Push packages to Ballerina Central
+       ballerina-push - Push packages to Ballerina Central or local repository
 
 SYNOPSIS
-       bal push
+       bal push [--repository=local]
 
 
 DESCRIPTION
        The push command pushes the current package to Ballerina
-       Central.
-
-       By default, the push command builds the sources before pushing
-       the package to Ballerina Central.
+       Central if no options provided.
 
        Before pushing the package to Ballerina Central:
        1) Create an organization by registering with Ballerina Central at
@@ -25,8 +22,28 @@ DESCRIPTION
              name= "foo"
              version= "1.0.0"
 
+       Providing the option '--repository=local' will push the bala to the local
+       repository. To use a certain package from the local repository, the depender
+       package should specify the entry 'repository="local"' in 'Dependencies.toml'
+       file under the `[[dependency]]` table of the dependee package.
+
+       E.g. Dependencies.toml content of 'abc/foo:1.0.0' which depends on 'abc/bar:1.0.0'
+
+              [[dependency]]
+              org= "abc"
+              name= "bar"
+              version= "1.0.0"
+              repository="local"
+
+OPTIONS
+       --repository
+           Push the bala to a custom repository. Only the value 'local' is allowed.
+
 
 EXAMPLES
        Push the package of the current package to Ballerina Central after
        building it.
-          $ bal push
+           $ bal push
+
+       Push the package of the current package to local repository for testing.
+           $ bal push --repository=local

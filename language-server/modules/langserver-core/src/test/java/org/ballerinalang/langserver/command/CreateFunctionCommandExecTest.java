@@ -61,18 +61,22 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"createUndefinedFunction10.json", "createUndefinedFunction5.bal"},
                 {"createUndefinedFunction11.json", "createUndefinedFunction5.bal"},
                 {"createUndefinedFunction12.json", "createUndefinedFunction5.bal"},
-                // TODO Need to fix records support
+                // TODO Need to fix anonymous records support
                 // {"createUndefinedFunction13.json", "createUndefinedFunction5.bal"},
+
+                {"createUndefinedFunctionInRecord.json", "createUndefinedFunctionInRecord.bal"},
+                {"createUndefinedFunctionInRecord2.json", "createUndefinedFunctionInRecord.bal"},
 
                 {"projectCreateUndefinedFunction1.json", "testproject/main.bal"},
                 {"projectCreateUndefinedFunction2.json", "testproject/main.bal"},
                 {"projectCreateUndefinedFunction3.json", "testproject/main.bal"},
-                // TODO Determining types within records not supported yet
-                // {"projectCreateUndefinedFunction4.json", "testproject/main.bal"},
-                // TODO Assignment to module declaration not supported yet
-                // {"projectCreateUndefinedFunction5.json", "testproject/school.bal"},
-                // TODO Assignment let expressions not supported yet
-                // {"projectCreateUndefinedFunction6.json", "testproject/school.bal"},
+                {"projectCreateUndefinedFunction4.json", "testproject/main.bal"},
+                {"projectCreateUndefinedFunction5.json", "testproject/school.bal"},
+                // Let Expression
+                {"projectCreateUndefinedFunctionInLet.json", "testproject/school.bal"},
+                {"projectCreateUndefinedFunctionInLet2.json", "testproject/school.bal"},
+                {"projectCreateUndefinedFunctionInLet3.json", "testproject/school.bal"},
+                // Module Alias
                 {"projectCreateUndefinedFunctionWithModAlias.json", "testproject/modAlias.bal"},
                 {"projectCreateUndefinedFunctionWithModAlias2.json", "testproject/modAlias.bal"},
                 {"projectCreateUndefinedFunctionWithLangLib.json", "testproject/langlib.bal"},
@@ -81,8 +85,8 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
 
     @Override
     protected List<Object> getArgs(JsonObject argsObject) {
-        return Collections.singletonList(CommandArgument.from(CommandConstants.ARG_KEY_NODE_POS,
-                argsObject.getAsJsonObject("node.position")));
+        return Collections.singletonList(CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE,
+                argsObject.getAsJsonObject("node.range")));
     }
 
     @Override

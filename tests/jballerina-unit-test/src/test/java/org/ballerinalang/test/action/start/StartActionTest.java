@@ -55,9 +55,9 @@ public class StartActionTest {
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 72, 28);
         BAssertUtil.validateError(result, indx++, "action invocation as an expression not allowed here", 76, 25);
         BAssertUtil.validateError(result, indx++, "'wait' cannot be used with actions", 90, 27);
-        BAssertUtil.validateError(result, indx++, "missing close paren token", 97, 1);
+        BAssertUtil.validateError(result, indx++, "missing close parenthesis token", 97, 1);
         BAssertUtil.validateError(result, indx++, "missing identifier", 97, 1);
-        BAssertUtil.validateError(result, indx++, "missing open paren token", 97, 1);
+        BAssertUtil.validateError(result, indx++, "missing open parenthesis token", 97, 1);
         BAssertUtil.validateError(result, indx++, "missing semicolon token", 97, 1);
         BAssertUtil.validateError(result, indx++, "invalid expression in start action", 100, 5);
         Assert.assertEquals(result.getErrorCount(), indx);

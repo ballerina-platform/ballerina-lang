@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
@@ -79,7 +80,7 @@ public class CodeActionRouter {
                     }
                 } catch (Exception e) {
                     String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                    clientLogger.logError(msg, e, null, (Position) null);
+                    clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, null, (Position) null);
                 }
             });
         }
@@ -99,7 +100,7 @@ public class CodeActionRouter {
                             }
                         } catch (Exception e) {
                             String msg = "CodeAction '" + provider.getClass().getSimpleName() + "' failed!";
-                            clientLogger.logError(msg, e, null, (Position) null);
+                            clientLogger.logError(LSContextOperation.TXT_CODE_ACTION, msg, e, null, (Position) null);
                         }
                     });
                 });

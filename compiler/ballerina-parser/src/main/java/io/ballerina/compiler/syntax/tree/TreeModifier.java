@@ -437,7 +437,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             LockStatementNode lockStatementNode) {
         Token lockKeyword =
                 modifyToken(lockStatementNode.lockKeyword());
-        StatementNode blockStatement =
+        BlockStatementNode blockStatement =
                 modifyNode(lockStatementNode.blockStatement());
         OnFailClauseNode onFailClause =
                 modifyNode(lockStatementNode.onFailClause().orElse(null));
@@ -476,7 +476,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(forEachStatementNode.inKeyword());
         Node actionOrExpressionNode =
                 modifyNode(forEachStatementNode.actionOrExpressionNode());
-        StatementNode blockStatement =
+        BlockStatementNode blockStatement =
                 modifyNode(forEachStatementNode.blockStatement());
         OnFailClauseNode onFailClause =
                 modifyNode(forEachStatementNode.onFailClause().orElse(null));
@@ -1112,6 +1112,8 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ModuleVariableDeclarationNode moduleVariableDeclarationNode) {
         MetadataNode metadata =
                 modifyNode(moduleVariableDeclarationNode.metadata().orElse(null));
+        Token visibilityQualifier =
+                modifyToken(moduleVariableDeclarationNode.visibilityQualifier().orElse(null));
         NodeList<Token> qualifiers =
                 modifyNodeList(moduleVariableDeclarationNode.qualifiers());
         TypedBindingPatternNode typedBindingPattern =
@@ -1124,6 +1126,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
                 modifyToken(moduleVariableDeclarationNode.semicolonToken());
         return moduleVariableDeclarationNode.modify(
                 metadata,
+                visibilityQualifier,
                 qualifiers,
                 typedBindingPattern,
                 equalsToken,
@@ -1863,7 +1866,7 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
         Token functionKeyword =
                 modifyToken(functionTypeDescriptorNode.functionKeyword());
         FunctionSignatureNode functionSignature =
-                modifyNode(functionTypeDescriptorNode.functionSignature());
+                modifyNode(functionTypeDescriptorNode.functionSignature().orElse(null));
         return functionTypeDescriptorNode.modify(
                 qualifierList,
                 functionKeyword,
