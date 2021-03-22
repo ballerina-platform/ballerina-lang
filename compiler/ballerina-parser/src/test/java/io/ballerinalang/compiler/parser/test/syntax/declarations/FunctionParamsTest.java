@@ -137,4 +137,9 @@ public class FunctionParamsTest extends AbstractDeclarationTest {
         test("func-definition/func_params_source_22.bal", "func-definition/func_params_assert_22.json");
         test("func-definition/func_params_source_23.bal", "func-definition/func_params_assert_23.json");
     }
+
+    @Test
+    public void testMissingEqualsTokenWithDefaultableParamWithInferredTypedescDefault() {
+        test("func-definition/func_params_source_24.bal", "func-definition/func_params_assert_24.json");
+    }
 }
