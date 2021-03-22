@@ -28,7 +28,7 @@ import java.io.IOException;
  *
  * @since 2.0.0
  */
-public class ModuleVariableContextTest extends CompletionTestNew {
+public class ModuleVariableContextTest extends CompletionTest {
 
     @Test(dataProvider = "completion-data-provider")
     @Override

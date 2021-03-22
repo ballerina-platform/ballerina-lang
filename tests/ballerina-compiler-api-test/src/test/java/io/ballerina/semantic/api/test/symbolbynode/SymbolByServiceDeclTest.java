@@ -39,6 +39,7 @@ import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
+import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.testng.annotations.Test;
@@ -50,6 +51,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static org.testng.Assert.assertEquals;
 
 /**
@@ -105,6 +107,12 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
                     ResourceMethodSymbol method =
                             (ResourceMethodSymbol) assertSymbol(functionDefinitionNode, model, RESOURCE_METHOD,
                                                                 functionDefinitionNode.functionName().text());
+
+                    if (functionDefinitionNode.functionName().text().equals("delete")) {
+                        visitSyntaxNode(functionDefinitionNode.functionSignature());
+                        return;
+                    }
+
                     assertEquals(method.signature(),
                                  "resource function get greet/[int x]/hello/[float y]/[string... rest] () returns " +
                                          "json");
@@ -140,12 +148,21 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
                     assertSymbol(functionDefinitionNode, model, METHOD, functionDefinitionNode.functionName().text());
                 }
             }
+
+            @Override
+            public void visit(RecordFieldNode recordFieldNode) {
+                if (recordFieldNode.typeName().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                    TypeReferenceTypeSymbol type = (TypeReferenceTypeSymbol) assertSymbol(recordFieldNode.typeName(),
+                                                                                          model, TYPE, "Error");
+                    assertEquals(type.typeDescriptor().typeKind(), TypeDescKind.RECORD);
+                }
+            }
         };
     }
 
     @Override
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 6);
+        assertEquals(getAssertCount(), 8);
     }
 
     private Symbol assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {

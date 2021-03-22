@@ -24,6 +24,9 @@ service HelloWorld /foo/bar on new Listener() {
 
     resource function get greet/[int x]/hello/[float y]/[string... rest] () returns json => { output: self.greeting };
 
+    resource function delete pets () returns record{|Error body;|} {
+    }
+
     remote function sayHello() return string => self.greeting;
 
     function createError() returns @tainted error? => ();
@@ -46,3 +49,8 @@ public class Listener {
     public function attach(service object {} s, string[]? name = ()) returns error? {
     }
 }
+
+type Error record {
+    int id;
+    string code;
+};
