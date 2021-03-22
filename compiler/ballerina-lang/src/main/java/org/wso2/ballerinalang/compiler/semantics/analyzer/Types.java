@@ -4583,8 +4583,9 @@ public class Types {
                 return true;
             case TypeTags.RECORD:
                 for (BField field : ((BRecordType) type).fields.values()) {
-                    if (isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type) &&
-                            Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+                    // skip check for fields with self referencing type and not required fields.
+                    if (!isSameType(type, field.type) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED) &&
+                            isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type)) {
                         return true;
                     }
                 }
