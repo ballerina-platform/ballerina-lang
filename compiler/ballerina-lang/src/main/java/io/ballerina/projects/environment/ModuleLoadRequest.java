@@ -37,12 +37,14 @@ public class ModuleLoadRequest {
     private final ModuleName moduleName;
     private final PackageVersion version;
     private final PackageDependencyScope scope;
+    private final boolean injected;
 
     public ModuleLoadRequest(PackageOrg orgName,
                              PackageName packageName,
                              ModuleName moduleName,
                              PackageVersion version,
-                             PackageDependencyScope scope) {
+                             PackageDependencyScope scope,
+                             boolean injected) {
         if (orgName != null && orgName.value().isEmpty()) {
             throw new IllegalArgumentException("The orgName cannot be an empty string. " +
                     "It should be either null or a non-empty string value");
@@ -52,6 +54,7 @@ public class ModuleLoadRequest {
         this.moduleName = moduleName;
         this.version = version;
         this.scope = scope;
+        this.injected = injected;
     }
 
     public Optional<PackageOrg> orgName() {
@@ -72,6 +75,10 @@ public class ModuleLoadRequest {
 
     public PackageDependencyScope scope() {
         return scope;
+    }
+
+    public boolean injected() {
+        return injected;
     }
 
     @Override

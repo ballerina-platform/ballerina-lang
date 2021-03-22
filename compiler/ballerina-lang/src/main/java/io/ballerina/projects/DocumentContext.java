@@ -137,7 +137,7 @@ class DocumentContext {
             PackageName packageName = PackageName.from(Names.TRANSACTION.value);
             ModuleLoadRequest ballerinaiLoadReq =
                     new ModuleLoadRequest(PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
-                            packageName, ModuleName.from(packageName), null, scope);
+                            packageName, ModuleName.from(packageName), null, scope, true);
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
 
@@ -181,7 +181,7 @@ class DocumentContext {
         ModuleName moduleName = ModuleName.from(packageName, moduleNamePart.isEmpty() ? null : moduleNamePart);
 
         // Create the module load request
-        return new ModuleLoadRequest(orgName, packageName, moduleName, null, scope);
+        return new ModuleLoadRequest(orgName, packageName, moduleName, null, scope, false);
     }
 
     private String handleQuotedIdentifier(String identifier) {
