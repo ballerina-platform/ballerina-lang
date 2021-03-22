@@ -29,7 +29,7 @@
               "character": 34
             }
           },
-          "newText": "\n    if (countryWithError is module2:Country) {\n\n    }"
+          "newText": "\n    if countryWithError is module2:Country {\n\n    }"
         },
         {
           "range": {
