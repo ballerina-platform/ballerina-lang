@@ -275,9 +275,25 @@ public class SymbolLookupTest {
         Map<String, Symbol> symbolsForJoinRHS = getSymbolsInFile(model, srcFile, 36, 28, moduleID);
         assertList(symbolsForJoinRHS, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "j"));
 
-//        Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 50, 25, moduleID);
-//        assertList(symbolsForOrderBy, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "p1",
-//                "p2", "personList", "p"));
+        Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 44, 25, moduleID);
+        assertList(symbolsForOrderBy, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "p1",
+                "p2", "personList", "p"));
+
+        Map<String, Symbol> symbolsForNestedFrom1 = getSymbolsInFile(model, srcFile, 48, 42, moduleID);
+        assertList(symbolsForNestedFrom1, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
+                "p1", "p2", "personList", "k"));
+
+        Map<String, Symbol> symbolsForNestedFrom2 = getSymbolsInFile(model, srcFile, 49, 23, moduleID);
+        assertList(symbolsForNestedFrom2, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
+                "p1", "p2", "personList", "i"));
+
+        Map<String, Symbol> symbolsForNestedFrom3 = getSymbolsInFile(model, srcFile, 54, 47, moduleID);
+        assertList(symbolsForNestedFrom3, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
+                "res6", "p1", "p2", "personList", "m"));
+
+        Map<String, Symbol> symbolsForNestedFrom4 = getSymbolsInFile(model, srcFile, 53, 28, moduleID);
+        assertList(symbolsForNestedFrom4, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
+                "res6", "p1", "p2", "personList"));
     }
 
     @Test
