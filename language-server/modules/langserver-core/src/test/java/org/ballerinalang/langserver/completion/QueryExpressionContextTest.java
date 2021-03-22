@@ -26,7 +26,7 @@ import java.util.List;
 /**
  * Query expression context related tests. Covers query expressions and query actions.
  */
-public class QueryExpressionContextTest extends CompletionTestNew {
+public class QueryExpressionContextTest extends CompletionTest {
 
     @Test(dataProvider = "completion-data-provider")
     @Override
