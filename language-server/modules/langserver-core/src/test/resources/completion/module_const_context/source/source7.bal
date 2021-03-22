@@ -9,3 +9,5 @@ function getInt() returns int {
 function getInt2() returns int {
     return 1234;
 }
+
+public const int CONST1 = 1;

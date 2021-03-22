@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ConstantDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -31,6 +32,8 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link ModulePartNode} context.
@@ -58,13 +61,17 @@ public class ConstantDeclarationNodeContext extends AbstractCompletionProvider<C
                 completionItems.addAll(this.getModuleCompletionItems(context));
             }
         } else if (this.onExpressionContext(context, node)) {
+            Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.CONSTANT;
+            List<Symbol> constants;
             if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-                List<Symbol> expressionEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-                completionItems.addAll(this.getCompletionItemList(expressionEntries, context));
+                constants = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
             } else {
-                completionItems.addAll(this.expressionCompletions(context));
+                constants = context.visibleSymbols(context.getCursorPosition()).stream()
+                        .filter(predicate)
+                        .collect(Collectors.toList());
             }
+            completionItems.addAll(this.getCompletionItemList(constants, context));
         }
         this.sort(context, node, completionItems);
 
