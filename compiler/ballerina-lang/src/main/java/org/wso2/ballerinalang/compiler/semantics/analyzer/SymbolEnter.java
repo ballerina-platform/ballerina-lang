@@ -3149,9 +3149,6 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangSimpleVariable field : classDefinition.fields) {
             defineNode(field, typeDefEnv);
-            if (field.symbol.type == symTable.semanticError) {
-                continue;
-            }
             objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos, field.symbol));
         }
 
