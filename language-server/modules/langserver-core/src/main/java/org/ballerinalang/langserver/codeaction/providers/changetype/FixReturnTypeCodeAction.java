@@ -17,7 +17,6 @@ package org.ballerinalang.langserver.codeaction.providers.changetype;
 
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.ReturnStatementNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
@@ -72,22 +71,22 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        FunctionDefinitionNode funcDef = getFunctionNode(positionDetails);
-        if (RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.functionName().text())) {
+        Optional<FunctionDefinitionNode> funcDef = CodeActionUtil.getEnclosedFunction(positionDetails.matchedNode());
+        if (funcDef.isEmpty() || RuntimeConstants.MAIN_FUNCTION_NAME.equals(funcDef.get().functionName().text())) {
             return Collections.emptyList();
         }
 
         // Where to insert the edit: Depends on if a return statement alredy available or not
         Position start;
         Position end;
-        if (funcDef.functionSignature().returnTypeDesc().isEmpty()) {
+        if (funcDef.get().functionSignature().returnTypeDesc().isEmpty()) {
             // eg. function test() {...}
-            Position funcBodyStart = CommonUtil.toPosition(funcDef.functionSignature().lineRange().endLine());
+            Position funcBodyStart = CommonUtil.toPosition(funcDef.get().functionSignature().lineRange().endLine());
             start = funcBodyStart;
             end = funcBodyStart;
         } else {
             // eg. function test() returns () {...}
-            ReturnTypeDescriptorNode returnTypeDesc = funcDef.functionSignature().returnTypeDesc().get();
+            ReturnTypeDescriptorNode returnTypeDesc = funcDef.get().functionSignature().returnTypeDesc().get();
             LinePosition retStart = returnTypeDesc.type().lineRange().startLine();
             LinePosition retEnd = returnTypeDesc.type().lineRange().endLine();
             start = new Position(retStart.line(), retStart.offset());
@@ -104,7 +103,7 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
             String editText;
             // Process function node
-            if (funcDef.functionSignature().returnTypeDesc().isEmpty()) {
+            if (funcDef.get().functionSignature().returnTypeDesc().isEmpty()) {
                 editText = " returns " + type;
             } else {
                 editText = type;
@@ -126,13 +125,5 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         }
 
         return node != null ? (ReturnStatementNode) node : null;
-    }
-    
-    private FunctionDefinitionNode getFunctionNode(DiagBasedPositionDetails positionDetails) {
-        Node parent = positionDetails.matchedNode();
-        while (parent.kind() != SyntaxKind.FUNCTION_DEFINITION) {
-            parent = parent.parent();
-        }
-        return (FunctionDefinitionNode) parent;
     }
 }
