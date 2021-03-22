@@ -1225,12 +1225,11 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangJoinClause joinClause) {
-        if (!PositionUtil.withinRightInclusive(this.linePosition, joinClause.getPosition())) {
-            return;
+        if (PositionUtil.withinRightInclusive(this.linePosition, joinClause.getPosition())) {
+            this.scope = joinClause.env;
+            this.acceptNode(joinClause.collection, joinClause.env);
+            this.acceptNode((BLangNode) joinClause.onClause, joinClause.env);
         }
-        this.scope = joinClause.env;
-        this.acceptNode(joinClause.collection, joinClause.env);
-        this.acceptNode((BLangNode) joinClause.onClause, joinClause.env);
     }
 
     @Override
@@ -1258,7 +1257,7 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     public void visit(BLangOrderByClause orderByClause) {
         if (PositionUtil.withinRightInclusive(this.linePosition, orderByClause.getPosition())) {
             this.scope = orderByClause.env;
-            for (OrderKeyNode key: orderByClause.orderByKeyList) {
+            for (OrderKeyNode key : orderByClause.orderByKeyList) {
                 this.acceptNode((BLangNode) key.getOrderKey(), orderByClause.env);
             }
         }

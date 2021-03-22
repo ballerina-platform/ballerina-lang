@@ -293,7 +293,7 @@ public class SymbolLookupTest {
 
         Map<String, Symbol> symbolsForNestedFrom4 = getSymbolsInFile(model, srcFile, 53, 28, moduleID);
         assertList(symbolsForNestedFrom4, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
-                "res6", "p1", "p2", "personList"));
+                "res6", "p1", "p2", "personList", "ii", "jj"));
     }
 
     @Test
