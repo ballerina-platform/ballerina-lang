@@ -17,7 +17,6 @@
 import ballerina/testobserve;
 import intg_tests/tracing_tests.utils as utils;
 
-@display { label: "testServiceTwo" }
 service /testServiceTwo on new testobserve:Listener(9092) {
     # Resource function for testing whether no return functions are instrumented properly.
     resource function post resourceOne(testobserve:Caller caller, string body) {
