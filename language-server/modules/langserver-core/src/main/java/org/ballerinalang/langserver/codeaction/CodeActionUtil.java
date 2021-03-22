@@ -417,8 +417,17 @@ public class CodeActionUtil {
 
         String returnText = "";
         Range returnRange = null;
-        if (optEnclosedFuncSymbol.isPresent() && optEnclosedFuncSymbol.get().kind() == SymbolKind.FUNCTION) {
-            FunctionSymbol enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+
+        FunctionSymbol enclosedFuncSymbol = null;
+        if (optEnclosedFuncSymbol.isPresent()) {
+            Symbol funcSymbol = optEnclosedFuncSymbol.get();
+            if (funcSymbol.kind() == SymbolKind.FUNCTION || funcSymbol.kind() == SymbolKind.METHOD ||
+                    funcSymbol.kind() == SymbolKind.RESOURCE_METHOD) {
+                enclosedFuncSymbol = (FunctionSymbol) optEnclosedFuncSymbol.get();
+            }
+        }
+
+        if (enclosedFuncSymbol != null) {
             boolean hasFuncNodeReturn = enclosedFunc.get().functionSignature().returnTypeDesc().isPresent();
             boolean hasFuncSymbolReturn = enclosedFuncSymbol.typeDescriptor().returnTypeDescriptor().isPresent();
             if (hasFuncNodeReturn && hasFuncSymbolReturn) {
@@ -752,33 +761,56 @@ public class CodeActionUtil {
         return Optional.of(new ImmutablePair<>(matchedNode, matchedSymbol));
     }
 
-    private static Optional<FunctionDefinitionNode> getEnclosedFunction(Node matchedNode) {
+    /**
+     * Given a node, tries to find the {@link FunctionDefinitionNode} which is enclosing the given node. Supports
+     * {@link SyntaxKind#FUNCTION_DEFINITION}, {@link SyntaxKind#OBJECT_METHOD_DEFINITION} and
+     * {@link SyntaxKind#RESOURCE_ACCESSOR_DEFINITION}s
+     *
+     * @param matchedNode Node which is enclosed within a function
+     * @return Optional function defintion node
+     */
+    public static Optional<FunctionDefinitionNode> getEnclosedFunction(Node matchedNode) {
+        if (matchedNode == null) {
+            return Optional.empty();
+        }
+
         FunctionDefinitionNode functionDefNode = null;
         Node parentNode = matchedNode;
-        while (parentNode.kind() != SyntaxKind.FUNCTION_DEFINITION || parentNode.kind() != SyntaxKind.MODULE_PART) {
-            parentNode = parentNode.parent();
-            if (parentNode == null) {
-                break;
-            }
+        while (parentNode.parent() != null) {
+            boolean isFunctionDef = false;
+            // A function definition can be within a class, service or in the module part
             if (parentNode.kind() == SyntaxKind.FUNCTION_DEFINITION &&
-                    parentNode.parent() != null && parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
+                    parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
+                isFunctionDef = true;
+            } else if (parentNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
+                    parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
+                isFunctionDef = true;
+            } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
+                    parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
+                isFunctionDef = true;
+            }
+
+            if (isFunctionDef) {
                 functionDefNode = (FunctionDefinitionNode) parentNode;
                 break;
             }
+
+            parentNode = parentNode.parent();
         }
+
         return Optional.ofNullable(functionDefNode);
     }
 
     private static String generateIfElseText(String varName, String spaces, String padding,
                                              List<String> memberTypes) {
         if (memberTypes.size() == 1) {
-            return LINE_SEPARATOR + String.format("%sif (%s is %s) {%s}", spaces, varName, memberTypes.get(0), padding);
+            return LINE_SEPARATOR + String.format("%sif %s is %s {%s}", spaces, varName, memberTypes.get(0), padding);
         }
         StringBuilder newTextBuilder = new StringBuilder();
         for (int i = 0; i < memberTypes.size() - 1; i++) {
             String memberType = memberTypes.get(i);
             String prefix = (i == 0) ? spaces : " else ";
-            newTextBuilder.append(String.format("%sif (%s is %s) {%s}", prefix, varName, memberType, padding));
+            newTextBuilder.append(String.format("%sif %s is %s {%s}", prefix, varName, memberType, padding));
         }
         newTextBuilder.append(String.format(" else {%s}%s", padding, LINE_SEPARATOR));
         return LINE_SEPARATOR + newTextBuilder.toString();
