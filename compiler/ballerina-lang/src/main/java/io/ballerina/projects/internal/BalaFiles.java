@@ -46,6 +46,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -248,6 +249,7 @@ public class BalaFiles {
             Path compilerPluginJsonPath = zipFileSystem.getPath(COMPILER_PLUGIN_DIR, COMPILER_PLUGIN_JSON);
             if (!Files.notExists(compilerPluginJsonPath)) {
                 CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
+                extractCompilerPluginLibraries(compilerPluginJson, balrPath, zipFileSystem);
                 return getPackageManifest(packageJson, Optional.of(compilerPluginJson));
             }
             return getPackageManifest(packageJson, Optional.empty());
@@ -270,7 +272,7 @@ public class BalaFiles {
         Path compilerPluginJsonPath = balrPath.resolve(COMPILER_PLUGIN_DIR).resolve(COMPILER_PLUGIN_JSON);
         if (!Files.notExists(compilerPluginJsonPath)) {
             CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
-            extractCompilerPluginLibraries(compilerPluginJson, balrPath);
+            setCompilerPluginDependencyPaths(compilerPluginJson, balrPath);
             return getPackageManifest(packageJson, Optional.of(compilerPluginJson));
         }
         return getPackageManifest(packageJson, Optional.empty());
@@ -294,21 +296,40 @@ public class BalaFiles {
         });
     }
 
-    private static void extractCompilerPluginLibraries(CompilerPluginJson compilerPluginJson, Path balaPath) {
+    private static void extractCompilerPluginLibraries(CompilerPluginJson compilerPluginJson, Path balaPath,
+            FileSystem zipFileSystem) {
         if (compilerPluginJson.dependencyPaths() == null) {
             return;
         }
         List<String> dependencyLibPaths = new ArrayList<>();
         compilerPluginJson.dependencyPaths().forEach(dependencyPath -> {
-            Path libPath = balaPath.getParent().resolve(dependencyPath);
+            Path libPath = balaPath.getParent().resolve(dependencyPath).normalize();
             if (!Files.exists(libPath)) {
                 try {
                     Files.createDirectories(libPath.getParent());
-                    Files.copy(balaPath.resolve(dependencyPath), libPath);
+                    // TODO: Need to refactor this fix
+                    Path libPathInZip = Paths.get(dependencyPath);
+                    if (!dependencyPath.contains(COMPILER_PLUGIN_DIR)) {
+                        libPathInZip = Paths.get(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip));
+                    }
+                    Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
                 } catch (IOException e) {
-                    throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
+                    throw new ProjectException(
+                            "Failed to extract compiler plugin dependency:" + libPath.getFileName(), e);
                 }
             }
+            dependencyLibPaths.add(libPath.toString());
+        });
+        compilerPluginJson.setDependencyPaths(dependencyLibPaths);
+    }
+
+    private static void setCompilerPluginDependencyPaths(CompilerPluginJson compilerPluginJson, Path balaPath) {
+        if (compilerPluginJson.dependencyPaths() == null) {
+            return;
+        }
+        List<String> dependencyLibPaths = new ArrayList<>();
+        compilerPluginJson.dependencyPaths().forEach(dependencyPath -> {
+            Path libPath = balaPath.resolve(dependencyPath);
             dependencyLibPaths.add(libPath.toString());
         });
         compilerPluginJson.setDependencyPaths(dependencyLibPaths);
