@@ -155,3 +155,9 @@ public function decimalArrayLoad() returns decimal {
     decimal[] a = [1.0, 2.0];
     return a[1];
 }
+
+function testDecimalFillerValue() returns [[decimal], decimal[1], boolean, boolean] {
+    [decimal] a = [];
+    decimal[1] b = [];
+    return [a, b, a[0] == +0d, a[0] == b[0]];
+}
