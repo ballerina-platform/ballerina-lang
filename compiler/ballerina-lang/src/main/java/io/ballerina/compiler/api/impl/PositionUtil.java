@@ -81,4 +81,18 @@ class PositionUtil {
 
         return specifiedEndColumn <= nodeEndColumn;
     }
+
+    static boolean withinRightInclusive(LinePosition cursorPos, Location symbolPosition) {
+        int startLine = symbolPosition.lineRange().startLine().line();
+        int startColumn = symbolPosition.lineRange().startLine().offset();
+        int endLine = symbolPosition.lineRange().endLine().line();
+
+        int cursorLine = cursorPos.line();
+        int cursorColumn = cursorPos.offset();
+        return (startLine < cursorLine && endLine > cursorLine)
+                || (startLine < cursorLine && endLine == cursorLine)
+                || (startLine == cursorLine && endLine > cursorLine)
+                || (startLine == endLine && startLine == cursorLine
+                && startColumn <= cursorColumn);
+    }
 }
