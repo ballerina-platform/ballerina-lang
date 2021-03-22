@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -21,7 +21,8 @@ package io.ballerina.semantic.api.test.incompletesource;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
 import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
-import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.projects.Document;
@@ -30,6 +31,7 @@ import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Map;
@@ -40,11 +42,11 @@ import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Test cases for incomplete source files.
+ * Test cases for use of undefined types as field types.
  *
  * @since 2.0.0
  */
-public class IncompleteSourceTest {
+public class InvalidFieldTypeTest {
 
     private SemanticModel model;
     private Document srcFile;
@@ -56,25 +58,53 @@ public class IncompleteSourceTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
-    @Test
-    public void testSymbolAtCursor() {
-        ClassFieldSymbol field = (ClassFieldSymbol) model.symbol(srcFile, from(17, 16)).get();
-        assertEquals(field.getName().get(), "c");
-        assertEquals(field.typeDescriptor().typeKind(), TypeDescKind.COMPILATION_ERROR);
+    @Test(dataProvider = "CursorPosProvider1")
+    public void testSymbolAtCursor(int line, int col, String name) {
+        Symbol field = model.symbol(srcFile, from(line, col)).get();
+        assertEquals(field.getName().get(), name);
+
+        TypeDescKind typeKind;
+        switch (field.kind()) {
+            case CLASS_FIELD:
+                typeKind = ((ClassFieldSymbol) field).typeDescriptor().typeKind();
+                break;
+            case RECORD_FIELD:
+                typeKind = ((RecordFieldSymbol) field).typeDescriptor().typeKind();
+                break;
+            case OBJECT_FIELD:
+                typeKind = ((ObjectFieldSymbol) field).typeDescriptor().typeKind();
+                break;
+            default:
+                throw new IllegalArgumentException("Unexpected symbol kind: " + field.kind());
+        }
+        assertEquals(typeKind, TypeDescKind.COMPILATION_ERROR);
     }
 
-    @Test
-    public void testVisibleSymbols() {
+    @DataProvider(name = "CursorPosProvider1")
+    public Object[][] getCursorPos1() {
+        return new Object[][]{
+                {17, 16, "c"},
+                {22, 13, "name"},
+                {27, 13, "name"},
+        };
+    }
+
+    @Test(dataProvider = "CursorPosProvider2")
+    public void testVisibleSymbols(int line, int col, String name) {
         Map<String, Symbol> symbolsInFile =
-                SemanticAPITestUtils.getSymbolsInFile(model, srcFile, 18, 5, new BallerinaModuleID(PackageID.DEFAULT));
+                SemanticAPITestUtils.getSymbolsInFile(model, srcFile, line, col,
+                                                      new BallerinaModuleID(PackageID.DEFAULT));
 
-        assertEquals(symbolsInFile.size(), 2);
+        Symbol field = symbolsInFile.get(name);
+        assertEquals(field.getName().get(), name);
+    }
 
-        ClassFieldSymbol field = (ClassFieldSymbol) symbolsInFile.get("c");
-        assertEquals(field.getName().get(), "c");
-        assertEquals(field.typeDescriptor().typeKind(), TypeDescKind.COMPILATION_ERROR);
-
-        ClassSymbol clazz = (ClassSymbol) symbolsInFile.get("Foo");
-        assertEquals(clazz.getName().get(), "Foo");
+    @DataProvider(name = "CursorPosProvider2")
+    public Object[][] getCursorPos2() {
+        return new Object[][]{
+                {18, 5, "c"},
+                {23, 5, "name"},
+//                {28, 5, "name"}, TODO: due to https://github.com/ballerina-platform/ballerina-lang/issues/29382
+        };
     }
 }

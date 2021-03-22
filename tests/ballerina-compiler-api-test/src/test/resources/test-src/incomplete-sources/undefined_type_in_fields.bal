@@ -18,3 +18,13 @@ public class Foo {
     bar:Unknown c = new();
     f
 }
+
+type Person record {|
+    bar:Name name;
+    f
+|};
+
+type PersonObj object {
+    bar:Name name;
+    f
+};
