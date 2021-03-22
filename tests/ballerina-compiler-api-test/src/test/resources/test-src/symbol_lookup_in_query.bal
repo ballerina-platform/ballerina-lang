@@ -51,7 +51,5 @@ function test() {
 
     var res7 =  from int ii in (from int k in arr1
                                        select k)
-                join int jj in (from int m in arr2
-                                        select m)
-                on
+                join int jj in (from int m in arr2 select m) on
 }
