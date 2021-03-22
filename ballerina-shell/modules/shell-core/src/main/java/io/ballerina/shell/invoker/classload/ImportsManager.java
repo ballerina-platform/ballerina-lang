@@ -18,7 +18,10 @@
 
 package io.ballerina.shell.invoker.classload;
 
+import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -36,9 +39,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
+import java.util.StringJoiner;
 import java.util.concurrent.atomic.AtomicInteger;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 /**
  * Imports that were stored to be able to search with the prefix.
@@ -47,13 +49,9 @@ import java.util.regex.Pattern;
  * @since 2.0.0
  */
 public class ImportsManager {
+    private static final String ANON_ORG = "$anon";
     private static final QuotedIdentifier ANON_SOURCE = new QuotedIdentifier("$");
     // Regex patterns
-    private static final Pattern CLONEABLE_SIGNATURE_PATTERN =
-            Pattern.compile("readonly\\|xml<[^>]*>\\|\\(Cloneable\\)\\[]\\|map<Cloneable>\\|table<map<Cloneable>>");
-    private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)/([\\w.]+):([\\d.]+):");
-    // Special imports
-    private static final String CLONEABLE_TYPE_DEF = "ballerina/lang.value:0:Cloneable";
     private static final String JAVA_IMPORT_SOURCE = "import ballerina/jballerina.java;";
     private static final ImportDeclarationSnippet JAVA_IMPORT;
 
@@ -232,39 +230,43 @@ public class ImportsManager {
      * @return Type signature after parsing.
      */
     protected String extractImportsFromType(TypeSymbol typeSymbol, Set<QuotedIdentifier> imports) {
-        String text = typeSymbol.signature();
-
-        // Replace all Cloneable with a qualified signature
-        String cloneableReplacedText = CLONEABLE_SIGNATURE_PATTERN.matcher(text)
-                .replaceAll(CLONEABLE_TYPE_DEF);
-
-        StringBuilder newText = new StringBuilder();
-        Matcher matcher = FULLY_QUALIFIED_MODULE_ID_PATTERN.matcher(cloneableReplacedText);
-        int nextStart = 0;
-        // Matching Fully-Qualified-Module-IDs (eg.`abc/mod1:1.0.0`)
-        // Purpose is to transform `int|abc/mod1:1.0.0:Person` into `int|mod1:Person` or `int|Person`
-        // identifying the potential imports required.
-        while (matcher.find()) {
-            // Append up-to start of the match
-            newText.append(text, nextStart, matcher.start(1));
-            // Identify org name and module names
-            String orgName = matcher.group(1);
-            List<String> moduleNames = Arrays.asList(matcher.group(2).split("\\."));
-            QuotedImport quotedImport = new QuotedImport(orgName, moduleNames);
-
-            // Add the import required
-            QuotedIdentifier quotedPrefix = addImport(quotedImport);
-            imports.add(quotedPrefix);
-
-            // Update next-start position
-            newText.append(quotedPrefix.getName()).append(":");
-            nextStart = matcher.end(3) + 1;
+        // If the type is a union, recursively find all types and join with |
+        if (typeSymbol instanceof UnionTypeSymbol) {
+            StringJoiner signatureJoiner = new StringJoiner("|");
+            List<TypeSymbol> memberTypes = ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors();
+            for (TypeSymbol memberType : memberTypes) {
+                signatureJoiner.add(extractImportsFromType(memberType, imports));
+            }
+            return signatureJoiner.toString();
         }
-        // Append the remaining
-        if (nextStart != 0) {
-            newText.append(text.substring(nextStart));
+
+        // Otherwise there is only one type, extract and check.
+        // If there is no module, there is nothing to process.
+        String signature = typeSymbol.signature();
+        if (typeSymbol.getModule().isEmpty()) {
+            return signature;
         }
-        return newText.length() > 0 ? newText.toString() : text;
+
+        // If the org is $anon or the fully qualified import name
+        // is not contained in signature, simply return signature.
+        ModuleSymbol moduleSymbol = typeSymbol.getModule().get();
+        ModuleID moduleID = moduleSymbol.id();
+        String orgName = moduleID.orgName();
+        String moduleStr = moduleID.toString();
+        if (ANON_ORG.equals(orgName)) {
+            return signature;
+        }
+        if (!signature.contains(moduleStr)) {
+            return signature;
+        }
+
+        // otherwise process the module as an import and replace its occurrence
+        // in the signature with import prefix.
+        List<String> moduleNames = Arrays.asList(moduleID.moduleName().split("\\."));
+        QuotedImport quotedImport = new QuotedImport(orgName, moduleNames);
+        QuotedIdentifier quotedPrefix = addImport(quotedImport);
+        imports.add(quotedPrefix);
+        return signature.replace(moduleStr, quotedPrefix.getName());
     }
 
     /**
