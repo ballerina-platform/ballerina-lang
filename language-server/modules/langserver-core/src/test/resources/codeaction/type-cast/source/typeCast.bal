@@ -30,3 +30,16 @@ type Car record {
     string model;
     int year;
 };
+
+function testFunction2(int value1, float value2) returns int {
+    int total = value1 + value2;
+    return total;
+}
+
+function useUnion() {
+    boolean|int val = testUnion();
+}
+
+function testUnion() returns int|string {
+    return "test";
+}

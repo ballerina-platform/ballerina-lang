@@ -33,6 +33,7 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.codeaction.CodeActionUtil;
 import org.ballerinalang.langserver.codeaction.providers.AbstractCodeActionProvider;
 import org.ballerinalang.langserver.common.constants.CommandConstants;
+import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
@@ -75,7 +76,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         if (rhsTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
-        
+
         if (rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
             // If RHS is a union and has error member type; skip code-action
             UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) rhsTypeSymbol.get();
@@ -85,20 +86,19 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
                 return Collections.emptyList();
             }
         }
-        
+
         Optional<ExpressionNode> expressionNode = getExpression(matchedNode);
         if (expressionNode.isEmpty() || expressionNode.get().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Collections.emptyList();
         }
-        
-        Position editPos = CommonUtil.toPosition(expressionNode.get().lineRange().startLine());
+
         List<TextEdit> edits = new ArrayList<>();
         Optional<String> typeName = CodeActionUtil.getPossibleType(rhsTypeSymbol.get(), edits, context);
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }
-        String editText = "<" + typeName.get() + "> ";
-        edits.add(new TextEdit(new Range(editPos, editPos), editText));
+
+        edits.addAll(getTextEdits(positionDetails, typeName.get()));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
@@ -134,5 +134,34 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Optional.empty();
         }
         return Optional.of((VariableSymbol) symbol.get());
+    }
+
+    /**
+     * Get text edits for the provided type name to cast the node in focus to match the left hand side of
+     * the assignment/var declaration, etc. This considers if additional parentheses requires to be added around
+     * the RHS expression.
+     *
+     * @param positionDetails  Diagnostic based postion details
+     * @param expectedTypeName Expected type name as a string
+     * @return Text edits to perform the cast
+     */
+    private List<TextEdit> getTextEdits(DiagBasedPositionDetails positionDetails, String expectedTypeName) {
+        NonTerminalNode matchedNode = positionDetails.matchedNode();
+        Position startPosition = CommonUtil.toPosition(matchedNode.lineRange().startLine());
+        Position endPosition = CommonUtil.toPosition(matchedNode.lineRange().endLine());
+
+        String editText = "<" + expectedTypeName + "> ";
+
+        // If the expression is a binary expression, need to add parentheses around the expression
+        if (matchedNode.kind() == SyntaxKind.BINARY_EXPRESSION) {
+            editText = editText + CommonKeys.OPEN_PARENTHESES_KEY;
+            TextEdit castWithParentheses = new TextEdit(new Range(startPosition, startPosition), editText);
+            TextEdit closeParentheses = new TextEdit(new Range(endPosition, endPosition),
+                    CommonKeys.CLOSE_PARENTHESES_KEY);
+
+            return List.of(castWithParentheses, closeParentheses);
+        }
+        
+        return List.of(new TextEdit(new Range(startPosition, startPosition), editText));
     }
 }
