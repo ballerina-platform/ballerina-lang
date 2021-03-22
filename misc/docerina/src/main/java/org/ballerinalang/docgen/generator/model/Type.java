@@ -99,6 +99,8 @@ public class Type {
     @Expose
     public boolean isLambda;
     @Expose
+    public boolean isIsolated;
+    @Expose
     public boolean isDeprecated;
     @Expose
     public boolean generateUserDefinedTypeLink = true;
@@ -208,6 +210,7 @@ public class Type {
         } else if (node instanceof FunctionTypeDescriptorNode) {
             type.isLambda = true;
             FunctionTypeDescriptorNode functionDescNode = (FunctionTypeDescriptorNode) node;
+            type.isIsolated = Generator.containsToken(functionDescNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD);
             if (functionDescNode.functionSignature().isPresent()) {
                 FunctionSignatureNode functionSignature = functionDescNode.functionSignature().get();
                 List<DefaultableVariable> variables =
@@ -321,7 +324,8 @@ public class Type {
                 return getTypeCategory(((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor());
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.INTERSECTION) ||
                     typeDescriptor.typeKind().equals(TypeDescKind.DECIMAL) ||
-                    typeDescriptor.typeKind().isXMLType()) {
+                    typeDescriptor.typeKind().isXMLType() ||
+                    typeDescriptor.typeKind().equals(TypeDescKind.FUNCTION)) {
                 return "types";
             }
         } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {

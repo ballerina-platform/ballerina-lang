@@ -178,12 +178,12 @@ public class Generator {
                             hasPublicConstructs = true;
                             module.types.add(getTypeDescModel(typeDefinition, semanticModel));
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC ||
-                                typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC) {
+                                typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
+                                typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC ) {
                             hasPublicConstructs = true;
                             module.types.add(getUnionTypeModel(typeDefinition, semanticModel));
                         }
                         // TODO: handle value type nodes
-                        // TODO: handle function type nodes
                         // TODO: handle built in ref type
                         // TODO: handle constrained types
                     }
@@ -225,7 +225,7 @@ public class Generator {
         return hasPublicConstructs;
     }
 
-    private static boolean containsToken(NodeList<Token> nodeList, SyntaxKind kind) {
+    public static boolean containsToken(NodeList<Token> nodeList, SyntaxKind kind) {
         for (Node node: nodeList) {
             if (node.kind() == kind) {
                 return true;
