@@ -22,6 +22,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -134,7 +135,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
 
         if (!output.contains(msg1) || !output.contains(msg2)) {
-            throw new BallerinaTestException("Test failed due to module with groups failure.");
+            Assert.fail("Test failed due to module with groups failure.");
         }
     }
 

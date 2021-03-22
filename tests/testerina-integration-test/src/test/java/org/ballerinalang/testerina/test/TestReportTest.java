@@ -61,7 +61,7 @@ public class TestReportTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            throw new BallerinaTestException("Test failed due to report tools validation failure.");
+            Assert.fail("Test failed due to report tools validation failure.");
         }
     }
 

@@ -19,6 +19,7 @@ package org.ballerinalang.testerina.test;
 
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -45,7 +46,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            throw new BallerinaTestException("Test failed due to single group test execution failure.");
+            Assert.fail("Test failed due to single group test execution failure.");
         }
     }
 
@@ -56,7 +57,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            throw new BallerinaTestException("Test failed due to multiple group test execution failure.");
+            Assert.fail("Test failed due to multiple group test execution failure.");
          }
     }
 
@@ -68,7 +69,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
-            throw new BallerinaTestException("Test failed due to single group exclusion failure.");
+            Assert.fail("Test failed due to single group exclusion failure.");
         }
     }
 
@@ -79,7 +80,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            throw new BallerinaTestException("Test failed due to multiple group exclusion failure.");
+            Assert.fail("Test failed due to multiple group exclusion failure.");
         }
     }
 
@@ -90,7 +91,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            throw new BallerinaTestException("Test failed due to non existent group inclusion failure.");
+            Assert.fail("Test failed due to non existent group inclusion failure.");
         }
     }
 
@@ -102,7 +103,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
-            throw new BallerinaTestException("Test failed due to non existent group exclusion failure.");
+            Assert.fail("Test failed due to non existent group exclusion failure.");
         }
     }
 
@@ -113,7 +114,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            throw new BallerinaTestException("Test failed due to listing test groups failure.");
+            Assert.fail("Test failed due to listing test groups failure.");
         }
     }
 
@@ -124,7 +125,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            throw new BallerinaTestException("Test failed due to listing test groups with other flags failure.");
+            Assert.fail("Test failed due to listing test groups with other flags failure.");
         }
     }
 
@@ -134,7 +135,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         if (output.contains("[fail] afterSuiteFunc")) {
-            throw new BallerinaTestException("Test failed due to assertion failure in after suite function.");
+            Assert.fail("Test failed due to assertion failure in after suite function.");
         }
     }
 
@@ -144,7 +145,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         if (output.contains("[fail] afterSuiteFunc")) {
-            throw new BallerinaTestException("Test failed due to assertion failure in after suite function.");
+            Assert.fail("Test failed due to assertion failure in after suite function.");
         }
     }
 
@@ -154,7 +155,7 @@ public class GroupingTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
         if (output.contains("[fail] afterSuiteFunc")) {
-            throw new BallerinaTestException("Test failed due to assertion failure in after suite function");
+            Assert.fail("Test failed due to assertion failure in after suite function");
         }
     }
 
