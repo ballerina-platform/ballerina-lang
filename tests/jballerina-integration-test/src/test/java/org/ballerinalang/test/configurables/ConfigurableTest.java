@@ -43,8 +43,6 @@ public class ConfigurableTest extends BaseTest {
 
     private static final String testFileLocation = Paths.get("src", "test", "resources", "configurables")
             .toAbsolutePath().toString();
-    private static final String negativeTestFileLocation =
-            Paths.get(testFileLocation, "negative_tests").toAbsolutePath().toString();
     private BMainInstance bMainInstance;
     private final LogLeecher testsPassed = new LogLeecher("Tests passed");
 
@@ -98,24 +96,12 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
                               new LogLeecher[]{testLog}, testFileLocation + "/testProject");
         testLog.waitForText(5000);
-    }
 
-    @Test
-    public void testAPIConfigFileNegative() throws BallerinaTestException {
-        String error = "error: value not provided for required configurable variable 'testInt'";
-        LogLeecher errorLog = new LogLeecher(error, ERROR);
-        bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
-                              new LogLeecher[]{errorLog}, testFileLocation + "/testPathProject");
-        errorLog.waitForText(5000);
-    }
-
-    @Test
-    public void testAPICNegativeTest() throws BallerinaTestException {
         String errorMsg = "[Config.toml:(3:14,3:28)] configurable variable 'configPkg:invalidArr' with type " +
                 "'(int[] & readonly)[] & readonly' is not supported";
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
-                              new LogLeecher[]{errorLog}, testFileLocation + "/testErrorProject");
+                new LogLeecher[]{errorLog}, testFileLocation + "/testErrorProject");
         errorLog.waitForText(5000);
     }
 
@@ -204,12 +190,6 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testSingleBalFileWithConfigurables() throws BallerinaTestException {
-        String filePath = testFileLocation + "/configTest.bal";
-        executeBalCommand("", testsPassed, filePath, null);
-    }
-
-    @Test
     public void testRecordValueWithModuleClash() throws BallerinaTestException {
         executeBalCommand("/recordModuleProject", testsPassed, "main", null);
     }
@@ -247,17 +227,17 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidDefaultableField() throws BallerinaTestException {
         String errorMsg = "[Config.toml:(1:1,3:17)] defaultable readonly record field 'name' in configurable variable" +
-                " 'invalidDefaultable:employee' is not supported";
+                " 'main:employee' is not supported";
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
-        bMainInstance.runMain("run", new String[]{"invalidDefaultable"}, null, new String[]{},
-                new LogLeecher[]{errorLog}, negativeTestFileLocation);
+        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
+                new LogLeecher[]{errorLog}, testFileLocation + "/invalidDefaultable");
         errorLog.waitForText(5000);
     }
 
     private void executeBalCommand(String projectPath, LogLeecher log, String packageName,
                                    Map<String, String> envProperties) throws BallerinaTestException {
         bMainInstance.runMain(testFileLocation + projectPath, packageName, null, new String[]{}, envProperties, null,
-                              new LogLeecher[]{log});
+                new LogLeecher[]{log});
         log.waitForText(5000);
     }
 
