@@ -59,6 +59,8 @@ dependencies {
 
     balRuntime project(':ballerina-runtime')
 
+    distributionBala project(path: ':ballerina-observability', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-observability-internal', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-io', configuration: 'distributionBala')
     distributionBala project(path: ':testerina:testerina-core', configuration: 'distributionBala')
 
