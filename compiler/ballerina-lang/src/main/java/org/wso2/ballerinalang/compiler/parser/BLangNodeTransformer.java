@@ -4048,7 +4048,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             matchStatement.setOnFailClause(
                     (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
         });
-
+        matchStatement.pos = getPosition(matchStatementNode);
         return matchStatement;
     }
 
