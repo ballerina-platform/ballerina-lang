@@ -130,8 +130,8 @@ public class AnnotationNodeContext extends AbstractCompletionProvider<Annotation
             case EXPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
             case IMPLICIT_ANONYMOUS_FUNCTION_EXPRESSION:
             case FUNCTION_DEFINITION:
-            case RESOURCE_ACCESSOR_DEFINITION:
                 return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FUNCTION);
+            case RESOURCE_ACCESSOR_DEFINITION:
             case METHOD_DECLARATION:
             case OBJECT_METHOD_DEFINITION:
                 return AnnotationUtil.hasAttachment(symbol, AnnotationAttachPoint.FUNCTION)
