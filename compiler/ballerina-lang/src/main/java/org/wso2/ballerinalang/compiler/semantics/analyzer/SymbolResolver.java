@@ -965,10 +965,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.intRangeType = (BObjectType) ((BInvokableType) entry.symbol.type).retType;
-            symTable.defineBinaryOperator(OperatorKind.CLOSED_RANGE, symTable.intType, symTable.intType,
-                    symTable.intRangeType);
-            symTable.defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, symTable.intType, symTable.intType,
-                    symTable.intRangeType);
+            symTable.defineIntRangeOperations();
             return;
         }
         throw new IllegalStateException("built-in Integer Range type not found ?");
