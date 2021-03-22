@@ -82,6 +82,7 @@ class PositionUtil {
         return specifiedEndColumn <= nodeEndColumn;
     }
 
+    //  todo to be removed once https://github.com/ballerina-platform/ballerina-lang/discussions/28983 is sorted
     static boolean withinRightInclusive(LinePosition cursorPos, Location symbolPosition) {
         int startLine = symbolPosition.lineRange().startLine().line();
         int startColumn = symbolPosition.lineRange().startLine().offset();

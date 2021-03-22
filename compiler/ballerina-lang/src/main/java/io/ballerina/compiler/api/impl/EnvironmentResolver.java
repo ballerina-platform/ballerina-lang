@@ -561,10 +561,9 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryAction queryAction) {
-        //  todo commenting until https://github.com/ballerina-platform/ballerina-lang/discussions/28983 is sorted
-          if (!PositionUtil.withinBlock(this.linePosition, queryAction.getPosition())) {
-                return;
-          }
+        if (!PositionUtil.withinRightInclusive(this.linePosition, queryAction.getPosition())) {
+            return;
+        }
         for (BLangNode clause : queryAction.queryClauseList) {
             this.acceptNode(clause, symbolEnv);
         }
@@ -871,7 +870,6 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-        //  todo commenting until https://github.com/ballerina-platform/ballerina-lang/discussions/28983 is sorted
         if (!PositionUtil.withinRightInclusive(this.linePosition, queryExpr.getPosition())) {
             return;
         }
