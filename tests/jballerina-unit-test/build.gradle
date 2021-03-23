@@ -88,10 +88,10 @@ dependencies {
 
 description = 'JBallerina - Unit Test Module'
 
-task createBre(type: org.gradle.api.tasks.Copy) {
-    from configurations.balRuntime
-    into "$buildDir/bre/lib"
-}
+//task createBre(type: org.gradle.api.tasks.Copy) {
+//    from configurations.balRuntime
+//    into "$buildDir/bre/lib"
+//}
 
 test {
     systemProperty "java.util.logging.config.file", "src/test/resources/logging.properties"
@@ -114,7 +114,7 @@ test {
         }
     }
 
-    dependsOn createBre
+//    dependsOn createBre
 }
 
 configurations {
