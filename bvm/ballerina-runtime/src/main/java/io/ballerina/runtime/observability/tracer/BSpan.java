@@ -40,6 +40,28 @@ public class BSpan {
     private final Tracer tracer;
     private final Span span;
 
+    private static PropagatingParentContextGetter getter = new PropagatingParentContextGetter();
+    private static PropagatingParentContextSetter setter = new PropagatingParentContextSetter();
+
+    static class PropagatingParentContextGetter implements TextMapGetter<Map<String, String>> {
+        @Override
+        public String get(Map<String, String> carrier, String key) {
+            return carrier.get(key);
+        }
+
+        @Override
+        public Iterable<String> keys(Map<String, String> carrier) {
+            return carrier.keySet();
+        }
+    }
+
+    static class PropagatingParentContextSetter implements TextMapSetter<Map<String, String>> {
+        @Override
+        public void set(Map<String, String> carrier, String key, String value) {
+            carrier.put(key, value);
+        }
+    }
+
     private BSpan(Tracer tracer, Span span) {
         this.tracer = tracer;
         this.span = span;
@@ -99,17 +121,6 @@ public class BSpan {
      */
     public static BSpan start(Map<String, String> parentTraceContext, String serviceName, String operationName,
                               boolean isClient) {
-        TextMapGetter<Map<String, String>> getter = new TextMapGetter<>() {
-            @Override
-            public String get(Map<String, String> carrier, String key) {
-                return carrier.get(key);
-            }
-
-            @Override
-            public Iterable<String> keys(Map<String, String> carrier) {
-                return carrier.keySet();
-            }
-        };
 
         Tracer tracer = TracersStore.getInstance().getTracer(serviceName);
         Context parentContext = TracersStore.getInstance().getPropagators()
@@ -136,14 +147,9 @@ public class BSpan {
     }
 
     public Map<String, String> extractContextAsHttpHeaders() {
+
         Map<String, String> carrierMap;
         if (span != null) {
-            TextMapSetter<Map<String, String>> setter = (carrier, key, value) -> {
-                if (carrier != null) {
-                    carrier.put(key, value);
-                }
-            };
-
             carrierMap = new HashMap<>();
             TextMapPropagator propagator = TracersStore.getInstance().getPropagators().getTextMapPropagator();
             propagator.inject(Context.current().with(span), carrierMap, setter);
