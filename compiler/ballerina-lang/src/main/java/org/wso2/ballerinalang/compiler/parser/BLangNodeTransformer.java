@@ -1272,6 +1272,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(SingletonTypeDescriptorNode singletonTypeDescriptorNode) {
         BLangFiniteTypeNode bLangFiniteTypeNode = new BLangFiniteTypeNode();
         BLangLiteral simpleLiteral = createSimpleLiteral(singletonTypeDescriptorNode.simpleContExprNode());
+        bLangFiniteTypeNode.pos = simpleLiteral.pos;
         bLangFiniteTypeNode.valueSpace.add(simpleLiteral);
         return bLangFiniteTypeNode;
     }
@@ -1415,6 +1416,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangExternalFunctionBody externFunctionBodyNode =
                 (BLangExternalFunctionBody) TreeBuilder.createExternFunctionBodyNode();
         externFunctionBodyNode.annAttachments = applyAll(externalFunctionBodyNode.annotations());
+        externFunctionBodyNode.pos = getPosition(externalFunctionBodyNode);
         return externFunctionBodyNode;
     }
 
@@ -2806,7 +2808,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangTupleVariableDef createTupleVariableDef(BLangVariable tupleVar) {
 
         BLangTupleVariableDef varDefNode = (BLangTupleVariableDef) TreeBuilder.createTupleVariableDefinitionNode();
-        varDefNode.pos = getPosition(null);
+        varDefNode.pos = tupleVar.pos;
         varDefNode.setVariable(tupleVar);
         return varDefNode;
     }
@@ -2814,7 +2816,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     private BLangErrorVariableDef createErrorVariableDef(BLangVariable errorVar) {
 
         BLangErrorVariableDef varDefNode = (BLangErrorVariableDef) TreeBuilder.createErrorVariableDefinitionNode();
-        varDefNode.pos = getPosition(null);
+        varDefNode.pos = errorVar.pos;
         varDefNode.setVariable(errorVar);
         return varDefNode;
     }
@@ -2973,7 +2975,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             simpleVar.name.pos = getPosition(requiredParameter.paramName().get());
         }
         simpleVar.flagSet.add(Flag.REQUIRED_PARAM);
-        simpleVar.pos = trimLeft(simpleVar.pos, getPosition(requiredParameter.typeName()));
         return simpleVar;
     }
 
@@ -3411,19 +3412,19 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         List<BLangExpression> sizes = new ArrayList<>();
         Location position = getPosition(arrayTypeDescriptorNode);
         while (true) {
-            if (!arrayTypeDescriptorNode.arrayLength().isPresent()) {
-                sizes.add(new BLangLiteral(Integer.valueOf(OPEN_ARRAY_INDICATOR), symTable.intType));
+            if (arrayTypeDescriptorNode.arrayLength().isEmpty()) {
+                sizes.add(new BLangLiteral(OPEN_ARRAY_INDICATOR, symTable.intType));
             } else {
                 Node keyExpr = arrayTypeDescriptorNode.arrayLength().get();
                 if (keyExpr.kind() == SyntaxKind.NUMERIC_LITERAL) {
-                    BasicLiteralNode numericLiteralNode = (BasicLiteralNode) keyExpr;
-                    if (numericLiteralNode.literalToken().kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
-                        sizes.add(new BLangLiteral(Integer.parseInt(keyExpr.toString()), symTable.intType));
+                    Token literalToken = ((BasicLiteralNode) keyExpr).literalToken();
+                    if (literalToken.kind() == SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN) {
+                        sizes.add(new BLangLiteral(Integer.parseInt(literalToken.text()), symTable.intType));
                     } else {
-                        sizes.add(new BLangLiteral(Integer.parseInt(keyExpr.toString(), 16), symTable.intType));
+                        sizes.add(new BLangLiteral(Integer.parseInt(literalToken.text(), 16), symTable.intType));
                     }
                 } else if (keyExpr.kind() == SyntaxKind.ASTERISK_LITERAL) {
-                    sizes.add(new BLangLiteral(Integer.valueOf(INFERRED_ARRAY_INDICATOR), symTable.intType));
+                    sizes.add(new BLangLiteral(INFERRED_ARRAY_INDICATOR, symTable.intType));
                 } else {
                     sizes.add(createExpression(keyExpr));
                 }
@@ -5845,7 +5846,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         Location pos = getPosition(recordTypeDescriptorNode);
         // Generate a name for the anonymous object
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(this.packageID);
-        IdentifierNode anonTypeGenName = createIdentifier(pos, genName, null);
+        IdentifierNode anonTypeGenName = createIdentifier(symTable.builtinPos, genName, null);
         typeDef.setName(anonTypeGenName);
         typeDef.flagSet.add(Flag.PUBLIC);
         typeDef.flagSet.add(Flag.ANONYMOUS);

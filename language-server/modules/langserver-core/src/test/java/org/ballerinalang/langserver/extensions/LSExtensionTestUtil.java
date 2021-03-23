@@ -22,11 +22,13 @@ import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConn
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorsResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByRangeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeModifyRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
+import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
 
 import java.io.IOException;
@@ -43,6 +45,8 @@ public class LSExtensionTestUtil {
 
     private static final String AST = "ballerinaDocument/syntaxTree";
     private static final String SYNTAX_TREE_MODIFY = "ballerinaDocument/syntaxTreeModify";
+    private static final String SYNTAX_TREE_BY_RANGE = "ballerinaDocument/syntaxTreeByRange";
+    private static final String SYNTAX_TREE_LOCATE = "ballerinaDocument/syntaxTreeLocate";
     private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
     private static final String GET_CONNECTOR = "ballerinaConnector/connector";
     private static final Gson GSON = new Gson();
@@ -77,6 +81,41 @@ public class LSExtensionTestUtil {
                 TestUtil.getTextDocumentIdentifier(filePath));
         CompletableFuture result = serviceEndpoint.request(AST, astRequest);
         return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
+    }
+
+    /**
+     * Get the ballerinaDocument/syntaxTreeByRange response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param range           Range for which the subtree should be retrieved
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static BallerinaSyntaxTreeResponse getBallerinaSyntaxTreeByRange(String filePath,
+                                                                            Range range,
+                                                                            Endpoint serviceEndpoint) {
+        BallerinaSyntaxTreeByRangeRequest request = new BallerinaSyntaxTreeByRangeRequest();
+        request.setDocumentIdentifier(TestUtil.getTextDocumentIdentifier(filePath));
+        request.setLineRange(range);
+        CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_BY_RANGE, request);
+        return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
+    }
+
+    /**
+     * Get the ballerinaDocument/syntaxTreeByRange response.
+     *
+     * @param filePath        Path of the Bal file
+     * @param range           Range of the node that should be located
+     * @param serviceEndpoint Service Endpoint to Language Server
+     * @return {@link String}   Response as String
+     */
+    public static BallerinaSyntaxTreeResponse getBallerinaSyntaxTreeLocate(String filePath,
+                                                                           Range range,
+                                                                           Endpoint serviceEndpoint) {
+        BallerinaSyntaxTreeByRangeRequest request = new BallerinaSyntaxTreeByRangeRequest(
+                TestUtil.getTextDocumentIdentifier(filePath), range);
+        CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_LOCATE, request);
+        return  GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
 
     private static JsonObject getResult(CompletableFuture result) {
