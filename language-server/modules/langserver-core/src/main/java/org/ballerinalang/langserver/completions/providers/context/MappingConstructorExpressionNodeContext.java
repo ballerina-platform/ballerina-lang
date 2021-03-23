@@ -73,14 +73,14 @@ public class MappingConstructorExpressionNodeContext extends
                 ? nodeAtCursor.parent() : nodeAtCursor;
 
         if (this.withinValueExpression(context, evalNode)) {
-            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, qNameRef));
             } else {
                 completionItems.addAll(this.expressionCompletions(context));
             }
         } else if (this.withinComputedNameContext(context, evalNode)) {
-            if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 completionItems.addAll(this.getExpressionsCompletionsForQNameRef(context, qNameRef));
             } else {
