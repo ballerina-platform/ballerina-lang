@@ -16,7 +16,6 @@
 package org.ballerinalang.langserver.extensions.document;
 
 import com.google.gson.JsonArray;
-import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
@@ -31,7 +30,7 @@ import java.io.IOException;
 import java.nio.file.Path;
 
 /**
- * Test json ST generation for configurables
+ * Test json ST generation for configurables.
  */
 public class ConfigurablesTest {
     private Endpoint serviceEndpoint;
