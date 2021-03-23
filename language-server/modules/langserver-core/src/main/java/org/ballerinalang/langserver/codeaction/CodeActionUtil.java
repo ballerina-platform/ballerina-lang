@@ -532,7 +532,7 @@ public class CodeActionUtil {
                             return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
-                    return Optional.of(member);
+                    return Optional.empty();
                 }
             } else if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION && isWithinStartSegment) {
                 return Optional.of(member);
