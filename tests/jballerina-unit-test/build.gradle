@@ -57,7 +57,7 @@ dependencies {
     testCompile project(path: ':ballerina-test-utils', configuration: 'shadow')
     testCompile project(':ballerina-runtime')
 
-    balRuntime project(':ballerina-rt')
+    balRuntime project(':ballerina-runtime')
 
     distributionBala project(path: ':ballerina-observability', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-observability-internal', configuration: 'distributionBala')
