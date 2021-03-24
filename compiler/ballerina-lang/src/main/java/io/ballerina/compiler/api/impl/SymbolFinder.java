@@ -344,13 +344,16 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        if (annAttachmentNode.annotationSymbol != null
+                && setEnclosingNode(annAttachmentNode.annotationSymbol.owner, annAttachmentNode.pkgAlias.pos)) {
+            return;
+        }
+
         if (setEnclosingNode(annAttachmentNode.annotationSymbol, annAttachmentNode.annotationName.pos)) {
             return;
         }
 
         lookupNode(annAttachmentNode.expr);
-
-        // TODO: See how we can return module info if the cursor is at the module alias
     }
 
     @Override
@@ -616,6 +619,9 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
+        if (constRef.symbol != null && setEnclosingNode(constRef.symbol.owner, constRef.pkgAlias.pos)) {
+            return;
+        }
         this.symbolAtCursor = constRef.symbol;
     }
 

@@ -19,8 +19,15 @@ package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
+import io.ballerina.compiler.api.symbols.ClassSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
@@ -50,6 +57,9 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
@@ -64,6 +74,9 @@ import static org.testng.Assert.assertTrue;
  */
 public class SymbolBIRTest {
 
+    private SemanticModel model;
+    private Document srcFile;
+
     @BeforeClass
     public void setup() {
         CompileResult compileResult = BCompileUtil.compileAndCacheBala("test-src/testproject");
@@ -71,6 +84,10 @@ public class SymbolBIRTest {
             Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
             Assert.fail("Compilation contains error");
         }
+
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_import_test.bal");
+        model = getDefaultModulesSemanticModel(project);
+        srcFile = getDocumentForSingleSource(project);
     }
 
     @Test
@@ -104,9 +121,10 @@ public class SymbolBIRTest {
         List<String> fooTypeDefs = getSymbolNames(fooPkgSymbol, SymTag.TYPE_DEF);
         fooTypeDefs.remove("PersonObj");
         fooTypeDefs.remove("Colour");
+        fooTypeDefs.remove("Dog");
         SemanticAPITestUtils.assertList(fooModule.typeDefinitions(), fooTypeDefs);
 
-        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj"));
+        SemanticAPITestUtils.assertList(fooModule.classes(), List.of("PersonObj", "Dog"));
         SemanticAPITestUtils.assertList(fooModule.enums(), List.of("Colour"));
 
         List<String> allSymbols = getSymbolNames(fooPkgSymbol, 0);
@@ -115,10 +133,6 @@ public class SymbolBIRTest {
 
     @Test(dataProvider = "ImportSymbolPosProvider")
     public void testImportSymbols(int line, int column, String expSymbolName) {
-        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_import_test.bal");
-        SemanticModel model = getDefaultModulesSemanticModel(project);
-        Document srcFile = getDocumentForSingleSource(project);
-
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
         symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
@@ -134,12 +148,43 @@ public class SymbolBIRTest {
                 {16, 10, "testproject"},
                 {16, 16, "testproject"},
                 {16, 26, null},
-//                {19, 17, "foo"}, // TODO: issue #25841
+                {19, 17, "testproject"},
                 {20, 13, "testproject"},
                 {22, 5, "testproject"},
-//                {26, 12, "foo"}, // TODO: issue #25841
+                {26, 12, "testproject"},
                 {31, 20, "getName"},
         };
+    }
+
+    @Test
+    public void testTypeInclusions() {
+        ModuleSymbol module = (ModuleSymbol) model.symbol(srcFile, LinePosition.from(16, 15)).get();
+
+        Optional<ClassSymbol> dog = module.classes().stream()
+                .filter(symbol -> "Dog".equals(symbol.getName().get())).findFirst();
+        List<TypeSymbol> inclusions = dog.get().typeInclusions();
+        assertEquals(inclusions.size(), 1);
+        assertEquals(inclusions.get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) inclusions.get(0)).typeDescriptor().typeKind(), OBJECT);
+        assertEquals(inclusions.get(0).getName().get(), "Pet");
+
+        Optional<TypeDefinitionSymbol> typeDef = module.typeDefinitions().stream()
+                .filter(symbol -> "Cat".equals(symbol.getName().get())).findFirst();
+        ObjectTypeSymbol cat = (ObjectTypeSymbol) typeDef.get().typeDescriptor();
+        inclusions = cat.typeInclusions();
+        assertEquals(inclusions.size(), 1);
+        assertEquals(inclusions.get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) inclusions.get(0)).typeDescriptor().typeKind(), OBJECT);
+        assertEquals(inclusions.get(0).getName().get(), "Pet");
+
+        typeDef = module.typeDefinitions().stream()
+                .filter(symbol -> "Student".equals(symbol.getName().get())).findFirst();
+        RecordTypeSymbol student = (RecordTypeSymbol) typeDef.get().typeDescriptor();
+        inclusions = student.typeInclusions();
+        assertEquals(inclusions.size(), 1);
+        assertEquals(inclusions.get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(((TypeReferenceTypeSymbol) inclusions.get(0)).typeDescriptor().typeKind(), RECORD);
+        assertEquals(inclusions.get(0).getName().get(), "Person");
     }
 
     // util methods
