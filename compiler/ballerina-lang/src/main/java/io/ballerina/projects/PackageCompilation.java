@@ -108,6 +108,13 @@ public class PackageCompilation {
         return compilation;
     }
 
+    public List<Diagnostic> notifyCompilationCompletion() {
+        CompilerLifecycleManager manager = this.compilerPluginManager.getCompilerLifecycleListenerManager();
+        List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks();
+        this.pluginDiagnostics.addAll(diagnostics);
+        return diagnostics;
+    }
+
     public PackageResolution getResolution() {
         return packageResolution;
     }

@@ -95,6 +95,7 @@ public class JBallerinaBackend extends CompilerBackend {
     private final InteropValidator interopValidator;
     private final JarResolver jarResolver;
     private final CompilerOptions compilerOptions;
+    private final PackageCompilation packageCompilation;
     private DiagnosticResult diagnosticResult;
     private boolean codeGenCompleted;
     private List<JarConflict> conflictedJars;
@@ -108,6 +109,7 @@ public class JBallerinaBackend extends CompilerBackend {
 
     private JBallerinaBackend(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         this.jdkVersion = jdkVersion;
+        this.packageCompilation = packageCompilation;
         this.packageContext = packageCompilation.packageContext();
         this.pkgResolution = packageContext.getResolution();
         this.jarResolver = new JarResolver(this, packageContext.getResolution());
@@ -178,6 +180,15 @@ public class JBallerinaBackend extends CompilerBackend {
             default:
                 throw new RuntimeException("Unexpected output type: " + outputType);
         }
+
+        List<Diagnostic> pluginDiagnostics = packageCompilation.notifyCompilationCompletion();
+        if (!pluginDiagnostics.isEmpty()) {
+            ArrayList<Diagnostic> diagnostics = new ArrayList<>(diagnosticResult.allDiagnostics);
+            diagnostics.addAll(pluginDiagnostics);
+
+            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+        }
+
         // TODO handle the EmitResult properly
         return new EmitResult(true, diagnosticResult, generatedArtifact);
     }
