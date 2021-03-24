@@ -1,9 +1,6 @@
 name: Build and Publish Snapshot Artifacts
 
 on:
-    push:
-        branches:
-            - master
     workflow_dispatch:
 
 jobs:

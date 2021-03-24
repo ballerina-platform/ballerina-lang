@@ -89,6 +89,8 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"projectVariableAssignmentRequiredCodeAction1.json", "testproject/main.bal"},
                 {"projectVariableAssignmentRequiredCodeAction2.json", "testproject/main.bal"},
+                {"createVariableInClassMethod.json", "createVariableInClassMethod.bal"},
+                {"createVariableInServiceMethod.json", "createVariableInServiceMethod.bal"},
         };
     }
 }

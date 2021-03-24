@@ -790,7 +790,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
      * @param stackFrame ballerina stack frame
      * @return true if its a valid ballerina frame
      */
-    private static boolean isValidFrame(StackFrame stackFrame) {
+    static boolean isValidFrame(StackFrame stackFrame) {
         return stackFrame.getSource() != null && stackFrame.getLine() > 0;
     }
 
