@@ -2,12 +2,12 @@
     "arguments": {
         "node.range": {
             "start": {
-                "line": 8,
-                "character": 25
+                "line": 14,
+                "character": 22
             },
             "end": {
-                "line": 8,
-                "character": 45
+                "line": 14,
+                "character": 48
             }
         }
     },
@@ -20,15 +20,15 @@
                             {
                                 "range": {
                                     "start": {
-                                        "line": 10,
+                                        "line": 34,
                                         "character": 0
                                     },
                                     "end": {
-                                        "line": 10,
+                                        "line": 34,
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction createListener(int a) returns module1:Listener {\n    \n    return new (0);\n}\n"
+                                "newText": "\n\nfunction createAddress(string a) returns Address {\n    \n    return object {};\n}\n"
                             }
                         ]
                     }

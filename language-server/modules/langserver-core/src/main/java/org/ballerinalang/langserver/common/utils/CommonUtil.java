@@ -20,9 +20,12 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -207,7 +210,8 @@ public class CommonUtil {
             return "()";
         }
 
-        TypeDescKind typeKind = getRawType(bType).typeKind();
+        TypeSymbol rawType = getRawType(bType);
+        TypeDescKind typeKind = rawType.typeKind();
         switch (typeKind) {
             case FLOAT:
                 typeString = Float.toString(0);
@@ -236,7 +240,21 @@ public class CommonUtil {
                 typeString = "{}";
                 break;
             case OBJECT:
-                typeString = "new()";
+                ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+                if (objectTypeSymbol.kind() == SymbolKind.CLASS) {
+                    ClassSymbol classSymbol = (ClassSymbol) objectTypeSymbol;
+                    if (classSymbol.initMethod().isPresent()) {
+                        List<ParameterSymbol> params = classSymbol.initMethod().get().typeDescriptor().parameters();
+                        String text = params.stream()
+                                .map(param -> getDefaultValueForType(param.typeDescriptor()))
+                                .collect(Collectors.joining(", "));
+                        typeString = "new (" + text + ")";
+                    } else {
+                        typeString = "new ()";
+                    }
+                } else {
+                    typeString = "object {}";
+                }
                 break;
             // Fixme
 //            case FINITE:
