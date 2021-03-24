@@ -482,22 +482,30 @@ function getDescendantsSimpleElement() {
     xml:Element bookCatalog = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>
                            <CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD></CATALOG>`;
 
-    xml descendantSeq  = bookCatalog.getDescendants();
+    xml descendantSeq = bookCatalog.getDescendants();
 
     xml:Element e1 = xml `<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>`;
     xml:Element e2 = xml `<TITLE>Empire Burlesque</TITLE>`;
-    xml:Element e3 = xml `<ARTIST>Bob Dylan</ARTIST>`;
-    xml:Element e4 = xml `<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>`;
-    xml:Element e5 = xml `<TITLE>Hide your heart</TITLE>`;
-    xml:Element e6 = xml `<ARTIST>Bonnie Tyler</ARTIST>`;
+    xml:Text e3 = <xml:Text>xml `Empire Burlesque`;
+    xml:Element e4 = xml `<ARTIST>Bob Dylan</ARTIST>`;
+    xml:Text e5 = <xml:Text>xml `Bob Dylan`;
+    xml:Element e6 = xml `<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>`;
+    xml:Element e7 = xml `<TITLE>Hide your heart</TITLE>`;
+    xml:Text e8 = <xml:Text>xml `Hide your heart`;
+    xml:Element e9 = xml `<ARTIST>Bonnie Tyler</ARTIST>`;
+    xml:Text e10 = <xml:Text>xml `Bonnie Tyler`;
 
-    assert(descendantSeq.length(), 6);
+    assert(descendantSeq.length(), 11);
     assert(descendantSeq[0], e1);
     assert(descendantSeq[1], e2);
     assert(descendantSeq[2], e3);
     assert(descendantSeq[3], e4);
     assert(descendantSeq[4], e5);
-    assert(descendantSeq[5], e6);
+    assert(descendantSeq[6], e6);
+    assert(descendantSeq[7], e7);
+    assert(descendantSeq[8], e8);
+    assert(descendantSeq[9], e9);
+    assert(descendantSeq[10], e10);
 }
 
 function getDescendantsWithNS() {
@@ -509,34 +517,45 @@ function getDescendantsWithNS() {
     assert(usNs.length(), 1);
     assert(usNs.toString(), "<ns:US xmlns:ns=\"foo\"><fn>Obama</fn></ns:US>");
 
-    xml:Element e1 = xml `<ns:US><fn>Obama</fn></ns:US>`;
-    xml:Element e2 = xml `<fn>Obama</fn>`;
-    xml:Element e3 = xml `<US><fn>Trump</fn></US>`;
-    xml:Element e4 = xml `<fn>Trump</fn>`;
+    xml:Comment e1 = xml `<!-- Comment -->`;
+    xml:Element e2 = xml `<ns:US><fn>Obama</fn></ns:US>`;
+    xml:Element e3 = xml `<fn>Obama</fn>`;
+    xml:Text e4 = xml `Obama`;
+    xml:Element e5 = xml `<US><fn>Trump</fn></US>`;
+    xml:Element e6 = xml `<fn>Trump</fn>`;
+    xml:Text e7 = xml `Trump`;
 
-    assert(descendants.length(), 4);
+    assert(descendants.length(), 7);
     assert(descendants[0], e1);
     assert(descendants[1], e2);
     assert(descendants[2], e3);
     assert(descendants[3], e4);
+    assert(descendants[4], e5);
+    assert(descendants[5], e6);
+    assert(descendants[6], e7);
 }
 
 function getDescendantsFilterNonElements() {
-    xml:Element books = xml
-    `<bs><?xml-stylesheet type="text/xsl"?><bk><t><en><!-- english --><txt>Everyday Italian</txt></en></t></bk></bs>`;
+    xml:Element books = xml `<bs><?xml-stylesheet type="text/xsl"?><bk><t><en><!-- english --><txt>Everyday Italian</txt></en></t></bk></bs>`;
 
     xml descendants = books.getDescendants();
 
-    xml:Element e1 = xml `<bk><t><en><!-- english --><txt>Everyday Italian</txt></en></t></bk>`;
-    xml:Element e2 = xml `<t><en><!-- english --><txt>Everyday Italian</txt></en></t>`;
-    xml:Element e3 = xml `<en><!-- english --><txt>Everyday Italian</txt></en>`;
-    xml:Element e4 = xml `<txt>Everyday Italian</txt>`;
+    xml:ProcessingInstruction e1 = xml `<?xml-stylesheet type="text/xsl"?>`;
+    xml:Element e2 = xml `<bk><t><en><!-- english --><txt>Everyday Italian</txt></en></t></bk>`;
+    xml:Element e3 = xml `<t><en><!-- english --><txt>Everyday Italian</txt></en></t>`;
+    xml:Element e4 = xml `<en><!-- english --><txt>Everyday Italian</txt></en>`;
+    xml:Comment e5 = xml `<!-- english -->`;
+    xml:Element e6 = xml `<txt>Everyday Italian</txt>`;
+    xml:Text e7 = xml `Everyday Italian`;
 
-    assert(descendants.length(), 4);
+    assert(descendants.length(), 7);
     assert(descendants[0], e1);
     assert(descendants[1], e2);
     assert(descendants[2], e3);
     assert(descendants[3], e4);
+    assert(descendants[4], e5);
+    assert(descendants[5], e6);
+    assert(descendants[6], e7);
 }
 
 function assert(anydata actual, anydata expected) {

@@ -188,8 +188,8 @@ public abstract class XmlValue implements RefValue, BXml, CollectionValue {
 
     protected void addDescendants(List<BXml> descendants, XmlItem currentElement) {
         for (BXml child : currentElement.getChildrenSeq().getChildrenList()) {
+            descendants.add(child);
             if (child.getNodeType() == XmlNodeType.ELEMENT) {
-                descendants.add(child);
                 addDescendants(descendants, (XmlItem) child);
             }
         }
