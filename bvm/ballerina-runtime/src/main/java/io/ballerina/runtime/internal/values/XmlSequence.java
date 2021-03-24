@@ -395,12 +395,9 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
 
     public XmlValue descendants() {
         List<BXml> descendants = new ArrayList<>();
-        for (BXml child : children) {
-            if (child.getNodeType() == XmlNodeType.ELEMENT) {
-                XmlItem element = (XmlItem) child;
-                descendants.add(element);
-                addDescendants(descendants, element);
-            }
+        if (children.size() == 1) {
+            XmlItem element = (XmlItem) children.get(0);
+            addDescendants(descendants, element);
         }
         return new XmlSequence(descendants);
     }

@@ -476,6 +476,7 @@ function testGetDescendants() {
     getDescendantsSimpleElement();
     getDescendantsWithNS();
     getDescendantsFilterNonElements();
+    getDescendantsFromSeq();
 }
 
 function getDescendantsSimpleElement() {
@@ -556,6 +557,26 @@ function getDescendantsFilterNonElements() {
     assert(descendants[4], e5);
     assert(descendants[5], e6);
     assert(descendants[6], e7);
+}
+
+function getDescendantsFromSeq() {
+    xml desecndants = xml ``;
+    xml x = xml `<a><b><c>helo</c><d>bye</d></b></a>`;
+    xml b = x/*;
+    if (b is xml:Element) {
+        desecndants = b.getDescendants();
+    }
+
+    xml:Element e1 = xml `<c>helo</c>`;
+    xml:Text e2 = xml `helo`;
+    xml:Element e3 = xml `<d>bye</d>`;
+    xml:Text e4 = xml `bye`;
+
+    assert(desecndants.length(), 4);
+    assert(desecndants[0], e1);
+    assert(desecndants[1], e2);
+    assert(desecndants[2], e3);
+    assert(desecndants[3], e4);
 }
 
 function assert(anydata actual, anydata expected) {
