@@ -84,10 +84,9 @@ function testClosedIntRangeOnIntSubTypes() {
 
     int:Signed32 startValue3 = 12;
     int:Signed32 endValue3 = 14;
-    rangeAsArray = startValue3 ... endValue3;
     arrIndex = 0;
     arr.removeAll();
-    foreach var val in rangeAsArray {
+    foreach var val in startValue3 ... endValue3 {
         arr[arrIndex] = val;
         arrIndex += 1;
     }
@@ -98,10 +97,9 @@ function testClosedIntRangeOnIntSubTypes() {
 
     int:Signed32 startValue4 = 12;
     int endValue4 = 14;
-    rangeAsArray = startValue4 ... endValue4;
     arrIndex = 0;
     arr.removeAll();
-    foreach var val in rangeAsArray {
+    foreach var val in startValue4 ... endValue4 {
         arr[arrIndex] = val;
         arrIndex += 1;
     }
@@ -126,10 +124,9 @@ function testClosedIntRangeOnIntSubTypes() {
 
     int startValue6 = 12;
     int:Signed16 endValue6 = 14;
-    rangeAsArray = startValue6 ... endValue6;
     arrIndex = 0;
     arr.removeAll();
-    foreach var val in rangeAsArray {
+    foreach var val in startValue6 ... endValue6 {
         arr[arrIndex] = val;
         arrIndex += 1;
     }
@@ -182,10 +179,9 @@ function testClosedIntRangeOnIntSubTypes() {
 
     int:Signed8 startValue10 = -6;
     int:Signed32 endValue10 = -2;
-    rangeAsArray = startValue10 ... endValue10;
     arrIndex = 0;
     arr.removeAll();
-    foreach var val in rangeAsArray {
+    foreach var val in startValue10 ... endValue10 {
         arr[arrIndex] = val;
         arrIndex += 1;
     }
@@ -231,10 +227,9 @@ function testHalfOpenIntRangeOnIntSubTypes() {
 
     int:Signed32 startValue3 = -12;
     int:Signed16 endValue3 = -9;
-    rangeAsArray = startValue3 ..< endValue3;
     arrIndex = 0;
     arr.removeAll();
-    foreach var val in rangeAsArray {
+    foreach var val in startValue3 ..< endValue3 {
         arr[arrIndex] = val;
         arrIndex += 1;
     }
@@ -245,10 +240,9 @@ function testHalfOpenIntRangeOnIntSubTypes() {
 
     int:Signed8 startValue4 = -12;
     int endValue4 = -9;
-    rangeAsArray = startValue4 ..< endValue4;
     arrIndex = 0;
     arr.removeAll();
-    foreach var val in rangeAsArray {
+    foreach var val in startValue4 ..< endValue4 {
         arr[arrIndex] = val;
         arrIndex += 1;
     }
