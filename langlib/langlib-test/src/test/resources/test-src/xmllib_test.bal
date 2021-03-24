@@ -498,6 +498,9 @@ function testData() {
 
     xml x = xml `<elem>&lt;</elem>`;
     assertEquals((x/*).data(), "<");
+
+    xml concat = authors + text + cmnt + pi + x;
+    assertEquals(concat.data(), "EnidBlytonhello>abc<");
 }
 
 function testXmlGetContentOverASequence() {
@@ -508,6 +511,21 @@ function testXmlGetContentOverASequence() {
         string s = k.getContent();
         assertEquals(s, "Hello");
     } else {
-        panic error("Assert false");
+        panic error("Assert failure: single item comment should pass `is xml:Comment` type test");
+    }
+
+    if (c is 'xml:Comment) {
+        string s = c.getContent();
+        assertEquals(s, "Hello");
+    } else {
+        panic error("Assert failure: single item comment sequence should pass `is xml:Comment` type test");
+    }
+
+    xml concat = c + xml ``;
+    if (concat is 'xml:Comment) {
+        string s = concat.getContent();
+        assertEquals(s, "Hello");
+    } else {
+        panic error("Assert failure: single item comment sequence should pass `is xml:Comment` type test");
     }
 }

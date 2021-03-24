@@ -74,10 +74,10 @@ public isolated function getStackTrace() returns StackFrame[] {
     return stackFrame;
 }
 
-# Represents a stack frame.
-# public type StackFrame readonly & object {
-public type StackFrame object {
-
+# Type representing a stack frame.
+# A call stack is represented as an array of stack frames.
+# This type is also present in lang.error to avoid a dependency.
+public type StackFrame readonly & object {
    # Returns a string representing the StackFrame.
    #
    # + return - A StackFrame as a `string`
