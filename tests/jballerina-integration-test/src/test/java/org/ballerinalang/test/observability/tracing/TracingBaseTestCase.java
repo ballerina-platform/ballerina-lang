@@ -59,7 +59,8 @@ public class TracingBaseTestCase extends ObservabilityBaseTest {
 
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     public void setup() throws Exception {
-        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME, new int[] {9090, 9091, 9092, 9093, 9094, 9095});
+        super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME,
+                new int[] {19090, 19091, 19092, 19093, 19094, 19095});
     }
 
     @AfterGroups(value = "tracing-test", alwaysRun = true)
@@ -76,7 +77,7 @@ public class TracingBaseTestCase extends ObservabilityBaseTest {
     }
 
     protected List<BMockSpan> getFinishedSpans(String service) throws IOException {
-        String requestUrl = "http://localhost:9090/mockTracer/getMockTraces";
+        String requestUrl = "http://localhost:19090/mockTracer/getMockTraces";
         String data = HttpClientRequest.doPost(requestUrl, service, Collections.emptyMap()).getData();
         Type type = new TypeToken<List<BMockSpan>>() { }.getType();
         return new Gson().fromJson(data, type);

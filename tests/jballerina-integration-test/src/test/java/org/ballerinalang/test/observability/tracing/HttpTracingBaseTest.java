@@ -101,7 +101,7 @@ public class HttpTracingBaseTest extends BaseTest {     // TODO: Move this test 
             servicesServerInstance.startServer(basePath, "backend", null, args, requiredPorts);
         }
         {
-            int[] requiredPorts = new int[]{9090, 9091};
+            int[] requiredPorts = new int[]{19090, 19091};
             backendServerInstance = new BServerInstance(balServer);
             backendServerInstance.startServer(basePath, "httptracing", null, args, requiredPorts);
         }
@@ -128,13 +128,13 @@ public class HttpTracingBaseTest extends BaseTest {     // TODO: Move this test 
     }
 
     protected List<BMockSpan> getFinishedSpans(String serviceName, String resource) throws IOException {
-        return getFinishedSpans(9090, serviceName).stream()
+        return getFinishedSpans(19090, serviceName).stream()
                 .filter(span -> Objects.equals(span.getTags().get("resource"), resource))
                 .collect(Collectors.toList());
     }
 
     protected List<BMockSpan> getFinishedSpans(String serviceName) throws IOException {
-        return getFinishedSpans(9090, serviceName);
+        return getFinishedSpans(19090, serviceName);
     }
 
     protected List<BMockSpan> getEchoBackendFinishedSpans() throws IOException {
