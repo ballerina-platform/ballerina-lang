@@ -161,6 +161,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_COMPARISON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
@@ -669,12 +670,12 @@ public class JvmInstructionGen {
             }
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
             String compareFuncName = this.getCompareFuncName(opcode);
-            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName, "(DD)Z", false);
+            this.mv.visitMethodInsn(INVOKESTATIC, VALUE_COMPARISON_UTILS, compareFuncName, "(DD)Z", false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
             return;
         } else {
             String compareFuncName = this.getCompareFuncName(opcode);
-            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName,
+            this.mv.visitMethodInsn(INVOKESTATIC, VALUE_COMPARISON_UTILS, compareFuncName,
                     String.format("(L%s;L%s;)Z", OBJECT, OBJECT), false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
             return;

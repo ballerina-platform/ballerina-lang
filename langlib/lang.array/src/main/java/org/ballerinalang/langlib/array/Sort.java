@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.ValueComparisonUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
@@ -91,10 +91,10 @@ public class Sort {
                     index = j++;
                 } else if (j > hi) {
                     index = i++;
-                } else if (direction.equals("ascending") && TypeChecker.compareValues(aux[j][0],
+                } else if (direction.equals("ascending") && ValueComparisonUtils.compareValues(aux[j][0],
                         aux[i][0], direction) < 0) {
                     index = j++;
-                } else if (direction.equals("descending") && TypeChecker.compareValues(aux[i][0],
+                } else if (direction.equals("descending") && ValueComparisonUtils.compareValues(aux[i][0],
                         aux[j][0], direction) < 0) {
                     index = j++;
                 } else {
