@@ -78,7 +78,7 @@ public class GlobalVarNegativeTest {
         CompileResult result = BCompileUtil.compile
                 ("test-src/statements/variabledef/configurable_global_var_decl_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(result, i++, "configurable variable must be initialized or marked as required",
+        BAssertUtil.validateError(result, i++, "configurable variable must be initialized or be marked as required",
                 18, 19);
         BAssertUtil.validateError(result, i++, "configurable variable cannot be declared with var", 20, 1);
         BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 22, 22);

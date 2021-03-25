@@ -229,7 +229,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE0514", "error.missing.key.expr.in.member.access.expr"),
     ERROR_MISSING_ERROR_MESSAGE_BINDING_PATTERN("BCE0515", "error.missing.error.message.binding.pattern"),
     ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED_OR_REQUIRED("BCE0516",
-            "error.configurable.variable.must.be.initialized.or.marked.as.required"),
+            "error.configurable.variable.must.be.initialized.or.required"),
     ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION("BCE0517",
             "error.missing.resource.path.in.resource.accessor.definition"),
     ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE0518",
