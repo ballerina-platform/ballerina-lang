@@ -222,7 +222,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         final String callerResponsePosition = "01_main_function.bal:51:24";
 
         HttpResponse httpResponse = HttpClientRequest.doPost(
-                "http://localhost:9091/" + basePath + "/" + resourceName, "15", Collections.emptyMap());
+                "http://localhost:19091/" + basePath + "/" + resourceName, "15", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Sum of numbers: 120");
         Thread.sleep(1000);
