@@ -785,6 +785,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 this.unresolvedTypes.add(classDefinition);
                 return;
             }
+            objectType.typeInclusions.add(referencedType);
         }
 
         classDefinition.setPrecedence(this.typePrecedence++);

@@ -24,7 +24,7 @@ import org.testng.annotations.DataProvider;
  *
  * @since 2.0.0
  */
-public class EnumContextTest extends CompletionTestNew {
+public class EnumContextTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
