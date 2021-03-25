@@ -65,8 +65,8 @@ class CompilerLifecycleManager {
     }
 
     public List<Diagnostic> runCodeGeneratedTasks(Path binaryPath) {
-        CompilerLifecycleEventContextImpl lifecycleEventContext = new CompilerLifecycleEventContextImpl(
-                this.currentPackage, this.compilation);
+        CompilerLifecycleEventContextImpl lifecycleEventContext =
+                new CompilerLifecycleEventContextImpl(this.currentPackage, this.compilation);
         lifecycleEventContext.setBinaryPath(binaryPath);
 
         for (List<CodeGenerationCompletedTask> taskList : lifecycleTasks.codeGenerationCompletedTasks.values()) {
@@ -214,7 +214,7 @@ class CompilerLifecycleManager {
             diagnostics.add(diagnostic);
         }
 
-        private void setBinaryPath(Path binaryPath) {
+        void setBinaryPath(Path binaryPath) {
             this.binaryPath = binaryPath;
         }
 
