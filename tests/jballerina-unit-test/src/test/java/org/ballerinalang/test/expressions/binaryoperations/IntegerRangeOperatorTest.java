@@ -30,7 +30,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test the functionality of integer range operators.
  */
-@Test(groups = { "brokenOnNewParser" })
+
 public class IntegerRangeOperatorTest {
 
     private CompileResult result;
@@ -170,6 +170,15 @@ public class IntegerRangeOperatorTest {
         }
     }
 
+    @Test(description = "Test closed int range operator on int sub types")
+    public void testClosedIntRangeOnIntSubTypes() {
+        BRunUtil.invoke(result, "testClosedIntRangeOnIntSubTypes");
+    }
+
+    @Test(description = "Test half open int range operator on int sub types")
+    public void testHalfOpenIntRangeOnIntSubTypes() {
+        BRunUtil.invoke(result, "testHalfOpenIntRangeOnIntSubTypes");
+    }
 
     @Test(description = "Test integer range operators with errors")
     public void testSubtractStmtNegativeCases() {

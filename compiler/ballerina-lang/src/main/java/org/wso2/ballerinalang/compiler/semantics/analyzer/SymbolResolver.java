@@ -467,13 +467,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.env = prevEnv;
         this.diagCode = preDiagCode;
 
-        // If the typeNode.nullable is true then convert the resultType to a union type
-        // if it is not already a union type, JSON type, or any type
-        if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) this.resultType;
-            unionType.add(symTable.nilType);
-        } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            this.resultType = BUnionType.create(null, resultType, symTable.nilType);
+        if (this.resultType != symTable.noType) {
+            // If the typeNode.nullable is true then convert the resultType to a union type
+            // if it is not already a union type, JSON type, or any type
+            if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) this.resultType;
+                unionType.add(symTable.nilType);
+            } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
+                this.resultType = BUnionType.create(null, resultType, symTable.nilType);
+            }
         }
 
         typeNode.type = resultType;
@@ -965,10 +967,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.intRangeType = (BObjectType) ((BInvokableType) entry.symbol.type).retType;
-            symTable.defineBinaryOperator(OperatorKind.CLOSED_RANGE, symTable.intType, symTable.intType,
-                    symTable.intRangeType);
-            symTable.defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, symTable.intType, symTable.intType,
-                    symTable.intRangeType);
+            symTable.defineIntRangeOperations();
             return;
         }
         throw new IllegalStateException("built-in Integer Range type not found ?");
