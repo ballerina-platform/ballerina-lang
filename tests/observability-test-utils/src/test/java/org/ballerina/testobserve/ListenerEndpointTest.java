@@ -50,7 +50,7 @@ public class ListenerEndpointTest {
     private static BalServer balServer;
     private static BServerInstance servicesServerInstance;
 
-    private static final String SERVICE_BASE_URL = "http://localhost:9091/testServiceOne";
+    private static final String SERVICE_BASE_URL = "http://localhost:29091/testServiceOne";
 
     @BeforeGroups(value = "mock-listener-tests", alwaysRun = true)
     private void setup() throws Exception {
@@ -75,7 +75,7 @@ public class ListenerEndpointTest {
         servicesServerInstance = new BServerInstance(balServer);
         String sourcesDir = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "listener_tests").getAbsolutePath();
-        servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], new int[]{9091});
+        servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], new int[]{29091});
     }
 
     @AfterGroups(value = "mock-listener-tests", alwaysRun = true)
