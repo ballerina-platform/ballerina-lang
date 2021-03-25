@@ -20,8 +20,8 @@ package org.wso2.ballerinalang.compiler.diagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
 
 import java.util.Collections;
 import java.util.List;
@@ -85,9 +85,5 @@ public class BLangDiagnostic extends Diagnostic {
 
     public DiagnosticCode getCode() {
         return diagnosticCode;
-    }
-
-    public String toString() {
-        return diagnosticInfo.severity() + " [" + location.lineRange().filePath() + ":" + location + "] " + msg;
     }
 }

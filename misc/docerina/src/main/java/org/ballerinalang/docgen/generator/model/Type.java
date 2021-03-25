@@ -49,6 +49,7 @@ import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import org.ballerinalang.docgen.Generator;
@@ -98,8 +99,6 @@ public class Type {
     @Expose
     public boolean isLambda;
     @Expose
-    public boolean isReadOnly;
-    @Expose
     public boolean isDeprecated;
     @Expose
     public boolean generateUserDefinedTypeLink = true;
@@ -115,7 +114,9 @@ public class Type {
     public Type returnType;
     @Expose
     public Type constraint;
+
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
+    private static final String ballerinaShotVersion = BallerinaDocGenerator.getBallerinaShortVersion();
 
     private Type() {
     }
@@ -154,13 +155,16 @@ public class Type {
         } else if (node instanceof BuiltinSimpleNameReferenceNode) {
             BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
             type.name = builtinSimpleNameReferenceNode.name().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof XmlTypeDescriptorNode) {
             XmlTypeDescriptorNode xmlType = (XmlTypeDescriptorNode) node;
             type.name = xmlType.xmlKeywordToken().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof NilTypeDescriptorNode) {
             type.name = node.toString();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof ArrayTypeDescriptorNode) {
             ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
@@ -194,6 +198,7 @@ public class Type {
                     (StreamTypeParamsNode) streamNode.streamTypeParamsNode().get() : null;
             type.name = streamNode.streamKeywordToken().text();
             type.category = "stream";
+            type.version = ballerinaShotVersion;
             if (streamParams != null) {
                 type.memberTypes.add(fromNode(streamParams.leftTypeDescNode(), semanticModel));
                 if (streamParams.rightTypeDescNode().isPresent()) {
@@ -203,35 +208,41 @@ public class Type {
         } else if (node instanceof FunctionTypeDescriptorNode) {
             type.isLambda = true;
             FunctionTypeDescriptorNode functionDescNode = (FunctionTypeDescriptorNode) node;
-            FunctionSignatureNode functionSignature = functionDescNode.functionSignature();
-            List<DefaultableVariable> variables =
-                    Generator.getDefaultableVariableList(functionSignature.parameters(), Optional.empty(),
-                            semanticModel);
-            type.paramTypes.addAll(variables.stream().map((defaultableVariable) -> defaultableVariable.type)
-                    .collect(Collectors.toList()));
-            if (functionSignature.returnTypeDesc().isPresent()) {
-                ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
-                type.returnType = Type.fromNode(returnType.type(), semanticModel);
+            if (functionDescNode.functionSignature().isPresent()) {
+                FunctionSignatureNode functionSignature = functionDescNode.functionSignature().get();
+                List<DefaultableVariable> variables =
+                        Generator.getDefaultableVariableList(functionSignature.parameters(), Optional.empty(),
+                                semanticModel);
+                type.paramTypes.addAll(variables.stream().map((defaultableVariable) -> defaultableVariable.type)
+                        .collect(Collectors.toList()));
+                if (functionSignature.returnTypeDesc().isPresent()) {
+                    ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
+                    type.returnType = Type.fromNode(returnType.type(), semanticModel);
+                }
             }
         } else if (node instanceof ParameterizedTypeDescriptorNode) {
             ParameterizedTypeDescriptorNode parameterizedNode = (ParameterizedTypeDescriptorNode) node;
             if (parameterizedNode.parameterizedType().kind().equals(SyntaxKind.MAP_KEYWORD)) {
                 type.name = "map";
                 type.category = "map";
+                type.version = ballerinaShotVersion;
                 type.constraint = fromNode(parameterizedNode.typeParameter().typeNode(), semanticModel);
             }
         } else if (node instanceof ErrorTypeDescriptorNode) {
             ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
             type.name = errorType.errorKeywordToken().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof ObjectTypeDescriptorNode) {
             ObjectTypeDescriptorNode objectType = (ObjectTypeDescriptorNode) node;
             type.name = objectType.toString();
-            type.category = "builtin";
+            type.category = "other";
+            type.generateUserDefinedTypeLink = false;
         } else if (node instanceof SingletonTypeDescriptorNode) {
             SingletonTypeDescriptorNode singletonTypeDesc = (SingletonTypeDescriptorNode) node;
             type.name = singletonTypeDesc.simpleContExprNode().toString();
-            type.category = "builtin";
+            type.category = "other";
+            type.generateUserDefinedTypeLink = false;
         } else if (node instanceof ParenthesisedTypeDescriptorNode) {
             ParenthesisedTypeDescriptorNode parenthesisedNode = (ParenthesisedTypeDescriptorNode) node;
             type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel);
@@ -241,7 +252,18 @@ public class Type {
             type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
                     Type.fromNode(memberType, semanticModel)).collect(Collectors.toList()));
             type.isTuple = true;
+        } else if (node instanceof TypedescTypeDescriptorNode) {
+            TypedescTypeDescriptorNode typeDescriptor = (TypedescTypeDescriptorNode) node;
+            Type elemType = null;
+            if (typeDescriptor.typedescTypeParamsNode().isPresent()) {
+                elemType = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel);
+            }
+            type.isTypeDesc = true;
+            type.version = ballerinaShotVersion;
+            type.elementType = elemType;
         } else {
+            type.name = node.toSourceCode();
+            type.generateUserDefinedTypeLink = false;
             type.category = "UNKNOWN";
         }
         return type;
@@ -315,6 +337,7 @@ public class Type {
 
     public Type(String name) {
         this.name = name;
+        this.version = ballerinaShotVersion;
         this.category = "builtin";
     }
 

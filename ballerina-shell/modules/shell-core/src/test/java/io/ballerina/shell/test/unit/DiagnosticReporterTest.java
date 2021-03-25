@@ -72,7 +72,6 @@ public class DiagnosticReporterTest {
         Assert.assertFalse(reporter.hasErrors());
     }
 
-
     @Test
     public void testDiagnosticTypes() {
         TestReporter reporter = new TestReporter();

@@ -15,3 +15,5 @@ jobs:
           close-pr-message: 'Closed PR due to inactivity for more than 18 days.'
           days-before-pr-stale: 15
           days-before-pr-close: 3
+          days-before-issue-stale: -1
+          days-before-issue-close: -1

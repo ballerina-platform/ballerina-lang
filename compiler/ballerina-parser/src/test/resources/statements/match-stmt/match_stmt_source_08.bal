@@ -14,5 +14,7 @@ function foo() {
         }
         [true, (), a, +5, "dulmina"] => {
         }
+        a|[b, c] => {
+        }
     }
 }

@@ -28,10 +28,13 @@ import java.nio.file.NoSuchFileException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.jar.JarEntry;
 import java.util.jar.JarFile;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.zip.ZipEntry;
@@ -58,7 +61,8 @@ public class CodeCoverageUtils {
      * @throws NoSuchFileException if source file doesnt exist
      */
     public static void unzipCompiledSource(Path source, Path destination, String orgName, String moduleName,
-                                           String version) throws NoSuchFileException {
+                                           String version, boolean enableIncludesFilter,
+                                           String includesInCoverage) throws NoSuchFileException {
         String destJarDir = destination.resolve(source.getFileName()).toString();
 
         try (JarFile jarFile = new JarFile(source.toFile())) {
@@ -66,7 +70,8 @@ public class CodeCoverageUtils {
             while (enu.hasMoreElements()) {
                 JarEntry entry = enu.nextElement();
                 File file = new File(destJarDir, entry.getName());
-                if (isRequiredFile(entry.getName(), orgName, moduleName, version)) {
+                if (isRequiredFile(entry.getName(), orgName, enableIncludesFilter,
+                        includesInCoverage)) {
                     if (!file.exists()) {
                         Files.createDirectories(file.getParentFile().toPath());
                     }
@@ -157,20 +162,45 @@ public class CodeCoverageUtils {
         }
     }
 
-    private static boolean isRequiredFile(String path, String orgName, String moduleName, String version) {
+    private static boolean isRequiredFile(String path, String orgName, boolean enableIncludesFilter,
+                                          String includesInCoverage) {
         if (path.contains("$_init") || path.contains("META-INF") || path.contains("/tests/")) {
             return false;
         } else if (path.contains("Frame") && path.contains("module")) {
             return false;
         } else if (path.contains("Frame") && path.contains(orgName)) {
             return false;
-        } else if (path.contains(
-                orgName + "/" + moduleName + "/" + version.replace(".", "_") + "/" + moduleName + ".class")) {
-            return false;
         } else if (path.contains("module-info.class")) {
+            return false;
+        } else if (enableIncludesFilter && !isIncluded(path, includesInCoverage)) {
             return false;
         }
         return true;
+    }
+
+    private static String normalizeRegexPattern(String pattern) {
+        if (pattern.contains(TesterinaConstants.WILDCARD)) {
+            pattern = pattern.replace(TesterinaConstants.WILDCARD,
+                    TesterinaConstants.DOT + TesterinaConstants.WILDCARD);
+        }
+        return pattern;
+    }
+
+    private static boolean isIncluded(String path, String includesInCoverage) {
+        boolean isIncluded = false;
+        if (includesInCoverage != null) {
+            List<String> includedPackages = Arrays.asList(includesInCoverage.split(":"));
+            for (String packageName : includedPackages) {
+                packageName = packageName.replace(".", "/");
+                Pattern pattern = Pattern.compile(normalizeRegexPattern(packageName));
+                Matcher matcherStr = pattern.matcher(path);
+                if (matcherStr.find()) {
+                    isIncluded = true;
+                    break;
+                }
+            }
+        }
+        return isIncluded;
     }
 
     /**

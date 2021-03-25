@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
@@ -130,7 +131,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     public boolean onPreValidation(BallerinaCompletionContext context, ListenerDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         Token listenerKeyword = node.listenerKeyword();
-        
+
         // Added +1 since the completion is valid after listener <cursor>
         return !listenerKeyword.isMissing() && listenerKeyword.textRange().endOffset() + 1 <= cursor;
     }
@@ -143,7 +144,7 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
         because the type descriptor is optional as per the grammar
          */
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             String modulePrefix = QNameReferenceUtil.getAlias((QualifiedNameReferenceNode) nodeAtCursor);
             completionItems.addAll(listenersInModule(context, modulePrefix));
         } else {
@@ -221,23 +222,19 @@ public class ListenerDeclarationNodeContext extends AbstractCompletionProvider<L
     }
 
     private boolean withinTypeDescContext(BallerinaCompletionContext context, ListenerDeclarationNode node) {
-        Position position = context.getCursorPosition();
+        int cursor = context.getCursorPositionInTree();
         Token varName = node.variableName();
         Token listenerKW = node.listenerKeyword();
+        Optional<TypeDescriptorNode> tDesc = node.typeDescriptor();
 
         if (listenerKW.isMissing()) {
             return false;
         }
 
-        LineRange listenerKWRange = listenerKW.lineRange();
-
-        return listenerKWRange.endLine().offset() < position.getCharacter()
-                && (varName.isMissing()
-                || (varName.lineRange().startLine().line() == position.getLine()
-                && varName.lineRange().startLine().offset() > position.getCharacter())
-                || (varName.lineRange().startLine().line() > position.getLine())
-                || (varName.lineRange().endLine().offset() == position.getCharacter()
-                && node.typeDescriptor() == null));
+        return cursor >= listenerKW.textRange().startOffset() + 1
+                && ((tDesc.isEmpty() && varName.isMissing())
+                || (tDesc.isEmpty() && !varName.isMissing() && cursor <= varName.textRange().endOffset())
+                || (tDesc.isPresent() && cursor <= tDesc.get().textRange().endOffset()));
     }
 
     private boolean withinInitializerContext(BallerinaCompletionContext context, ListenerDeclarationNode node) {

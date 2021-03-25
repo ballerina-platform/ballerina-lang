@@ -12,7 +12,6 @@
       "children": [
         {
           "kind": "FUNCTION_TYPE_DESC",
-          "hasDiagnostics": true,
           "children": [
             {
               "kind": "LIST",
@@ -24,32 +23,6 @@
                 {
                   "kind": "END_OF_LINE_MINUTIAE",
                   "value": "\n"
-                }
-              ]
-            },
-            {
-              "kind": "FUNCTION_SIGNATURE",
-              "hasDiagnostics": true,
-              "children": [
-                {
-                  "kind": "OPEN_PAREN_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_OPEN_PAREN_TOKEN"
-                  ]
-                },
-                {
-                  "kind": "LIST",
-                  "children": []
-                },
-                {
-                  "kind": "CLOSE_PAREN_TOKEN",
-                  "isMissing": true,
-                  "hasDiagnostics": true,
-                  "diagnostics": [
-                    "ERROR_MISSING_CLOSE_PAREN_TOKEN"
-                  ]
                 }
               ]
             }

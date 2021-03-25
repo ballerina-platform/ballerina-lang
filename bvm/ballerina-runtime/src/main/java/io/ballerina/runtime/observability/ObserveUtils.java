@@ -24,7 +24,7 @@ import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.configurable.ConfigurableMap;
+import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.observability.tracer.BSpan;
@@ -90,10 +90,10 @@ public class ObserveUtils {
 
     private static <T> T readConfig(VariableKey specificKey, VariableKey inheritedKey, T defaultValue) {
         T value;
-        if (ConfigurableMap.containsKey(specificKey)) {
-            value = (T) ConfigurableMap.get(specificKey);
-        } else if (inheritedKey != null && ConfigurableMap.containsKey(inheritedKey)) {
-            value = (T) ConfigurableMap.get(inheritedKey);
+        if (ConfigMap.containsKey(specificKey)) {
+            value = (T) ConfigMap.get(specificKey);
+        } else if (inheritedKey != null && ConfigMap.containsKey(inheritedKey)) {
+            value = (T) ConfigMap.get(inheritedKey);
         } else {
             value = defaultValue;
         }
