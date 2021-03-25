@@ -156,8 +156,29 @@ public function decimalArrayLoad() returns decimal {
     return a[1];
 }
 
-function testDecimalFillerValue() returns [[decimal], decimal[1], boolean, boolean] {
+function testDecimalFillerValue() {
     [decimal] a = [];
     decimal[1] b = [];
-    return [a, b, a[0] == +0d, a[0] == b[0]];
+    assertEquality(+0d, a[0]);
+    assertEquality(+0d, b[0]);
+    assertEquality(true, a == b);
+}
+
+type AssertionError distinct error;
+
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error AssertionError(ASSERTION_ERROR_REASON,
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
