@@ -40,7 +40,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
 
     @Test
     public void testChainedResourceFunctions() throws Exception {
-        HttpResponse httpResponse = HttpClientRequest.doGet("http://localhost:9091/test-service/resource-1");
+        HttpResponse httpResponse = HttpClientRequest.doGet("http://localhost:19091/test-service/resource-1");
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
         Thread.sleep(1000);
@@ -97,7 +97,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("src.module", "ballerina-test/httptracing:0.0.1"),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("http.base_url", "http://localhost:9091/test-service"),
+                    new AbstractMap.SimpleEntry<>("http.base_url", "http://localhost:19091/test-service"),
                     new AbstractMap.SimpleEntry<>("http.url", "/resource-2"),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
@@ -125,7 +125,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
                     new AbstractMap.SimpleEntry<>("http.status_code_group", "2xx"),
                     new AbstractMap.SimpleEntry<>("http.url", "/test-service/resource-2"),
                     new AbstractMap.SimpleEntry<>("http.method", "GET"),
-                    new AbstractMap.SimpleEntry<>("peer.address", "localhost:9091"),
+                    new AbstractMap.SimpleEntry<>("peer.address", "localhost:19091"),
                     new AbstractMap.SimpleEntry<>("service", "testServiceOne"),
                     new AbstractMap.SimpleEntry<>("resource", "resourceOne"),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/http/HttpClient"),
@@ -202,7 +202,7 @@ public class HttpTracingTestCase extends HttpTracingBaseTest {  // TODO: Move th
 
     @Test
     public void testHTTPContextPropagation() throws Exception {
-        HttpResponse httpResponse = HttpClientRequest.doGet("http://localhost:9092/test-service/resource-1");
+        HttpResponse httpResponse = HttpClientRequest.doGet("http://localhost:19092/test-service/resource-1");
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Hello, World! from resource one");
         Thread.sleep(1000);

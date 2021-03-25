@@ -17,7 +17,7 @@
 import ballerina/testobserve;
 import ballerina/lang.'int;
 
-service /testServiceOne on new testobserve:Listener(9091) {
+service /testServiceOne on new testobserve:Listener(29091) {
     resource function post resourceOne(testobserve:Caller caller) {
         var ret = caller->respond("Hello from Resource One");
     }

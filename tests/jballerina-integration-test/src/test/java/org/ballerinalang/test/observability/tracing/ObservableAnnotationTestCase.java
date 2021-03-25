@@ -41,7 +41,7 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "04_observability_annotation.bal";
     private static final String SERVICE_NAME = "testSvcFour";
     private static final String BASE_PATH = "testServiceFour";
-    private static final String BASE_URL = "http://localhost:9094";
+    private static final String BASE_URL = "http://localhost:19094";
 
     @Test
     public void testObservableFunction() throws Exception {
