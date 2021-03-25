@@ -19,25 +19,26 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 
-import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.StringJoiner;
 
 /**
- * Holds the meta information required for the documentation attachment.
+ * Holds the meta information required for the documentation attachment. This class expects a {@link LinkedHashMap} for
+ * the parameters in order to keep the ordering of the parameters at the same time.
  *
  * @since 0.985.0
  */
 public class DocAttachmentInfo implements Documentation {
+
     private final String description;
     private final Map<String, String> parameters;
     private final String returnDesc;
     private final Position docStart;
     private final String padding;
-
-    public DocAttachmentInfo(String description, Map<String, String> parameters, String returnDesc,
+    
+    public DocAttachmentInfo(String description, LinkedHashMap<String, String> parameters, String returnDesc,
                              Position docStart, String padding) {
         this.description = description;
         this.parameters = parameters;
@@ -48,7 +49,7 @@ public class DocAttachmentInfo implements Documentation {
 
     public DocAttachmentInfo(String description, Position docStart, String padding) {
         this.description = description;
-        this.parameters = new HashMap<>();
+        this.parameters = new LinkedHashMap<>();
         this.returnDesc = null;
         this.docStart = docStart;
         this.padding = padding;
@@ -76,7 +77,7 @@ public class DocAttachmentInfo implements Documentation {
     public DocAttachmentInfo mergeDocAttachment(Documentation other) {
         String description = other.description().orElse(this.description);
         // NOTE: we prioritize current markdown attachment's params since it has the correct order and correct positions
-        Map<String, String> newParamsMap = new LinkedHashMap<>();
+        LinkedHashMap<String, String> newParamsMap = new LinkedHashMap<>();
         if (!this.parameters.isEmpty()) {
             parameters.forEach((key, value) -> newParamsMap.put(key, other.parameterMap().getOrDefault(key, value)));
         }
@@ -87,20 +88,24 @@ public class DocAttachmentInfo implements Documentation {
     }
 
     public String getDocumentationString() {
-        String result = String.format("# %s%n", this.description.trim());
+        StringBuilder result = new StringBuilder();
+        String[] descriptionLines = this.description.trim().split(System.lineSeparator());
+        for (String descriptionLine : descriptionLines) {
+            result.append(String.format("# %s%n", descriptionLine.trim()));
+        }
 
         if (!parameters.isEmpty()) {
             StringJoiner paramJoiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
             for (Map.Entry<String, String> parameter : this.parameters.entrySet()) {
                 paramJoiner.add(String.format("%s# + %s - %s", padding, parameter.getKey(), parameter.getValue()));
             }
-            result += String.format("%s#%n%s%n", padding, paramJoiner.toString());
+            result.append(String.format("%s#%n%s%n", padding, paramJoiner.toString()));
         }
 
         if (returnDesc != null) {
-            result += String.format("%s# + return - %s%n", padding, this.returnDesc.trim());
+            result.append(String.format("%s# + return - %s%n", padding, this.returnDesc.trim()));
         }
 
-        return result.trim() + CommonUtil.MD_LINE_SEPARATOR + padding;
+        return result.toString().trim() + CommonUtil.MD_LINE_SEPARATOR + padding;
     }
 }

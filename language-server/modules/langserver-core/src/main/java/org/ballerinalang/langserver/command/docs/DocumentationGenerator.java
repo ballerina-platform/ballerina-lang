@@ -45,8 +45,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 
 /**
@@ -205,7 +204,7 @@ public class DocumentationGenerator {
         }
         io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
         String desc = String.format("Description%n");
-        Map<String, String> parameters = new HashMap<>();
+        LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         switch (typeDesc.kind()) {
             case RECORD_TYPE_DESC:
                 RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) typeDesc;
@@ -252,7 +251,7 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         String desc = String.format("Description%n");
-        Map<String, String> parameters = new HashMap<>();
+        LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         classDefNode.members().forEach(field -> {
             if (field.kind() == SyntaxKind.OBJECT_FIELD &&
                     ((ObjectFieldNode) field).visibilityQualifier().isPresent()) {
@@ -282,7 +281,7 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         String desc = String.format("Description%n");
-        Map<String, String> parameters = new HashMap<>();
+        LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         signatureNode.parameters().forEach(param -> {
             Optional<Token> paramName = Optional.empty();
             if (param.kind() == SyntaxKind.REQUIRED_PARAM) {
