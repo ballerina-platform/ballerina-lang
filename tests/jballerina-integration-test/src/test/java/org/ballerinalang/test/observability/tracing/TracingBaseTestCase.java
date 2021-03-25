@@ -59,7 +59,7 @@ public class TracingBaseTestCase extends ObservabilityBaseTest {
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     public void setup() throws Exception {
         super.setupServer(TEST_SRC_PROJECT_NAME, TEST_SRC_PACKAGE_NAME,
-                new int[] {19090, 19091, 19092, 19093, 19094, 19095});
+                new int[] {19090, 19091, 19092, 19093, 19094, 19095, 19096});
     }
 
     @AfterGroups(value = "tracing-test", alwaysRun = true)
