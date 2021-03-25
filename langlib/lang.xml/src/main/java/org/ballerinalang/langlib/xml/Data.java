@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.values.BXml;
  * @since 2.0
  */
 public class Data {
-    private final static BString empty = StringUtils.fromString("");
+    private static final BString empty = StringUtils.fromString("");
 
     public static BString data(BXml xmlValue) {
         if (xmlValue.isEmpty()
