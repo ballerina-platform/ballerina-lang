@@ -77,7 +77,7 @@ service ProcessingService / on lsn {
 
 public class Listener {
 
-    public function start() returns error? {
+    public function 'start() returns error? {
     }
 
     public function gracefulStop() returns error? {

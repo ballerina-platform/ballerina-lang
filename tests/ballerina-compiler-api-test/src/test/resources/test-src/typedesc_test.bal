@@ -212,3 +212,7 @@ const NIL = ();
 type Nil NIL;
 
 type Pi PI;
+
+function testFunctionTypedesc() {
+    function f = foo;
+}
