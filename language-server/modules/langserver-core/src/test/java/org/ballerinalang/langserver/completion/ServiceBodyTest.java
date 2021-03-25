@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class ServiceBodyTest extends CompletionTestNew {
+public class ServiceBodyTest extends CompletionTest {
 
     @Override
     @Test(groups = {"broken"})
