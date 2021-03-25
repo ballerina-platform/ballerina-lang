@@ -460,9 +460,6 @@ public class TypeChecker extends BLangNodeVisitor {
         // Get the type matching to the tag from the symbol table.
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
         Object literalValue = literalExpr.value;
-        if (expType.isNullable()) {
-            literalExpr.isJSONContext = types.isJSONContext(expType);
-        }
 
         if (literalType.tag == TypeTags.INT) {
             if (expType.tag == TypeTags.FLOAT) {

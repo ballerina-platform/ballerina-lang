@@ -224,34 +224,6 @@ public class Types {
         return symTable.semanticError;
     }
 
-    public boolean isJSONContext(BType type) {
-        switch (type.tag) {
-            case TypeTags.MAP:
-                return isJSONContext(((BMapType) type).constraint);
-            case TypeTags.ARRAY:
-                return isJSONContext(((BArrayType) type).eType);
-            case TypeTags.UNION:
-                if (((BUnionType) type).isCyclic) {
-                    return type.isNullable();
-                }
-                return hasJsonContextInUnion(((BUnionType) type).getMemberTypes());
-            default:
-                return isSimpleBasicType(type.tag) || type.tag == TypeTags.JSON;
-        }
-    }
-
-    public boolean hasJsonContextInUnion(LinkedHashSet<BType> memberTypes) {
-        for (BType type : memberTypes) {
-            if (type.tag == TypeTags.NIL) {
-                continue;
-            }
-            if (isJSONContext(type)) {
-                return true;
-            }
-        }
-        return false;
-    }
-
     public boolean isLax(BType type) {
         Set<BType> visited = new HashSet<>();
         int result = isLaxType(type, visited);

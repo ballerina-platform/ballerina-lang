@@ -301,7 +301,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private SymbolEnv env;
     private final Stack<LinkedHashSet<BType>> returnTypes = new Stack<>();
     private final Stack<LinkedHashSet<BType>> errorTypes = new Stack<>();
-    private boolean isJSONContext;
     private boolean enableExperimentalFeatures;
     private int commitCount;
     private int rollbackCount;
@@ -869,9 +868,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 if (checkSimilarMatchPatterns(matchPatterns.get(j - 1), matchPattern)) {
                     dlog.error(matchPattern.pos, DiagnosticErrorCode.MATCH_STMT_PATTERN_UNREACHABLE);
                 }
-            }
-            if (matchExprType.isNullable()) {
-                this.isJSONContext = types.isJSONContext(matchExprType);
             }
             analyzeNode(matchPattern, env);
             hasLastPatternInClause = hasLastPatternInClause || matchPattern.isLastPattern;
@@ -1604,9 +1600,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 // log error if a pattern will not match to any of the expected types
                 dlog.error(patternClause.pos, DiagnosticErrorCode.MATCH_STMT_UNMATCHED_PATTERN);
                 continue;
-            }
-            if (matchStmt.expr.type.isNullable()) {
-                this.isJSONContext = types.isJSONContext(matchStmt.expr.type);
             }
             analyzeNode(patternClause.literal, env);
             matchedPatterns.add(patternClause);
@@ -2803,11 +2796,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangLiteral literalExpr) {
-        if (literalExpr.type.tag == TypeTags.NIL &&
-                NULL_LITERAL.equals(literalExpr.originalValue) &&
-                !literalExpr.isJSONContext && !this.isJSONContext) {
-            dlog.error(literalExpr.pos, DiagnosticErrorCode.INVALID_USE_OF_NULL_LITERAL);
-        }
     }
 
     public void visit(BLangListConstructorExpr listConstructorExpr) {
@@ -3162,10 +3150,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangTernaryExpr ternaryExpr) {
         analyzeExpr(ternaryExpr.expr);
-        boolean isJSONCtx = getIsJSONContext(ternaryExpr.type);
-        this.isJSONContext = isJSONCtx;
         analyzeExpr(ternaryExpr.thenExpr);
-        this.isJSONContext = isJSONCtx;
         analyzeExpr(ternaryExpr.elseExpr);
     }
 
@@ -3275,10 +3260,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangBinaryExpr binaryExpr) {
         if (validateBinaryExpr(binaryExpr)) {
-            boolean isJSONCtx = getIsJSONContext(binaryExpr.lhsExpr.type, binaryExpr.rhsExpr.type);
-            this.isJSONContext = isJSONCtx;
             analyzeExpr(binaryExpr.lhsExpr);
-            this.isJSONContext = isJSONCtx;
             analyzeExpr(binaryExpr.rhsExpr);
         }
     }
@@ -3762,7 +3744,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         node.parent = parent;
         parent = node;
         node.accept(this);
-        this.isJSONContext = false;
         parent = myParent;
         checkAccess(node);
     }
@@ -3777,7 +3758,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         node.parent = parent;
         parent = node;
         node.accept(this);
-        this.isJSONContext = false;
         parent = myParent;
         checkAccess(node);
         this.env = prevEnv;
@@ -4001,18 +3981,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         types.validateErrorOrNilReturn(funcNode, DiagnosticErrorCode.MODULE_INIT_RETURN_SHOULD_BE_ERROR_OR_NIL);
-    }
-
-    private boolean getIsJSONContext(BType... arg) {
-        if (this.isJSONContext) {
-            return true;
-        }
-        for (BType type : arg) {
-            if (type.isNullable() && types.isJSONContext(type)) {
-                return true;
-            }
-        }
-        return false;
     }
 
     private BType getErrorTypes(BType bType) {

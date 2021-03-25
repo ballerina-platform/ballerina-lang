@@ -571,11 +571,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        finiteTypeNode.valueSpace.forEach(val -> {
-            if (val.type.tag == TypeTags.NIL && NULL_LITERAL.equals(((BLangLiteral) val).originalValue)) {
-                dlog.error(val.pos, DiagnosticErrorCode.INVALID_USE_OF_NULL_LITERAL);
-            }
-        });
+        finiteTypeNode.valueSpace.forEach(value -> analyzeNode(value, env));
+    }
+
+    @Override
+    public void visit(BLangLiteral literalExpr) {
     }
 
     @Override
