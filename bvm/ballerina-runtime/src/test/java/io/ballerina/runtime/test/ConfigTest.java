@@ -164,33 +164,6 @@ public class ConfigTest {
                 new boolean[]{false, true, true, false});
     }
 
-    @Test(expectedExceptions = ConfigTomlException.class, expectedExceptionsMessageRegExp = "environment variable " +
-            "`BAL_CONFIG_DATA` contains an empty string. Please provide values for configurable variables")
-    public void testTomlProviderWithEmptyString() {
-        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
-        VariableKey[] keys = {
-                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
-                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true),
-        };
-        configVarMap.put(module, keys);
-        new TomlProvider("", configVarMap);
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = ConfigTomlException.class, expectedExceptionsMessageRegExp = "environment variable " +
-            "`BAL_CONFIG_DATA` contains an empty string. Please provide values for configurable variables")
-    public void testTomlProviderWithCommentedString() {
-        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
-        VariableKey[] keys = {
-                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
-                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true),
-        };
-        String tomlContent = "# [test_module] # intVar = 22 # stringVar = \"Hello World\"";
-        configVarMap.put(module, keys);
-        new TomlProvider(tomlContent, configVarMap);
-        Assert.fail();
-    }
-
     @Test(expectedExceptions = ConfigTomlException.class, expectedExceptionsMessageRegExp =
             "\\[BAL_CONFIG_DATA:\\(1:24,1:29\\)] configurable variable 'test_module:intVar' is expected to be of " +
                     "type 'int', but found 'float'")

@@ -117,7 +117,8 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testNoConfigFile() throws BallerinaTestException {
         Path filePath = Paths.get(negativeTestFileLocation, "no_config.bal").toAbsolutePath();
-        LogLeecher errorLeecher = new LogLeecher("configuration file is not found in path ", ERROR);
+        LogLeecher errorLeecher =
+                new LogLeecher("error: value not provided for required configurable variable 'name'", ERROR);
         bMainInstance.runMain("run", new String[]{filePath.toString()}, null, new String[]{},
                 new LogLeecher[]{errorLeecher}, testFileLocation + "/negative_tests");
         errorLeecher.waitForText(5000);
@@ -290,13 +291,13 @@ public class ConfigurableTest extends BaseTest {
      */
     private Map<String, String> addConfigPathVariable(String configFilePaths) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(ConfigTomlConstants.CONFIG_ENV_VARIABLE, configFilePaths);
+        envVariables.put(ConfigTomlConstants.CONFIG_FILES_ENV_VARIABLE, configFilePaths);
         return envVariables;
     }
 
     private Map<String, String> addConfigDataVariable(String configValues) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(ConfigTomlConstants.CONFIG_DATA, configValues);
+        envVariables.put(ConfigTomlConstants.CONFIG_DATA_ENV_VARIABLE, configValues);
         return envVariables;
     }
 
@@ -308,7 +309,7 @@ public class ConfigurableTest extends BaseTest {
 
     private Map<String, String> addConfigPathVariable(String configFilePath, String secretFilePath) {
         Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        envVariables.put(ConfigTomlConstants.CONFIG_ENV_VARIABLE, configFilePath);
+        envVariables.put(ConfigTomlConstants.CONFIG_FILES_ENV_VARIABLE, configFilePath);
         envVariables.put(ConfigTomlConstants.CONFIG_SECRET_ENV_VARIABLE, secretFilePath);
         return envVariables;
     }

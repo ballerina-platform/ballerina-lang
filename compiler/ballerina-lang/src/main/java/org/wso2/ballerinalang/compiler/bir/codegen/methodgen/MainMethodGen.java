@@ -64,6 +64,8 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.LAUNCH_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.OBJECT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.PATH;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.STRING_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TOML_DETAILS;
 
 /**
  * Generates Jvm byte code for the main method.
@@ -76,6 +78,7 @@ public class MainMethodGen {
     public static final String START_FUTURE_VAR = "startFutureVar";
     public static final String MAIN_FUTURE_VAR = "mainFutureVar";
     public static final String SCHEDULER_VAR = "schedulerVar";
+    public static final String CONFIG_VAR = "configVar";
     private final SymbolTable symbolTable;
     private final BIRVarToJVMIndexMap indexMap;
     private final JvmTypeGen jvmTypeGen;
@@ -163,8 +166,19 @@ public class MainMethodGen {
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
-        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigPath", "()[L" + PATH + ";", false);
-        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT, "([L" + PATH + ";)V", false);
+        mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigurationDetails", "()L" + TOML_DETAILS + ";", false);
+        int configDetailsIndex = indexMap.addIfNotExists(CONFIG_VAR, symbolTable.anyType);
+
+        mv.visitVarInsn(ASTORE, configDetailsIndex);
+
+        mv.visitVarInsn(ALOAD, configDetailsIndex);
+        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "paths", "[L" + PATH + ";");
+        mv.visitVarInsn(ALOAD, configDetailsIndex);
+        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "secret", "L" + STRING_VALUE + ";");
+        mv.visitVarInsn(ALOAD, configDetailsIndex);
+        mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "configContent", "L" + STRING_VALUE + ";");
+        mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT,
+                String.format("([L%s;L%s;L%s;)V", PATH, STRING_VALUE, STRING_VALUE), false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {

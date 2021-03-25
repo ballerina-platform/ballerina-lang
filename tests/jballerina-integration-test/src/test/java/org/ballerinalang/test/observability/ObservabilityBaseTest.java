@@ -33,7 +33,7 @@ import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
 
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILES_ENV_VARIABLE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
@@ -71,7 +71,7 @@ public class ObservabilityBaseTest extends BaseTest {
         String configFile = Paths.get("src", "test", "resources", "observability", testProject,
                 "Config.toml").toFile().getAbsolutePath();
         Map<String, String> env = new HashMap<>();
-        env.put(CONFIG_ENV_VARIABLE, configFile);
+        env.put(CONFIG_FILES_ENV_VARIABLE, configFile);
 
         // Don't use 9898 port here. It is used in metrics test cases.
         servicesServerInstance = new BServerInstance(balServer);

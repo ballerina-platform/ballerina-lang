@@ -103,13 +103,14 @@ public class ConfigMethodGen {
     }
 
     private void generateConfigInit(ClassWriter cw, List<PackageID> imprtMods, PackageID packageID) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, "([L" + PATH + ";)V", null, null);
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT,
+                String.format("([L%s;L%s;L%s;)V", PATH, STRING_VALUE, STRING_VALUE), null, null);
         mv.visitCode();
 
         mv.visitTypeInsn(NEW, HASH_MAP);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, "()V", false);
-        mv.visitVarInsn(ASTORE, 1);
+        mv.visitVarInsn(ASTORE, 3);
 
         for (PackageID id : imprtMods) {
             generateInvokeConfiguration(mv, id);
@@ -117,8 +118,10 @@ public class ConfigMethodGen {
         generateInvokeConfiguration(mv, packageID);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables",
-                String.format("([L%s;L%s;)V", PATH, MAP), false);
+                String.format("([L%s;L%s;L%s;L%s;)V", PATH, STRING_VALUE, STRING_VALUE, MAP), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -130,15 +133,15 @@ public class ConfigMethodGen {
 
         mv.visitMethodInsn(INVOKESTATIC, moduleClass, POPULATE_CONFIG_DATA_METHOD,
                 String.format("()[L%s;", VARIABLE_KEY), false);
-        mv.visitVarInsn(ASTORE, 2);
+        mv.visitVarInsn(ASTORE, 4);
 
-        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 4);
         mv.visitInsn(ARRAYLENGTH);
         Label elseLabel = new Label();
         mv.visitJumpInsn(IFEQ, elseLabel);
-        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 3);
         mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
-        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 4);
 
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
         mv.visitInsn(POP);

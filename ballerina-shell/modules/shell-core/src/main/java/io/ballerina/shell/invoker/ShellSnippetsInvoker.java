@@ -54,13 +54,11 @@ import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.nio.charset.Charset;
 import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.function.Function;
-
 
 /**
  * Invoker that invokes a command to evaluate a list of snippets.
@@ -82,8 +80,6 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
     private static final String MODULE_INIT_METHOD_NAME = "$moduleInit";
     private static final String MODULE_START_METHOD_NAME = "$moduleStart";
     private static final String CONFIGURE_INIT_METHOD_NAME = "$configureInit";
-    // TODO: (#28662) After configurables can be supported, change this to that file location
-    private static final Path CONFIG_PATH = Paths.get(System.getProperty("user.dir"), "Config.toml");
     /* Constants related to temp files */
     private static final String TEMP_FILE_PREFIX = "main-";
     private static final String TEMP_FILE_SUFFIX = ".bal";
@@ -325,8 +321,10 @@ public abstract class ShellSnippetsInvoker extends DiagnosticReporter {
             JarResolver jarResolver = jBallerinaBackend.jarResolver();
             ClassLoader classLoader = jarResolver.getClassLoaderWithRequiredJarFilesForExecution();
             // First run configure initialization
+            // TODO: (#28662) After configurables can be supported, change this to that file location
             invokeMethodDirectly(classLoader, CONFIGURE_INIT_CLASS_NAME, CONFIGURE_INIT_METHOD_NAME,
-                    new Class[]{Path[].class}, new Object[]{new Path[]{CONFIG_PATH}});
+                    new Class[]{Path[].class, String.class, String.class},
+                    new Object[]{new Path[]{}, null, null});
             // Initialize the module
             invokeScheduledMethod(classLoader, MODULE_INIT_CLASS_NAME, MODULE_INIT_METHOD_NAME);
             // Start the module
