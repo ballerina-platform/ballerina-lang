@@ -8223,7 +8223,7 @@ public class BallerinaParser extends AbstractParser {
                                                            checkExpr);
         } else if (callExpr.expression.kind != SyntaxKind.FUNCTION_CALL && expr.kind != SyntaxKind.METHOD_CALL) {
             STNode checkingKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(callExpr.checkKeyword, expr,
-                                                      DiagnosticErrorCode.INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
+                                                DiagnosticErrorCode.ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
             STNode funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
             funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
             STNode openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
