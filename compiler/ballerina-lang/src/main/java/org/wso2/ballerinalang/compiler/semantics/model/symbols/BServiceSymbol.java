@@ -23,10 +23,9 @@ import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
-import java.util.LinkedHashSet;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * {@link BServiceSymbol} represents a service symbol in a scope.
@@ -36,7 +35,7 @@ import java.util.Set;
 public class BServiceSymbol extends BSymbol {
 
     private final BClassSymbol associatedClass;
-    private final Set<BType> listenerTypes;
+    private final List<BType> listenerTypes;
     private List<String> absResourcePath;
     private String attachPointStringLiteral;
 
@@ -45,7 +44,7 @@ public class BServiceSymbol extends BSymbol {
         super(SymTag.SERVICE, flags, name, pkgID, type, owner, pos, origin);
         this.associatedClass = associatedClass;
         this.kind = SymbolKind.SERVICE;
-        this.listenerTypes = new LinkedHashSet<>();
+        this.listenerTypes = new ArrayList<>();
     }
 
     public Optional<List<String>> getAbsResourcePath() {
@@ -60,7 +59,7 @@ public class BServiceSymbol extends BSymbol {
         return this.associatedClass;
     }
 
-    public Set<BType> getListenerTypes() {
+    public List<BType> getListenerTypes() {
         return this.listenerTypes;
     }
 

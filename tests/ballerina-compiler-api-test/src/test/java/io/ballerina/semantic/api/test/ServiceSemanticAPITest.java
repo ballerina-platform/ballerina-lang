@@ -48,10 +48,8 @@ import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -265,15 +263,18 @@ public class ServiceSemanticAPITest {
                 .filter(s -> s.kind() == SERVICE_DECLARATION)
                 .collect(Collectors.toList());
         ServiceDeclarationSymbol service = (ServiceDeclarationSymbol) services.get(0);
-        Set<TypeSymbol> listenerTypes = service.listenerTypes();
-        assertEquals(listenerTypes.size(), 2);
+        List<TypeSymbol> listenerTypes = service.listenerTypes();
+        assertEquals(listenerTypes.size(), 3);
 
-        Iterator<TypeSymbol> iterator = listenerTypes.iterator();
-        TypeSymbol type = iterator.next();
+        TypeSymbol type = listenerTypes.get(0);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(type.getName().get(), "FooListener");
 
-        type = iterator.next();
+        type = listenerTypes.get(1);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "FooListener");
+
+        type = listenerTypes.get(2);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
         assertEquals(type.getName().get(), "BarListener");
     }

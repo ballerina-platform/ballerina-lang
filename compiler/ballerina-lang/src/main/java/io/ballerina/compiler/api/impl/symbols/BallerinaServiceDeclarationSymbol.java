@@ -41,11 +41,9 @@ import org.wso2.ballerinalang.compiler.util.Name;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
 import java.util.StringJoiner;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
@@ -62,7 +60,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
     private final TypeSymbol typeDescriptor;
     private final ServiceAttachPoint attachPoint;
 
-    private Set<TypeSymbol> listenerTypes;
+    private List<TypeSymbol> listenerTypes;
     private Map<String, ClassFieldSymbol> fields;
     private Map<String, MethodSymbol> methods;
     private Documentation docAttachment;
@@ -88,20 +86,20 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
     }
 
     @Override
-    public Set<TypeSymbol> listenerTypes() {
+    public List<TypeSymbol> listenerTypes() {
         if (this.listenerTypes != null) {
             return this.listenerTypes;
         }
 
         TypesFactory typesFactory = TypesFactory.getInstance(this.context);
         BServiceSymbol serviceSymbol = (BServiceSymbol) this.getInternalSymbol();
-        Set<TypeSymbol> listenerTypes = new LinkedHashSet<>();
+        List<TypeSymbol> listenerTypes = new ArrayList<>();
 
         for (BType listenerType : serviceSymbol.getListenerTypes()) {
             listenerTypes.add(typesFactory.getTypeDescriptor(listenerType));
         }
 
-        this.listenerTypes = Collections.unmodifiableSet(listenerTypes);
+        this.listenerTypes = Collections.unmodifiableList(listenerTypes);
         return this.listenerTypes;
     }
 
