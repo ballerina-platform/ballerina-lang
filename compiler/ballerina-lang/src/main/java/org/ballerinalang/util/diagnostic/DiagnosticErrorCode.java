@@ -554,8 +554,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_USAGE_OF_RECEIVE_EXPRESSION("BCE3842", "invalid.usage.of.receive.expression"),
     INVALID_USE_OF_EXPERIMENTAL_FEATURE("BCE3843", "invalid.use.of.experimental.feature"),
 
-    INVALID_USE_OF_NULL_LITERAL("BCE3844", "invalid.use.of.null.literal"),
-
     // LangLib related error codes.
     TYPE_PARAM_OUTSIDE_LANG_MODULE("BCE3900", "type.param.outside.lang.module"),
     BUILTIN_SUBTYPE_OUTSIDE_LANG_MODULE("BCE3901", "builtin.subtype.outside.lang.module"),
