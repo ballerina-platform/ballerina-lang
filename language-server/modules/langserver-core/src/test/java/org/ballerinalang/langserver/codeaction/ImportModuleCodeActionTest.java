@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2018, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -28,11 +28,10 @@ import java.io.IOException;
  *
  * @since 2.0.0
  */
-public class FixReturnTypeTest extends AbstractCodeActionTest {
-
+public class ImportModuleCodeActionTest extends AbstractCodeActionTest {
     @Override
     public String getResourceDir() {
-        return "fix-return-type";
+        return "import-module";
     }
 
     @Override
@@ -45,14 +44,8 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
     @Override
     public Object[][] dataProvider() {
         return new Object[][]{
-                {"fixReturnType1.json", "fixReturnType.bal"},
-                {"fixReturnType2.json", "fixReturnType.bal"},
-                {"fixReturnType3.json", "fixReturnType.bal"},
-                {"fixReturnTypeWithImports1.json", "fixReturnTypeWithImports.bal"},
-                {"fixReturnTypeWithClass1.json", "fixReturnTypeInClass.bal"},
-                {"fixReturnTypeWithClass2.json", "fixReturnTypeInClass.bal"},
-                {"fixReturnTypeWithClass3.json", "fixReturnTypeInClass.bal"},
-                {"fixReturnTypeWithService1.json", "fixReturnTypeInService.bal"},
+                {"importModule1.json", "importModule.bal"},
+                {"importModule2.json", "importModule.bal"},
         };
     }
 }
