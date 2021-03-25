@@ -64,7 +64,7 @@ public class SyntaxTreeLocateTest {
     @Test (description = "Locate imports node")
     public void testLocateImportsNode() throws Exception {
         TestUtil.openDocument(serviceEndpoint, mainFile);
-        Range range = new Range(new Position(0, 0), new Position(0, 20));
+        Range range = new Range(new Position(0, 0), new Position(0, 25));
         BallerinaSyntaxTreeResponse response = LSExtensionTestUtil.getBallerinaSyntaxTreeLocate(mainFile.toString(),
                 range, this.serviceEndpoint);
         Assert.assertTrue(response.isParseSuccess());
@@ -78,9 +78,9 @@ public class SyntaxTreeLocateTest {
 
     @Test (description = "Locate a member node")
     public void testLocateMemberNode() throws Exception {
-        TestUtil.openDocument(serviceEndpoint, mainFile);
-        Range range = new Range(new Position(3, 7), new Position(3, 14));
-        BallerinaSyntaxTreeResponse response = LSExtensionTestUtil.getBallerinaSyntaxTreeLocate(mainFile.toString(),
+        TestUtil.openDocument(serviceEndpoint, sourceFile);
+        Range range = new Range(new Position(1, 4), new Position(1, 15));
+        BallerinaSyntaxTreeResponse response = LSExtensionTestUtil.getBallerinaSyntaxTreeLocate(sourceFile.toString(),
                 range, this.serviceEndpoint);
         Assert.assertTrue(response.isParseSuccess());
 
@@ -88,7 +88,7 @@ public class SyntaxTreeLocateTest {
         Gson gson = new Gson();
         JsonObject expectedSyntaxTree = gson.fromJson(new FileReader(filePath.toFile()), JsonObject.class);
         Assert.assertEquals(response.getSyntaxTree().getAsJsonObject(), expectedSyntaxTree.get("syntaxTree"));
-        TestUtil.closeDocument(this.serviceEndpoint, mainFile);
+        TestUtil.closeDocument(this.serviceEndpoint, sourceFile);
     }
 
     @Test (description = "Locate a list of nodes that leads to finding the parent node")
@@ -109,7 +109,7 @@ public class SyntaxTreeLocateTest {
     @Test (description = "Locate a list of nodes that leads to finding the module part node")
     public void testModulePartNode() throws Exception {
         TestUtil.openDocument(serviceEndpoint, sourceFile);
-        Range range = new Range(new Position(0, 4), new Position(4, 15));
+        Range range = new Range(new Position(0, 4), new Position(5, 1));
         BallerinaSyntaxTreeResponse response = LSExtensionTestUtil.getBallerinaSyntaxTreeLocate(sourceFile.toString(),
                 range, this.serviceEndpoint);
         Assert.assertTrue(response.isParseSuccess());
