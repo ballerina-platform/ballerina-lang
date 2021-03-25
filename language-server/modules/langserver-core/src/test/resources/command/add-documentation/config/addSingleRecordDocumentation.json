@@ -1,6 +1,16 @@
 {
-  "nodeType": "RECORD",
-  "nodeLine": "14",
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 14,
+        "character": 0
+      },
+      "end": {
+        "line": 17,
+        "character": 2
+      }
+    }
+  },
   "expected": {
     "result": {
       "edit": {
@@ -18,7 +28,7 @@
                     "character": 0
                   }
                 },
-                "newText": "# Description\n#\n# + field1 - field1 Parameter Description \n# + field2 - field2 Parameter Description\n"
+                "newText": "# Description\n#\n# + field1 - Parameter Description  \n# + field2 - Parameter Description  \n"
               }
             ]
           }
