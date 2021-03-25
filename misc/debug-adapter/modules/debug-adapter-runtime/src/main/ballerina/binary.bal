@@ -150,8 +150,6 @@ function modulus(any lhs, any rhs) returns any|error {
     return result;
 }
 
-type OrderedType ()|boolean|int|float|decimal|string|OrderedType[];
-
 function lessThan(any lhs, any rhs) returns boolean|error {
     boolean|error result;
     if (lhs is int && rhs is int) {
@@ -166,8 +164,6 @@ function lessThan(any lhs, any rhs) returns boolean|error {
         result = trap (lhs < rhs); // boolean < boolean
     } else if (lhs is () && rhs is ()) {
         result = trap (lhs < rhs); // () < ()
-    } else if (lhs is OrderedType && rhs is OrderedType) {
-        result = trap (lhs < rhs); // OrderedType[] < OrderedType[]
     } else {
         result = error("operator '<' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
     }
@@ -188,20 +184,18 @@ function lessThanOrEquals(any lhs, any rhs) returns boolean|error {
         result = trap (lhs <= rhs); // boolean < boolean
     } else if (lhs is () && rhs is ()) {
         result = trap (lhs <= rhs); // () < ()
-    } else if (lhs is OrderedType && rhs is OrderedType) {
-        result = trap (lhs <= rhs); // OrderedType[] < OrderedType[]
     } else {
         result = error("operator '<=' not defined for '" + check getType(lhs) + "' and '" + check getType(rhs) + "'.");
     }
     return result;
 }
 
-function greaterThan(OrderedType lhs, OrderedType rhs) returns boolean|error {
+function greaterThan(any lhs, any rhs) returns boolean|error {
     boolean|error result = lessThanOrEquals(lhs, rhs);
     return result is boolean ? (!result) : result;
 }
 
-function greaterThanOrEquals(OrderedType lhs, OrderedType rhs) returns boolean|error {
+function greaterThanOrEquals(any lhs, any rhs) returns boolean|error {
     boolean|error result = lessThan(lhs, rhs);
     return result is boolean ? (!result) : result;
 }
