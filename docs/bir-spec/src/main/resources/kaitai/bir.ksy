@@ -545,9 +545,13 @@ types:
       - id: listener_types_count
         type: s4
       - id: listener_types
-        type: s4
+        type: listener_type
         repeat: expr
         repeat-expr: listener_types_count
+  listener_type:
+    seq:
+      - id: type_cp_index
+        type: s4
   annotation:
     seq:
       - id: name_cp_index

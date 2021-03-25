@@ -504,7 +504,7 @@ class BIRTestUtils {
 
             Iterator<BType> iterator = expServiceDecl.listenerTypes.iterator();
             for (int j = 0; j < expServiceDecl.listenerTypes.size(); j++) {
-                assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.listenerTypes().get(j)),
+                assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.listenerTypes().get(j).typeCpIndex()),
                                         iterator.next());
             }
         }
