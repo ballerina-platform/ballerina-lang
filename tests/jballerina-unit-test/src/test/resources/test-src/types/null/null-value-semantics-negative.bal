@@ -33,9 +33,14 @@ function testArithmaticOperationOnNull2() returns (any) {
 }
 
 type A A[]|int;
-type B B[]|map<string?>;
+type Person record {| string name; |};
 
-function testNullWithTypeInvalid() {
-    A a = null;
-    B b = null;
+function testNullValueNegativeScenarios() {
+    string a = null;
+    string|int b = null;
+    map<string> c = null;
+    A d = null;
+    int[] e = [null];
+    [string, int] f = [null, 2];
+    Person g = null;
 }

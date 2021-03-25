@@ -26,6 +26,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -78,49 +79,20 @@ public class NullableTypeTest {
         validateError(result, 0, "incompatible types: expected '(()|any)', found '(()|any)?'", 33, 19);
     }
 
-    @Test(description = "Test null with basic types")
-    public void testNullWithBasicTypes() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullWithBasicTypes");
-        Assert.assertEquals(returns.length, 5);
-        Assert.assertNull(returns[0]);
-        Assert.assertNull(returns[1]);
-        Assert.assertNull(returns[2]);
-        Assert.assertNull(returns[3]);
-        Assert.assertNull(returns[4]);
+    @Test(dataProvider = "dataToTestNullInJSONRelatedContext", description = "Test null in JSON related context")
+    public void testNullInJSONRelatedContext(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
-    @Test(description = "Test null with map")
-    public void testNullWithMap() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullWithMap");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertNull(returns[0]);
-        Assert.assertNull(returns[1]);
-    }
-
-    @Test(description = "Test null with map")
-    public void testNullWithMap2() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullWithMap2");
-        Assert.assertEquals(returns.length, 2);
-        Assert.assertEquals(returns[0].stringValue(), "{\"a\":()}");
-        Assert.assertEquals(returns[1].stringValue(), "{\"b\":null}");
-    }
-
-    @Test(description = "Test null with array")
-    public void testNullWithArray() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullWithArray");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertNull(returns[0]);
-        Assert.assertNull(returns[1]);
-        Assert.assertEquals(returns[2].stringValue(), "[(), \"ABC\", \"DEF\"]");
-    }
-
-    @Test(description = "Test null with type")
-    public void testNullWithType() {
-        BValue[] returns = BRunUtil.invoke(result, "testNullWithType");
-        Assert.assertEquals(returns.length, 3);
-        Assert.assertNull(returns[0]);
-        Assert.assertNull(returns[1]);
-        Assert.assertEquals(returns[2].stringValue(), "{\"c\":()}");
+    @DataProvider
+    public Object[] dataToTestNullInJSONRelatedContext() {
+        return new Object[]{
+                "testNullWithBasicTypes",
+                "testNullWithMap",
+                "testNullWithMap2",
+                "testNullWithArray",
+                "testNullWithType"
+        };
     }
 
     @AfterClass
