@@ -97,7 +97,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
         BServiceSymbol serviceSymbol = (BServiceSymbol) this.getInternalSymbol();
         Set<TypeSymbol> listenerTypes = new LinkedHashSet<>();
 
-        for (BType listenerType : serviceSymbol.getAttachExprTypes()) {
+        for (BType listenerType : serviceSymbol.getListenerTypes()) {
             listenerTypes.add(typesFactory.getTypeDescriptor(listenerType));
         }
 

@@ -36,7 +36,7 @@ import java.util.Set;
 public class BServiceSymbol extends BSymbol {
 
     private final BClassSymbol associatedClass;
-    private final Set<BType> attachExprTypes;
+    private final Set<BType> listenerTypes;
     private List<String> absResourcePath;
     private String attachPointStringLiteral;
 
@@ -45,7 +45,7 @@ public class BServiceSymbol extends BSymbol {
         super(SymTag.SERVICE, flags, name, pkgID, type, owner, pos, origin);
         this.associatedClass = associatedClass;
         this.kind = SymbolKind.SERVICE;
-        this.attachExprTypes = new LinkedHashSet<>();
+        this.listenerTypes = new LinkedHashSet<>();
     }
 
     public Optional<List<String>> getAbsResourcePath() {
@@ -60,8 +60,8 @@ public class BServiceSymbol extends BSymbol {
         return this.associatedClass;
     }
 
-    public Set<BType> getAttachExprTypes() {
-        return this.attachExprTypes;
+    public Set<BType> getListenerTypes() {
+        return this.listenerTypes;
     }
 
     public void setAbsResourcePath(List<String> absResourcePath) {
@@ -72,8 +72,8 @@ public class BServiceSymbol extends BSymbol {
         this.attachPointStringLiteral = attachPointStringLiteral;
     }
 
-    public void addAttachExprType(BType type) {
+    public void addListenerType(BType type) {
         assert type != null;
-        this.attachExprTypes.add(type);
+        this.listenerTypes.add(type);
     }
 }

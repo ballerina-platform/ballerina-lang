@@ -2981,7 +2981,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 }
             }
 
-            serviceSymbol.addAttachExprType(exprType);
+            serviceSymbol.addListenerType(exprType);
         }
     }
 
