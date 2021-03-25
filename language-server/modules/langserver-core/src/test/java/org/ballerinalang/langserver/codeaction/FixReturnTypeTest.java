@@ -49,6 +49,10 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
                 {"fixReturnType2.json", "fixReturnType.bal"},
                 {"fixReturnType3.json", "fixReturnType.bal"},
                 {"fixReturnTypeWithImports1.json", "fixReturnTypeWithImports.bal"},
+                {"fixReturnTypeWithClass1.json", "fixReturnTypeInClass.bal"},
+                {"fixReturnTypeWithClass2.json", "fixReturnTypeInClass.bal"},
+                {"fixReturnTypeWithClass3.json", "fixReturnTypeInClass.bal"},
+                {"fixReturnTypeWithService1.json", "fixReturnTypeInService.bal"},
         };
     }
 }
