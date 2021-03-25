@@ -694,7 +694,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3990", "xml.function.does.not.support.argument.type"),
 
     INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3991", "intersection.not.allowed.with.type"),
-    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3992", "async.send.action.not.yet.supported.as.expression")
+    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3992", "async.send.action.not.yet.supported.as.expression"),
+    UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR("BCE3993", "unused.variable.with.inferred.type.including.error")
     ;
 
     private String diagnosticId;

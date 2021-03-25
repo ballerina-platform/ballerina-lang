@@ -293,7 +293,7 @@ public function functionWithQueryExpression() {
         FullName fullName = {firstName: student.firstName, lastName: student.lastName};
         nameList.push(fullName);
     };
-
+    error? f = e;
     foreach var name in nameList {
 
     }
