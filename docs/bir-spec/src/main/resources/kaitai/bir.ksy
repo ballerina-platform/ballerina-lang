@@ -542,6 +542,12 @@ types:
       - id: attach_point_literal
         type: s4
         if: has_attach_point_literal != 0
+      - id: listener_types_count
+        type: s4
+      - id: listener_types
+        type: s4
+        repeat: expr
+        repeat-expr: listener_types_count
   annotation:
     seq:
       - id: name_cp_index
