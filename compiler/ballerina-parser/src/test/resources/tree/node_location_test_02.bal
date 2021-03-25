@@ -1,2 +1,2 @@
-import ballerina/io;
+import foobar/bar;
 
