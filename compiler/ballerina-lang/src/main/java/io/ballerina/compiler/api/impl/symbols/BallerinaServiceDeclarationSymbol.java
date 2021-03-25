@@ -34,15 +34,18 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.StringJoiner;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
@@ -59,6 +62,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
     private final TypeSymbol typeDescriptor;
     private final ServiceAttachPoint attachPoint;
 
+    private Set<TypeSymbol> listenerTypes;
     private Map<String, ClassFieldSymbol> fields;
     private Map<String, MethodSymbol> methods;
     private Documentation docAttachment;
@@ -81,6 +85,24 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
     @Override
     public Optional<ServiceAttachPoint> attachPoint() {
         return Optional.ofNullable(this.attachPoint);
+    }
+
+    @Override
+    public Set<TypeSymbol> listenerTypes() {
+        if (this.listenerTypes != null) {
+            return this.listenerTypes;
+        }
+
+        TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+        BServiceSymbol serviceSymbol = (BServiceSymbol) this.getInternalSymbol();
+        Set<TypeSymbol> listenerTypes = new LinkedHashSet<>();
+
+        for (BType listenerType : serviceSymbol.getAttachExprTypes()) {
+            listenerTypes.add(typesFactory.getTypeDescriptor(listenerType));
+        }
+
+        this.listenerTypes = Collections.unmodifiableSet(listenerTypes);
+        return this.listenerTypes;
     }
 
     @Override

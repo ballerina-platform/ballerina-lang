@@ -23,6 +23,7 @@ import io.ballerina.tools.text.LinePosition;
 
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 
 /**
  * Represents a service declaration. Unlike other module level symbols, service declaration symbols aren't associated
@@ -49,6 +50,13 @@ public interface ServiceDeclarationSymbol extends Symbol, Annotatable, Documenta
      * @return The attach point if it is specified, returns empty otherwise
      */
     Optional<ServiceAttachPoint> attachPoint();
+
+    /**
+     * Returns the set of types of the listeners this service is attached to.
+     *
+     * @return Set of the types of the listeners
+     */
+    Set<TypeSymbol> listenerTypes();
 
     /**
      * Returns the user specified fields of this service declaration.
