@@ -27,6 +27,7 @@ import io.ballerina.compiler.internal.parser.tree.STAsyncSendActionNode;
 import io.ballerina.compiler.internal.parser.tree.STBinaryExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STBracedExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STBuiltinSimpleNameReferenceNode;
+import io.ballerina.compiler.internal.parser.tree.STCheckExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STConditionalExpressionNode;
 import io.ballerina.compiler.internal.parser.tree.STDefaultableParameterNode;
 import io.ballerina.compiler.internal.parser.tree.STErrorConstructorExpressionNode;
@@ -6601,19 +6602,6 @@ public class BallerinaParser extends AbstractParser {
         if (isAction(expr)) {
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_ACTION, checkingKeyword, expr);
         } else {
-            if (getCurrentContext() != ParserRuleContext.EXPRESSION_STATEMENT || expr.kind == SyntaxKind.METHOD_CALL ||
-                    expr.kind == SyntaxKind.FUNCTION_CALL || expr.kind == SyntaxKind.CHECK_EXPRESSION) {
-                return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkingKeyword, expr);
-            }
-            checkingKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(checkingKeyword, expr,
-                                                        DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_CALL_EXPRESSION);
-            STNode funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
-            funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
-            STNode openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
-            STNode arguments = STNodeFactory.createEmptyNodeList();
-            STNode closeParenToken = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
-            expr = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
-                    closeParenToken);
             return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkingKeyword, expr);
         }
     }
@@ -8220,7 +8208,32 @@ public class BallerinaParser extends AbstractParser {
         // This is not a must because this expression is validated in the semantic analyzer.
         STNode semicolon = parseSemicolon();
         endContext();
+        if (expression.kind == SyntaxKind.CHECK_EXPRESSION) {
+            STNode callExpr = parseCallExpression((STCheckExpressionNode) expression);
+            return STNodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, callExpr, semicolon);
+        }
         return STNodeFactory.createExpressionStatementNode(SyntaxKind.CALL_STATEMENT, expression, semicolon);
+    }
+
+    private STNode parseCallExpression(STCheckExpressionNode callExpr) {
+        STNode expr = callExpr.expression;
+        if (expr.kind == SyntaxKind.CHECK_EXPRESSION) {
+            STNode checkExpr = parseCallExpression((STCheckExpressionNode) expr);
+            return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, callExpr.checkKeyword,
+                                                           checkExpr);
+        } else if (callExpr.expression.kind != SyntaxKind.FUNCTION_CALL && expr.kind != SyntaxKind.METHOD_CALL) {
+            STNode checkingKeyword = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(callExpr.checkKeyword, expr,
+                                                      DiagnosticErrorCode.INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION);
+            STNode funcName = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+            funcName = STNodeFactory.createSimpleNameReferenceNode(funcName);
+            STNode openParenToken = SyntaxErrors.createMissingToken(SyntaxKind.OPEN_PAREN_TOKEN);
+            STNode arguments = STNodeFactory.createEmptyNodeList();
+            STNode closeParenToken = SyntaxErrors.createMissingToken(SyntaxKind.CLOSE_PAREN_TOKEN);
+            STNode funcCallExpr = STNodeFactory.createFunctionCallExpressionNode(funcName, openParenToken, arguments,
+                                                                                 closeParenToken);
+            return STNodeFactory.createCheckExpressionNode(SyntaxKind.CHECK_EXPRESSION, checkingKeyword, funcCallExpr);
+        }
+        return callExpr;
     }
 
     private STNode parseActionStatement(STNode action) {

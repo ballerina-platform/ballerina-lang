@@ -115,7 +115,7 @@
                               "kind": "CHECKPANIC_KEYWORD",
                               "hasDiagnostics": true,
                               "diagnostics": [
-                                "ERROR_EXPRESSION_EXPECTED_CALL_EXPRESSION"
+                                "INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION"
                               ],
                               "trailingMinutiae": [
                                 {
