@@ -30,7 +30,7 @@ under the License.
             <!--            <package name="org.ballerinalang.langserver.highlighting.*"/>-->
             <package name="org.ballerinalang.langserver.definition.*" />
             <!--            <package name="org.ballerinalang.langserver.docsymbol.*"/>-->
-            <package name="org.ballerinalang.langserver.extensions.*" />
+            <!--            <package name="org.ballerinalang.langserver.extensions.*" />-->
             <package name="org.ballerinalang.langserver.hover.*" />
             <!--            <package name="org.ballerinalang.langserver.implementation.*"/>-->
             <package name="org.ballerinalang.langserver.references.*" />
@@ -50,8 +50,7 @@ under the License.
         </packages>
         <classes>
             <class name="org.ballerinalang.langserver.workspace.TestWorkspaceManager" />
-            <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeByRangeTest" />
-            <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeLocateTest" />
+            <class name="org.ballerinalang.langserver.extensions.connector.ConnectorTest" />
         </classes>
     </test>
 </suite>
