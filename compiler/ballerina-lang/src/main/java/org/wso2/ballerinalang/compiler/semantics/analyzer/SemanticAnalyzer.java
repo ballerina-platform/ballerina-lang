@@ -2845,6 +2845,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangForeach foreach) {
         // Check the collection's type.
         typeChecker.checkExpr(foreach.collection, env);
+        // object type collection should be a subtype of 'object:Iterable
+        if (foreach.collection.type.tag == TypeTags.OBJECT
+                && !types.isAssignable(foreach.collection.type, symTable.iterableType)) {
+            dlog.error(foreach.collection.pos, DiagnosticErrorCode.INVALID_ITERABLE_OBJECT_TYPE,
+                    foreach.collection.type, symTable.iterableType);
+            foreach.resultType = symTable.semanticError;
+            return;
+        }
         // Set the type of the foreach node's type node.
         types.setForeachTypedBindingPatternType(foreach);
         // Create a new block environment for the foreach node's body.
