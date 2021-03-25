@@ -66,20 +66,20 @@ public class PackageUtils {
      */
     public static Path getSrcPathFromBreakpointLocation(Location location, Project currentProject)
             throws AbsentInformationException {
-
-        String sourcePath = location.sourcePath();
-        String[] moduleParts = getQModuleNameParts(sourcePath);
-        String locationOrg = moduleParts[0];
-        String locationModule = decodeIdentifier(moduleParts[1]);
-
         // 1. If the debug hit location resides within the current debug source project, retrieves the returns the
         // absolute path of the project file source.
         // 2. Else, checks whether the debug hit location resides within a project dependency (lang library, standard
         // library, central module, etc.) and if so, retrieves the dependency file path.
         if (isWithinProject(location, currentProject)) {
             return getSourceFilePath(location, currentProject);
-        } else if (isWithinProjectDependency(currentProject, locationOrg, locationModule)) {
-            return getDependencyFilePath(currentProject, locationOrg, locationModule, moduleParts[3]);
+        } else {
+            String sourcePath = location.sourcePath();
+            String[] moduleParts = getQModuleNameParts(sourcePath);
+            String locationOrg = moduleParts[0];
+            String locationModule = decodeIdentifier(moduleParts[1]);
+            if (isWithinProjectDependency(currentProject, locationOrg, locationModule)) {
+                return getDependencyFilePath(currentProject, locationOrg, locationModule, moduleParts[3]);
+            }
         }
         return null;
     }
