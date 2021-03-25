@@ -80,12 +80,12 @@ public class NullableTypeTest {
     }
 
     @Test(dataProvider = "dataToTestNullInJSONRelatedContext", description = "Test null in JSON related context")
-    public void testNullInJSONRelatedContext(String functionName) {
+    public void testNullUsageWithDifferentTypes(String functionName) {
         BRunUtil.invoke(result, functionName);
     }
 
     @DataProvider
-    public Object[] dataToTestNullInJSONRelatedContext() {
+    public Object[] dataToTestNullUsageWithDifferentTypes() {
         return new Object[]{
                 "testNullWithBasicTypes",
                 "testNullWithMap",
