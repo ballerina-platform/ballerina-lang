@@ -56,7 +56,7 @@ public class MatchStatementNodeContext extends MatchStatementContext<MatchStatem
             eg: 1) match <cursor>
                 2) match v<cursor>
              */
-            if (this.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
                 List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
                 completionItems.addAll(this.getCompletionItemList(exprEntries, context));
@@ -76,5 +76,21 @@ public class MatchStatementNodeContext extends MatchStatementContext<MatchStatem
         Token closeBrace = node.closeBrace();
 
         return cursor >= openBrace.textRange().endOffset() && cursor <= closeBrace.textRange().startOffset();
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, MatchStatementNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token matchKeyword = node.matchKeyword();
+        Token openBrace = node.openBrace();
+        Token closeBrace = node.closeBrace();
+        
+        /*
+        Validates the following
+        eg: 1) match ... {<cursor>}
+            2) match <cursor>
+         */
+        return !matchKeyword.isMissing() && cursor >= matchKeyword.textRange().endOffset() + 1
+                && (closeBrace.isMissing() || cursor < closeBrace.textRange().endOffset());
     }
 }

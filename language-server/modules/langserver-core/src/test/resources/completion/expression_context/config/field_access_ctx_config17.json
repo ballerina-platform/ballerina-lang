@@ -1,0 +1,69 @@
+{
+  "position": {
+    "line": 4,
+    "character": 17
+  },
+  "source": "expression_context/source/field_access_ctx_source17.bal",
+  "items": [
+    {
+      "label": "next()(record {| any|error value; |}?)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.array:1.1.0_  \n  \n  \n  \n  \n**Returns** `record {| any|error value; |}?`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "next()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "toBalString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nConverts a value to a string that describes the value in Ballerina syntax.  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nIf `v` is anydata and does not have cycles, then the result will  \nconform to the grammar for a Ballerina expression and when evaluated  \nwill result in a value that is == to v.  \n  \nThe details of the conversion are specified by the ToString abstract operation  \ndefined in the Ballerina Language Specification, using the expression style.  \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "toBalString()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ensureType(typedesc<any> t)(any|error)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \n  \n**Params**  \n- `typedesc<any>` t  \n  \n**Returns** `any|error`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "ensureType(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "toString()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nPerforms a direct conversion of a value to a string.\nThe conversion is direct in the sense that when applied to a value that is already\na string it leaves the value unchanged.\n  \n  \n  \n**Returns** `string`   \n- a string resulting from the conversion  \n  \nThe details of the conversion are specified by the ToString abstract operation  \ndefined in the Ballerina Language Specification, using the direct style.  \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "toString()",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

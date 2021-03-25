@@ -7,6 +7,8 @@ Or type one of the following commands:
 /debug          - Toggle debug mode. You will see debug messages.
 /reset          - Reset REPL state.
                   All previous code snippets will be removed from REPL memory.
+/file <FILE>    - Load declarations defined in <FILE>. e.g., /file my_file.bal
+/remove <NAMES> - Delete declarations specified by <NAMES>. e.g., /remove function1 var1 var2
 /imports        - List the available imports.
 /vars           - List the declared variables and their values.
 /dclns          - List the user defined module level declarations.

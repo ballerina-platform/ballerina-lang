@@ -30,5 +30,13 @@ public class CentralStdLibrary {
     @Expose
     public String releaseVersion = "";
     @Expose
+    public String releaseShortVersion = "";
+    @Expose
+    public String description = "";
+    @Expose
     public List<DocPackageMetadata> packages = new ArrayList<>();
+    @Expose
+    public List<BuiltInType> builtinTypes = new ArrayList<>();
+    @Expose
+    public List<BuiltInType> keywords = new ArrayList<>();
 }

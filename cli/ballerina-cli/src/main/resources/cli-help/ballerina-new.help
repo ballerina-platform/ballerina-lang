@@ -43,12 +43,12 @@ DESCRIPTION
                 Create a package using a predefined template.
 
        EXAMPLES
-            Create a package with a 'main' template.
+            Create a package with the 'main' function.
                $ bal new <package-name>
 
             Create a package with a Ballerina service.
                $ bal new <package-name> -t service
 
-            Create a package with a Ballerina service.
+            Create a package with the Ballerina library template.
                $ bal new <package-name> -t lib
 

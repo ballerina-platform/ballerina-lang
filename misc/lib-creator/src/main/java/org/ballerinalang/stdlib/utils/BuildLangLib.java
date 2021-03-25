@@ -168,7 +168,8 @@ public class BuildLangLib {
     private static ProjectEnvironmentBuilder createProjectEnvBuilder(Path targetPath) {
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
         environmentBuilder.addCompilationCacheFactory(project -> new CompilationCache(project) {
-            private final FileSystemCache fsCache = new FileSystemCache(project, targetPath);
+            private final FileSystemCache fsCache =
+                    new FileSystemCache(project, targetPath.resolve(ProjectConstants.CACHES_DIR_NAME));
 
             @Override
             public byte[] getBir(ModuleName moduleName) {

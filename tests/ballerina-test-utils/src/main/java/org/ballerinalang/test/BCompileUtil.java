@@ -31,6 +31,8 @@ import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.projects.repos.FileSystemCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile;
@@ -40,6 +42,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.DIST_CACHE_DIRECTORY;
 
 /**
@@ -51,6 +54,8 @@ public class BCompileUtil {
 
     private static final Path testSourcesDirectory = Paths.get("src/test/resources").toAbsolutePath().normalize();
     private static final Path testBuildDirectory = Paths.get("build").toAbsolutePath().normalize();
+
+    private static final Logger logger = LoggerFactory.getLogger(BCompileUtil.class);
 
     public static Project loadProject(String sourceFilePath) {
         Path sourcePath = Paths.get(sourceFilePath);
@@ -153,6 +158,9 @@ public class BCompileUtil {
 
     private static JBallerinaBackend jBallerinaBackend(Package currentPackage) {
         PackageCompilation packageCompilation = currentPackage.getCompilation();
+        if (packageCompilation.diagnosticResult().errorCount() > 0) {
+            logger.error("compilation failed with errors: " + currentPackage.project().sourceRoot());
+        }
         return JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
     }
 
@@ -221,7 +229,7 @@ public class BCompileUtil {
     private static class TestCompilationCache extends FileSystemCache {
 
         private TestCompilationCache(Project project, Path cacheDirPath) {
-            super(project, cacheDirPath);
+            super(project, cacheDirPath.resolve(CACHES_DIR_NAME));
         }
 
         private static TestCompilationCache from(Project project) {

@@ -39,7 +39,8 @@ import java.util.stream.Collectors;
 @Test(groups = "tracing-test")
 public class ObservableAnnotationTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "04_observability_annotation.bal";
-    private static final String SERVICE_NAME = "testServiceFour";
+    private static final String SERVICE_NAME = "testSvcFour";
+    private static final String BASE_PATH = "testServiceFour";
     private static final String BASE_URL = "http://localhost:9094";
 
     @Test
@@ -49,7 +50,7 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
         final String span2Position = FILE_NAME + ":24:19";
         final String span3Position = FILE_NAME + ":29:20";
 
-        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
+        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + BASE_PATH + "/" + resourceName,
                 "", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
@@ -76,7 +77,7 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
-                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("http.url", "/" + BASE_PATH + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
@@ -134,7 +135,7 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
         final String span2Position = FILE_NAME + ":35:19";
         final String span3Position = FILE_NAME + ":40:20";
 
-        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + SERVICE_NAME + "/" + resourceName,
+        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + BASE_PATH + "/" + resourceName,
                 "", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
@@ -161,7 +162,7 @@ public class ObservableAnnotationTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
-                    new AbstractMap.SimpleEntry<>("http.url", "/" + SERVICE_NAME + "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("http.url", "/" + BASE_PATH + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),

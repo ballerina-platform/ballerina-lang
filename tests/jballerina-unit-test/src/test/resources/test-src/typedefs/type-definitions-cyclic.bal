@@ -91,7 +91,7 @@ public function testCyclicTypeDefInRecord() {
     E rec = { a : a};
     int result = 0;
     if (rec is record{}) {
-        result = <int> rec.a;
+        result = <int> rec["a"];
     }
     assert(result, 3);
 }

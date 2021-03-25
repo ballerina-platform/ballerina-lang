@@ -22,6 +22,7 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
@@ -48,8 +49,9 @@ import java.util.stream.Collectors;
  *     - org
  *         - package-name
  *             - version
- *                 - org-package-name-version-any.bala
- * - cache
+ *                 - platform (contains extracted bala)
+ *
+ * - cache[-<distShortVersion>]
  *     - org
  *         - package-name
  *             - version
@@ -68,7 +70,13 @@ public class FileSystemRepository implements PackageRepository {
 
     // TODO Refactor this when we do repository/cache split
     public FileSystemRepository(Environment environment, Path cacheDirectory) {
-        this.cacheDir = cacheDirectory;
+        this.cacheDir = cacheDirectory.resolve(ProjectConstants.CACHES_DIR_NAME);
+        this.bala = cacheDirectory.resolve(ProjectConstants.REPO_BALA_DIR_NAME);
+        this.environment = environment;
+    }
+
+    public FileSystemRepository(Environment environment, Path cacheDirectory, String distributionVersion) {
+        this.cacheDir = cacheDirectory.resolve(ProjectConstants.CACHES_DIR_NAME + "-" + distributionVersion);
         this.bala = cacheDirectory.resolve(ProjectConstants.REPO_BALA_DIR_NAME);
         this.environment = environment;
     }
@@ -164,14 +172,20 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     private List<PackageVersion> pathToVersions(List<Path> versions) {
-        return versions.stream()
-                .map(path -> {
-                    String version = Optional.ofNullable(path)
-                            .map(parent -> parent.getFileName())
-                            .map(file -> file.toString())
-                            .orElse("0.0.0");
-                    return PackageVersion.from(version);
-                })
-                .collect(Collectors.toList());
+        List<PackageVersion> availableVersions = new ArrayList<>();
+        versions.stream().map(path -> Optional.ofNullable(path)
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .orElse("0.0.0")).forEach(version -> {
+                    try {
+                        availableVersions.add(PackageVersion.from(version));
+                    } catch (ProjectException ignored) {
+                        // We consider only the semver compatible versions as valid
+                        // bala directories. Since we only allow building and pushing
+                        // semver compatible packages, it is safe to pick only
+                        // the semver compatible versions.
+                    }
+        });
+        return availableVersions;
     }
 }

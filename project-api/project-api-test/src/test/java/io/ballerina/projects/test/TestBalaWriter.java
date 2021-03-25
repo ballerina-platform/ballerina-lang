@@ -26,6 +26,7 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.internal.bala.BalaJson;
+import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
@@ -134,6 +135,20 @@ public class TestBalaWriter extends BaseTest {
             Assert.assertEquals(packageJson.getImplementationVendor(), "WSO2");
             Assert.assertEquals(packageJson.getLanguageSpecVersion(), RepoUtils.getBallerinaSpecVersion());
         }
+
+        // compiler-plugin.json
+        Path compilerPluginJsonPath = BALA_PATH.resolve("compiler-plugin").resolve("compiler-plugin.json");
+        try (FileReader reader = new FileReader(String.valueOf(compilerPluginJsonPath))) {
+            CompilerPluginJson compilerPluginJson = gson.fromJson(reader, CompilerPluginJson.class);
+            Assert.assertEquals(compilerPluginJson.pluginId(), "openapi-validator");
+            Assert.assertEquals(compilerPluginJson.pluginClass(), "io.ballerina.openapi.Validator");
+            Assert.assertEquals(compilerPluginJson.dependencyPaths().size(), 1);
+        }
+
+        // Check if compiler plugin dependencies exists
+        Path compilerPluginDependency = BALA_PATH.resolve("compiler-plugin").resolve("libs")
+                .resolve("platform-io-1.3.0-java.txt");
+        Assert.assertTrue(compilerPluginDependency.toFile().exists());
 
         // docs
         Path packageMdPath = BALA_PATH.resolve("docs").resolve("Package.md");

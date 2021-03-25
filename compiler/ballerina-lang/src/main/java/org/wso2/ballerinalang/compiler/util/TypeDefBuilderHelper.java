@@ -21,6 +21,7 @@ import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.TaintAnalyzer;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -35,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.TaintRecord;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
@@ -191,10 +193,11 @@ public class TypeDefBuilderHelper {
     public static BLangTypeDefinition addTypeDefinition(BType type, BTypeSymbol symbol, BLangType typeNode,
                                                         SymbolEnv env) {
         BLangTypeDefinition typeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
-        env.enclPkg.addTypeDefinition(typeDefinition);
         typeDefinition.typeNode = typeNode;
         typeDefinition.type = type;
         typeDefinition.symbol = symbol;
+        typeDefinition.name = createIdentifier(symbol.pos, symbol.name.value);
+        env.enclPkg.addTypeDefinition(typeDefinition);
         return typeDefinition;
     }
 
@@ -220,12 +223,22 @@ public class TypeDefBuilderHelper {
         return classDefNode;
     }
 
-    public static BLangErrorType createBLangErrorType(Location pos, BType detailType) {
+    public static BLangErrorType createBLangErrorType(Location pos, BErrorType type, SymbolEnv env,
+                                                      BLangAnonymousModelHelper anonymousModelHelper) {
         BLangErrorType errorType = (BLangErrorType) TreeBuilder.createErrorTypeNode();
+        errorType.type = type;
+
         BLangUserDefinedType userDefinedTypeNode = (BLangUserDefinedType) TreeBuilder.createUserDefinedTypeNode();
         userDefinedTypeNode.pos = pos;
         userDefinedTypeNode.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        userDefinedTypeNode.typeName = createIdentifier(pos, detailType.tsymbol.name.value);
+
+        BType  detailType = type.detailType;
+
+        String typeName = detailType.tsymbol != null
+                ? detailType.tsymbol.name.value
+                : anonymousModelHelper.getNextAnonymousIntersectionErrorDetailTypeName(env.enclPkg.packageID);
+
+        userDefinedTypeNode.typeName = createIdentifier(pos, typeName);
         userDefinedTypeNode.type = detailType;
         errorType.detailType = userDefinedTypeNode;
 

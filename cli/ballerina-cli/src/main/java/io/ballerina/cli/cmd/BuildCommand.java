@@ -33,15 +33,11 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
-import io.ballerina.runtime.api.constants.RuntimeConstants;
-import io.ballerina.runtime.internal.launch.LaunchUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.HashMap;
-import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -57,7 +53,6 @@ public class BuildCommand implements BLauncherCmd {
 
     private final PrintStream outStream;
     private final PrintStream errStream;
-    private Path projectPath;
     private boolean exitWhenFinish;
     private boolean skipCopyLibsFromDist;
 
@@ -76,6 +71,16 @@ public class BuildCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+    }
+
+    public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
+                        boolean skipCopyLibsFromDist, boolean compile) {
+        this.projectPath = projectPath;
+        this.outStream = outStream;
+        this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
+        this.skipCopyLibsFromDist = skipCopyLibsFromDist;
+        this.compile = true;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
@@ -115,8 +120,8 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = {"--skip-tests"}, description = "Skip test compilation and execution.")
     private Boolean skipTests;
 
-    @CommandLine.Parameters
-    private List<String> argList;
+    @CommandLine.Parameters (arity = "0..1")
+    private final Path projectPath;
 
     @CommandLine.Option(names = "--dump-bir", hidden = true)
     private boolean dumpBIR;
@@ -134,7 +139,7 @@ public class BuildCommand implements BLauncherCmd {
     private String debugPort;
 
     private static final String buildCmd = "bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\n" +
-            "                    [<ballerina-file | package-path>] [(--key=value)...]";
+            "                    [<ballerina-file | package-path>]";
 
     @CommandLine.Option(names = "--test-report", description = "enable test report generation")
     private Boolean testReport;
@@ -156,30 +161,14 @@ public class BuildCommand implements BLauncherCmd {
             description = "hidden option for code coverage to include all classes")
     private String includes;
 
+    @CommandLine.Option(names = "--list-conflicted-classes",
+            description = "list conflicted classes when generating executable")
+    private Boolean listConflictedClasses;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
             this.errStream.println(commandUsageInfo);
-            return;
-        }
-
-        String[] args;
-        if (this.argList == null) {
-            args = new String[0];
-            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        } else if (this.argList.get(0).startsWith(RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX)) {
-            args = argList.toArray(new String[0]);
-            this.projectPath = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        } else {
-            args = argList.subList(1, argList.size()).toArray(new String[0]);
-            this.projectPath = Paths.get(argList.get(0));
-        }
-
-        String[] userArgs = LaunchUtils.getUserArgs(args, new HashMap<>());
-        // check if there are too many arguments.
-        if (userArgs.length > 0) {
-            CommandUtil.printError(this.errStream, "too many arguments.", buildCmd, false);
-            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -243,15 +232,20 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
-                .addTask(new CleanTargetDirTask(), isSingleFileBuild)   // clean the target directory(projects only)
-                .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
-                .addTask(new CompileTask(outStream, errStream)) // compile the modules
+                // clean the target directory(projects only)
+                .addTask(new CleanTargetDirTask(), isSingleFileBuild)
+                // resolve maven dependencies in Ballerina.toml
+                .addTask(new ResolveMavenDependenciesTask(outStream))
+                // compile the modules
+                .addTask(new CompileTask(outStream, errStream))
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
-                .addTask(new RunTestsTask(outStream, errStream, args, includes),
+                // run tests (projects only)
+                .addTask(new RunTestsTask(outStream, errStream, includes),
                         project.buildOptions().skipTests() || isSingleFileBuild)
-                    // run tests (projects only)
-                .addTask(new CreateBalaTask(outStream), isSingleFileBuild) // create the BALA ( build projects only)
-                .addTask(new CreateExecutableTask(outStream, this.output), this.compile) //create the executable jar
+                // create the BALA if -c provided (build projects only)
+                .addTask(new CreateBalaTask(outStream), isSingleFileBuild || !this.compile)
+                // create the executable jar, skip if -c flag is provided
+                .addTask(new CreateExecutableTask(outStream, this.output), this.compile)
                 .build();
 
         taskExecutor.executeTasks(project);
@@ -272,6 +266,7 @@ public class BuildCommand implements BLauncherCmd {
                 .taintCheck(taintCheck)
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
+                .listConflictedClasses(listConflictedClasses)
                 .build();
     }
 
@@ -296,8 +291,8 @@ public class BuildCommand implements BLauncherCmd {
 
     @Override
     public void printUsage(StringBuilder out) {
-        out.append("  bal build [-o <output-file>] [--offline] [--skip-tests] [--skip-lock]  [--taint-check]" +
-                   "{<ballerina-file | module-name> | -a | --all} [--] [(--key=value)...]\n");
+        out.append("  bal build [-o <output>] [--offline] [--skip-tests] [--taint-check]\\n\" +\n" +
+                "            \"                    [<ballerina-file | package-path>]");
     }
 
     @Override

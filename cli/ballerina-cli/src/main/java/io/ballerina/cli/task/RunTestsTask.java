@@ -21,12 +21,15 @@ package io.ballerina.cli.task;
 import com.google.gson.Gson;
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
@@ -62,6 +65,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
+import java.util.stream.Collectors;
 
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.DebugUtils.getDebugArgs;
@@ -86,7 +90,6 @@ import static org.wso2.ballerinalang.compiler.util.ProjectDirConstants.BALLERINA
 public class RunTestsTask implements Task {
     private final PrintStream out;
     private final PrintStream err;
-    private final List<String> args;
     private final String includesInCoverage;
     private List<String> groupList;
     private List<String> disableGroupList;
@@ -97,18 +100,16 @@ public class RunTestsTask implements Task {
     private List<String> singleExecTests;
     TestReport testReport;
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, String includes) {
+    public RunTestsTask(PrintStream out, PrintStream err, String includes) {
         this.out = out;
         this.err = err;
-        this.args = Lists.of(args);
         this.includesInCoverage = includes;
     }
 
-    public RunTestsTask(PrintStream out, PrintStream err, String[] args, boolean rerunTests, List<String> groupList,
+    public RunTestsTask(PrintStream out, PrintStream err, boolean rerunTests, List<String> groupList,
                         List<String> disableGroupList, List<String> testList, String includes) {
         this.out = out;
         this.err = err;
-        this.args = Lists.of(args);
         this.isSingleTestExecution = false;
         this.isRerunTestExecution = rerunTests;
 
@@ -210,9 +211,7 @@ public class RunTestsTask implements Task {
         if (hasTests) {
             int testResult;
             try {
-                testResult = runTestSuit(testsCachePath, target,
-                        project.currentPackage().packageName().toString(),
-                        project.currentPackage().packageOrg().toString());
+                testResult = runTestSuit(testsCachePath, target, project.currentPackage(), jBallerinaBackend);
                 if (report || coverage) {
                     for (String moduleName : moduleNamesList) {
                         ModuleStatus moduleStatus = loadModuleStatusFromFile(
@@ -224,7 +223,7 @@ public class RunTestsTask implements Task {
                         testReport.addModuleStatus(moduleName, moduleStatus);
                     }
                     try {
-                        generateCoverage(project, jarResolver, jBallerinaBackend);
+                        generateCoverage(project, jBallerinaBackend);
                         generateHtmlReport(project, this.out, testReport, target);
                     } catch (IOException e) {
                         cleanTempCache(project, cachesRoot);
@@ -246,10 +245,13 @@ public class RunTestsTask implements Task {
         cleanTempCache(project, cachesRoot);
     }
 
-    private void generateCoverage(Project project, JarResolver jarResolver, JBallerinaBackend jBallerinaBackend)
+    private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
             throws IOException {
         // Generate code coverage
         if (!coverage) {
+            return;
+        }
+        if (testReport == null) { // This to avoid the spotbugs failure.
             return;
         }
         Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
@@ -345,10 +347,17 @@ public class RunTestsTask implements Task {
         }
     }
 
-    private int runTestSuit(Path testCachePath, Target target, String packageName, String orgName) throws IOException,
+    private int runTestSuit(Path testCachePath, Target target, Package currentPackage,
+                            JBallerinaBackend jBallerinaBackend) throws IOException,
             InterruptedException {
+        String packageName = currentPackage.packageName().toString();
+        String orgName = currentPackage.packageOrg().toString();
+        String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
+        cmdArgs.add("-Djava.util.logging.config.class=org.ballerinalang.logging.util.LogConfigReader");
+        cmdArgs.add("-Djava.util.logging.manager=org.ballerinalang.logging.BLogManager");
+
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
 
         if (coverage) {
@@ -369,7 +378,7 @@ public class RunTestsTask implements Task {
             cmdArgs.add(agentCommand);
         }
 
-        cmdArgs.addAll(Lists.of("-cp", getClassPath()));
+        cmdArgs.addAll(Lists.of("-cp", classPath));
         if (isInDebugMode()) {
             cmdArgs.add(getDebugArgs(this.err));
         }
@@ -378,10 +387,8 @@ public class RunTestsTask implements Task {
         // Adds arguments to be read at the Test Runner
         // Index [0 - 3...]
         cmdArgs.add(testCachePath.toString());
-        cmdArgs.add(target.path().toString());
         cmdArgs.add(Boolean.toString(report));
         cmdArgs.add(Boolean.toString(coverage));
-        cmdArgs.addAll(args);
 
         ProcessBuilder processBuilder = new ProcessBuilder(cmdArgs).inheritIO();
         Process proc = processBuilder.start();
@@ -433,15 +440,6 @@ public class RunTestsTask implements Task {
         return moduleCoverageMap;
     }
 
-    private String getClassPath() {
-        List<Path> dependencies = new ArrayList<>();
-        dependencies.add(ProjectUtils.getBallerinaRTJarPath());
-        dependencies.addAll(ProjectUtils.testDependencies());
-        StringJoiner classPath = new StringJoiner(File.pathSeparator);
-        dependencies.stream().map(Path::toString).forEach(classPath::add);
-        return classPath.toString();
-    }
-
     /**
      * Write the content of each test suite into a common json.
      */
@@ -463,6 +461,54 @@ public class RunTestsTask implements Task {
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
         }
+    }
+
+    private String getClassPath(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> dependencies = new ArrayList<>();
+        JarResolver jarResolver = jBallerinaBackend.jarResolver();
+
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            // Skip getting file paths for execution if module doesnt contain a testable jar
+            if (!module.testDocumentIds().isEmpty() || module.project().kind()
+                    .equals(ProjectKind.SINGLE_FILE_PROJECT)) {
+                for (JarLibrary jarLibs : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+                    dependencies.add(jarLibs.path());
+                }
+            }
+        }
+        dependencies = dependencies.stream().distinct().collect(Collectors.toList());
+
+        List<Path> jarList = getExclusionPathList(jBallerinaBackend, currentPackage);
+        dependencies.removeAll(jarList);
+
+        StringJoiner classPath = new StringJoiner(File.pathSeparator);
+        dependencies.stream().map(Path::toString).forEach(classPath::add);
+        return classPath.toString();
+    }
+
+    private List<Path> getExclusionPathList(JBallerinaBackend jBallerinaBackend, Package currentPackage) {
+        List<Path> exclusionPathList = new ArrayList<>();
+
+        for (ModuleId moduleId : currentPackage.moduleIds()) {
+            Module module = currentPackage.module(moduleId);
+
+            // Skip adding the path if the module doesnt contain a generated module jar
+            if (!module.documentIds().isEmpty()) {
+                PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
+                        currentPackage.packageId(), module.moduleName());
+                exclusionPathList.add(generatedJarLibrary.path());
+            }
+            // Skip adding the path if the module doesnt contain a generated testable jar
+            if (!module.testDocumentIds().isEmpty()) {
+                PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
+                        currentPackage.packageId(), module.moduleName());
+                exclusionPathList.add(codeGeneratedTestLibrary.path());
+            }
+        }
+
+        return exclusionPathList.stream().distinct().collect(Collectors.toList());
     }
 
 }

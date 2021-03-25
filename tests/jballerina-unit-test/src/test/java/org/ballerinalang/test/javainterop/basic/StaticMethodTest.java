@@ -180,7 +180,7 @@ public class StaticMethodTest {
         return new String[]{"testBalEnvSlowAsyncVoidSig", "testBalEnvFastAsyncVoidSig", "testBalEnvSlowAsync",
                 "testBalEnvFastAsync", "testReturnNullString", "testReturnNotNullString", "testStaticResolve",
                 "testStringCast", "testGetCurrentModule", "testGetDefaultValueWithBEnv", "testCreateStudentUsingType",
-                "testCreateStudent"};
+                "testCreateStudent", "testDefaultDecimalArgs", "testDefaultDecimalArgsAddition"};
     }
 
     @AfterClass

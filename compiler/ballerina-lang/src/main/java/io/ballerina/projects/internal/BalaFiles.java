@@ -30,8 +30,10 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.DependencyGraphJson;
 import io.ballerina.projects.internal.bala.ModuleDependency;
+import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.PackageJson;
 import io.ballerina.projects.util.ProjectConstants;
@@ -44,6 +46,7 @@ import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -58,6 +61,8 @@ import java.util.stream.Stream;
 import static io.ballerina.projects.DependencyGraph.DependencyGraphBuilder.getBuilder;
 import static io.ballerina.projects.internal.ProjectFiles.loadDocuments;
 import static io.ballerina.projects.util.ProjectConstants.BALA_DOCS_DIR;
+import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_DIR;
+import static io.ballerina.projects.util.ProjectConstants.COMPILER_PLUGIN_JSON;
 import static io.ballerina.projects.util.ProjectConstants.DEPENDENCY_GRAPH_JSON;
 import static io.ballerina.projects.util.ProjectConstants.MODULES_ROOT;
 import static io.ballerina.projects.util.ProjectConstants.PACKAGE_JSON;
@@ -90,7 +95,7 @@ public class BalaFiles {
                 .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
         // load other modules
         List<ModuleData> otherModules = loadOtherModules(pkgName, balaPath);
-        return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, packageMd);
+        return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, packageMd);
     }
 
     private static PackageData loadPackageDataFromBalaFile(Path balaPath, PackageManifest packageManifest) {
@@ -104,7 +109,7 @@ public class BalaFiles {
                     .resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
             // load other modules
             List<ModuleData> otherModules = loadOtherModules(pkgName, packageRoot);
-            return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, packageMd);
+            return PackageData.from(balaPath, defaultModule, otherModules, null, null, null, null, packageMd);
         } catch (IOException e) {
             throw new ProjectException("Failed to read bala file:" + balaPath);
         }
@@ -239,7 +244,15 @@ public class BalaFiles {
             PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
             validatePackageJson(packageJson, balrPath);
             extractPlatformLibraries(packageJson, balrPath, zipFileSystem);
-            return getPackageManifest(packageJson);
+
+            // Load `compiler-plugin.json`
+            Path compilerPluginJsonPath = zipFileSystem.getPath(COMPILER_PLUGIN_DIR, COMPILER_PLUGIN_JSON);
+            if (!Files.notExists(compilerPluginJsonPath)) {
+                CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
+                extractCompilerPluginLibraries(compilerPluginJson, balrPath, zipFileSystem);
+                return getPackageManifest(packageJson, Optional.of(compilerPluginJson));
+            }
+            return getPackageManifest(packageJson, Optional.empty());
         } catch (IOException e) {
             throw new ProjectException("Failed to read balr file:" + balrPath);
         }
@@ -254,8 +267,15 @@ public class BalaFiles {
         // Load `package.json`
         PackageJson packageJson = readPackageJson(balrPath, packageJsonPath);
         validatePackageJson(packageJson, balrPath);
-        extractPlatformLibraries(packageJson, balrPath);
-        return getPackageManifest(packageJson);
+
+        // Load `compiler-plugin.json`
+        Path compilerPluginJsonPath = balrPath.resolve(COMPILER_PLUGIN_DIR).resolve(COMPILER_PLUGIN_JSON);
+        if (!Files.notExists(compilerPluginJsonPath)) {
+            CompilerPluginJson compilerPluginJson = readCompilerPluginJson(balrPath, compilerPluginJsonPath);
+            setCompilerPluginDependencyPaths(compilerPluginJson, balrPath);
+            return getPackageManifest(packageJson, Optional.of(compilerPluginJson));
+        }
+        return getPackageManifest(packageJson, Optional.empty());
     }
 
     private static void extractPlatformLibraries(PackageJson packageJson, Path balaPath, FileSystem zipFileSystem) {
@@ -276,25 +296,47 @@ public class BalaFiles {
         });
     }
 
-    private static void extractPlatformLibraries(PackageJson packageJson, Path balaPath) {
-        if (packageJson.getPlatformDependencies() == null) {
+    private static void extractCompilerPluginLibraries(CompilerPluginJson compilerPluginJson, Path balaPath,
+            FileSystem zipFileSystem) {
+        if (compilerPluginJson.dependencyPaths() == null) {
             return;
         }
-        packageJson.getPlatformDependencies().forEach(dependency -> {
-            Path libPath = balaPath.getParent().resolve(dependency.getPath());
+        List<String> dependencyLibPaths = new ArrayList<>();
+        compilerPluginJson.dependencyPaths().forEach(dependencyPath -> {
+            Path libPath = balaPath.getParent().resolve(dependencyPath).normalize();
             if (!Files.exists(libPath)) {
                 try {
                     Files.createDirectories(libPath.getParent());
-                    Files.copy(balaPath.resolve(dependency.getPath()), libPath);
+                    // TODO: Need to refactor this fix
+                    Path libPathInZip = Paths.get(dependencyPath);
+                    if (!dependencyPath.contains(COMPILER_PLUGIN_DIR)) {
+                        libPathInZip = Paths.get(COMPILER_PLUGIN_DIR, String.valueOf(libPathInZip));
+                    }
+                    Files.copy(zipFileSystem.getPath(String.valueOf(libPathInZip)), libPath);
                 } catch (IOException e) {
-                    throw new ProjectException("Failed to extract platform dependency:" + libPath.getFileName(), e);
+                    throw new ProjectException(
+                            "Failed to extract compiler plugin dependency:" + libPath.getFileName(), e);
                 }
             }
-            dependency.setPath(libPath.toString());
+            dependencyLibPaths.add(libPath.toString());
         });
+        compilerPluginJson.setDependencyPaths(dependencyLibPaths);
     }
 
-    private static PackageManifest getPackageManifest(PackageJson packageJson) {
+    private static void setCompilerPluginDependencyPaths(CompilerPluginJson compilerPluginJson, Path balaPath) {
+        if (compilerPluginJson.dependencyPaths() == null) {
+            return;
+        }
+        List<String> dependencyLibPaths = new ArrayList<>();
+        compilerPluginJson.dependencyPaths().forEach(dependencyPath -> {
+            Path libPath = balaPath.resolve(dependencyPath);
+            dependencyLibPaths.add(libPath.toString());
+        });
+        compilerPluginJson.setDependencyPaths(dependencyLibPaths);
+    }
+
+    private static PackageManifest getPackageManifest(PackageJson packageJson,
+            Optional<CompilerPluginJson> compilerPluginJson) {
         PackageDescriptor pkgDesc = PackageDescriptor.from(PackageOrg.from(packageJson.getOrganization()),
                 PackageName.from(packageJson.getName()), PackageVersion.from(packageJson.getVersion()));
         List<PackageManifest.Dependency> dependencies;
@@ -316,7 +358,9 @@ public class BalaFiles {
             platforms.put(packageJson.getPlatform(), platform);
         }
 
-        return PackageManifest.from(pkgDesc, dependencies, platforms);
+        return compilerPluginJson.map(pluginJson -> PackageManifest
+                .from(pkgDesc, Optional.of(CompilerPluginDescriptor.from(pluginJson)), dependencies, platforms))
+                .orElseGet(() -> PackageManifest.from(pkgDesc, Optional.empty(), dependencies, platforms));
     }
 
     private static PackageJson readPackageJson(Path balaPath, Path packageJsonPath) {
@@ -329,6 +373,18 @@ public class BalaFiles {
             throw new ProjectException("Failed to read the package.json in '" + balaPath + "'");
         }
         return packageJson;
+    }
+
+    private static CompilerPluginJson readCompilerPluginJson(Path balaPath, Path compilerPluginJsonPath) {
+        CompilerPluginJson pluginJson;
+        try {
+            pluginJson = gson.fromJson(Files.newBufferedReader(compilerPluginJsonPath), CompilerPluginJson.class);
+        } catch (JsonSyntaxException e) {
+            throw new ProjectException("Invalid " + COMPILER_PLUGIN_JSON + " format in '" + balaPath + "'");
+        } catch (IOException | JsonIOException e) {
+            throw new ProjectException("Failed to read the " + COMPILER_PLUGIN_JSON + " in '" + balaPath + "'");
+        }
+        return pluginJson;
     }
 
     private static DependencyGraph<PackageDescriptor> createPackageDependencyGraph(

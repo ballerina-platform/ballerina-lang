@@ -30,7 +30,6 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
@@ -43,7 +42,7 @@ import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
-import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -61,10 +60,10 @@ import javax.annotation.Nonnull;
  * @since 2.0.0
  */
 public class FieldAccessCompletionResolver extends NodeTransformer<Optional<TypeSymbol>> {
-    private final BallerinaCompletionContext context;
+    private final PositionedOperationContext context;
     private final boolean optionalFieldAccess;
 
-    public FieldAccessCompletionResolver(BallerinaCompletionContext context, boolean optionalFieldAccess) {
+    public FieldAccessCompletionResolver(PositionedOperationContext context, boolean optionalFieldAccess) {
         this.context = context;
         this.optionalFieldAccess = optionalFieldAccess;
     }
@@ -99,12 +98,14 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         if (nameRef.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
             return Optional.empty();
         }
-        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.METHOD;
+        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.METHOD
+                || symbol.kind() == SymbolKind.FUNCTION;
         String methodName = ((SimpleNameReferenceNode) nameRef).name().text();
         List<Symbol> visibleEntries = this.getVisibleEntries(exprTypeSymbol.orElseThrow());
 
-        MethodSymbol symbol = (MethodSymbol) this.getSymbolByName(visibleEntries, methodName, predicate);
+        FunctionSymbol symbol = (FunctionSymbol) this.getSymbolByName(visibleEntries, methodName, predicate);
         FunctionTypeSymbol functionTypeSymbol = (FunctionTypeSymbol) SymbolUtil.getTypeDescriptor(symbol).orElseThrow();
+
         return functionTypeSymbol.returnTypeDescriptor();
     }
 
@@ -191,19 +192,10 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                 boolean isClient = SymbolUtil.isClient(objTypeDesc);
                 // If the object type desc is a client, then we avoid all the remote methods
                 List<MethodSymbol> methodSymbols = objTypeDesc.methods().values().stream()
-                        .filter(methodSymbol -> !isClient || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
+                        .filter(methodSymbol -> (!isClient || !methodSymbol.qualifiers().contains(Qualifier.REMOTE))
+                                && !methodSymbol.qualifiers().contains(Qualifier.RESOURCE))
                         .collect(Collectors.toList());
                 visibleEntries.addAll(methodSymbols);
-                break;
-            case UNION:
-                UnionTypeSymbol unionTypeSymbol = (UnionTypeSymbol) rawType;
-                List<TypeSymbol> members = unionTypeSymbol.memberTypeDescriptors();
-                if (members.size() != 2
-                        || members.stream().noneMatch(symbol -> symbol.typeKind() == TypeDescKind.NIL)) {
-                    break;
-                }
-                TypeSymbol evalType = members.get(0).typeKind() == TypeDescKind.NIL ? members.get(1) : members.get(0);
-                visibleEntries.addAll(this.getVisibleEntries(evalType));
                 break;
             default:
                 break;
