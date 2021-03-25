@@ -2,11 +2,11 @@
 
 // This is an import declaration node
 
- import      ballerina/io;
+ import      foobar/bar;
 // This is a comment
 
 
-import ballerina/log;   //This is the second import
+import foobar/qux;   //This is the second import
 
 
 function add() returns int {
