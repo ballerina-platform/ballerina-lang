@@ -52,7 +52,6 @@ import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
 import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
-import static io.ballerina.projects.util.ProjectConstants.CACHES_DIR_NAME;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
@@ -124,27 +123,32 @@ public class PushCommand implements BLauncherCmd {
         }
 
         if (argList == null || argList.isEmpty()) {
-            // If the repository flag is specified, validate and push to the provided repo
-            if (repositoryName != null) {
-                if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
-                    String errMsg = "unsupported repository '" + repositoryName + "' found. Only '" +
-                            ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported";
-                    CommandUtil.printError(this.errStream, errMsg, null, false);
-                    return;
-                }
+            try {
+                // If the repository flag is specified, validate and push to the provided repo
+                if (repositoryName != null) {
+                    if (!repositoryName.equals(ProjectConstants.LOCAL_REPOSITORY_NAME)) {
+                        String errMsg = "unsupported repository '" + repositoryName + "' found. Only '" +
+                                ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported";
+                        CommandUtil.printError(this.errStream, errMsg, null, false);
+                        return;
+                    }
 
-                pushPackage(project);
-            } else {
-                Settings settings = readSettings();
-                Proxy proxy = initializeProxy(settings.getProxy());
-                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
+                    pushPackage(project);
+                } else {
+                    Settings settings = readSettings();
+                    Proxy proxy = initializeProxy(settings.getProxy());
+                    CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
 
-                try {
-                    pushPackage(project, client, settings);
-                } catch (ProjectException | CentralClientException e) {
-                    CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                    return;
+                    try {
+                        pushPackage(project, client, settings);
+                    } catch (ProjectException | CentralClientException e) {
+                        CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                        return;
+                    }
                 }
+            } catch (ProjectException e) {
+                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                return;
             }
         } else {
             CommandUtil.printError(this.errStream, "too many arguments", "bal push ", false);
@@ -254,10 +258,12 @@ public class PushCommand implements BLauncherCmd {
         String packageName = balaProject.currentPackage().packageName().value();
         String version = balaProject.currentPackage().packageVersion().toString();
         String platform = balaProject.platform();
+        String ballerinaShortVersion = RepoUtils.getBallerinaShortVersion();
 
         Path balaDestPath = repoPath.resolve(ProjectConstants.BALA_DIR_NAME)
                 .resolve(org).resolve(packageName).resolve(version).resolve(platform);
-        Path balaCachesPath = repoPath.resolve(CACHES_DIR_NAME).resolve(org).resolve(packageName).resolve(version);
+        Path balaCachesPath = repoPath.resolve(ProjectConstants.CACHES_DIR_NAME + "-" + ballerinaShortVersion)
+                .resolve(org).resolve(packageName).resolve(version);
         try {
             if (Files.exists(balaDestPath)) {
                 ProjectUtils.deleteDirectory(balaDestPath);
