@@ -48,8 +48,10 @@ import org.testng.annotations.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -254,6 +256,26 @@ public class ServiceSemanticAPITest {
         PathRestParam resourcePath = (PathRestParam) method.resourcePath();
         assertEquals(resourcePath.parameter().getName().get(), "rest");
         assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), ARRAY);
+    }
+
+    @Test
+    public void testMultipleListenerAttaching() {
+        SemanticModel model = getDefaultModulesSemanticModel("test-src/service_with_multiple_listeners.bal");
+        List<Symbol> services = model.moduleSymbols().stream()
+                .filter(s -> s.kind() == SERVICE_DECLARATION)
+                .collect(Collectors.toList());
+        ServiceDeclarationSymbol service = (ServiceDeclarationSymbol) services.get(0);
+        Set<TypeSymbol> listenerTypes = service.listenerTypes();
+        assertEquals(listenerTypes.size(), 2);
+
+        Iterator<TypeSymbol> iterator = listenerTypes.iterator();
+        TypeSymbol type = iterator.next();
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "FooListener");
+
+        type = iterator.next();
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "BarListener");
     }
 
     private Object[][] getExpValues() {
