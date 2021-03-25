@@ -2849,7 +2849,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (foreach.collection.type.tag == TypeTags.OBJECT
                 && !types.isAssignable(foreach.collection.type, symTable.iterableType)) {
             dlog.error(foreach.collection.pos, DiagnosticErrorCode.INVALID_ITERABLE_OBJECT_TYPE,
-                    symTable.iterableType, foreach.collection.type);
+                    foreach.collection.type, symTable.iterableType);
             foreach.resultType = symTable.semanticError;
             return;
         }

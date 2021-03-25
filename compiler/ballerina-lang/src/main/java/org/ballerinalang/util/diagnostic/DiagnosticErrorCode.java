@@ -700,7 +700,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3992", "async.send.action.not.yet.supported.as.expression"),
     UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR("BCE3993", "unused.variable.with.inferred.type.including.error"),
     INVALID_ITERABLE_OBJECT_TYPE("BCE3994", "invalid.iterable.type"),
-    INVALID_ITERABLE_COMPLETION_TYPE_IN_NEXT_FUNCTION("BCE3995",
+    INVALID_ITERABLE_COMPLETION_TYPE_IN_FOREACH_NEXT_FUNCTION("BCE3995",
             "invalid.iterable.completion.type.in.foreach.next.function")
     ;
 

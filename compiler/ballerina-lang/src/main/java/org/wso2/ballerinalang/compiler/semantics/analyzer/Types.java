@@ -1674,8 +1674,8 @@ public class Types {
                     if (errorType != null) {
                         BType actualType = BUnionType.create(null, valueType, errorType);
                         dlog.error(foreachNode.collection.pos,
-                                DiagnosticErrorCode.INVALID_ITERABLE_COMPLETION_TYPE_IN_NEXT_FUNCTION, actualType,
-                                errorType);
+                                DiagnosticErrorCode.INVALID_ITERABLE_COMPLETION_TYPE_IN_FOREACH_NEXT_FUNCTION,
+                                actualType, errorType);
                     }
                     foreachNode.nillableResultType = nextMethodReturnType;
                     foreachNode.varType = valueType;
@@ -2703,9 +2703,8 @@ public class Types {
         }
 
         if (source.tag == TypeTags.UNION && ((BUnionType) source).isCyclic) {
-            if (!unresolvedTypes.add(pair)) {
-                return true;
-            }
+            // add cyclic source to target pair to avoid recursive calls
+            unresolvedTypes.add(pair);
         }
 
         Set<BType> sourceTypes = new LinkedHashSet<>();
