@@ -63,7 +63,30 @@ class AnotherInternalIterable {
     }
 }
 
-public function testNestedIterableObject() returns int[] {
+class AnotherIterableSubtype {
+    *AnotherIterable;
+    public function iterator() returns object {
+                                           public isolated function next() returns record {|
+                                                                                       IterableImpl value;
+                                                                                   |}?;
+                                       } {
+        AnotherInternalIterable sample = new;
+        return sample;
+    }
+}
+
+public function testNestedIterableObject() {
+    AnotherIterableSubtype p = new AnotherIterableSubtype();
+    int[] integers = [];
+    foreach var itr in p {
+        foreach var item in itr {
+            integers.push(item);
+        }
+    }
+    assert(integers, [12, 34, 56, 34, 78, 21, 90, 12, 34, 56, 34, 78, 21, 90]);
+}
+
+public function testIterableSubtype() {
     AnotherIterable p = new AnotherIterable();
     int[] integers = [];
     foreach var itr in p {
@@ -71,8 +94,7 @@ public function testNestedIterableObject() returns int[] {
             integers.push(item);
         }
     }
-
-    return integers;
+    assert(integers, [12, 34, 56, 34, 78, 21, 90, 12, 34, 56, 34, 78, 21, 90]);
 }
 
 public function testIterableObjectReturnedByRangeExpression() {

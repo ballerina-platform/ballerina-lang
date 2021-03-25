@@ -62,26 +62,12 @@ public class ForeachIterableObjectTest {
 
     @Test
     public void testNestedIterableObject() {
-        BValue[] returns = BRunUtil.invoke(program, "testNestedIterableObject");
+        BRunUtil.invoke(program, "testNestedIterableObject");
+    }
 
-        BValueArray arr = (BValueArray) returns[0];
-        Assert.assertEquals(arr.size(), 14);
-        int i = 0;
-        Assert.assertEquals(arr.getInt(i++), 12);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 56);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 78);
-        Assert.assertEquals(arr.getInt(i++), 21);
-        Assert.assertEquals(arr.getInt(i++), 90);
-        Assert.assertEquals(arr.getInt(i++), 12);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 56);
-        Assert.assertEquals(arr.getInt(i++), 34);
-        Assert.assertEquals(arr.getInt(i++), 78);
-        Assert.assertEquals(arr.getInt(i++), 21);
-        Assert.assertEquals(arr.getInt(i), 90);
-
+    @Test
+    public void testIterableSubtype() {
+        BRunUtil.invoke(program, "testIterableSubtype");
     }
 
     @Test
