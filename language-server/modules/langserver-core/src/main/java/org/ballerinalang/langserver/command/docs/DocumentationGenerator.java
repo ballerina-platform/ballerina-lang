@@ -215,7 +215,7 @@ public class DocumentationGenerator {
                     } else if (field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
                         paramName = Optional.of(((RecordFieldWithDefaultValueNode) field).fieldName());
                     }
-                    paramName.ifPresent(param -> parameters.put(param.text(), "Parameter Description"));
+                    paramName.ifPresent(param -> parameters.put(param.text(), "Field Description"));
                 });
                 break;
             case OBJECT_TYPE_DESC:
@@ -225,7 +225,7 @@ public class DocumentationGenerator {
                             ((ObjectFieldNode) field).visibilityQualifier().isPresent()) {
                         ObjectFieldNode fieldNode = (ObjectFieldNode) field;
                         if (fieldNode.visibilityQualifier().get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
-                            parameters.put(fieldNode.fieldName().text(), "Parameter Description");
+                            parameters.put(fieldNode.fieldName().text(), "Field Description");
                         }
                     }
                 });

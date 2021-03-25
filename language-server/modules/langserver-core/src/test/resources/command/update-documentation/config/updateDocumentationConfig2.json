@@ -25,10 +25,10 @@
                   },
                   "end": {
                     "line": 3,
-                    "character": 32
+                    "character": 28
                   }
                 },
-                "newText": "# Description\n#\n# + name - Parameter Description    \n# + id - Parameter Description    \n# + vals - Parameter Description"
+                "newText": "# Description\n#\n# + name - Name of the student    \n# + id - Field Description    \n# + vals - Field Description"
               }
             ]
           }
