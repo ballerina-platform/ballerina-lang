@@ -392,17 +392,16 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
-    INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE("BCE2801", "incompatible.iterator.function.signature"),
-    ITERABLE_NOT_SUPPORTED_OPERATION("BCE2802", "iterable.not.supported.operation"),
-    ITERABLE_TOO_MANY_VARIABLES("BCE2803", "iterable.too.many.variables"),
-    ITERABLE_NOT_ENOUGH_VARIABLES("BCE2804", "iterable.not.enough.variables"),
-    ITERABLE_TOO_MANY_RETURN_VARIABLES("BCE2805", "iterable.too.many.return.args"),
-    ITERABLE_NOT_ENOUGH_RETURN_VARIABLES("BCE2806", "iterable.not.enough.return.args"),
-    ITERABLE_LAMBDA_REQUIRED("BCE2807", "iterable.lambda.required"),
-    ITERABLE_LAMBDA_TUPLE_REQUIRED("BCE2808", "iterable.lambda.tuple.required"),
-    ITERABLE_NO_ARGS_REQUIRED("BCE2809", "iterable.no.args.required"),
-    ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("BCE2810", "iterable.lambda.incompatible.types"),
-    ITERABLE_RETURN_TYPE_MISMATCH("BCE2811", "iterable.return.type.mismatch"),
+    ITERABLE_NOT_SUPPORTED_OPERATION("BCE2801", "iterable.not.supported.operation"),
+    ITERABLE_TOO_MANY_VARIABLES("BCE2802", "iterable.too.many.variables"),
+    ITERABLE_NOT_ENOUGH_VARIABLES("BCE2803", "iterable.not.enough.variables"),
+    ITERABLE_TOO_MANY_RETURN_VARIABLES("BCE2804", "iterable.too.many.return.args"),
+    ITERABLE_NOT_ENOUGH_RETURN_VARIABLES("BCE2805", "iterable.not.enough.return.args"),
+    ITERABLE_LAMBDA_REQUIRED("BCE2806", "iterable.lambda.required"),
+    ITERABLE_LAMBDA_TUPLE_REQUIRED("BCE2807", "iterable.lambda.tuple.required"),
+    ITERABLE_NO_ARGS_REQUIRED("BCE2808", "iterable.no.args.required"),
+    ITERABLE_LAMBDA_INCOMPATIBLE_TYPES("BCE2809", "iterable.lambda.incompatible.types"),
+    ITERABLE_RETURN_TYPE_MISMATCH("BCE2810", "iterable.return.type.mismatch"),
 
     // match statement related errors
     MATCH_STMT_CANNOT_GUARANTEE_A_MATCHING_PATTERN("BCE2900", "match.stmt.cannot.guarantee.a.matching.pattern"),
