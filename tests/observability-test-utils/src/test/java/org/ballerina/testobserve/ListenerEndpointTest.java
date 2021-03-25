@@ -20,6 +20,7 @@ package org.ballerina.testobserve;
 
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BalServer;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -75,7 +76,9 @@ public class ListenerEndpointTest {
         servicesServerInstance = new BServerInstance(balServer);
         String sourcesDir = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "listener_tests").getAbsolutePath();
-        servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], new int[]{29091});
+        int[] requiredPorts = {29091};
+        servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], requiredPorts);
+        Utils.waitForPortsToOpen(requiredPorts, 1000 * 60, false, "localhost");
     }
 
     @AfterGroups(value = "mock-listener-tests", alwaysRun = true)

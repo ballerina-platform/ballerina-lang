@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerina.testobserve.tracing.extension.BMockSpan;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
@@ -99,11 +100,13 @@ public class HttpTracingBaseTest extends BaseTest {     // TODO: Move this test 
             int[] requiredPorts = new int[]{10010, 10011};
             servicesServerInstance = new BServerInstance(balServer);
             servicesServerInstance.startServer(basePath, "backend", null, args, requiredPorts);
+            Utils.waitForPortsToOpen(requiredPorts, 1000 * 60, false, "localhost");
         }
         {
             int[] requiredPorts = new int[]{19090, 19091};
             backendServerInstance = new BServerInstance(balServer);
             backendServerInstance.startServer(basePath, "httptracing", null, args, requiredPorts);
+            Utils.waitForPortsToOpen(requiredPorts, 1000 * 60, false, "localhost");
         }
     }
 
