@@ -24,6 +24,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.Optional;
+
 /**
  * Represents an stream type descriptor.
  *
@@ -50,14 +52,16 @@ public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements Str
     }
 
     @Override
-    public TypeSymbol completionValueTypeParameter() {
+    public Optional<TypeSymbol> completionValueTypeParameter() {
         if (this.completionValueTypeParameter == null) {
             BType completionType = ((BStreamType) this.getBType()).error;
-            TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            this.completionValueTypeParameter = typesFactory.getTypeDescriptor(completionType);
+            if (completionType != null) {
+                TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+                this.completionValueTypeParameter = typesFactory.getTypeDescriptor(completionType);
+            }
         }
 
-        return this.completionValueTypeParameter;
+        return Optional.ofNullable(this.completionValueTypeParameter);
     }
 
     @Override
@@ -65,9 +69,7 @@ public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements Str
         if (this.signature == null) {
             StringBuilder sigBuilder = new StringBuilder("stream<");
             sigBuilder.append(this.typeParameter().signature());
-            if (this.completionValueTypeParameter().typeKind() != TypeDescKind.NEVER) {
-                sigBuilder.append(", ").append(this.completionValueTypeParameter().signature());
-            }
+            this.completionValueTypeParameter().ifPresent(t -> sigBuilder.append(", ").append(t.signature()));
             sigBuilder.append('>');
             this.signature = sigBuilder.toString();
         }

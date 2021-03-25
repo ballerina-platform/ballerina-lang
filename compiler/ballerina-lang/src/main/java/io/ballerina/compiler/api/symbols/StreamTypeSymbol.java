@@ -16,6 +16,8 @@
  */
 package io.ballerina.compiler.api.symbols;
 
+import java.util.Optional;
+
 /**
  * Represents an stream type descriptor.
  *
@@ -36,5 +38,5 @@ public interface StreamTypeSymbol extends TypeSymbol {
      *
      * @return The type of the completion value
      */
-    TypeSymbol completionValueTypeParameter();
+    Optional<TypeSymbol> completionValueTypeParameter();
 }

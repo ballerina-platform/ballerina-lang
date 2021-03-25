@@ -1657,7 +1657,7 @@ public class Types {
                     break;
                 }
                 varType = streamType.constraint;
-                if (streamType.error.tag != TypeTags.NEVER) {
+                if (streamType.error != null) {
                     BType actualType = BUnionType.create(null, varType, streamType.error);
                     dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);
@@ -1851,8 +1851,7 @@ public class Types {
             return false;
         }
 
-        List<BType> types = getAllTypes(returnType);
-        types.removeIf(type -> type.tag == TypeTags.NEVER);
+        List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
         boolean containsCompletionType = types.removeIf(type -> type.tag == TypeTags.NIL);
         containsCompletionType = types.removeIf(type -> type.tag == TypeTags.ERROR) || containsCompletionType;
         if (!containsCompletionType) {
@@ -2516,7 +2515,7 @@ public class Types {
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
-            return s.tag == TypeTags.STREAM && isSameStreamType(s, t, this.unresolvedTypes);
+            return t == s;
         }
 
         @Override
