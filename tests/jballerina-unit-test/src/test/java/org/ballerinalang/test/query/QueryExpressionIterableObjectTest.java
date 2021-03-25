@@ -124,7 +124,7 @@ public class QueryExpressionIterableObjectTest {
     public void testIterableObjectQueryNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/query/query_exp_iterable_objects_negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 2);
+        Assert.assertEquals(negativeResult.getErrorCount(), 3);
         int index = 0;
         validateError(negativeResult, index++, "invalid iterable type 'IterableObject': an iterable object must be" +
                         " a subtype of 'ballerina/lang.object:1.0.0:Iterable'", 43, 39);
