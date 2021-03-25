@@ -29,8 +29,6 @@ import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import io.samjs.jarlibrary.diagnosticutils.DiagnosticUtils;
 
-import java.util.List;
-
 /**
  * A simple {@code CompilerPlugin}.
  *
@@ -55,7 +53,7 @@ public class CompilationEventPlugin extends CompilerPlugin {
         }
     }
 
-    private class NullLocation implements Location {
+    private static class NullLocation implements Location {
 
         @Override
         public LineRange lineRange() {
