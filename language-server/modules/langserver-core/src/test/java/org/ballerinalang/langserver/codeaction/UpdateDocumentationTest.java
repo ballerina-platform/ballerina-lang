@@ -38,6 +38,7 @@ public class UpdateDocumentationTest extends AbstractCodeActionTest {
     public Object[][] dataProvider() {
         return new Object[][]{
                 {"updateDocumentationConfig1.json", "updateDocumentation1.bal"},
+                {"updateDocumentationConfig2.json", "updateDocumentation2.bal"},
         };
     }
 

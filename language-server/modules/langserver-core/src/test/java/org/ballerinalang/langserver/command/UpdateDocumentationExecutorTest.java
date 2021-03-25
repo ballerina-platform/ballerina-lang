@@ -39,6 +39,7 @@ public class UpdateDocumentationExecutorTest extends AbstractCommandExecutionTes
     public Object[][] addDocDataProvider() {
         return new Object[][]{
                 {"updateDocumentationConfig1.json", "updateDocumentationSource1.bal"},
+                {"updateDocumentationConfig2.json", "updateDocumentationSource2.bal"},
         };
     }
 

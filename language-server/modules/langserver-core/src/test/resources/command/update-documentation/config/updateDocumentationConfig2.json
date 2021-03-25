@@ -1,0 +1,40 @@
+{
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 0,
+        "character": 0
+      },
+      "end": {
+        "line": 8,
+        "character": 2
+      }
+    }
+  },
+  "expected": {
+    "result": {
+      "edit": {
+        "documentChanges": [
+          {
+            "edits": [
+              {
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
+                  },
+                  "end": {
+                    "line": 3,
+                    "character": 32
+                  }
+                },
+                "newText": "# Description\n#\n# + name - Parameter Description    \n# + id - Parameter Description    \n# + vals - Parameter Description"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    "jsonrpc": "2.0"
+  }
+}
