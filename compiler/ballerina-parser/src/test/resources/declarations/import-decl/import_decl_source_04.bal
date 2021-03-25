@@ -1,2 +1,2 @@
-import ballerina/foo.bar.baz version 2;
+import foobar/foo.bar.baz version 2;
 
