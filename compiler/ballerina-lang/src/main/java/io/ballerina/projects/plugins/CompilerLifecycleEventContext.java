@@ -21,38 +21,42 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.nio.file.Path;
+import java.util.Optional;
+
 /**
- * This class provides a context for the compiler lifecycle event task.
+ * the context for the compiler lifecycle event task.
  *
  * @see CompilerLifecycleContext
  * @since 2.0.0
  */
-public abstract class CompilerLifecycleEventContext {
+public interface CompilerLifecycleEventContext {
 
     /**
      * Returns the current {@code Package} instance on which the compilation is being performed.
      *
      * @return the current {@code Package} instance
      */
-    public Package currentPackage() {
-        throw new UnsupportedOperationException();
-    }
+    public Package currentPackage();
 
     /**
      * Returns the compilation instance that captures the state of the package compilation.
      *
      * @return the package compilation instance
      */
-    public PackageCompilation compilation() {
-        throw new UnsupportedOperationException();
-    }
+    public PackageCompilation compilation();
 
     /**
      * Reports a diagnostic against the compilation.
      *
      * @param diagnostic the {@code Diagnostic} to be reported
      */
-    public void reportDiagnostic(Diagnostic diagnostic) {
-        throw new UnsupportedOperationException();
-    }
+    public void reportDiagnostic(Diagnostic diagnostic);
+
+    /**
+     * Returns the path of the generated binary artifact.
+     *
+     * @return path to the generated artifact.
+     */
+    public Optional<Path> getGeneratedArtifactPath();
 }

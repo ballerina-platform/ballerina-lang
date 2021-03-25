@@ -23,11 +23,13 @@ import io.ballerina.projects.plugins.CompilerLifecycleListener;
 import io.ballerina.projects.plugins.CompilerLifecycleTask;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * Manages compiler lifecycle listener tasks.
@@ -62,9 +64,10 @@ class CompilerLifecycleManager {
         return lifecycleTasks;
     }
 
-    public List<Diagnostic> runCodeGeneratedTasks() {
-        CompilerLifecycleEventContext lifecycleEventContext = new CompilerLifecycleEventContextImpl(
+    public List<Diagnostic> runCodeGeneratedTasks(Path binaryPath) {
+        CompilerLifecycleEventContextImpl lifecycleEventContext = new CompilerLifecycleEventContextImpl(
                 this.currentPackage, this.compilation);
+        lifecycleEventContext.setBinaryPath(binaryPath);
 
         for (List<CodeGenerationCompletedTask> taskList : lifecycleTasks.codeGenerationCompletedTasks.values()) {
             for (CodeGenerationCompletedTask codeGenerationCompletedTask : taskList) {
@@ -72,9 +75,7 @@ class CompilerLifecycleManager {
             }
         }
 
-
-        List<Diagnostic> reportedDiagnostics = new ArrayList<>(
-                ((CompilerLifecycleEventContextImpl) lifecycleEventContext).reportedDiagnostics());
+        List<Diagnostic> reportedDiagnostics = new ArrayList<>(lifecycleEventContext.reportedDiagnostics());
         return reportedDiagnostics;
     }
 
@@ -186,9 +187,11 @@ class CompilerLifecycleManager {
         }
     }
 
-    private static class CompilerLifecycleEventContextImpl extends CompilerLifecycleEventContext {
+    private static class CompilerLifecycleEventContextImpl implements CompilerLifecycleEventContext {
         private final Package currentPackage;
         private final PackageCompilation compilation;
+
+        private Path binaryPath;
         private final List<Diagnostic> diagnostics = new ArrayList<>();
 
         public CompilerLifecycleEventContextImpl(Package currentPackage, PackageCompilation compilation) {
@@ -209,6 +212,15 @@ class CompilerLifecycleManager {
         @Override
         public void reportDiagnostic(Diagnostic diagnostic) {
             diagnostics.add(diagnostic);
+        }
+
+        private void setBinaryPath(Path binaryPath) {
+            this.binaryPath = binaryPath;
+        }
+
+        @Override
+        public Optional<Path> getGeneratedArtifactPath() {
+            return Optional.ofNullable(binaryPath);
         }
 
         List<Diagnostic> reportedDiagnostics() {
