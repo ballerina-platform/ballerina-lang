@@ -669,8 +669,7 @@ public class JvmInstructionGen {
             }
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
             String compareFuncName = this.getCompareFuncName(opcode);
-            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName,
-                    "(DD)Z", false);;
+            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName, "(DD)Z", false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
             return;
         } else {
