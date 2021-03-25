@@ -79,7 +79,7 @@ public class NullableTypeTest {
         validateError(result, 0, "incompatible types: expected '(()|any)', found '(()|any)?'", 33, 19);
     }
 
-    @Test(dataProvider = "dataToTestNullInJSONRelatedContext", description = "Test null in JSON related context")
+    @Test(dataProvider = "dataToTestNullUsageWithDifferentTypes", description = "Test null in JSON related context")
     public void testNullUsageWithDifferentTypes(String functionName) {
         BRunUtil.invoke(result, functionName);
     }
