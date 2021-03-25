@@ -14,12 +14,16 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Represents the shape expected from all raw templates.
-public type RawTemplate object {
 
-    # The string literal parts of the raw template.
+# Distinct RawTemplate type.
+# A raw template expression constructs an object belonging to this type.
+public type RawTemplate distinct object {
+    # An array of the strings containing the characters in BacktickString
+    # outside of interpolations, split at the interpolation points.
+    # The length of this array is one greater than
+    # the length of the `insertions` array.
     public (readonly & string[]) strings;
-
-    # The expressions given within the interpolations of the raw template.
+    # An array containing the results of evaluating the
+    # interpolations in the BacktickString.
     public (any|error)[] insertions;
 };

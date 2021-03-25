@@ -150,6 +150,7 @@ public class SymbolTable {
     public BMapType mapAllType;
     public BArrayType arrayAllType;
     public BObjectType rawTemplateType;
+    public BObjectType iterableType;
 
     // builtin subtypes
     public final BIntSubType signed32IntType = new BIntSubType(TypeTags.SIGNED32_INT, Names.SIGNED32);
@@ -790,7 +791,10 @@ public class SymbolTable {
         cloneableType = BUnionType.create(null, readonlyType, xmlType);
         addCyclicArrayMapTableOfMapMembers(cloneableType);
 
-        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, Names.CLONEABLE, rootPkgSymbol.pkgID,
+        // `cloneableType` and its symbol gets replaced by `Cloneable` type defined in lang value module. To prevent
+        // cyclic dependencies need to define duplicate `Cloneable type in other modules as well. Due to this reason
+        // symbol in symbol table is created by default as private.
+        cloneableType.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PRIVATE, Names.CLONEABLE, rootPkgSymbol.pkgID,
                 cloneableType, rootPkgSymbol, builtinPos, BUILTIN);
 
         detailType = new BMapType(TypeTags.MAP, cloneableType, null);

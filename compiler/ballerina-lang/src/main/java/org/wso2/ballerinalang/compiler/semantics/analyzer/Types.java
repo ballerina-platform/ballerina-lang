@@ -1673,14 +1673,14 @@ public class Types {
                     BType errorType = getErrorType(nextMethodReturnType);
                     if (errorType != null) {
                         BType actualType = BUnionType.create(null, valueType, errorType);
-                        dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                                valueType, actualType);
+                        dlog.error(foreachNode.collection.pos,
+                                DiagnosticErrorCode.INVALID_ITERABLE_COMPLETION_TYPE_IN_FOREACH_NEXT_FUNCTION,
+                                actualType, errorType);
                     }
                     foreachNode.nillableResultType = nextMethodReturnType;
                     foreachNode.varType = valueType;
                     return;
                 }
-                dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 foreachNode.varType = symTable.semanticError;
@@ -1760,6 +1760,14 @@ public class Types {
                 break;
             case TypeTags.OBJECT:
                 // check for iterable objects
+                if (!isAssignable(bLangInputClause.collection.type, symTable.iterableType)) {
+                    dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.INVALID_ITERABLE_OBJECT_TYPE,
+                            bLangInputClause.collection.type, symTable.iterableType);
+                    bLangInputClause.varType = symTable.semanticError;
+                    bLangInputClause.resultType = symTable.semanticError;
+                    bLangInputClause.nillableResultType = symTable.semanticError;
+                    return;
+                }
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     bLangInputClause.resultType = getRecordType(nextMethodReturnType);
@@ -1767,8 +1775,6 @@ public class Types {
                     bLangInputClause.varType = ((BRecordType) bLangInputClause.resultType).fields.get("value").type;
                     return;
                 }
-                dlog.error(bLangInputClause.collection.pos,
-                        DiagnosticErrorCode.INCOMPATIBLE_ITERATOR_FUNCTION_SIGNATURE);
                 // fallthrough
             case TypeTags.SEMANTIC_ERROR:
                 bLangInputClause.varType = symTable.semanticError;
@@ -1796,7 +1802,7 @@ public class Types {
     public BUnionType getVarTypeFromIterableObject(BObjectType collectionType) {
         BObjectTypeSymbol objectTypeSymbol = (BObjectTypeSymbol) collectionType.tsymbol;
         for (BAttachedFunction func : objectTypeSymbol.attachedFuncs) {
-            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
+            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC)) {
                 return getVarTypeFromIteratorFunc(func);
             }
         }
@@ -2701,6 +2707,11 @@ public class Types {
             return true;
         }
 
+        if (source.tag == TypeTags.UNION && ((BUnionType) source).isCyclic) {
+            // add cyclic source to target pair to avoid recursive calls
+            unresolvedTypes.add(pair);
+        }
+
         Set<BType> sourceTypes = new LinkedHashSet<>();
         Set<BType> targetTypes = new LinkedHashSet<>();
 
@@ -2768,6 +2779,7 @@ public class Types {
             while (targetIterator.hasNext()) {
                 BType t = targetIterator.next();
                 if (isAssignable(sMember, t, unresolvedTypes)) {
+                    sourceIterator.remove();
                     sourceTypeIsNotAssignableToAnyTargetType = false;
                     break;
                 }

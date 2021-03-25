@@ -291,7 +291,7 @@ class Student3 {
     }
 
     public function getMarks() returns int {
-        var v = self.init(0);
+        error? v = self.init(0);
         return self.marks;
     }
 }
@@ -366,7 +366,7 @@ class Student5 {
     }
 
     public function getMarks() returns int {
-        var v = self.init(0);
+        error? v = self.init(0);
         return self.marks;
     }
 }
