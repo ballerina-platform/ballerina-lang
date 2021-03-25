@@ -409,7 +409,7 @@ public class ObjectMock {
                 }
 
                 // validate the equivalence of the return types
-                if (!TypeChecker.checkIsType(returnType, attachedFunction.getType().getReturnParameterType())) {
+                if (!TypeChecker.checkIsType(attachedFunction.getType().getReturnParameterType(), returnType)) {
                     String detail = "incompatible return type provided for function " + functionName + "()";
                     return ErrorCreator.createDistinctError(
                             MockConstants.FUNCTION_SIGNATURE_MISMATCH_ERROR, MockConstants.TEST_PACKAGE_ID,
