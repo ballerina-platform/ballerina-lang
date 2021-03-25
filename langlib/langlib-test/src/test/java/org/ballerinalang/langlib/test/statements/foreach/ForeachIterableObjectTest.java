@@ -86,26 +86,12 @@ public class ForeachIterableObjectTest {
 
     @Test
     public void testIterableObjectReturnedByRangeExpression() {
-        BValue[] returns = BRunUtil.invoke(program, "testIterableObjectReturnedByRangeExpression");
-
-        BValueArray arr = (BValueArray) returns[0];
-        Assert.assertEquals(arr.size(), 3);
-        int i = 0;
-        Assert.assertEquals(arr.getInt(i++), 1);
-        Assert.assertEquals(arr.getInt(i++), 2);
-        Assert.assertEquals(arr.getInt(i++), 3);
+        BRunUtil.invoke(program, "testIterableObjectReturnedByRangeExpression");
     }
 
     @Test
     public void testIterableDistinctObjectReturnedByRangeExpression() {
-        BValue[] returns = BRunUtil.invoke(program, "testIterableDistinctObjectReturnedByRangeExpression");
-
-        BValueArray arr = (BValueArray) returns[0];
-        Assert.assertEquals(arr.size(), 3);
-        int i = 0;
-        Assert.assertEquals(arr.getInt(i++), 1);
-        Assert.assertEquals(arr.getInt(i++), 2);
-        Assert.assertEquals(arr.getInt(i++), 3);
+        BRunUtil.invoke(program, "testIterableDistinctObjectReturnedByRangeExpression");
     }
 
     @Test

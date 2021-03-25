@@ -75,7 +75,7 @@ public function testNestedIterableObject() returns int[] {
     return integers;
 }
 
-public function testIterableObjectReturnedByRangeExpression() returns int[] {
+public function testIterableObjectReturnedByRangeExpression() {
     object {
         public isolated function iterator() returns object {
                 public isolated function next() returns record {| int value; |}?;
@@ -95,14 +95,25 @@ public function testIterableObjectReturnedByRangeExpression() returns int[] {
     if (nR1 is record {| int value; |}) {
         integers.push(nR1.value);
     }
-    return integers;
+    assert(integers, [1, 2, 3]);
 }
 
-public function testIterableDistinctObjectReturnedByRangeExpression() returns int[] {
+public function testIterableDistinctObjectReturnedByRangeExpression() {
     var objectResult = 1...3;
     int[] integers = [];
     foreach var item in objectResult {
         integers.push(item);
     }
-    return integers;
+    assert(integers, [1, 2, 3]);
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
 }
