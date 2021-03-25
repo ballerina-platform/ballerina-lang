@@ -4565,8 +4565,11 @@ public class BallerinaParser extends AbstractParser {
         return parseExpressionRhs(precedenceLevel, expr, isRhsExpr, allowActions, isInMatchGuard, isInConditionalExpr);
     }
 
-    private STNode attachErrorExpectedActionFoundDiagnostic(STNode node) {
-        return SyntaxErrors.addDiagnostic(node, DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
+    private STNode invalidateActionAndGetMissingExpr(STNode node) {
+        STToken identifier = SyntaxErrors.createMissingToken(SyntaxKind.IDENTIFIER_TOKEN);
+        identifier = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(identifier, node,
+                DiagnosticErrorCode.ERROR_EXPRESSION_EXPECTED_ACTION_FOUND);
+        return STNodeFactory.createSimpleNameReferenceNode(identifier);
     }
 
     private STNode parseExpression(OperatorPrecedence precedenceLevel, STNode annots, boolean isRhsExpr,
@@ -4976,7 +4979,7 @@ public class BallerinaParser extends AbstractParser {
         // braced actions are just parenthesis enclosing actions, no need to add a diagnostic there when we have added
         // diagnostics to its children
         if (!allowActions && isAction(actionOrExpression) && actionOrExpression.kind != SyntaxKind.BRACED_ACTION) {
-            actionOrExpression = attachErrorExpectedActionFoundDiagnostic(actionOrExpression);
+            actionOrExpression = invalidateActionAndGetMissingExpr(actionOrExpression);
         }
         return actionOrExpression;
     }
@@ -5092,7 +5095,7 @@ public class BallerinaParser extends AbstractParser {
 
                 // Actions within binary-expressions are not allowed.
                 if (isAction(lhsExpr) && lhsExpr.kind != SyntaxKind.BRACED_ACTION) {
-                    lhsExpr = attachErrorExpectedActionFoundDiagnostic(lhsExpr);
+                    lhsExpr = invalidateActionAndGetMissingExpr(lhsExpr);
                 }
 
                 STNode rhsExpr = parseExpression(nextOperatorPrecedence, isRhsExpr, false, isInConditionalExpr);
