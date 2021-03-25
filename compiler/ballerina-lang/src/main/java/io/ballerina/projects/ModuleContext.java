@@ -349,6 +349,7 @@ class ModuleContext {
         CompilerPhaseRunner compilerPhaseRunner = CompilerPhaseRunner.getInstance(compilerContext);
 
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
+        pkgNode.projectKind = moduleContext.project().kind();
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files

@@ -14,6 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+enum Colour {
+    RED,
+}
+
+enum Colours {
+    BLUE = "Blue",
+}
+
 public enum Shape {
     CIRCLE,
     SQ = "SQUARE"
