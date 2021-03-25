@@ -1760,6 +1760,14 @@ public class Types {
                 break;
             case TypeTags.OBJECT:
                 // check for iterable objects
+                if (!isAssignable(bLangInputClause.collection.type, symTable.iterableType)) {
+                    dlog.error(bLangInputClause.collection.pos, DiagnosticErrorCode.INVALID_ITERABLE_OBJECT_TYPE,
+                            bLangInputClause.collection.type, symTable.iterableType);
+                    bLangInputClause.varType = symTable.semanticError;
+                    bLangInputClause.resultType = symTable.semanticError;
+                    bLangInputClause.nillableResultType = symTable.semanticError;
+                    return;
+                }
                 BUnionType nextMethodReturnType = getVarTypeFromIterableObject((BObjectType) collectionType);
                 if (nextMethodReturnType != null) {
                     bLangInputClause.resultType = getRecordType(nextMethodReturnType);
