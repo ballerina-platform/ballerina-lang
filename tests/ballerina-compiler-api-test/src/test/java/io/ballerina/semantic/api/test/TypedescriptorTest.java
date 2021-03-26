@@ -639,8 +639,17 @@ public class TypedescriptorTest {
     }
 
     @Test
+    public void testFunctionTypedesc() {
+        FunctionSymbol symbol = (FunctionSymbol) getSymbol(216, 13);
+        assertEquals(symbol.typeDescriptor().parameters().size(), 0);
+        assertTrue(symbol.typeDescriptor().restParam().isEmpty());
+        assertTrue(symbol.typeDescriptor().returnTypeDescriptor().isEmpty());
+        assertEquals(symbol.typeDescriptor().signature(), "function");
+    }
+
+    @Test
     public void testParameterizedType() {
-        Symbol symbol = getSymbol(215, 9);
+        Symbol symbol = getSymbol(219, 9);
         FunctionTypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor();
         TypeSymbol returnTypeSymbol = type.returnTypeDescriptor().get();
         assertEquals(returnTypeSymbol.signature(), "td");
@@ -648,7 +657,7 @@ public class TypedescriptorTest {
         ParameterizedTypeSymbol parameterizedTypeSymbol = (ParameterizedTypeSymbol)  returnTypeSymbol;
         assertEquals(parameterizedTypeSymbol.paramValueType().typeKind(), ANYDATA);
 
-        symbol = getSymbol(217, 9);
+        symbol = getSymbol(221, 9);
         type = ((FunctionSymbol) symbol).typeDescriptor();
         returnTypeSymbol = type.returnTypeDescriptor().get();
         assertEquals(returnTypeSymbol.typeKind(), UNION);

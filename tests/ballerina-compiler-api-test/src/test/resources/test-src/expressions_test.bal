@@ -113,6 +113,13 @@ function testFunctionCall() {
     string s = p.getName();
 }
 
+service on new Listener() {
+    resource function get processRequest() returns json {
+        var v = {name: "John Doe"};
+        return v;
+    }
+}
+
 // utils
 
 class PersonObj {
@@ -126,3 +133,21 @@ class PersonObj {
 }
 
 function foo() returns string|error => "foo";
+
+public class Listener {
+
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+
+    public function detach(service object {} s) returns error? {
+    }
+
+    public function attach(service object {} s, string[]? name = ()) returns error? {
+    }
+}

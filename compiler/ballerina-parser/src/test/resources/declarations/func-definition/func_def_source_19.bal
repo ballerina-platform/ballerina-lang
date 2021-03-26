@@ -1,6 +1,6 @@
-import ballerina/io;
+import foobar/bar;
 public function main() {
-   io:println("Hello World!");
+   bar:println("Hello World!");
 }
 
 func

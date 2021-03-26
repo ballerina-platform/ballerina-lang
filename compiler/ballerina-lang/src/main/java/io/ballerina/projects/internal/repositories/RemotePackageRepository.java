@@ -18,6 +18,7 @@ import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -73,6 +74,12 @@ public class RemotePackageRepository implements PackageRepository {
 
     @Override
     public Optional<Package> getPackage(ResolutionRequest resolutionRequest) {
+        // Avoid resolving from remote repository for lang repo tests
+        String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
+        if (langRepoBuild != null) {
+            return Optional.empty();
+        }
+
         // Check if the package is in cache
         Optional<Package> cachedPackage = this.fileSystemRepo.getPackage(resolutionRequest);
         if (cachedPackage.isPresent()) {
@@ -102,6 +109,10 @@ public class RemotePackageRepository implements PackageRepository {
 
     @Override
     public List<PackageVersion> getPackageVersions(ResolutionRequest resolutionRequest) {
+        String langRepoBuild = System.getProperty("LANG_REPO_BUILD");
+        if (langRepoBuild != null) {
+            return Collections.emptyList();
+        }
         String orgName = resolutionRequest.orgName().value();
         String packageName = resolutionRequest.packageName().value();
 

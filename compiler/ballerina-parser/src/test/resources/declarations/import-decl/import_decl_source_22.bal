@@ -1,7 +1,7 @@
-import ballerina/io;
+import foobar/bar;
 
 function foo() {
 
 }
 
-import ballerina/http;
+import foobar/baz;
