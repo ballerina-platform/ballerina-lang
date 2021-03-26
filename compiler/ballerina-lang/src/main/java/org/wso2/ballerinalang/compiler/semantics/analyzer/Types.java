@@ -1649,7 +1649,7 @@ public class Types {
                     break;
                 }
                 varType = streamType.constraint;
-                if (streamType.error.tag != TypeTags.NEVER) {
+                if (streamType.error != null) {
                     BType actualType = BUnionType.create(null, varType, streamType.error);
                     dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);
@@ -1850,7 +1850,6 @@ public class Types {
         }
 
         List<BType> types = getAllTypes(returnType);
-        types.removeIf(type -> type.tag == TypeTags.NEVER);
         boolean containsCompletionType = types.removeIf(type -> type.tag == TypeTags.NIL);
         containsCompletionType = types.removeIf(type -> type.tag == TypeTags.ERROR) || containsCompletionType;
         if (!containsCompletionType) {
@@ -2942,17 +2941,22 @@ public class Types {
         Set<BType> memTypes = new LinkedHashSet<>();
 
         for (BType memberType : unionType.getMemberTypes()) {
-            if (memberType.tag == TypeTags.INTERSECTION) {
-                BType effectiveType = ((BIntersectionType) memberType).effectiveType;
-                if (effectiveType.tag == TypeTags.UNION) {
-                    memTypes.addAll(getEffectiveMemberTypes((BUnionType) effectiveType));
-                    continue;
-                }
-                memTypes.add(effectiveType);
-                continue;
+            switch (memberType.tag) {
+                case TypeTags.INTERSECTION:
+                    BType effectiveType = ((BIntersectionType) memberType).effectiveType;
+                    if (effectiveType.tag == TypeTags.UNION) {
+                        memTypes.addAll(getEffectiveMemberTypes((BUnionType) effectiveType));
+                        continue;
+                    }
+                    memTypes.add(effectiveType);
+                    break;
+                case TypeTags.UNION:
+                    memTypes.addAll(getEffectiveMemberTypes((BUnionType) memberType));
+                    break;
+                default:
+                    memTypes.add(memberType);
+                    break;
             }
-
-            memTypes.add(memberType);
         }
         return memTypes;
     }

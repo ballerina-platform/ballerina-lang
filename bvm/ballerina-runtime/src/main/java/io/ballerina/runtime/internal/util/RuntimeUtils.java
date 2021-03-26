@@ -113,14 +113,12 @@ public class RuntimeUtils {
      * Keep a function parameter info, required for argument parsing.
      */
     public static class ParamInfo {
-
         String name;
         boolean hasDefaultable;
         Type type;
         int index = -1;
 
         public ParamInfo(boolean hasDefaultable, String name, Type type) {
-
             this.name = name;
             this.hasDefaultable = hasDefaultable;
             this.type = type;
