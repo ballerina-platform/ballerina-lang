@@ -376,10 +376,6 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(errorTypeDescriptorNode);
     }
 
-    public T transform(ErrorTypeParamsNode errorTypeParamsNode) {
-        return transformSyntaxNode(errorTypeParamsNode);
-    }
-
     public T transform(StreamTypeDescriptorNode streamTypeDescriptorNode) {
         return transformSyntaxNode(streamTypeDescriptorNode);
     }

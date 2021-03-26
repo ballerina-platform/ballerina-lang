@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.JsonUtils;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -41,6 +42,9 @@ import java.io.StringReader;
 import java.nio.charset.Charset;
 import java.util.ArrayDeque;
 import java.util.Deque;
+
+import static io.ballerina.runtime.api.utils.JsonUtils.NonStringValueProcessingMode.FROM_JSON_DECIMAL_STRING;
+import static io.ballerina.runtime.api.utils.JsonUtils.NonStringValueProcessingMode.FROM_JSON_FLOAT_STRING;
 
 /**
  * This class represents a JSON parser.
@@ -128,8 +132,8 @@ public class JsonParser {
      */
     public static Object parse(Reader reader, JsonUtils.NonStringValueProcessingMode mode) throws BError {
         StateMachine sm = tlStateMachine.get();
-        sm.mode = mode;
         try {
+            sm.setMode(mode);
             return sm.execute(reader);
         } finally {
             // Need to reset the state machine before leaving. Otherwise references to the created
@@ -202,6 +206,8 @@ public class JsonParser {
         private static final State STRING_VALUE_UNICODE_HEX_PROCESSING_STATE =
                 new StringValueUnicodeHexProcessingState();
         private JsonUtils.NonStringValueProcessingMode mode = JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING;
+        private Type definedJsonType = PredefinedTypes.TYPE_JSON;
+
 
         private Object currentJsonNode;
         private Deque<Object> nodesStack;
@@ -225,9 +231,20 @@ public class JsonParser {
             this.currentJsonNode = null;
             this.line = 1;
             this.column = 0;
-            this.mode = JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING;
             this.nodesStack = new ArrayDeque<>();
             this.fieldNames = new ArrayDeque<>();
+            this.setMode(JsonUtils.NonStringValueProcessingMode.FROM_JSON_STRING);
+        }
+
+        private void setMode(JsonUtils.NonStringValueProcessingMode mode) {
+            this.mode = mode;
+            if (this.mode == FROM_JSON_DECIMAL_STRING) {
+                definedJsonType = PredefinedTypes.TYPE_JSON_DECIMAL;
+            } else if (this.mode == FROM_JSON_FLOAT_STRING) {
+                definedJsonType = PredefinedTypes.TYPE_JSON_FLOAT;
+            } else {
+                definedJsonType = PredefinedTypes.TYPE_JSON;
+            }
         }
 
         private static boolean isWhitespace(char ch) {
@@ -309,7 +326,7 @@ public class JsonParser {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
-            currentJsonNode = new MapValueImpl<>(new BMapType(PredefinedTypes.TYPE_JSON));
+            currentJsonNode = new MapValueImpl<>(new BMapType(definedJsonType));
             return FIRST_FIELD_READY_STATE;
         }
 
@@ -317,7 +334,7 @@ public class JsonParser {
             if (currentJsonNode != null) {
                 this.nodesStack.push(currentJsonNode);
             }
-            currentJsonNode = new ArrayValueImpl(new BArrayType(PredefinedTypes.TYPE_JSON));
+            currentJsonNode = new ArrayValueImpl(new BArrayType(definedJsonType));
             return FIRST_ARRAY_ELEMENT_READY_STATE;
         }
 

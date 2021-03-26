@@ -78,7 +78,7 @@ function testForEach() returns string {
 
 function testFilter() returns map<decimal> {
     map<decimal> m = {"1":12.34, "2":3.45, "3":7.89, "4":21.2};
-    map<decimal> filteredM = m.filter(function (decimal d) returns boolean { return d > 10; });
+    map<decimal> filteredM = m.filter(function (decimal d) returns boolean { return d > 10d; });
     return filteredM;
 }
 

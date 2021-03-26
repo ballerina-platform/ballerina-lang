@@ -174,7 +174,7 @@ function testMultipleJoinClausesWithInnerQueries3() returns boolean {
 
     DeptPerson[] deptPersonList = [];
 
-    var x =
+    error? x =
         from var emp in (stream from var e in empList select e)
         join Person psn in (table key() from var p in personList select p)
             on emp.personId equals psn.id
@@ -270,7 +270,7 @@ function testMultipleJoinClausesWithInnerQueries5() returns boolean {
                     </bookstore>`;
 
     float total = 0;
-    var res =
+    error? res =
         from var price in (from var book in bookstore/<book> select book)/**/<price>
         do {
             var p = (<xml> price)/*;

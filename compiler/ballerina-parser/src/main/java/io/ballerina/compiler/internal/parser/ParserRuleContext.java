@@ -198,7 +198,6 @@ public enum ParserRuleContext {
     FUNC_TYPE_DESC_START_WITHOUT_FIRST_QUAL("func-type-desc-start-without-first-qual"),
     FUNCTION_KEYWORD_RHS("func-keyword-rhs"),
     END_OF_TYPE_DESC("end-of-type-desc"),
-    INFERRED_TYPE_DESC("*"),
     SELECT_CLAUSE("select-clause"),
     WHERE_CLAUSE("where-clause"),
     FROM_CLAUSE("from-clause"),
@@ -229,6 +228,7 @@ public enum ParserRuleContext {
     CAPTURE_BINDING_PATTERN("capture-binding-pattern"),
     REST_BINDING_PATTERN("rest-binding-pattern"),
     LIST_BINDING_PATTERN("list-binding-pattern"),
+    LIST_BINDING_PATTERNS_START("list-binding-patterns-start"),
     LIST_BINDING_PATTERN_MEMBER("list-binding-pattern-member"),
     LIST_BINDING_PATTERN_MEMBER_END("list-binding-pattern-member-end"),
     FIELD_BINDING_PATTERN("field-binding-pattern"),
@@ -660,7 +660,6 @@ public enum ParserRuleContext {
     TYPEDESC_RHS("type-desc-rhs"),
     FUNC_TYPE_FUNC_KEYWORD_RHS("func-type-func-keyword-rhs"),
     FUNC_TYPE_FUNC_KEYWORD_RHS_START("func-type-func-keyword-rhs-start"),
-    ERROR_TYPE_PARAMS("error-type-params"),
     STREAM_TYPE_FIRST_PARAM_RHS("stream-type-params"),
     KEY_CONSTRAINTS_RHS("key-constraints-rhs"),
     ROW_TYPE_PARAM("row-type-param"),
@@ -691,6 +690,9 @@ public enum ParserRuleContext {
     TRANSACTION_STMT_RHS_OR_TYPE_REF("transaction-stmt-rhs-or-type-ref"),
     QUALIFIED_IDENTIFIER_START_IDENTIFIER("qualified-identifier-start-identifier"),
     QUALIFIED_IDENTIFIER_PREDECLARED_PREFIX("qualified-identifier-predeclared-prefix"),
+    TYPE_DESC_RHS_OR_BP_RHS("type-desc-rhs-or-binding-pattern-rhs"),
+    LIST_BINDING_PATTERN_RHS("list-binding-pattern-rhs"),
+    TYPE_DESC_RHS_IN_TYPED_BP("type-desc-rhs-in-typed-binding-pattern"),
     ;
 
     private String value;

@@ -232,7 +232,7 @@ public class MarkdownDocumentationTest {
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
-                packageNode.getFunctions().get(5).getMarkdownDocumentationAttachment();
+                packageNode.getFunctions().get(7).getMarkdownDocumentationAttachment();
         Assert.assertNotNull(documentationAttachment);
         Assert.assertEquals(documentationAttachment.getDocumentation(), "Gets a access parameter value (`true` or " +
                 "`false`) for a given key. Please note that #foo will always be bigger than #bar.\n" +
@@ -319,13 +319,30 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(7).type, DocumentationReferenceType.ANNOTATION);
         Assert.assertEquals(references.get(7).referenceName, "annot");
 
+        documentationAttachment = packageNode.getFunctions().get(5).getMarkdownDocumentationAttachment();
+        BLangMarkdownParameterDocumentation exampleParam =
+                documentationAttachment.getParameterDocumentations().get("example");
+        Assert.assertEquals(exampleParam.parameterName.getValue(), "example");
+        Assert.assertEquals(exampleParam.parameterDocumentationLines.get(0),
+                "The error struct to be logged");
+
+        references = documentationAttachment.getReferences();
+        Assert.assertEquals(references.size(), 1);
+        Assert.assertEquals(references.get(0).type, DocumentationReferenceType.VARIABLE);
+        Assert.assertEquals(references.get(0).referenceName, "'testQuotedConst");
+
+        documentationAttachment = packageNode.getFunctions().get(6).getMarkdownDocumentationAttachment();
+        exampleParam = documentationAttachment.getParameterDocumentations().get("foo_\u2345\u0376");
+        Assert.assertEquals(exampleParam.parameterName.getValue(), "foo_\u2345\u0376");
+        Assert.assertEquals(exampleParam.parameterDocumentationLines.get(0),
+                "The error struct to be logged with unicode name");
     }
 
     @Test(description = "Test doc function with function keyword", groups = { "disableOnOldParser" })
     public void testDocFunctionSpecial() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_function_special.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 3);
+        Assert.assertEquals(compileResult.getWarnCount(), 4);
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
@@ -333,7 +350,7 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(documentationAttachment);
 
         LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
-        Assert.assertEquals(references.size(), 6);
+        Assert.assertEquals(references.size(), 7);
 
         Assert.assertEquals(references.get(0).type, DocumentationReferenceType.FUNCTION);
         Assert.assertEquals(references.get(0).referenceName, "foo");
@@ -363,6 +380,11 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(5).qualifier, "m");
         Assert.assertEquals(references.get(5).typeName, "bar");
         Assert.assertEquals(references.get(5).identifier, "baz");
+
+        Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(4).referenceName, "m:foo()");
+        Assert.assertEquals(references.get(4).qualifier, "m");
+        Assert.assertEquals(references.get(4).identifier, "foo");
     }
 
     @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })

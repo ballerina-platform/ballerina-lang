@@ -256,6 +256,29 @@ public class ServiceSemanticAPITest {
         assertEquals(resourcePath.parameter().typeDescriptor().typeKind(), ARRAY);
     }
 
+    @Test
+    public void testMultipleListenerAttaching() {
+        SemanticModel model = getDefaultModulesSemanticModel("test-src/service_with_multiple_listeners.bal");
+        List<Symbol> services = model.moduleSymbols().stream()
+                .filter(s -> s.kind() == SERVICE_DECLARATION)
+                .collect(Collectors.toList());
+        ServiceDeclarationSymbol service = (ServiceDeclarationSymbol) services.get(0);
+        List<TypeSymbol> listenerTypes = service.listenerTypes();
+        assertEquals(listenerTypes.size(), 3);
+
+        TypeSymbol type = listenerTypes.get(0);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "FooListener");
+
+        type = listenerTypes.get(1);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "FooListener");
+
+        type = listenerTypes.get(2);
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "BarListener");
+    }
+
     private Object[][] getExpValues() {
         return new Object[][]{
                 {null, null, null, null},

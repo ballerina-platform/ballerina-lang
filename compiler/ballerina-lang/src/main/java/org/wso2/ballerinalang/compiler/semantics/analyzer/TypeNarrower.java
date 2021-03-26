@@ -222,7 +222,7 @@ public class TypeNarrower extends BLangNodeVisitor {
         }
 
         BSymbol symbol = ((BLangSimpleVarRef) typeTestExpr.expr).symbol;
-        if (symbol == null || symbol == symTable.notFoundSymbol) {
+        if (symbol == symTable.notFoundSymbol) {
             // Terminate for undefined symbols
             return;
         }

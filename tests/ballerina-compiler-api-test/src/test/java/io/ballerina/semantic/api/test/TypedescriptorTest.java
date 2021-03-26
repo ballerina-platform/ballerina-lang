@@ -636,6 +636,15 @@ public class TypedescriptorTest {
         };
     }
 
+    @Test
+    public void testFunctionTypedesc() {
+        FunctionSymbol symbol = (FunctionSymbol) getSymbol(216, 13);
+        assertEquals(symbol.typeDescriptor().parameters().size(), 0);
+        assertTrue(symbol.typeDescriptor().restParam().isEmpty());
+        assertTrue(symbol.typeDescriptor().returnTypeDescriptor().isEmpty());
+        assertEquals(symbol.typeDescriptor().signature(), "function");
+    }
+
     private Symbol getSymbol(int line, int column) {
         return model.symbol(srcFile, from(line, column)).get();
     }

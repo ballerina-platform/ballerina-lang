@@ -173,6 +173,31 @@ public class PushCommandTest extends BaseCommandTest {
     }
 
     @Test
+    public void testPushWithoutPackageMd() throws IOException {
+        Path projectPath = this.testResources.resolve(VALID_PROJECT);
+        System.setProperty("user.dir", projectPath.toString());
+
+        // Build project
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
+
+        // Push
+        String expected = "Package.md is missing in bala file";
+
+        PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream);
+        new CommandLine(pushCommand).parse();
+        pushCommand.execute();
+
+        buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(actual.contains(expected));
+    }
+
+    @Test
     public void testPushToAnUnsupportedRepo() throws IOException {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
 

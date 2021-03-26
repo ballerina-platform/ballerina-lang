@@ -460,7 +460,6 @@ public class TypeChecker extends BLangNodeVisitor {
         // Get the type matching to the tag from the symbol table.
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
         Object literalValue = literalExpr.value;
-        literalExpr.isJSONContext = types.isJSONContext(expType);
 
         if (literalType.tag == TypeTags.INT) {
             if (expType.tag == TypeTags.FLOAT) {
@@ -2971,23 +2970,37 @@ public class TypeChecker extends BLangNodeVisitor {
         if (type == symTable.semanticError) {
             return false;
         }
-        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
-                type.tsymbol);
-        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.kind != SymbolKind.FUNCTION) {
-            BSymbol langLibMethodSymbol = getLangLibMethod(iExpr, type);
-            if (langLibMethodSymbol == symTable.notFoundSymbol) {
-                dlog.error(iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD, invocationIdentifier, type);
-                resultType = symTable.semanticError;
-            } else {
-                checkInvalidImmutableValueUpdate(iExpr, type, langLibMethodSymbol);
-            }
+        BSymbol fieldSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
+                                                             type.tsymbol);
+
+        if (fieldSymbol == symTable.notFoundSymbol) {
+            checkIfLangLibMethodExists(iExpr, type, iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD,
+                                       invocationIdentifier, type);
             return false;
         }
-        iExpr.symbol = funcSymbol;
-        iExpr.type = ((BInvokableSymbol) funcSymbol).retType;
+
+        if (fieldSymbol.kind != SymbolKind.FUNCTION) {
+            checkIfLangLibMethodExists(iExpr, type, iExpr.pos, DiagnosticErrorCode.INVALID_METHOD_CALL_EXPR_ON_FIELD,
+                                       fieldSymbol.type);
+            return false;
+        }
+
+        iExpr.symbol = fieldSymbol;
+        iExpr.type = ((BInvokableSymbol) fieldSymbol).retType;
         checkInvocationParamAndReturnType(iExpr);
         iExpr.functionPointerInvocation = true;
         return true;
+    }
+
+    private void checkIfLangLibMethodExists(BLangInvocation iExpr, BType varRefType, Location pos,
+                                            DiagnosticErrorCode errCode, Object... diagMsgArgs) {
+        BSymbol langLibMethodSymbol = getLangLibMethod(iExpr, varRefType);
+        if (langLibMethodSymbol == symTable.notFoundSymbol) {
+            dlog.error(pos, errCode, diagMsgArgs);
+            resultType = symTable.semanticError;
+        } else {
+            checkInvalidImmutableValueUpdate(iExpr, varRefType, langLibMethodSymbol);
+        }
     }
 
     @Override
@@ -3728,7 +3741,9 @@ public class TypeChecker extends BLangNodeVisitor {
                                 binaryExpr);
                     }
 
-                    if (opSymbol == symTable.notFoundSymbol) {
+                    if (opSymbol == symTable.notFoundSymbol || (isBinaryComparisonOperator(binaryExpr.opKind) &&
+                            !(types.isOrderedType(lhsType, false) && types.isOrderedType(rhsType, false) &&
+                                    types.isSameOrderedType(lhsType, rhsType)))) {
                         dlog.error(binaryExpr.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
                                 lhsType, rhsType);
                     } else {
@@ -3745,6 +3760,11 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
+    }
+
+    private boolean isBinaryComparisonOperator(OperatorKind operatorKind) {
+        return operatorKind == OperatorKind.LESS_THAN || operatorKind == OperatorKind.LESS_EQUAL
+                || operatorKind == OperatorKind.GREATER_THAN || operatorKind == OperatorKind.GREATER_EQUAL;
     }
 
     private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
@@ -3943,10 +3963,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (bLangLambdaFunction.function.symbol == null) {
-            resultType = symTable.semanticError;
-            return;
-        }
         bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.capturedClosureEnv = env.createClone();
@@ -4463,6 +4479,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 .filter(t -> !types.isAssignable(t, symTable.errorType))
                 .filter(t -> !types.isAssignable(t, symTable.nilType))
                 .collect(Collectors.toList());
+        // resultTypes will be empty if the targetType is `error?`
+        if (resultTypes.isEmpty()) {
+            resultTypes.add(symTable.noType);
+        }
         BType actualType = symTable.semanticError;
         List<BType> selectTypes = new ArrayList<>();
         List<BType> resolvedTypes = new ArrayList<>();
@@ -4710,7 +4730,7 @@ public class TypeChecker extends BLangNodeVisitor {
         orderByClause.env = queryEnvs.peek();
         for (OrderKeyNode orderKeyNode : orderByClause.getOrderKeyList()) {
             BType exprType = checkExpr((BLangExpression) orderKeyNode.getOrderKey(), orderByClause.env);
-            if (!types.isOrderedType(exprType)) {
+            if (!types.isOrderedType(exprType, false)) {
                 dlog.error(((BLangOrderKey) orderKeyNode).expression.pos, DiagnosticErrorCode.ORDER_BY_NOT_SUPPORTED);
             }
         }
@@ -5730,7 +5750,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private void checkArrayLibSortFuncArgs(BLangInvocation iExpr) {
-        if (iExpr.argExprs.size() <= 2 && !types.isOrderedType(iExpr.argExprs.get(0).type)) {
+        if (iExpr.argExprs.size() <= 2 && !types.isOrderedType(iExpr.argExprs.get(0).type, false)) {
             dlog.error(iExpr.argExprs.get(0).pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
                     iExpr.argExprs.get(0).type);
         }
@@ -5747,34 +5767,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         if (keyFunctionType.tag == TypeTags.NIL) {
-            if (!types.isOrderedType(iExpr.argExprs.get(0).type)) {
+            if (!types.isOrderedType(iExpr.argExprs.get(0).type, false)) {
                 dlog.error(iExpr.argExprs.get(0).pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
                         iExpr.argExprs.get(0).type);
             }
-            return;
-        }
-
-        Location pos;
-        BType returnType;
-
-        if (keyFunction.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-            pos = keyFunction.pos;
-            returnType = ((BLangSimpleVarRef) keyFunction).type.getReturnType();
-        } else if (keyFunction.getKind() == NodeKind.ARROW_EXPR) {
-            BLangArrowFunction arrowFunction = ((BLangArrowFunction) keyFunction);
-            pos = arrowFunction.body.expr.pos;
-            returnType = arrowFunction.body.expr.type;
-            if (returnType.tag == TypeTags.SEMANTIC_ERROR) {
-                return;
-            }
-        } else {
-            BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
-            pos = keyLambdaFunction.function.pos;
-            returnType = keyLambdaFunction.function.type.getReturnType();
-        }
-
-        if (!types.isOrderedType(returnType)) {
-            dlog.error(pos, DiagnosticErrorCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }
 
