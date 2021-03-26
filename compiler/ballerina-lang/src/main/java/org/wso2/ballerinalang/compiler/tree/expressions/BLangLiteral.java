@@ -29,7 +29,6 @@ public class BLangLiteral extends BLangExpression implements LiteralNode {
 
     public Object value;
     public String originalValue;
-    public boolean isJSONContext;
     public boolean isFiniteContext;
     public boolean isConstant;
 
