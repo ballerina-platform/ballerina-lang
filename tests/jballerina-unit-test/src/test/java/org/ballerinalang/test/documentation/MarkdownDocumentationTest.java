@@ -320,7 +320,8 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(7).referenceName, "annot");
 
         documentationAttachment = packageNode.getFunctions().get(5).getMarkdownDocumentationAttachment();
-        BLangMarkdownParameterDocumentation exampleParam = documentationAttachment.getParameterDocumentations().get("example");
+        BLangMarkdownParameterDocumentation exampleParam =
+                documentationAttachment.getParameterDocumentations().get("example");
         Assert.assertEquals(exampleParam.parameterName.getValue(), "example");
         Assert.assertEquals(exampleParam.parameterDocumentationLines.get(0),
                 "The error struct to be logged");
