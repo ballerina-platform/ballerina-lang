@@ -345,12 +345,4 @@ public class ConfigurableTest extends BaseTest {
         }
         return envVariables;
     }
-<<<<<<< HEAD
-
-    private Map<String, String> addSecretEnvVariable(String secretFilePath) {
-        return addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_SECRET_ENV_VARIABLE, secretFilePath)));
-    }
-
-=======
->>>>>>> Remove inbuilt decryption support of config values
 }
