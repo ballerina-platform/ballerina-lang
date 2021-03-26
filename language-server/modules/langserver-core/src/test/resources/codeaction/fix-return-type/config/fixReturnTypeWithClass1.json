@@ -1,0 +1,24 @@
+{
+    "line": 11,
+    "character": 15,
+    "expected": [
+        {
+            "title": "Change return type to 'int'",
+            "edits": [
+                {
+                    "range": {
+                        "start": {
+                            "line": 10,
+                            "character": 19
+                        },
+                        "end": {
+                            "line": 10,
+                            "character": 19
+                        }
+                    },
+                    "newText": " returns int"
+                }
+            ]
+        }
+    ]
+}

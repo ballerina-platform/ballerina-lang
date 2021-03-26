@@ -49,10 +49,6 @@ public class ParserTestRunner {
         HashSet<String> hashSet = new HashSet<>();
         // Following should be fixed
         // TODO: categorize and create issues
-        hashSet.add("array_type_source_17.bal");
-        hashSet.add("singleton_type_source_08.bal");
-        hashSet.add("singleton_type_source_01.bal");
-        hashSet.add("singleton_type_source_02.bal");
         hashSet.add("xml_template_source_24.bal");
         hashSet.add("explicit-new-with-object-keyword-with-multiple-args-negative02.bal");
         hashSet.add("explicit-new-with-object-keyword-with-one-arg-negative01.bal");
@@ -63,14 +59,10 @@ public class ParserTestRunner {
         hashSet.add("explicit-new-with-object-keyword-with-one-args.bal");
         hashSet.add("func_def_source_08.bal");
         hashSet.add("find_node_test_1.bal");
-        hashSet.add("enum_decl_source_08.bal");
-        hashSet.add("enum_decl_source_05.bal");
-        hashSet.add("enum_decl_source_09.bal");
         hashSet.add("minutiae_test_05_with_no_newlines.bal");
         hashSet.add("import_decl_source_13.bal");
         hashSet.add("ambiguity_source_29.bal");
         hashSet.add("typed_binding_patterns_source_16.bal");
-        hashSet.add("forEach_stmt_source_07.bal");
         hashSet.add("do_stmt_source_07.bal");
         return hashSet;
     }

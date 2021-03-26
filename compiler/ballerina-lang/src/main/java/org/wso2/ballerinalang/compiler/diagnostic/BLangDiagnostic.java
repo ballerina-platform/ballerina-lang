@@ -86,8 +86,4 @@ public class BLangDiagnostic extends Diagnostic {
     public DiagnosticCode getCode() {
         return diagnosticCode;
     }
-
-    public String toString() {
-        return diagnosticInfo.severity() + " [" + location.lineRange().filePath() + ":" + location + "] " + msg;
-    }
 }

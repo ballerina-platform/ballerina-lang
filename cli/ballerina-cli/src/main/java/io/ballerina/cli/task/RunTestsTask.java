@@ -175,7 +175,8 @@ public class RunTestsTask implements Task {
         // Only tests in packages are executed so default packages i.e. single bal files which has the package name
         // as "." are ignored. This is to be consistent with the "bal test" command which only executes tests
         // in packages.
-        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+
+        for (ModuleId moduleId :  project.currentPackage().moduleDependencyGraph().toTopologicallySortedList()) {
             Module module = project.currentPackage().module(moduleId);
             ModuleName moduleName = module.moduleName();
 
@@ -198,6 +199,9 @@ public class RunTestsTask implements Task {
             }
             if (isSingleTestExecution || isRerunTestExecution) {
                 suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
+            }
+            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
             }
             suite.setReportRequired(report || coverage);
             String resolvedModuleName =
@@ -248,7 +252,10 @@ public class RunTestsTask implements Task {
     private void generateCoverage(Project project, JBallerinaBackend jBallerinaBackend)
             throws IOException {
         // Generate code coverage
-        if (testReport == null) {
+        if (!coverage) {
+            return;
+        }
+        if (testReport == null) { // This to avoid the spotbugs failure.
             return;
         }
         Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);

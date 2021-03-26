@@ -1,3 +1,0 @@
-public type TestObject object {
-	 
-};
