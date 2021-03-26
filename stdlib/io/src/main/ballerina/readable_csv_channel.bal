@@ -47,7 +47,7 @@ public class ReadableCSVChannel {
     function skipHeaders(int nHeaders) {
         int count = MINIMUM_HEADER_COUNT;
         while (count < nHeaders) {
-            var result = self.getNext();
+            string[]|Error? result = self.getNext();
             count = count + 1;
         }
     }

@@ -321,6 +321,11 @@ public class ExpressionTypeTest {
         };
     }
 
+    @Test
+    public void testTypeWithinServiceDecl() {
+        assertType(118, 15, 118, 16, RECORD);
+    }
+
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), kind);

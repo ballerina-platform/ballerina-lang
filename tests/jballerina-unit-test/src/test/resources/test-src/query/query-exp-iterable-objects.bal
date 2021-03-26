@@ -14,8 +14,11 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'object;
+
 class Iterable {
-    public function __iterator() returns object {
+    *object:Iterable;
+    public function iterator() returns object {
 
         public isolated function next() returns record {|int value;|}?;
     } {
@@ -45,7 +48,8 @@ public function testIterableObject() returns int[] {
 }
 
 class AnotherIterable {
-    public function __iterator() returns object {
+    *object:Iterable;
+    public function iterator() returns object {
 
         public isolated function next() returns record {|Iterable value;|}?;
     } {
@@ -75,7 +79,8 @@ public function testNestedIterableObject() returns int[] {
 }
 
 class IterableWithError {
-    public function __iterator() returns object {
+    *object:Iterable;
+    public function iterator() returns object {
 
         public isolated function next() returns record {|int value;|}|error?;
     } {
@@ -177,12 +182,13 @@ public type _Iterator object {
 };
 
 class IterableFromIterator {
+        *object:Iterable;
         _Iterator itr;
         public function init(_Iterator itr) {
             self.itr = itr;
         }
 
-        public function __iterator() returns _Iterator {
+        public function iterator() returns _Iterator {
             return self.itr;
         }
 }

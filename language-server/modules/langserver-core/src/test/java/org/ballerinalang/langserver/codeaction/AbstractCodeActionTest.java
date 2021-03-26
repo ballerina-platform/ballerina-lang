@@ -161,7 +161,8 @@ public abstract class AbstractCodeActionTest {
             }
             String cursorStr = range.getStart().getLine() + ":" + range.getEnd().getCharacter();
             Assert.assertTrue(codeActionFound,
-                              "Cannot find expected Code Action for: " + expTitle + ", cursor at " + cursorStr);
+                              "Cannot find expected Code Action for: " + expTitle + ", cursor at " + cursorStr
+                                      + " in " + sourcePath);
         }
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
     }

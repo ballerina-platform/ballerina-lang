@@ -21,6 +21,7 @@ import ballerina/lang.'string as lang_string;
 import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
 import ballerina/lang.'table as lang_table;
+import ballerina/lang.'object as lang_object;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -47,10 +48,7 @@ type _CloseableIterator object {
 
 # An abstract `_Iterable` object.
 type _Iterable object {
-    public function __iterator() returns
-        object {
-            public isolated function next() returns record {|Type value;|}|ErrorType?;
-        };
+    *lang_object:Iterable;
 };
 
 type _StreamFunction object {
@@ -148,7 +146,7 @@ class _InitFunction {
         } else if (collection is table<map<any|error>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
-            return collection.__iterator();
+            return collection.iterator();
         } else {
             // stream.iterator() is not resettable.
             self.resettable = false;
@@ -268,8 +266,8 @@ class _NestedFromFunction {
         } else if (collection is table<map<any|error>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
-            return collection.__iterator();
-        } else if (collection is stream <any|error, error?>) {
+            return collection.iterator();
+        } else if (collection is stream <any|error, ErrorType>) {
             return lang_stream:iterator(collection);
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");

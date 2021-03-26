@@ -42,6 +42,7 @@ function workerActionFirstTest() {
         p1 -> w2;
         // Sync send expr should be of anydata
         var result = p1 ->> w2;
+        any|error val = result;
         // Invalid worker
         // var x = flush w4;
     }
@@ -59,6 +60,7 @@ function workerActionFirstTest() {
     worker w3 {
         // No send actions to particular worker
         var x = flush w1;
+        any|error val = x;
     }
 }
 
@@ -86,9 +88,9 @@ function workerActionSecTest() {
 function workerActionThirdTest() {
     worker w1 {
         int i = 5;
-        var x1 = i ->> w2;
-        var x2 = i ->> w2;
-        var result = flush w2;
+        error? x1 = i ->> w2;
+        error? x2 = i ->> w2;
+        error? result = flush w2;
     }
     worker w2 returns error?{
         if(false){
