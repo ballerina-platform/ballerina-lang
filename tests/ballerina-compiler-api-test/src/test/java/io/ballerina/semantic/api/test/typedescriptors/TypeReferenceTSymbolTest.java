@@ -40,6 +40,7 @@ import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaul
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertSame;
 
 /**
  * Test cases for the type reference type descriptor.
@@ -67,6 +68,7 @@ public class TypeReferenceTSymbolTest {
         assertEquals(definition.getName().get(), type.getName().get());
         assertEquals(((TypeDefinitionSymbol) definition).documentation().get().description().get(),
                      "Represents a person.");
+        assertSame(type.definition(), definition);
     }
 
     @Test
@@ -77,6 +79,7 @@ public class TypeReferenceTSymbolTest {
         assertEquals(clazz.kind(), CLASS);
         assertEquals(clazz.getName().get(), type.getName().get());
         assertEquals(((ClassSymbol) clazz).documentation().get().description().get(), "Represents an employee.");
+        assertSame(type.definition(), clazz);
     }
 
     @Test
@@ -87,6 +90,7 @@ public class TypeReferenceTSymbolTest {
         assertEquals(enm.kind(), ENUM);
         assertEquals(enm.getName().get(), type.getName().get());
         assertEquals(((EnumSymbol) enm).documentation().get().description().get(), "An enumeration of colours.");
+        assertSame(type.definition(), enm);
     }
 
 }
