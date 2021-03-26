@@ -28,7 +28,7 @@ import java.nio.file.Paths;
  *
  * @since 2.0.0
  */
-public class ConfigTomlConstants {
+public class TomlConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
     public static final String CONFIG_SECRET_FILE_NAME = "Config-secrets.toml";
     public static final String DEFAULT_MODULE = ".";
@@ -45,10 +45,8 @@ public class ConfigTomlConstants {
 
     //Error messages
     public static final String INVALID_TOML_FILE = "invalid `" + CONFIG_FILE_NAME + "` file : ";
-    public static final String INVALID_TOML_TYPE = "configurable variable '%s' is expected to be of type '%s', " +
-            "but found '%s'";
-    public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
-            "supported";
+    public static final String CONFIGURATION_NOT_SUPPORTED_FOR_TOML = "configurable variable '%s' with type '%s' is " +
+            "not supported as a toml value";
     public static final String INVALID_ADDITIONAL_FIELD_IN_RECORD =
             "additional field '%s' provided for configurable variable '%s' of record '%s' is not supported";
     public static final String FIELD_TYPE_NOT_SUPPORTED =
@@ -73,6 +71,6 @@ public class ConfigTomlConstants {
             "provide values for configurable variables";
     public static final String VALUE_NOT_PROVIDED = "value not provided for required configurable variable '%s'";
 
-    private ConfigTomlConstants() {
+    private TomlConstants() {
     }
 }
