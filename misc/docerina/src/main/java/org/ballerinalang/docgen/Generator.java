@@ -216,7 +216,8 @@ public class Generator {
         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
             module.types.add(getTypeDescModel((TypedescTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName,
                     metaDataNode, semanticModel));
-        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC ||
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INT_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
                 typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC ) {
             module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel));
