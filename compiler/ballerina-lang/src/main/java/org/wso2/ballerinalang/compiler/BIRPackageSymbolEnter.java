@@ -690,6 +690,12 @@ public class BIRPackageSymbolEnter {
         BServiceSymbol serviceDecl = new BServiceSymbol((BClassSymbol) classSymbol, flags,
                                                         names.fromString(serviceName), this.env.pkgSymbol.pkgID, type,
                                                         this.env.pkgSymbol, pos, SymbolOrigin.toOrigin(origin));
+
+        int nListeners = inputStream.readInt();
+        for (int i = 0; i < nListeners; i++) {
+            serviceDecl.addListenerType(readBType(inputStream));
+        }
+        
         serviceDecl.setAttachPointStringLiteral(attachPointLiteral);
         serviceDecl.setAbsResourcePath(attachPoint);
         this.env.pkgSymbol.scope.define(names.fromString(serviceName), serviceDecl);

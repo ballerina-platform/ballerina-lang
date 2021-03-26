@@ -200,14 +200,14 @@ type ImmutableIntArray int[] & readonly;
 function testTypeDefWithIntersectionTypeDescAsTypedesc() {
     typedesc<anydata> a = ImmutableIntArray;
     (int|string)[] arr = [1, 2, 3];
-    var b = arr.cloneWithType(a);
+    anydata|error b = arr.cloneWithType(a);
     // https://github.com/ballerina-platform/ballerina-lang/issues/28912
     //assertEquality(true, (typeof b).toString());
     //assertEquality(true, b is int[]);
     //assertEquality(true, (<int[]> checkpanic b).isReadOnly());
     //assertEquality(<int[]> [1, 2, 3], b);
 
-    var c = arr.fromJsonWithType(ImmutableIntArray);
+    anydata|error c = arr.fromJsonWithType(ImmutableIntArray);
     // https://github.com/ballerina-platform/ballerina-lang/issues/28912
     //assertEquality(true, c is int[]);
     //assertEquality(true, (<int[]> checkpanic c).isReadOnly());

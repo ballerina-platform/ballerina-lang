@@ -207,7 +207,8 @@ class BallerinaTextDocumentService implements TextDocumentService {
                 }
 
                 if (sNode == null) {
-                    throw new Exception("Couldn't find the invocation symbol!");
+                    // Could not find a valid invocation node or the 
+                    return null;
                 }
 
                 // Find parameter index

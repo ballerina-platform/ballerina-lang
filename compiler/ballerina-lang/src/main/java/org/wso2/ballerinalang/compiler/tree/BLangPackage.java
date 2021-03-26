@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.tree;
 
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -81,6 +82,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     public BPackageSymbol symbol;
     public Set<Flag> flagSet;
     public byte[] jarBinaryContent;
+    public ProjectKind projectKind = null;
 
     private int errorCount;
     private int warnCount;

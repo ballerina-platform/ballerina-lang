@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class ExpressionContextTest extends CompletionTestNew {
+public class ExpressionContextTest extends CompletionTest {
 
     @Test(dataProvider = "completion-data-provider")
     @Override
@@ -51,23 +51,8 @@ public class ExpressionContextTest extends CompletionTestNew {
 
     @Override
     public List<String> skipList() {
-        return Arrays.asList("table_constructor_expr_ctx_config2.json",
-                "query_expr_ctx_config2.json",
-                "query_expr_ctx_config6a.json",
-                "query_expr_ctx_config7.json",
-                "query_expr_ctx_config5.json",
-                "query_expr_ctx_join_clause_config4.json",
-                "query_expr_ctx_join_clause_config2a.json",
-                "query_expr_ctx_join_clause_config5a.json",
-                "query_expr_ctx_join_clause_config6.json",
-                "query_expr_ctx_join_clause_config6a.json",
-                "query_expr_ctx_join_clause_config7.json",
-                "query_expr_ctx_join_clause_config7a.json",
-                "query_expr_ctx_join_clause_config8.json",
-                "query_expr_ctx_join_clause_config11.json", // LS fix needed
-                "query_expr_ctx_orderby_clause_config4.json", // LS fix needed
-                "query_expr_ctx_onconflict_clause_config1.json",
-                "query_expr_ctx_onconflict_clause_config1a.json", // LS fix needed
+        return Arrays.asList(
+                "table_constructor_expr_ctx_config2.json",
                 "object_constructor_expr_ctx_config12a.json",
                 "object_constructor_expr_ctx_config6.json", // LS fix needed
                 "object_constructor_expr_ctx_config11.json", // LS fix needed

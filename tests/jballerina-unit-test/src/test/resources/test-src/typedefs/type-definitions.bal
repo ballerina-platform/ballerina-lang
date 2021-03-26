@@ -204,7 +204,37 @@ function testTupleTypeDef() {
     }
 }
 
+type PersonOrInt Person|int;
+type PersonOrNil Person?;
+
+public type Person record {
+    int id;
+    string name;
+};
+
+function testTypeDefReferringToTypeDefDefinedAfter() {
+    PersonOrInt a = 1;
+    assertTrue(a is int);
+    assertEquality(1, a);
+
+    Person person = {id: 1, name: "Maryam"};
+    PersonOrInt b = person;
+    assertTrue(b is Person);
+    assertEquality(person, b);
+
+    PersonOrNil c = ();
+    assertTrue(c is ());
+
+    PersonOrNil d = person;
+    assertTrue(d is Person);
+    assertEquality(person, d);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
 
 function assertFalse(any|error actual) {
     assertEquality(false, actual);

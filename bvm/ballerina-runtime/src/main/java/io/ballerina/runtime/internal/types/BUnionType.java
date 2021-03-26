@@ -58,7 +58,7 @@ public class BUnionType extends BType implements UnionType {
 
     private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
-    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE + "([12])?");
+    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE);
 
     public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly,  boolean isCyclic) {
         super(null, null, Object.class);

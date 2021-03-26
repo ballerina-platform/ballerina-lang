@@ -38,7 +38,7 @@ public class Listener {
     }
 
     public function init() returns error? {
-        var x = externLInit(self);
+        check externLInit(self);
         self.initialized = true;
     }
 }

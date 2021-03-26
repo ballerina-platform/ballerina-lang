@@ -20,9 +20,12 @@ package org.ballerinalang.bindgen.utils;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.TomlDocument;
+import org.ballerinalang.bindgen.model.JError;
 
 import java.nio.file.Path;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -33,6 +36,7 @@ import java.util.Set;
 public class BindgenEnv {
 
     private boolean modulesFlag = false; // Stores if the bindings are mapped as Java package per Ballerina module
+    private boolean publicFlag = false; // Stores if the public flag is enabled for the binding generation
     private String outputPath; // Output path of the bindings generated
     private Project project; // Ballerina project
     private String packageName; // Ballerina project's current package name
@@ -42,6 +46,11 @@ public class BindgenEnv {
     // Flag depicting whether the current class being generated is a direct class or a dependent class
     private boolean directJavaClass = true;
     private Set<String> classPaths = new HashSet<>();
+    private Map<String, String> aliases = new HashMap<>();
+    private Set<String> classListForLooping = new HashSet<>();
+    private Set<String> allJavaClasses = new HashSet<>();
+    private Set<JError> exceptionList = new HashSet<>();
+    private Map<String, String> failedClassGens = new HashMap<>();
 
     public void setModulesFlag(boolean modulesFlag) {
         this.modulesFlag = modulesFlag;
@@ -63,8 +72,12 @@ public class BindgenEnv {
         }
     }
 
-    public String getPackageName() {
+    String getPackageName() {
         return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 
     public TomlDocument getTomlDocument() {
@@ -87,7 +100,7 @@ public class BindgenEnv {
         return modulesFlag;
     }
 
-    public boolean getDirectJavaClass() {
+    public boolean isDirectJavaClass() {
         return directJavaClass;
     }
 
@@ -105,5 +118,76 @@ public class BindgenEnv {
 
     public void addClasspath(String classpath) {
         this.classPaths.add(classpath);
+    }
+
+    public Map<String, String> getAliases() {
+        return aliases;
+    }
+
+    String getAliasClassName(String alias) {
+        return aliases.get(alias);
+    }
+
+    void setAlias(String alias, String className) {
+        this.aliases.put(alias, className);
+    }
+
+    String getAlias(String className) {
+        for (Map.Entry<String, String> entry : aliases.entrySet()) {
+            if (className.equals(entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    String removeAlias(String alias) {
+        return this.aliases.remove(alias);
+    }
+
+    boolean hasPublicFlag() {
+        return publicFlag;
+    }
+
+    public void setPublicFlag(boolean publicFlag) {
+        this.publicFlag = publicFlag;
+    }
+
+    public void setClassListForLooping(String classListForLooping) {
+        if (!allJavaClasses.contains(classListForLooping)) {
+            this.classListForLooping.add(classListForLooping);
+        }
+    }
+
+    public Set<String> getClassListForLooping() {
+        return classListForLooping;
+    }
+
+    public void clearClassListForLooping() {
+        classListForLooping.clear();
+    }
+
+    public Set<String> getAllJavaClasses() {
+        return allJavaClasses;
+    }
+
+    public void setAllJavaClasses(Set<String> newClasses) {
+        allJavaClasses.addAll(newClasses);
+    }
+
+    public Set<JError> getExceptionList() {
+        return exceptionList;
+    }
+
+    public void setExceptionList(JError jError) {
+        this.exceptionList.add(jError);
+    }
+
+    public Map<String, String> getFailedClassGens() {
+        return failedClassGens;
+    }
+
+    public void setFailedClassGens(String className, String errorDescription) {
+        this.failedClassGens.put(className, errorDescription);
     }
 }
