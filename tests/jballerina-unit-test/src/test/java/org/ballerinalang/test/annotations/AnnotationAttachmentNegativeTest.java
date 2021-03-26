@@ -37,7 +37,7 @@ public class AnnotationAttachmentNegativeTest {
     @BeforeClass
     public void setup() {
         compileResult = BCompileUtil.compile("test-src/annotations/annot_attachments_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 253);
+        Assert.assertEquals(compileResult.getErrorCount(), 266);
     }
 
     @Test
@@ -473,5 +473,24 @@ public class AnnotationAttachmentNegativeTest {
                               "annotation 'ballerina/lang.annotations:1.0.0:tainted'", 886, 1);
         validateError(compileResult, 252,
                       "cannot specify more than one annotation value for annotation 'v1'", 888, 1);
+    }
+
+    @Test
+    public void testInvalidAttachmentOnServiceClass() {
+        int index = 253;
+        int line = 892;
+        validateError(compileResult, index++, "annotation 'v1' is not allowed on class", line, 1);
+        validateError(compileResult, index++, "annotation 'v3' is not allowed on class", line += 6, 1);
+        validateError(compileResult, index++, "annotation 'v4' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v5' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v6' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v7' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v8' is not allowed on class", ++line, 1);
+        validateError(compileResult, index++, "annotation 'v9' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v10' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v11' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v12' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v13' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index, "annotation 'v15' is not allowed on class", line + 3, 1);
     }
 }
