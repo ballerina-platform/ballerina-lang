@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.evaluation.engine;
 
 import com.sun.jdi.Field;
 import com.sun.jdi.ReferenceType;
+import com.sun.jdi.Value;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
@@ -26,9 +27,17 @@ import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
+import org.ballerinalang.debugadapter.variable.BVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
+import org.ballerinalang.debugadapter.variable.DebugVariableException;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
+import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
 
@@ -39,13 +48,11 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.INIT_CLASS_NAME;
  */
 public class SimpleNameReferenceEvaluator extends Evaluator {
 
-    private final SimpleNameReferenceNode syntaxNode;
-    private final String nameRef;
+    private final String nameReference;
 
     public SimpleNameReferenceEvaluator(SuspendedContext context, SimpleNameReferenceNode node) {
         super(context);
-        this.syntaxNode = node;
-        this.nameRef = node.name().text();
+        this.nameReference = node.name().text();
     }
 
     @Override
@@ -56,21 +63,20 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
             if (result.isPresent()) {
                 return result.get();
             }
+
             // If no results found, searches within local variable scope.
-            LocalVariableProxyImpl jvmVar = context.getFrame().visibleVariableByName(nameRef);
-            if (jvmVar == null) {
-                throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
-                        syntaxNode.toString()));
+            result = searchInLocalVariables();
+            if (result.isPresent()) {
+                return result.get();
             }
-            return new BExpressionValue(context, context.getFrame().getValue(jvmVar));
+
+            throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
+                    nameReference));
         } catch (EvaluationException e) {
             throw e;
-        } catch (JdiProxyException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_NOT_FOUND.getString(),
-                    nameRef));
         } catch (Exception e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.VARIABLE_EXECUTION_ERROR.getString(),
-                    nameRef));
+                    nameReference));
         }
     }
 
@@ -81,10 +87,49 @@ public class SimpleNameReferenceEvaluator extends Evaluator {
             return Optional.empty();
         }
         ReferenceType initClassReference = cls.get(0);
-        Field field = initClassReference.fieldByName(nameRef);
+        Field field = initClassReference.fieldByName(nameReference);
         if (field == null) {
             return Optional.empty();
         }
         return Optional.of(new BExpressionValue(context, initClassReference.getValue(field)));
+    }
+
+    private Optional<BExpressionValue> searchInLocalVariables() {
+        try {
+            LocalVariableProxyImpl jvmVar = context.getFrame().visibleVariableByName(nameReference);
+            if (jvmVar != null) {
+                return Optional.of(new BExpressionValue(context, context.getFrame().getValue(jvmVar)));
+            }
+
+            // As all the ballerina variables which are being used inside lambda functions are converted into maps
+            // during the the runtime code generation, such local variables should be accessed in a different manner.
+            List<LocalVariableProxyImpl> lambdaParamMaps = context.getFrame().visibleVariables().stream()
+                    .filter(VariableUtils::isLambdaParamMap)
+                    .collect(Collectors.toList());
+
+            Optional<Value> localVariableMatch = lambdaParamMaps.stream()
+                    .map(localVariableProxy -> {
+                        try {
+                            Value varValue = context.getFrame().getValue(localVariableProxy);
+                            BVariable mapVar = VariableFactory.getVariable(context, varValue);
+                            if (mapVar == null || mapVar.getBType() != BVariableType.MAP
+                                    || !(mapVar instanceof IndexedCompoundVariable)) {
+                                return null;
+                            }
+                            return ((IndexedCompoundVariable) mapVar).getChildByName(nameReference);
+                        } catch (JdiProxyException | DebugVariableException e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .findAny();
+
+            if (localVariableMatch.isEmpty()) {
+                return Optional.empty();
+            }
+            return Optional.of(new BExpressionValue(context, localVariableMatch.get()));
+        } catch (JdiProxyException e) {
+            return Optional.empty();
+        }
     }
 }

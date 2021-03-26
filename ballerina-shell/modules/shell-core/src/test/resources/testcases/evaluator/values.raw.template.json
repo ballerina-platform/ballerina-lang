@@ -9,7 +9,7 @@
   },
   {
     "description": "Helper query object type.",
-    "code": "type Query object { public string[3] & readonly strings; public [string, int] insertions; };"
+    "code": "type Query object { *'object:RawTemplate; public string[3] & readonly strings; public [string, int] insertions; };"
   },
   {
     "description": "Create a raw template with the `name` variable interpolated.",

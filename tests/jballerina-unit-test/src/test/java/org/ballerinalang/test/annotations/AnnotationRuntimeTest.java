@@ -171,6 +171,16 @@ public class AnnotationRuntimeTest {
         Assert.assertEquals(mapValue.size(), 2);
         Assert.assertEquals(mapValue.get(StringUtils.fromString("q")).toString(), "hello");
         Assert.assertEquals(mapValue.get(StringUtils.fromString("r")).toString(), "world");
+
+        annotatableType = (AnnotatableType) ((TypedescValue) tupleValue.get(2)).getDescribingType();
+        Assert.assertEquals(annotatableType.getAnnotation(StringUtils.fromString("W")), true);
+        fieldAnnots = annotatableType.getAnnotation(StringUtils.fromString("$field$.j"));
+        Assert.assertEquals(TypeChecker.getType(fieldAnnots).getTag(), TypeTags.MAP_TAG);
+        fieldAnnotMap = (MapValueImpl<BString, Object>) fieldAnnots;
+
+        annotValue = fieldAnnotMap.get(StringUtils.fromString("Z"));
+        Assert.assertEquals(TypeChecker.getType(annotValue).getTag(), TypeTags.BOOLEAN_TAG);
+        Assert.assertTrue((Boolean) annotValue);
     }
 
     public void testRecordTypeAnnotationReadonlyValueEdit() {

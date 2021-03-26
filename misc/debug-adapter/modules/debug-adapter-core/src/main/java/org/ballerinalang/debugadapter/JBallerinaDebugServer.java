@@ -46,9 +46,11 @@ import org.ballerinalang.debugadapter.utils.PackageUtils;
 import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BSimpleVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
+import org.ballerinalang.debugadapter.variable.VariableUtils;
 import org.eclipse.lsp4j.debug.Breakpoint;
 import org.eclipse.lsp4j.debug.Capabilities;
 import org.eclipse.lsp4j.debug.ConfigurationDoneArguments;
@@ -606,26 +608,69 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         StackFrameProxyImpl stackFrame = suspendedContext.getFrame();
         List<Variable> variables = new ArrayList<>();
         List<LocalVariableProxyImpl> localVariableProxies = stackFrame.visibleVariables();
-        for (LocalVariableProxyImpl localVar : localVariableProxies) {
-            String name = localVar.name();
-            Value value = stackFrame.getValue(localVar);
-            BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
-            if (variable == null) {
-                continue;
-            } else if (variable instanceof BSimpleVariable) {
-                variable.getDapVariable().setVariablesReference(0L);
-            } else if (variable instanceof BCompoundVariable) {
-                long variableReference = nextVarReference.getAndIncrement();
-                variable.getDapVariable().setVariablesReference(variableReference);
-                loadedVariables.put(variableReference, (BCompoundVariable) variable);
-                updateVariableToStackFrameMap(args.getVariablesReference(), variableReference);
-            }
-            Variable dapVariable = variable.getDapVariable();
-            if (dapVariable != null) {
-                variables.add(dapVariable);
+        for (LocalVariableProxyImpl var : localVariableProxies) {
+            String name = var.name();
+            Value value = stackFrame.getValue(var);
+            // Since the ballerina variables used inside lambda functions are converted into maps during the
+            // ballerina runtime code generation, such local variables needs to be extracted in a separate manner.
+            if (VariableUtils.isLambdaParamMap(var)) {
+                variables.addAll(fetchLocalVariablesFromMap(args, stackFrame, var));
+            } else {
+                Variable dapVariable = getAsDapVariable(name, value, args.getVariablesReference());
+                if (dapVariable != null) {
+                    variables.add(dapVariable);
+                }
             }
         }
         return variables.toArray(new Variable[0]);
+    }
+
+    /**
+     * Returns the list of local variables extracted from the given variable map, which contains local variables used
+     * within lambda functions.
+     *
+     * @param args              variable args
+     * @param stackFrame        parent stack frame instance
+     * @param lambdaParamMapVar map variable instance
+     * @return list of local variables extracted from the given variable map
+     */
+    private List<Variable> fetchLocalVariablesFromMap(VariablesArguments args, StackFrameProxyImpl stackFrame,
+                                                      LocalVariableProxyImpl lambdaParamMapVar) {
+        try {
+            Value value = stackFrame.getValue(lambdaParamMapVar);
+            Variable dapVariable = getAsDapVariable("lambdaArgMap", value, args.getVariablesReference());
+            if (dapVariable == null || !dapVariable.getType().equals(BVariableType.MAP.getString())) {
+                return new ArrayList<>();
+            }
+            VariablesArguments childVarRequestArgs = new VariablesArguments();
+            childVarRequestArgs.setVariablesReference(dapVariable.getVariablesReference());
+            Variable[] childVariables = computeChildVariables(childVarRequestArgs);
+            return Arrays.asList(childVariables);
+        } catch (Exception e) {
+            return new ArrayList<>();
+        }
+    }
+
+    /**
+     * Coverts a given ballerina runtime value instance into a debugger adapter protocol supported variable instance.
+     *
+     * @param name          variable name
+     * @param value         runtime value of the variable
+     * @param stackFrameRef reference ID of the parent stack frame
+     */
+    private Variable getAsDapVariable(String name, Value value, Long stackFrameRef) {
+        BVariable variable = VariableFactory.getVariable(suspendedContext, name, value);
+        if (variable == null) {
+            return null;
+        } else if (variable instanceof BSimpleVariable) {
+            variable.getDapVariable().setVariablesReference(0L);
+        } else if (variable instanceof BCompoundVariable) {
+            long variableReference = nextVarReference.getAndIncrement();
+            variable.getDapVariable().setVariablesReference(variableReference);
+            loadedVariables.put(variableReference, (BCompoundVariable) variable);
+            updateVariableToStackFrameMap(stackFrameRef, variableReference);
+        }
+        return variable.getDapVariable();
     }
 
     private Variable[] computeChildVariables(VariablesArguments args) {

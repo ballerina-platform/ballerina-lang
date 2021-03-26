@@ -180,11 +180,9 @@ public class BMainInstance implements BMain {
         }
         addJavaAgents(envProperties);
 
-        runMain("build", new String[] { "--sourceroot", sourceRoot, packagePath },
-                envProperties, null, leechers, balServer.getServerHome());
-        runJar(sourceRoot, packagePath, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers,
-                balServer.getServerHome());
-
+        runMain("build", new String[]{packagePath}, envProperties, null, leechers, sourceRoot);
+        runJar(Paths.get(sourceRoot, packagePath).toString(), packagePath, ArrayUtils.addAll(flags, args),
+                envProperties, clientArgs, leechers, sourceRoot);
     }
 
     private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
