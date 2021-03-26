@@ -40,7 +40,6 @@ import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
-import io.ballerina.compiler.api.symbols.ParameterizedTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
@@ -100,7 +99,6 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NEVER;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.PARAMETERIZED;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.READONLY;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.SINGLETON;
@@ -653,9 +651,6 @@ public class TypedescriptorTest {
         FunctionTypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor();
         TypeSymbol returnTypeSymbol = type.returnTypeDescriptor().get();
         assertEquals(returnTypeSymbol.signature(), "td");
-        assertEquals(returnTypeSymbol.typeKind(), PARAMETERIZED);
-        ParameterizedTypeSymbol parameterizedTypeSymbol = (ParameterizedTypeSymbol)  returnTypeSymbol;
-        assertEquals(parameterizedTypeSymbol.paramValueType().typeKind(), ANYDATA);
 
         symbol = getSymbol(221, 9);
         type = ((FunctionSymbol) symbol).typeDescriptor();
@@ -665,10 +660,7 @@ public class TypedescriptorTest {
         List<TypeSymbol> members = ((UnionTypeSymbol) returnTypeSymbol).memberTypeDescriptors();
         assertEquals(members.size(), 2);
         assertEquals(members.get(0).typeKind(), ERROR);
-        TypeSymbol memberTypeSymbol = members.get(1);
-        assertEquals(memberTypeSymbol.typeKind(), PARAMETERIZED);
-        parameterizedTypeSymbol = (ParameterizedTypeSymbol)  memberTypeSymbol;
-        assertEquals(parameterizedTypeSymbol.paramValueType().typeKind(), UNION);
+        assertEquals(members.get(1).signature(), "td");
     }
 
     private Symbol getSymbol(int line, int column) {

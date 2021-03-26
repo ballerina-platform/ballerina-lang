@@ -68,6 +68,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
+import static org.ballerinalang.model.types.TypeKind.PARAMETERIZED;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NONE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SEMANTIC_ERROR;
@@ -239,8 +240,6 @@ public class TypesFactory {
                 return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
             case INTERSECTION:
                 return new BallerinaIntersectionTypeSymbol(this.context, moduleID, (BIntersectionType) bType);
-            case PARAMETERIZED:
-                return new BallerinaParameterizedTypeSymbol(this.context, moduleID, (BParameterizedType) bType);
             default:
                 if (bType.tag == SEMANTIC_ERROR) {
                     return new BallerinaCompilationErrorTypeSymbol(this.context, moduleID, bType);
@@ -298,7 +297,7 @@ public class TypesFactory {
         }
 
         final TypeKind kind = bType.getKind();
-        return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel
+        return kind == RECORD || kind == OBJECT || kind == PARAMETERIZED || bType.tsymbol.isLabel
                 || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType
                 || bType.tsymbol.kind == SymbolKind.ENUM || isCustomError(bType.tsymbol);
     }
@@ -353,6 +352,7 @@ public class TypesFactory {
                 return TypeDescKind.INTERSECTION;
             case ERROR:
                 return TypeDescKind.ERROR;
+            case PARAMETERIZED:
             case ANNOTATION:
             case BLOB:
             case CHANNEL:
