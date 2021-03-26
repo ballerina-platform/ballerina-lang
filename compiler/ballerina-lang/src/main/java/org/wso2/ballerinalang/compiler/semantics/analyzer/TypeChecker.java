@@ -4476,6 +4476,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 .filter(t -> !types.isAssignable(t, symTable.errorType))
                 .filter(t -> !types.isAssignable(t, symTable.nilType))
                 .collect(Collectors.toList());
+        // resultTypes will be empty if the targetType is `error?`
+        if (resultTypes.isEmpty()) {
+            resultTypes.add(symTable.noType);
+        }
         BType actualType = symTable.semanticError;
         List<BType> selectTypes = new ArrayList<>();
         List<BType> resolvedTypes = new ArrayList<>();
