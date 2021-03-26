@@ -35,8 +35,20 @@ public abstract class SourceResolver {
         this.sourceProject = sourceProject;
     }
 
+    /**
+     * Returns whether this resolver instance is capable of resolving the given JDI source location.
+     *
+     * @param location JDI source location
+     * @return true if this resolver instance is capable of resolving the given JDI source location
+     */
     abstract boolean canResolve(Location location);
 
+    /**
+     * Each concrete class must implement their own resolving logic.
+     *
+     * @param location JDI source location
+     * @return absolute path of the source file location
+     */
     abstract Optional<Path> resolve(Location location);
 
 }

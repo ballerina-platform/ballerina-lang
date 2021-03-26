@@ -59,15 +59,12 @@ public class PackageUtils {
      */
     public static Optional<Path> getSrcPathFromBreakpointLocation(Location location, Project sourceProject) {
         // Source resolving is processed according to the following order .
-        //
-        // 1. Checks whether debug hit location resides within the current debug source project, retrieves the returns
+        // 1. Checks whether debug hit location resides within the current debug source project and if so, returns
         // the absolute path of the project file source.
-        //
         // 2. Checks whether the debug hit location resides within a internal dependency (lang library) and if so,
-        // retrieves the dependency file path resolved using package cache.
-        //
+        // returns the absolute file path resolved using package cache.
         // 3. Checks whether the debug hit location resides within a external dependency (standard library or central
-        // module) and if so, retrieves the dependency file path resolved using package resolution.
+        // module) and if so, returns the dependency file path resolved using package resolution.
         List<SourceResolver> sourceResolvers = new ArrayList<>();
         sourceResolvers.add(new ProjectSourceResolver(sourceProject));
         sourceResolvers.add(new LangLibSourceResolver(sourceProject));
