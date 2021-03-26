@@ -62,26 +62,32 @@ public class PackageUtils {
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     /**
-     * Derives the source path of the breakpoint location from the JDI breakpoint hit information.
+     * Derives the absolute path of the breakpoint location using JDI breakpoint hit information.
      */
-    public static Path getSrcPathFromBreakpointLocation(Location location, Project currentProject)
+    public static Optional<Path> getSrcPathFromBreakpointLocation(Location location, Project currentProject)
             throws AbsentInformationException {
-        // 1. If the debug hit location resides within the current debug source project, retrieves the returns the
-        // absolute path of the project file source.
-        // 2. Else, checks whether the debug hit location resides within a project dependency (lang library, standard
-        // library, central module, etc.) and if so, retrieves the dependency file path.
-        if (isWithinProject(location, currentProject)) {
-            return getSourceFilePath(location, currentProject);
-        } else {
-            String sourcePath = location.sourcePath();
-            String[] moduleParts = getQModuleNameParts(sourcePath);
-            String locationOrg = moduleParts[0];
-            String locationModule = decodeIdentifier(moduleParts[1]);
-            if (isWithinProjectDependency(currentProject, locationOrg, locationModule)) {
-                return getDependencyFilePath(currentProject, locationOrg, locationModule, moduleParts[3]);
+        try {
+            // 1. If the debug hit location resides within the current debug source project, retrieves the returns the
+            // absolute path of the project file source.
+            if (isWithinProject(location, currentProject)) {
+                return Optional.ofNullable(getProjectFilePath(location, currentProject));
+            } else {
+                // Else, checks whether the debug hit location resides within a project dependency (lang library, standard
+                // library, central module, etc.) and if so, retrieves the dependency file path resolved using project
+                // compilation.
+                String sourcePath = location.sourcePath();
+                String[] moduleParts = getQModuleNameParts(sourcePath);
+                String locationOrg = moduleParts[0];
+                String locationModule = decodeIdentifier(moduleParts[1]);
+                if (isWithinProjectDependency(currentProject, locationOrg, locationModule)) {
+                    return Optional
+                            .of(getDependencyFilePath(currentProject, locationOrg, locationModule, moduleParts[3]));
+                }
             }
+            return Optional.empty();
+        } catch (Exception e) {
+            return Optional.empty();
         }
-        return null;
     }
 
     /**
@@ -255,18 +261,18 @@ public class PackageUtils {
     }
 
     /**
-     * Retries name parts (org name,package name, module name) from the given qualified ballerina module name.
+     * Retrieves name parts (org name, module name, file name) from the given qualified ballerina module name.
      */
     public static String[] getQModuleNameParts(String path) {
-        String[] srcNames;
+        String[] moduleParts;
         if (path.contains("/")) {
-            srcNames = path.split("/");
+            moduleParts = path.split("/");
         } else if (path.contains("\\")) {
-            srcNames = path.split("\\\\");
+            moduleParts = path.split("\\\\");
         } else {
-            srcNames = new String[]{path};
+            moduleParts = new String[]{path};
         }
-        return srcNames;
+        return moduleParts;
     }
 
     private static String replaceSeparators(String path) {
@@ -281,7 +287,7 @@ public class PackageUtils {
     /**
      * Returns the absolute file path of the project source, which is represented by the given JDI location information.
      */
-    private static Path getSourceFilePath(Location location, Project project) throws AbsentInformationException {
+    private static Path getProjectFilePath(Location location, Project project) throws AbsentInformationException {
         String projectRoot = project.sourceRoot().toAbsolutePath().toString();
 
         if (project instanceof SingleFileProject) {
@@ -321,7 +327,7 @@ public class PackageUtils {
     }
 
     /**
-     * Returns the path of the specified file from dependency bala.
+     * Returns the absolute path of the specified file, using the package dependency graph.
      *
      * @param project    current ballerina debug source project
      * @param orgName    package org of the dependency
@@ -330,7 +336,8 @@ public class PackageUtils {
      * @return path of the file
      * @throws ProjectException if file cannot be found in the dependency package
      */
-    private static Path getDependencyFilePath(Project project, String orgName, String moduleName, String filename) {
+    private static Path getDependencyFilePath(Project project, String orgName, String moduleName, String filename)
+            throws ProjectException {
         List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(moduleName);
         for (PackageName possiblePackageName : possiblePackageNames) {
             PackageResolution resolution = project.currentPackage().getResolution();

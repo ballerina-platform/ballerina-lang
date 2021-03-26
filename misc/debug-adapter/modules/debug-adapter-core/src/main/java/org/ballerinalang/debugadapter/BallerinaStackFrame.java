@@ -87,10 +87,11 @@ public class BallerinaStackFrame {
             dapStackFrame.setColumn(0L);
 
             // Adds ballerina source information.
-            Path sourcePath = getSrcPathFromBreakpointLocation(jStackFrame.location(), context.getSourceProject());
-            if (sourcePath != null) {
+            Optional<Path> sourcePath = getSrcPathFromBreakpointLocation(jStackFrame.location(),
+                    context.getSourceProject());
+            if (sourcePath.isPresent()) {
                 Source source = new Source();
-                source.setPath(sourcePath.toString());
+                source.setPath(sourcePath.get().toString());
                 source.setName(jStackFrame.location().sourceName());
                 dapStackFrame.setSource(source);
             }
