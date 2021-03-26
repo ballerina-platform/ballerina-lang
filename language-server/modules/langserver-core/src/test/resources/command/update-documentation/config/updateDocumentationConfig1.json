@@ -2,12 +2,12 @@
   "arguments": {
     "node.range": {
       "start": {
-        "line": 24,
-        "character": 4
+        "line": 1,
+        "character": 0
       },
       "end": {
-        "line": 24,
-        "character": 43
+        "line": 7,
+        "character": 1
       }
     }
   },
@@ -20,15 +20,15 @@
               {
                 "range": {
                   "start": {
-                    "line": 24,
-                    "character": 4
+                    "line": 1,
+                    "character": 0
                   },
                   "end": {
-                    "line": 24,
-                    "character": 4
+                    "line": 4,
+                    "character": 18
                   }
                 },
-                "newText": "# Description  \n    "
+                "newText": "# This function has a doc with multiple lines. Once updated, it should\n# preserve these lines\n#\n# + name - My Name  \n# + val - Parameter Description"
               }
             ]
           }
