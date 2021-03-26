@@ -89,7 +89,9 @@ public class DocAttachmentInfo implements Documentation {
 
     public String getDocumentationString() {
         StringBuilder result = new StringBuilder();
-        String[] descriptionLines = this.description.trim().split(System.lineSeparator());
+        // TODO: Seems like the parser isn't honoring the platform specific line separator. Therefore, splitting with
+        //      "/n" for now
+        String[] descriptionLines = this.description.trim().split("\n");
         for (String descriptionLine : descriptionLines) {
             result.append(String.format("# %s%n", descriptionLine.trim()));
         }
