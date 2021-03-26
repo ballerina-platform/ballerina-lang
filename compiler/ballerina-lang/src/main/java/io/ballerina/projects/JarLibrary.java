@@ -36,6 +36,7 @@ public class JarLibrary extends PlatformLibrary {
     private final String version;
     private final String groupId;
     private final Path path;
+    private final String packageName;
 
     public JarLibrary(Path path, PlatformLibraryScope scope) {
         super(scope);
@@ -43,19 +44,35 @@ public class JarLibrary extends PlatformLibrary {
         artifactId = null;
         groupId = null;
         version = null;
+        packageName = null;
     }
 
-    public JarLibrary(Path path, PlatformLibraryScope scope, String artifactId, String groupId, String version) {
+    public JarLibrary(Path path, PlatformLibraryScope scope, String artifactId, String groupId, String version,
+            String packageName) {
         super(scope);
         this.path = path;
+        this.packageName = (packageName == null || packageName.isEmpty()) ? null : packageName;
         this.artifactId = (artifactId == null || artifactId.isEmpty()) ? null : artifactId;
         this.groupId = (groupId == null || groupId.isEmpty()) ? null : groupId;
         this.version = (version == null || version.isEmpty()) ? null : version;
     }
 
+    public JarLibrary(Path path, PlatformLibraryScope scope, String packageName) {
+        super(scope);
+        this.path = path;
+        this.packageName = (packageName == null || packageName.isEmpty()) ? null : packageName;
+        this.artifactId = null;
+        this.groupId = null;
+        this.version = null;
+    }
+
     @Override
     public Path path() {
         return path;
+    }
+
+    public Optional<String> packageName() {
+        return Optional.ofNullable(packageName);
     }
 
     public Optional<String> artifactId() {

@@ -18,11 +18,14 @@
 package io.ballerina.projects.util;
 
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
@@ -85,6 +88,7 @@ import static io.ballerina.projects.util.ProjectConstants.PROPERTIES_FILE;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
+import static org.wso2.ballerinalang.compiler.util.Names.BALLERINA_INTERNAL_ORG;
 
 /**
  * Project related util methods.
@@ -268,8 +272,10 @@ public class ProjectUtils {
         return getBalHomePath().resolve("bre").resolve("lib").resolve(runtimeJarName);
     }
 
-    public static List<Path> testDependencies() {
-        List<Path> dependencies = new ArrayList<>();
+    public static List<JarLibrary> testDependencies() {
+        List<JarLibrary> dependencies = new ArrayList<>();
+        String testPkgName = "ballerina/test";
+
         String ballerinaVersion = RepoUtils.getBallerinaPackVersion();
         Path homeLibPath = getBalHomePath().resolve(BALLERINA_HOME_BRE).resolve(LIB_DIR);
         String testRuntimeJarName = TEST_RUNTIME_JAR_PREFIX + ballerinaVersion + BLANG_COMPILED_JAR_EXT;
@@ -279,22 +285,22 @@ public class ProjectUtils {
         Path testRuntimeJarPath = homeLibPath.resolve(testRuntimeJarName);
         Path testCoreJarPath = homeLibPath.resolve(testCoreJarName);
         Path langJarPath = homeLibPath.resolve(langJarName);
-        Path jacocoCoreJarPath =  homeLibPath.resolve(JACOCO_CORE_JAR);
+        Path jacocoCoreJarPath = homeLibPath.resolve(JACOCO_CORE_JAR);
         Path jacocoReportJarPath = homeLibPath.resolve(JACOCO_REPORT_JAR);
         Path asmJarPath = homeLibPath.resolve(ASM_JAR);
         Path asmTreeJarPath = homeLibPath.resolve(ASM_TREE_JAR);
         Path asmCommonsJarPath = homeLibPath.resolve(ASM_COMMONS_JAR);
         Path diffUtilsJarPath = homeLibPath.resolve(DIFF_UTILS_JAR);
 
-        dependencies.add(testRuntimeJarPath);
-        dependencies.add(testCoreJarPath);
-        dependencies.add(langJarPath);
-        dependencies.add(jacocoCoreJarPath);
-        dependencies.add(jacocoReportJarPath);
-        dependencies.add(asmJarPath);
-        dependencies.add(asmTreeJarPath);
-        dependencies.add(asmCommonsJarPath);
-        dependencies.add(diffUtilsJarPath);
+        dependencies.add(new JarLibrary(testRuntimeJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(testCoreJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(langJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(jacocoCoreJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(jacocoReportJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(asmJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(asmTreeJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(asmCommonsJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
+        dependencies.add(new JarLibrary(diffUtilsJarPath, PlatformLibraryScope.TEST_ONLY, testPkgName));
         return dependencies;
     }
 
@@ -515,25 +521,30 @@ public class ProjectUtils {
      * Get `Dependencies.toml` content as a string.
      *
      * @param pkgDependencies direct dependencies of the package
-     * @param dependencies list of dependencies as of root package manifest
+     * @param dependencies    list of dependencies as of root package manifest
      * @return Dependencies.toml` content
      */
     public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgDependencies,
-                                                    List<PackageManifest.Dependency> dependencies) {
+            List<PackageManifest.Dependency> dependencies) {
         StringBuilder content = new StringBuilder();
         for (ResolvedPackageDependency dependency : pkgDependencies) {
-            content.append("[[dependency]]\n");
-            content.append("org = \"").append(dependency.packageInstance().packageOrg().value()).append("\"\n");
-            content.append("name = \"").append(dependency.packageInstance().packageName().value()).append("\"\n");
-            content.append("version = \"").append(dependency.packageInstance().packageVersion().value()).append("\"\n");
-            dependencies.forEach(dependency1 -> {
-                if (dependency1.org().value().equals(dependency.packageInstance().packageOrg().value()) &&
-                        dependency1.name().value().equals(dependency.packageInstance().packageName().value()) &&
-                        dependency1.repository() != null) {
-                    content.append("repository = \"").append(dependency1.repository()).append("\"\n");
-                }
-            });
-            content.append("\n");
+            PackageDescriptor descriptor = dependency.packageInstance().descriptor();
+
+            // ignore lang libs & ballerina internal packages
+            if (!(descriptor.isLangLibPackage() || descriptor.org().value().equals(BALLERINA_INTERNAL_ORG.value))) {
+                content.append("[[dependency]]\n");
+                content.append("org = \"").append(descriptor.org().value()).append("\"\n");
+                content.append("name = \"").append(descriptor.name().value()).append("\"\n");
+                content.append("version = \"").append(descriptor.version().value()).append("\"\n");
+                dependencies.forEach(dependency1 -> {
+                    if (dependency1.org().value().equals(dependency.packageInstance().packageOrg().value())
+                            && dependency1.name().value().equals(dependency.packageInstance().packageName().value())
+                            && dependency1.repository() != null) {
+                        content.append("repository = \"").append(dependency1.repository()).append("\"\n");
+                    }
+                });
+                content.append("\n");
+            }
         }
         return String.valueOf(content);
     }

@@ -16,7 +16,7 @@
                             "character": 19
                         }
                     },
-                    "newText": "\n    if (apple is int) {\n\n    }"
+                    "newText": "\n    if apple is int {\n\n    }"
                 },
                 {
                     "range": {

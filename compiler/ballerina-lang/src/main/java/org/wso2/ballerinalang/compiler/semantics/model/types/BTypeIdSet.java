@@ -76,6 +76,20 @@ public class BTypeIdSet {
         return empty;
     }
 
+    public static BTypeIdSet getIntersection(BTypeIdSet lhsTypeIds, BTypeIdSet rhsTypeIds) {
+        if (lhsTypeIds.isEmpty() && rhsTypeIds.isEmpty()) {
+            return emptySet();
+        }
+
+        HashSet<BTypeId> primarySet = new HashSet<>(lhsTypeIds.primary);
+        primarySet.addAll(rhsTypeIds.primary);
+
+        HashSet<BTypeId> secondarySet = new HashSet<>(lhsTypeIds.secondary);
+        secondarySet.addAll(rhsTypeIds.secondary);
+
+        return new BTypeIdSet(primarySet, secondarySet);
+    }
+
     public boolean isAssignableFrom(BTypeIdSet sourceTypeIdSet) {
         if (sourceTypeIdSet == null) {
             return false;

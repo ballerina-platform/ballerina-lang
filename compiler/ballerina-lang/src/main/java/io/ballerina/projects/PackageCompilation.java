@@ -204,5 +204,10 @@ public class PackageCompilation {
         List<Diagnostic> allDiagnostics = new ArrayList<>(compilation.diagnosticResult.diagnostics());
         allDiagnostics.addAll(reportedDiagnostics);
         compilation.diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
+
+        // TODO We need to refactor how diagnostics are stored and returned
+        // TODO I had to put the following line in order to make compiler plugin diagnostics
+        //  available to the build command
+        compilation.pluginDiagnostics.addAll(reportedDiagnostics);
     }
 }

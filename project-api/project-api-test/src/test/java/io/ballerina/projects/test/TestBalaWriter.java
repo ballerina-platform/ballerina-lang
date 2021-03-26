@@ -140,6 +140,7 @@ public class TestBalaWriter extends BaseTest {
         Path compilerPluginJsonPath = BALA_PATH.resolve("compiler-plugin").resolve("compiler-plugin.json");
         try (FileReader reader = new FileReader(String.valueOf(compilerPluginJsonPath))) {
             CompilerPluginJson compilerPluginJson = gson.fromJson(reader, CompilerPluginJson.class);
+            Assert.assertEquals(compilerPluginJson.pluginId(), "openapi-validator");
             Assert.assertEquals(compilerPluginJson.pluginClass(), "io.ballerina.openapi.Validator");
             Assert.assertEquals(compilerPluginJson.dependencyPaths().size(), 1);
         }

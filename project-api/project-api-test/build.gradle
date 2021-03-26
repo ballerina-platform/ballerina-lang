@@ -50,6 +50,7 @@ dependencies {
     compilerPluginJar project(':project-api-test-artifact:string-utils-lib')
     compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
     compilerPluginJar project(':project-api-test-artifact:function-node-analyzer-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:bad-sad-compiler-plugin')
 
     testRuntime project(":ballerina-lang-test")
     balRt project(':ballerina-rt')

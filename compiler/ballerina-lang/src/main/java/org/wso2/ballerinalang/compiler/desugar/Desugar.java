@@ -4890,10 +4890,10 @@ public class Desugar extends BLangNodeVisitor {
 
     public BInvokableSymbol getIterableObjectIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
         BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) collectionSymbol.type.tsymbol;
-        // We know for sure at this point, the object symbol should have the __iterator method
+        // We know for sure at this point, the object symbol should have the `iterator` method
         BAttachedFunction iteratorFunc = null;
         for (BAttachedFunction func : typeSymbol.attachedFuncs) {
-            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
+            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC)) {
                 iteratorFunc = func;
                 break;
             }
@@ -6872,6 +6872,13 @@ public class Desugar extends BLangNodeVisitor {
         BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
+        var typeIdSet = objectType.typeIdSet;
+        if (!typeIdSet.primary.isEmpty()) {
+            objectClassType.typeIdSet.primary.addAll(typeIdSet.primary);
+        }
+        if (!typeIdSet.secondary.isEmpty()) {
+            objectClassType.typeIdSet.secondary.addAll(typeIdSet.secondary);
+        }
 
         // Create a new object type node and a type def from the concrete class type
 //        BLangObjectTypeNode objectClassNode = TypeDefBuilderHelper.createObjectTypeNode(objectClassType, pos);
@@ -8105,7 +8112,7 @@ public class Desugar extends BLangNodeVisitor {
                 // If a vararg is provided, no parameter defaults are added and no named args are specified.
                 // Thus, any missing args should come from the vararg.
                 if (varargRef.type.tag == TypeTags.RECORD) {
-                    if (param.defaultableParam) {
+                    if (param.isDefaultable) {
                         BLangInvocation hasKeyInvocation = createLangLibInvocationNode(HAS_KEY, varargRef,
                                 List.of(createStringLiteral(param.pos, param.name.value)), null, varargRef.pos);
                         BLangExpression indexExpr = rewriteExpr(createStringLiteral(param.pos, param.name.value));

@@ -25,6 +25,8 @@ import org.ballerinalang.langserver.commons.LSOperation;
 public enum DocumentContext implements LSOperation {
     DC_SYNTAX_TREE("ballerinaDocument/syntaxTree"),
     DC_SYNTAX_TREE_MODIFY("ballerinaDocument/syntaxTreeModify"),
+    DC_SYNTAX_TREE_BY_RANGE("ballerinaDocument/syntaxTreeByRange"),
+    DC_SYNTAX_TREE_LOCATE("ballerinaDocument/syntaxTreeLocate"),
     DC_AST("ballerinaDocument/ast"),
     DC_PROJECT("ballerinaDocument/project"),
     DC_DIAGNOSTICS("ballerinaDocument/diagnostics");
