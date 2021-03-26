@@ -147,7 +147,7 @@ function testIteratingCompleteJsonWithoutType() returns string|error {
 
     int i = 0;
     foreach var v in <map<json> & readonly>jdata.cloneReadOnly() {
-        if v is json[] {
+        if v is json[] & readonly {
             foreach var w in v {
                 concatIntStringAny(i, w.toJsonString());
             }
@@ -164,7 +164,7 @@ function testIteratingCompleteJsonWithType() returns string|error {
 
     int i = 0;
     foreach json v in <map<json> & readonly>jdata.cloneReadOnly() {
-        if v is json[] {
+        if v is json[] & readonly {
             foreach var w in v {
                 concatIntStringAny(i, w.toJsonString());
             }
