@@ -41,7 +41,7 @@ public class CompilationEventPlugin extends CompilerPlugin {
         pluginContext.addCompilerLifecycleListener(new CompilationListener());
     }
 
-    private class CompilationListener extends CompilerLifecycleListener {
+    private static class CompilationListener extends CompilerLifecycleListener {
         @Override
         public void init(CompilerLifecycleContext lifecycleContext) {
             lifecycleContext.addCodeGenerationCompletedTask(compilerLifecycleEventContext -> {
