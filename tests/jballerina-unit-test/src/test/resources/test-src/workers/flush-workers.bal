@@ -57,6 +57,7 @@ function flushAll() returns string {
             int a = 10;
 
             var sync = a ->> w2;
+            any|error res = sync;
             a -> w3;
             a -> w2;
             error? result = flush;
@@ -99,6 +100,7 @@ function errorTest() returns error? {
             int a = 10;
 
             var sync = a ->> w2;
+            any|error res = sync;
             a -> w3;
             a -> w2;
             error? result = flush;
@@ -151,6 +153,7 @@ function panicTest() returns error? {
             int a = 10;
 
             var sync = a ->> w2;
+            any|error res = sync;
             a -> w3;
             a -> w2;
             error? result = flush;
