@@ -247,3 +247,17 @@ annotation C[] v24 on function;
 @v24
 public function myFunction6(string... argv) {
 }
+
+type Foo2 record {
+    string s1;
+    string? s2;
+};
+
+annotation Foo2 f2 on function;
+
+@f2 {
+    s1: "str",
+    s2: null
+}
+public function fooFunction() {
+}

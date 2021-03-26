@@ -28,14 +28,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
-import static org.ballerinalang.bindgen.command.BindingsGenerator.getAllJavaClasses;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.setClassListForLooping;
-import static org.ballerinalang.bindgen.command.BindingsGenerator.setExceptionList;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_BRACKETS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
-import static org.ballerinalang.bindgen.utils.BindgenConstants.METHOD_INTEROP_TYPE;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
@@ -47,60 +43,64 @@ import static org.ballerinalang.bindgen.utils.BindgenUtils.isStaticMethod;
  *
  * @since 1.2.0
  */
-public class JMethod {
+public class JMethod extends BFunction {
 
     private BindgenEnv env;
     private boolean isStatic;
-    private boolean hasParams = true;
     private boolean hasReturn = false;
     private boolean returnError = false;
     private boolean objectReturn = false;
-    private boolean reservedWord = false;
     private boolean isArrayReturn = false;
     private boolean hasException = false;
     private boolean handleException = false;
     private boolean isStringReturn = false;
+    private boolean isStringArrayReturn = false;
     private boolean javaArraysModule = false;
-    private boolean hasPrimitiveParam = false;
+    private String parentPrefix;
 
     private Class parentClass;
     private Method method;
     private String methodName;
     private String returnType;
-    private String externalType;
     private String exceptionName;
     private String returnTypeJava;
-    private String shortClassName;
     private String javaMethodName;
     private String exceptionConstName;
     private String returnComponentType;
-    private String interopType = METHOD_INTEROP_TYPE;
 
     private List<JParameter> parameters = new ArrayList<>();
     private StringBuilder paramTypes = new StringBuilder();
     private Set<String> importedPackages = new HashSet<>();
 
-    JMethod(Method m, Class parentClass, BindgenEnv env) {
+    JMethod(Method m, BindgenEnv env, String parentPrefix, Class jClass, int overloaded) {
+        super(BFunctionKind.METHOD, env);
         this.env = env;
+        this.parentPrefix = parentPrefix;
         method = m;
         javaMethodName = m.getName();
-        methodName = m.getName();
-        shortClassName = getAlias(m.getDeclaringClass());
+        if (overloaded != 0) {
+            methodName = m.getName() + overloaded;
+        } else {
+            methodName = m.getName();
+        }
         isStatic = isStaticMethod(m);
-        this.parentClass = parentClass;
+        super.setStatic(isStatic);
+        this.parentClass = jClass;
+        setDeclaringClass(parentClass);
 
         // Set the attributes required to identify different return types.
         Class returnTypeClass = m.getReturnType();
         if (!returnTypeClass.equals(Void.TYPE)) {
             setReturnTypeAttributes(returnTypeClass);
         }
-
+        setExternalFunctionName(jClass.getName().replace(".", "_") + "_" + methodName);
         // Set the attributes relevant to error returns.
         for (Class<?> exceptionType : m.getExceptionTypes()) {
             try {
                 if (!this.getClass().getClassLoader().loadClass(RuntimeException.class.getCanonicalName())
                         .isAssignableFrom(exceptionType)) {
                     JError jError = new JError(exceptionType);
+                    setThrowable(jError);
                     importedPackages.add(exceptionType.getPackageName());
                     exceptionName = jError.getShortExceptionName();
                     exceptionConstName = jError.getExceptionConstName();
@@ -108,7 +108,7 @@ public class JMethod {
                         exceptionName = getPackageAlias(exceptionName, exceptionType);
                         exceptionConstName = getPackageAlias(exceptionConstName, exceptionType);
                     }
-                    setExceptionList(jError);
+                    env.setExceptionList(jError);
                     hasException = true;
                     handleException = true;
                     break;
@@ -116,26 +116,27 @@ public class JMethod {
             } catch (ClassNotFoundException ignore) {
             }
         }
+        setErrorType(exceptionName);
 
         // Set the attributes required to identify different parameters.
         setParameters(m.getParameters());
-        if (!parameters.isEmpty()) {
-            JParameter lastParam = parameters.get(parameters.size() - 1);
-            lastParam.setHasNext(false);
-        } else {
-            hasParams = false;
-        }
 
         List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
         if (reservedWords.contains(methodName)) {
-            reservedWord = true;
+            methodName = "'" + methodName;
         }
-        if (objectReturn && !getAllJavaClasses().contains(returnTypeClass.getName())) {
+        if (objectReturn && !env.getAllJavaClasses().contains(returnTypeClass.getName())) {
             if (isArrayReturn) {
-                setClassListForLooping(returnTypeClass.getComponentType().getName());
+                env.setClassListForLooping(returnTypeClass.getComponentType().getName());
             } else {
-                setClassListForLooping(returnTypeClass.getName());
+                env.setClassListForLooping(returnTypeClass.getName());
             }
+        }
+
+        if (isStatic) {
+            super.setFunctionName(getAlias(jClass, env.getAliases()) + "_" + methodName);
+        } else {
+            super.setFunctionName(methodName);
         }
     }
 
@@ -152,8 +153,8 @@ public class JMethod {
         }
 
         returnTypeJava = getJavaType(returnTypeClass);
-        externalType = getBallerinaHandleType(returnTypeClass);
-        returnType = getBallerinaParamType(returnTypeClass);
+        setExternalReturnType(getBallerinaHandleType(returnTypeClass));
+        returnType = getBallerinaParamType(returnTypeClass, env.getAliases());
         returnType = getExceptionName(returnTypeClass, returnType);
         if (returnTypeClass.isArray()) {
             javaArraysModule = true;
@@ -162,10 +163,11 @@ public class JMethod {
             isArrayReturn = true;
             if (returnTypeClass.getComponentType().isPrimitive()) {
                 objectReturn = false;
-            } else if (getAlias(returnTypeClass).equals(JAVA_STRING_ARRAY)) {
+            } else if (getAlias(returnTypeClass, env.getAliases()).equals(JAVA_STRING_ARRAY)) {
                 objectReturn = false;
+                isStringArrayReturn = true;
             } else {
-                returnComponentType = getAlias(returnTypeClass.getComponentType());
+                returnComponentType = getAlias(returnTypeClass.getComponentType(), env.getAliases());
                 returnComponentType = getExceptionName(returnTypeClass.getComponentType(), returnComponentType);
                 returnType = returnComponentType + ARRAY_BRACKETS;
                 if (env.getModulesFlag()) {
@@ -176,7 +178,7 @@ public class JMethod {
             }
         } else if (returnTypeClass.isPrimitive()) {
             objectReturn = false;
-        } else if (getAlias(returnTypeClass).equals(JAVA_STRING)) {
+        } else if (getAlias(returnTypeClass, env.getAliases()).equals(JAVA_STRING)) {
             isStringReturn = true;
         } else {
             if (env.getModulesFlag()) {
@@ -184,6 +186,7 @@ public class JMethod {
             }
             objectReturn = true;
         }
+        setReturnType(returnType);
     }
 
     private String getPackageAlias(String shortClassName, Class objectType) {
@@ -209,13 +212,12 @@ public class JMethod {
     private void setParameters(Parameter[] paramArr) {
         for (Parameter param : paramArr) {
             importedPackages.add(param.getType().getPackageName());
-            paramTypes.append(getAlias(param.getType()).toLowerCase(Locale.ENGLISH));
+            paramTypes.append(getAlias(param.getType(), env.getAliases()).toLowerCase(Locale.ENGLISH));
             JParameter parameter = new JParameter(param, parentClass, env);
             parameters.add(parameter);
             if (parameter.getIsPrimitiveArray()) {
                 javaArraysModule = true;
                 returnError = true;
-                hasPrimitiveParam = true;
                 hasException = true;
             }
             if (parameter.isObjArrayParam() || parameter.getIsStringArray()) {
@@ -234,32 +236,24 @@ public class JMethod {
         return paramTypes.toString();
     }
 
-    public Boolean getHasReturn() {
-        return hasReturn;
-    }
-
-    public Boolean getHasException() {
+    public boolean getHasException() {
         return hasException;
     }
 
-    public Boolean getIsStringReturn() {
+    public boolean getIsStringReturn() {
         return isStringReturn;
-    }
-
-    public Boolean getHasPrimitiveParam() {
-        return hasPrimitiveParam;
     }
 
     public String getReturnType() {
         return returnType;
     }
 
-    public String getMethodName() {
-        return methodName;
+    public boolean getHasReturn() {
+        return hasReturn;
     }
 
-    public void setMethodName(String methodName) {
-        this.methodName = methodName;
+    public String getMethodName() {
+        return methodName;
     }
 
     public List<JParameter> getParameters() {
@@ -268,14 +262,6 @@ public class JMethod {
 
     public boolean isStatic() {
         return isStatic;
-    }
-
-    public boolean hasParams() {
-        return hasParams;
-    }
-
-    public String getExternalType() {
-        return externalType;
     }
 
     public boolean isHandleException() {
@@ -290,10 +276,6 @@ public class JMethod {
         return returnError;
     }
 
-    void setShortClassName(String shortClassName) {
-        this.shortClassName = shortClassName;
-    }
-
     public Method getMethod() {
         return method;
     }
@@ -304,5 +286,68 @@ public class JMethod {
 
     Set<String> getImportedPackages() {
         return importedPackages;
+    }
+
+    public boolean isArrayReturn() {
+        return isArrayReturn;
+    }
+
+    public String getBalFunctionName() {
+        return parentPrefix + "_" + methodName;
+    }
+
+    public String getFunctionReturnType() {
+        StringBuilder returnString = new StringBuilder();
+        if (getHasReturn()) {
+            returnString.append(this.returnType);
+            if (getIsStringReturn()) {
+                returnString.append("?");
+            }
+            if (getHasException()) {
+                if (isHandleException()) {
+                    returnString.append("|").append(getExceptionName());
+                    if (isReturnError()) {
+                        returnString.append("|error");
+                    }
+                } else {
+                    returnString.append("|error");
+                }
+            }
+        } else if (getHasException()) {
+            if (isHandleException()) {
+                returnString.append(getExceptionName()).append("?");
+                if (isReturnError()) {
+                    returnString.append("|error?");
+                }
+            } else {
+                returnString.append("error?");
+            }
+        }
+
+        return returnString.toString();
+    }
+
+    public String getReturnComponentType() {
+        return returnComponentType;
+    }
+
+    public String getReturnTypeJava() {
+        return returnTypeJava;
+    }
+
+    public String getExceptionConstName() {
+        return exceptionConstName;
+    }
+
+    public boolean isObjectReturn() {
+        return objectReturn;
+    }
+
+    public boolean isStringReturn() {
+        return isStringReturn;
+    }
+
+    public boolean isStringArrayReturn() {
+        return isStringArrayReturn;
     }
 }

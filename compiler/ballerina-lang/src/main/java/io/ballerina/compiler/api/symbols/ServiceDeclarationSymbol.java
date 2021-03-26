@@ -21,6 +21,7 @@ package io.ballerina.compiler.api.symbols;
 import io.ballerina.projects.Document;
 import io.ballerina.tools.text.LinePosition;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -49,6 +50,15 @@ public interface ServiceDeclarationSymbol extends Symbol, Annotatable, Documenta
      * @return The attach point if it is specified, returns empty otherwise
      */
     Optional<ServiceAttachPoint> attachPoint();
+
+    /**
+     * Returns the list of types of the listeners this service is attached to. The types are ordered in the list such
+     * that a type at particular position is the type of the corresponding expression in the expression list of the
+     * service declaration.
+     *
+     * @return List of the types of the listeners
+     */
+    List<TypeSymbol> listenerTypes();
 
     /**
      * Returns the user specified fields of this service declaration.
