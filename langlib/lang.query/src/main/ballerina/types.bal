@@ -133,17 +133,17 @@ class _InitFunction {
     function _getIterator(
             (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection)
                 returns _Iterator {
-        if (collection is (any|error)[]) {
+        if (collection is Type[]) {
             return lang_array:iterator(collection);
         } else if (collection is record {}) {
             return lang_map:iterator(collection);
-       } else if (collection is map<any|error>) {
+        } else if (collection is map<Type>) {
             return lang_map:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
         } else if (collection is string) {
             return lang_string:iterator(collection);
-        } else if (collection is table<map<any|error>>) {
+        } else if (collection is table<map<Type>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.iterator();
@@ -253,21 +253,21 @@ class _NestedFromFunction {
     }
 
     function _getIterator(any collection) returns _Iterator {
-        if (collection is (any|error)[]) {
+        if (collection is Type[]) {
             return lang_array:iterator(collection);
         } else if (collection is record {}) {
             return lang_map:iterator(collection);
-       } else if (collection is map<any|error>) {
+        } else if (collection is map<Type>) {
             return lang_map:iterator(collection);
         } else if (collection is xml) {
             return lang_xml:iterator(collection);
         } else if (collection is string) {
             return lang_string:iterator(collection);
-        } else if (collection is table<map<any|error>>) {
+        } else if (collection is table<map<Type>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.iterator();
-        } else if (collection is stream <any|error, ErrorType>) {
+        } else if (collection is stream <Type, ErrorType>) {
             return lang_stream:iterator(collection);
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");
