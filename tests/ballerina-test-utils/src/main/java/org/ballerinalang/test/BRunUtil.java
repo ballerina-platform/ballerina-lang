@@ -37,6 +37,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.XmlFactory;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.launch.LaunchUtils;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -1372,8 +1373,10 @@ public class BRunUtil {
 
         Class<?> initClazz = compileResult.getClassLoader().loadClass(initClassName);
         final Scheduler scheduler = new Scheduler(false);
-        directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit", new Class[]{Path.class},
-                new Object[]{LaunchUtils.getConfigPath()});
+        TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
+        directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
+                new Class[]{Path[].class, String.class, String.class}, new Object[]{configurationDetails.paths,
+                        configurationDetails.secret, configurationDetails.configContent});
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
 //        if (temp) {

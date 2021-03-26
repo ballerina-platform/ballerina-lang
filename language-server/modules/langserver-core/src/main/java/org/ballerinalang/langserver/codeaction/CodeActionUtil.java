@@ -532,7 +532,7 @@ public class CodeActionUtil {
                             return Optional.of((NonTerminalNode) memberNode);
                         }
                     }
-                    return Optional.of(member);
+                    return Optional.empty();
                 }
             } else if (member.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION && isWithinStartSegment) {
                 return Optional.of(member);
@@ -562,6 +562,12 @@ public class CodeActionUtil {
                 }
                 return Optional.empty();
             } else if (member.kind() == SyntaxKind.RECORD_TYPE_DESC && isWithinBody) {
+                // A record type descriptor can be inside a type definition node
+                NonTerminalNode parent = member.parent();
+                if (parent != null && parent.kind() == SyntaxKind.TYPE_DEFINITION &&
+                        (isWithinStartCodeSegment(parent, cursorPosOffset) || isWithinBody(parent, cursorPosOffset))) {
+                    return Optional.of(parent);
+                }
                 return Optional.of(member);
             } else if (member.kind() == SyntaxKind.OBJECT_TYPE_DESC && isWithinStartSegment) {
                 return Optional.of(member);

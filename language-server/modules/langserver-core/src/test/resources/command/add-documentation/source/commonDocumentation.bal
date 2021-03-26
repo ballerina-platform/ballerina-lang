@@ -5,8 +5,8 @@ function testDocumentation() {
     
 }
 
-service testDocService on new http:Listener(8080) {
-    resource function testDocResource(http:Caller caller, http:Request request) {
+service / on new http:Listener(8080) {
+    resource function get getResource(http:Caller caller, http:Request req) {
         http:Response res = new;
         checkpanic caller->respond(res);
     }
@@ -22,9 +22,7 @@ type testDocObject object {
     private int testPrivate = 12;
     public string testString = "hello";
 
-    public function testFunctionWithImpl() {
-        io:println("Hello World!!");
-    }
+    public function testFunctionWithImpl();
 };
 
 type testDocObject2 object {

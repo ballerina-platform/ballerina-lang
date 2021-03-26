@@ -694,7 +694,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangMatchStatement source) {
         BLangMatchStatement clone = new BLangMatchStatement();
         source.cloneRef = clone;
-        clone.setExpression(source.getExpression());
+        clone.setExpression(clone(source.getExpression()));
         clone.matchClauses = cloneList(source.matchClauses);
         clone.onFailClause = source.onFailClause;
     }
@@ -720,7 +720,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangWildCardMatchPattern source) {
         BLangWildCardMatchPattern clone = new BLangWildCardMatchPattern();
         source.cloneRef = clone;
-        clone.matchExpr = source.matchExpr;
+        clone.matchExpr = clone(source.matchExpr);
         clone.isLastPattern = source.isLastPattern;
     }
 
@@ -728,7 +728,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangConstPattern source) {
         BLangConstPattern clone = new BLangConstPattern();
         source.cloneRef = clone;
-        clone.matchExpr = source.matchExpr;
+        clone.matchExpr = clone(source.matchExpr);
         clone.setExpression(source.getExpresion());
     }
 
@@ -736,7 +736,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangVarBindingPatternMatchPattern source) {
         BLangVarBindingPatternMatchPattern clone = new BLangVarBindingPatternMatchPattern();
         source.cloneRef = clone;
-        clone.matchExpr = source.matchExpr;
+        clone.matchExpr = clone(source.matchExpr);
         clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.setBindingPattern(source.getBindingPattern());
         clone.isLastPattern = source.isLastPattern;
@@ -746,7 +746,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangListMatchPattern source) {
         BLangListMatchPattern clone = new BLangListMatchPattern();
         source.cloneRef = clone;
-        clone.matchExpr = source.matchExpr;
+        clone.matchExpr = clone(source.matchExpr);
         clone.restMatchPattern = clone(source.restMatchPattern);
         clone.matchGuardIsAvailable = source.matchGuardIsAvailable;
         clone.matchPatterns = cloneList(source.matchPatterns);
@@ -766,14 +766,14 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.fieldMatchPatterns = cloneList(source.fieldMatchPatterns);
         clone.restMatchPattern = clone(source.restMatchPattern);
-        clone.matchExpr = source.matchExpr;
+        clone.matchExpr = clone(source.matchExpr);
     }
 
     @Override
     public void visit(BLangRestMatchPattern source) {
         BLangRestMatchPattern clone = new BLangRestMatchPattern();
         source.cloneRef = clone;
-        clone.matchExpr = source.matchExpr;
+        clone.matchExpr = clone(source.matchExpr);
         clone.setIdentifier(source.getIdentifier());
     }
 
@@ -787,7 +787,7 @@ public class NodeCloner extends BLangNodeVisitor {
     public void visit(BLangErrorMatchPattern source) {
         BLangErrorMatchPattern clone = new BLangErrorMatchPattern();
         source.cloneRef = clone;
-        clone.matchExpr = source.matchExpr;
+        clone.matchExpr = clone(source.matchExpr);
         clone.errorMessageMatchPattern = clone(source.errorMessageMatchPattern);
         clone.errorFieldMatchPatterns = clone(source.errorFieldMatchPatterns);
         clone.errorCauseMatchPattern = clone(source.errorCauseMatchPattern);
