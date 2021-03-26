@@ -66,7 +66,7 @@ class _StreamPipeline {
     typedesc<Type> resType;
 
     function init(
-            (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection,
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
         self.resType = resType;
@@ -91,7 +91,7 @@ class _StreamPipeline {
         self.streamFunction = streamFunction;
     }
 
-    public function getStream() returns stream <Type, error?> {
+    public function getStream() returns stream <Type, ErrorType> {
         IterHelper itrObj = new (self, self.resType);
         var strm = internal:construct(self.resType, itrObj);
         return strm;
@@ -102,10 +102,10 @@ class _InitFunction {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection;
+    Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection;
 
     function init(
-            (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection) {
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -131,7 +131,7 @@ class _InitFunction {
     }
 
     function _getIterator(
-            (Type)[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, error?>|_Iterable collection)
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection)
                 returns _Iterator {
         if (collection is Type[]) {
             return lang_array:iterator(collection);
