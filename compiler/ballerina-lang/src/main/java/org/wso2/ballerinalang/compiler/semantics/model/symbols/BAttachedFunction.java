@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 import io.ballerina.tools.diagnostics.Location;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.util.Flags;
 
 /**
  * {@code BAttachedFunction} represents a attached function in Ballerina.
@@ -44,7 +45,13 @@ public class BAttachedFunction {
     public String toString() {
 
         StringBuilder sb = new StringBuilder();
-        sb.append("function").append(" ").append(funcName).append(" ").append(type.getTypeSignature());
+        if (Symbols.isFlagOn(type.flags, Flags.ISOLATED)) {
+            sb.append("isolated ");
+        }
+        if (Symbols.isFlagOn(type.flags, Flags.TRANSACTIONAL)) {
+            sb.append("transactional ");
+        }
+        sb.append("function ").append(funcName).append(" ").append(type.getTypeSignature());
         return sb.toString();
     }
 }

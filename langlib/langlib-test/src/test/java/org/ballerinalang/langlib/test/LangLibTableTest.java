@@ -163,8 +163,9 @@ public class LangLibTableTest {
         validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
                 "found 'Person'", 68, 47);
         validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'object { public function next () returns (record {| Employee value; |}?); }', found " +
-                        "'object { public function next () returns (record {| Person value; |}?); }'",
+                        "'object { public isolated function next () returns (record {| Employee value; |}?); }', " +
+                        "found " +
+                        "'object { public isolated function next () returns (record {| Person value; |}?); }'",
                 77, 92);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
                 "key<int>', found 'table<Person> key(name)'", 84, 12);

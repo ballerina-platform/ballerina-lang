@@ -1,0 +1,37 @@
+{
+  "position": {
+    "line": 2,
+    "character": 28
+  },
+  "source": "module_const_context/source/source7.bal",
+  "items": [
+    {
+      "label": "varName",
+      "kind": "Variable",
+      "detail": "int",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "B",
+      "insertText": "varName",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "CONST1",
+      "kind": "Variable",
+      "detail": "1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "B",
+      "insertText": "CONST1",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

@@ -3122,6 +3122,7 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_CALL_ACTION:
             case ANON_FUNC_OR_LET:
             case QUERY:
+            case TRAP:
             case ADDITIVE:
                 return SyntaxKind.PLUS_TOKEN;
             case SHIFT:
@@ -3168,6 +3169,7 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_CALL_ACTION:
             case ANON_FUNC_OR_LET:
             case QUERY:
+            case TRAP:
             case ADDITIVE:
                 return ParserRuleContext.PLUS_TOKEN;
             case SHIFT:
@@ -4314,7 +4316,7 @@ public class BallerinaParser extends AbstractParser {
             // Configurable variable must have an initialization.
             assign = SyntaxErrors.createMissingToken(SyntaxKind.EQUAL_TOKEN);
             assign = SyntaxErrors.addDiagnostic(assign,
-                    DiagnosticErrorCode.ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED);
+                    DiagnosticErrorCode.ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED_OR_REQUIRED);
             STToken questionMarkToken = SyntaxErrors.createMissingToken(SyntaxKind.QUESTION_MARK_TOKEN);
             expr = STNodeFactory.createRequiredExpressionNode(questionMarkToken);
             return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign,
@@ -9367,8 +9369,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTrapExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         STNode trapKeyword = parseTrapKeyword();
-        STNode expr =
-                parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
+        STNode expr = parseExpression(OperatorPrecedence.TRAP, isRhsExpr, allowActions, isInConditionalExpr);
         if (isAction(expr)) {
             return STNodeFactory.createTrapExpressionNode(SyntaxKind.TRAP_ACTION, trapKeyword, expr);
         }
@@ -9754,15 +9755,12 @@ public class BallerinaParser extends AbstractParser {
     /**
      * Parse error type descriptor.
      * <p>
-     * error-type-descriptor := error [error-type-param]
-     * error-type-param := < (detail-type-descriptor | inferred-type-descriptor) >
-     * detail-type-descriptor := type-descriptor
-     * inferred-type-descriptor := *
+     * error-type-descriptor := error [type-parameter]
+     * type-parameter := < type-descriptor >
      * </p>
      *
      * @return Parsed node
      */
-
     private STNode parseErrorTypeDescriptor() {
         STNode errorKeywordToken = parseErrorKeyword();
         return parseErrorTypeDescriptor(errorKeywordToken);
@@ -9772,34 +9770,11 @@ public class BallerinaParser extends AbstractParser {
         STNode errorTypeParamsNode;
         STToken nextToken = peek();
         if (nextToken.kind == SyntaxKind.LT_TOKEN) {
-            errorTypeParamsNode = parseErrorTypeParamsNode();
+            errorTypeParamsNode = parseTypeParameter();
         } else {
             errorTypeParamsNode = STNodeFactory.createEmptyNode();
         }
         return STNodeFactory.createErrorTypeDescriptorNode(errorKeywordToken, errorTypeParamsNode);
-    }
-
-    /**
-     * Parse error type param node.
-     * <p>
-     * error-type-param := < (detail-type-descriptor | inferred-type-descriptor) >
-     * detail-type-descriptor := type-descriptor
-     * inferred-type-descriptor := *
-     * </p>
-     *
-     * @return Parsed node
-     */
-    private STNode parseErrorTypeParamsNode() {
-        STNode ltToken = parseLTToken();
-        STNode parameter;
-        STToken nextToken = peek();
-        if (nextToken.kind == SyntaxKind.ASTERISK_TOKEN) {
-            parameter = consume();
-        } else {
-            parameter = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_ANGLE_BRACKETS);
-        }
-        STNode gtToken = parseGTToken();
-        return STNodeFactory.createErrorTypeParamsNode(ltToken, parameter, gtToken);
     }
 
     /**
