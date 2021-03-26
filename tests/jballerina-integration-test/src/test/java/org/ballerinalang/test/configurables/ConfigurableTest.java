@@ -34,7 +34,6 @@ import java.util.Map;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILES_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_SECRET_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.SECRET_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.SECRET_FILE_ENV_VARIABLE;
 import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
