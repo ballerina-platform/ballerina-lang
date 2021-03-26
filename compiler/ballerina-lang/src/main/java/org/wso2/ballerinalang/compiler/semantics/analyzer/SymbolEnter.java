@@ -222,9 +222,6 @@ public class SymbolEnter extends BLangNodeVisitor {
     private static final String DEPRECATION_ANNOTATION = "deprecated";
     private static final String ANONYMOUS_RECORD_NAME = "anonymous-record";
 
-    private boolean simpleVarInIterativeUse;
-    private boolean simpleVarInFunctionParam;
-
     public static SymbolEnter getInstance(CompilerContext context) {
         SymbolEnter symbolEnter = context.get(SYMBOL_ENTER_KEY);
         if (symbolEnter == null) {
@@ -1918,23 +1915,17 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbol.retType = tsymbol.returnType;
         }
 
-        if ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD && !this.simpleVarInIterativeUse &&
+        if ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD && !varNode.flagSet.contains(Flag.NEVER_ALLOWED) &&
                 types.isNeverTypeOrStructureTypeWithARequiredNeverMember(varSymbol.type)) {
             // check if the variable is defined as a 'never' type or equivalent to 'never'
             // (except inside a record type or iterative use (followed by in) in typed binding pattern)
             // if so, log an error
-            if (this.simpleVarInFunctionParam) {
-                this.simpleVarInFunctionParam = false;
+            if (varNode.flagSet.contains(Flag.REQUIRED_PARAM) || varNode.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
                 dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_DEFAULTABLE_PARAMS);
             } else {
                 dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED);
             }
         }
-        this.simpleVarInIterativeUse = false;
-    }
-
-    void setSimpleVarInIterativeUse() {
-        this.simpleVarInIterativeUse = true;
     }
 
     @Override
@@ -3606,7 +3597,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         Set<String> requiredParamNames = new HashSet<>();
         invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
-            this.simpleVarInFunctionParam = true;
             defineNode(varNode, invokableEnv);
             if (varNode.expr != null) {
                 foundDefaultableParam = true;

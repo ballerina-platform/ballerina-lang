@@ -138,7 +138,7 @@ function testNeverWithStartAction() {
 }
 
 function testNeverWithTrapExpr() returns error? {
-    never|error err = trap foo();
+    error err = trap foo();
     return err;
 }
 

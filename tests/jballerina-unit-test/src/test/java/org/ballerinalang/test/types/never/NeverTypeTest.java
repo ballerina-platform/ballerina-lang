@@ -101,7 +101,7 @@ public class NeverTypeTest {
 
     @Test
     public void testNeverTypeNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 39);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 40);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot define a variable of type 'never' or equivalent to type 'never'", 2, 5);
@@ -179,8 +179,10 @@ public class NeverTypeTest {
                 "cannot be of type 'never' or equivalent to type 'never'", 186, 16);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
                 "cannot be of type 'never' or equivalent to type 'never'", 189, 25);
-        BAssertUtil.validateError(negativeCompileResult, i, "The return type of a remote method of a " +
+        BAssertUtil.validateError(negativeCompileResult, i++, "The return type of a remote method of a " +
                 "client object cannot be of type 'never'", 193, 47);
+        BAssertUtil.validateError(negativeCompileResult, i, "cannot define a variable of type 'never' " +
+                "or equivalent to type 'never'", 200, 5);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

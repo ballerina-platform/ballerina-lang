@@ -195,3 +195,7 @@ client object {} object1 = client object {
         panic e;
     }
 };
+
+function testNeverTypeInTypedBindingPattern2() {
+    [never] x = [];
+}
