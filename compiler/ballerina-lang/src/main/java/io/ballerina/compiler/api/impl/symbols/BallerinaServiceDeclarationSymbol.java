@@ -34,6 +34,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Name;
 
@@ -59,6 +60,7 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
     private final TypeSymbol typeDescriptor;
     private final ServiceAttachPoint attachPoint;
 
+    private List<TypeSymbol> listenerTypes;
     private Map<String, ClassFieldSymbol> fields;
     private Map<String, MethodSymbol> methods;
     private Documentation docAttachment;
@@ -81,6 +83,24 @@ public class BallerinaServiceDeclarationSymbol extends BallerinaSymbol implement
     @Override
     public Optional<ServiceAttachPoint> attachPoint() {
         return Optional.ofNullable(this.attachPoint);
+    }
+
+    @Override
+    public List<TypeSymbol> listenerTypes() {
+        if (this.listenerTypes != null) {
+            return this.listenerTypes;
+        }
+
+        TypesFactory typesFactory = TypesFactory.getInstance(this.context);
+        BServiceSymbol serviceSymbol = (BServiceSymbol) this.getInternalSymbol();
+        List<TypeSymbol> listenerTypes = new ArrayList<>();
+
+        for (BType listenerType : serviceSymbol.getListenerTypes()) {
+            listenerTypes.add(typesFactory.getTypeDescriptor(listenerType));
+        }
+
+        this.listenerTypes = Collections.unmodifiableList(listenerTypes);
+        return this.listenerTypes;
     }
 
     @Override

@@ -86,7 +86,8 @@ public class Main {
                         TestSuite testSuite = entry.getValue();
 
                         out.println("\n\t" + (moduleName.equals(testSuite.getPackageName()) ?
-                                moduleName : testSuite.getPackageName() + TesterinaConstants.DOT + moduleName));
+                                (moduleName.equals(TesterinaConstants.DOT) ? testSuite.getSourceFileName() : moduleName)
+                                : testSuite.getPackageName() + TesterinaConstants.DOT + moduleName));
 
                         testSuite.setModuleName(moduleName);
                         List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
