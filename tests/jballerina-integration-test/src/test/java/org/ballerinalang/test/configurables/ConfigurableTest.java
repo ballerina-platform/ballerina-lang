@@ -326,51 +326,6 @@ public class ConfigurableTest extends BaseTest {
         };
     }
 
-    // Encrypted Config related tests
-    @Test
-    public void testSingleBalFileWithEncryptedConfigs() throws BallerinaTestException {
-        String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
-        executeBalCommand("/encryptedSingleBalFile", testsPassed, "encryptedConfig.bal",
-                addSecretEnvVariable(secretFilePath));
-    }
-
-    @Test
-    public void testEncryptedConfigs() throws BallerinaTestException {
-        String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
-        executeBalCommand("/encryptedConfigProject", testsPassed, "main",
-                addSecretEnvVariable(secretFilePath));
-    }
-
-    @Test
-    public void testEncryptedConfigsWithIncorrectSecret() throws BallerinaTestException {
-        String secretFilePath = Paths.get(testFileLocation, "Secrets", "incorrectSecret.txt").toString();
-        LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
-                "'main:password' : Given final block not properly padded. Such " +
-                "issues can arise if a bad key is used during decryption.", ERROR);
-        executeBalCommand("/encryptedConfigProject", runLeecher, "main",
-                addSecretEnvVariable(secretFilePath));
-    }
-
-    @Test
-    public void testEncryptedConfigsWithEmptySecret() throws BallerinaTestException {
-        String secretFilePath = Paths.get(testFileLocation, "Secrets", "emptySecret.txt").toString();
-        LogLeecher runLeecher =
-                new LogLeecher("error: failed to initialize the cipher tool due to empty secret text", ERROR);
-        executeBalCommand("/encryptedConfigProject", runLeecher, "main",
-                addSecretEnvVariable(secretFilePath));
-    }
-
-    @Test
-    public void testInvalidAccessEncryptedConfigs() throws BallerinaTestException {
-        String configFilePath = Paths.get(testFileLocation, "ConfigFiles", "InvalidEncryptedConfig.toml").toString();
-        String secretFilePath = Paths.get(testFileLocation, "Secrets", "correctSecret.txt").toString();
-        LogLeecher runLeecher = new LogLeecher("error: failed to retrieve the encrypted value for variable: " +
-                "'main:password' : Input byte array has wrong 4-byte ending unit", ERROR);
-        executeBalCommand("/encryptedConfigProject", runLeecher, "main",
-                addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePath),
-                        Map.entry(CONFIG_SECRET_ENV_VARIABLE, secretFilePath))));
-    }
-
     private void executeBalCommand(String projectPath, LogLeecher log, String packageName,
                                    Map<String, String> envProperties) throws BallerinaTestException {
         bMainInstance.runMain(testFileLocation + projectPath, packageName, null, new String[]{}, envProperties, null,
@@ -390,9 +345,12 @@ public class ConfigurableTest extends BaseTest {
         }
         return envVariables;
     }
+<<<<<<< HEAD
 
     private Map<String, String> addSecretEnvVariable(String secretFilePath) {
         return addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_SECRET_ENV_VARIABLE, secretFilePath)));
     }
 
+=======
+>>>>>>> Remove inbuilt decryption support of config values
 }

@@ -25,8 +25,6 @@ package io.ballerina.runtime.internal.configurable;
  */
 public class ConfigConstants {
 
-    public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
-
     public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
             "supported";
 
