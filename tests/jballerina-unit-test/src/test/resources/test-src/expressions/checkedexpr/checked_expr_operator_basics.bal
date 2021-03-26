@@ -232,10 +232,36 @@ function testCheckedErrorsWithReadOnlyInUnion() {
     assertEquality(1234, checkpanic y);
 }
 
+function callExprWithCheck() returns error? {
+    check readLineError2();
+}
+
+function returnNil() returns error? {
+    return ();
+}
+
+function callExprWithCheck2() returns error? {
+    check returnNil();
+}
+
+function readLineError2() returns error {
+    error e = error("io error");
+    return e;
+}
+
+function testCallExprWithCheck() {
+   assertTrue(callExprWithCheck() is error);
+   assertFalse(callExprWithCheck2() is error);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
+}
+
+function assertFalse(anydata actual) {
+    assertEquality(false, actual);
 }
 
 function assertEquality(anydata expected, anydata actual) {
