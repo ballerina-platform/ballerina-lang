@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -47,6 +48,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private Location location;
     private String signature;
     private ModuleSymbol module;
+    private Symbol definition;
     private boolean moduleEvaluated;
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
@@ -73,6 +75,17 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     @Override
     public String name() {
         return this.definitionName;
+    }
+
+    @Override
+    public Symbol definition() {
+        if (this.definition != null) {
+            return this.definition;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        this.definition = symbolFactory.getBCompiledSymbol(this.getBType().tsymbol, this.name());
+        return this.definition;
     }
 
     @Override

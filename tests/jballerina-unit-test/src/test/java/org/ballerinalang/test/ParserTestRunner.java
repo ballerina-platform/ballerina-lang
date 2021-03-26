@@ -50,13 +50,6 @@ public class ParserTestRunner {
         // Following should be fixed
         // TODO: categorize and create issues
         hashSet.add("xml_template_source_24.bal");
-        hashSet.add("explicit-new-with-object-keyword-with-multiple-args-negative02.bal");
-        hashSet.add("explicit-new-with-object-keyword-with-one-arg-negative01.bal");
-        hashSet.add("explicit-new-with-object-keyword-with-no-args.bal");
-        hashSet.add("explicit-new-with-object-keyword-with-multiple-args.bal");
-        hashSet.add("explicit-new-with-object-keyword-with-one-arg-negative02.bal");
-        hashSet.add("explicit-new-with-object-keyword-with-multiple-args-negative01.bal");
-        hashSet.add("explicit-new-with-object-keyword-with-one-args.bal");
         hashSet.add("func_def_source_08.bal");
         hashSet.add("find_node_test_1.bal");
         hashSet.add("minutiae_test_05_with_no_newlines.bal");
