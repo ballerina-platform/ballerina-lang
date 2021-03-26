@@ -339,7 +339,7 @@ public function functionWithStreams() {
     stream<Student> studentStream = studentList.toStream();
 
     stream<Subscription> subscriptionStream = studentStream.filter(function (Student student) returns boolean {
-        return student.score > 1;
+        return student.score > 1.0;
     }).'map(function (Student student) returns Subscription {
         Subscription subscription = {
             firstName: student.firstName,

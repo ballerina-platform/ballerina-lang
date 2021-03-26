@@ -596,88 +596,36 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // expression < expression
         // int - int
         debugTestRunner.assertExpression(context, String.format("%s < %s", INT_VAR, INT_VAR), "false", "boolean");
-        // float - int
-        debugTestRunner.assertExpression(context, String.format("%s < %s", FLOAT_VAR, INT_VAR), "true", "boolean");
-        // int - float
-        debugTestRunner.assertExpression(context, String.format("%s < %s", INT_VAR, FLOAT_VAR), "false", "boolean");
         // float - float
         debugTestRunner.assertExpression(context, String.format("%s < %s", FLOAT_VAR, FLOAT_VAR), "false", "boolean");
         // decimal - decimal
         debugTestRunner.assertExpression(context, String.format("%s < %s", DECIMAL_VAR, DECIMAL_VAR), "false",
                 "boolean");
-        // int - decimal
-        debugTestRunner.assertExpression(context, String.format("%s < %s", INT_VAR, DECIMAL_VAR), "false", "boolean");
-        // decimal - int
-        debugTestRunner.assertExpression(context, String.format("%s < %s", DECIMAL_VAR, INT_VAR), "true", "boolean");
-        // float - decimal
-        debugTestRunner.assertExpression(context, String.format("%s < %s", FLOAT_VAR, DECIMAL_VAR), "true", "boolean");
-        // decimal - float
-        debugTestRunner.assertExpression(context, String.format("%s < %s", DECIMAL_VAR, FLOAT_VAR), "false", "boolean");
 
         // expression > expression
         // int - int
         debugTestRunner.assertExpression(context, String.format("%s > %s", INT_VAR, INT_VAR), "false", "boolean");
-        // float - int
-        debugTestRunner.assertExpression(context, String.format("%s > %s", FLOAT_VAR, INT_VAR), "false", "boolean");
-        // int - float
-        debugTestRunner.assertExpression(context, String.format("%s > %s", INT_VAR, FLOAT_VAR), "true", "boolean");
         // float - float
         debugTestRunner.assertExpression(context, String.format("%s > %s", FLOAT_VAR, FLOAT_VAR), "false", "boolean");
         // decimal - decimal
         debugTestRunner.assertExpression(context, String.format("%s > %s", DECIMAL_VAR, DECIMAL_VAR), "false",
                 "boolean");
-        // int - decimal
-        debugTestRunner.assertExpression(context, String.format("%s > %s", INT_VAR, DECIMAL_VAR), "true", "boolean");
-        // decimal - int
-        debugTestRunner.assertExpression(context, String.format("%s > %s", DECIMAL_VAR, INT_VAR), "false", "boolean");
-        // float - decimal
-        debugTestRunner.assertExpression(context, String.format("%s > %s", FLOAT_VAR, DECIMAL_VAR), "false", "boolean");
-        // decimal - float
-        debugTestRunner.assertExpression(context, String.format("%s > %s", DECIMAL_VAR, FLOAT_VAR), "true", "boolean");
 
         // expression <= expression
         // int - int
         debugTestRunner.assertExpression(context, String.format("%s <= %s", INT_VAR, INT_VAR), "true", "boolean");
-        // float - int
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", FLOAT_VAR, INT_VAR), "true", "boolean");
-        // int - float
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", INT_VAR, FLOAT_VAR), "false", "boolean");
         // float - float
         debugTestRunner.assertExpression(context, String.format("%s <= %s", FLOAT_VAR, FLOAT_VAR), "true", "boolean");
         // decimal - decimal
         debugTestRunner.assertExpression(context, String.format("%s <= %s", DECIMAL_VAR, DECIMAL_VAR), "true",
                 "boolean");
-        // int - decimal
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", INT_VAR, DECIMAL_VAR), "false", "boolean");
-        // decimal - int
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", DECIMAL_VAR, INT_VAR), "true", "boolean");
-        // float - decimal
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", FLOAT_VAR, DECIMAL_VAR), "true", "boolean");
-        // decimal - float
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", DECIMAL_VAR, FLOAT_VAR), "false",
-                "boolean");
 
         // expression >= expression
         // int - int
         debugTestRunner.assertExpression(context, String.format("%s >= %s", INT_VAR, INT_VAR), "true", "boolean");
-        // float - int
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", FLOAT_VAR, INT_VAR), "false", "boolean");
-        // int - float
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", INT_VAR, FLOAT_VAR), "true", "boolean");
         // float - float
         debugTestRunner.assertExpression(context, String.format("%s >= %s", FLOAT_VAR, FLOAT_VAR), "true", "boolean");
         // decimal - decimal
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", DECIMAL_VAR, DECIMAL_VAR), "true",
-                "boolean");
-        // int - decimal
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", INT_VAR, DECIMAL_VAR), "true", "boolean");
-        // decimal - int
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", DECIMAL_VAR, INT_VAR), "false", "boolean");
-        // float - decimal
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", FLOAT_VAR, DECIMAL_VAR), "false",
-                "boolean");
-        // decimal - float
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", DECIMAL_VAR, FLOAT_VAR), "true", "boolean");
     }
 
     @Override

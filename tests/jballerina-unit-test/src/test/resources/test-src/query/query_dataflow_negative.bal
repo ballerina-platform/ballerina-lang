@@ -60,7 +60,7 @@ function testReassignValueInLet() {
 	    let float twiceScore = (student.score*2)
 	    do {
 	        twiceScore = 1000;
-	        if (twiceScore < 50) {
+	        if (twiceScore < 50.00) {
 	            FullName fullname = {firstName:student.firstName,lastName:student.lastName};
 	            nameList.push(fullname);
 	        }
