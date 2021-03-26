@@ -128,15 +128,16 @@ public class ConfigurableTest extends BaseTest {
         String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml").toString() +
                 File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml").toString();
         executeBalCommand("", testsPassed, "envVarPkg",
-                          addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, configFilePaths))));
+                          addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE,
+                                                                          configFilePaths))));
 
         // test configuration through `BAL_CONFIG_DATA` env variable
         String configData = "[envVarPkg] intVar = 42 floatVar = 3.5 stringVar = \"abc\" booleanVar = true " +
                 "decimalVar = 24.87 intArr = [1,2,3] floatArr = [9.0, 5.6] " +
                 "stringArr = [\"red\", \"yellow\", \"green\"] booleanArr = [true, false,false, true] " +
                 "decimalArr = [8.9, 4.5, 6.2]";
-        executeBalCommand("", testsPassed, "envVarPkg",
-                          addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
+        executeBalCommand("", testsPassed, "envVarPkg", addEnvironmentVariables(Map.
+                ofEntries(Map.entry(CONFIG_DATA_ENV_VARIABLE, configData))));
 
         // test configuration through `BAL_CONFIG_SECRET_FILE` env variable
         String secretFilePath = Paths.get(testFileLocation, "config_files", "Config-secrets.toml").toString();
@@ -304,10 +305,11 @@ public class ConfigurableTest extends BaseTest {
     @Test(dataProvider = "negative-tests")
     public void testNegativeCases(String tomlFileName, String errorMsg) throws BallerinaTestException {
         Path projectPath = Paths.get(negativeTestFileLocation, "configProject").toAbsolutePath();
-        Path tomlPath = Paths.get(negativeTestFileLocation, "config_files", tomlFileName  + ".toml").toAbsolutePath();
+        Path tomlPath = Paths.get(negativeTestFileLocation, "config_files", tomlFileName + ".toml").toAbsolutePath();
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
         bMainInstance.runMain("run", new String[]{"main"},
-                              addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE, tomlPath.toString()))),
+                              addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE,
+                                                                              tomlPath.toString()))),
                               new String[]{}, new LogLeecher[]{errorLog}, projectPath.toString());
         errorLog.waitForText(5000);
     }

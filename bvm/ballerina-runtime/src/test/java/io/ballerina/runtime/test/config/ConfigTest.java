@@ -178,7 +178,7 @@ public class ConfigTest {
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
         supportedConfigProviders.add(new TomlContentProvider(tomlContent));
         DiagnosticLog diagnosticLog = new DiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
                                                            supportedConfigProviders);
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
