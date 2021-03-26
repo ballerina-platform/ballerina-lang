@@ -475,8 +475,7 @@ public class TypeParamAnalyzer {
     private void findTypeParamInStream(Location loc, BStreamType expType, BStreamType actualType,
                                        SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         findTypeParam(loc, expType.constraint, actualType.constraint, env, resolvedTypes, result);
-        findTypeParam(loc, expType.error, (actualType.error != null) ? actualType.error : symTable.nilType, env,
-                resolvedTypes, result);
+        findTypeParam(loc, expType.error, actualType.error, env, resolvedTypes, result);
     }
 
     private void findTypeParamInStreamForUnion(Location loc, BStreamType expType, BUnionType actualType,
@@ -486,9 +485,7 @@ public class TypeParamAnalyzer {
         for (BType type : actualType.getMemberTypes()) {
             if (type.tag == TypeTags.STREAM) {
                 constraints.add(((BStreamType) type).constraint);
-                if (((BStreamType) type).error != null) {
-                    errors.add(((BStreamType) type).error);
-                }
+                errors.add(((BStreamType) type).error);
             }
         }
 
@@ -689,6 +686,7 @@ public class TypeParamAnalyzer {
                 BType streamConstraint = getMatchingBoundType(((BStreamType) expType).constraint, env, resolvedTypes);
                 BType streamError = getMatchingBoundType(((BStreamType) expType).error , env, resolvedTypes);
                 if (streamError.tag == TypeTags.NONE) {
+                    //setting nil type the completion type if not resolved
                     streamError = symTable.nilType;
                 }
                 return new BStreamType(TypeTags.STREAM, streamConstraint, streamError, symTable.streamType.tsymbol);

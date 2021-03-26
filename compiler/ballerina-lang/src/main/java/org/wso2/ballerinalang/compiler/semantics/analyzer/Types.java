@@ -1849,7 +1849,7 @@ public class Types {
             return false;
         }
 
-        List<BType> types = new ArrayList<>(((BUnionType) returnType).getMemberTypes());
+        List<BType> types = getAllTypes(returnType);
         boolean containsCompletionType = types.removeIf(type -> type.tag == TypeTags.NIL);
         containsCompletionType = types.removeIf(type -> type.tag == TypeTags.ERROR) || containsCompletionType;
         if (!containsCompletionType) {
@@ -2513,7 +2513,7 @@ public class Types {
 
         @Override
         public Boolean visit(BStreamType t, BType s) {
-            return t == s;
+            return s.tag == TypeTags.STREAM && isSameStreamType(s, t, this.unresolvedTypes);
         }
 
         @Override

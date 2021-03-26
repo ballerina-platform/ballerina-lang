@@ -3261,7 +3261,8 @@ public class TypeChecker extends BLangNodeVisitor {
         retTypeMembers.addAll(types.getAllTypes(streamType.error));
         retTypeMembers.add(symTable.nilType);
 
-        BUnionType unionType = BUnionType.create(null, retTypeMembers);
+        BUnionType unionType = BUnionType.create(null);
+        unionType.addAll(retTypeMembers);
         unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0, Names.EMPTY,
                 env.enclPkg.symbol.pkgID, unionType, env.scope.owner, pos, VIRTUAL);
 
