@@ -549,9 +549,9 @@ public class BIRGen extends BLangNodeVisitor {
         List<String> attachPoint = symbol.getAbsResourcePath().orElse(null);
         String attachPointLiteral = symbol.getAttachPointStringLiteral().orElse(null);
         BIRNode.BIRServiceDeclaration serviceDecl =
-                new BIRNode.BIRServiceDeclaration(attachPoint, attachPointLiteral, symbol.name,
-                                                  symbol.getAssociatedClassSymbol().name, symbol.type, symbol.origin,
-                                                  symbol.flags, symbol.pos);
+                new BIRNode.BIRServiceDeclaration(attachPoint, attachPointLiteral, symbol.getListenerTypes(),
+                                                  symbol.name, symbol.getAssociatedClassSymbol().name, symbol.type,
+                                                  symbol.origin, symbol.flags, symbol.pos);
         serviceDecl.setMarkdownDocAttachment(symbol.markdownDocumentation);
         this.env.enclPkg.serviceDecls.add(serviceDecl);
     }

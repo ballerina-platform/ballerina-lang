@@ -224,20 +224,6 @@ public class Types {
         return symTable.semanticError;
     }
 
-    public boolean isJSONContext(BType type) {
-        if (type.tag == TypeTags.UNION) {
-            return ((BUnionType) type).getMemberTypes().stream().anyMatch(memType -> memType.tag == TypeTags.JSON);
-        }
-        return type.tag == TypeTags.JSON;
-    }
-
-    public boolean isJSONUnionType(BUnionType type) {
-        if (type.name != null && (type.name.getValue().equals(Names.JSON.getValue()))) {
-            return true;
-        }
-        return isSameType(type, symTable.jsonType);
-    }
-
     public boolean isLax(BType type) {
         Set<BType> visited = new HashSet<>();
         int result = isLaxType(type, visited);
