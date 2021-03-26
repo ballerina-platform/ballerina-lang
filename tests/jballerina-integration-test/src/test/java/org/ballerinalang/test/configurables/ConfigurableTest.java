@@ -74,7 +74,7 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testAPIConfigFileNegative() throws BallerinaTestException {
-        String error = "configuration file is not found in path 'configPkg/tests/Config.toml'";
+        String error = "value not provided for required configurable variable 'configPkg.util.foo:intVar'";
         executeBalCommand("/testPathProject", new LogLeecher(error, ERROR), "test", "configPkg", null);
     }
 

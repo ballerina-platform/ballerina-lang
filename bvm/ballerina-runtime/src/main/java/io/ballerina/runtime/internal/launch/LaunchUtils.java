@@ -26,8 +26,9 @@ import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
-import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import org.ballerinalang.config.ConfigRegistry;
@@ -149,13 +150,13 @@ public class LaunchUtils {
         try {
             List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
             if (configContent != null) {
-                supportedConfigProviders.add(new TomlProvider(configContent, configurationData));
+                supportedConfigProviders.add(new TomlContentProvider(configContent));
             }
             for (int i = configFilePaths.length - 1; i >= 0; i--) {
-                supportedConfigProviders.add(new TomlProvider(configFilePaths[i], configurationData));
+                supportedConfigProviders.add(new TomlFileProvider(configFilePaths[i]));
             }
             if (secretContent != null) {
-                supportedConfigProviders.add(new TomlProvider(secretContent, configurationData));
+                supportedConfigProviders.add(new TomlContentProvider(secretContent));
             }
             ConfigResolver configResolver = new ConfigResolver(configurationData, supportedConfigProviders);
             ConfigMap.setConfigurableMap(configResolver.resolveConfigs());

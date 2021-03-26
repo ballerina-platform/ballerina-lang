@@ -30,7 +30,8 @@ import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlException;
-import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -65,7 +66,7 @@ public class ConfigTest {
         configVarMap.put(module, keys);
 
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlProvider(getConfigPath("Simple_Types_Config.toml"), configVarMap));
+        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Simple_Types_Config.toml")));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
@@ -104,7 +105,7 @@ public class ConfigTest {
         configVarMap.put(module, keys);
 
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlProvider(getConfigPath("Array_Config.toml"), configVarMap));
+        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Array_Config.toml")));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
@@ -147,7 +148,7 @@ public class ConfigTest {
         String tomlContent = "[test_module] intVar = 33 stringVar = \"xyz\" " +
                 "stringArr = [\"aa\", \"bb\", \"cc\"] booleanArr = [false, true, true, false]";
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlProvider(tomlContent, configVarMap));
+        supportedConfigProviders.add(new TomlContentProvider(tomlContent));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
@@ -176,7 +177,7 @@ public class ConfigTest {
         String tomlContent = "[test_module] intVar = 42.22 floatVar = 3 stringVar = 11";
         configVarMap.put(module, keys);
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlProvider(tomlContent, configVarMap));
+        supportedConfigProviders.add(new TomlContentProvider(tomlContent));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         configResolver.resolveConfigs();
         Assert.fail();
@@ -189,8 +190,8 @@ public class ConfigTest {
         Map<Module, VariableKey[]> configVarMap =
                 Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}));
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_A.toml"), configVarMap));
-        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_B.toml"), configVarMap));
+        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_A.toml")));
+        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_B.toml")));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
@@ -207,8 +208,8 @@ public class ConfigTest {
         Map<Module, VariableKey[]> configVarMap =
                 Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}));
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_2.toml"), configVarMap));
-        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_1.toml"), configVarMap));
+        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_2.toml")));
+        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_1.toml")));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
@@ -226,8 +227,8 @@ public class ConfigTest {
         Map<Module, VariableKey[]> configVarMap =
                 Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}));
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_First.toml"), configVarMap));
-        supportedConfigProviders.add(new TomlProvider(getConfigPath("Config_Second.toml"), configVarMap));
+        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_First.toml")));
+        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_Second.toml")));
         ConfigResolver configResolver = new ConfigResolver(configVarMap, supportedConfigProviders);
         configResolver.resolveConfigs();
     }

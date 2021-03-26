@@ -534,7 +534,7 @@ public class BTestRunner {
         // properly.
 
         Object response = configInit.directInvoke(new Class[]{Path[].class, String.class, String.class},
-                new Object[]{new Path[]{getConfigPath(suite)}, null, null});
+                new Object[]{getConfigPaths(suite), null, null});
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
                     response.toString(), (Throwable) response);
@@ -573,7 +573,7 @@ public class BTestRunner {
         immortalThread.start();
     }
 
-    private Path getConfigPath(TestSuite testSuite) {
+    private Path[] getConfigPaths(TestSuite testSuite) {
         String moduleName = testSuite.getModuleName();
         Path configFilePath = Paths.get(testSuite.getSourceRootPath());
         if (!moduleName.equals(testSuite.getPackageName())) {
@@ -581,9 +581,10 @@ public class BTestRunner {
         }
         configFilePath = configFilePath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
         if (!Files.exists(configFilePath)) {
-            errStream.println("WARNING: configuration file is not found in path '" + configFilePath + "'");
+            return new Path[] {};
+        } else {
+            return new Path[] {configFilePath};
         }
-        return configFilePath;
     }
 
     private void stopSuite(TestSuite suite, Scheduler scheduler, Class<?> initClazz, Class<?> testInitClazz,
