@@ -16,7 +16,6 @@
 
 package org.ballerinalang.debugadapter;
 
-import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassLoaderReference;
 import com.sun.jdi.InvalidStackFrameException;
 import io.ballerina.projects.Document;
@@ -126,7 +125,7 @@ public class SuspendedContext {
     private Optional<Path> getSourcePath(StackFrameProxyImpl frame) {
         try {
             return PackageUtils.getSrcPathFromBreakpointLocation(frame.location(), project);
-        } catch (AbsentInformationException | InvalidStackFrameException | JdiProxyException e) {
+        } catch (InvalidStackFrameException | JdiProxyException e) {
             // Todo - How to handle InvalidStackFrameException?
             return Optional.empty();
         } catch (Exception e) {

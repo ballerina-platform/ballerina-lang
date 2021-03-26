@@ -16,22 +16,15 @@
 
 package org.ballerinalang.debugadapter.utils;
 
-import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleName;
-import io.ballerina.projects.PackageName;
-import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectException;
-import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
-import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.ExecutionContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
@@ -41,11 +34,11 @@ import java.io.File;
 import java.io.IOException;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 
 /**
@@ -57,72 +50,38 @@ public class PackageUtils {
     public static final String INIT_CLASS_NAME = "$_init";
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
-    private static final String MODULE_DIR_NAME = "modules";
+    static final String MODULE_DIR_NAME = "modules";
 
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     /**
-     * Derives the absolute path of the breakpoint location using JDI breakpoint hit information.
+     * Retrieves the absolute path of the breakpoint location using JDI breakpoint hit information.
      */
-    public static Optional<Path> getSrcPathFromBreakpointLocation(Location location, Project currentProject)
-            throws AbsentInformationException {
-        try {
-            // 1. If the debug hit location resides within the current debug source project, retrieves the returns the
-            // absolute path of the project file source.
-            if (isWithinProject(location, currentProject)) {
-                return Optional.ofNullable(getProjectFilePath(location, currentProject));
-            } else {
-                // Else, checks whether the debug hit location resides within a project dependency (lang library, standard
-                // library, central module, etc.) and if so, retrieves the dependency file path resolved using project
-                // compilation.
-                String sourcePath = location.sourcePath();
-                String[] moduleParts = getQModuleNameParts(sourcePath);
-                String locationOrg = moduleParts[0];
-                String locationModule = decodeIdentifier(moduleParts[1]);
-                if (isWithinProjectDependency(currentProject, locationOrg, locationModule)) {
-                    return Optional
-                            .of(getDependencyFilePath(currentProject, locationOrg, locationModule, moduleParts[3]));
-                }
-            }
-            return Optional.empty();
-        } catch (Exception e) {
-            return Optional.empty();
-        }
-    }
+    public static Optional<Path> getSrcPathFromBreakpointLocation(Location location, Project sourceProject) {
+        // Source resolving is processed according to the following order .
+        //
+        // 1. Checks whether debug hit location resides within the current debug source project, retrieves the returns
+        // the absolute path of the project file source.
+        //
+        // 2. Checks whether the debug hit location resides within a internal dependency (lang library) and if so,
+        // retrieves the dependency file path resolved using package cache.
+        //
+        // 3. Checks whether the debug hit location resides within a external dependency (standard library or central
+        // module) and if so, retrieves the dependency file path resolved using package resolution.
+        List<SourceResolver> sourceResolvers = new ArrayList<>();
+        sourceResolvers.add(new ProjectSourceResolver(sourceProject));
+        sourceResolvers.add(new LangLibSourceResolver(sourceProject));
+        sourceResolvers.add(new DependencySourceResolver(sourceProject));
 
-    /**
-     * Returns whether the given debug hit location resides within the sources of the given project/package.
-     */
-    private static boolean isWithinProject(Location location, Project project) throws AbsentInformationException {
-        if (project instanceof SingleFileProject) {
-            DocumentId docId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
-            Document document = project.currentPackage().getDefaultModule().document(docId);
-            return document.name().equals(location.sourcePath()) && document.name().equals(location.sourceName());
-        } else if (project instanceof BuildProject) {
-            String projectOrg = getOrgName(project);
-            String locSourcePath = location.sourcePath();
-            String[] moduleNameParts = getQModuleNameParts(locSourcePath);
-            String locationOrg = moduleNameParts[0];
-            return locationOrg.equals(projectOrg);
-        }
-        return false;
-    }
-
-    /**
-     * Returns whether the given debug hit location resides within a dependency module of the given project/package.
-     */
-    private static boolean isWithinProjectDependency(Project project, String orgName, String moduleName) {
-        List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(moduleName);
-        for (PackageName possiblePackageName : possiblePackageNames) {
-            PackageResolution resolution = project.currentPackage().getResolution();
-            for (ResolvedPackageDependency resolvedPackageDependency : resolution.dependencyGraph().getNodes()) {
-                if (resolvedPackageDependency.packageInstance().packageOrg().value().equals(orgName)
-                        && resolvedPackageDependency.packageInstance().packageName().equals(possiblePackageName)) {
-                    return true;
+        for (SourceResolver sourceResolver : sourceResolvers) {
+            if (sourceResolver.canResolve(location)) {
+                Optional<Path> resolvedPath = sourceResolver.resolve(location);
+                if (resolvedPath.isPresent()) {
+                    return resolvedPath;
                 }
             }
         }
-        return false;
+        return Optional.empty();
     }
 
     /**
@@ -282,100 +241,5 @@ public class PackageUtils {
             return path.replaceAll("\\\\", ".");
         }
         return path;
-    }
-
-    /**
-     * Returns the absolute file path of the project source, which is represented by the given JDI location information.
-     */
-    private static Path getProjectFilePath(Location location, Project project) throws AbsentInformationException {
-        String projectRoot = project.sourceRoot().toAbsolutePath().toString();
-
-        if (project instanceof SingleFileProject) {
-            DocumentId docId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
-            Document document = project.currentPackage().getDefaultModule().document(docId);
-            if (!document.name().equals(location.sourcePath()) || !document.name().equals(location.sourceName())) {
-                return null;
-            }
-            return Paths.get(projectRoot);
-        } else if (project instanceof BuildProject) {
-            String projectOrg = getOrgName(project);
-            String defaultModuleName = getDefaultModuleName(project);
-            String locationPath = location.sourcePath();
-            String locationName = location.sourceName();
-            String[] moduleNameParts = getQModuleNameParts(locationPath);
-            String locationOrg = moduleNameParts[0];
-
-            if (!locationOrg.equals(projectOrg)) {
-                return null;
-            }
-
-            String modulePart = decodeIdentifier(moduleNameParts[1]);
-            modulePart = modulePart.replaceFirst(defaultModuleName, "");
-            if (modulePart.startsWith(".")) {
-                modulePart = modulePart.replaceFirst("\\.", "");
-            }
-
-            if (modulePart.isBlank()) {
-                // default module
-                return Paths.get(projectRoot, locationName);
-            } else {
-                // other modules
-                return Paths.get(projectRoot, MODULE_DIR_NAME, modulePart, locationName);
-            }
-        }
-        return null;
-    }
-
-    /**
-     * Returns the absolute path of the specified file, using the package dependency graph.
-     *
-     * @param project    current ballerina debug source project
-     * @param orgName    package org of the dependency
-     * @param moduleName module name of the dependency
-     * @param filename   name of the file to get the path of
-     * @return path of the file
-     * @throws ProjectException if file cannot be found in the dependency package
-     */
-    private static Path getDependencyFilePath(Project project, String orgName, String moduleName, String filename)
-            throws ProjectException {
-        List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(moduleName);
-        for (PackageName possiblePackageName : possiblePackageNames) {
-            PackageResolution resolution = project.currentPackage().getResolution();
-            for (ResolvedPackageDependency resolvedPackageDependency : resolution.dependencyGraph().getNodes()) {
-                if (!resolvedPackageDependency.packageInstance().packageOrg().value().equals(orgName)
-                        || !resolvedPackageDependency.packageInstance().packageName().equals(possiblePackageName)) {
-                    continue;
-                }
-
-                ModuleName modName = findModuleName(possiblePackageName, moduleName);
-                Module module = resolvedPackageDependency.packageInstance().module(modName);
-                if (module == null) {
-                    continue;
-                }
-
-                for (DocumentId documentId : module.documentIds()) {
-                    if (!module.document(documentId).name().equals(filename)) {
-                        continue;
-                    }
-                    Project dependencyProject = resolvedPackageDependency.packageInstance().project();
-                    Optional<Path> documentPath = dependencyProject.documentPath(documentId);
-                    if (documentPath.isPresent()) {
-                        return documentPath.get();
-                    }
-                }
-            }
-        }
-
-        throw new ProjectException(String.format("no matching file '%s' found in dependency graph of '%s/%s'",
-                filename, orgName, moduleName));
-    }
-
-    private static ModuleName findModuleName(PackageName packageName, String moduleNameStr) {
-        if (packageName.value().equals(moduleNameStr)) {
-            return ModuleName.from(packageName);
-        } else {
-            String moduleNamePart = moduleNameStr.substring(packageName.value().length() + 1);
-            return ModuleName.from(packageName, moduleNamePart);
-        }
     }
 }
