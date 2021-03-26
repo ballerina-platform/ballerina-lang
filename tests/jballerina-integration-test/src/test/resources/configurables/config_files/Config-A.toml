@@ -1,6 +1,5 @@
-[myOrg.test_module]
+[envVarPkg]
 intVar = 42
-byteVar = 5
 floatVar = 3.5
 stringVar = "abc"
 booleanVar = true

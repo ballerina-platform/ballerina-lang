@@ -56,8 +56,6 @@ import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -66,11 +64,9 @@ import java.util.Optional;
 import java.util.Set;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIGURATION_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILE_NOT_FOUND;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONSTRAINT_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_FIELD_UNSUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_MODULE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.EMPTY_CONFIG_FILE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.FIELD_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.INVALID_ADDITIONAL_FIELD_IN_RECORD;
 import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.INVALID_BYTE_RANGE;
@@ -89,20 +85,17 @@ import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
  *
  * @since 2.0.0
  */
-public class ConfigTomlProvider implements ConfigProvider {
+public class TomlProvider implements ConfigProvider {
 
-    private final Set<String> requiredModules;
     Map<Module, TomlTableNode> moduleTomlNodeMap = new HashMap<>();
-
     TomlTableNode tomlNode;
 
-    public ConfigTomlProvider(Path configPath, Map<Module, VariableKey[]> configVarMap) {
-        this.requiredModules = getRequiredModules(configVarMap);
-        this.tomlNode = getConfigurationData(configPath, !requiredModules.isEmpty());
+    TomlProvider() {
     }
 
     @Override
     public void initialize(Map<Module, VariableKey[]> configVarMap) {
+        Set<String> requiredModules = getRequiredModules(configVarMap);
         //No values provided at toml file
         if (tomlNode == null || tomlNode.entries().isEmpty()) {
             //No values provided at toml file
@@ -245,23 +238,6 @@ public class ConfigTomlProvider implements ConfigProvider {
                     getTomlTypeString(tomlValue)), tomlValue);
         }
         return tomlValue;
-    }
-
-    private static TomlTableNode getConfigurationData(Path configFilePath, boolean hasRequired) {
-        if (!Files.exists(configFilePath)) {
-            if (hasRequired) {
-                throw new ConfigTomlException(String.format(CONFIG_FILE_NOT_FOUND, configFilePath));
-            } else {
-                return null;
-            }
-        }
-        ConfigToml configToml = new ConfigToml(configFilePath);
-
-        TomlTableNode tomlNode = configToml.tomlAstNode();
-        if (tomlNode.entries().isEmpty() && hasRequired) {
-            throw new ConfigTomlException(String.format(EMPTY_CONFIG_FILE, configFilePath));
-        }
-        return tomlNode;
     }
 
     private Set<String> getRequiredModules(Map<Module, VariableKey[]> configVarMap) {

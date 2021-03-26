@@ -16,20 +16,25 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable;
+package io.ballerina.runtime.internal.configurable.providers.toml;
+
+import java.nio.file.Path;
 
 /**
- * Constants used by configs.
+ * Represents information on Configurable TOML data.
  *
- * @since 2.0.0
+ * @since 2.0
  */
-public class ConfigConstants {
+public class TomlDetails {
 
-    public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
+    public final Path[] paths;
+    public final String secret;
+    public final String configContent;
 
-    public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
-            "supported";
-
-    private ConfigConstants() {
+    public TomlDetails(Path[] paths, String secret, String configContent) {
+        this.paths = paths;
+        this.secret = secret;
+        this.configContent = configContent;
     }
+
 }
