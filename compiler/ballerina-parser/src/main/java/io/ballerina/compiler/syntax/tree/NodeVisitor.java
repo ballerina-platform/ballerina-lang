@@ -375,10 +375,6 @@ public abstract class NodeVisitor {
         visitSyntaxNode(errorTypeDescriptorNode);
     }
 
-    public void visit(ErrorTypeParamsNode errorTypeParamsNode) {
-        visitSyntaxNode(errorTypeParamsNode);
-    }
-
     public void visit(StreamTypeDescriptorNode streamTypeDescriptorNode) {
         visitSyntaxNode(streamTypeDescriptorNode);
     }

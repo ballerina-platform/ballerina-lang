@@ -27,7 +27,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class AnnotationDeclarationTest extends CompletionTestNew {
+public class AnnotationDeclarationTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

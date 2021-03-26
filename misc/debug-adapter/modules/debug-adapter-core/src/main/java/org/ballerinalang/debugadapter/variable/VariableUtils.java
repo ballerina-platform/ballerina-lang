@@ -21,6 +21,7 @@ import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.jdi.LocalVariableProxyImpl;
 
 import java.util.Collections;
 import java.util.List;
@@ -37,6 +38,7 @@ public class VariableUtils {
     public static final String FIELD_CONSTRAINT = "constraint";
     public static final String METHOD_STRINGVALUE = "stringValue";
     public static final String UNKNOWN_VALUE = "unknown";
+    private static final String LAMBDA_PARAM_MAP_PATTERN = "\\$.*[Mm][Aa][Pp].*\\$.*";
     // Used to trim redundant beginning and ending double quotes from a string, if presents.
     private static final String ADDITIONAL_QUOTES_REMOVE_REGEX = "^\"|\"$";
 
@@ -147,7 +149,7 @@ public class VariableUtils {
     static boolean isJson(Value value) {
         try {
             Optional<Value> typeField = getFieldValue(value, FIELD_TYPE);
-            if (!typeField.isPresent()) {
+            if (typeField.isEmpty()) {
                 return false;
             }
             if (typeField.get().type().name().endsWith(JVMValueType.BTYPE_JSON.getString())) {
@@ -158,6 +160,16 @@ public class VariableUtils {
         } catch (DebugVariableException e) {
             return false;
         }
+    }
+
+    /**
+     * Checks whether the given local variable is a ballerina map type variable, which holds local variables used
+     * within lambda function scopes.
+     *
+     * @param localVar local variable instance.
+     */
+    public static boolean isLambdaParamMap(LocalVariableProxyImpl localVar) {
+        return localVar.name().matches(LAMBDA_PARAM_MAP_PATTERN);
     }
 
     /**

@@ -22,7 +22,7 @@
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "ballerina"
+                  "value": "foobar"
                 },
                 {
                   "kind": "SLASH_TOKEN"
@@ -34,7 +34,7 @@
               "children": [
                 {
                   "kind": "IDENTIFIER_TOKEN",
-                  "value": "http"
+                  "value": "baz"
                 }
               ]
             },
@@ -98,6 +98,7 @@
             },
             {
               "kind": "FUNCTION_SIGNATURE",
+              "hasDiagnostics": true,
               "children": [
                 {
                   "kind": "OPEN_PAREN_TOKEN"
@@ -112,6 +113,39 @@
                     {
                       "kind": "WHITESPACE_MINUTIAE",
                       "value": " "
+                    }
+                  ]
+                },
+                {
+                  "kind": "RETURN_TYPE_DESCRIPTOR",
+                  "hasDiagnostics": true,
+                  "children": [
+                    {
+                      "kind": "RETURNS_KEYWORD",
+                      "isMissing": true,
+                      "hasDiagnostics": true,
+                      "diagnostics": [
+                        "ERROR_MISSING_RETURNS_KEYWORD"
+                      ]
+                    },
+                    {
+                      "kind": "LIST",
+                      "children": []
+                    },
+                    {
+                      "kind": "SIMPLE_NAME_REFERENCE",
+                      "children": [
+                        {
+                          "kind": "IDENTIFIER_TOKEN",
+                          "value": "re",
+                          "trailingMinutiae": [
+                            {
+                              "kind": "END_OF_LINE_MINUTIAE",
+                              "value": "\n"
+                            }
+                          ]
+                        }
+                      ]
                     }
                   ]
                 }
@@ -131,60 +165,7 @@
                 },
                 {
                   "kind": "LIST",
-                  "hasDiagnostics": true,
-                  "children": [
-                    {
-                      "kind": "ASSIGNMENT_STATEMENT",
-                      "hasDiagnostics": true,
-                      "children": [
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "value": "re",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "END_OF_LINE_MINUTIAE",
-                                  "value": "\n"
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "EQUAL_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_EQUAL_TOKEN"
-                          ]
-                        },
-                        {
-                          "kind": "SIMPLE_NAME_REFERENCE",
-                          "hasDiagnostics": true,
-                          "children": [
-                            {
-                              "kind": "IDENTIFIER_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_IDENTIFIER"
-                              ]
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "SEMICOLON_TOKEN",
-                          "isMissing": true,
-                          "hasDiagnostics": true,
-                          "diagnostics": [
-                            "ERROR_MISSING_SEMICOLON_TOKEN"
-                          ]
-                        }
-                      ]
-                    }
-                  ]
+                  "children": []
                 },
                 {
                   "kind": "CLOSE_BRACE_TOKEN",

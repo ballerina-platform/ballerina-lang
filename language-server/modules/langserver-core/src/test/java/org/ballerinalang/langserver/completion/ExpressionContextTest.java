@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class ExpressionContextTest extends CompletionTestNew {
+public class ExpressionContextTest extends CompletionTest {
 
     @Test(dataProvider = "completion-data-provider")
     @Override

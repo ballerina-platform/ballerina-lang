@@ -785,6 +785,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                 this.unresolvedTypes.add(classDefinition);
                 return;
             }
+            objectType.typeInclusions.add(referencedType);
         }
 
         classDefinition.setPrecedence(this.typePrecedence++);
@@ -2935,7 +2936,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             symTable.langQueryModuleSymbol = packageSymbol;
             return;
         }
-
         if (langLib.equals(TRANSACTION)) {
             symTable.langTransactionModuleSymbol = packageSymbol;
             return;
@@ -3742,9 +3742,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public BVarSymbol createVarSymbol(long flags, BType varType, Name varName, SymbolEnv env,
                                       Location location, boolean isInternal) {
-        BType safeType = types.getSafeType(varType, true, false);
         BVarSymbol varSymbol;
-        if (safeType.tag == TypeTags.INVOKABLE) {
+        if (varType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
                                              env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
             varSymbol.kind = SymbolKind.FUNCTION;
@@ -4069,20 +4068,20 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return;
             }
 
-            if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
-                    referencedFunc.symbol)) {
-                BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
-                Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
-                dlog.error(methodPos, DiagnosticErrorCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
-                           referencedFunc.funcName, typeRef);
-            }
-
             if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
                 BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
                 Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
                 dlog.error(methodPos, DiagnosticErrorCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
                            getCompleteFunctionSignature(referencedFunc.symbol),
                            getCompleteFunctionSignature((BInvokableSymbol) matchingObjFuncSym));
+            }
+
+            if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
+                    referencedFunc.symbol) && !types.isAssignable(matchingObjFuncSym.type, referencedFunc.type)) {
+                BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
+                Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
+                dlog.error(methodPos, DiagnosticErrorCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
+                        referencedFunc.funcName, typeRef);
             }
             return;
         }
