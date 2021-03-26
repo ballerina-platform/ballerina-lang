@@ -75,7 +75,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
                 "ambiguity_source_23.bal", "ambiguity_source_09.bal", "ambiguity_source_18.bal",
                 "ambiguity_source_30.bal", "ambiguity_source_24.bal", "ambiguity_source_26.bal",
-                "ambiguity_source_16.bal", "ambiguity_source_03.bal",
+                "ambiguity_source_16.bal", "ambiguity_source_03.bal", "ambiguity_source_29.bal",
                 "ambiguity_source_28.bal", "ambiguity_source_04.bal", "ambiguity_source_10.bal",
                 "ambiguity_source_13.bal", "typed_binding_patterns_source_18.bal",
                 "typed_binding_patterns_source_08.bal", "typed_binding_patterns_source_09.bal",
