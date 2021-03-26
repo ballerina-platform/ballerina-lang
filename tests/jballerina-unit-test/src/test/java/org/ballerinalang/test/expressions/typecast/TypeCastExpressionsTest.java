@@ -183,9 +183,7 @@ public class TypeCastExpressionsTest {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'map<json>' cannot be cast to 'Bar'.*")
+    @Test
     public void testMutableJsonMappingToExclusiveRecordNegative() {
         BRunUtil.invoke(result, "testMutableJsonMappingToExclusiveRecordNegative");
     }

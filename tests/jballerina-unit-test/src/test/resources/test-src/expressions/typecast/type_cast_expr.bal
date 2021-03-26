@@ -15,6 +15,7 @@
 // under the License.
 
 const ERR_REASON = "error reason";
+const TYPE_CAST_ERROR = "{ballerina}TypeCastError";
 
 type MyError error;
 type MyErrorTwo error<ErrorDetails>;
@@ -846,27 +847,42 @@ type Bar record {|
 function testImmutableJsonMappingToExclusiveRecordPositive() {
     json readonlyJsonMapping = jsonMapping.cloneReadOnly();
     Bar intBar = <Bar>readonlyJsonMapping;
-    assert(1, intBar.a);
+    assertEquality(1, intBar.a);
 }
 
 function testImmutableJsonMappingToInclusiveRecordPositive() {
     json readonlyJsonMapping = jsonMapping.cloneReadOnly();
     IntRecord intBar = <IntRecord>readonlyJsonMapping;
-    assert(1, intBar.a);
+    assertEquality(1, intBar.a);
 }
 
 function testMutableJsonMappingToExclusiveRecordNegative() {
-    Bar res = <Bar>jsonMapping;
+    Bar|error res = trap <Bar>jsonMapping;
+    assertTrue(res is error);
+    error err = <error> res;
+    assertEquality(TYPE_CAST_ERROR, err.message());
+    assertEquality("incompatible types: 'map<json>' cannot be cast to 'Bar'", err.detail()["message"]);
 }
 
 // Util functions
 
-function assert(anydata expected, anydata actual) {
-    if (expected != actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
-        string detail = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        panic error("{AssertionError}", message = detail);
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(anydata actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
     }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
