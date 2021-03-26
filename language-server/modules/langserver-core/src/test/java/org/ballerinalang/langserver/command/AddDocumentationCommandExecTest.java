@@ -38,11 +38,12 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
 
     private static final Logger log = LoggerFactory.getLogger(AddDocumentationCommandExecTest.class);
 
-    @Test(dataProvider = "add-doc-data-provider", enabled = false)
+    @Test(dataProvider = "add-doc-data-provider")
     public void testAddSingleDocumentation(String config, String source) throws IOException {
         performTest(config, source, AddDocumentationExecutor.COMMAND);
     }
 
+    // TODO: Enable these tests
     @Test(dataProvider = "add-all-doc-data-provider", enabled = false)
     public void testAddAllDocumentation(String config, String source) throws IOException {
         performTest(config, source, AddAllDocumentationExecutor.COMMAND);
@@ -52,8 +53,7 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
     public Object[][] addDocDataProvider() {
         log.info("Test workspace/executeCommand for command {}", AddDocumentationExecutor.COMMAND);
         return new Object[][]{
-                //TODO: Disabled failing doc tests
-//                {"addSingleFunctionDocumentation1.json", "addSingleFunctionDocumentation1.bal"},
+                {"addSingleFunctionDocumentation1.json", "addSingleFunctionDocumentation1.bal"},
                 {"addSingleFunctionDocumentation2.json", "commonDocumentation.bal"},
                 {"addObjectFunctionDocumentation.json", "commonDocumentation.bal"},
                 {"addSingleServiceDocumentation.json", "commonDocumentation.bal"},
@@ -75,7 +75,7 @@ public class AddDocumentationCommandExecTest extends AbstractCommandExecutionTes
     @Override
     protected List<Object> getArgs(JsonObject argsObject) {
         List<Object> args = new ArrayList<>();
-        args.add(CommandArgument.from(CommandConstants.ARG_KEY_NODE_POS, argsObject.getAsJsonObject("node.position")));
+        args.add(CommandArgument.from(CommandConstants.ARG_KEY_NODE_RANGE, argsObject.getAsJsonObject("node.range")));
         return args;
     }
 

@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.LimitClauseNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -24,10 +25,10 @@ import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link LimitClauseNode} context.
@@ -35,7 +36,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class LimitClauseNodeContext extends AbstractCompletionProvider<LimitClauseNode> {
+public class LimitClauseNodeContext extends IntermediateClauseNodeContext<LimitClauseNode> {
 
     public LimitClauseNodeContext() {
         super(LimitClauseNode.class);
@@ -46,7 +47,9 @@ public class LimitClauseNodeContext extends AbstractCompletionProvider<LimitClau
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+        if (cursorAtTheEndOfClause(context, node)) {
+            completionItems.addAll(this.getKeywordCompletions(context, node));
+        } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
             Covers the cases where the cursor is within the expression context
              */
@@ -56,13 +59,19 @@ public class LimitClauseNodeContext extends AbstractCompletionProvider<LimitClau
         } else {
             completionItems.addAll(this.expressionCompletions(context));
         }
-        this.sort(context, node, completionItems);
         
+        this.sort(context, node, completionItems);
+
         return completionItems;
     }
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, LimitClauseNode node) {
         return !node.limitKeyword().isMissing();
+    }
+
+    @Override
+    protected Optional<Node> getLastNodeOfClause(LimitClauseNode node) {
+        return Optional.of(node.expression());
     }
 }

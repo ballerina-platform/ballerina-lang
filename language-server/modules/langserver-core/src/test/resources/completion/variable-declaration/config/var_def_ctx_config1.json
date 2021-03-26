@@ -30,11 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "from ",
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -456,6 +456,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "a",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -481,14 +489,6 @@
       },
       "sortText": "A",
       "insertText": "doTask()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "a",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "C",
-      "insertText": "a",
       "insertTextFormat": "Snippet"
     }
   ]

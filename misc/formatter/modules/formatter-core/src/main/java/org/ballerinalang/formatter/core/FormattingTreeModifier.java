@@ -1657,11 +1657,32 @@ public class FormattingTreeModifier extends TreeModifier {
     public MarkdownParameterDocumentationLineNode transform(
             MarkdownParameterDocumentationLineNode markdownParameterDocumentationLineNode) {
         Token hashToken = formatToken(markdownParameterDocumentationLineNode.hashToken(), 1, 0);
-        Token plusToken = formatToken(markdownParameterDocumentationLineNode.plusToken(), 1, 0);
-        Token parameterName = formatToken(markdownParameterDocumentationLineNode.parameterName(), 1, 0);
-        Token minusToken = formatToken(markdownParameterDocumentationLineNode.minusToken(), 1, 0);
-        NodeList<Node> documentElements = formatNodeList(markdownParameterDocumentationLineNode.documentElements(),
-                0, 0, env.trailingWS, env.trailingNL);
+
+        Token plusToken = markdownParameterDocumentationLineNode.plusToken();
+        Token parameterName = markdownParameterDocumentationLineNode.parameterName();
+        Token minusToken = markdownParameterDocumentationLineNode.minusToken();
+        NodeList<Node> documentElements = markdownParameterDocumentationLineNode.documentElements();
+
+        if (parameterName == null && minusToken == null && documentElements.isEmpty()) {
+            // handle a scenario when the plus token is the last token in the documentation line
+            plusToken = formatToken(plusToken, env.trailingWS, env.trailingNL);
+        } else {
+            plusToken = formatToken(plusToken, 1, 0);
+            if (minusToken == null && documentElements.isEmpty()) {
+                // handle a scenario when the parameter name is the last token in the documentation line
+                parameterName = formatToken(parameterName, env.trailingWS, env.trailingNL);
+            } else {
+                parameterName = formatToken(parameterName, 1, 0);
+                if (documentElements.isEmpty()) {
+                    // handle a scenario when the minus token is the last token in the documentation line
+                    minusToken = formatToken(minusToken, env.trailingWS, env.trailingNL);
+                } else {
+                    minusToken = formatToken(minusToken, 1, 0);
+                    documentElements = formatNodeList(markdownParameterDocumentationLineNode.documentElements(),
+                            0, 0, env.trailingWS, env.trailingNL);
+                }
+            }
+        }
 
         return markdownParameterDocumentationLineNode.modify()
                 .withHashToken(hashToken)
