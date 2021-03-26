@@ -1,5 +1,5 @@
 // Override lang.int with custom import
-import ballerina/foo.bar.baz as int:;
+import foobar/foo.bar.baz as int:;
 
 // Predeclared prefix in annotation and listener decl
 @int:%
