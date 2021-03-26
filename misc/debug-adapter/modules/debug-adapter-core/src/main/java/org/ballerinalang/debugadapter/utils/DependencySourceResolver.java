@@ -19,9 +19,8 @@ package org.ballerinalang.debugadapter.utils;
 import com.sun.jdi.Location;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
@@ -51,10 +50,14 @@ public class DependencySourceResolver extends SourceResolver {
 
             PackageResolution resolution = sourceProject.currentPackage().getResolution();
             for (ResolvedPackageDependency packageDependency : resolution.dependencyGraph().getNodes()) {
-                Package pkg = packageDependency.packageInstance();
-                if (pkg.packageOrg().value().equals(locationInfo.orgName())
-                        && pkg.packageName().value().equals(locationInfo.moduleName())) {
-                    return true;
+                Package depPackage = packageDependency.packageInstance();
+                if (!depPackage.packageOrg().value().equals(locationInfo.orgName())) {
+                    continue;
+                }
+                for (ModuleId moduleId : depPackage.moduleIds()) {
+                    if (depPackage.module(moduleId).moduleName().toString().equals(locationInfo.moduleName())) {
+                        return true;
+                    }
                 }
             }
             return false;
@@ -74,38 +77,26 @@ public class DependencySourceResolver extends SourceResolver {
             PackageResolution resolution = sourceProject.currentPackage().getResolution();
             Collection<ResolvedPackageDependency> dependencies = resolution.dependencyGraph().getNodes();
             for (ResolvedPackageDependency dependency : dependencies) {
-                Package pkg = dependency.packageInstance();
-                if (!pkg.packageOrg().value().equals(locationInfo.orgName())
-                        || !pkg.packageName().value().equals(locationInfo.moduleName())) {
+                Package depPackage = dependency.packageInstance();
+                if (!depPackage.packageOrg().value().equals(locationInfo.orgName())) {
                     continue;
                 }
 
-                ModuleName modName = findModuleName(pkg.packageName(), locationInfo.moduleName());
-                Module module = pkg.module(modName);
-                if (module == null) {
-                    continue;
-                }
-
-                for (DocumentId documentId : module.documentIds()) {
-                    if (!module.document(documentId).name().equals(locationInfo.fileName())) {
+                for (ModuleId moduleId : depPackage.moduleIds()) {
+                    if (!depPackage.module(moduleId).moduleName().toString().equals(locationInfo.moduleName())) {
                         continue;
                     }
-                    Project dependencyProject = pkg.project();
-                    return dependencyProject.documentPath(documentId);
+                    Module module = depPackage.module(moduleId);
+                    for (DocumentId docId : module.documentIds()) {
+                        if (module.document(docId).name().equals(locationInfo.fileName())) {
+                            return module.project().documentPath(docId);
+                        }
+                    }
                 }
             }
             return Optional.empty();
         } catch (Exception e) {
             return Optional.empty();
-        }
-    }
-
-    private static ModuleName findModuleName(PackageName packageName, String moduleNameStr) {
-        if (packageName.value().equals(moduleNameStr)) {
-            return ModuleName.from(packageName);
-        } else {
-            String moduleNamePart = moduleNameStr.substring(packageName.value().length() + 1);
-            return ModuleName.from(packageName, moduleNamePart);
         }
     }
 }
