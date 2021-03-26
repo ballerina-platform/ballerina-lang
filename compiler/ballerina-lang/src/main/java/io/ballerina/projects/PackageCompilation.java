@@ -42,6 +42,7 @@ import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
+import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
@@ -232,46 +233,61 @@ public class PackageCompilation {
         Collection<ResolvedPackageDependency> directDependencies = compilation.packageResolution.dependencyGraph()
                 .getDirectDependencies(resolvedPackageDependency);
 
-        for (ResolvedPackageDependency pkgDependency : directDependencies) {
-            List<String> exportedModuleNames = pkgDependency.packageInstance().manifest().export();
+        List<Diagnostic> allDiagnostics = new ArrayList<>(compilation.diagnosticResult.diagnostics());
+        List<Diagnostic> nonExportedModulesDiagnostics = new ArrayList<>();
 
-            for (ModuleId moduleId : pkgDependency.packageInstance().moduleIds()) {
-                Module module = pkgDependency.packageInstance().module(moduleId);
-
-                if (!exportedModuleNames.contains(module.moduleName().toString())) {
-                    List<Diagnostic> allDiagnostics = new ArrayList<>(compilation.diagnosticResult.diagnostics());
-                    addNonExportedModuleDiagnostics(compilation, module, allDiagnostics);
-                    compilation.diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
-                }
-            }
-        }
-    }
-
-    private static void addNonExportedModuleDiagnostics(PackageCompilation compilation, Module depModule,
-            List<Diagnostic> allDiagnostics) {
         for (ModuleId moduleId: compilation.rootPackageContext.project().currentPackage().moduleIds()) {
             Module module = compilation.rootPackageContext.project().currentPackage().module(moduleId);
+
+            if (DOT.equals(module.moduleName().toString())) {
+                continue;
+            }
 
             for (DocumentId documentId : module.documentIds()) {
                 Document document = module.document(documentId);
                 ModulePartNode modulePartNode = document.syntaxTree().rootNode();
 
                 for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
-                    if (importDcl.orgName().isPresent() && importDcl.orgName().get().orgName().text()
-                            .equals(depModule.descriptor().org().value()) && importDcl.moduleName().get(1).text()
-                            .equals(depModule.descriptor().name().moduleNamePart())) {
-                        Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(
-                                new DiagnosticInfo(null,
-                                       "module '" + depModule.moduleName().toString() + "' is not an exported module",
-                                                   DiagnosticSeverity.ERROR), importDcl.location());
-                        allDiagnostics.add(diagnostic);
-                        // TODO We need to refactor how diagnostics are stored and returned
-                        // TODO I had to put the following line in order to make compiler plugin diagnostics
-                        //  available to the build command
-                        compilation.pluginDiagnostics.add(diagnostic);
+                    if (importDcl.orgName().isPresent()) {
+                        // foo/winery.storage
+                        String orgName = importDcl.orgName().get().orgName().text(); // foo
+
+                        String pkgName;
+                        String moduleName;
+                        if (importDcl.moduleName().size() == 1) {
+                            pkgName = importDcl.moduleName().get(0).text(); // winery
+                            moduleName = pkgName; // winery
+                        } else if (importDcl.moduleName().size() == 2) {
+                            pkgName = importDcl.moduleName().get(0).text(); // winery
+                            moduleName = pkgName + "." + importDcl.moduleName().get(1).text(); // winery.storage
+                        } else {
+                            throw new ProjectException("invalid import declaration:" + importDcl.moduleName());
+                        }
+
+                        for (ResolvedPackageDependency pkgDependency : directDependencies) {
+                            if (orgName.equals(pkgDependency.packageInstance().descriptor().org().value())
+                                    && pkgName.equals(pkgDependency.packageInstance().descriptor().name().value())) {
+                                List<String> exportedModuleNames = pkgDependency.packageInstance().manifest().export();
+
+                                if (!exportedModuleNames.contains(moduleName)) {
+                                    Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(new DiagnosticInfo(
+                                        null, "module '" + moduleName + "' is not an exported module",
+                                        DiagnosticSeverity.ERROR), importDcl.location());
+                                    nonExportedModulesDiagnostics.add(diagnostic);
+                                }
+                            }
+                        }
                     }
                 }
             }
         }
+
+        allDiagnostics.addAll(nonExportedModulesDiagnostics);
+        compilation.diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
+
+        // TODO We need to refactor how diagnostics are stored and returned
+        // TODO I had to put the following line in order to make compiler plugin diagnostics
+        //  available to the build command
+        compilation.pluginDiagnostics.addAll(nonExportedModulesDiagnostics);
     }
 }

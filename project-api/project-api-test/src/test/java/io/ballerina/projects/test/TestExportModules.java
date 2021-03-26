@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -24,11 +24,14 @@ import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 /**
  * Contains cases to test export modules.
@@ -87,7 +90,7 @@ public class TestExportModules extends BaseTest {
 
         Assert.assertFalse(project.currentPackage().manifest().export().isEmpty());
         Assert.assertEquals(project.currentPackage().manifest().export().get(0), "winery");
-        Assert.assertEquals(project.currentPackage().manifest().export().get(1), "winery.service");
+        Assert.assertEquals(project.currentPackage().manifest().export().get(1), "winery.services");
     }
 
     @Test(description = "test build project without export entry in Ballerina.toml")
@@ -103,5 +106,18 @@ public class TestExportModules extends BaseTest {
         // Default module should exists in exported modules
         Assert.assertFalse(project.currentPackage().manifest().export().isEmpty());
         Assert.assertEquals(project.currentPackage().manifest().export().get(0), "winery");
+    }
+
+    @Test(description = "test build project has non-exported module as an import")
+    public void testBuildProjectHasNonExportedModuleImport() {
+        CompileResult depCompileResult = BCompileUtil.compileAndCacheBala("export_modules/build_project_with_export");
+        if (depCompileResult.getErrorCount() > 0) {
+            Arrays.stream(depCompileResult.getDiagnostics()).forEach(System.out::println);
+            Assert.fail("Compilation contains errors");
+        }
+        CompileResult compileResult = BCompileUtil.compile("export_modules/build_project_with_non_export_import");
+        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertTrue(compileResult.getDiagnostics()[0].message()
+                                  .contains("module winery.storage is not an exported module"));
     }
 }
