@@ -27,7 +27,7 @@ import java.util.List;
  * 
  * @since 2.0.0
  */
-public class TypeDescContextTest extends CompletionTestNew {
+public class TypeDescContextTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -59,7 +59,13 @@ public class TypeDescContextTest extends CompletionTestNew {
                 "function_typedesc18.json",
                 "function_typedesc19.json",
                 "table_typedesc4.json",
-                "table_typedesc7.json"
+                "table_typedesc7.json",
+                "error_typedesc1.json",
+                "error_typedesc2.json",
+                "error_typedesc3.json",
+                "error_typedesc4.json",
+                "error_typedesc5.json",
+                "error_typedesc6.json"
         );
     }
 }
