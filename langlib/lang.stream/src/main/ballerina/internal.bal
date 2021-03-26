@@ -34,7 +34,7 @@ class FilterSupport {
             var nextVal = next(self.strm);
             if (nextVal is ()) {
                 return ();
-            } else if (nextVal is ErrorType) {
+            } else if (nextVal is error) {
                 return nextVal;
             } else {
                 var value = nextVal?.value;
@@ -64,7 +64,7 @@ class MapSupport {
             return ();
         } else {
             function(any | error) returns any | error mappingFunc = internal:getMapFunc(self.func);
-            if (nextVal is ErrorType) {
+            if (nextVal is error) {
                  return nextVal;
             } else {
                  var value = internal:invokeAsExternal(mappingFunc, nextVal.value);

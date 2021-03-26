@@ -454,7 +454,7 @@ public class TypeChecker {
             return isEqual(lhsValue, rhsValue);
         }
 
-        if (lhsType.getTag() == TypeTags.XML_TAG && rhsType.getTag() == TypeTags.XML_TAG) {
+        if (TypeTags.isXMLTypeTag(lhsType.getTag()) && TypeTags.isXMLTypeTag(rhsType.getTag())) {
             return isXMLValueRefEqual((XmlValue) lhsValue, (XmlValue) rhsValue);
         }
 
@@ -492,7 +492,7 @@ public class TypeChecker {
         }
         // lhs hasNext = false & rhs hasNext = false -> empty sequences, hence ref equal
         // lhs hasNext = true & rhs hasNext = true would never reach here
-        // only one hasNext method returns true means requences are of different sizes, hence not ref equal
+        // only one hasNext method returns true means sequences are of different sizes, hence not ref equal
         return lhsIter.hasNext() == rhsIter.hasNext();
     }
 

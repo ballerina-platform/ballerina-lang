@@ -97,8 +97,8 @@ public class BStreamValueTest {
     }
 
     @Test(description = "Test stream construct within never")
-    public void testStreamConstructWithNever() {
-        BValue[] values = BRunUtil.invoke(result, "testStreamConstructWithNever", new BValue[]{});
+    public void testStreamConstructWithNil() {
+        BValue[] values = BRunUtil.invoke(result, "testStreamConstructWithNil", new BValue[]{});
         Assert.assertTrue(((BBoolean) values[0]).booleanValue());
     }
 
