@@ -1,11 +1,12 @@
 public function foo() {
     int[] a;
-    T[] a;
-    int[5] a;
-    int?[5] a;
-    int?[]? a;
-    int[][] a;
-    T[5][*] a;
-    int[b:c] a;
-    int[*] a;
+    T[] b;
+    int[5] c;
+    int?[5] d;
+    int?[]? e;
+    int[][] f;
+    T[5][*] g;
+    int[b:c] h;
+    int[*] i;
+    arr[3] j;
 }

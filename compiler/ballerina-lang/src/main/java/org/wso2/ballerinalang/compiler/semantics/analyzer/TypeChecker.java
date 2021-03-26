@@ -3964,10 +3964,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (bLangLambdaFunction.function.symbol == null) {
-            resultType = symTable.semanticError;
-            return;
-        }
         bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.capturedClosureEnv = env.createClone();
