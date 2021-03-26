@@ -19,17 +19,23 @@ package io.ballerina.projects;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
+import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.projects.CompilerBackend.TargetPlatform;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -105,6 +111,10 @@ public class PackageCompilation {
         // We can run SyntaxNodeAnalysis for each module compilation in the future.
         List<Diagnostic> reportedDiagnostics = codeAnalyzerManager.runCodeAnalyzerTasks();
         addCompilerPluginDiagnostics(compilation, reportedDiagnostics);
+
+        // Module export check
+        reportNonExportedModules(compilation);
+
         return compilation;
     }
 
@@ -209,5 +219,59 @@ public class PackageCompilation {
         // TODO I had to put the following line in order to make compiler plugin diagnostics
         //  available to the build command
         compilation.pluginDiagnostics.addAll(reportedDiagnostics);
+    }
+
+    /**
+     * Report if non exported module is imported in the current package.
+     *
+     * @param compilation package compilation
+     */
+    private static void reportNonExportedModules(PackageCompilation compilation) {
+        ResolvedPackageDependency resolvedPackageDependency = new ResolvedPackageDependency(
+                compilation.rootPackageContext.project().currentPackage(), PackageDependencyScope.DEFAULT);
+        Collection<ResolvedPackageDependency> directDependencies = compilation.packageResolution.dependencyGraph()
+                .getDirectDependencies(resolvedPackageDependency);
+
+        for (ResolvedPackageDependency pkgDependency : directDependencies) {
+            List<String> exportedModuleNames = pkgDependency.packageInstance().manifest().export();
+
+            for (ModuleId moduleId : pkgDependency.packageInstance().moduleIds()) {
+                Module module = pkgDependency.packageInstance().module(moduleId);
+
+                if (!exportedModuleNames.contains(module.moduleName().toString())) {
+                    List<Diagnostic> allDiagnostics = new ArrayList<>(compilation.diagnosticResult.diagnostics());
+                    addNonExportedModuleDiagnostics(compilation, module, allDiagnostics);
+                    compilation.diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
+                }
+            }
+        }
+    }
+
+    private static void addNonExportedModuleDiagnostics(PackageCompilation compilation, Module depModule,
+            List<Diagnostic> allDiagnostics) {
+        for (ModuleId moduleId: compilation.rootPackageContext.project().currentPackage().moduleIds()) {
+            Module module = compilation.rootPackageContext.project().currentPackage().module(moduleId);
+
+            for (DocumentId documentId : module.documentIds()) {
+                Document document = module.document(documentId);
+                ModulePartNode modulePartNode = document.syntaxTree().rootNode();
+
+                for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
+                    if (importDcl.orgName().isPresent() && importDcl.orgName().get().orgName().text()
+                            .equals(depModule.descriptor().org().value()) && importDcl.moduleName().get(1).text()
+                            .equals(depModule.descriptor().name().moduleNamePart())) {
+                        Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(
+                                new DiagnosticInfo(null,
+                                       "module '" + depModule.moduleName().toString() + "' is not an exported module",
+                                                   DiagnosticSeverity.ERROR), importDcl.location());
+                        allDiagnostics.add(diagnostic);
+                        // TODO We need to refactor how diagnostics are stored and returned
+                        // TODO I had to put the following line in order to make compiler plugin diagnostics
+                        //  available to the build command
+                        compilation.pluginDiagnostics.add(diagnostic);
+                    }
+                }
+            }
+        }
     }
 }

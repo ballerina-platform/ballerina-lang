@@ -41,7 +41,7 @@ public class PackageManifest {
     private final List<String> authors;
     private final List<String> keywords;
     private final String repository;
-    private final List<String> exported;
+    private final List<String> export;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
@@ -62,7 +62,7 @@ public class PackageManifest {
         this.license = Collections.emptyList();
         this.authors = Collections.emptyList();
         this.keywords = Collections.emptyList();
-        this.exported = Collections.emptyList();
+        this.export = Collections.emptyList();
         this.repository = "";
     }
 
@@ -75,7 +75,7 @@ public class PackageManifest {
                             List<String> license,
                             List<String> authors,
                             List<String> keywords,
-                            List<String> exported,
+                            List<String> export,
                             String repository) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
@@ -86,7 +86,7 @@ public class PackageManifest {
         this.license = license;
         this.authors = authors;
         this.keywords = keywords;
-        this.exported = exported;
+        this.export = getExport(packageDesc, export);
         this.repository = repository;
     }
 
@@ -112,10 +112,24 @@ public class PackageManifest {
                                        List<String> license,
                                        List<String> authors,
                                        List<String> keywords,
-                                       List<String> exported,
+                                       List<String> export,
                                        String repository) {
         return new PackageManifest(packageDesc, compilerPluginDesc, dependencies, platforms, otherEntries, diagnostics,
-                                   license, authors, keywords, exported, repository);
+                                   license, authors, keywords, export, repository);
+    }
+
+    public static PackageManifest from(PackageDescriptor packageDesc,
+            Optional<CompilerPluginDescriptor> compilerPluginDesc,
+            List<Dependency> dependencies,
+            Map<String, Platform> platforms,
+            List<String> license,
+            List<String> authors,
+            List<String> keywords,
+            List<String> export,
+            String repository) {
+        return new PackageManifest(packageDesc, compilerPluginDesc, dependencies, platforms, Collections.emptyMap(),
+                                   new DefaultDiagnosticResult(Collections.emptyList()), license, authors, keywords,
+                                   export, repository);
     }
 
     public PackageName name() {
@@ -163,8 +177,8 @@ public class PackageManifest {
         return keywords;
     }
 
-    public List<String> exported() {
-        return exported;
+    public List<String> export() {
+        return export;
     }
 
     public String repository() {
@@ -251,5 +265,12 @@ public class PackageManifest {
         public List<Map<String, Object>> repositories() {
             return repositories;
         }
+    }
+
+    private List<String> getExport(PackageDescriptor packageDesc, List<String> export) {
+        if (export == null || export.isEmpty()) {
+            return Collections.singletonList(packageDesc.name().value());
+        }
+        return export;
     }
 }
