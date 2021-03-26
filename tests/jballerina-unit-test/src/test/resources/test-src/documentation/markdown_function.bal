@@ -58,3 +58,6 @@ const string 'testQuotedConst = "quotedConst value";
 # Test variable `'testQuotedConst`
 # + 'example - The error struct to be logged
 function foo(error 'example) {}
+
+# + 'foo_\u{2345}\u{0376} - The error struct to be logged with unicode name
+function foo_unicode(error 'foo_\u{2345}\u{0376}) {}
