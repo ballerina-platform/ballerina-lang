@@ -450,7 +450,7 @@ public class TypedescriptorTest {
     @DataProvider(name = "StreamTypePosProvider")
     public Object[][] getStreamTypePos() {
         return new Object[][]{
-                {93, 19, TYPE_REFERENCE, null},
+                {93, 19, TYPE_REFERENCE, NIL},
                 {94, 23, TYPE_REFERENCE, NIL},
                 {95, 45, RECORD, ERROR}
         };
