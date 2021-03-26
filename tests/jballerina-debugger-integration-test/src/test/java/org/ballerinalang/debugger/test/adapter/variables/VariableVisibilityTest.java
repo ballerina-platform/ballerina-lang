@@ -61,8 +61,10 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 219));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 225));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 232));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 260));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 238));
+        // Todo - enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/27738
+        // debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 239));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 265));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 243));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
     }
 
@@ -144,6 +146,14 @@ public class VariableVisibilityTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope.LOCAL);
         Assert.assertEquals(localVariables.size(), 38);
+
+        // Todo - enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/27738
+        // local variable visibility test inside `foreach` statement + lambda function.
+        // debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        // debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        // localVariables = debugTestRunner.fetchVariables(debugHitInfo.getRight(), DebugTestRunner.VariableScope
+        // .LOCAL);
+        // Assert.assertEquals(localVariables.size(), 38);
     }
 
     @Test(dependsOnMethods = "controlFlowVariableVisibilityTest",

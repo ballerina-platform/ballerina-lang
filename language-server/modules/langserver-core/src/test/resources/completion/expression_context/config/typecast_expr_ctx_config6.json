@@ -30,11 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "from ",
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -456,14 +456,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value2",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "C",
-      "insertText": "value2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "getTDesc()(int)",
       "kind": "Function",
       "detail": "Function",
@@ -483,6 +475,14 @@
       "detail": "int",
       "sortText": "C",
       "insertText": "value1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value2",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "C",
+      "insertText": "value2",
       "insertTextFormat": "Snippet"
     }
   ]

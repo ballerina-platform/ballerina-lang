@@ -419,61 +419,6 @@ public class TypeChecker {
     }
 
     /**
-     * Check if left hand side decimal value is less than the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is less than right hand side value, else false.
-     */
-    public static boolean checkDecimalLessThan(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return !checkDecimalEqual(lhsValue, rhsValue) && checkDecimalGreaterThanOrEqual(rhsValue, lhsValue);
-    }
-
-    /**
-     * Check if left hand side decimal value is less than or equal the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is less than or equal right hand side value, else false.
-     */
-    public static boolean checkDecimalLessThanOrEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return checkDecimalEqual(lhsValue, rhsValue) || checkDecimalGreaterThan(rhsValue, lhsValue);
-    }
-
-    /**
-     * Check if left hand side decimal value is greater than the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is greater than right hand side value, else false.
-     */
-    public static boolean checkDecimalGreaterThan(DecimalValue lhsValue, DecimalValue rhsValue) {
-        switch (lhsValue.valueKind) {
-            case POSITIVE_INFINITY:
-                return isDecimalRealNumber(rhsValue) || rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY;
-            case ZERO:
-            case OTHER:
-                return rhsValue.valueKind == DecimalValueKind.NEGATIVE_INFINITY || (isDecimalRealNumber(rhsValue) &&
-                        lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) > 0);
-            default:
-                return false;
-        }
-    }
-
-    /**
-     * Check if left hand side decimal value is greater than or equal the right hand side decimal value.
-     *
-     * @param lhsValue The value on the left hand side
-     * @param rhsValue The value of the right hand side
-     * @return True if left hand value is greater than or equal right hand side value, else false.
-     */
-    public static boolean checkDecimalGreaterThanOrEqual(DecimalValue lhsValue, DecimalValue rhsValue) {
-        return checkDecimalGreaterThan(lhsValue, rhsValue) ||
-               (isDecimalRealNumber(lhsValue) && isDecimalRealNumber(rhsValue) &&
-                lhsValue.decimalValue().compareTo(rhsValue.decimalValue()) == 0);
-    }
-
-    /**
      * Checks if the given decimal number is a real number.
      *
      * @param decimalValue The decimal value being checked

@@ -30,11 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "from ",
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,52 +44,6 @@
       "sortText": "N",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
     },
     {
       "label": "ballerina/jballerina.java",
@@ -138,6 +92,52 @@
       ]
     },
     {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.query",
       "kind": "Module",
       "detail": "Module",
@@ -161,11 +161,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "runtime",
+      "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -179,7 +179,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -416,6 +416,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "is",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "is",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -448,6 +456,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "STRING_VAL",
+      "kind": "Variable",
+      "detail": "string value",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "B",
+      "insertText": "STRING_VAL",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "STRING_VAL_TWO",
       "kind": "Variable",
       "detail": "string value two",
@@ -473,28 +495,6 @@
       },
       "sortText": "C",
       "insertText": "helloFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "STRING_VAL",
-      "kind": "Variable",
-      "detail": "string value",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": ""
-        }
-      },
-      "sortText": "B",
-      "insertText": "STRING_VAL",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "is",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "is",
       "insertTextFormat": "Snippet"
     }
   ]

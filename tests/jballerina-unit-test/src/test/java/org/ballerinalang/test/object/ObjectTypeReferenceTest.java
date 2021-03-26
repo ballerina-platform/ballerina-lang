@@ -86,13 +86,9 @@ public class ObjectTypeReferenceTest {
         i++;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Q' is not an object", 101, 6);
         BAssertUtil.validateError(negativeResult, i++, "redeclared type reference 'Person1'", 111, 6);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
-                "function through referenced type 'ObjectWithFunction'", 120, 5);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'getName': trying to copy a duplicate " +
-                "function through referenced type 'ObjectWithRedeclaredFunction_1'", 125, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 129, 6);
-        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 133, 6);
-        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'xyz'", 154, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Baz'", 119, 6);
+        BAssertUtil.validateError(negativeResult, i++, "unknown type 'Tar'", 123, 6);
+        BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'xyz'", 144, 6);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
