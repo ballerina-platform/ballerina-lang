@@ -61,7 +61,7 @@ function testIteratorWithCustomError() {
     var streamA = new stream<int, CustomError>(itr);
     stream<int, CustomError> streamB = new(itr);
 
-    var streamC = new stream<int, error>(itr);
+    var streamC = new stream<int, error?>(itr);
     stream<int, error> streamD = new(itr);
 
     record {| int value; |}|CustomError? returnedValA = streamA.next();
@@ -95,8 +95,8 @@ function testIteratorWithGenericError() {
     IteratorWithGenericError itr = new();
 
     // correct
-    var streamA = new stream<int, error>(itr);
-    stream<int, error> streamB = new(itr);
+    var streamA = new stream<int, error?>(itr);
+    stream<int, error?> streamB = new(itr);
 
     record {| int value; |}|error? returnedValA = streamA.next();
     returnedValA = streamB.next();
@@ -356,23 +356,23 @@ public function main() returns @tainted error? {
     var x = numberStream.next();
 }
 
-//function testAssignabilityOfStreams() {
-//    // test the negative assignability of stream<int> and stream<int, never>
-//    stream<int> emptyStream1 = new;
-//    stream<int> emptyStream2 = new stream<int>();
-//    stream<int, never> emptyStream3 = new;
-//    stream<int, error> emptyStream4 = new;
-//    stream<int, never> emptyStream5 = new stream<int, never>();
-//    stream<int, error> emptyStream6 = new stream<int, error>();
-//    var emptyStream7 = new stream<int>();
-//    var emptyStream8 = new stream<int, never>();
-//    var emptyStream9 = new stream<int, error>();
-//
-//    emptyStream1 = emptyStream6;
-//    emptyStream2 = emptyStream9;
-//    emptyStream3 = emptyStream6;
-//    emptyStream4 = emptyStream1;
-//    emptyStream5 = emptyStream6;
-//    emptyStream7 = emptyStream9;
-//    emptyStream8 = emptyStream9;
-//}
+function testAssignabilityOfStreams() {
+    // test the negative assignability of stream<int> and stream<int, ())>
+    stream<int> emptyStream1 = new;
+    stream<int> emptyStream2 = new stream<int>();
+    stream<int, ()> emptyStream3 = new;
+    stream<int, error> emptyStream4 = new;
+    stream<int, ()> emptyStream5 = new stream<int, ()>();
+    stream<int, error> emptyStream6 = new stream<int, error>();
+    var emptyStream7 = new stream<int>();
+    var emptyStream8 = new stream<int, ()>();
+    var emptyStream9 = new stream<int, error>();
+
+    emptyStream1 = emptyStream6;
+    emptyStream2 = emptyStream9;
+    emptyStream3 = emptyStream6;
+    emptyStream4 = emptyStream1;
+    emptyStream5 = emptyStream6;
+    emptyStream7 = emptyStream9;
+    emptyStream8 = emptyStream9;
+}
