@@ -378,6 +378,10 @@ public class JvmCodeGenUtil {
     }
 
     public static String generateReturnType(BType bType) {
+        if (bType == null) {
+            return String.format(")L%s;", OBJECT);
+        }
+
         bType = JvmCodeGenUtil.UNIFIER.build(bType);
         if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             return String.format(")L%s;", OBJECT);

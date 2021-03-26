@@ -4402,6 +4402,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expType.tag != TypeTags.TYPEDESC) {
             dlog.error(inferTypedescExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType, symTable.typeDesc);
             resultType = symTable.semanticError;
+            return;
         }
         resultType = expType;
     }

@@ -352,6 +352,8 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 Collections.singletonList(null);
         int delta = hasMatchingInvokableType ? 1 : 0;
 
+        boolean errored = false;
+
         List<BType> bTypes = originalType.paramTypes;
         for (int i = 0, j = 0; i < bTypes.size(); i++, j += delta) {
             BType type = bTypes.get(i);
@@ -359,7 +361,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType newT = type.accept(this, expParamType);
             paramTypes.add(newT);
 
-            if (!isSameTypeOrError(newT, type)) {
+            if (isSemanticErrorInInvocation(newT)) {
+                errored = true;
+            } else if (!isSameType(newT, type)) {
                 hasNewType = true;
             }
         }
@@ -370,13 +374,19 @@ public class Unifier implements BTypeVisitor<BType, BType> {
             BType expRestType = hasMatchingInvokableType ? matchingType.restType : null;
             newRestType = restType.accept(this, expRestType);
 
-            if (!isSameTypeOrError(newRestType, restType)) {
+            if (isSemanticErrorInInvocation(newRestType)) {
+                errored = true;
+            } else if (!isSameType(newRestType, restType)) {
                 hasNewType = true;
             }
         }
 
         BType expRetType = hasMatchingInvokableType ? matchingType.retType : null;
         BType retType = originalType.retType.accept(this, expRetType);
+
+        if (errored) {
+            return expType;
+        }
 
         if (!hasNewType) {
             if (isSameType(retType, originalType.retType)) {
@@ -986,9 +996,9 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                 }
                 return refersInferableParamName(paramsWithInferredTypedescDefault, streamErrorType, unresolvedTypes);
             case TypeTags.INVOKABLE:
-//                if (Symbols.isFlagOn(type.flags, Flags.ANY_FUNCTION)) {
-//                    return false;
-//                }
+                if (Symbols.isFlagOn(type.flags, Flags.ANY_FUNCTION)) {
+                    return false;
+                }
                 BInvokableType invokableType = (BInvokableType) type;
                 for (BType paramType : invokableType.paramTypes) {
                     if (refersInferableParamName(paramsWithInferredTypedescDefault, paramType, unresolvedTypes)) {
