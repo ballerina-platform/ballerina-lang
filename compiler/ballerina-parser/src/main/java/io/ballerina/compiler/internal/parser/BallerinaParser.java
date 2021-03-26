@@ -3123,6 +3123,7 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_CALL_ACTION:
             case ANON_FUNC_OR_LET:
             case QUERY:
+            case TRAP:
             case ADDITIVE:
                 return SyntaxKind.PLUS_TOKEN;
             case SHIFT:
@@ -3169,6 +3170,7 @@ public class BallerinaParser extends AbstractParser {
             case REMOTE_CALL_ACTION:
             case ANON_FUNC_OR_LET:
             case QUERY:
+            case TRAP:
             case ADDITIVE:
                 return ParserRuleContext.PLUS_TOKEN;
             case SHIFT:
@@ -9368,8 +9370,7 @@ public class BallerinaParser extends AbstractParser {
      */
     private STNode parseTrapExpression(boolean isRhsExpr, boolean allowActions, boolean isInConditionalExpr) {
         STNode trapKeyword = parseTrapKeyword();
-        STNode expr =
-                parseExpression(OperatorPrecedence.EXPRESSION_ACTION, isRhsExpr, allowActions, isInConditionalExpr);
+        STNode expr = parseExpression(OperatorPrecedence.TRAP, isRhsExpr, allowActions, isInConditionalExpr);
         if (isAction(expr)) {
             return STNodeFactory.createTrapExpressionNode(SyntaxKind.TRAP_ACTION, trapKeyword, expr);
         }
