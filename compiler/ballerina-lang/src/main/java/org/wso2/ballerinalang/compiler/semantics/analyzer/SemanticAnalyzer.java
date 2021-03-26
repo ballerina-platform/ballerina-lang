@@ -513,9 +513,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        AttachPoint.Point attachedPoint = classDefinition.flagSet.contains(Flag.SERVICE)
-                ? AttachPoint.Point.SERVICE
-                : AttachPoint.Point.CLASS;
+        // Apply service attachpoint when this is a class representing a service-decl or object-ctor with service prefix
+        AttachPoint.Point attachedPoint;
+        Set<Flag> flagSet = classDefinition.flagSet;
+        if (flagSet.contains(Flag.OBJECT_CTOR) && flagSet.contains(Flag.SERVICE)) {
+            attachedPoint = AttachPoint.Point.SERVICE;
+        } else {
+            attachedPoint = AttachPoint.Point.CLASS;
+        }
+
         BClassSymbol symbol = (BClassSymbol) classDefinition.symbol;
 
         classDefinition.annAttachments.forEach(annotationAttachment -> {
@@ -527,7 +533,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         analyzeClassDefinition(classDefinition);
 
-        validateInclusions(classDefinition.flagSet, classDefinition.typeRefs, false,
+        validateInclusions(flagSet, classDefinition.typeRefs, false,
                            Symbols.isFlagOn(classDefinition.type.tsymbol.flags, Flags.ANONYMOUS));
     }
 
@@ -771,16 +777,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             return;
         }
 
-        if (shouldInferErrorType(varNode)) {
-            validateWorkerAnnAttachments(varNode.expr);
-            handleDeclaredWithVar(varNode);
-            transferForkFlag(varNode);
-            if (!types.isAssignable(varNode.type, symTable.errorType)) {
-                dlog.error(varNode.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, symTable.errorType, varNode.type);
-            }
-            return;
-        }
-
         int ownerSymTag = env.scope.owner.tag;
         boolean isListenerDecl = varNode.flagSet.contains(Flag.LISTENER);
         if ((ownerSymTag & SymTag.INVOKABLE) == SymTag.INVOKABLE || (ownerSymTag & SymTag.LET) == SymTag.LET
@@ -885,12 +881,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_LISTENER_VARIABLE, varNode.name);
             }
         }
-    }
-
-    private boolean shouldInferErrorType(BLangSimpleVariable varNode) {
-        return varNode.typeNode != null
-                && varNode.typeNode.getKind() == NodeKind.ERROR_TYPE
-                && ((BLangErrorType) varNode.typeNode).inferErrorType;
     }
 
     private void analyzeVarNode(BLangSimpleVariable varNode, SymbolEnv env, AttachPoint.Point... attachPoints) {
@@ -2876,6 +2866,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangForeach foreach) {
         // Check the collection's type.
         typeChecker.checkExpr(foreach.collection, env);
+        // object type collection should be a subtype of 'object:Iterable
+        if (foreach.collection.type.tag == TypeTags.OBJECT
+                && !types.isAssignable(foreach.collection.type, symTable.iterableType)) {
+            dlog.error(foreach.collection.pos, DiagnosticErrorCode.INVALID_ITERABLE_OBJECT_TYPE,
+                    foreach.collection.type, symTable.iterableType);
+            foreach.resultType = symTable.semanticError;
+            return;
+        }
         // Set the type of the foreach node's type node.
         types.setForeachTypedBindingPatternType(foreach);
         // Create a new block environment for the foreach node's body.

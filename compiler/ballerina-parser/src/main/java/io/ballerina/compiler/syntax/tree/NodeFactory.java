@@ -1459,28 +1459,13 @@ public abstract class NodeFactory extends AbstractNodeFactory {
 
     public static ErrorTypeDescriptorNode createErrorTypeDescriptorNode(
             Token errorKeywordToken,
-            ErrorTypeParamsNode errorTypeParamsNode) {
+            TypeParameterNode errorTypeParamsNode) {
         Objects.requireNonNull(errorKeywordToken, "errorKeywordToken must not be null");
 
         STNode stErrorTypeDescriptorNode = STNodeFactory.createErrorTypeDescriptorNode(
                 errorKeywordToken.internalNode(),
                 getOptionalSTNode(errorTypeParamsNode));
         return stErrorTypeDescriptorNode.createUnlinkedFacade();
-    }
-
-    public static ErrorTypeParamsNode createErrorTypeParamsNode(
-            Token ltToken,
-            Node parameter,
-            Token gtToken) {
-        Objects.requireNonNull(ltToken, "ltToken must not be null");
-        Objects.requireNonNull(parameter, "parameter must not be null");
-        Objects.requireNonNull(gtToken, "gtToken must not be null");
-
-        STNode stErrorTypeParamsNode = STNodeFactory.createErrorTypeParamsNode(
-                ltToken.internalNode(),
-                parameter.internalNode(),
-                gtToken.internalNode());
-        return stErrorTypeParamsNode.createUnlinkedFacade();
     }
 
     public static StreamTypeDescriptorNode createStreamTypeDescriptorNode(

@@ -1192,18 +1192,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
-    public STErrorTypeParamsNode transform(
-            STErrorTypeParamsNode errorTypeParamsNode) {
-        STNode ltToken = modifyNode(errorTypeParamsNode.ltToken);
-        STNode parameter = modifyNode(errorTypeParamsNode.parameter);
-        STNode gtToken = modifyNode(errorTypeParamsNode.gtToken);
-        return errorTypeParamsNode.modify(
-                ltToken,
-                parameter,
-                gtToken);
-    }
-
-    @Override
     public STStreamTypeDescriptorNode transform(
             STStreamTypeDescriptorNode streamTypeDescriptorNode) {
         STNode streamKeywordToken = modifyNode(streamTypeDescriptorNode.streamKeywordToken);

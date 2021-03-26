@@ -772,7 +772,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol lookupMethodInModule(BPackageSymbol moduleSymbol, Name name, SymbolEnv env) {
-
         // What we get here is T.Name, this should convert to
         ScopeEntry entry = moduleSymbol.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
@@ -934,29 +933,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             break;
         }
 
-        entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE_INTERNAL1);
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                entry = entry.next;
-                continue;
-            }
-            entry.symbol.type = symTable.cloneableType;
-            break;
-        }
-
-        entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE_INTERNAL2);
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                entry = entry.next;
-                continue;
-            }
-            entry.symbol.type = symTable.cloneableType;
-            break;
-        }
     }
 
     public void bootstrapIntRangeType() {
-
         ScopeEntry entry = symTable.langInternalModuleSymbol.scope.lookup(Names.CREATE_INT_RANGE);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
@@ -968,6 +947,20 @@ public class SymbolResolver extends BLangNodeVisitor {
             return;
         }
         throw new IllegalStateException("built-in Integer Range type not found ?");
+    }
+
+    public void bootstrapIterableType() {
+
+        ScopeEntry entry = symTable.langObjectModuleSymbol.scope.lookup(Names.OBJECT_ITERABLE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.iterableType = (BObjectType) entry.symbol.type;
+            return;
+        }
+        throw new IllegalStateException("built-in distinct Iterable type not found ?");
     }
 
     public void loadRawTemplateType() {

@@ -123,5 +123,14 @@ public class ErrorUtils {
         throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION, inputType, inputValue, targetType));
     }
-}
 
+    public static BError createOperationNotSupportedError(Type lhsType, Type rhsType) {
+        throw createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.UNSUPPORTED_COMPARISON_OPERATION, lhsType, rhsType));
+    }
+
+    public static BError createUnorderedTypesError(Object lhsValue, Object rhsValue) {
+        throw createError(BallerinaErrorReasons.UNORDERED_TYPES_ERROR, BLangExceptionHelper.getErrorMessage(
+                RuntimeErrors.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue));
+    }
+}

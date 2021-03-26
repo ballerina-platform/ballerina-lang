@@ -1123,17 +1123,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 errorTypeParamsNode);
     }
 
-    public static STNode createErrorTypeParamsNode(
-            STNode ltToken,
-            STNode parameter,
-            STNode gtToken) {
-
-        return new STErrorTypeParamsNode(
-                ltToken,
-                parameter,
-                gtToken);
-    }
-
     public static STNode createStreamTypeDescriptorNode(
             STNode streamKeywordToken,
             STNode streamTypeParamsNode) {

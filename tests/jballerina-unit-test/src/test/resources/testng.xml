@@ -102,6 +102,7 @@
             <package name="org.ballerinalang.test.types.intersection.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
             <package name="org.ballerinalang.test.expressions.let.*"/>
+            <package name="org.ballerinalang.test.expressions.trap.*"/>
             <package name="org.ballerinalang.test.expressions.checkpanicexpr.*"/>
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
             <package name="org.ballerinalang.test.expressions.conversion.*"/>

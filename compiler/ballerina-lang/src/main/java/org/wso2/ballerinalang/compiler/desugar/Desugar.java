@@ -4896,10 +4896,10 @@ public class Desugar extends BLangNodeVisitor {
 
     public BInvokableSymbol getIterableObjectIteratorInvokableSymbol(BVarSymbol collectionSymbol) {
         BObjectTypeSymbol typeSymbol = (BObjectTypeSymbol) collectionSymbol.type.tsymbol;
-        // We know for sure at this point, the object symbol should have the __iterator method
+        // We know for sure at this point, the object symbol should have the `iterator` method
         BAttachedFunction iteratorFunc = null;
         for (BAttachedFunction func : typeSymbol.attachedFuncs) {
-            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_OBJECT_ITERATOR_FUNC)) {
+            if (func.funcName.value.equals(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC)) {
                 iteratorFunc = func;
                 break;
             }
@@ -6870,6 +6870,13 @@ public class Desugar extends BLangNodeVisitor {
         BObjectType objectClassType = new BObjectType(classTSymbol, classTSymbol.flags);
         objectClassType.fields = objectType.fields;
         classTSymbol.type = objectClassType;
+        var typeIdSet = objectType.typeIdSet;
+        if (!typeIdSet.primary.isEmpty()) {
+            objectClassType.typeIdSet.primary.addAll(typeIdSet.primary);
+        }
+        if (!typeIdSet.secondary.isEmpty()) {
+            objectClassType.typeIdSet.secondary.addAll(typeIdSet.secondary);
+        }
 
         // Create a new object type node and a type def from the concrete class type
 //        BLangObjectTypeNode objectClassNode = TypeDefBuilderHelper.createObjectTypeNode(objectClassType, pos);
