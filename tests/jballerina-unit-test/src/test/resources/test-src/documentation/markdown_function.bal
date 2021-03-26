@@ -53,6 +53,8 @@ function searchPeople () returns [string, int, float] {
 # + return - the sum of them
 function add (int x, int y) returns int  { return x + y; }
 
+const string 'testQuotedConst = "quotedConst value";
+
 # Test variable `'testQuotedConst`
 # + 'example - The error struct to be logged
 function foo(error 'example) {}

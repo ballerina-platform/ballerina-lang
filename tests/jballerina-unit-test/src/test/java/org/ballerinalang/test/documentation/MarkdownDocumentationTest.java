@@ -228,7 +228,7 @@ public class MarkdownDocumentationTest {
     public void testDocFunction() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_function.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 7);
+        Assert.assertEquals(compileResult.getWarnCount(), 6);
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
