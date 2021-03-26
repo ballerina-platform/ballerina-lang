@@ -26,6 +26,7 @@
             <package name="io.ballerina.runtime.test.*"/>
             <package name="io.ballerina.runtime.test.config.*"/>
             <package name="io.ballerina.runtime.test.config.negative.*"/>
+            <package name="io.ballerina.runtime.test.cli.*"/>
         </packages>
     </test>
 </suite>

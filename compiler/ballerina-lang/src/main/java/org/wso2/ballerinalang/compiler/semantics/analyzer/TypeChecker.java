@@ -3148,11 +3148,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BStreamType actualStreamType = (BStreamType) actualType;
-                BType error = actualStreamType.error;
-                if (error.tag != TypeTags.NEVER && !types.containsErrorType(error)) {
-                    dlog.error(cIExpr.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, error.toString());
-                    resultType = symTable.semanticError;
-                    return;
+                if (actualStreamType.error != null) {
+                    BType error = actualStreamType.error;
+                    if (error.tag != symTable.nilType.tag && !types.containsErrorType(error)) {
+                        dlog.error(cIExpr.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, error.toString());
+                        resultType = symTable.semanticError;
+                        return;
+                    }
                 }
 
                 if (!cIExpr.initInvocation.argExprs.isEmpty()) {
@@ -3193,6 +3195,12 @@ public class TypeChecker extends BLangNodeVisitor {
                         dlog.error(constructType.tsymbol.getPosition(),
                                 DiagnosticErrorCode.INVALID_NEXT_METHOD_RETURN_TYPE, expectedNextReturnType);
                     }
+                }
+                if (this.expType.tag != TypeTags.NONE && !types.isAssignable(actualType, this.expType)) {
+                    dlog.error(cIExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, this.expType,
+                            actualType);
+                    resultType = symTable.semanticError;
+                    return;
                 }
                 resultType = actualType;
                 return;
@@ -3250,14 +3258,11 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
-        List<BType> errorTypes = getTypesList(streamType.error);
-        errorTypes.removeIf(type -> type.tag == TypeTags.NEVER);
-        if (!errorTypes.isEmpty()) {
-            retTypeMembers.addAll(errorTypes);
-        }
+        retTypeMembers.addAll(types.getAllTypes(streamType.error));
         retTypeMembers.add(symTable.nilType);
 
-        BUnionType unionType = BUnionType.create(null, retTypeMembers);
+        BUnionType unionType = BUnionType.create(null);
+        unionType.addAll(retTypeMembers);
         unionType.tsymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, 0, Names.EMPTY,
                 env.enclPkg.symbol.pkgID, unionType, env.scope.owner, pos, VIRTUAL);
 
@@ -3963,10 +3968,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangLambdaFunction bLangLambdaFunction) {
-        if (bLangLambdaFunction.function.symbol == null) {
-            resultType = symTable.semanticError;
-            return;
-        }
         bLangLambdaFunction.type = bLangLambdaFunction.function.symbol.type;
         // creating a copy of the env to visit the lambda function later
         bLangLambdaFunction.capturedClosureEnv = env.createClone();
@@ -4535,15 +4536,14 @@ public class TypeChecker extends BLangNodeVisitor {
             BType errorType = getErrorType(collectionType);
             selectType = selectTypes.get(0);
             if (queryExpr.isStream) {
-                return new BStreamType(TypeTags.STREAM, selectType,
-                        errorType != null ? errorType : symTable.neverType, null);
+                return new BStreamType(TypeTags.STREAM, selectType, errorType, null);
             } else if (queryExpr.isTable) {
                 actualType = getQueryTableType(queryExpr, selectType);
             } else {
                 actualType = resolvedTypes.get(0);
             }
 
-            if (errorType != null && errorType.tag != TypeTags.NEVER) {
+            if (errorType != null && errorType.tag != TypeTags.NIL) {
                 return BUnionType.create(null, actualType, errorType);
             } else {
                 return actualType;
