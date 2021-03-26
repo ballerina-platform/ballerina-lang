@@ -151,3 +151,19 @@ function testUsageWithVar() {
     var x = funcReturningUnionWithBuiltInRefType(());
     var y = funcReturningUnionWithBuiltInRefType();
 }
+
+function testInvalidUsageWithNonTypeDescType1(int x = <>) {
+}
+
+function testInvalidUsageWithNonTypeDescType2(int|typedesc<int> x = <>) {
+}
+
+function getFunctionWithAnyFunctionParamType(function (function, int) x, typedesc<int> td = <>)
+    returns function (function, td) = external;
+
+function testFunctionWithAnyFunctionParamType() {
+   var fn = function (function x, int y) {
+   };
+
+   function (function, boolean) y = getFunctionWithAnyFunctionParamType(fn);
+}

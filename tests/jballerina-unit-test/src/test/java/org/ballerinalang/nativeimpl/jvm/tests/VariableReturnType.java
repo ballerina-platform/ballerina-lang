@@ -474,4 +474,9 @@ public class VariableReturnType {
         assert describingType.getTag() == BOOLEAN_TAG;
         return !((boolean) val);
     }
+
+    public static BFunctionPointer getFunctionWithAnyFunctionParamType(BFunctionPointer x, BTypedesc td) {
+        assert td.getDescribingType().getTag() == INT_TAG;
+        return x;
+    }
 }

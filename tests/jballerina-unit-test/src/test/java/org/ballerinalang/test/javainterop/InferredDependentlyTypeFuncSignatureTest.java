@@ -70,7 +70,8 @@ public class InferredDependentlyTypeFuncSignatureTest {
                 {"testArgCombinations"},
                 {"testBuiltInRefType"},
                 {"testParameterizedTypeInUnionWithNonParameterizedTypes"},
-                {"testUsageWithVarWithUserSpecifiedArg"}
+                {"testUsageWithVarWithUserSpecifiedArg"},
+                {"testFunctionWithAnyFunctionParamType"}
         };
     }
 
@@ -159,6 +160,12 @@ public class InferredDependentlyTypeFuncSignatureTest {
         validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 147, 25);
         validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 151, 13);
         validateError(negativeResult, index++, "cannot infer type for parameter 'td'", 152, 13);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'typedesc<(any|error)>'",
+                155, 55);
+        validateError(negativeResult, index++, "incompatible types: expected '(int|typedesc<int>)', found 'typedesc<" +
+                "(any|error)>'", 158, 69);
+        validateError(negativeResult, index++, "incompatible type for parameter 'td' with inferred typedesc value: " +
+                "expected 'typedesc<int>', found 'typedesc<boolean>'", 168, 37);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 }
