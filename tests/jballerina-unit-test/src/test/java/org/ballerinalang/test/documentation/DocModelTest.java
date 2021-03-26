@@ -17,6 +17,7 @@ package org.ballerinalang.test.documentation;
 
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.generator.model.BClass;
+import org.ballerinalang.docgen.generator.model.BObjectType;
 import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
 import org.ballerinalang.docgen.generator.model.DocPackage;
@@ -379,5 +380,71 @@ public class DocModelTest {
         Assert.assertTrue(testTypeDescFunc.get().parameters.get(0).type.isTypeDesc);
         Assert.assertNotNull(testTypeDescFunc.get().parameters.get(0).type.elementType);
         Assert.assertEquals(testTypeDescFunc.get().parameters.get(0).type.elementType.name, "record {}");
+    }
+
+    @Test(description = "Test readonly Objects and Records")
+    public void testReadOnlyObjectsRecords() {
+        Optional<Record> uuidRec = testModule.records.stream().filter(record -> record.name.equals("Uuid")).findAny();
+        Assert.assertTrue(uuidRec.isPresent(), "Uuid record not found");
+        Assert.assertTrue(uuidRec.get().isReadOnly);
+
+        Optional<BObjectType> controller = testModule.objectTypes.stream().filter(record -> record.name
+                .equals("Controller")).findAny();
+        Assert.assertTrue(controller.isPresent(), "Controller object type not found");
+        Assert.assertTrue(controller.get().isReadOnly);
+    }
+
+    @Test(description = "Test links to readonly Objects and Records")
+    public void testLinksToReadOnlyObjectsRecords() {
+        Optional<Function> function = testModule.functions.stream()
+                .filter(func -> func.name.equals("testReadonlyRecordObjectsLinks")).findAny();
+        Assert.assertTrue(function.isPresent(), "testReadonlyRecordObjectsLinks function not found");
+
+        Assert.assertEquals(function.get().parameters.size(), 2);
+        Assert.assertEquals(function.get().parameters.get(0).name, "cnt");
+        Assert.assertEquals(function.get().parameters.get(0).type.orgName, "test_org");
+        Assert.assertEquals(function.get().parameters.get(0).type.moduleName, "docerina_project");
+        Assert.assertEquals(function.get().parameters.get(0).type.version, "1.0.0");
+        Assert.assertEquals(function.get().parameters.get(0).type.category, "objectTypes");
+
+        Assert.assertEquals(function.get().parameters.get(1).name, "uuid");
+        Assert.assertEquals(function.get().parameters.get(1).type.orgName, "test_org");
+        Assert.assertEquals(function.get().parameters.get(1).type.moduleName, "docerina_project");
+        Assert.assertEquals(function.get().parameters.get(1).type.version, "1.0.0");
+        Assert.assertEquals(function.get().parameters.get(1).type.category, "records");
+    }
+
+    @Test(description = "Test deciaml type")
+    public void testDecimalType() {
+        Optional<BType> seconds = testModule.types.stream()
+                .filter(bType -> bType.name.equals("Seconds")).findAny();
+        Assert.assertTrue(seconds.isPresent(), "Seconds decimal type not found");
+        Assert.assertEquals(seconds.get().memberTypes.get(0).category, "builtin");
+    }
+
+    @Test(description = "Test function type")
+    public void testFunctionType() {
+        Optional<BType> valuer = testModule.types.stream()
+                .filter(bType -> bType.name.equals("Valuer")).findAny();
+        Assert.assertTrue(valuer.isPresent(), "Valuer function type not found");
+        Assert.assertTrue(valuer.get().memberTypes.get(0).isLambda);
+        Assert.assertTrue(valuer.get().memberTypes.get(0).isIsolated);
+        Assert.assertEquals(valuer.get().memberTypes.get(0).returnType.name, "anydata");
+        Assert.assertEquals(valuer.get().memberTypes.get(0).returnType.category, "builtin");
+    }
+
+    @Test(description = "Test included record parameter ")
+    public void testIncludedRecordParameter() {
+        Optional<Function> function = testModule.functions.stream()
+                .filter(func -> func.name.equals("printDebug")).findAny();
+        Assert.assertTrue(function.isPresent(), "printDebug function not found");
+
+        Assert.assertEquals(function.get().parameters.size(), 1);
+        Assert.assertEquals(function.get().parameters.get(0).name, "keyValues");
+        Assert.assertTrue(function.get().parameters.get(0).type.isInclusion);
+        Assert.assertEquals(function.get().parameters.get(0).type.orgName, "test_org");
+        Assert.assertEquals(function.get().parameters.get(0).type.moduleName, "docerina_project");
+        Assert.assertEquals(function.get().parameters.get(0).type.version, "1.0.0");
+        Assert.assertEquals(function.get().parameters.get(0).type.category, "records");
     }
 }
