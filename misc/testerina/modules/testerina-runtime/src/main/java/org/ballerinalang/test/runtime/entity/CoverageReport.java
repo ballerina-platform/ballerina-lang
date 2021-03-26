@@ -150,7 +150,8 @@ public class CoverageReport {
     }
 
     /**
-     * Add/Update package level coverage information into the relevant package level lists.
+     * Traverse through the coverageBuilder generated for the current module and update
+     * package level information to be used for coverage generation for the ballerina package.
      *
      * @param packagePrefix "orgName"/"pakageName" as String
      * @param packageExecData ExecutionData list for package
@@ -165,28 +166,37 @@ public class CoverageReport {
                                             List<IClassCoverage> packageNativeClassCoverageList,
                                             List<IClassCoverage> packageBalClassCoverageList,
                                             List<ISourceFileCoverage> packageSourceCoverageList) {
+        // Traverse through the class coverages and store only ballerina source file coverages.
+        // Native source coverages can be collected by visiting the class coverages.
         for (ISourceFileCoverage sourceFileCoverage : coverageBuilder.getSourceFiles()) {
             if (sourceFileCoverage.getPackageName().contains(packagePrefix)) {
                 packageSourceCoverageList.add(sourceFileCoverage);
             }
         }
+        // Traverse through all the class coverages and do the following.
+        // 1. Add the ballerina class coverages specific for this package to a list to process later.
+        //    We need to add duplicated class coverages generated from each module to make sure that the ballerina
+        //    coverage information is aggregated correctly for the package.
+        // 2. Add the native class coverages to another list to be processed later.
+        //    In this case, we need to keep only the last updated class coverage because Jacoco internally aggregates
+        //    the coverage for native classes using the exec data in the common binary file.
         for (IClassCoverage classCov : coverageBuilder.getClasses()) {
-            // Store only the package specific bal classes in list
             if (classCov.getSourceFileName() != null && classCov.getName().startsWith(packagePrefix)) {
                 packageBalClassCoverageList.add(classCov);
             } else {
-                // Remove coverage class from list if it already exists.
+                // Remove old coverage class to keep only the lastest coverage class.
                 removeFromCoverageList(packageNativeClassCoverageList, classCov);
                 packageNativeClassCoverageList.add(classCov);
             }
         }
-        // Update module wise session info to a list
+        // Update module wise session info to a list, compare and add only unique information.
         for (SessionInfo sessionInfo : execFileLoader.getSessionInfoStore().getInfos()) {
             if (!isExistingSessionInfo(sessionInfoList, sessionInfo)) {
                 sessionInfoList.add(sessionInfo);
             }
         }
-        // Update module wise execution data to a list
+        // Jacoco is capable of handling duplicated execution data,
+        // so it is not needed to remove duplicates.
         for (ExecutionData executionData : execFileLoader.getExecutionDataStore().getContents()) {
             packageExecData.add(executionData);
         }
