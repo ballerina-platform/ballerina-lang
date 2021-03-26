@@ -48,6 +48,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BOperatorSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -571,11 +572,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFiniteTypeNode finiteTypeNode) {
-        finiteTypeNode.valueSpace.forEach(val -> {
-            if (val.type.tag == TypeTags.NIL && NULL_LITERAL.equals(((BLangLiteral) val).originalValue)) {
-                dlog.error(val.pos, DiagnosticErrorCode.INVALID_USE_OF_NULL_LITERAL);
-            }
-        });
+        finiteTypeNode.valueSpace.forEach(value -> analyzeNode(value, env));
+    }
+
+    @Override
+    public void visit(BLangLiteral literalExpr) {
     }
 
     @Override
@@ -2942,6 +2943,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         BType serviceType = serviceNode.type = serviceNode.serviceClass.type;
+        BServiceSymbol serviceSymbol = (BServiceSymbol) serviceNode.symbol;
 
         for (BLangExpression attachExpr : serviceNode.attachedExprs) {
             final BType exprType = typeChecker.checkExpr(attachExpr, env);
@@ -2978,6 +2980,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     }
                 }
             }
+
+            serviceSymbol.addListenerType(exprType);
         }
     }
 

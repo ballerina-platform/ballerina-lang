@@ -1,7 +1,7 @@
 // No diagnostics in the following line
-import ballerina/io;
+import foobar/bar;
 // Semicolon is missing
-import ballerina/log
+import foobar/qux
 
 public function funcWithDiagnostics() {
     int a = 5;
