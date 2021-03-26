@@ -161,28 +161,6 @@ function testArrayComparison2() {
     test:assertTrue(c >= d);
 }
 
-function testArrayComparison3() {
-    (string|int)[] a = [12, "DEF"];
-    (string|int)[] b = [13, "ABC"];
-    (string|int)[] c = [12, "ABC"];
-    (string|int)[] d = [];
-
-    test:assertTrue(a < b);
-    test:assertTrue(a <= b);
-    test:assertFalse(a > b);
-    test:assertFalse(a >= b);
-
-    test:assertFalse(a < c);
-    test:assertFalse(a <= c);
-    test:assertTrue(a > c);
-    test:assertTrue(a >= c);
-
-    test:assertFalse(a < d);
-    test:assertFalse(a <= d);
-    test:assertTrue(a > d);
-    test:assertTrue(a >= d);
-}
-
 function testTupleComparison1() {
     [int, decimal] a = [59215, 9945];
     [int, decimal] b = [59283, 24345];
@@ -247,28 +225,6 @@ function testTupleComparison2() {
     test:assertFalse(f <= a);
 }
 
-function testUnionComparison() {
-    string|int a = 2;
-    string|int b = 12;
-    string|int c = 20;
-    string|int d = 2;
-
-    test:assertTrue(a < b);
-    test:assertTrue(a <= b);
-    test:assertFalse(a > b);
-    test:assertFalse(a >= b);
-
-    test:assertFalse(c < a);
-    test:assertFalse(c <= a);
-    test:assertTrue(c > a);
-    test:assertTrue(c >= a);
-
-    test:assertFalse(a > d);
-    test:assertTrue(a >= d);
-    test:assertFalse(a < d);
-    test:assertTrue(a <= d);
-}
-
 type Utc readonly & [int,decimal];
 
 function testTypeComparison1() {
@@ -281,11 +237,14 @@ function testTypeComparison1() {
     test:assertFalse(a >= b);
 }
 
-type IntOrString int|string;
+const float ONE = 1.0;
+const float TWO = 2.0;
+
+type OneOrTwo ONE|TWO;
 
 function testTypeComparison2() {
-    IntOrString a = 12;
-    int|string b = 13;
+    OneOrTwo[] a = [1, 2];
+    float[] b = [3, 2];
 
     test:assertTrue(a < b);
     test:assertTrue(a <= b);
@@ -293,14 +252,33 @@ function testTypeComparison2() {
     test:assertFalse(a >= b);
 }
 
-const float ONE = 1.0;
-const float TWO = 2.0;
-
-type OneOrTwo ONE|TWO;
+type NumberSet 1|2|3|4|5;
 
 function testTypeComparison3() {
-    OneOrTwo[] a = [1, 2];
-    float[] b = [3, 2];
+    NumberSet[] a = [1, 2];
+    int[] b = [3, 2];
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
+function testUnionComparison1() {
+    int? a = 1;
+    int? b = 2;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
+type DecimalOrNil decimal?;
+
+function testUnionComparison2() {
+    DecimalOrNil a = 12d;
+    DecimalOrNil b = 24d;
 
     test:assertTrue(a < b);
     test:assertTrue(a <= b);
