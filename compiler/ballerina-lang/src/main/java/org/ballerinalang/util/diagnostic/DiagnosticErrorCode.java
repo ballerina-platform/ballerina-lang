@@ -648,59 +648,59 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ISOLATED_QUALIFIER_ON_MODULE_NO_INIT_VAR_DECL(
             "BCE3965", "invalid.isolated.qualifier.on.module.no.init.var.decl"),
     ONLY_A_SIMPLE_VARIABLE_CAN_BE_MARKED_AS_ISOLATED(
-            "BCE3962", "only.a.simple.variable.can.be.marked.as.isolated"),
+            "BCE3966", "only.a.simple.variable.can.be.marked.as.isolated"),
 
     // Configurable var related error codes
 
     CONFIGURABLE_VARIABLE_CANNOT_BE_DECLARED_WITH_VAR(
-            "BCE3968", "configurable.variable.cannot.be.declared.with.var"),
+            "BCE3967", "configurable.variable.cannot.be.declared.with.var"),
     CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY(
-            "BCE3969", "configurable.variable.must.be.anydata.and.readonly"),
+            "BCE3968", "configurable.variable.must.be.anydata.and.readonly"),
     ONLY_SIMPLE_VARIABLES_ARE_ALLOWED_TO_BE_CONFIGURABLE(
-            "BCE3970", "only.simple.variables.are.allowed.to.be.configurable"),
+            "BCE3969", "only.simple.variables.are.allowed.to.be.configurable"),
     CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED(
-            "BCE3971", "configurable.variable.currently.not.supported"),
+            "BCE3970", "configurable.variable.currently.not.supported"),
 
-    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3972", "remote.function.in.non.network.object"),
-    UNSUPPORTED_PATH_PARAM_TYPE("BCE3973", "unsupported.path.param.type"),
-    UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3974", "unsupported.rest.path.param.type"),
-    OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3975",
+    REMOTE_FUNCTION_IN_NON_NETWORK_OBJECT("BCE3971", "remote.function.in.non.network.object"),
+    UNSUPPORTED_PATH_PARAM_TYPE("BCE3972", "unsupported.path.param.type"),
+    UNSUPPORTED_REST_PATH_PARAM_TYPE("BCE3973", "unsupported.rest.path.param.type"),
+    OBJECT_TYPE_DEF_DOES_NOT_ALLOW_RESOURCE_FUNC_DECL("BCE3974",
             "unsupported.resource.function.declaration.in.object.type"),
-    SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3976",
+    SERVICE_ABSOLUTE_PATH_OR_LITERAL_IS_REQUIRED_BY_LISTENER("BCE3975",
             "service.absolute.path.or.literal.required.by.listener"),
-    SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER("BCE3977", "service.path.literal.is.not.supported.by.listener"),
-    SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3978", "service.absolute.path.is.not.supported.by.listener"),
-    SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3979", "service.path.literal.required.by.listener"),
-    SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER("BCE3980", "service.absolute.path.required.by.listener"),
-    SERVICE_TYPE_IS_NOT_SUPPORTED_BY_LISTENER("BCE3981", "service.type.is.not.supported.by.listener"),
+    SERVICE_PATH_LITERAL_IS_NOT_SUPPORTED_BY_LISTENER("BCE3976", "service.path.literal.is.not.supported.by.listener"),
+    SERVICE_ABSOLUTE_PATH_IS_NOT_SUPPORTED_BY_LISTENER("BCE3977", "service.absolute.path.is.not.supported.by.listener"),
+    SERVICE_LITERAL_REQUIRED_BY_LISTENER("BCE3978", "service.path.literal.required.by.listener"),
+    SERVICE_ABSOLUTE_PATH_REQUIRED_BY_LISTENER("BCE3979", "service.absolute.path.required.by.listener"),
+    SERVICE_TYPE_IS_NOT_SUPPORTED_BY_LISTENER("BCE3980", "service.type.is.not.supported.by.listener"),
 
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_OBJECT_TYPE_DESCRIPTOR(
-            "BCE3982", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
-    INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3983", "invalid.inclusion.with.mismatched.qualifiers"),
-    INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS("BCE3984", "invalid.reference.with.mismatched.qualifiers"),
+            "BCE3981", "invalid.read.only.class.inclusion.in.object.type.descriptor"),
+    INVALID_INCLUSION_WITH_MISMATCHED_QUALIFIERS("BCE3982", "invalid.inclusion.with.mismatched.qualifiers"),
+    INVALID_REFERENCE_WITH_MISMATCHED_QUALIFIERS("BCE3983", "invalid.reference.with.mismatched.qualifiers"),
     INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_OBJECT_TYPEDESC(
-            "BCE3985", "invalid.read.only.typedesc.inclusion.in.object.typedesc"),
+            "BCE3984", "invalid.read.only.typedesc.inclusion.in.object.typedesc"),
     INVALID_READ_ONLY_TYPEDESC_INCLUSION_IN_NON_READ_ONLY_CLASS(
-            "BCE3986", "invalid.read.only.typedesc.inclusion.in.non.read.only.class"),
+            "BCE3985", "invalid.read.only.typedesc.inclusion.in.non.read.only.class"),
     INVALID_READ_ONLY_CLASS_INCLUSION_IN_NON_READ_ONLY_CLASS(
-            "BCE3987", "invalid.read.only.class.inclusion.in.non.read.only.class"),
+            "BCE3986", "invalid.read.only.class.inclusion.in.non.read.only.class"),
     INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE(
-            "BCE3988", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
+            "BCE3987", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
 
-    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3989", "multiple.receive.action.not.yet.supported"),
+    MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3988", "multiple.receive.action.not.yet.supported"),
 
-    INVALID_READONLY_FIELD_TYPE("BCE3990", "invalid.readonly.field.type"),
+    INVALID_READONLY_FIELD_TYPE("BCE3989", "invalid.readonly.field.type"),
 
-    CONTINUE_NOT_ALLOWED("BCE3991", "continue.not.allowed"),
-    BREAK_NOT_ALLOWED("BCE3992", "break.not.allowed"),
-    TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3993", "type.does.not.support.xml.navigation.access"),
-    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3994", "xml.function.does.not.support.argument.type"),
+    CONTINUE_NOT_ALLOWED("BCE3990", "continue.not.allowed"),
+    BREAK_NOT_ALLOWED("BCE3991", "break.not.allowed"),
+    TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS("BCE3992", "type.does.not.support.xml.navigation.access"),
+    XML_FUNCTION_DOES_NOT_SUPPORT_ARGUMENT_TYPE("BCE3993", "xml.function.does.not.support.argument.type"),
 
-    INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3991", "intersection.not.allowed.with.type"),
-    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3992", "async.send.action.not.yet.supported.as.expression"),
-    UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR("BCE3993", "unused.variable.with.inferred.type.including.error"),
-    INVALID_ITERABLE_OBJECT_TYPE("BCE3994", "invalid.iterable.type"),
-    INVALID_ITERABLE_COMPLETION_TYPE_IN_FOREACH_NEXT_FUNCTION("BCE3995",
+    INTERSECTION_NOT_ALLOWED_WITH_TYPE("BCE3994", "intersection.not.allowed.with.type"),
+    ASYNC_SEND_NOT_YET_SUPPORTED_AS_EXPRESSION("BCE3995", "async.send.action.not.yet.supported.as.expression"),
+    UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR("BCE3996", "unused.variable.with.inferred.type.including.error"),
+    INVALID_ITERABLE_OBJECT_TYPE("BCE3997", "invalid.iterable.type"),
+    INVALID_ITERABLE_COMPLETION_TYPE_IN_FOREACH_NEXT_FUNCTION("BCE3998",
             "invalid.iterable.completion.type.in.foreach.next.function")
     ;
 
