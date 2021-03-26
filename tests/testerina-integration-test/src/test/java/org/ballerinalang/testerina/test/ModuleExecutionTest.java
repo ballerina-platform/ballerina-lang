@@ -22,6 +22,7 @@ import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
 import org.ballerinalang.testerina.test.utils.FileUtils;
+import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -60,7 +61,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
-            AssertionUtils.assertForTestFailures(output, "default module single test failure");
+            throw new BallerinaTestException("Test failed due to default module single test failure.");
         }
     }
 
@@ -74,7 +75,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3) || !output.contains(msg4)) {
-            AssertionUtils.assertForTestFailures(output, "default module wild card test failure");
+            throw new BallerinaTestException("Test failed due to default module wild card test failure.");
         }
     }
 
@@ -95,7 +96,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2)) {
-            AssertionUtils.assertForTestFailures(output, "module wise single test failure");
+            throw new BallerinaTestException("Test failed due to module wise single test failure.");
         }
     }
 
@@ -108,7 +109,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            AssertionUtils.assertForTestFailures(output, "module wise wild card test failure");
+            throw new BallerinaTestException("Test failed due to module wise wild card test failure.");
         }
     }
 
@@ -121,7 +122,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg1) || !output.contains(msg2) || !output.contains(msg3)) {
-            AssertionUtils.assertForTestFailures(output, "wild card test failure");
+            throw new BallerinaTestException("Test failed due to wild card test failure.");
         }
     }
 
@@ -134,7 +135,7 @@ public class ModuleExecutionTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args, new HashMap<>(), projectPath, false);
 
         if (!output.contains(msg1) || !output.contains(msg2)) {
-            AssertionUtils.assertForTestFailures(output, "module with groups failure");
+            Assert.fail("Test failed due to module with groups failure.");
         }
     }
 

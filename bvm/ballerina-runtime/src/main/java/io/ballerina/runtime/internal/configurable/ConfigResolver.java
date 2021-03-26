@@ -48,7 +48,7 @@ public class ConfigResolver {
 
     private Map<Module, VariableKey[]> configVarMap;
 
-    private ConfigProvider[] supportedConfigProviders;
+    private List<ConfigProvider> supportedConfigProviders;
 
     private List<ConfigProvider> runtimeConfigProviders;
 
@@ -57,7 +57,7 @@ public class ConfigResolver {
     private DiagnosticLog diagnosticLog;
 
     public ConfigResolver(Module rootModule, Map<Module, VariableKey[]> configVarMap,
-                          DiagnosticLog diagnosticLog, ConfigProvider... supportedConfigProviders) {
+                          DiagnosticLog diagnosticLog, List<ConfigProvider> supportedConfigProviders) {
         this.rootModule = rootModule;
         this.configVarMap = configVarMap;
         this.supportedConfigProviders = supportedConfigProviders;
@@ -153,7 +153,7 @@ public class ConfigResolver {
         for (ConfigProvider configProvider : runtimeConfigProviders) {
             try {
                 Optional<?> value = getConfigFunc.apply(configProvider);
-                if (configValue.isEmpty()) {
+                if (value.isPresent()) {
                     configValue = value;
                 }
             } catch (ConfigException e) {

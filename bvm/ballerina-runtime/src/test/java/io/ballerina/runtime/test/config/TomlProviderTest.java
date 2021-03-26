@@ -26,7 +26,7 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.providers.toml.TomlProvider;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
@@ -35,6 +35,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
@@ -50,13 +51,14 @@ public class TomlProviderTest {
     @Test(dataProvider = "arrays-data-provider")
     public void testConfigurableArrays(VariableKey arrayKey,
                                        Function<BArray, Object[]> arrayGetFunction, Object[] expectedArray) {
-        Module module = new Module("myorg", "arrays", "1.0.0");
+        Module module = new Module("myorg", "test_arrays_module", "1.0.0");
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = new VariableKey[]{arrayKey};
         configVarMap.put(module, keys);
         DiagnosticLog diagnosticLog = new DiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                                                           new TomlProvider(getConfigPath("Array_Config.toml")));
+                                                           List.of(new TomlFileProvider(getConfigPath("Array_Config" +
+                                                                                                           ".toml"))));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
         Assert.assertTrue(configValueMap.get(arrayKey) instanceof BArray);
         Object[] configuredArrayValues = arrayGetFunction.apply((BArray) configValueMap.get(arrayKey));

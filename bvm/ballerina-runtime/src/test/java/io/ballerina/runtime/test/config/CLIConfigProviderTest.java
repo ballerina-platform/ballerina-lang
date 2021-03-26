@@ -31,6 +31,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -56,7 +57,7 @@ public class CLIConfigProviderTest {
         configVarMap.put(module, keys);
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
                                                            diagnosticLog,
-                                                           new CliProvider(ROOT_MODULE, arg));
+                                                           List.of(new CliProvider(ROOT_MODULE, arg)));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);

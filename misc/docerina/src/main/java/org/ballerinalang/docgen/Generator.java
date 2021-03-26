@@ -162,7 +162,7 @@ public class Generator {
                                     typeDefinition.typeDescriptor();
                             Type type = null;
                             if (errorTypeDescriptor.errorTypeParamsNode().isPresent()) {
-                                type = Type.fromNode(errorTypeDescriptor.errorTypeParamsNode().get().parameter(),
+                                type = Type.fromNode(errorTypeDescriptor.errorTypeParamsNode().get().typeNode(),
                                         semanticModel);
                             }
                             module.errors.add(new Error(typeDefinition.typeName().text(),
@@ -177,6 +177,9 @@ public class Generator {
                         } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
                             hasPublicConstructs = true;
                             module.types.add(getTypeDescModel(typeDefinition, semanticModel));
+                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC) {
+                            hasPublicConstructs = true;
+                            module.types.add(getUnionTypeModel(typeDefinition, semanticModel));
                         }
                         // TODO: handle value type nodes
                         // TODO: handle function type nodes

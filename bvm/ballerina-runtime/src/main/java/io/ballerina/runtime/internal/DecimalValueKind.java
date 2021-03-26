@@ -24,7 +24,7 @@ package io.ballerina.runtime.internal;
  * @since 0.995.0
  */
 public enum DecimalValueKind {
-    ZERO("0.0"),
+    ZERO("0"),
     POSITIVE_INFINITY("Infinity"),
     NEGATIVE_INFINITY("-Infinity"),
     NOT_A_NUMBER("NaN"),

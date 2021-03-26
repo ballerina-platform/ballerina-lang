@@ -30,6 +30,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -55,7 +56,7 @@ public class CLIConfigProviderNegativeTest {
         configVarMap.put(module, keys);
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
                                                            diagnosticLog,
-                                                           new CliProvider(ROOT_MODULE, args));
+                                                           List.of(new CliProvider(ROOT_MODULE, args)));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), expectedErrorMessages.length);
         for (int i = 0; i < expectedErrorMessages.length; i++) {

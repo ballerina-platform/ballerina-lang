@@ -20,9 +20,7 @@
 # + moduleName - Module name
 # + fileName - File name
 # + lineNumber - Line number
-// todo use readonly qualifier once #27501 fixed
-# public readonly class StackFrameImpl
-public class StackFrameImpl {
+public readonly class StackFrameImpl {
 
     public string callableName;
     public string moduleName;

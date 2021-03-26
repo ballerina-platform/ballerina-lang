@@ -95,16 +95,13 @@ public class TomlProvider implements ConfigProvider {
 
     Set<String> invalidRequiredModuleSet = new HashSet<>();
 
-    private Path configPath;
     TomlTableNode tomlNode;
 
-    public TomlProvider(Path configPath) {
-       this.configPath = configPath;
+    public TomlProvider() {
     }
 
     @Override
     public void initialize() {
-        this.tomlNode = getConfigurationData(configPath);
     }
 
     @Override
