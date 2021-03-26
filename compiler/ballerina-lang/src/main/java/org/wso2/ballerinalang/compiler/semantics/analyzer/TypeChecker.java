@@ -4834,17 +4834,14 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        if (exprType.tag != TypeTags.UNION) {
+        boolean isErrorType = types.isAssignable(exprType, symTable.errorType);
+        if (exprType.tag != TypeTags.UNION && !isErrorType) {
             if (exprType.tag == TypeTags.READONLY) {
                 checkedExpr.equivalentErrorTypeList = new ArrayList<>(1) {{
                     add(symTable.errorType);
                 }};
                 resultType = symTable.anyAndReadonly;
                 return;
-            } else if (types.isAssignable(exprType, symTable.errorType)) {
-                dlog.error(checkedExpr.expr.pos,
-                        DiagnosticErrorCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS,
-                        operatorType);
             } else if (exprType != symTable.semanticError) {
                 dlog.error(checkedExpr.expr.pos,
                         DiagnosticErrorCode.CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS,
@@ -4857,17 +4854,21 @@ public class TypeChecker extends BLangNodeVisitor {
         // Filter out the list of types which are not equivalent with the error type.
         List<BType> errorTypes = new ArrayList<>();
         List<BType> nonErrorTypes = new ArrayList<>();
-        for (BType memberType : ((BUnionType) exprType).getMemberTypes()) {
-            if (memberType.tag == TypeTags.READONLY) {
-                errorTypes.add(symTable.errorType);
-                nonErrorTypes.add(symTable.anyAndReadonly);
-                continue;
+        if (!isErrorType) {
+            for (BType memberType : ((BUnionType) exprType).getMemberTypes()) {
+                if (memberType.tag == TypeTags.READONLY) {
+                    errorTypes.add(symTable.errorType);
+                    nonErrorTypes.add(symTable.anyAndReadonly);
+                    continue;
+                }
+                if (types.isAssignable(memberType, symTable.errorType)) {
+                    errorTypes.add(memberType);
+                    continue;
+                }
+                nonErrorTypes.add(memberType);
             }
-            if (types.isAssignable(memberType, symTable.errorType)) {
-                errorTypes.add(memberType);
-                continue;
-            }
-            nonErrorTypes.add(memberType);
+        } else {
+            errorTypes.add(exprType);
         }
 
         // This list will be used in the desugar phase
@@ -4880,17 +4881,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (nonErrorTypes.isEmpty()) {
-            // All member types in the union are equivalent to the error type.
-            // Checked expression requires at least one type which is not equivalent to the error type.
-            dlog.error(checkedExpr.expr.pos,
-                    DiagnosticErrorCode.CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS, operatorType);
-            checkedExpr.type = symTable.semanticError;
-            return;
-        }
-
         BType actualType;
-        if (nonErrorTypes.size() == 1) {
+        if (nonErrorTypes.size() == 0) {
+            actualType = symTable.neverType;
+        } else if (nonErrorTypes.size() == 1) {
             actualType = nonErrorTypes.get(0);
         } else {
             actualType = BUnionType.create(null, new LinkedHashSet<>(nonErrorTypes));

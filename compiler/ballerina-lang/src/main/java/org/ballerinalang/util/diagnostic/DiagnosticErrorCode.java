@@ -430,7 +430,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     // Checked expression related errors
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE3030", "checked.expr.invalid.usage.no.error.type.rhs"),
-    CHECKED_EXPR_INVALID_USAGE_ALL_ERROR_TYPES_IN_RHS("BCE3031", "checked.expr.invalid.usage.only.error.types.rhs"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
             "BCE3032", "checked.expr.no.matching.error.return.in.encl.invokable"),
 
