@@ -46,20 +46,19 @@ public class StringTemplateLiteralNegativeTest {
     @Test(description = "Test string template literal syntax errors", groups = { "disableOnOldParser" })
     public void testStringTemplateLiteralSyntaxNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 14);
+        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token 'return'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid token 's'", 4, 74);
         BAssertUtil.validateError(resultNegative, index++, "invalid escape sequence '\\l'", 10, 24);
-        BAssertUtil.validateError(resultNegative, index++, "missing plus token", 10, 24);
-        BAssertUtil.validateError(resultNegative, index++, "undefined symbol 'He\\llo'", 10, 24);
-        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 31);
+        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 24);
+        BAssertUtil.validateError(resultNegative, index++, "unknown type 'He\\llo'", 10, 24);
+        BAssertUtil.validateError(resultNegative, index++, "invalid record binding pattern with type 'other'", 10, 33);
         BAssertUtil.validateError(resultNegative, index++, "invalid token '$'", 10, 33);
-        BAssertUtil.validateError(resultNegative, index++, "unknown type 'name'", 10, 34);
-        BAssertUtil.validateError(resultNegative, index++, "missing identifier", 10, 38);
-        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 38);
+        BAssertUtil.validateError(resultNegative, index++, "complex variable must be initialized", 10, 39);
+        BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 39);
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';\n    return s;\n}\n'", 13, 1);
         BAssertUtil.validateError(resultNegative, index++, "invalid token '`'", 13, 1);
     }
