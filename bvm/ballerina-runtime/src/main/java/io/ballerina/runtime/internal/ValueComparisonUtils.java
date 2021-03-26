@@ -176,12 +176,30 @@ public class ValueComparisonUtils {
             }
             return 1;
         }
-        if (TypeTags.isStringTypeTag(lhsTypeTag) && TypeTags.isStringTypeTag(rhsTypeTag))  {
-            return codePointCompare(lhsValue.toString(), rhsValue.toString());
+
+        if (lhsTypeTag == TypeTags.DECIMAL_TAG || rhsTypeTag == TypeTags.DECIMAL_TAG) {
+            DecimalValue lhsVal = new DecimalValue(lhsValue.toString());
+            DecimalValue rhsVal = new DecimalValue(rhsValue.toString());
+            if (TypeChecker.checkDecimalEqual(lhsVal, rhsVal)) {
+                return 0;
+            }
+            if (checkDecimalGreaterThan(lhsVal, rhsVal)) {
+                return 1;
+            }
+            return -1;
         }
 
-        if (TypeTags.isIntegerTypeTag(lhsTypeTag) && TypeTags.isIntegerTypeTag(rhsTypeTag)) {
-            return Long.compare((long) lhsValue, (long) rhsValue);
+        if (lhsTypeTag == TypeTags.FLOAT_TAG || rhsTypeTag == TypeTags.FLOAT_TAG) {
+            return compareFloatValues(Double.parseDouble(lhsValue.toString()),
+                    Double.parseDouble(rhsValue.toString()), inRelationalExpr, isAscending);
+        }
+
+        if (TypeTags.isIntegerTypeTag(lhsTypeTag) || TypeTags.isIntegerTypeTag(rhsTypeTag)) {
+            return Long.compare(Long.parseLong(lhsValue.toString()), Long.parseLong(rhsValue.toString()));
+        }
+
+        if (TypeTags.isStringTypeTag(lhsTypeTag) && TypeTags.isStringTypeTag(rhsTypeTag))  {
+            return codePointCompare(lhsValue.toString(), rhsValue.toString());
         }
 
         if (lhsTypeTag == rhsTypeTag) {
@@ -190,16 +208,6 @@ public class ValueComparisonUtils {
                     return Boolean.compare((boolean) lhsValue, (boolean) rhsValue);
                 case TypeTags.BYTE_TAG:
                     return Integer.compare((int) lhsValue, (int) rhsValue);
-                case TypeTags.FLOAT_TAG:
-                    return compareFloatValues((double) lhsValue, (double) rhsValue, inRelationalExpr, isAscending);
-                case TypeTags.DECIMAL_TAG:
-                    if (TypeChecker.checkDecimalEqual((DecimalValue) lhsValue, (DecimalValue) rhsValue)) {
-                        return 0;
-                    }
-                    if (checkDecimalGreaterThan((DecimalValue) lhsValue, (DecimalValue) rhsValue)) {
-                        return 1;
-                    }
-                    return -1;
                 case TypeTags.ARRAY_TAG:
                 case TypeTags.TUPLE_TAG:
                     return compareArrayValues(lhsValue, rhsValue, lhsTypeTag, direction);
