@@ -5773,8 +5773,32 @@ public class TypeChecker extends BLangNodeVisitor {
         if (keyFunctionType.tag == TypeTags.NIL) {
             if (!types.isOrderedType(iExpr.argExprs.get(0).type, false)) {
                 dlog.error(iExpr.argExprs.get(0).pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
-                        iExpr.argExprs.get(0).type);
+                            iExpr.argExprs.get(0).type);
             }
+            return;
+        }
+
+        Location pos;
+        BType returnType;
+
+        if (keyFunction.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            pos = keyFunction.pos;
+            returnType = keyFunction.type.getReturnType();
+        } else if (keyFunction.getKind() == NodeKind.ARROW_EXPR) {
+            BLangArrowFunction arrowFunction = ((BLangArrowFunction) keyFunction);
+            pos = arrowFunction.body.expr.pos;
+            returnType = arrowFunction.body.expr.type;
+            if (returnType.tag == TypeTags.SEMANTIC_ERROR) {
+                return;
+            }
+        } else {
+            BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
+            pos = keyLambdaFunction.function.pos;
+            returnType = keyLambdaFunction.function.type.getReturnType();
+        }
+
+        if (!types.isOrderedType(returnType, false)) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }
 

@@ -2625,7 +2625,10 @@ public class Types {
 
         @Override
         public Boolean visit(BFiniteType t, BType s) {
-
+            if (inOrderedType) {
+                inOrderedType = false;
+                return isSimpleBasicType(s.tag) && checkValueSpaceHasSameType(t.getValueSpace(), s);
+            }
             return s == t;
         }
 
@@ -2656,6 +2659,17 @@ public class Types {
             return isValueSpaceSameType;
         }
         return false;
+    }
+
+    private boolean checkValueSpaceHasSameType(Set<BLangExpression> valueSpace, BType baseType) {
+        boolean isValueSpaceSameType = false;
+        for (BLangExpression expr : valueSpace) {
+            isValueSpaceSameType = isSameType(expr.type, baseType);
+            if (!isValueSpaceSameType) {
+                break;
+            }
+        }
+        return isValueSpaceSameType;
     }
 
     private boolean checkFieldEquivalency(BRecordType lhsType, BRecordType rhsType, Set<TypePair> unresolvedTypes) {
@@ -4529,7 +4543,17 @@ public class Types {
                 }
                 Set<BType> memberTypes = unionType.getMemberTypes();
                 boolean allMembersOrdered = false;
+                BType firstTypeInUnion = memberTypes.iterator().next();
                 for (BType memType : memberTypes) {
+                    if (memType.tag == TypeTags.FINITE && firstTypeInUnion.tag == TypeTags.FINITE) {
+                        Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
+                        BType baseExprType = valSpace.iterator().next().type;
+                        if (!checkValueSpaceHasSameType(((BFiniteType) memType).getValueSpace(), baseExprType)) {
+                            return false;
+                        }
+                    } else if (memType.tag != firstTypeInUnion.tag && memType.tag != TypeTags.NIL) {
+                        return false;
+                    }
                     allMembersOrdered = isOrderedType(memType, hasCycle);
                     if (!allMembersOrdered) {
                         break;
