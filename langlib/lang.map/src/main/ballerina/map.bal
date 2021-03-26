@@ -81,14 +81,14 @@ public isolated function entries(map<Type> m) returns map<[string, Type]> = @jav
 #
 # + m - the map
 # + func - a function to apply to each member
-# + return - new map containing result of applying parameter `func` to each member
+# + return - new map containing result of applying function `func` to each member
 public isolated function 'map(map<Type> m, @isolatedParam function(Type val) returns Type1 func) returns map<Type1> = @java:Method {
     'class: "org.ballerinalang.langlib.map.Map",
     name: "map"
 } external;
 
 # Applies a function to each member of a map.
-# The parameter `func` is applied to each member of `m`.
+# The function `func` is applied to each member of `m`.
 #
 # + m - the map
 # + func - a function to apply to each member
@@ -113,7 +113,7 @@ public isolated function filter(map<Type> m, @isolatedParam function(Type val) r
 #
 # + m - the map
 # + func - combining function
-# + initial - initial value for the first argument of combining parameter `func`
+# + initial - initial value for the first argument of combining function `func`
 # + return - result of combining the members of `m` using `func`
 public isolated function reduce(map<Type> m, @isolatedParam function(Type1 accum, Type val) returns Type1 func, Type1 initial) returns Type1 =
 @java:Method {
@@ -126,7 +126,7 @@ public isolated function reduce(map<Type> m, @isolatedParam function(Type1 accum
 # + m - the map
 # + k - the key
 # + return - the member of `m` that had key `k`
-# This removed the member of `m` with key `k` and returns it.
+# This removes the member of `m` with key `k` and returns it.
 # It panics if there is no such member.
 public isolated function remove(map<Type> m, string k) returns Type = @java:Method {
     'class: "org.ballerinalang.langlib.map.Remove",

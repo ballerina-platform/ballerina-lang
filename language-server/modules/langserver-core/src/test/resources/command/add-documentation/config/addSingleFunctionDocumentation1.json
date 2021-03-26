@@ -1,30 +1,40 @@
 {
-  "nodeType": "FUNCTION",
-  "nodeLine": "0",
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 0,
+        "character": 0
+      },
+      "end": {
+        "line": 2,
+        "character": 1
+      }
+    }
+  },
   "expected": {
-    "result":{
-      "edit":{
-        "documentChanges":[
+    "result": {
+      "edit": {
+        "documentChanges": [
           {
-            "edits":[
+            "edits": [
               {
-                "range":{
-                  "start":{
-                    "line":0,
-                    "character":0
+                "range": {
+                  "start": {
+                    "line": 0,
+                    "character": 0
                   },
-                  "end":{
-                    "line":0,
-                    "character":0
+                  "end": {
+                    "line": 0,
+                    "character": 0
                   }
                 },
-                "newText":"# Description\n#\n# + a - a Parameter Description \n# + default1 - default1 Parameter Description \n# + b - b Parameter Description \n# + bl - bl Parameter Description \n# + rst - rst Parameter Description\n"
+                "newText": "# Description\n#\n# + a - Parameter Description  \n# + b - Parameter Description  \n# + default1 - Parameter Description  \n# + bl - Parameter Description  \n# + rst - Parameter Description  \n"
               }
             ]
           }
         ]
       }
     },
-    "jsonrpc":"2.0"
+    "jsonrpc": "2.0"
   }
 }

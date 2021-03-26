@@ -37,7 +37,7 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
         return childInBucket(0);
     }
 
-    public Optional<ErrorTypeParamsNode> errorTypeParamsNode() {
+    public Optional<TypeParameterNode> errorTypeParamsNode() {
         return optionalChildInBucket(1);
     }
 
@@ -60,7 +60,7 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
 
     public ErrorTypeDescriptorNode modify(
             Token errorKeywordToken,
-            ErrorTypeParamsNode errorTypeParamsNode) {
+            TypeParameterNode errorTypeParamsNode) {
         if (checkForReferenceEquality(
                 errorKeywordToken,
                 errorTypeParamsNode)) {
@@ -84,7 +84,7 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
     public static class ErrorTypeDescriptorNodeModifier {
         private final ErrorTypeDescriptorNode oldNode;
         private Token errorKeywordToken;
-        private ErrorTypeParamsNode errorTypeParamsNode;
+        private TypeParameterNode errorTypeParamsNode;
 
         public ErrorTypeDescriptorNodeModifier(ErrorTypeDescriptorNode oldNode) {
             this.oldNode = oldNode;
@@ -100,7 +100,7 @@ public class ErrorTypeDescriptorNode extends TypeDescriptorNode {
         }
 
         public ErrorTypeDescriptorNodeModifier withErrorTypeParamsNode(
-                ErrorTypeParamsNode errorTypeParamsNode) {
+                TypeParameterNode errorTypeParamsNode) {
             this.errorTypeParamsNode = errorTypeParamsNode;
             return this;
         }
