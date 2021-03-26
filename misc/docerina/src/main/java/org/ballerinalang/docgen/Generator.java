@@ -314,20 +314,22 @@ public class Generator {
                         semanticModel);
                 record.isReadOnly = true;
                 module.records.add(record);
+                return;
             } else if (typeDef.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
                 BObjectType bObj = getObjectTypeModel((ObjectTypeDescriptorNode) typeDef, typeName,
                         optionalMetadataNode, semanticModel);
                 bObj.isReadOnly = true;
                 module.objectTypes.add(bObj);
+                return;
             }
-        } else {
-            List<Type> memberTypes = new ArrayList<>();
-            memberTypes.add(Type.fromNode(typeDescriptor.leftTypeDesc(), semanticModel));
-            memberTypes.add(Type.fromNode(typeDescriptor.rightTypeDesc(), semanticModel));
-            BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
-                    isDeprecated(optionalMetadataNode), memberTypes);
-            bType.isIntersectionType = true;
         }
+        List<Type> memberTypes = new ArrayList<>();
+        memberTypes.add(Type.fromNode(typeDescriptor.leftTypeDesc(), semanticModel));
+        memberTypes.add(Type.fromNode(typeDescriptor.rightTypeDesc(), semanticModel));
+        BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
+                isDeprecated(optionalMetadataNode), memberTypes);
+        bType.isIntersectionType = true;
+        module.types.add(bType);
     }
 
     private static BType getTupleTypeModel(TupleTypeDescriptorNode typeDescriptor, String tupleTypeName,
