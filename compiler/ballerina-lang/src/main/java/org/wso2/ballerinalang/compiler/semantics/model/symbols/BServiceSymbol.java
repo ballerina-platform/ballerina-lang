@@ -23,6 +23,7 @@ import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -34,6 +35,7 @@ import java.util.Optional;
 public class BServiceSymbol extends BSymbol {
 
     private final BClassSymbol associatedClass;
+    private final List<BType> listenerTypes;
     private List<String> absResourcePath;
     private String attachPointStringLiteral;
 
@@ -42,6 +44,7 @@ public class BServiceSymbol extends BSymbol {
         super(SymTag.SERVICE, flags, name, pkgID, type, owner, pos, origin);
         this.associatedClass = associatedClass;
         this.kind = SymbolKind.SERVICE;
+        this.listenerTypes = new ArrayList<>();
     }
 
     public Optional<List<String>> getAbsResourcePath() {
@@ -56,11 +59,20 @@ public class BServiceSymbol extends BSymbol {
         return this.associatedClass;
     }
 
+    public List<BType> getListenerTypes() {
+        return this.listenerTypes;
+    }
+
     public void setAbsResourcePath(List<String> absResourcePath) {
         this.absResourcePath = absResourcePath;
     }
 
     public void setAttachPointStringLiteral(String attachPointStringLiteral) {
         this.attachPointStringLiteral = attachPointStringLiteral;
+    }
+
+    public void addListenerType(BType type) {
+        assert type != null;
+        this.listenerTypes.add(type);
     }
 }

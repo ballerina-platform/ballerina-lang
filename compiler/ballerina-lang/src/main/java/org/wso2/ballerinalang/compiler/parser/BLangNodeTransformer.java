@@ -3453,7 +3453,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             publicQualifier = true;
         }
         for (Node member : enumDeclarationNode.enumMemberList()) {
-            addToTop(transformEnumMember((EnumMemberNode) member, publicQualifier));
+            EnumMemberNode enumMember = (EnumMemberNode) member;
+            if (enumMember.identifier().isMissing()) {
+                continue;
+            }
+            addToTop(transformEnumMember(enumMember, publicQualifier));
         }
 
         BLangTypeDefinition bLangTypeDefinition = (BLangTypeDefinition) TreeBuilder.createTypeDefinition();
@@ -3468,7 +3472,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangUnionTypeNode bLangUnionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
         bLangUnionTypeNode.pos = bLangTypeDefinition.pos;
         for (Node member : enumDeclarationNode.enumMemberList()) {
-            bLangUnionTypeNode.memberTypeNodes.add(createTypeNode(((EnumMemberNode) member).identifier()));
+            Node enumMemberIdentifier = ((EnumMemberNode) member).identifier();
+            if (enumMemberIdentifier.isMissing()) {
+                continue;
+            }
+            bLangUnionTypeNode.memberTypeNodes.add(createTypeNode(enumMemberIdentifier));
         }
         Collections.reverse(bLangUnionTypeNode.memberTypeNodes);
         bLangTypeDefinition.setTypeNode(bLangUnionTypeNode);
@@ -3510,7 +3518,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         if (deepLiteral instanceof BLangLiteral) {
             BLangLiteral literal = (BLangLiteral) deepLiteral;
-            if (literal.originalValue != "") {
+            if (!literal.originalValue.equals("")) {
                 BLangFiniteTypeNode typeNodeAssociated = (BLangFiniteTypeNode) TreeBuilder.createFiniteTypeNode();
                 literal.originalValue = null;
                 typeNodeAssociated.addValue(deepLiteral);
