@@ -85,6 +85,8 @@ public class Type {
     @Expose
     public boolean isAnonymousUnionType;
     @Expose
+    public boolean isInclusion;
+    @Expose
     public boolean isArrayType;
     @Expose
     public boolean isNullable;

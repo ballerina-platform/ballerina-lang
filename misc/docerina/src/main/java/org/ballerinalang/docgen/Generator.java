@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
 import io.ballerina.compiler.syntax.tree.MarkdownCodeLineNode;
@@ -710,6 +711,14 @@ public class Generator {
                 Type type = new Type(paramName);
                 type.isRestParam = true;
                 type.elementType = Type.fromNode(restParameter.typeName(), semanticModel);
+                variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
+                        optionalMetadataNode), false, type, ""));
+            } else if (node instanceof IncludedRecordParameterNode) {
+                IncludedRecordParameterNode includedRecord = (IncludedRecordParameterNode) node;
+                String paramName = includedRecord.paramName().isPresent() ?
+                        includedRecord.paramName().get().text() : "";
+                Type type = Type.fromNode(includedRecord.typeName(), semanticModel);
+                type.isInclusion = true;
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), false, type, ""));
             }
