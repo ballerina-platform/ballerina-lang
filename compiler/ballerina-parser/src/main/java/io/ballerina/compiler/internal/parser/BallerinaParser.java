@@ -4935,7 +4935,7 @@ public class BallerinaParser extends AbstractParser {
                     break;
                 }
                 
-                recover(nextToken, ParserRuleContext.CLASS_DESCRIPTOR, newKeyword);
+                recover(nextToken, ParserRuleContext.CLASS_DESCRIPTOR);
                 return parseClassDescriptor(newKeyword);
         }
         
