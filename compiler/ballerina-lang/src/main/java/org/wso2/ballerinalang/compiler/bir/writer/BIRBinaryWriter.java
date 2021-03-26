@@ -468,6 +468,11 @@ public class BIRBinaryWriter {
         if (birServiceDecl.attachPointLiteral != null) {
             buf.writeInt(addStringCPEntry(birServiceDecl.attachPointLiteral));
         }
+
+        buf.writeInt(birServiceDecl.listenerTypes.size());
+        for (BType listenerType : birServiceDecl.listenerTypes) {
+            writeType(buf, listenerType);
+        }
     }
 
     private int addIntCPEntry(long value) {

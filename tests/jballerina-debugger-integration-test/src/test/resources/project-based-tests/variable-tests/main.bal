@@ -233,7 +233,12 @@ public function main() {
             }
         }
     }
-    
+
+    // variable visibility inside foreach loop + lambda function
+    mapVar.forEach(function(string item) {
+                       intVar += intVar;
+                   });
+
     intVar = addition(2, 3);
 }
 

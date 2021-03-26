@@ -93,6 +93,8 @@ dependencies {
     testRuntime project(path: ':ballerina-lang:query', configuration: 'distributionBirJar')
     distributionBala project(path: ':ballerina-lang:transaction', configuration: 'distributionBala')
     testRuntime project(path: ':ballerina-lang:transaction', configuration: 'distributionBirJar')
+//    distributionBala project(path: ':ballerina-lang:config', configuration: 'distributionBala')
+//    testRuntime project(path: ':ballerina-lang:config', configuration: 'distributionBirJar')
 }
 
 task loadDistributionCache() {

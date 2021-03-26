@@ -3743,9 +3743,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     public BVarSymbol createVarSymbol(long flags, BType varType, Name varName, SymbolEnv env,
                                       Location location, boolean isInternal) {
-        BType safeType = types.getSafeType(varType, true, false);
         BVarSymbol varSymbol;
-        if (safeType.tag == TypeTags.INVOKABLE) {
+        if (varType.tag == TypeTags.INVOKABLE) {
             varSymbol = new BInvokableSymbol(SymTag.VARIABLE, flags, varName, env.enclPkg.symbol.pkgID, varType,
                                              env.scope.owner, location, isInternal ? VIRTUAL : getOrigin(varName));
             varSymbol.kind = SymbolKind.FUNCTION;
