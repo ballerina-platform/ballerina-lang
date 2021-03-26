@@ -831,3 +831,42 @@ function testContexuallyExpectedType() returns Employee {
 function testContexuallyExpectedTypeRecContext() returns Employee {
     return <@untainted> { name: "Em Zee", id: 1100 };
 }
+
+
+json jsonMapping = {a: 1};
+
+type IntRecord record {
+    int a;
+};
+
+type Bar record {|
+    int a;
+|};
+
+function testImmutableJsonMappingToExclusiveRecordPositive() {
+    json readonlyJsonMapping = jsonMapping.cloneReadOnly();
+    Bar intBar = <Bar>readonlyJsonMapping;
+    assert(1, intBar.a);
+}
+
+function testImmutableJsonMappingToInclusiveRecordPOsitive() {
+    json readonlyJsonMapping = jsonMapping.cloneReadOnly();
+    IntRecord intBar = <IntRecord>readonlyJsonMapping;
+    assert(1, intBar.a);
+}
+
+function testMutableJsonMappingToExclusiveRecordNegative() {
+    Bar res = <Bar>jsonMapping;
+}
+
+// Util functions
+
+function assert(anydata expected, anydata actual) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string detail = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        panic error("{AssertionError}", message = detail);
+    }
+}

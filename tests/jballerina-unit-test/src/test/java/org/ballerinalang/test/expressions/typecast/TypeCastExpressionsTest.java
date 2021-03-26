@@ -184,6 +184,13 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
+                    "types: 'map<json>' cannot be cast to 'Bar'.*")
+    public void testMutableJsonMappingToExclusiveRecordNegative() {
+        BRunUtil.invoke(result, "testMutableJsonMappingToExclusiveRecordNegative");
+    }
+
+    @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'int'.*")
     public void testStringAsInvalidBasicType() {
         BRunUtil.invoke(result, "testStringAsInvalidBasicType");
@@ -352,6 +359,19 @@ public class TypeCastExpressionsTest {
         Assert.assertSame(returns[0].getClass(), BMap.class);
         Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Em Zee");
         Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
+    }
+
+    @DataProvider
+    public Object[] mappingToRecordTests() {
+        return new Object[]{
+                "testImmutableJsonMappingToExclusiveRecordPositive",
+                "testImmutableJsonMappingToInclusiveRecordPOsitive"
+        };
+    }
+
+    @Test(dataProvider = "positiveTests")
+    public void testJsonMappingToRecordPositive(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
     @AfterClass

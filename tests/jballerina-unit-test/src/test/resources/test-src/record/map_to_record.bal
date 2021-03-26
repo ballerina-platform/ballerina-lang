@@ -177,23 +177,6 @@ function testComplexSubtyping2() {
     gR.x = rC;
 }
 
-json jsonMapping = {a : 1};
-
-function testImmutableJsonMappingToExclusiveRecord() {
-    json readonlyJsonMapping = jsonMapping.cloneReadOnly();
-    Bar intBar = <Bar>readonlyJsonMapping;
-    assert(1, intBar.a);
-}
-
-type IntRecord record {
-    int a;
-};
-
-function testImmutableJsonMappingToInclusiveRecord() {
-    json readonlyJsonMapping = jsonMapping.cloneReadOnly();
-    IntRecord intBar = <IntRecord>readonlyJsonMapping;
-    assert(1, intBar.a);
-}
 
 // Util functions
 
