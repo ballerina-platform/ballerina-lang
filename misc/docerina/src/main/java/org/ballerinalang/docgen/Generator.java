@@ -162,7 +162,7 @@ public class Generator {
                                     typeDefinition.typeDescriptor();
                             Type type = null;
                             if (errorTypeDescriptor.errorTypeParamsNode().isPresent()) {
-                                type = Type.fromNode(errorTypeDescriptor.errorTypeParamsNode().get().parameter(),
+                                type = Type.fromNode(errorTypeDescriptor.errorTypeParamsNode().get().typeNode(),
                                         semanticModel);
                             }
                             module.errors.add(new Error(typeDefinition.typeName().text(),

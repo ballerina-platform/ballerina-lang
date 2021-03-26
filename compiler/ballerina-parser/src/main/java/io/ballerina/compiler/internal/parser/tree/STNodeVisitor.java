@@ -365,10 +365,6 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(errorTypeDescriptorNode);
     }
 
-    public void visit(STErrorTypeParamsNode errorTypeParamsNode) {
-        visitSyntaxNode(errorTypeParamsNode);
-    }
-
     public void visit(STStreamTypeDescriptorNode streamTypeDescriptorNode) {
         visitSyntaxNode(streamTypeDescriptorNode);
     }

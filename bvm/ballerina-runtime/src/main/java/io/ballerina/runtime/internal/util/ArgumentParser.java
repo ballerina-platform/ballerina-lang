@@ -84,8 +84,7 @@ public class ArgumentParser {
         return bValueArgs;
     }
 
-    private static Object[] getEntryFuncArgs(ParamInfo[] funcInfo, String[] args,
-                                             boolean hasRestParam) {
+    private static Object[] getEntryFuncArgs(ParamInfo[] funcInfo, String[] args, boolean hasRestParam) {
         // first arg is reserved for strand
         Object[] bValueArgs = new Object[funcInfo.length * 2 + 1];
         Map<String, ParamInfo> namedArgs = new HashMap<>();
@@ -102,17 +101,16 @@ public class ArgumentParser {
             }
         }
         int argsCountExceptRestArgs = hasRestParam ? funcInfo.length - 1 : funcInfo.length;
-        int requiredParamsCount = hasRestParam ? argsCountExceptRestArgs - defaultableCount :
-                argsCountExceptRestArgs - defaultableCount;
+        int requiredParamsCount = argsCountExceptRestArgs - defaultableCount;
 
         // populate positional args and named args
         List<String> restArgs = new ArrayList<>();
         int providedRequiredArgsCount = 0;
         for (int i = 0; i < args.length; i++) {
             String arg = args[i];
-            boolean isNameArg = isNameArg(arg);
+            boolean isNamedArg = isNamedArg(arg);
             // handle named args
-            if (isNameArg) {
+            if (isNamedArg) {
                 isNamedArgFound = true;
                 String paramName = getParamName(arg);
                 ParamInfo info = namedArgs.get(paramName);
@@ -172,7 +170,7 @@ public class ArgumentParser {
         return bValueArgs;
     }
 
-    private static boolean isNameArg(String arg) {
+    private static boolean isNamedArg(String arg) {
         return arg.startsWith(DEFAULT_PARAM_PREFIX) && arg.contains(NAMED_ARG_DELIMITER);
     }
 

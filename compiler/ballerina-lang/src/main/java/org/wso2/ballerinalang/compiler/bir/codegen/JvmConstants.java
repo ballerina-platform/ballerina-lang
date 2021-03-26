@@ -146,6 +146,7 @@ public class JvmConstants {
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String B_STRING_VAR_PREFIX = "$bString";
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
+    public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
 
@@ -171,6 +172,9 @@ public class JvmConstants {
     public static final String ERROR_UTILS = "io/ballerina/runtime/internal/ErrorUtils";
     public static final String ERROR_CREATOR = "io/ballerina/runtime/api/ErrorCreator";
     public static final String RUNTIME_UTILS = "io/ballerina/runtime/internal/util/RuntimeUtils";
+    public static final String OPTION = "io/ballerina/runtime/internal/cli/Option";
+    public static final String OPERAND = "io/ballerina/runtime/internal/cli/Operand";
+    public static final String CLI_SPEC = "io/ballerina/runtime/internal/cli/CliSpec";
     public static final String ARGUMENT_PARSER = "io/ballerina/runtime/internal/util/ArgumentParser";
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
     public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
@@ -182,6 +186,7 @@ public class JvmConstants {
     public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
     public static final String LISTENER_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
+    public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";

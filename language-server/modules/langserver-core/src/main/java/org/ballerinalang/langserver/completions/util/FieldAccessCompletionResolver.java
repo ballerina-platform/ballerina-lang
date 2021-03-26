@@ -70,9 +70,14 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        Symbol symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()), node.name().text());
+        Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()),
+                node.name().text());
 
-        return SymbolUtil.getTypeDescriptor(symbol);
+        if (symbol.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        return SymbolUtil.getTypeDescriptor(symbol.get());
     }
 
     @Override
@@ -86,9 +91,13 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) fieldName).name().text();
-        Symbol filteredSymbol = this.getSymbolByName(this.getVisibleEntries(typeSymbol.orElseThrow()), name);
+        Optional<Symbol> filteredSymbol = this.getSymbolByName(this.getVisibleEntries(typeSymbol.orElseThrow()), name);
 
-        return SymbolUtil.getTypeDescriptor(filteredSymbol);
+        if (filteredSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
     }
 
     @Override
@@ -160,10 +169,10 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         return typeSymbol.map(this::getVisibleEntries).orElse(Collections.emptyList());
     }
 
-    private Symbol getSymbolByName(List<Symbol> visibleSymbols, String name) {
+    private Optional<Symbol> getSymbolByName(List<Symbol> visibleSymbols, String name) {
         return visibleSymbols.stream()
                 .filter((symbol -> symbol.getName().orElse("").equals(name)))
-                .findFirst().orElseThrow();
+                .findFirst();
     }
 
     private Symbol getSymbolByName(List<Symbol> visibleSymbols, String name, @Nonnull Predicate<Symbol> predicate) {

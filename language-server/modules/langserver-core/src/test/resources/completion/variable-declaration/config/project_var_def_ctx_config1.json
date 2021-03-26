@@ -30,11 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "from ",
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -479,32 +479,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "num",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "C",
-      "insertText": "num",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getDriver(models:Person person)(models:Driver)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n**Params**  \n- `models:Person` person  \n  \n**Returns** `models:Driver`   \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "getDriver(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "stringFunction()(string)",
       "kind": "Function",
       "detail": "Function",
@@ -516,6 +490,20 @@
       },
       "sortText": "D",
       "insertText": "stringFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getPerson()(models:Person)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `models:Person`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "getPerson()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -547,18 +535,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getPerson()(models:Person)",
+      "label": "getDriver(models:Person person)(models:Driver)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `models:Person`   \n  \n"
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n**Params**  \n- `models:Person` person  \n  \n**Returns** `models:Driver`   \n  \n"
         }
       },
       "sortText": "D",
-      "insertText": "getPerson()",
-      "insertTextFormat": "Snippet"
+      "insertText": "getDriver(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "getAge()(int)",
@@ -572,6 +564,14 @@
       },
       "sortText": "A",
       "insertText": "getAge()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "num",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "num",
       "insertTextFormat": "Snippet"
     }
   ]
