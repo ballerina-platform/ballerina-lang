@@ -303,9 +303,10 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
-                    "\"Invalid update of record field: modification not allowed on readonly value\".*")
-    public void testFrozenAnyArrayElementUpdate() {
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
+                    "\"cannot update 'readonly' field 'name' in record of type '\\(Employee & readonly\\)'\".*")
+    public void
+    testFrozenAnyArrayElementUpdate() {
         BRunUtil.invoke(result, "testFrozenAnyArrayElementUpdate", new BValue[0]);
     }
 
@@ -317,15 +318,15 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":\"" +
-                    "Invalid update of record field: modification not allowed on readonly value\".*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
+                    "\"cannot update 'readonly' field 'name' in record of type '\\(DeptEmployee & readonly\\)'\".*")
     public void testFrozenRecordUpdate() {
         BRunUtil.invoke(result, "testFrozenRecordUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidUpdate \\{\"message\":" +
-                    "\"Invalid update of record field: modification not allowed on readonly value\".*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
+                    "\"cannot update 'readonly' field 'code' in record of type '\\(Dept & readonly\\)'\".*")
     public void testFrozenInnerRecordUpdate() {
         BRunUtil.invoke(result, "testFrozenInnerRecordUpdate", new BValue[0]);
     }
@@ -449,7 +450,7 @@ public class FreezeAndIsFrozenTest {
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'PersonObj'", 19, 19);
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'PersonObj'", 19, 19);
+                "incompatible types: expected 'PersonObj', found '(ballerina/lang.value:1.0.0:Cloneable & readonly)'", 19, 19);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'map<PersonObj>'", 24, 9);
         validateError(semanticsNegativeResult, index++,
@@ -503,7 +504,7 @@ public class FreezeAndIsFrozenTest {
                 "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found '" +
                         "(int|Department|PersonObj)'", 113, 42);
         validateError(semanticsNegativeResult, index,
-                "incompatible types: expected 'anydata', found '(anydata|error)'", 120, 19);
+                "incompatible types: expected 'anydata', found '((anydata & readonly)|error)'", 120, 19);
     }
 
     @Test
