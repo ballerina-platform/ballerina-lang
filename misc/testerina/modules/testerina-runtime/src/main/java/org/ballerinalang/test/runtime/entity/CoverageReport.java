@@ -151,6 +151,7 @@ public class CoverageReport {
 
     /**
      * Add/Update package level coverage information into the relevant package level lists.
+     *
      * @param packagePrefix "orgName"/"pakageName" as String
      * @param packageExecData ExecutionData list for package
      * @param sessionInfoList SessionInfo list for package
@@ -160,8 +161,7 @@ public class CoverageReport {
      * @param packageSourceCoverageList List of ISourceFileCoverage for package
      */
     private void updatePackageLevelCoverage(String packagePrefix, List<ExecutionData> packageExecData,
-                                            List<SessionInfo> sessionInfoList,
-                                            CoverageBuilder coverageBuilder,
+                                            List<SessionInfo> sessionInfoList, CoverageBuilder coverageBuilder,
                                             List<IClassCoverage> packageNativeClassCoverageList,
                                             List<IClassCoverage> packageBalClassCoverageList,
                                             List<ISourceFileCoverage> packageSourceCoverageList) {
@@ -175,15 +175,14 @@ public class CoverageReport {
             if (classCov.getSourceFileName() != null && classCov.getName().startsWith(packagePrefix)) {
                 packageBalClassCoverageList.add(classCov);
             } else {
-                // Replace and store the updated native classes in another list
-                if (removeFromCoverageList(packageNativeClassCoverageList, classCov)) {
-                    packageNativeClassCoverageList.add(classCov);
-                }
+                // Remove coverage class from list if it already exists.
+                removeFromCoverageList(packageNativeClassCoverageList, classCov);
+                packageNativeClassCoverageList.add(classCov);
             }
         }
         // Update module wise session info to a list
         for (SessionInfo sessionInfo : execFileLoader.getSessionInfoStore().getInfos()) {
-            if (!sessionInfoList.contains(sessionInfo)) {
+            if (!isExistingSessionInfo(sessionInfoList, sessionInfo)) {
                 sessionInfoList.add(sessionInfo);
             }
         }
@@ -193,23 +192,34 @@ public class CoverageReport {
         }
     }
 
-    /**
-     * Remove IClassCoverage from package Class coverage list if it exists already.
-     *
-     * @param packageClassCoverageList list of IClassCoverage for package
-     * @param classCoverage IClassCoverage to check if already exixts
-     * @return boolean flag to track whether an existing IClassCoverage was removed from list
-     */
-    private boolean removeFromCoverageList(List<IClassCoverage> packageClassCoverageList,
-                                           IClassCoverage classCoverage) {
-        for (IClassCoverage coverage : packageClassCoverageList) {
-            if (classCoverage.getName().equals(coverage.getName())) {
-                //Remove existing coverage class from the list
-                packageClassCoverageList.remove(coverage);
+    private boolean isExistingSessionInfo(List<SessionInfo> sessionInfoList, SessionInfo sessionInfo) {
+        for (SessionInfo existingSessionInfo : sessionInfoList) {
+            if (existingSessionInfo.compareTo(sessionInfo) == 0) {
                 return true;
             }
         }
         return false;
+    }
+
+    /**
+     * Remove IClassCoverage from package Class coverage list if it exists already.
+     *
+     * @param packageClassCoverageList list of IClassCoverage for package
+     * @param classCoverage            IClassCoverage to check if already exixts
+     */
+    private void removeFromCoverageList(List<IClassCoverage> packageClassCoverageList, IClassCoverage classCoverage) {
+        boolean isExists = false;
+        IClassCoverage coverageToRemove = null;
+        for (IClassCoverage coverage : packageClassCoverageList) {
+            if (classCoverage.getName().equals(coverage.getName())) {
+                //Remove existing coverage class from the list
+                isExists = true;
+                coverageToRemove = coverage;
+            }
+        }
+        if (isExists && coverageToRemove != null) {
+            packageClassCoverageList.remove(coverageToRemove);
+        }
     }
 
     private void addCompiledSources(List<Path> pathList, String orgName, String packageName, String version,
@@ -232,7 +242,7 @@ public class CoverageReport {
     }
 
     private CoverageBuilder analyzeStructure() throws IOException {
-        CoverageBuilder coverageBuilder = new CoverageBuilder();
+        final CoverageBuilder coverageBuilder = new CoverageBuilder();
         final Analyzer analyzer = new Analyzer(execFileLoader.getExecutionDataStore(), coverageBuilder);
         analyzer.analyzeAll(classesDirectory.toFile());
         return coverageBuilder;

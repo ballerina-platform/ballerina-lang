@@ -69,8 +69,12 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 .resolve("codecov").resolve("coverage-report.xml");
         balClient.runMain("test", new String[]{"--code-coverage"}, null, new String[]{},
                 new LogLeecher[]{}, projectPath);
-        copyReportDTDFile(projectBasedTestsPath.resolve(singleModuleTestRoot).resolve("target").
-                resolve("report").resolve("codecov"));
+        Path reportRoot = projectBasedTestsPath.resolve(singleModuleTestRoot).resolve("target").
+                resolve("report").resolve("codecov");
+        if (!reportRoot.toFile().exists()) {
+            Assert.fail("Error occurred while generating the coverage XML for package.");
+        }
+        copyReportDTDFile(reportRoot);
         //Validate Package names in XML File
         List<String> expectedPackageNames = Arrays.asList(new String[]{singleModuleTestRoot,
                 "report/codecov/0_1_0"});
@@ -88,12 +92,16 @@ public class CodeCoverageReportTest extends BaseTestCase {
                 .resolve("foo").resolve("coverage-report.xml");
         balClient.runMain("test", new String[]{"--code-coverage"}, null, new String[]{},
                 new LogLeecher[]{}, projectPath);
-        copyReportDTDFile(projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").
-                resolve("report").resolve("foo"));
+        Path reportRoot = projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").
+                resolve("report").resolve("foo");
+        if (!reportRoot.toFile().exists()) {
+            Assert.fail("Error occurred while generating the coverage XML for package.");
+        }
+        copyReportDTDFile(reportRoot);
         ArrayList<String> expectedPackageNames = new ArrayList<>();
         Collections.addAll(expectedPackageNames, new String[]{"testerina_report/foo/0_0_0",
-                multiModuleTestRoot, "testerina_report/foo$0046math/0_0_0", multiModuleTestRoot + "/modules/bar"
-                , "testerina_report/foo$0046bar$0046tests/0_0_0",
+                multiModuleTestRoot, "testerina_report/foo$0046math/0_0_0", multiModuleTestRoot + "/modules/bar",
+                "testerina_report/foo$0046bar/0_0_0", "testerina_report/foo$0046bar$0046tests/0_0_0",
                 multiModuleTestRoot + "/modules/math", multiModuleTestRoot + "/modules/bar.tests"});
         // Validate Package names in XML File
         if (validatePackageNames(expectedPackageNames)) {
@@ -108,8 +116,12 @@ public class CodeCoverageReportTest extends BaseTestCase {
         projectPath = projectBasedTestsPath.resolve(multiModuleTestRoot).toString();
         balClient.runMain("test", new String[]{"--code-coverage"}, null, new String[]{},
                 new LogLeecher[]{}, projectPath);
-        copyReportDTDFile(projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").
-                resolve("report").resolve("foo"));
+        Path reportRoot = projectBasedTestsPath.resolve(multiModuleTestRoot).resolve("target").
+                resolve("report").resolve("foo");
+        if (!reportRoot.toFile().exists()) {
+            Assert.fail("Error occurred while generating the coverage XML for package.");
+        }
+        copyReportDTDFile(reportRoot);
         //Validate class names in XML File per module
         validateClassNames(getExpectedCoverageClasses());
     }
