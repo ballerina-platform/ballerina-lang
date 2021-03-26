@@ -142,7 +142,7 @@ public class BindgenMvnResolver {
                 if (parent != null) {
                     fileWriter.write("# transitive dependency of " + parent + "\n");
                 }
-                fileWriter.write("\n[[platform.java11.dependency]]\n");
+                fileWriter.write("[[platform.java11.dependency]]\n");
                 String moduleName = getModuleName(projectRoot, env.getOutputPath());
                 if (moduleName != null) {
                     fileWriter.write("modules = [\"" + moduleName + "\"]\n");
