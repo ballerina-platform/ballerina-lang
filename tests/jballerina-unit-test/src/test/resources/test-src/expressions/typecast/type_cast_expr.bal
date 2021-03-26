@@ -849,7 +849,7 @@ function testImmutableJsonMappingToExclusiveRecordPositive() {
     assert(1, intBar.a);
 }
 
-function testImmutableJsonMappingToInclusiveRecordPOsitive() {
+function testImmutableJsonMappingToInclusiveRecordPositive() {
     json readonlyJsonMapping = jsonMapping.cloneReadOnly();
     IntRecord intBar = <IntRecord>readonlyJsonMapping;
     assert(1, intBar.a);

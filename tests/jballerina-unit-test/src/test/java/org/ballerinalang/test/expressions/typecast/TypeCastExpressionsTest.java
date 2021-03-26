@@ -365,7 +365,7 @@ public class TypeCastExpressionsTest {
     public Object[] mappingToRecordTests() {
         return new Object[]{
                 "testImmutableJsonMappingToExclusiveRecordPositive",
-                "testImmutableJsonMappingToInclusiveRecordPOsitive"
+                "testImmutableJsonMappingToInclusiveRecordPositive"
         };
     }
 
