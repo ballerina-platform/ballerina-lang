@@ -485,9 +485,7 @@ public class TypeParamAnalyzer {
         for (BType type : actualType.getMemberTypes()) {
             if (type.tag == TypeTags.STREAM) {
                 constraints.add(((BStreamType) type).constraint);
-                if (((BStreamType) type).error.tag != TypeTags.NEVER) {
-                    errors.add(((BStreamType) type).error);
-                }
+                errors.add(((BStreamType) type).error);
             }
         }
 
@@ -497,7 +495,7 @@ public class TypeParamAnalyzer {
             BUnionType eUnionType = BUnionType.create(null, errors);
             findTypeParam(loc, expType.error, eUnionType, env, resolvedTypes, result);
         } else {
-            findTypeParam(loc, expType.error, symTable.neverType, env, resolvedTypes, result);
+            findTypeParam(loc, expType.error, symTable.nilType, env, resolvedTypes, result);
         }
     }
 
@@ -686,18 +684,10 @@ public class TypeParamAnalyzer {
                         symTable.mapType.tsymbol);
             case TypeTags.STREAM:
                 BType streamConstraint = getMatchingBoundType(((BStreamType) expType).constraint, env, resolvedTypes);
-                BType streamError = ((BStreamType) expType).error;
-                if (streamError.tag == TypeTags.UNION) {
-                    List<BType> errorTypes = types.getAllTypes(streamError);
-                    if (errorTypes.stream().anyMatch(e -> e.tag == TypeTags.NEVER)) {
-                        streamError = symTable.neverType;
-                    } else {
-                        streamError = getMatchingOptionalBoundType((BUnionType) streamError, env, resolvedTypes);
-                    }
-                } else if (streamError.tag == TypeTags.ERROR) {
-                    streamError = getMatchingBoundType(streamError, env, resolvedTypes);
-                } else {
-                    streamError = symTable.neverType;
+                BType streamError = getMatchingBoundType(((BStreamType) expType).error , env, resolvedTypes);
+                if (streamError.tag == TypeTags.NONE) {
+                    //setting nil type the completion type if not resolved
+                    streamError = symTable.nilType;
                 }
                 return new BStreamType(TypeTags.STREAM, streamConstraint, streamError, symTable.streamType.tsymbol);
             case TypeTags.TABLE:
@@ -867,12 +857,8 @@ public class TypeParamAnalyzer {
 
     private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
-        expType.getMemberTypes().forEach(type -> {
-            BType boundType = getMatchingBoundType(type, env, resolvedTypes);
-            if (boundType.tag != TypeTags.NEVER) {
-                members.add(boundType);
-            }
-        });
+        expType.getMemberTypes()
+                .forEach(type -> members.add(getMatchingBoundType(type, env, resolvedTypes)));
         return BUnionType.create(null, members);
     }
 

@@ -33,7 +33,7 @@ type Type any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type ErrorType error|never;
+type ErrorType error?;
 
 # An abstract `_Iterator` object.
 type _Iterator object {
@@ -706,7 +706,7 @@ class IterHelper {
 
     public isolated function next() returns record {|Type value;|}|error? {
         _StreamPipeline p = self.pipeline;
-        _Frame|error? f = p.next();
+        _Frame|ErrorType? f = p.next();
         if (f is _Frame) {
             Type v = <Type>f["$value$"];
             return internal:setNarrowType(self.outputType, {value: v});
