@@ -12,8 +12,9 @@ function testClosedIntRangeAsArray(int startValue, int endValue) returns int[] {
     int[] returnArray = [];
     int returnArrayIndex = 0;
     object {
-        public function __iterator() returns object {
-                public function next () returns (record {| int value; |}?);
+        *object:Iterable;
+        public function iterator() returns object {
+                public isolated function next () returns (record {| int value; |}?);
         };
     } rangeAsArray = startValue ... endValue;
     foreach var val in rangeAsArray {
@@ -37,8 +38,9 @@ function testHalfOpenIntRangeAsArray(int startValue, int endValue) returns int[]
     int[] returnArray = [];
     int returnArrayIndex = 0;
     object {
-            public function __iterator() returns object {
-                    public function next () returns (record {| int value; |}?);
+            *object:Iterable;
+            public function iterator() returns object {
+                    public isolated function next () returns (record {| int value; |}?);
             };
         } rangeAsArray = startValue ..< endValue;
     foreach var val in rangeAsArray {
@@ -55,8 +57,9 @@ function testClosedIntRangeOnIntSubTypes() {
     int:Unsigned32 startValue1 = 12;
     int:Unsigned32 endValue1 = 14;
     object {
-        public function __iterator() returns object {
-                public function next () returns (record {| int value; |}?);
+        *object:Iterable;
+        public function iterator() returns object {
+                public isolated function next () returns (record {| int value; |}?);
         };
     } rangeAsArray = startValue1 ... endValue1;
     foreach var val in rangeAsArray {
@@ -200,8 +203,9 @@ function testHalfOpenIntRangeOnIntSubTypes() {
     int:Unsigned32 startValue1 = 12;
     int endValue1 = 14;
     object {
-        public function __iterator() returns object {
-                public function next () returns (record {| int value; |}?);
+        *object:Iterable;
+        public function iterator() returns object {
+                public isolated function next () returns (record {| int value; |}?);
         };
     } rangeAsArray = startValue1 ..< endValue1;
     foreach var val in rangeAsArray {
