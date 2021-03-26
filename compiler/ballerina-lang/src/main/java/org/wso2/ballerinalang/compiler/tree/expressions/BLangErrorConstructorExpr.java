@@ -68,6 +68,10 @@ public class BLangErrorConstructorExpr extends BLangExpression implements ErrorC
             args.add(positionalArg.toString());
         }
 
+        for (BLangNamedArgsExpression namedArg : namedArgs) {
+            args.add(namedArg.toString());
+        }
+
         return sb.append("error ")
                 .append(errorTypeRef != null ? errorTypeRef.typeName.toString() : "")
                 .append(args)

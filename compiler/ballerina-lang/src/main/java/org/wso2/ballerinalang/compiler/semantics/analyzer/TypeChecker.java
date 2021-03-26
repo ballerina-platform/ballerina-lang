@@ -2874,7 +2874,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (errorConstructorExpr.errorTypeRef == null) {
             // If contextually expected type for error constructor without type-ref contain errors take it.
             // Else take default error type as the contextually expected type.
-            if (types.isAssignable(expType, symTable.errorType)) {
+            if (types.isAssignable(expType, symTable.errorType) || expType.tag == TypeTags.UNION) {
                 candidateType = expType;
             } else  {
                 candidateType = symTable.errorType;
@@ -2883,6 +2883,14 @@ public class TypeChecker extends BLangNodeVisitor {
             candidateType = errorConstructorExpr.errorTypeRef.type;
         }
 
+        List<BType> expectedErrorTypes = expandExpectedErrorTypes(candidateType);
+        if (!expectedErrorTypes.isEmpty()) {
+            return expectedErrorTypes;
+        }
+        return List.of(symTable.errorType);
+    }
+
+    private List<BType> expandExpectedErrorTypes(BType candidateType) {
         List<BType> expandedCandidates = new ArrayList<>();
         if (candidateType.tag == TypeTags.UNION) {
             for (BType memberType : ((BUnionType) candidateType).getMemberTypes()) {

@@ -146,7 +146,7 @@ function testContextuallyExpectedErrorCtor() {
     assertEquals(eTuple[2][0].detail().no, 0);
 
     // Test picking correct type from a union
-    AppError|CodeError|AppCodeError u = error("msg", code = 100);
+    AppError|CodeError|AppCodeError|int|map<string> u = error("msg", code = 100);
     assertEquals(u is AppError, true);
     if (u is AppError) {
         assertEquals(u.detail().code, 100);
@@ -176,6 +176,8 @@ function testContextuallyExpectedErrorCtor() {
         } else {
             panic error("Invalid State");
         }
+    } else {
+        panic error("Invalid state: expected `error` found + `" + (typeof r).toString() + "`");
     }
 }
 
