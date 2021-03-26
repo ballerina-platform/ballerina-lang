@@ -43,9 +43,9 @@ public class TypeParamTest {
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'float[]', found 'function (string) " +
                 "returns ()[]'", 25, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'float', found 'string'", 31, 16);
-        BAssertUtil.validateError(result, err++, "incompatible types: expected 'object { public function next () " +
-                "returns (record {| string value; |}?); }', found 'object { public function next () returns " +
-                "(record {| record {| string x; anydata...; |} value; |}?); }'", 38, 12);
+        BAssertUtil.validateError(result, err++, "incompatible types: expected 'object { public isolated function " +
+                "next () returns (record {| string value; |}?); }', found 'object { public isolated function next ()" +
+                " returns (record {| record {| string x; anydata...; |} value; |}?); }'", 38, 12);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'boolean', found 'string'", 48, 18);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'Foo', found 'string'", 50, 14);
         BAssertUtil.validateError(result, err++, "incompatible types: expected 'Bar', found 'string'", 51, 14);

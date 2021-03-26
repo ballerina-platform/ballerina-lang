@@ -80,6 +80,8 @@ public class TypeConstants {
     public static final BString DETAIL_MESSAGE = StringUtils.fromString("message");
     public static final BString DETAIL_CAUSE = StringUtils.fromString("cause");
     public static final String CLONEABLE_TNAME = "Cloneable";
+    public static final String JSON_DECIMAL_TNAME = "JsonDecimal";
+    public static final String JSON_FLOAT_TNAME = "JsonFloat";
 
     // Return type of the next function in iterators
     public static final String ITERATOR_NEXT_RETURN_TYPE = "$$returnType$$";

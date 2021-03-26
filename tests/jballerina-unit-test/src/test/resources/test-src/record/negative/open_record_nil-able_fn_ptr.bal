@@ -39,7 +39,7 @@ type PersonB record {
     (function (string, string) returns string)? getName = ();
 };
 
-function testNilableFuncPtrInvocationOnObj() returns string? {
+function testNilableFuncPtrInvocation3() returns string? {
     PersonB bob = {fname:"Bob", lname:"White"};
     bob.getName = function (string fname, string lname) returns string {
         return fname + " " + lname;
@@ -48,7 +48,7 @@ function testNilableFuncPtrInvocationOnObj() returns string? {
     return x;
 }
 
-function testNilableFuncPtrInvocationOnObj2() returns string? {
+function testNilableFuncPtrInvocation4() returns string? {
     PersonB bob = {fname:"Bob", lname:"White"};
     string? x = bob.getName(bob.fname, bob.lname);
     return x;
