@@ -199,6 +199,9 @@ public class RunTestsTask implements Task {
             if (isSingleTestExecution || isRerunTestExecution) {
                 suite.setTests(TesterinaUtils.getSingleExecutionTests(suite, singleExecTests));
             }
+            if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
+                suite.setSourceFileName(project.sourceRoot().getFileName().toString());
+            }
             suite.setReportRequired(report || coverage);
             String resolvedModuleName =
                     module.isDefaultModule() ? moduleName.toString() : module.moduleName().moduleNamePart();

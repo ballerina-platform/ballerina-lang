@@ -460,7 +460,6 @@ public class TypeChecker extends BLangNodeVisitor {
         // Get the type matching to the tag from the symbol table.
         BType literalType = symTable.getTypeFromTag(literalExpr.type.tag);
         Object literalValue = literalExpr.value;
-        literalExpr.isJSONContext = types.isJSONContext(expType);
 
         if (literalType.tag == TypeTags.INT) {
             if (expType.tag == TypeTags.FLOAT) {
@@ -2971,23 +2970,37 @@ public class TypeChecker extends BLangNodeVisitor {
         if (type == symTable.semanticError) {
             return false;
         }
-        BSymbol funcSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
-                type.tsymbol);
-        if (funcSymbol == symTable.notFoundSymbol || funcSymbol.kind != SymbolKind.FUNCTION) {
-            BSymbol langLibMethodSymbol = getLangLibMethod(iExpr, type);
-            if (langLibMethodSymbol == symTable.notFoundSymbol) {
-                dlog.error(iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD, invocationIdentifier, type);
-                resultType = symTable.semanticError;
-            } else {
-                checkInvalidImmutableValueUpdate(iExpr, type, langLibMethodSymbol);
-            }
+        BSymbol fieldSymbol = symResolver.resolveStructField(iExpr.pos, env, names.fromIdNode(invocationIdentifier),
+                                                             type.tsymbol);
+
+        if (fieldSymbol == symTable.notFoundSymbol) {
+            checkIfLangLibMethodExists(iExpr, type, iExpr.name.pos, DiagnosticErrorCode.UNDEFINED_FIELD_IN_RECORD,
+                                       invocationIdentifier, type);
             return false;
         }
-        iExpr.symbol = funcSymbol;
-        iExpr.type = ((BInvokableSymbol) funcSymbol).retType;
+
+        if (fieldSymbol.kind != SymbolKind.FUNCTION) {
+            checkIfLangLibMethodExists(iExpr, type, iExpr.pos, DiagnosticErrorCode.INVALID_METHOD_CALL_EXPR_ON_FIELD,
+                                       fieldSymbol.type);
+            return false;
+        }
+
+        iExpr.symbol = fieldSymbol;
+        iExpr.type = ((BInvokableSymbol) fieldSymbol).retType;
         checkInvocationParamAndReturnType(iExpr);
         iExpr.functionPointerInvocation = true;
         return true;
+    }
+
+    private void checkIfLangLibMethodExists(BLangInvocation iExpr, BType varRefType, Location pos,
+                                            DiagnosticErrorCode errCode, Object... diagMsgArgs) {
+        BSymbol langLibMethodSymbol = getLangLibMethod(iExpr, varRefType);
+        if (langLibMethodSymbol == symTable.notFoundSymbol) {
+            dlog.error(pos, errCode, diagMsgArgs);
+            resultType = symTable.semanticError;
+        } else {
+            checkInvalidImmutableValueUpdate(iExpr, varRefType, langLibMethodSymbol);
+        }
     }
 
     @Override
