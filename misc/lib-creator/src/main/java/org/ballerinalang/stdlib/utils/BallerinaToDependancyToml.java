@@ -26,13 +26,13 @@ public class BallerinaToDependancyToml {
         Files.walk(Paths.get("..")).filter(pathMatcher::matches).forEach(BallerinaToDependancyToml::migrate);
     }
 
-    public static void migrate(Path ballerinaTomlPath){
+    public static void migrate(Path ballerinaTomlPath) {
         String tomlString = null;
         TomlWriter tomlWriter = new TomlWriter();
         try {
             tomlString = Files.readString(ballerinaTomlPath);
             Toml ballerinaToml = new Toml().read(tomlString);
-            if(ballerinaToml.contains("dependency")) {
+            if (ballerinaToml.contains("dependency")) {
                 List<Toml> dependency = ballerinaToml.getList("dependency");
                 Map<String, Object> dependencyToml = new HashMap<String, Object>();
                 dependencyToml.put("dependency", dependency);

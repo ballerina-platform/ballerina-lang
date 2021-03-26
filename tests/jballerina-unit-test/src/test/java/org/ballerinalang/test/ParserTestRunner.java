@@ -61,8 +61,6 @@ public class ParserTestRunner {
         hashSet.add("find_node_test_1.bal");
         hashSet.add("minutiae_test_05_with_no_newlines.bal");
         hashSet.add("import_decl_source_13.bal");
-        hashSet.add("ambiguity_source_29.bal");
-        hashSet.add("typed_binding_patterns_source_16.bal");
         hashSet.add("do_stmt_source_07.bal");
         return hashSet;
     }

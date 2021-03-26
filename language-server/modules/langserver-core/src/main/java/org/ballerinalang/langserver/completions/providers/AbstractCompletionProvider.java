@@ -386,7 +386,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 new SnippetCompletionItem(context, Snippet.KW_START.get()),
                 new SnippetCompletionItem(context, Snippet.KW_WAIT.get()),
                 new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()),
-                new SnippetCompletionItem(context, Snippet.KW_FROM.get())
+                new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get())
         );
     }
 
