@@ -20,11 +20,7 @@ package io.ballerina.semantic.api.test.incompletesource;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaModuleID;
-import io.ballerina.compiler.api.symbols.ClassFieldSymbol;
-import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
-import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
@@ -39,7 +35,8 @@ import java.util.Map;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
-import static org.testng.Assert.assertEquals;
+import static org.testng.Assert.assertFalse;
+import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for use of undefined types as field types.
@@ -59,33 +56,16 @@ public class InvalidFieldTypeTest {
     }
 
     @Test(dataProvider = "CursorPosProvider1")
-    public void testSymbolAtCursor(int line, int col, String name) {
-        Symbol field = model.symbol(srcFile, from(line, col)).get();
-        assertEquals(field.getName().get(), name);
-
-        TypeDescKind typeKind;
-        switch (field.kind()) {
-            case CLASS_FIELD:
-                typeKind = ((ClassFieldSymbol) field).typeDescriptor().typeKind();
-                break;
-            case RECORD_FIELD:
-                typeKind = ((RecordFieldSymbol) field).typeDescriptor().typeKind();
-                break;
-            case OBJECT_FIELD:
-                typeKind = ((ObjectFieldSymbol) field).typeDescriptor().typeKind();
-                break;
-            default:
-                throw new IllegalArgumentException("Unexpected symbol kind: " + field.kind());
-        }
-        assertEquals(typeKind, TypeDescKind.COMPILATION_ERROR);
+    public void testSymbolAtCursor(int line, int col) {
+        assertTrue(model.symbol(srcFile, from(line, col)).isEmpty());
     }
 
     @DataProvider(name = "CursorPosProvider1")
     public Object[][] getCursorPos1() {
         return new Object[][]{
-                {17, 16, "c"},
-                {22, 13, "name"},
-                {27, 13, "name"},
+                {17, 16},
+                {22, 13},
+                {27, 13},
         };
     }
 
@@ -94,9 +74,7 @@ public class InvalidFieldTypeTest {
         Map<String, Symbol> symbolsInFile =
                 SemanticAPITestUtils.getSymbolsInFile(model, srcFile, line, col,
                                                       new BallerinaModuleID(PackageID.DEFAULT));
-
-        Symbol field = symbolsInFile.get(name);
-        assertEquals(field.getName().get(), name);
+        assertFalse(symbolsInFile.containsKey(name));
     }
 
     @DataProvider(name = "CursorPosProvider2")

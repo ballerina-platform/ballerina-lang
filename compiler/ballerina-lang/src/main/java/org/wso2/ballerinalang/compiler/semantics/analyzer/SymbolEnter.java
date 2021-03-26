@@ -3149,6 +3149,10 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangSimpleVariable field : classDefinition.fields) {
             defineNode(field, typeDefEnv);
+            // Unless skipped, this causes issues in negative cases such as duplicate fields.
+            if (field.symbol.type == symTable.semanticError) {
+                continue;
+            }
             objType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos, field.symbol));
         }
 
@@ -3221,6 +3225,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                                SymbolEnv typeDefEnv) {
         structureType.fields = structureTypeNode.fields.stream()
                 .peek((BLangSimpleVariable field) -> defineNode(field, typeDefEnv))
+                .filter(field -> field.symbol.type != symTable.semanticError) // filter out erroneous fields
                 .map((BLangSimpleVariable field) -> {
                     field.symbol.isDefaultable = field.expr != null;
                     return new BField(names.fromIdNode(field.name), field.pos, field.symbol);
