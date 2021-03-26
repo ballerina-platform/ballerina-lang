@@ -45,7 +45,7 @@ public class ProjectSourceResolver extends SourceResolver {
     }
 
     @Override
-    public boolean canResolve(Location location) {
+    public boolean isSupported(Location location) {
         try {
             if (sourceProject instanceof SingleFileProject) {
                 DocumentId docId = sourceProject.currentPackage().getDefaultModule().documentIds().iterator().next();

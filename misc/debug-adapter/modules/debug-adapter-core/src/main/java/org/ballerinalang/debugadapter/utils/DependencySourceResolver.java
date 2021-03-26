@@ -20,14 +20,14 @@ import com.sun.jdi.Location;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ResolvedPackageDependency;
-import io.ballerina.projects.util.ProjectUtils;
 
 import java.nio.file.Path;
-import java.util.List;
+import java.util.Collection;
 import java.util.Optional;
 
 /**
@@ -42,21 +42,19 @@ public class DependencySourceResolver extends SourceResolver {
     }
 
     @Override
-    public boolean canResolve(Location location) {
+    public boolean isSupported(Location location) {
         try {
             LocationInfo locationInfo = new LocationInfo(location);
             if (!locationInfo.isValid()) {
                 return false;
             }
 
-            List<PackageName> possiblePackageNames = ProjectUtils.getPossiblePackageNames(locationInfo.moduleName());
-            for (PackageName packageName : possiblePackageNames) {
-                PackageResolution resolution = sourceProject.currentPackage().getResolution();
-                for (ResolvedPackageDependency packageDependency : resolution.dependencyGraph().getNodes()) {
-                    if (packageDependency.packageInstance().packageOrg().value().equals(locationInfo.orgName())
-                            && packageDependency.packageInstance().packageName().equals(packageName)) {
-                        return true;
-                    }
+            PackageResolution resolution = sourceProject.currentPackage().getResolution();
+            for (ResolvedPackageDependency packageDependency : resolution.dependencyGraph().getNodes()) {
+                Package pkg = packageDependency.packageInstance();
+                if (pkg.packageOrg().value().equals(locationInfo.orgName())
+                        && pkg.packageName().value().equals(locationInfo.moduleName())) {
+                    return true;
                 }
             }
             return false;
@@ -72,28 +70,28 @@ public class DependencySourceResolver extends SourceResolver {
             if (!locationInfo.isValid()) {
                 return Optional.empty();
             }
-            List<PackageName> possiblePkgNames = ProjectUtils.getPossiblePackageNames(locationInfo.moduleName());
-            for (PackageName packageName : possiblePkgNames) {
-                PackageResolution resolution = sourceProject.currentPackage().getResolution();
-                for (ResolvedPackageDependency dependency : resolution.dependencyGraph().getNodes()) {
-                    if (!dependency.packageInstance().packageOrg().value().equals(locationInfo.orgName())
-                            || !dependency.packageInstance().packageName().equals(packageName)) {
+
+            PackageResolution resolution = sourceProject.currentPackage().getResolution();
+            Collection<ResolvedPackageDependency> dependencies = resolution.dependencyGraph().getNodes();
+            for (ResolvedPackageDependency dependency : dependencies) {
+                Package pkg = dependency.packageInstance();
+                if (!pkg.packageOrg().value().equals(locationInfo.orgName())
+                        || !pkg.packageName().value().equals(locationInfo.moduleName())) {
+                    continue;
+                }
+
+                ModuleName modName = findModuleName(pkg.packageName(), locationInfo.moduleName());
+                Module module = pkg.module(modName);
+                if (module == null) {
+                    continue;
+                }
+
+                for (DocumentId documentId : module.documentIds()) {
+                    if (!module.document(documentId).name().equals(locationInfo.fileName())) {
                         continue;
                     }
-
-                    ModuleName modName = findModuleName(packageName, locationInfo.moduleName());
-                    Module module = dependency.packageInstance().module(modName);
-                    if (module == null) {
-                        continue;
-                    }
-
-                    for (DocumentId documentId : module.documentIds()) {
-                        if (!module.document(documentId).name().equals(locationInfo.fileName())) {
-                            continue;
-                        }
-                        Project dependencyProject = dependency.packageInstance().project();
-                        return dependencyProject.documentPath(documentId);
-                    }
+                    Project dependencyProject = pkg.project();
+                    return dependencyProject.documentPath(documentId);
                 }
             }
             return Optional.empty();

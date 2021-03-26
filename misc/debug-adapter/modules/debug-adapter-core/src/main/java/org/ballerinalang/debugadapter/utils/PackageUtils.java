@@ -71,7 +71,7 @@ public class PackageUtils {
         sourceResolvers.add(new DependencySourceResolver(sourceProject));
 
         for (SourceResolver sourceResolver : sourceResolvers) {
-            if (sourceResolver.canResolve(location)) {
+            if (sourceResolver.isSupported(location)) {
                 Optional<Path> resolvedPath = sourceResolver.resolve(location);
                 if (resolvedPath.isPresent()) {
                     return resolvedPath;

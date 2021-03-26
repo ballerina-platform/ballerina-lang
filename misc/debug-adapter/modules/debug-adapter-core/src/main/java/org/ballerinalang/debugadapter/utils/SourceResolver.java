@@ -41,7 +41,7 @@ public abstract class SourceResolver {
      * @param location JDI source location
      * @return true if this resolver instance is capable of resolving the given JDI source location
      */
-    abstract boolean canResolve(Location location);
+    abstract boolean isSupported(Location location);
 
     /**
      * Each concrete class must implement their own resolving logic.

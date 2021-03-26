@@ -42,7 +42,7 @@ public class LangLibSourceResolver extends DependencySourceResolver {
     }
 
     @Override
-    public boolean canResolve(Location location) {
+    public boolean isSupported(Location location) {
         try {
             LocationInfo locationInfo = new LocationInfo(location);
             if (!locationInfo.isValid()) {
