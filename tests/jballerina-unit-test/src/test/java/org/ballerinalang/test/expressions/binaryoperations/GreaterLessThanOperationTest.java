@@ -197,7 +197,8 @@ public class GreaterLessThanOperationTest {
                 "testArrayComparison3",
                 "testTupleComparison1",
                 "testTupleComparison2",
-                "testUnionComparison",
+                "testUnionComparison1",
+                "testUnionComparison2",
                 "testTypeComparison1",
                 "testTypeComparison2",
                 "testTypeComparison3"

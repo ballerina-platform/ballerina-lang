@@ -247,7 +247,7 @@ function testTupleComparison2() {
     test:assertFalse(f <= a);
 }
 
-function testUnionComparison() {
+function testUnionComparison1() {
     string|int a = 2;
     string|int b = 12;
     string|int c = 20;
@@ -267,6 +267,37 @@ function testUnionComparison() {
     test:assertTrue(a >= d);
     test:assertFalse(a < d);
     test:assertTrue(a <= d);
+}
+
+function testUnionComparison2() {
+    float|int a = 2;
+    float|int b = 12.4;
+    int|decimal c = 12;
+    int|decimal d = 13.24d;
+    float|decimal e = 12.4;
+    float|decimal f = 15.23d;
+    (int|float)[] g = [12.3, 12];
+    (int|float)[] h = [12.3, 45.23];
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertTrue(c < d);
+    test:assertTrue(c <= d);
+    test:assertFalse(c > d);
+    test:assertFalse(c >= d);
+
+    test:assertTrue(e < f);
+    test:assertTrue(e <= f);
+    test:assertFalse(e > f);
+    test:assertFalse(e >= f);
+
+    test:assertTrue(g < h);
+    test:assertTrue(g <= h);
+    test:assertFalse(g > h);
+    test:assertFalse(g >= h);
 }
 
 type Utc readonly & [int,decimal];
