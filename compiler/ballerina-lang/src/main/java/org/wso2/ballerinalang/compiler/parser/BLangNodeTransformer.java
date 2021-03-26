@@ -5630,6 +5630,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 bLangRefDoc.identifier = bLangRefDoc.identifier.substring(1);
             }
         }
+        if (bLangRefDoc.qualifier != null) {
+            bLangRefDoc.qualifier = IdentifierUtils.unescapeUnicodeCodepoints(bLangRefDoc.qualifier);
+            if (stringStartsWithSingleQuote(bLangRefDoc.qualifier)) {
+                bLangRefDoc.qualifier = bLangRefDoc.qualifier.substring(1);
+            }
+        }
     }
 
     private DocumentationReferenceType stringToRefType(String refTypeName) {

@@ -335,7 +335,7 @@ public class MarkdownDocumentationTest {
     public void testDocFunctionSpecial() {
         CompileResult compileResult = BCompileUtil.compile("test-src/documentation/markdown_function_special.bal");
         Assert.assertEquals(compileResult.getErrorCount(), 0);
-        Assert.assertEquals(compileResult.getWarnCount(), 3);
+        Assert.assertEquals(compileResult.getWarnCount(), 4);
 
         PackageNode packageNode = compileResult.getAST();
         BLangMarkdownDocumentation documentationAttachment =
@@ -343,7 +343,7 @@ public class MarkdownDocumentationTest {
         Assert.assertNotNull(documentationAttachment);
 
         LinkedList<BLangMarkdownReferenceDocumentation> references = documentationAttachment.getReferences();
-        Assert.assertEquals(references.size(), 6);
+        Assert.assertEquals(references.size(), 7);
 
         Assert.assertEquals(references.get(0).type, DocumentationReferenceType.FUNCTION);
         Assert.assertEquals(references.get(0).referenceName, "foo");
@@ -373,6 +373,11 @@ public class MarkdownDocumentationTest {
         Assert.assertEquals(references.get(5).qualifier, "m");
         Assert.assertEquals(references.get(5).typeName, "bar");
         Assert.assertEquals(references.get(5).identifier, "baz");
+
+        Assert.assertEquals(references.get(4).type, DocumentationReferenceType.FUNCTION);
+        Assert.assertEquals(references.get(4).referenceName, "m:foo()");
+        Assert.assertEquals(references.get(4).qualifier, "m");
+        Assert.assertEquals(references.get(4).identifier, "foo");
     }
 
     @Test(description = "Test doc negative cases.", groups = { "disableOnOldParser" })
