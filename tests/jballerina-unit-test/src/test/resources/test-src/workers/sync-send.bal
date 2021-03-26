@@ -40,6 +40,7 @@ function multipleSyncSend() returns string {
     worker w1 {
         int a = 10;
         var result = a ->> w2;
+        error? res = result;
         foreach var i in 1 ... 5 {
             append2 = append2 + "w1";
         }
@@ -113,6 +114,7 @@ function multiWorkerSend() returns string {
     worker w1 {
         int a = 10;
         var result = a ->> w2;
+        error? res = result;
         a -> w3;
         foreach var i in 1 ... 5 {
             append3 = append3 + "w1";
@@ -204,6 +206,7 @@ function errorResult() returns error? {
         b -> w3;
         b = <- w1;
         var result = b ->> w3;
+        error? res = result;
         foreach var i in 1 ... 5 {
             append4 = append4 + "w22";
         }
@@ -269,7 +272,7 @@ function panicTest() returns error? {
         b -> w3;
         b = <- w1;
         var result = b ->> w3;
-
+        error? res = result;
         b = <- w1;
     }
 

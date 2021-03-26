@@ -196,7 +196,7 @@ function testFilterWithAllFloatClosedRecord(float a, float b, float c) returns m
     ClosedBar bar = {x: a, y: b, z: c};
 
     map<float> modBar = bar.filter(function (float val) returns boolean {
-        if (val > 6) {
+        if (val > 6.0) {
             return true;
         }
         return false;

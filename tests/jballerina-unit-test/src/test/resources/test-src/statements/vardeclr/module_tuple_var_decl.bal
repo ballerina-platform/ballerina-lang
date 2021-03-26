@@ -18,7 +18,7 @@
 [int, float] [a, b] = [1, 2.5];
 [boolean, float, string] [c, d, e] = [true, 2.25, "Jhone"];
 public function testBasic() {
-    while (d < 3) {
+    while (d < 3.0) {
         d += 1;
     }
     assertTrue(c);
