@@ -20,6 +20,7 @@ package io.ballerina.shell.invoker.classload;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
@@ -231,7 +232,7 @@ public class ImportsManager {
      */
     protected String extractImportsFromType(TypeSymbol typeSymbol, Set<QuotedIdentifier> imports) {
         // If the type is a union, recursively find all types and join with |
-        if (typeSymbol instanceof UnionTypeSymbol) {
+        if (TypeDescKind.UNION.equals(typeSymbol.typeKind())) {
             StringJoiner signatureJoiner = new StringJoiner("|");
             List<TypeSymbol> memberTypes = ((UnionTypeSymbol) typeSymbol).memberTypeDescriptors();
             for (TypeSymbol memberType : memberTypes) {
