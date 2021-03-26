@@ -1,5 +1,5 @@
 import ballerina/jballerina.java;
-import ballerinax/java.arrays as jarrays;
+import ballerina/jballerina.java.arrays as jarrays;
 import test.java.lang as javalang;
 import test.java.nio.channels as javaniochannels;
 

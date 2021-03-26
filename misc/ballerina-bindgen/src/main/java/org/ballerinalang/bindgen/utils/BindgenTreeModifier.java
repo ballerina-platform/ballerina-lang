@@ -56,8 +56,8 @@ public class BindgenTreeModifier {
             return AbstractNodeFactory.createNodeList();
         }
         if (jClass.isImportJavaArraysModule()) {
-            ImportDeclarationNode jArraysImport = BindgenNodeFactory.createImportDeclarationNode("ballerinax",
-                    "jarrays", new LinkedList<>(Arrays.asList("java", ".", "arrays")));
+            ImportDeclarationNode jArraysImport = BindgenNodeFactory.createImportDeclarationNode("ballerina",
+                    "jarrays", new LinkedList<>(Arrays.asList("jballerina", ".", "java", ".", "arrays")));
             imports = imports.add(jArraysImport);
         }
         if (env.getModulesFlag() && env.getPackageName() != null) {
