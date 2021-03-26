@@ -36,20 +36,20 @@ type ErrorType error?;
 
 # An abstract `_Iterator` object.
 type _Iterator object {
-    public isolated function next() returns record {|Type value;|}|error?;
+    public isolated function next() returns record {|Type value;|}|ErrorType?;
 };
 
 # An abstract `_CloseableIterator` object.
 type _CloseableIterator object {
-  public isolated function next() returns record {|Type value;|}|error?;
-    public isolated function close() returns error?;
+    public isolated function next() returns record {|Type value;|}|ErrorType?;
+    public isolated function close() returns ErrorType?;
 };
 
 # An abstract `_Iterable` object.
 type _Iterable object {
     public function __iterator() returns
         object {
-            public isolated function next() returns record {|Type value;|}|error?;
+            public isolated function next() returns record {|Type value;|}|ErrorType?;
         };
 };
 
@@ -708,7 +708,7 @@ class IterHelper {
 
     public isolated function next() returns record {|Type value;|}|error? {
         _StreamPipeline p = self.pipeline;
-        _Frame|error? f = p.next();
+        _Frame|ErrorType? f = p.next();
         if (f is _Frame) {
             Type v = <Type>f["$value$"];
             return internal:setNarrowType(self.outputType, {value: v});

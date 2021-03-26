@@ -42,7 +42,7 @@ type Type1 any|error;
 public isolated function filter(stream<Type,ErrorType> stm, @isolatedParam function(Type val) returns boolean func)
    returns stream<Type,ErrorType>  {
     FilterSupport itrObj = new(stm, func);
-    return internal:construct(internal:getElementType(typeof stm), itrObj);
+    return <stream<Type,ErrorType>>internal:construct(internal:getElementType(typeof stm), itrObj);
 }
 
 # Returns the next element in the stream wrapped in a record or () if the stream ends.

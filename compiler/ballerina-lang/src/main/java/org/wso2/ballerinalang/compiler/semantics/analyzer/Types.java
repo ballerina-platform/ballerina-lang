@@ -2916,17 +2916,22 @@ public class Types {
         Set<BType> memTypes = new LinkedHashSet<>();
 
         for (BType memberType : unionType.getMemberTypes()) {
-            if (memberType.tag == TypeTags.INTERSECTION) {
-                BType effectiveType = ((BIntersectionType) memberType).effectiveType;
-                if (effectiveType.tag == TypeTags.UNION) {
-                    memTypes.addAll(getEffectiveMemberTypes((BUnionType) effectiveType));
-                    continue;
-                }
-                memTypes.add(effectiveType);
-                continue;
+            switch (memberType.tag) {
+                case TypeTags.INTERSECTION:
+                    BType effectiveType = ((BIntersectionType) memberType).effectiveType;
+                    if (effectiveType.tag == TypeTags.UNION) {
+                        memTypes.addAll(getEffectiveMemberTypes((BUnionType) effectiveType));
+                        continue;
+                    }
+                    memTypes.add(effectiveType);
+                    break;
+                case TypeTags.UNION:
+                    memTypes.addAll(getEffectiveMemberTypes((BUnionType) memberType));
+                    break;
+                default:
+                    memTypes.add(memberType);
+                    break;
             }
-
-            memTypes.add(memberType);
         }
         return memTypes;
     }

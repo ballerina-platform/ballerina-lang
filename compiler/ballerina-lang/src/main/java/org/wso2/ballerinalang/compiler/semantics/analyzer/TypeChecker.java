@@ -3183,6 +3183,12 @@ public class TypeChecker extends BLangNodeVisitor {
                                 DiagnosticErrorCode.INVALID_NEXT_METHOD_RETURN_TYPE, expectedNextReturnType);
                     }
                 }
+                if (this.expType.tag != TypeTags.NONE && !types.isAssignable(actualType, this.expType)) {
+                    dlog.error(cIExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, this.expType,
+                            actualType);
+                    resultType = symTable.semanticError;
+                    return;
+                }
                 resultType = actualType;
                 return;
             case TypeTags.UNION:
@@ -3239,9 +3245,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
-        if (streamType.error != symTable.neverType && streamType.error != null) {
-            retTypeMembers.add(streamType.error);
-        }
+        retTypeMembers.addAll(types.getAllTypes(streamType.error));
         retTypeMembers.add(symTable.nilType);
 
         BUnionType unionType = BUnionType.create(null, retTypeMembers);
@@ -4518,7 +4522,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 actualType = resolvedTypes.get(0);
             }
 
-            if (errorType != null) {
+            if (errorType != null && errorType.tag != TypeTags.NIL) {
                 return BUnionType.create(null, actualType, errorType);
             } else {
                 return actualType;
