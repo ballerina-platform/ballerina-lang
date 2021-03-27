@@ -133,14 +133,12 @@ public class CoverageReport {
                        true, includesInCoverage);
                 execFileLoader.load(executionDataFile.toFile());
                 final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
-                updatePackageLevelCoverage(orgName + "/" + packageName, packageExecData, sessionInfoList,
+                updatePackageLevelCoverage(packageExecData, sessionInfoList,
                         xmlCoverageBuilder, packageNativeClassCoverageList, packageBalClassCoverageList,
                         packageSourceCoverageList);
             } else {
-                updatePackageLevelCoverage(orgName + "/" + packageName,
-                        packageExecData, sessionInfoList,
-                        coverageBuilder, packageNativeClassCoverageList,
-                        packageBalClassCoverageList, packageSourceCoverageList);
+                updatePackageLevelCoverage(packageExecData, sessionInfoList, coverageBuilder,
+                        packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList);
             }
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
         } else {
@@ -161,7 +159,7 @@ public class CoverageReport {
      * @param packageBalClassCoverageList List of bal IClassCoverage for package
      * @param packageSourceCoverageList List of ISourceFileCoverage for package
      */
-    private void updatePackageLevelCoverage(String packagePrefix, List<ExecutionData> packageExecData,
+    private void updatePackageLevelCoverage(List<ExecutionData> packageExecData,
                                             List<SessionInfo> sessionInfoList, CoverageBuilder coverageBuilder,
                                             List<IClassCoverage> packageNativeClassCoverageList,
                                             List<IClassCoverage> packageBalClassCoverageList,
@@ -169,7 +167,7 @@ public class CoverageReport {
         // Traverse through the class coverages and store only ballerina source file coverages.
         // Native source coverages can be collected by visiting the class coverages.
         for (ISourceFileCoverage sourceFileCoverage : coverageBuilder.getSourceFiles()) {
-            if (sourceFileCoverage.getPackageName().contains(packagePrefix)) {
+            if (sourceFileCoverage.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                 packageSourceCoverageList.add(sourceFileCoverage);
             }
         }
@@ -181,7 +179,7 @@ public class CoverageReport {
         //    In this case, we need to keep only the last updated class coverage because Jacoco internally aggregates
         //    the coverage for native classes using the exec data in the common binary file.
         for (IClassCoverage classCov : coverageBuilder.getClasses()) {
-            if (classCov.getSourceFileName() != null && classCov.getName().startsWith(packagePrefix)) {
+            if (classCov.getSourceFileName() != null && classCov.getSourceFileName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                 packageBalClassCoverageList.add(classCov);
             } else {
                 // Remove old coverage class to keep only the lastest coverage class.
