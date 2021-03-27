@@ -18,23 +18,18 @@
 package io.ballerina.projects.plugins;
 
 /**
- * This class can be used to add various compiler plugin tasks to the current compilation.
+ * Represent a compiler lifecycle task that accepts an compiler lifecycle listener context and return no result.
  *
+ * @param <T> the type of the compiler lifecycle listener context
  * @since 2.0.0
  */
-public interface CompilerPluginContext {
+@FunctionalInterface
+public interface CompilerLifecycleTask<T extends CompilerLifecycleEventContext> {
 
     /**
-     * Add a {@code CodeAnalyzer} instance to the current compilation.
+     * Performs a compiler lifecycle task with the passed context.
      *
-     * @param codeAnalyzer the {@code CodeAnalyzer} instance
+     * @param t compiler lifecycle listener context
      */
-    void addCodeAnalyzer(CodeAnalyzer codeAnalyzer);
-
-    /**
-     * Add a {@code CompilerLifecycleListener} instance to the current compilation.
-     *
-     * @param lifecycleListener the {@code CompilerLifecycleListener} instance
-     */
-    void addCompilerLifecycleListener(CompilerLifecycleListener lifecycleListener);
+    void perform(T t);
 }

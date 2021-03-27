@@ -21,13 +21,16 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
+import java.nio.file.Path;
+import java.util.Optional;
+
 /**
- * The context for the compilation analysis task.
+ * the context for the compiler lifecycle event task.
  *
- * @see CodeAnalysisContext
+ * @see CompilerLifecycleContext
  * @since 2.0.0
  */
-public  interface CompilationAnalysisContext {
+public interface CompilerLifecycleEventContext {
 
     /**
      * Returns the current {@code Package} instance on which the compilation is being performed.
@@ -49,4 +52,11 @@ public  interface CompilationAnalysisContext {
      * @param diagnostic the {@code Diagnostic} to be reported
      */
     public void reportDiagnostic(Diagnostic diagnostic);
+
+    /**
+     * Returns the path of the generated binary artifact.
+     *
+     * @return path to the generated artifact.
+     */
+    public Optional<Path> getGeneratedArtifactPath();
 }
