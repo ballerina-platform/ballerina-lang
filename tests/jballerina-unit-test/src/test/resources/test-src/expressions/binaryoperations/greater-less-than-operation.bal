@@ -264,6 +264,26 @@ function testTypeComparison3() {
     test:assertFalse(a >= b);
 }
 
+function testTypeComparison4() {
+    NumberSet a = 1;
+    NumberSet b = 2;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
+function testTypeComparison5() {
+    OneOrTwo a = 1;
+    OneOrTwo b = 2;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
 function testUnionComparison1() {
     int? a = 1;
     int? b = 2;
@@ -279,6 +299,26 @@ type DecimalOrNil decimal?;
 function testUnionComparison2() {
     DecimalOrNil a = 12d;
     DecimalOrNil b = 24d;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
+function testUnionComparison3() {
+    int|int:Signed32 a = 1;
+    int|int:Signed32 b = 2;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
+function testUnionComparison4() {
+    string|string:Char a = "A";
+    string|string:Char b = "B";
 
     test:assertTrue(a < b);
     test:assertTrue(a <= b);

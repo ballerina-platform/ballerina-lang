@@ -231,8 +231,12 @@ public class GreaterLessThanOperationTest {
                 "testTypeComparison1",
                 "testTypeComparison2",
                 "testTypeComparison3",
+                "testTypeComparison4",
+                "testTypeComparison5",
                 "testUnionComparison1",
-                "testUnionComparison2"
+                "testUnionComparison2",
+                "testUnionComparison3",
+                "testUnionComparison4"
         };
     }
 

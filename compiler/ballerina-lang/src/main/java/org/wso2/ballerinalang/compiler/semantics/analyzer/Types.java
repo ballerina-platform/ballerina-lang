@@ -2624,7 +2624,7 @@ public class Types {
         public Boolean visit(BFiniteType t, BType s) {
             if (inOrderedType) {
                 inOrderedType = false;
-                return isSimpleBasicType(s.tag) && checkValueSpaceHasSameType(t.getValueSpace(), s);
+                return checkValueSpaceHasSameType(t, s);
             }
             return s == t;
         }
@@ -2658,9 +2658,12 @@ public class Types {
         return false;
     }
 
-    private boolean checkValueSpaceHasSameType(Set<BLangExpression> valueSpace, BType baseType) {
+    private boolean checkValueSpaceHasSameType(BFiniteType finiteType, BType baseType) {
+        if (baseType.tag == TypeTags.FINITE) {
+            return finiteType == baseType;
+        }
         boolean isValueSpaceSameType = false;
-        for (BLangExpression expr : valueSpace) {
+        for (BLangExpression expr : finiteType.getValueSpace()) {
             isValueSpaceSameType = isSameType(expr.type, baseType);
             if (!isValueSpaceSameType) {
                 break;
@@ -4545,10 +4548,11 @@ public class Types {
                     if (memType.tag == TypeTags.FINITE && firstTypeInUnion.tag == TypeTags.FINITE) {
                         Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
                         BType baseExprType = valSpace.iterator().next().type;
-                        if (!checkValueSpaceHasSameType(((BFiniteType) memType).getValueSpace(), baseExprType)) {
+                        if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
                             return false;
                         }
-                    } else if (memType.tag != firstTypeInUnion.tag && memType.tag != TypeTags.NIL) {
+                    } else if (memType.tag != firstTypeInUnion.tag && memType.tag != TypeTags.NIL &&
+                            !isIntOrStringType(memType.tag, firstTypeInUnion.tag)) {
                         return false;
                     }
                     allMembersOrdered = isOrderedType(memType, hasCycle);
@@ -4571,7 +4575,12 @@ public class Types {
                 return restType == null || isOrderedType(restType, hasCycle);
             case TypeTags.FINITE:
                 boolean isValueSpaceOrdered = false;
-                for (BLangExpression expr : ((BFiniteType) type).getValueSpace()) {
+                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
+                BType baseExprType = valSpace.iterator().next().type;
+                for (BLangExpression expr : valSpace) {
+                    if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
+                        return false;
+                    }
                     isValueSpaceOrdered = isOrderedType(expr.type, hasCycle);
                     if (!isValueSpaceOrdered) {
                         break;
@@ -4581,6 +4590,11 @@ public class Types {
             default:
                 return isSimpleBasicType(type.tag);
         }
+    }
+
+    private boolean isIntOrStringType(int firstTypeTag, int secondTypeTag) {
+        return ((TypeTags.isIntegerTypeTag(firstTypeTag)) && (TypeTags.isIntegerTypeTag(secondTypeTag))) ||
+                ((TypeTags.isStringTypeTag(firstTypeTag)) && (TypeTags.isStringTypeTag(secondTypeTag)));
     }
 
     public boolean isUnionOfSimpleBasicTypes(BType type) {
