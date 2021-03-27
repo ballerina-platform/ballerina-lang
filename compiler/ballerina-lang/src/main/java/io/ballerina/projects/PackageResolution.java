@@ -173,14 +173,14 @@ public class PackageResolution {
                 PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), packageName, ModuleName.from(packageName),
-                        null, PackageDependencyScope.DEFAULT, true);
+                        null, PackageDependencyScope.DEFAULT, DependencyResolvedType.INJECTED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
             {
                 PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_ORG.value), packageName, ModuleName.from(packageName),
-                        null, PackageDependencyScope.DEFAULT, true);
+                        null, PackageDependencyScope.DEFAULT, DependencyResolvedType.INJECTED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
         }
@@ -244,7 +244,8 @@ public class PackageResolution {
 
             ImportModuleRequest importModuleRequest = new ImportModuleRequest(packageOrg,
                     moduleLoadRequest.moduleName().toString());
-            moduleResolver.resolve(importModuleRequest, moduleLoadRequest.scope(), moduleLoadRequest.injected());
+            moduleResolver.resolve(importModuleRequest, moduleLoadRequest.scope(),
+                                   moduleLoadRequest.dependencyResolvedType());
         }
     }
 
@@ -395,7 +396,8 @@ public class PackageResolution {
             return responseMap.get(importModuleRequest);
         }
 
-        void resolve(ImportModuleRequest importModuleRequest, PackageDependencyScope scope, boolean injected) {
+        void resolve(ImportModuleRequest importModuleRequest, PackageDependencyScope scope,
+                DependencyResolvedType dependencyResolvedType) {
             ImportModuleResponse importModuleResponse = responseMap.get(importModuleRequest);
             if (importModuleResponse != null) {
                 return;
@@ -441,7 +443,7 @@ public class PackageResolution {
 
                     // The requested module is available in the resolvedPackage
                     // Let's add it to the dependency graph.
-                    addPackageToGraph(resolutionResponse, injected);
+                    addPackageToGraph(resolutionResponse, dependencyResolvedType);
                 }
                 responseMap.put(importModuleRequest, new ImportModuleResponse(packageOrg, possiblePkgName));
                 return;
@@ -457,20 +459,21 @@ public class PackageResolution {
                     List.of(resolutionRequest), rootPkgContext.project()).get(0);
         }
 
-        private void addPackageToGraph(ResolutionResponse resolutionResponse, boolean injected) {
+        private void addPackageToGraph(ResolutionResponse resolutionResponse,
+                DependencyResolvedType dependencyResolvedType) {
             // Adding the resolved package to the graph and merge its dependencies
             Package resolvedPackage = resolutionResponse.resolvedPackage();
             ResolutionRequest resolutionRequest = resolutionResponse.packageLoadRequest();
             if (resolutionRequest.scope() == PackageDependencyScope.DEFAULT) {
                 depGraphBuilder.addDependency(rootPkgContext.descriptor(),
-                        resolvedPackage.descriptor(), PackageDependencyScope.DEFAULT, injected);
+                        resolvedPackage.descriptor(), PackageDependencyScope.DEFAULT, dependencyResolvedType);
 
                 // Merge direct dependency's dependency graph with the current one.
                 depGraphBuilder.mergeGraph(resolvedPackage.packageContext().dependencyGraph(),
                         PackageDependencyScope.DEFAULT);
             } else if (resolutionRequest.scope() == PackageDependencyScope.TEST_ONLY) {
                 depGraphBuilder.addDependency(rootPkgContext.descriptor(),
-                        resolvedPackage.descriptor(), PackageDependencyScope.TEST_ONLY, injected);
+                        resolvedPackage.descriptor(), PackageDependencyScope.TEST_ONLY, dependencyResolvedType);
 
                 // Merge direct dependency's dependency graph with the current one.
                 depGraphBuilder.mergeGraph(resolvedPackage.packageContext().dependencyGraph(),

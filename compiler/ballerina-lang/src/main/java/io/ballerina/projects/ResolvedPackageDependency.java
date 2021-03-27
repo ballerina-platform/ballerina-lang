@@ -24,26 +24,32 @@ package io.ballerina.projects;
  */
 public class ResolvedPackageDependency extends PackageDependency {
     private final Package resolvedPackage;
-    private final boolean injected;
+    private final DependencyResolvedType dependencyResolvedType;
 
     public ResolvedPackageDependency(Package resolvedPackage, PackageDependencyScope scope) {
         super(resolvedPackage.packageId(), scope);
         this.resolvedPackage = resolvedPackage;
-        this.injected = false;
+        this.dependencyResolvedType = DependencyResolvedType.DEFAULT;
     }
 
-    public ResolvedPackageDependency(Package resolvedPackage, PackageDependencyScope scope, boolean injected) {
+    public ResolvedPackageDependency(Package resolvedPackage,
+                                     PackageDependencyScope scope,
+                                     DependencyResolvedType dependencyResolvedType) {
         super(resolvedPackage.packageId(), scope);
         this.resolvedPackage = resolvedPackage;
-        this.injected = injected;
+        this.dependencyResolvedType = dependencyResolvedType;
     }
 
     public Package packageInstance() {
         return resolvedPackage;
     }
 
+    public DependencyResolvedType dependencyResolvedType() {
+        return dependencyResolvedType;
+    }
+
     public boolean injected() {
-        return injected;
+        return dependencyResolvedType == DependencyResolvedType.INJECTED;
     }
 
     @Override

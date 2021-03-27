@@ -69,12 +69,14 @@ public class VersionConflictResolutionTests {
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT, false);
+        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                                   DependencyResolvedType.DEFAULT);
 
         // Now lets add a newer version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.5.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT, false);
+        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT,
+                                   DependencyResolvedType.DEFAULT);
 
         DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
@@ -91,12 +93,14 @@ public class VersionConflictResolutionTests {
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT, false);
+        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                                   DependencyResolvedType.DEFAULT);
 
         // Now lets add a older version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.0.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT, false);
+        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT,
+                                   DependencyResolvedType.DEFAULT);
 
         DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
@@ -113,12 +117,14 @@ public class VersionConflictResolutionTests {
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY, false);
+        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
+                                   DependencyResolvedType.DEFAULT);
 
         // Now lets add a newer version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.5.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY, false);
+        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY,
+                                   DependencyResolvedType.DEFAULT);
 
         DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
@@ -135,12 +141,14 @@ public class VersionConflictResolutionTests {
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY, false);
+        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
+                                   DependencyResolvedType.DEFAULT);
 
         // Now lets add a older version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.0.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY, false);
+        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY,
+                                   DependencyResolvedType.DEFAULT);
 
         DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
@@ -157,12 +165,14 @@ public class VersionConflictResolutionTests {
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY, false);
+        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
+                                   DependencyResolvedType.DEFAULT);
 
         // Now lets add a newer version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.5.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT, false);
+        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT,
+                                   DependencyResolvedType.DEFAULT);
 
         DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
@@ -179,12 +189,14 @@ public class VersionConflictResolutionTests {
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY, false);
+        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.TEST_ONLY,
+                                   DependencyResolvedType.DEFAULT);
 
         // Now lets add a older version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.0.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT, false);
+        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.DEFAULT,
+                                   DependencyResolvedType.DEFAULT);
 
         DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
@@ -201,12 +213,14 @@ public class VersionConflictResolutionTests {
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT, false);
+        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                                   DependencyResolvedType.DEFAULT);
 
         // Now lets add a newer version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.5.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY, false);
+        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY,
+                                   DependencyResolvedType.DEFAULT);
 
         DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
@@ -223,12 +237,14 @@ public class VersionConflictResolutionTests {
 
         PackageDescriptor dependencyCurrent = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.1.0"));
-        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT, false);
+        graphBuilder.addDependency(rootNode, dependencyCurrent, PackageDependencyScope.DEFAULT,
+                                   DependencyResolvedType.DEFAULT);
 
         // Now lets add a older version of the dependency
         PackageDescriptor dependencyNew = PackageDescriptor.from(PackageOrg.from("samjs"),
                 PackageName.from("b"), PackageVersion.from("1.0.0"));
-        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY, false);
+        graphBuilder.addDependency(rootNode, dependencyNew, PackageDependencyScope.TEST_ONLY,
+                                   DependencyResolvedType.DEFAULT);
 
         DependencyGraph<PackageDescriptor> dependencyGraph = graphBuilder.build();
         Collection<PackageDescriptor> directDependencies = dependencyGraph.getDirectDependencies(rootNode);
