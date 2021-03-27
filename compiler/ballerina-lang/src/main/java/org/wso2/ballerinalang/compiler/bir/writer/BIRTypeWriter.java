@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -297,16 +298,21 @@ public class BIRTypeWriter implements TypeVisitor {
         } else {
             buff.writeBoolean(false);
         }
-        buff.writeInt(bUnionType.getMemberTypes().size());
-        for (BType memberType : bUnionType.getMemberTypes()) {
-            writeTypeCpIndex(memberType);
-        }
+        writeMembers(bUnionType.getMemberTypes());
+        writeMembers(bUnionType.getOriginalMemberTypes());
 
         if (tsymbol instanceof BEnumSymbol) {
             buff.writeBoolean(true);
             writeEnumSymbolInfo((BEnumSymbol) tsymbol);
         } else {
             buff.writeBoolean(false);
+        }
+    }
+
+    private void writeMembers(Set<BType> memberTypes) {
+        buff.writeInt(memberTypes.size());
+        for (BType memberType : memberTypes) {
+            writeTypeCpIndex(memberType);
         }
     }
 
@@ -332,11 +338,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BIntersectionType bIntersectionType) {
-        buff.writeInt(bIntersectionType.getConstituentTypes().size());
-        for (BType constituentType : bIntersectionType.getConstituentTypes()) {
-            writeTypeCpIndex(constituentType);
-        }
-
+        writeMembers(bIntersectionType.getConstituentTypes());
         writeTypeCpIndex(bIntersectionType.effectiveType);
     }
 

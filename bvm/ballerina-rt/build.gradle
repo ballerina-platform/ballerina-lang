@@ -35,7 +35,6 @@ dependencies {
     dist project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:annotations', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:array', configuration: 'distributionBirJar')
-    dist project(path: ':ballerina-lang:config', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:decimal', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:error', configuration: 'distributionBirJar')
     dist project(path: ':ballerina-lang:floatingpoint', configuration: 'distributionBirJar')
@@ -59,7 +58,6 @@ dependencies {
     dist project(':ballerina-lang:internal')
     dist project(':ballerina-lang:annotations')
     dist project(':ballerina-lang:array')
-    dist project(':ballerina-lang:config')
     dist project(':ballerina-lang:decimal')
     dist project(':ballerina-lang:error')
     dist project(':ballerina-lang:floatingpoint')
@@ -96,8 +94,7 @@ dependencies {
     dist 'org.apache.ws.commons.axiom:axiom-api:1.2.20'
     dist 'org.apache.ws.commons.axiom:axiom-dom:1.2.22'
     dist 'commons-logging:commons-logging:1.1.1'
-    dist 'io.opentracing:opentracing-api:0.31.0'
-    dist 'io.opentracing:opentracing-noop:0.31.0'
+    dist 'io.opentelemetry:opentelemetry-api:1.0.0'
     dist 'org.awaitility:awaitility:3.1.6'
     dist 'org.hdrhistogram:HdrHistogram:2.1.10'
     dist 'com.h2database:h2:1.4.199'

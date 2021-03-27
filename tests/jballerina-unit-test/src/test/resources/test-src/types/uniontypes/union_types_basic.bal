@@ -211,6 +211,24 @@ function testUnionTypeWithFunctionPointerAccess() {
     assertEquality(30, person2.age);
 }
 
+type MyUnion int|int[]|string[];
+
+function testCastToImmutableUnion() {
+    MyUnion v = <readonly> [1, 2, 3];
+    MyUnion & readonly w = <MyUnion & readonly> v;
+    assertEquality(true, w is int[] & readonly);
+    assertEquality(true, <any> w is MyUnion & readonly);
+    assertEquality(<int[]> [1, 2, 3], w);
+
+    MyUnion x = [1, 2, 3];
+    (MyUnion & readonly)|error y = trap <MyUnion & readonly> x;
+    assertEquality(true, y is error);
+    error err = <error> y;
+    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("incompatible types: 'int[]' cannot be cast to '(MyUnion & readonly)'",
+                   <string> checkpanic err.detail()["message"]);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

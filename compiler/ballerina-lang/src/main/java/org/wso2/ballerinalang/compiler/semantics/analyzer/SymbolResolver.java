@@ -1073,13 +1073,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = symTable.noType;
                 return;
             }
-            if (resolvedType.tag == TypeTags.UNION
-                    && resolvedType.tsymbol != null
-                    && !Symbols.isFlagOn(resolvedType.tsymbol.flags, Flags.TYPE_PARAM)) {
-                memberTypes.addAll(((BUnionType) resolvedType).getMemberTypes());
-            } else {
-                memberTypes.add(resolvedType);
-            }
+            memberTypes.add(resolvedType);
         }
 
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),

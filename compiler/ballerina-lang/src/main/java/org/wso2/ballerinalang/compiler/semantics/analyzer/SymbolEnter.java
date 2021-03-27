@@ -3155,6 +3155,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangSimpleVariable field : classDefinition.fields) {
             defineNode(field, typeDefEnv);
+            // Unless skipped, this causes issues in negative cases such as duplicate fields.
             if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
