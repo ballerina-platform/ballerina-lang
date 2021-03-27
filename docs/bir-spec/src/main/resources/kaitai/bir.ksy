@@ -302,6 +302,12 @@ types:
         type: s4
         repeat: expr
         repeat-expr: member_types_count
+      - id: original_member_types_count
+        type: s4
+      - id: original_member_type_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: original_member_types_count
       - id: is_enum_type
         type: u1
       - id: pkg_cp_index
