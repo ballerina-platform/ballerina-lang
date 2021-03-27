@@ -78,6 +78,7 @@ public class Flags {
     public static final long REST_PARAM = DEFAULTABLE_PARAM << 1;               //  37
     public static final long FIELD = REST_PARAM << 1;                           //  38
     public static final long ANY_FUNCTION = FIELD << 1;                         //  39
+    public static final long INFER = ANY_FUNCTION << 1;                         //  40
 
 
     public static long asMask(Set<Flag> flagSet) {

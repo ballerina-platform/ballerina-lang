@@ -645,6 +645,24 @@ public class TypedescriptorTest {
         assertEquals(symbol.typeDescriptor().signature(), "function");
     }
 
+    @Test
+    public void testParameterizedType() {
+        Symbol symbol = getSymbol(219, 9);
+        FunctionTypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor();
+        TypeSymbol returnTypeSymbol = type.returnTypeDescriptor().get();
+        assertEquals(returnTypeSymbol.signature(), "td");
+
+        symbol = getSymbol(221, 9);
+        type = ((FunctionSymbol) symbol).typeDescriptor();
+        returnTypeSymbol = type.returnTypeDescriptor().get();
+        assertEquals(returnTypeSymbol.typeKind(), UNION);
+        assertEquals(returnTypeSymbol.signature(), "error|td");
+        List<TypeSymbol> members = ((UnionTypeSymbol) returnTypeSymbol).memberTypeDescriptors();
+        assertEquals(members.size(), 2);
+        assertEquals(members.get(0).typeKind(), ERROR);
+        assertEquals(members.get(1).signature(), "td");
+    }
+
     private Symbol getSymbol(int line, int column) {
         return model.symbol(srcFile, from(line, column)).get();
     }

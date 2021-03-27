@@ -284,7 +284,9 @@ public class Type {
 
         if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
-            if (typeSymbol.typeDescriptor() != null) {
+            if (typeSymbol.definition().kind().equals(SymbolKind.ENUM)) {
+                type.category = "enums";
+            } else if (typeSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(typeSymbol.typeDescriptor());
             }
         } else if (symbol instanceof ConstantSymbol) {

@@ -11,7 +11,7 @@ function concatIntString (int i, string v) {
 function testJSONObject () returns string|error {
     output = "";
     json j1 = {name:"bob", age:10, pass:true, subjects: [{subject:"maths", marks:75}, {subject:"English", marks:85}]};
-    foreach var j in  <map<json>>j1.cloneReadOnly() {
+    foreach var j in  <map<json> & readonly>j1.cloneReadOnly() {
         concatString(j.toJsonString());
     }
     return output;
