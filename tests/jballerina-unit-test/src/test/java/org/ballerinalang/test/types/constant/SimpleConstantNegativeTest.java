@@ -68,7 +68,7 @@ public class SimpleConstantNegativeTest {
                 64, 21);
         BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'byte', found 'int'",
                 73, 12);
-        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected '(E|F)', found '(D|E)'",
+        BAssertUtil.validateError(compileResult, index++, "incompatible types: expected 'G', found 'H'",
                 91, 11);
         BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[UVW, UVW]'", 98, 1);
         BAssertUtil.validateError(compileResult, index++, "invalid cyclic type reference in '[IJK, IJK]'", 103, 1);
