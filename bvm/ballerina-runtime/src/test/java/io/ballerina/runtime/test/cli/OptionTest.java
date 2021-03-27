@@ -142,7 +142,7 @@ public class OptionTest {
             cliSpec.getMainArgs();
             Assert.fail();
         } catch (BError error) {
-            Assert.assertEquals(error.getMessage(), "unsupported type expected with main function 'string|int'");
+            Assert.assertEquals(error.getMessage(), "unsupported type expected with main function '(string|int)'");
         }
     }
 

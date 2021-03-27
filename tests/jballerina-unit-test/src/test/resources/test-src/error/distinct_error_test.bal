@@ -1,12 +1,13 @@
 
 type Foo distinct error;
 
-function testFooError() returns Foo {
+function testFooError() {
     Foo foo = error Foo("error message", detailField=true);
     var x = foo.detail();
     Foo f = foo;
 
-    return foo;
+    assertEquality("error message", f.message());
+    assertEquality(true, x["detailField"]);
 }
 
 public type GraphAPIError distinct error<GraphAPIErrorDetails>;
