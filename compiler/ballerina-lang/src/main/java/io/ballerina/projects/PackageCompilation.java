@@ -245,15 +245,15 @@ public class PackageCompilation {
         List<Diagnostic> nonExportedModulesDiagnostics = new ArrayList<>();
 
         for (ModuleId moduleId: compilation.rootPackageContext.project().currentPackage().moduleIds()) {
-            Module module = compilation.rootPackageContext.project().currentPackage().module(moduleId);
+            ModuleContext moduleContext = compilation.rootPackageContext.moduleContext(moduleId);
 
-            if (DOT.equals(module.moduleName().toString())) {
+            if (DOT.equals(moduleContext.moduleName().toString())) {
                 continue;
             }
 
-            for (DocumentId documentId : module.documentIds()) {
-                Document document = module.document(documentId);
-                ModulePartNode modulePartNode = document.syntaxTree().rootNode();
+            for (DocumentId documentId : moduleContext.srcDocumentIds()) {
+                DocumentContext documentContext = moduleContext.documentContext(documentId);
+                ModulePartNode modulePartNode = documentContext.syntaxTree().rootNode();
 
                 for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
                     if (importDcl.orgName().isPresent()) {
@@ -279,7 +279,8 @@ public class PackageCompilation {
 
                                 if (!exportedModuleNames.contains(moduleName)) {
                                     Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(new DiagnosticInfo(
-                                        null, "module '" + moduleName + "' is not an exported module",
+                                        "cannot resolve module",
+                                        "module '" + moduleName + "' is not an exported module",
                                         DiagnosticSeverity.ERROR), importDcl.location());
                                     nonExportedModulesDiagnostics.add(diagnostic);
                                 }
