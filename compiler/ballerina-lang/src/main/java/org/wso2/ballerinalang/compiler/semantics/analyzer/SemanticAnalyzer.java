@@ -550,6 +550,12 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Visit functions as they are not in the same scope/env as the object fields
         for (BLangFunction function : classDefinition.functions) {
+            if (classDefinition.flagSet.contains(Flag.CLIENT) && function.flagSet.contains(Flag.REMOTE) &&
+                    function.returnTypeNode != null &&
+                    types.isNeverTypeOrStructureTypeWithARequiredNeverMember(function.returnTypeNode.type)) {
+                dlog.error(function.returnTypeNode.pos,
+                        DiagnosticErrorCode.INVALID_NEVER_RETURN_TYPED_CLIENT_REMOTE_FUNCTION);
+            }
             analyzeDef(function, env);
             if (function.flagSet.contains(Flag.RESOURCE) && function.flagSet.contains(Flag.NATIVE)) {
                 this.dlog.error(function.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, function.name);
@@ -711,7 +717,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             type.flags |= Flags.READONLY;
         }
 
-        validateOptionalNeverTypedField(recordTypeNode);
         validateDefaultable(recordTypeNode);
         recordTypeNode.analyzed = true;
     }
@@ -1272,6 +1277,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     // This is a variable declared in a function, an action or a resource
                     // If the variable is parameter then the variable symbol is already defined
                     if (simpleVariable.symbol == null) {
+                        // Add flag to identify variable is used in foreach/from clause/join clause
+                        variable.flagSet.add(Flag.NEVER_ALLOWED);
                         symbolEnter.defineNode(simpleVariable, blockEnv);
                     }
                 }
@@ -3060,15 +3067,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (field.flagSet.contains(Flag.OPTIONAL) && field.expr != null) {
                 dlog.error(field.pos, DiagnosticErrorCode.DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS,
                            field.name.value);
-            }
-        }
-    }
-
-    private void validateOptionalNeverTypedField(BLangRecordTypeNode recordTypeNode) {
-        // Never type is only allowed in an optional field in a record
-        for (BLangSimpleVariable field : recordTypeNode.fields) {
-            if (field.type.tag == TypeTags.NEVER && !field.flagSet.contains(Flag.OPTIONAL)) {
-                dlog.error(field.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_FIELDS, field.name.value);
             }
         }
     }

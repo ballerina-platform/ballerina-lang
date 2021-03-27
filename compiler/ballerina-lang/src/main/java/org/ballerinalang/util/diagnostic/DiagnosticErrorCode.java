@@ -380,8 +380,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     OPERATOR_NOT_SUPPORTED("BCE2642", "operator.not.supported"),
     OPERATOR_NOT_ALLOWED_VARIABLE("BCE2643", "operator.not.allowed.variable"),
-    NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_FIELDS("BCE2644", "never.type.not.allowed.for.required.fields"),
-    INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION("BCE2645", "invalid.never.return.typed.function.invocation"),
+    NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_DEFAULTABLE_PARAMS("BCE2644",
+            "never.type.not.allowed.for.required.and.defaultable.params"),
+    INVALID_NEVER_RETURN_TYPED_CLIENT_REMOTE_FUNCTION("BCE2645", "invalid.never.return.typed.client.remote.function"),
     NEVER_TYPED_VAR_DEF_NOT_ALLOWED("BCE2646", "never.typed.var.def.not.allowed"),
 
     EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2647", "expression.does.not.support.member.access"),

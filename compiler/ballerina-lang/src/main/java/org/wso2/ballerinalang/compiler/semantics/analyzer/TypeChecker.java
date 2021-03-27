@@ -1944,7 +1944,8 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BField field : type.fields.values()) {
             String fieldName = field.name.value;
 
-            if (!specFieldNames.contains(fieldName) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+            if (!specFieldNames.contains(fieldName) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)
+                    && field.type.tag != TypeTags.NEVER) {
                 // Check if `field` is explicitly assigned a value in the record literal
                 // If a required field is missing, it's a compile error
                 dlog.error(pos, DiagnosticErrorCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
@@ -3662,6 +3663,9 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTrapExpr trapExpr) {
         boolean firstVisit = trapExpr.expr.type == null;
         BType actualType;
+        if (trapExpr.expr.getKind() == NodeKind.INVOCATION) {
+            ((BLangInvocation) trapExpr.expr).flagSet.add(Flag.NEVER_ALLOWED);
+        }
         BType exprType = checkExpr(trapExpr.expr, env, expType);
         boolean definedWithVar = expType == symTable.noType;
 
@@ -5392,7 +5396,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        resultType = types.checkType(iExpr, actualType, this.expType);
+        // iExpr contain NEVER_ALLOWED flag if it's in a trap expression
+        if (iExpr.flagSet != null && iExpr.flagSet.contains(Flag.NEVER_ALLOWED) &&
+                actualType.tag == TypeTags.NEVER && this.expType.tag == TypeTags.ERROR) {
+            resultType = actualType;
+        } else {
+            resultType = types.checkType(iExpr, actualType, this.expType);
+        }
     }
 
     private BVarSymbol incRecordParamAllowAdditionalFields(List<BVarSymbol> openIncRecordParams,

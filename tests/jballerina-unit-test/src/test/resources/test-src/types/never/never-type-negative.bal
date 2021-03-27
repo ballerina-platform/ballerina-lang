@@ -59,7 +59,7 @@ function testAssignValueToRequiredNeverField() {
 }
 
 function testAssignValueToOptionalNeverField() {
-    Foo foo = {x:2, y:"s"};
+    Bar bar = {x:2, y:"s"};
 }
 
 function testNeverFiledAssignNeverReturnedFunction() {
@@ -157,4 +157,45 @@ function testNeverAssignment() {
      string|'xml:Text p = xml ``;
      string s8 = p;
      int|string t = xml ``;
+}
+
+function testNeverTypeLocalVarDeclWithoutInit() {
+    never a;
+}
+
+never b;
+
+const never c = ();
+
+function testNeverTypeInTypedBindingPattern() {
+    never x = foo();
+    var y = foo();
+}
+
+function foo() returns never {
+  error e = error("Bad Sad!!");
+  panic e;
+}
+
+function blow1(never rec) {
+}
+
+function blow2(record {| never x; |} rec) {
+}
+
+function blow3(never rec) {
+}
+
+function blow4(int val, record {| never x; |} rec = {}) {
+}
+
+client object {} object1 = client object {
+    remote function invoke1(string a) returns never {
+        error e = error(a);
+        panic e;
+    }
+};
+
+function testNeverTypeInTypedBindingPattern2() {
+    [never] x = [];
 }

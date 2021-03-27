@@ -1915,10 +1915,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbol.retType = tsymbol.returnType;
         }
 
-        if (varSymbol.type.tag == TypeTags.NEVER && ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD)) {
-            // check if the variable is defined as a 'never' type (except inside a record type)
+        if ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD && !varNode.flagSet.contains(Flag.NEVER_ALLOWED) &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(varSymbol.type)) {
+            // check if the variable is defined as a 'never' type or equivalent to 'never'
+            // (except inside a record type or iterative use (followed by in) in typed binding pattern)
             // if so, log an error
-            dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED, varSymbol.name);
+            if (varNode.flagSet.contains(Flag.REQUIRED_PARAM) || varNode.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
+                dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_DEFAULTABLE_PARAMS);
+            } else {
+                dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED);
+            }
         }
     }
 
