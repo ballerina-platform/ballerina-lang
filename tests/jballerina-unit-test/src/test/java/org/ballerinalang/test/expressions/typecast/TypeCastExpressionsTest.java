@@ -183,6 +183,11 @@ public class TypeCastExpressionsTest {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");
     }
 
+    @Test
+    public void testMutableJsonMappingToExclusiveRecordNegative() {
+        BRunUtil.invoke(result, "testMutableJsonMappingToExclusiveRecordNegative");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'int'.*")
     public void testStringAsInvalidBasicType() {
@@ -352,6 +357,19 @@ public class TypeCastExpressionsTest {
         Assert.assertSame(returns[0].getClass(), BMap.class);
         Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Em Zee");
         Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
+    }
+
+    @DataProvider
+    public Object[] mappingToRecordTests() {
+        return new Object[]{
+                "testImmutableJsonMappingToExclusiveRecordPositive",
+                "testImmutableJsonMappingToInclusiveRecordPositive"
+        };
+    }
+
+    @Test(dataProvider = "positiveTests")
+    public void testJsonMappingToRecordPositive(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
     @AfterClass

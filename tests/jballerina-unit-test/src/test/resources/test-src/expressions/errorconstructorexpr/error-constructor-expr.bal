@@ -93,16 +93,7 @@ function testErrorConstructorExpr6() {
     assertEquals((), <int?> checkpanic m["c"]);
 }
 
-type MyError1 error <*>;
 type MyError2 error <map<string>>;
-
-function errorConstructorExpr7() returns error {
-    return error MyError1("Message1");
-}
-
-function testErrorConstructorExpr7() {
-    assertEquals("Message1", errorConstructorExpr7().message());
-}
 
 function errorConstructorExpr8() returns MyError2 {
     return error MyError2("Message1", a = "str1", b = "str2");

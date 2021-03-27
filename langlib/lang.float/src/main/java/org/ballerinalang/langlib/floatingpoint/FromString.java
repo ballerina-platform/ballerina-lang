@@ -21,6 +21,7 @@ package org.ballerinalang.langlib.floatingpoint;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
@@ -41,11 +42,14 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
 //)
 public class FromString {
 
+    private static final BString ERROR_REASON = getModulePrefixedReason(FLOAT_LANG_LIB,
+                                                                        NUMBER_PARSING_ERROR_IDENTIFIER);
+
     public static Object fromString(BString s) {
         try {
-            return Double.parseDouble(s.getValue());
+            return TypeConverter.stringToFloat(s.getValue());
         } catch (NumberFormatException e) {
-            return ErrorCreator.createError(getModulePrefixedReason(FLOAT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER),
+            return ErrorCreator.createError(ERROR_REASON,
                                             BLangExceptionHelper.getErrorMessage(
                                                     RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
                                                     PredefinedTypes.TYPE_STRING, s, PredefinedTypes.TYPE_FLOAT));

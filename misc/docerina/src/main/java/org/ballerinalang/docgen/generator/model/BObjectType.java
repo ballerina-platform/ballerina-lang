@@ -16,6 +16,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.util.List;
 
@@ -35,5 +36,6 @@ public class BObjectType extends Construct {
         super(name, description, isDeprecated);
         this.fields = fields;
         this.methods = methods;
+        this.builtInVersion = BallerinaDocGenerator.getBallerinaShortVersion();
     }
 }

@@ -62,7 +62,6 @@ public class ErrorConstructorExprTest {
                 {"testErrorConstructorExpr4"},
                 {"testErrorConstructorExpr5"},
                 {"testErrorConstructorExpr6"},
-                {"testErrorConstructorExpr7"},
                 {"testErrorConstructorExpr8"},
                 {"testErrorConstructorExpr9"},
                 {"testContextuallyExpectedErrorCtor"},

@@ -102,7 +102,6 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
@@ -147,7 +146,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
-    private ResolvedTypeBuilder typeBuilder;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -168,7 +166,6 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
-        this.typeBuilder = new ResolvedTypeBuilder();
     }
 
     public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol) {
@@ -467,13 +464,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.env = prevEnv;
         this.diagCode = preDiagCode;
 
-        // If the typeNode.nullable is true then convert the resultType to a union type
-        // if it is not already a union type, JSON type, or any type
-        if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
-            BUnionType unionType = (BUnionType) this.resultType;
-            unionType.add(symTable.nilType);
-        } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
-            this.resultType = BUnionType.create(null, resultType, symTable.nilType);
+        if (this.resultType != symTable.noType) {
+            // If the typeNode.nullable is true then convert the resultType to a union type
+            // if it is not already a union type, JSON type, or any type
+            if (typeNode.nullable && this.resultType.tag == TypeTags.UNION) {
+                BUnionType unionType = (BUnionType) this.resultType;
+                unionType.add(symTable.nilType);
+            } else if (typeNode.nullable && resultType.tag != TypeTags.JSON && resultType.tag != TypeTags.ANY) {
+                this.resultType = BUnionType.create(null, resultType, symTable.nilType);
+            }
         }
 
         typeNode.type = resultType;
@@ -773,7 +772,6 @@ public class SymbolResolver extends BLangNodeVisitor {
     }
 
     public BSymbol lookupMethodInModule(BPackageSymbol moduleSymbol, Name name, SymbolEnv env) {
-
         // What we get here is T.Name, this should convert to
         ScopeEntry entry = moduleSymbol.scope.lookup(name);
         while (entry != NOT_FOUND_ENTRY) {
@@ -935,29 +933,9 @@ public class SymbolResolver extends BLangNodeVisitor {
             break;
         }
 
-        entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE_INTERNAL1);
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                entry = entry.next;
-                continue;
-            }
-            entry.symbol.type = symTable.cloneableType;
-            break;
-        }
-
-        entry = symTable.rootPkgSymbol.scope.lookup(Names.CLONEABLE_INTERNAL2);
-        while (entry != NOT_FOUND_ENTRY) {
-            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
-                entry = entry.next;
-                continue;
-            }
-            entry.symbol.type = symTable.cloneableType;
-            break;
-        }
     }
 
     public void bootstrapIntRangeType() {
-
         ScopeEntry entry = symTable.langInternalModuleSymbol.scope.lookup(Names.CREATE_INT_RANGE);
         while (entry != NOT_FOUND_ENTRY) {
             if ((entry.symbol.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE) {
@@ -965,13 +943,24 @@ public class SymbolResolver extends BLangNodeVisitor {
                 continue;
             }
             symTable.intRangeType = (BObjectType) ((BInvokableType) entry.symbol.type).retType;
-            symTable.defineBinaryOperator(OperatorKind.CLOSED_RANGE, symTable.intType, symTable.intType,
-                    symTable.intRangeType);
-            symTable.defineBinaryOperator(OperatorKind.HALF_OPEN_RANGE, symTable.intType, symTable.intType,
-                    symTable.intRangeType);
+            symTable.defineIntRangeOperations();
             return;
         }
         throw new IllegalStateException("built-in Integer Range type not found ?");
+    }
+
+    public void bootstrapIterableType() {
+
+        ScopeEntry entry = symTable.langObjectModuleSymbol.scope.lookup(Names.OBJECT_ITERABLE);
+        while (entry != NOT_FOUND_ENTRY) {
+            if ((entry.symbol.tag & SymTag.TYPE) != SymTag.TYPE) {
+                entry = entry.next;
+                continue;
+            }
+            symTable.iterableType = (BObjectType) entry.symbol.type;
+            return;
+        }
+        throw new IllegalStateException("built-in distinct Iterable type not found ?");
     }
 
     public void loadRawTemplateType() {
@@ -1171,7 +1160,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangStreamType streamTypeNode) {
         BType type = resolveTypeNode(streamTypeNode.type, env);
         BType constraintType = resolveTypeNode(streamTypeNode.constraint, env);
-        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : symTable.neverType;
+        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : symTable.nilType;
         // If the constrained type is undefined, return noType as the type.
         if (constraintType == symTable.noType) {
             resultType = symTable.noType;
@@ -1456,7 +1445,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             BLangSimpleVariable param = params.get(i);
 
             if (param.name.value.equals(varSym.name.value)) {
-                if (param.expr == null) {
+                if (param.expr == null || param.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
                     return new ParameterizedTypeInfo(((BTypedescType) varSym.type).constraint, i);
                 }
 

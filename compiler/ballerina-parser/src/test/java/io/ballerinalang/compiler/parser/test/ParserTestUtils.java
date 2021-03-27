@@ -892,6 +892,8 @@ public class ParserTestUtils {
                 return SyntaxKind.OBJECT_CONSTRUCTOR;
             case "ERROR_CONSTRUCTOR":
                 return SyntaxKind.ERROR_CONSTRUCTOR;
+            case "INFERRED_TYPEDESC_DEFAULT":
+                return SyntaxKind.INFERRED_TYPEDESC_DEFAULT;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
@@ -1098,8 +1100,6 @@ public class ParserTestUtils {
                 return SyntaxKind.TYPE_CAST_PARAM;
             case "KEY_SPECIFIER":
                 return SyntaxKind.KEY_SPECIFIER;
-            case "ERROR_TYPE_PARAMS":
-                return SyntaxKind.ERROR_TYPE_PARAMS;
             case "LET_VAR_DECL":
                 return SyntaxKind.LET_VAR_DECL;
             case "ORDER_KEY":

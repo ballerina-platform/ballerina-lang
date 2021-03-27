@@ -1141,6 +1141,21 @@
             ]
         },
         {
+            "name": "InferredTypedescDefaultNode",
+            "base": "ExpressionNode",
+            "kind": "INFERRED_TYPEDESC_DEFAULT",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "ObjectTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "OBJECT_TYPE_DESC",
@@ -2020,27 +2035,8 @@
                 },
                 {
                     "name": "errorTypeParamsNode",
-                    "type": "ErrorTypeParamsNode",
+                    "type": "TypeParameterNode",
                     "isOptional": true
-                }
-            ]
-        },
-        {
-            "name": "ErrorTypeParamsNode",
-            "base": "Node",
-            "kind": "ERROR_TYPE_PARAMS",
-            "attributes": [
-                {
-                    "name": "ltToken",
-                    "type": "Token"
-                },
-                {
-                    "name": "parameter",
-                    "type": "Node"
-                },
-                {
-                    "name": "gtToken",
-                    "type": "Token"
                 }
             ]
         },

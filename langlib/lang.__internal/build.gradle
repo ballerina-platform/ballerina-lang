@@ -25,6 +25,7 @@ dependencies {
 
     distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
     distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:object', configuration: 'distributionBala')
 }
 
 description = 'ballerina/lang.__internal Implementation'

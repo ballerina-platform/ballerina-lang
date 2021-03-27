@@ -28,13 +28,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ensureType(typedesc<any> t)(any|error)",
+      "label": "ensureType(typedesc<any> t)(t|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \n  \n**Params**  \n- `typedesc<any>` t  \n  \n**Returns** `any|error`   \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \n  \n**Params**  \n- `typedesc<any>` t  \n  \n**Returns** `t|error`   \n  \n"
         }
       },
       "sortText": "D",

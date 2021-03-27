@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-type Error error<*>;
+type Error error<map<string>>;
 
 function testMissingParamsNegative() {
     error e1 = error(); // missing arg within parenthesis
@@ -30,7 +30,7 @@ function testMissingParamsNegative() {
     error e10 = error Error("M", error("M1"), "c = 2000"); // additional positional arg in error constructor
 }
 
-type MyError1 error <*>;
+type MyError1 error <map<string>>;
 type MyError2 error <map<string>>;
 function testErrorTypeRefNegative() {
     MyError1 me1 = error MyError("Message"); // undefined error type descriptor 'MyError'
