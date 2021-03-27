@@ -3638,7 +3638,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
         }
         invokableSymbol.params = paramSymbols;
-        invokableSymbol.retType = invokableNode.returnTypeNode.type;
+        BType retType = invokableNode.returnTypeNode.type;
+        invokableSymbol.retType = retType;
+
+        symResolver.validateInferTypedescParams(invokableNode.pos, invokableNode.getParameters(), retType);
 
         // Create function type
         List<BType> paramTypes = paramSymbols.stream()
@@ -3661,7 +3664,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             functionTypeSymbol.restParam = invokableSymbol.restParam;
             restType = invokableSymbol.restParam.type;
         }
-        invokableSymbol.type = new BInvokableType(paramTypes, restType, invokableNode.returnTypeNode.type, null);
+        invokableSymbol.type = new BInvokableType(paramTypes, restType, retType, null);
         invokableSymbol.type.tsymbol = functionTypeSymbol;
         invokableSymbol.type.tsymbol.type = invokableSymbol.type;
     }
