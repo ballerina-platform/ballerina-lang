@@ -772,45 +772,47 @@ function funcWithWorker() {
     }
 }
 
-future<()> fn =
-@v1 {
-    val: "v1"
+function loo() {
+    future<()> fn =
+    @v1 {
+        val: "v1"
+    }
+    @v2 {
+        val: "v2"
+    }
+    @v3 {
+        val: "v3"
+    }
+    @v4 {
+        val: 4
+    }
+    @v5 {
+        val: "v5"
+    }
+    @v6 {
+        val: "v6"
+    }
+    @v7
+    @v8 {
+        val: "v8"
+    }
+    @v9 {
+        val: "v9"
+    }
+    @v10 {
+        val: "v10"
+    }
+    @v11 {
+        val: 11
+    }
+    @v12 {
+        val: "v12"
+    }
+    @v13 {
+        val: "v13"
+    }
+    start funcWithWorker();
 }
-@v2 {
-    val: "v2"
-}
-@v3 {
-    val: "v3"
-}
-@v4 {
-    val: 4
-}
-@v5 {
-    val: "v5"
-}
-@v6 {
-    val: "v6"
-}
-@v7
-@v8 {
-    val: "v8"
-}
-@v9 {
-    val: "v9"
-}
-@v10 {
-    val: "v10"
-}
-@v11 {
-    val: 11
-}
-@v12 {
-    val: "v12"
-}
-@v13 {
-    val: "v13"
-}
-start funcWithWorker();
 
 public annotation v16 on field;
 annotation map<int> v17 on object field;

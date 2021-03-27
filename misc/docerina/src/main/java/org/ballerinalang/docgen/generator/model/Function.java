@@ -31,8 +31,6 @@ public class Function extends Construct {
     @Expose
     public boolean isExtern;
     @Expose
-    public String builtInVersion;
-    @Expose
     public List<DefaultableVariable> parameters;
     @Expose
     public List<Variable> returnParameters;
