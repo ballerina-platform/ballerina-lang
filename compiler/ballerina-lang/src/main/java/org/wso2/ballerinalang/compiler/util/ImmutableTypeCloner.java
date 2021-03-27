@@ -712,7 +712,7 @@ public class ImmutableTypeCloner {
 
         String originalTypeName = origUnionTypeSymbol == null ? "" : origUnionTypeSymbol.name.getValue();
         if (!originalTypeName.isEmpty()) {
-            unionEffectiveImmutableType.name = getImmutableTypeName(names, originalTypeName);
+            unionEffectiveImmutableType.name = getImmutableTypeName(names, origUnionTypeSymbol.toString());
         }
 
         for (BType memberType : originalMemberList) {
@@ -734,8 +734,10 @@ public class ImmutableTypeCloner {
         if (readOnlyMemTypes.size() == 1) {
             type.immutableType.effectiveType = readOnlyMemTypes.iterator().next();
         } else if (origUnionTypeSymbol != null) {
-            BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionTypeSymbol, env, pkgId,
-                    owner);
+            BTypeSymbol immutableUnionTSymbol =
+                    getReadonlyTSymbol(origUnionTypeSymbol, env, pkgId, owner,
+                                       origUnionTypeSymbol.name.value.isEmpty() ? Names.EMPTY :
+                                               getImmutableTypeName(names, origUnionTypeSymbol.toString()));
             type.immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
             type.immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
 
@@ -769,15 +771,23 @@ public class ImmutableTypeCloner {
             return null;
         }
 
+        return getReadonlyTSymbol(originalTSymbol, env, pkgId, owner, getImmutableTypeName(names, originalTSymbol));
+    }
+
+    private static BTypeSymbol getReadonlyTSymbol(BTypeSymbol originalTSymbol, SymbolEnv env, PackageID pkgId,
+                                                  BSymbol owner, Name immutableTypeName) {
+        if (originalTSymbol == null) {
+            return null;
+        }
+
         if (env == null) {
             return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags | Flags.READONLY,
-                                            getImmutableTypeName(names, originalTSymbol), pkgId, null, owner,
-                                            originalTSymbol.pos, SOURCE);
+                                            immutableTypeName, pkgId, null, owner, originalTSymbol.pos, SOURCE);
         }
 
         return Symbols.createTypeSymbol(originalTSymbol.tag, originalTSymbol.flags | Flags.READONLY,
-                                        getImmutableTypeName(names, originalTSymbol), env.enclPkg.symbol.pkgID, null,
-                                        env.scope.owner, originalTSymbol.pos, SOURCE);
+                                        immutableTypeName, env.enclPkg.symbol.pkgID, null, env.scope.owner,
+                                        originalTSymbol.pos, SOURCE);
     }
 
     private static Name getImmutableTypeName(Names names, BTypeSymbol originalTSymbol) {

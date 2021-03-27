@@ -58,7 +58,9 @@ public class CyclicTypeDefinitionsTest {
                 {"testCyclicTypeDefInTuple"},
                 {"testComplexCyclicUnion"},
                 {"testCyclicUserDefinedType"},
-                {"testCyclicUnionAgainstSubSetNegative"}
+                {"testCyclicUnionAgainstSubSetNegative"},
+                {"testImmutableImportedCyclicUnionVariable"},
+                {"testCastingToImmutableCyclicUnion"}
         };
     }
 

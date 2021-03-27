@@ -113,7 +113,7 @@ public class BUnionType extends BType implements UnionType {
         super(name, pkg, Object.class);
         this.typeFlags = typeFlags;
         this.readonly = isReadOnlyFlagOn(flags);
-        this.memberTypes = null;
+        this.memberTypes = new ArrayList<>(0);
         this.isCyclic = isCyclic;
         this.flags = flags;
     }

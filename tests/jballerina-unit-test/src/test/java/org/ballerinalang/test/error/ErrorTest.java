@@ -60,8 +60,7 @@ public class ErrorTest {
 
     @Test
     public void testDistinctFooError() {
-        BValue[] errors = BRunUtil.invoke(distinctErrorTestResult, "testFooError");
-        Assert.assertEquals(errors[0].stringValue(), "error message {\"detailField\":true}");
+        BRunUtil.invoke(distinctErrorTestResult, "testFooError");
     }
 
     @Test
