@@ -123,6 +123,7 @@ public class SymbolTable {
     public final BType orderedType = BUnionType.create(null, simpleTypeUnion, arrayTypeOfSimpleTypeUnion);
     public final BType orderedTupleType = new BTupleType(Lists.of(orderedType));
     public final BType orderedArrayType = new BArrayType(orderedType);
+    public final BType finiteType = new BFiniteType(null, new HashSet<>());
 
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
@@ -568,6 +569,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, byteType, intType, booleanType);
 
         // Binary comparison operators <=, <, >=, >
+        defineBinaryOperator(OperatorKind.LESS_THAN, finiteType, finiteType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, byteType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, byteType, booleanType);
@@ -581,6 +583,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.LESS_THAN, orderedArrayType, orderedArrayType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, orderedTupleType, orderedTupleType, booleanType);
 
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, finiteType, finiteType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, byteType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, byteType, booleanType);
@@ -594,6 +597,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedArrayType, orderedArrayType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedTupleType, orderedTupleType, booleanType);
 
+        defineBinaryOperator(OperatorKind.GREATER_THAN, finiteType, finiteType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, byteType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, byteType, booleanType);
@@ -607,6 +611,7 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_THAN, orderedArrayType, orderedArrayType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, orderedTupleType, orderedTupleType, booleanType);
 
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, finiteType, finiteType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, byteType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, byteType, booleanType);

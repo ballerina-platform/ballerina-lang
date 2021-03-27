@@ -101,7 +101,7 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 40);
+        Assert.assertEquals(resultNegative.getErrorCount(), 56);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
@@ -173,8 +173,40 @@ public class GreaterLessThanOperationTest {
                 "'decimal'", 136, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'float' and " +
                 "'decimal'", 137, 18);
-        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for 'float' and " +
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'float' and " +
                 "'decimal'", 138, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '(int|string)' " +
+                "and '(int|string)'", 144, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '(int|string)' " +
+                "and '(int|string)'", 145, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '(int|string)' " +
+                "and '(int|string)'", 146, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '(int|string)' " +
+                "and '(int|string)'", 147, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '1|2|3|4|5.23f[]' " +
+                "and '1|2|3|4|5.23f[]'", 155, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '1|2|3|4|5.23f[]' " +
+                "and '1|2|3|4|5.23f[]'", 156, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '1|2|3|4|5.23f[]' " +
+                "and '1|2|3|4|5.23f[]'", 157, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2|3|4|5.23f[]' " +
+                "and '1|2|3|4|5.23f[]'", 158, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 169, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 170, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 171, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 172, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 181, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 182, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 183, 18);
+        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 184, 18);
     }
 
     @Test(description = "Test decimal greater than, less than expression")
@@ -183,7 +215,7 @@ public class GreaterLessThanOperationTest {
     }
 
     @Test(dataProvider = "FunctionList")
-    public void testArrayFunctions(String funcName) {
+    public void testValueComparsion(String funcName) {
         BRunUtil.invoke(result, funcName);
     }
 
@@ -194,13 +226,17 @@ public class GreaterLessThanOperationTest {
                 "testBooleanComparison",
                 "testArrayComparison1",
                 "testArrayComparison2",
-                "testArrayComparison3",
                 "testTupleComparison1",
                 "testTupleComparison2",
-                "testUnionComparison",
                 "testTypeComparison1",
                 "testTypeComparison2",
-                "testTypeComparison3"
+                "testTypeComparison3",
+                "testTypeComparison4",
+                "testTypeComparison5",
+                "testUnionComparison1",
+                "testUnionComparison2",
+                "testUnionComparison3",
+                "testUnionComparison4"
         };
     }
 
