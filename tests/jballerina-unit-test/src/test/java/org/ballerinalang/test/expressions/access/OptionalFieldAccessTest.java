@@ -56,7 +56,7 @@ public class OptionalFieldAccessTest {
         validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 41, 14);
         validateError(negativeResult, i++, "invalid operation: type 'Employee' does not support optional field access" +
                 " for field 'salary'", 42, 9);
-        validateError(negativeResult, i++, "incompatible types: expected 'json?', found '(json|error)'", 47, 16);
+        validateError(negativeResult, i++, "incompatible types: expected 'json', found '(json|error)'", 47, 16);
         validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|float)?'", 53, 14);
         validateError(negativeResult, i++, "invalid operation: type 'map<int>' does not support optional field " +
                 "access", 58, 14);

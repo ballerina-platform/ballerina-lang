@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.INVALID_TOML_FILE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.INVALID_TOML_FILE;
 
 /**
  * Represents configuration TOML document for `configurable` variables.
@@ -58,7 +58,7 @@ public class ConfigToml {
         parseToml();
         List<Diagnostic> diagnosticList = getDiagnostics();
         if (!diagnosticList.isEmpty()) {
-            throw new ConfigTomlException(INVALID_TOML_FILE + getErrorMessage(diagnosticList));
+            throw new TomlConfigException(INVALID_TOML_FILE + getErrorMessage(diagnosticList));
         }
         return tomlAstNode;
     }
@@ -81,7 +81,7 @@ public class ConfigToml {
         try {
             textDocument = TextDocuments.from(Files.readString(filePath));
         } catch (IOException e) {
-            throw new ConfigTomlException("Failed to read file: " + filePath, e);
+            throw new TomlConfigException("Failed to read file: " + filePath, e);
         }
         return textDocument;
     }
@@ -94,7 +94,7 @@ public class ConfigToml {
             tomlAstNode = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
         } catch (RuntimeException e) {
             // The toml parser throws runtime exceptions for some cases
-            throw new ConfigTomlException("Failed to parse file: " + getFileName(filePath), e);
+            throw new TomlConfigException("Failed to parse file: " + getFileName(filePath), e);
         }
     }
 
@@ -104,7 +104,7 @@ public class ConfigToml {
             return fileNamePath.toString();
         }
         // This branch may never be executed.
-        throw new ConfigTomlException("Failed to retrieve the TOML file name from the path: " + filePath);
+        throw new TomlConfigException("Failed to retrieve the TOML file name from the path: " + filePath);
 
     }
     private List<Diagnostic> getDiagnostics() {

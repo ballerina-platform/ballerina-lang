@@ -248,7 +248,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
     public void testIgnoredErrorReturnInRemoteCall() throws Exception {
         final String resourceName = "resourceFour";
         final String resourceFunctionPosition = FILE_NAME + ":39:5";
-        final String span2Position = FILE_NAME + ":40:19";
+        final String span2Position = FILE_NAME + ":40:22";
         final String span3Position = FILE_NAME + ":41:20";
 
         HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + BASE_PATH + "/" + resourceName,

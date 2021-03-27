@@ -302,6 +302,12 @@ types:
         type: s4
         repeat: expr
         repeat-expr: member_types_count
+      - id: original_member_types_count
+        type: s4
+      - id: original_member_type_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: original_member_types_count
       - id: is_enum_type
         type: u1
       - id: pkg_cp_index
@@ -542,6 +548,16 @@ types:
       - id: attach_point_literal
         type: s4
         if: has_attach_point_literal != 0
+      - id: listener_types_count
+        type: s4
+      - id: listener_types
+        type: listener_type
+        repeat: expr
+        repeat-expr: listener_types_count
+  listener_type:
+    seq:
+      - id: type_cp_index
+        type: s4
   annotation:
     seq:
       - id: name_cp_index

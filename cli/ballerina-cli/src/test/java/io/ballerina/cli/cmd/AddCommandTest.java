@@ -107,7 +107,8 @@ public class AddCommandTest extends BaseCommandTest {
         new CommandLine(addCommand).parseArgs(args);
         addCommand.execute();
 
-        Assert.assertTrue(readOutput().contains("Using Ballerina Central module templates is not yet supported"));
+        Assert.assertTrue(readOutput().contains(
+                "Invalid template provided. run 'bal add --help' to see available templates."));
     }
 
     // if invalid module name is passed

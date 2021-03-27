@@ -41,7 +41,8 @@ module io.ballerina.runtime {
     exports io.ballerina.runtime.internal to io.ballerina.testerina.core, io.ballerina.testerina.runtime,
             io.ballerina.lang, io.ballerina.lang.map, io.ballerina.lang.test, io.ballerina.lang.array,
             io.ballerina.lang.table, io.ballerina.lang.value, io.ballerina.lang.xml, ballerina.debug.adapter.core,
-            io.ballerina.cli;
+            io.ballerina.cli, io.ballerina.lang.integer, io.ballerina.lang.bool, io.ballerina.lang.decimal,
+            io.ballerina.lang.floatingpoint;
     exports io.ballerina.runtime.internal.commons to io.ballerina.lang.value;
     exports io.ballerina.runtime.internal.launch to io.ballerina.testerina.runtime, io.ballerina.packerina,
             ballerina.test.listener, io.ballerina.cli;
@@ -59,5 +60,5 @@ module io.ballerina.runtime {
             io.ballerina.lang.floatingpoint, io.ballerina.lang.map, io.ballerina.lang.string, io.ballerina.lang.table,
             io.ballerina.lang.xml, io.ballerina.testerina.core, io.ballerina.cli.utils, io.ballerina.cli;
     exports io.ballerina.runtime.internal.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime;
-    exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal, io.ballerina.lang.config;
+    exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
 }

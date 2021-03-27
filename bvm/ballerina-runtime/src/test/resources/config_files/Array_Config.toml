@@ -1,5 +1,4 @@
-[myorg.arrays]
-
+[test_arrays_module]
 intArr = [123456,1234567,987654321]
 byteArr = [1,2,3]
 floatArr = [9.0, 5.6]

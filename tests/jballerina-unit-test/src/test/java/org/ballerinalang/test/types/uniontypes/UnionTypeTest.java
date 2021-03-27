@@ -146,6 +146,11 @@ public class UnionTypeTest {
         BRunUtil.invoke(result, "testUnionTypeWithFunctionPointerAccess");
     }
 
+    @Test
+    public void testCastToImmutableUnion() {
+        BRunUtil.invoke(result, "testCastToImmutableUnion");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
