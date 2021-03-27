@@ -121,7 +121,7 @@ public class AddCommand implements BLauncherCmd {
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
                     "too many arguments.",
-                    "bal add <project-name>",
+                    "bal add <module-name>",
                     true);
             return;
         }
@@ -153,7 +153,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if the template exists
         if (!(template.equalsIgnoreCase("service") || template.equalsIgnoreCase("lib"))) {
             CommandUtil.printError(errStream,
-                    "Using Ballerina Central module templates is not yet supported.",
+                    "Unsupported template provided. run 'bal add --help' to see available templates.",
                     null,
                     false);
             return;

@@ -65,7 +65,9 @@ public class TestBalaWriter extends BaseTest {
 
     @BeforeTest
     public void setUp() throws IOException {
-        Files.createDirectory(Paths.get(String.valueOf(BALA_PATH)));
+        Path dir = Paths.get(String.valueOf(BALA_PATH));
+        Files.deleteIfExists(dir);
+        Files.createDirectory(dir);
     }
 
     @Test

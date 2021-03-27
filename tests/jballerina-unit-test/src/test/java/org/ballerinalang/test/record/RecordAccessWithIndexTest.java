@@ -213,10 +213,10 @@ public class RecordAccessWithIndexTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: expected 'string', found '0|1'", 63, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid record member access expression: value space '(fieldFour|F1|F2|F3)' " +
+                "invalid record member access expression: value space 'NoIntersection' " +
                         "out of range", 64, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                "invalid record member access expression: value space '(fieldFour|F1|F2|F3)' " +
+                "invalid record member access expression: value space 'NoIntersection' " +
                         "out of range", 65, 18);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }

@@ -342,55 +342,55 @@ public class BallerinaDocGenerator {
         for (DocPackage docPackage: packageLib.packages) {
             for (Module module : docPackage.modules) {
                 if (module.summary == null && docPackage.summary != null) {
-                    searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version,
+                    searchModules.add(new ModuleSearchJson(module.id, module.orgName, docPackage.name, module.version,
                             getFirstLine(docPackage.summary)));
                 } else if (module.summary != null) {
-                    searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version,
+                    searchModules.add(new ModuleSearchJson(module.id, module.orgName, docPackage.name, module.version,
                             getFirstLine(module.summary)));
                 }
                 module.functions.forEach((function) ->
-                        searchFunctions.add(new ConstructSearchJson(function.name, module.id, module.orgName,
-                                module.version, getFirstLine(function.description))));
+                        searchFunctions.add(new ConstructSearchJson(function.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(function.description))));
 
                 module.classes.forEach((bClass) ->
-                        searchClasses.add(new ConstructSearchJson(bClass.name, module.id, module.orgName,
-                                module.version, getFirstLine(bClass.description))));
+                        searchClasses.add(new ConstructSearchJson(bClass.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(bClass.description))));
 
                 module.objectTypes.forEach((absObj) ->
-                        searchObjectTypes.add(new ConstructSearchJson(absObj.name, module.id, module.orgName,
-                                module.version, getFirstLine(absObj.description))));
+                        searchObjectTypes.add(new ConstructSearchJson(absObj.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(absObj.description))));
 
                 module.clients.forEach((client) ->
-                        searchClients.add(new ConstructSearchJson(client.name, module.id, module.orgName,
-                                module.version, getFirstLine(client.description))));
+                        searchClients.add(new ConstructSearchJson(client.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(client.description))));
 
                 module.listeners.forEach((listener) ->
-                        searchListeners.add(new ConstructSearchJson(listener.name, module.id, module.orgName,
-                                module.version, getFirstLine(listener.description))));
+                        searchListeners.add(new ConstructSearchJson(listener.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(listener.description))));
 
                 module.records.forEach((record) ->
-                        searchRecords.add(new ConstructSearchJson(record.name, module.id, module.orgName,
-                                module.version, getFirstLine(record.description))));
+                        searchRecords.add(new ConstructSearchJson(record.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(record.description))));
 
                 module.constants.forEach((constant) ->
-                        searchConstants.add(new ConstructSearchJson(constant.name, module.id, module.orgName,
-                                module.version, getFirstLine(constant.description))));
+                        searchConstants.add(new ConstructSearchJson(constant.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(constant.description))));
 
                 module.errors.forEach((error) ->
-                        searchErrors.add(new ConstructSearchJson(error.name, module.id, module.orgName, module.version,
-                                getFirstLine(error.description))));
+                        searchErrors.add(new ConstructSearchJson(error.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(error.description))));
 
                 module.types.forEach((unionType) ->
-                        searchTypes.add(new ConstructSearchJson(unionType.name, module.id, module.orgName,
-                                module.version, getFirstLine(unionType.description))));
+                        searchTypes.add(new ConstructSearchJson(unionType.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(unionType.description))));
 
                 module.annotations.forEach((annotation) ->
-                        searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id, module.orgName,
-                                module.version, getFirstLine(annotation.description))));
+                        searchAnnotations.add(new ConstructSearchJson(annotation.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(annotation.description))));
 
                 module.enums.forEach((benum) ->
-                        searchEnums.add(new ConstructSearchJson(benum.name, module.id, module.orgName,
-                                module.version, getFirstLine(benum.description))));
+                        searchEnums.add(new ConstructSearchJson(benum.name, docPackage.name , module.id,
+                                module.orgName, module.version, getFirstLine(benum.description))));
             }
         }
 

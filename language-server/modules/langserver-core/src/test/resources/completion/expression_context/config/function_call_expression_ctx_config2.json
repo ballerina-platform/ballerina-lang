@@ -27,10 +27,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "from ",
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -39,50 +39,6 @@
       "detail": "Module",
       "insertText": "module1",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
     },
     {
       "label": "ballerina/jballerina.java",
@@ -129,6 +85,50 @@
       ]
     },
     {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "runtime",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.query",
       "kind": "Module",
       "detail": "Module",
@@ -151,10 +151,10 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
+      "label": "ballerina/lang.array",
       "kind": "Module",
       "detail": "Module",
-      "insertText": "runtime",
+      "insertText": "array",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -168,7 +168,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.array;\n"
         }
       ]
     },
@@ -376,6 +376,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "is",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "is",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -404,6 +411,33 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "valueA",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "valueA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "valueB",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "valueB",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunction()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunctionWithParams(int a, int b)(int)",
       "kind": "Function",
       "detail": "Function",
@@ -419,40 +453,6 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "valueB",
-      "kind": "Variable",
-      "detail": "int",
-      "insertText": "valueB",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "valueA",
-      "kind": "Variable",
-      "detail": "int",
-      "insertText": "valueA",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
-        }
-      },
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "is",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "is",
-      "insertTextFormat": "Snippet"
     }
   ]
 }

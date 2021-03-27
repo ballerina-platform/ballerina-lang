@@ -26,15 +26,14 @@ import java.util.Locale;
  */
 public class JError {
 
-    private String exceptionName;
-    private String accessModifier;
     private String exceptionConstName;
     private String shortExceptionName;
     private String packageName;
+    private Class currentClass;
 
-    JError(Class exception) {
+    public JError(Class exception) {
 
-        exceptionName = exception.getName();
+        currentClass = exception;
         shortExceptionName = exception.getSimpleName();
         exceptionConstName = exception.getSimpleName().toUpperCase(Locale.ENGLISH);
         packageName = exception.getPackage().getName();
@@ -44,7 +43,7 @@ public class JError {
         return shortExceptionName;
     }
 
-    public String getExceptionConstName() {
+    String getExceptionConstName() {
         return exceptionConstName;
     }
 
@@ -52,7 +51,7 @@ public class JError {
       return packageName;
     }
 
-    public void setAccessModifier(String accessModifier) {
-        this.accessModifier = accessModifier;
+    public Class getCurrentClass() {
+        return currentClass;
     }
 }
