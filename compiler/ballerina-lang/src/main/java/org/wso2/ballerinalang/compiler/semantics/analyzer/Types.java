@@ -2662,7 +2662,7 @@ public class Types {
 
     private boolean checkValueSpaceHasSameType(BFiniteType finiteType, BType baseType) {
         if (baseType.tag == TypeTags.FINITE) {
-            return true;
+            return finiteType == baseType;
         }
         boolean isValueSpaceSameType = false;
         for (BLangExpression expr : finiteType.getValueSpace()) {
