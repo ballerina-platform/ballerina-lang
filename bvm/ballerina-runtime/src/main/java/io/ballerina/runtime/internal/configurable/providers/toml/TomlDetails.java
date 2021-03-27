@@ -36,5 +36,4 @@ public class TomlDetails {
         this.secret = secret;
         this.configContent = configContent;
     }
-
 }

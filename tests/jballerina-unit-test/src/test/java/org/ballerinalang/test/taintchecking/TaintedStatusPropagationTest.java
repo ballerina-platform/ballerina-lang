@@ -46,7 +46,7 @@ public class TaintedStatusPropagationTest {
                 "global-object-functions.bal", "object-functions-with-constructor.bal",
                 "simple-worker-interaction.bal", "in-out-param-basic.bal", "param-status-with-native-invocations.bal",
                 "error.bal", "call.bal", "closure-variable-assignment.bal", "global-func-pointer-async-invocation.bal",
-                "let.bal"};
+                "let.bal", "dependently_typed_function_with_inferred_typedesc_default.bal"};
     }
 
     @Test
@@ -476,4 +476,13 @@ public class TaintedStatusPropagationTest {
 //        Assert.assertEquals(result.getDiagnostics().length, 1);
 //        BAssertUtil.validateError(result, 0, "tainted value passed to untainted parameter 'secureParameter'", 5, 36);
 //    }
+
+    @Test
+    public void testDependentlyTypedFunctionWithInferredTypedescDefaultNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/taintchecking/propagation/" +
+                "dependently_typed_function_with_inferred_typedesc_default_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(result, index++, "tainted value passed to untainted parameter 'x'", 20, 33);
+        Assert.assertEquals(index, result.getDiagnostics().length);
+    }
 }

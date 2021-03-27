@@ -862,6 +862,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public InferredTypedescDefaultNode transform(
+            InferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        Token ltToken =
+                modifyToken(inferredTypedescDefaultNode.ltToken());
+        Token gtToken =
+                modifyToken(inferredTypedescDefaultNode.gtToken());
+        return inferredTypedescDefaultNode.modify(
+                ltToken,
+                gtToken);
+    }
+
+    @Override
     public ObjectTypeDescriptorNode transform(
             ObjectTypeDescriptorNode objectTypeDescriptorNode) {
         NodeList<Token> objectTypeQualifiers =

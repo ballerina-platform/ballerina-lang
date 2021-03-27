@@ -643,6 +643,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createInferredTypedescDefaultNode(
+            STNode ltToken,
+            STNode gtToken) {
+
+        return new STInferredTypedescDefaultNode(
+                ltToken,
+                gtToken);
+    }
+
     public static STNode createObjectTypeDescriptorNode(
             STNode objectTypeQualifiers,
             STNode objectKeyword,

@@ -217,6 +217,10 @@ public abstract class STNodeTransformer<T> {
         return transformSyntaxNode(restArgumentNode);
     }
 
+    public T transform(STInferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        return transformSyntaxNode(inferredTypedescDefaultNode);
+    }
+
     public T transform(STObjectTypeDescriptorNode objectTypeDescriptorNode) {
         return transformSyntaxNode(objectTypeDescriptorNode);
     }

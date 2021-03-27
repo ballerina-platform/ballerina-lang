@@ -66,4 +66,9 @@ public class ReturnTypeDescriptorNodeContext extends AbstractCompletionProvider<
 
         return completionItems;
     }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ReturnTypeDescriptorNode node) {
+        return !node.returnsKeyword().isMissing();
+    }
 }

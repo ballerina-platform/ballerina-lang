@@ -229,8 +229,12 @@ function testXMLCycleDueToChildrenOfChildren() returns xml|error {
     var cds = cat.getChildren().strip();
     'xml:Element fc = <'xml:Element> cds[0];
     error? er = trap fc.setChildren(subRoot);
-    check trap fc.setChildren(subRoot);
+    check setChildren(fc, subRoot);
     return cat;
+}
+
+function setChildren('xml:Element fc, 'xml:Element subRoot) returns error? {
+    return trap fc.setChildren(subRoot);
 }
 
 function testGet() returns [xml|error, xml|error, xml|error, xml|error, xml|error] {

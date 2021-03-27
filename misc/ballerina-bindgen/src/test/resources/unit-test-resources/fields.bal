@@ -1,5 +1,5 @@
 import ballerina/jballerina.java;
-import ballerinax/java.arrays as jarrays;
+import ballerina/jballerina.java.arrays as jarrays;
 
 # Ballerina class mapping for the Java `org.ballerinalang.bindgen.FieldsTestResource` class.
 @java:Binding {'class: "org.ballerinalang.bindgen.FieldsTestResource"}
