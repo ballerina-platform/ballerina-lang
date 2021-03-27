@@ -330,54 +330,78 @@ function testUnorderedTypeComparison1() {
     [int, string?] a = [59215, "ABC"];
     [int, string?] b = [59215, ()];
 
-    boolean x = a > b;
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
 }
 
 function testUnorderedTypeComparison2() {
     [int, float] a = [59215, (0.0/0.0)];
     [int, float] b = [59215, 123.432];
 
-    boolean x = a > b;
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
 }
 
 function testUnorderedTypeComparison3() {
     [int, float] a = [59215, (0.0/0.0)];
     [int, float] b = [59215, (0.0/0.0)];
 
-    boolean x = a > b;
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
 }
 
 function testUnorderedTypeComparison4() {
     string? a = ();
     string? b = "ABC";
 
-    boolean x = a > b;
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
 }
 
 function testUnorderedTypeComparison5() {
     int? a = 400;
     int? b = ();
 
-    boolean x = a > b;
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
 }
 
 function testUnorderedTypeComparison6() {
     float a = 400.123;
     float b = (0.0/0.0);
 
-    boolean x = a > b;
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
 }
 
 function testUnorderedTypeComparison7() {
     float a = (0.0/0.0);
     float b = (0.0/0.0);
 
-    boolean x = a > b;
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
 }
 
 function testUnorderedTypeComparison8() {
     float a = (0.0/0.0);
     float b = 40.34;
 
-    boolean x = a > b;
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
 }

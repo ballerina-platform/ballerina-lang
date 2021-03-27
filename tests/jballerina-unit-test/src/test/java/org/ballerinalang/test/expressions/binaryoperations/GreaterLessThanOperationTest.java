@@ -19,7 +19,6 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -236,63 +235,15 @@ public class GreaterLessThanOperationTest {
                 "testUnionComparison1",
                 "testUnionComparison2",
                 "testUnionComparison3",
-                "testUnionComparison4"
+                "testUnionComparison4",
+                "testUnorderedTypeComparison1",
+                "testUnorderedTypeComparison2",
+                "testUnorderedTypeComparison3",
+                "testUnorderedTypeComparison4",
+                "testUnorderedTypeComparison5",
+                "testUnorderedTypeComparison6",
+                "testUnorderedTypeComparison7",
+                "testUnorderedTypeComparison8"
         };
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'ABC' is unordered with respect to '\\(\\)'\"}.*")
-    public void testUnorderedTypeComparison1() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison1");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'NaN' is unordered with respect to '123\\.432'\"}.*")
-    public void testUnorderedTypeComparison2() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison2");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'NaN' is unordered with respect to 'NaN'\"}.*")
-    public void testUnorderedTypeComparison3() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison3");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'\\(\\)' is unordered with respect to 'ABC'\"}.*")
-    public void testUnorderedTypeComparison4() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison4");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'400' is unordered with respect to '\\(\\)'\"}.*")
-    public void testUnorderedTypeComparison5() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison5");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'400\\.123' is unordered with respect to 'NaN'\"}.*")
-    public void testUnorderedTypeComparison6() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison6");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'NaN' is unordered with respect to 'NaN'\"}.*")
-    public void testUnorderedTypeComparison7() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison7");
-        Assert.fail();
     }
 }
