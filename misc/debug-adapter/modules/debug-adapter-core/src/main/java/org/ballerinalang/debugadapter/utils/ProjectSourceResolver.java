@@ -21,8 +21,7 @@ import com.sun.jdi.Location;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.directory.BuildProject;
-import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.ProjectKind;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -47,11 +46,11 @@ public class ProjectSourceResolver extends SourceResolver {
     @Override
     public boolean isSupported(Location location) {
         try {
-            if (sourceProject instanceof SingleFileProject) {
+            if (sourceProject.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 DocumentId docId = sourceProject.currentPackage().getDefaultModule().documentIds().iterator().next();
                 Document document = sourceProject.currentPackage().getDefaultModule().document(docId);
                 return document.name().equals(location.sourcePath()) && document.name().equals(location.sourceName());
-            } else if (sourceProject instanceof BuildProject) {
+            } else if (sourceProject.kind() == ProjectKind.BUILD_PROJECT) {
                 String projectOrg = getOrgName(sourceProject);
                 LocationInfo locationInfo = new LocationInfo(location);
                 return locationInfo.isValid() && locationInfo.orgName().equals(projectOrg);
@@ -68,14 +67,14 @@ public class ProjectSourceResolver extends SourceResolver {
         try {
             String projectRoot = sourceProject.sourceRoot().toAbsolutePath().toString();
 
-            if (sourceProject instanceof SingleFileProject) {
+            if (sourceProject.kind() == ProjectKind.SINGLE_FILE_PROJECT) {
                 DocumentId docId = sourceProject.currentPackage().getDefaultModule().documentIds().iterator().next();
                 Document document = sourceProject.currentPackage().getDefaultModule().document(docId);
                 if (!document.name().equals(location.sourcePath()) || !document.name().equals(location.sourceName())) {
                     return Optional.empty();
                 }
                 return Optional.of(Paths.get(projectRoot));
-            } else if (sourceProject instanceof BuildProject) {
+            } else if (sourceProject.kind() == ProjectKind.BUILD_PROJECT) {
                 String projectOrg = getOrgName(sourceProject);
                 String defaultModuleName = getDefaultModuleName(sourceProject);
                 String locationName = location.sourceName();
