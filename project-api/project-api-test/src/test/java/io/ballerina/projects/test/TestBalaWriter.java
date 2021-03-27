@@ -32,9 +32,10 @@ import io.ballerina.projects.internal.bala.ModuleDependency;
 import io.ballerina.projects.internal.bala.PackageJson;
 import io.ballerina.projects.internal.model.Dependency;
 import io.ballerina.projects.internal.model.Target;
+import io.ballerina.projects.util.ProjectUtils;
 import org.testng.Assert;
 import org.testng.annotations.AfterMethod;
-import org.testng.annotations.BeforeTest;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 import org.wso2.ballerinalang.util.RepoUtils;
 
@@ -60,14 +61,14 @@ import static org.mockito.Mockito.when;
  */
 public class TestBalaWriter extends BaseTest {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
-    private static final Path BALA_PATH = Paths.get("build").resolve("tmpBalaDir");
+    private Path tmpDir;
+    private Path balaExportPath;
 
-
-    @BeforeTest
+    @BeforeMethod
     public void setUp() throws IOException {
-        Path dir = Paths.get(String.valueOf(BALA_PATH));
-        Files.deleteIfExists(dir);
-        Files.createDirectory(dir);
+        this.tmpDir = Files.createTempDirectory("b7a-bala-writer-test-" + System.nanoTime());
+        this.balaExportPath = this.tmpDir.resolve("tmpBalaDir");
+        Files.createDirectory(Paths.get(String.valueOf(this.balaExportPath)));
     }
 
     @Test
@@ -89,10 +90,11 @@ public class TestBalaWriter extends BaseTest {
         Assert.assertTrue(emitResult.successful());
 
         // unzip bala
-        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-winery-java11-0.1.0.bala")), String.valueOf(BALA_PATH));
+        TestUtils.unzip(String.valueOf(balaPath.resolve("foo-winery-java11-0.1.0.bala")),
+                        String.valueOf(balaExportPath));
 
         // bala.json
-        Path balaJsonPath = BALA_PATH.resolve("bala.json");
+        Path balaJsonPath = balaExportPath.resolve("bala.json");
         Assert.assertTrue(balaJsonPath.toFile().exists());
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
@@ -102,7 +104,7 @@ public class TestBalaWriter extends BaseTest {
         }
 
         // package.json
-        Path packageJsonPath = BALA_PATH.resolve("package.json");
+        Path packageJsonPath = balaExportPath.resolve("package.json");
         Assert.assertTrue(packageJsonPath.toFile().exists());
 
         try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
@@ -125,10 +127,10 @@ public class TestBalaWriter extends BaseTest {
             Assert.assertEquals(packageJson.getKeywords().get(0), "ballerina");
             Assert.assertEquals(packageJson.getKeywords().get(1), "security");
             Assert.assertEquals(packageJson.getKeywords().get(2), "crypto");
-//
-//            Assert.assertFalse(packageJson.getExported().isEmpty());
-//            Assert.assertEquals(packageJson.getExported().get(0), "winery");
-//            Assert.assertEquals(packageJson.getExported().get(1), "service");
+
+            Assert.assertFalse(packageJson.getExport().isEmpty());
+            Assert.assertEquals(packageJson.getExport().get(0), "winery");
+            Assert.assertEquals(packageJson.getExport().get(1), "winery.service");
 
             Assert.assertEquals(packageJson.getPlatform(), "java11");
             Assert.assertEquals(packageJson.getPlatformDependencies().size(), 1);
@@ -139,7 +141,7 @@ public class TestBalaWriter extends BaseTest {
         }
 
         // compiler-plugin.json
-        Path compilerPluginJsonPath = BALA_PATH.resolve("compiler-plugin").resolve("compiler-plugin.json");
+        Path compilerPluginJsonPath = balaExportPath.resolve("compiler-plugin").resolve("compiler-plugin.json");
         try (FileReader reader = new FileReader(String.valueOf(compilerPluginJsonPath))) {
             CompilerPluginJson compilerPluginJson = gson.fromJson(reader, CompilerPluginJson.class);
             Assert.assertEquals(compilerPluginJson.pluginId(), "openapi-validator");
@@ -148,25 +150,26 @@ public class TestBalaWriter extends BaseTest {
         }
 
         // Check if compiler plugin dependencies exists
-        Path compilerPluginDependency = BALA_PATH.resolve("compiler-plugin").resolve("libs")
+        Path compilerPluginDependency = balaExportPath.resolve("compiler-plugin").resolve("libs")
                 .resolve("platform-io-1.3.0-java.txt");
         Assert.assertTrue(compilerPluginDependency.toFile().exists());
 
         // docs
-        Path packageMdPath = BALA_PATH.resolve("docs").resolve("Package.md");
+        Path packageMdPath = balaExportPath.resolve("docs").resolve("Package.md");
         Assert.assertTrue(packageMdPath.toFile().exists());
-        Path defaultModuleMdPath = BALA_PATH.resolve("docs").resolve("modules").resolve("winery").resolve("Module.md");
+        Path defaultModuleMdPath = balaExportPath
+                .resolve("docs").resolve("modules").resolve("winery").resolve("Module.md");
         Assert.assertTrue(defaultModuleMdPath.toFile().exists());
-        Path servicesModuleMdPath = BALA_PATH.resolve("docs").resolve("modules").resolve("winery.services")
+        Path servicesModuleMdPath = balaExportPath.resolve("docs").resolve("modules").resolve("winery.services")
                 .resolve("Module.md");
         Assert.assertTrue(servicesModuleMdPath.toFile().exists());
-        Path storageModuleMdPath = BALA_PATH.resolve("docs").resolve("modules").resolve("winery.storage")
+        Path storageModuleMdPath = balaExportPath.resolve("docs").resolve("modules").resolve("winery.storage")
                 .resolve("Module.md");
         Assert.assertTrue(storageModuleMdPath.toFile().exists());
 
         // module sources
         // default module
-        Path defaultModuleSrcPath = BALA_PATH.resolve("modules").resolve("winery");
+        Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("winery");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
         Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
         Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("utils.bal")).toFile().exists());
@@ -179,7 +182,7 @@ public class TestBalaWriter extends BaseTest {
         Assert.assertFalse(defaultModuleSrcPath.resolve("Ballerina.toml").toFile().exists());
         // other modules
         // storage module
-        Path storageModuleSrcPath = BALA_PATH.resolve("modules").resolve("winery.storage");
+        Path storageModuleSrcPath = balaExportPath.resolve("modules").resolve("winery.storage");
         Assert.assertTrue(storageModuleSrcPath.resolve("db.bal").toFile().exists());
         Assert.assertTrue(storageModuleSrcPath.resolve("resources").toFile().exists());
         Assert.assertTrue(storageModuleSrcPath.resolve("resources").resolve("db.json").toFile().exists());
@@ -187,17 +190,17 @@ public class TestBalaWriter extends BaseTest {
         Assert.assertFalse(storageModuleSrcPath.resolve("Module.md").toFile().exists());
 
         // Check if platform dependencies exists
-        Path platformDependancy = BALA_PATH.resolve("platform").resolve("java11")
+        Path platformDependancy = balaExportPath.resolve("platform").resolve("java11")
                 .resolve("ballerina-io-1.0.0-java.txt");
         Assert.assertTrue(platformDependancy.toFile().exists());
 
         // Check if test scoped platform dependencies not exists
-        Path testScopePlatformDependancy = BALA_PATH.resolve("platform").resolve("java11")
+        Path testScopePlatformDependancy = balaExportPath.resolve("platform").resolve("java11")
                 .resolve("ballerina-io-1.2.0-java.txt");
         Assert.assertFalse(testScopePlatformDependancy.toFile().exists());
 
         // dependencies.json
-        Path dependenciesJsonPath = BALA_PATH.resolve(DEPENDENCY_GRAPH_JSON);
+        Path dependenciesJsonPath = balaExportPath.resolve(DEPENDENCY_GRAPH_JSON);
         Assert.assertTrue(dependenciesJsonPath.toFile().exists());
 
         try (FileReader reader = new FileReader(String.valueOf(dependenciesJsonPath))) {
@@ -259,10 +262,10 @@ public class TestBalaWriter extends BaseTest {
 
         // unzip bala
         TestUtils.unzip(String.valueOf(target.getBalaPath().resolve("bar-winery-any-0.1.0.bala")),
-                        String.valueOf(BALA_PATH));
+                        String.valueOf(balaExportPath));
 
         // bala.json
-        Path balaJsonPath = BALA_PATH.resolve("bala.json");
+        Path balaJsonPath = balaExportPath.resolve("bala.json");
         Assert.assertTrue(balaJsonPath.toFile().exists());
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
@@ -272,7 +275,7 @@ public class TestBalaWriter extends BaseTest {
         }
 
         // package.json
-        Path packageJsonPath = BALA_PATH.resolve("package.json");
+        Path packageJsonPath = balaExportPath.resolve("package.json");
         Assert.assertTrue(packageJsonPath.toFile().exists());
 
         try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
@@ -284,10 +287,10 @@ public class TestBalaWriter extends BaseTest {
         }
 
         // docs should not exists
-        Assert.assertFalse(BALA_PATH.resolve("docs").toFile().exists());
+        Assert.assertFalse(balaExportPath.resolve("docs").toFile().exists());
 
         // module sources
-        Path defaultModuleSrcPath = BALA_PATH.resolve("modules").resolve("winery");
+        Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("winery");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
         Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
     }
@@ -308,10 +311,10 @@ public class TestBalaWriter extends BaseTest {
 
         // unzip bala
         TestUtils.unzip(String.valueOf(target.getBalaPath().resolve("samjs-package_d-any-0.1.0.bala")),
-                        String.valueOf(BALA_PATH));
+                        String.valueOf(balaExportPath));
 
         // bala.json
-        Path balaJsonPath = BALA_PATH.resolve("bala.json");
+        Path balaJsonPath = balaExportPath.resolve("bala.json");
         Assert.assertTrue(balaJsonPath.toFile().exists());
 
         try (FileReader reader = new FileReader(String.valueOf(balaJsonPath))) {
@@ -321,7 +324,7 @@ public class TestBalaWriter extends BaseTest {
         }
 
         // package.json
-        Path packageJsonPath = BALA_PATH.resolve("package.json");
+        Path packageJsonPath = balaExportPath.resolve("package.json");
         Assert.assertTrue(packageJsonPath.toFile().exists());
 
         try (FileReader reader = new FileReader(String.valueOf(packageJsonPath))) {
@@ -334,12 +337,12 @@ public class TestBalaWriter extends BaseTest {
 
         // module sources
         // default module
-        Path defaultModuleSrcPath = BALA_PATH.resolve("modules").resolve("package_d");
+        Path defaultModuleSrcPath = balaExportPath.resolve("modules").resolve("package_d");
         Assert.assertTrue(defaultModuleSrcPath.toFile().exists());
         Assert.assertTrue(defaultModuleSrcPath.resolve(Paths.get("main.bal")).toFile().exists());
 
         // dependencies.json
-        Path dependencyGraphJsonPath = BALA_PATH.resolve(DEPENDENCY_GRAPH_JSON);
+        Path dependencyGraphJsonPath = balaExportPath.resolve(DEPENDENCY_GRAPH_JSON);
         Assert.assertTrue(dependencyGraphJsonPath.toFile().exists());
 
         try (FileReader reader = new FileReader(String.valueOf(dependencyGraphJsonPath))) {
@@ -384,8 +387,8 @@ public class TestBalaWriter extends BaseTest {
 //        BalaWriter.write(project.currentPackage(), balaPath);
     }
 
-    @AfterMethod
-    public void cleanUp() {
-        TestUtils.deleteDirectory(new File(String.valueOf(BALA_PATH)));
+    @AfterMethod(alwaysRun = true)
+    public void cleanup() {
+        ProjectUtils.deleteDirectory(this.tmpDir);
     }
 }

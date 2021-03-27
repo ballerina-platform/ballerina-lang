@@ -30,6 +30,7 @@ import io.ballerina.projects.ModuleMd;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageMd;
 import io.ballerina.projects.PackageResolution;
 import io.ballerina.projects.Project;
@@ -76,6 +77,20 @@ public class TestBalaProject {
         }
         // 2) Load the package
         Package currentPackage = balaProject.currentPackage();
+
+        // Package descriptor
+        Assert.assertEquals(currentPackage.descriptor().org().value(), "foo");
+        Assert.assertEquals(currentPackage.descriptor().name().value(), "winery");
+        Assert.assertEquals(currentPackage.descriptor().version().value().toString(), "0.1.0");
+
+        // Package Manifest
+        PackageManifest manifest = currentPackage.manifest();
+        Assert.assertEquals(manifest.authors().size(), 1);
+        Assert.assertEquals(manifest.authors().get(0), "wso2");
+        Assert.assertEquals(manifest.export().size(), 2);
+        Assert.assertEquals(manifest.export().get(0), "winery");
+        Assert.assertEquals(manifest.export().get(1), "winery.service");
+
         // 3) Load the default module
         Module defaultModule = currentPackage.getDefaultModule();
         Assert.assertEquals(defaultModule.moduleName().toString(), "winery");
