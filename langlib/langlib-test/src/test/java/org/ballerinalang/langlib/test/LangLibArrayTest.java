@@ -482,6 +482,18 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "incompatible types: expected '(boolean|int|float|decimal|string|" +
                         "ballerina/lang.array:1.1.0:OrderedType[])?', found 'any'", 174, 60);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
+                178, 34);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
+                180, 34);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
+                182, 34);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "invalid sort key function return type: '(string|int)' is not an ordered type",
+                184, 62);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
@@ -525,23 +537,5 @@ public class LangLibArrayTest {
                 "testTupleFilter",
                 "testTupleReverse"
         };
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array}SortOperationError \\{\"message\":\"cannot compare 'string' " +
-                            "and 'int'\"}.*")
-    public void testSortNegativeCase1() {
-        BRunUtil.invoke(compileResult, "testSortNegativeCase1");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array}SortOperationError \\{\"message\":\"cannot compare 'int' " +
-                            "and 'string'\"}.*")
-    public void testSortNegativeCase2() {
-        BRunUtil.invoke(compileResult, "testSortNegativeCase2");
-        Assert.fail();
     }
 }
