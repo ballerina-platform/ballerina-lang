@@ -284,6 +284,19 @@ function testTypeComparison5() {
     test:assertFalse(a >= b);
 }
 
+type Foo 1|2;
+type Bar 10|11;
+
+function testTypeComparison6() {
+    Foo a = 1;
+    Bar b = 10;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
 function testUnionComparison1() {
     int? a = 1;
     int? b = 2;
