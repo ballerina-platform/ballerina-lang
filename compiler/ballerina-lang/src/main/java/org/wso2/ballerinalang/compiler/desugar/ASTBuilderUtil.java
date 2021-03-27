@@ -390,7 +390,7 @@ public class ASTBuilderUtil {
         return unaryExpr;
     }
 
-    static BLangTypedescExpr createTypeofExpr(Location pos, BType type, BType resolvedType) {
+    static BLangTypedescExpr createTypedescExpr(Location pos, BType type, BType resolvedType) {
         final BLangTypedescExpr typeofExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typeofExpr.pos = pos;
         typeofExpr.type = type;

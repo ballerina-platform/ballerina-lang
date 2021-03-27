@@ -572,6 +572,7 @@ public enum ParserRuleContext {
     TYPE_CAST("type-cast"),
     TYPE_CAST_PARAM("type-cast-param"),
     TYPE_CAST_PARAM_RHS("type-cast-param-rhs"),
+    TYPE_CAST_PARAM_START("type-cast-param-start"),
     TABLE_CONSTRUCTOR("table-constructor"),
     TABLE_KEYWORD_RHS("table-keyword-rhs"),
     ROW_LIST_RHS("row-list-rhs"),
@@ -609,6 +610,11 @@ public enum ParserRuleContext {
     OBJECT_CONSTRUCTOR_TYPE_REF("object-constructor-type-ref"),
     ERROR_CONSTRUCTOR("error-constructor"),
     ERROR_CONSTRUCTOR_RHS("error-constructor-rhs"),
+    INFERRED_TYPEDESC_DEFAULT_START_LT("inferred-typedesc-default-start-lt"),
+    INFERRED_TYPEDESC_DEFAULT_END_GT("inferred-typedesc-default-end-gt"),
+    EXPR_START_OR_INFERRED_TYPEDESC_DEFAULT_START("expr-start-or-inferred-typedesc-default-start"),
+    TYPE_CAST_PARAM_START_OR_INFERRED_TYPEDESC_DEFAULT_END("type-cast-param-start-or-inferred-typedesc-default-end"),
+    END_OF_PARAMS_OR_NEXT_PARAM_START("end-of-params-or-next-param-start"),
 
     // Contexts that expect a type
     TYPE_DESC_IN_ANNOTATION_DECL("type-desc-annotation-descl"),

@@ -1141,6 +1141,21 @@
             ]
         },
         {
+            "name": "InferredTypedescDefaultNode",
+            "base": "ExpressionNode",
+            "kind": "INFERRED_TYPEDESC_DEFAULT",
+            "attributes": [
+                {
+                    "name": "ltToken",
+                    "type": "Token"
+                },
+                {
+                    "name": "gtToken",
+                    "type": "Token"
+                }
+            ]
+        },
+        {
             "name": "ObjectTypeDescriptorNode",
             "base": "TypeDescriptorNode",
             "kind": "OBJECT_TYPE_DESC",
