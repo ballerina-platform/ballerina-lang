@@ -172,7 +172,7 @@ public class SymbolTable {
     public final BXMLSubType xmlPIType = new BXMLSubType(TypeTags.XML_PI, Names.XML_PI);
     public final BXMLSubType xmlCommentType = new BXMLSubType(TypeTags.XML_COMMENT, Names.XML_COMMENT);
     public final BXMLSubType xmlTextType = new BXMLSubType(TypeTags.XML_TEXT, Names.XML_TEXT, Flags.READONLY);
-    public final BType xmlNeverType = new BXMLType(neverType,  null, Flags.READONLY);
+    public final BType xmlNeverType = new BXMLType(neverType,  null);
 
     public final BType xmlType = new BXMLType(BUnionType.create(null, xmlElementType, xmlCommentType,
             xmlPIType, xmlTextType),  null);
@@ -835,7 +835,7 @@ public class SymbolTable {
         futureType.constraint = anyOrErrorType;
 
         pureType = BUnionType.create(null, anydataType, errorType);
-        streamType = new BStreamType(TypeTags.STREAM, pureType, neverType, null);
+        streamType = new BStreamType(TypeTags.STREAM, pureType, nilType, null);
         tableType = new BTableType(TypeTags.TABLE, pureType, null);
 
         initializeType(streamType, TypeKind.STREAM.typeName(), BUILTIN);

@@ -50,7 +50,7 @@ public isolated function clone(CloneableType v) returns CloneableType = @java:Me
 #
 # + v - source value
 # + return - immutable clone of `v`
-public isolated function cloneReadOnly(CloneableType  v) returns CloneableType = @java:Method {
+public isolated function cloneReadOnly(CloneableType  v) returns CloneableType & readonly = @java:Method {
     'class: "org.ballerinalang.langlib.value.CloneReadOnly",
     name: "cloneReadOnly"
 } external;
@@ -59,7 +59,7 @@ public isolated function cloneReadOnly(CloneableType  v) returns CloneableType =
 # + v - the value to be cloned
 # + t - the type for the cloned to be constructed
 # + return - a new value that belongs to type `t`, or an error if this cannot be done
-# 
+#
 # When `v` is a structural value, the inherent type of the value to be constructed
 # comes from `t`. When `t` is a union, it must be possible to determine which
 # member of the union to use for the inherent type by following the same rules
@@ -67,7 +67,7 @@ public isolated function cloneReadOnly(CloneableType  v) returns CloneableType =
 # with the contextually expected type. If not, then an error is returned.
 # The `cloneWithType` operation is recursively applied to each member of `v` using
 # the type descriptor that the inherent type requires for that member.
-# 
+#
 # Like the Clone abstract operation, this does a deep copy, but differs in
 # the following respects:
 # - the inherent type of any structural values constructed comes from the specified
@@ -80,7 +80,7 @@ public isolated function cloneReadOnly(CloneableType  v) returns CloneableType =
 # - numeric values can be converted using the NumericConvert abstract operation
 # - if a record type descriptor specifies default values, these will be used
 #   to supply any missing members
-public isolated function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = @java:Method {
+public isolated function cloneWithType(anydata v, typedesc<anydata> t = <>) returns t|error = @java:Method {
     'class: "org.ballerinalang.langlib.value.CloneWithType",
     name: "cloneWithType"
 } external;
@@ -92,7 +92,7 @@ public isolated function cloneWithType(anydata v, typedesc<AnydataType> t) retur
 # + v - the value to be cast
 # + t - a typedesc for the type to which to cast it
 # return - `v` cast to the type described by `t`, or an error, if the cast cannot be done
-public isolated function ensureType(any|error v, typedesc<any> t) returns any|error =  @java:Method {
+public isolated function ensureType(any|error v, typedesc<any> t = <>) returns t|error =  @java:Method {
     'class: "org.ballerinalang.langlib.value.EnsureType",
     name: "ensureType"
 } external;
@@ -189,7 +189,7 @@ public isolated function toJsonString(anydata v) returns string = @java:Method {
 # by a Ballerina int, then it is converted into a Ballerina int.
 # A JSON number is considered syntactically an integer if it contains neither
 # a decimal point nor an exponent.
-# 
+#
 # Returns an error if the string cannot be parsed.
 #
 # + str - string in JSON format
@@ -232,7 +232,7 @@ public isolated function fromJsonDecimalString(string str) returns JsonDecimal|e
 # + v - json value
 # + t - type to convert to
 # + return - value belonging to type `t` or error if this cannot be done
-public isolated function fromJsonWithType(json v, typedesc<anydata> t)
+public isolated function fromJsonWithType(json v, typedesc<anydata> t = <>)
     returns t|error = @java:Method {
     'class: "org.ballerinalang.langlib.value.FromJsonWithType",
     name: "fromJsonWithType"
@@ -244,7 +244,7 @@ public isolated function fromJsonWithType(json v, typedesc<anydata> t)
 # + str - string in JSON format
 # + t - type to convert to
 # + return - value belonging to type `t` or error if this cannot be done
-public isolated function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = @java:Method {
+public isolated function fromJsonStringWithType(string str, typedesc<anydata> t = <>) returns t|error = @java:Method {
     'class: "org.ballerinalang.langlib.value.FromJsonStringWithType",
     name: "fromJsonStringWithType"
 } external;

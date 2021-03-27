@@ -228,6 +228,10 @@ public abstract class NodeTransformer<T> {
         return transformSyntaxNode(restArgumentNode);
     }
 
+    public T transform(InferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        return transformSyntaxNode(inferredTypedescDefaultNode);
+    }
+
     public T transform(ObjectTypeDescriptorNode objectTypeDescriptorNode) {
         return transformSyntaxNode(objectTypeDescriptorNode);
     }

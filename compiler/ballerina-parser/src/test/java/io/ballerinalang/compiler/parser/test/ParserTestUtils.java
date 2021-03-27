@@ -892,6 +892,8 @@ public class ParserTestUtils {
                 return SyntaxKind.OBJECT_CONSTRUCTOR;
             case "ERROR_CONSTRUCTOR":
                 return SyntaxKind.ERROR_CONSTRUCTOR;
+            case "INFERRED_TYPEDESC_DEFAULT":
+                return SyntaxKind.INFERRED_TYPEDESC_DEFAULT;
 
             // Actions
             case "REMOTE_METHOD_CALL_ACTION":
