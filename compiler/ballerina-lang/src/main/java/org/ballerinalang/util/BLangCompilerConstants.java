@@ -37,7 +37,6 @@ public class BLangCompilerConstants {
     public static final String INTERNAL_VERSION = "0.1.0";
     public static final String ANNOTATIONS_VERSION = "1.0.0";
     public static final String ARRAY_VERSION = "1.1.0";
-    public static final String CONFIG_VERSION = "0.0.1";
     public static final String DECIMAL_VERSION = "1.0.0";
     public static final String ERROR_VERSION = "1.0.0";
     public static final String FLOAT_VERSION = "1.0.0";
