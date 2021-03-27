@@ -14159,16 +14159,18 @@ public class BallerinaParser extends AbstractParser {
         parseTypeDescQualifiers(qualifiers);
         STToken nextToken = peek();
         STNode typeOrExpr;
+        if (isPredeclaredIdentifier(nextToken.kind)) {
+            reportInvalidQualifierList(qualifiers);
+            typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
+            return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
+        }
+        
         switch (nextToken.kind) {
             case OPEN_PAREN_TOKEN:
                 reportInvalidQualifierList(qualifiers);
                 return parseTypedBPOrExprStartsWithOpenParenthesis();
             case FUNCTION_KEYWORD:
                 return parseAnonFuncExprOrTypedBPWithFuncType(qualifiers);
-            case IDENTIFIER_TOKEN:
-                reportInvalidQualifierList(qualifiers);
-                typeOrExpr = parseQualifiedIdentifier(ParserRuleContext.TYPE_NAME_OR_VAR_NAME);
-                return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
             case OPEN_BRACKET_TOKEN:
                 reportInvalidQualifierList(qualifiers);
                 typeOrExpr = parseTupleTypeDescOrExprStartsWithOpenBracket();
@@ -14193,6 +14195,10 @@ public class BallerinaParser extends AbstractParser {
 
                 return parseTypedBindingPattern(qualifiers, ParserRuleContext.VAR_DECL_STMT);
         }
+    }
+
+    private boolean isPredeclaredIdentifier(SyntaxKind tokenKind) {
+        return tokenKind == SyntaxKind.IDENTIFIER_TOKEN || isQualifiedIdentifierPredeclaredPrefix(tokenKind);
     }
 
     /**
