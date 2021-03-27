@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.util;
 
 import io.ballerina.tools.diagnostics.Location;
+import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
@@ -62,6 +63,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangStructureTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangUserDefinedType;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -411,60 +413,8 @@ public class ImmutableTypeCloner {
             case TypeTags.INTERSECTION:
                 return (BIntersectionType) type;
             default:
-                BUnionType origUnionType = (BUnionType) type;
-                BTypeSymbol origUnionTypeSymbol = origUnionType.tsymbol;
-
-                LinkedHashSet<BType> originalMemberList = origUnionType.getMemberTypes();
-                if (unresolvedTypes.contains(origUnionType) && origUnionType.immutableType != null) {
-                    return origUnionType.immutableType;
-                } else {
-                    origUnionType.immutableType = createImmutableIntersectionType(env,
-                            origUnionType, BUnionType.create(origUnionTypeSymbol), symTable);
-                }
-
-
-                LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>(originalMemberList.size());
-                BUnionType unionEffectiveImmutableType = (BUnionType) origUnionType.immutableType.effectiveType;
-                unionEffectiveImmutableType.isCyclic = origUnionType.isCyclic;
-                unionEffectiveImmutableType.setMemberTypes(readOnlyMemTypes);
-
-                String originalTypeName = origUnionTypeSymbol == null ? "" : origUnionTypeSymbol.name.getValue();
-                if (!originalTypeName.isEmpty()) {
-                    unionEffectiveImmutableType.name = getImmutableTypeName(names, originalTypeName);
-                }
-
-                for (BType memberType : originalMemberList) {
-                    if (types.isInherentlyImmutableType(memberType)) {
-                        unionEffectiveImmutableType.add(memberType);
-                        continue;
-                    }
-
-                    if (!types.isSelectivelyImmutableType(memberType, unresolvedTypes)) {
-                        continue;
-                    }
-
-                    BType immutableMemberType = getImmutableType(pos, types, memberType, env, pkgId, owner, symTable,
-                            anonymousModelHelper, names, unresolvedTypes);
-
-                    unionEffectiveImmutableType.add(immutableMemberType);
-                }
-
-                if (readOnlyMemTypes.size() == 1) {
-                    origUnionType.immutableType.effectiveType = readOnlyMemTypes.iterator().next();
-                } else if (origUnionTypeSymbol != null) {
-                    BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionTypeSymbol, env, pkgId,
-                                                                                owner);
-                    origUnionType.immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
-                    origUnionType.immutableType.effectiveType.flags |= (origUnionType.flags | Flags.READONLY);
-
-                    if (immutableUnionTSymbol != null) {
-                        immutableUnionTSymbol.type = origUnionType.immutableType.effectiveType;
-                    }
-                } else {
-                    origUnionType.immutableType.effectiveType.flags |= (origUnionType.flags | Flags.READONLY);
-                }
-
-                return origUnionType.immutableType;
+                return defineImmutableUnionType(pos, types, env, pkgId, owner, symTable, anonymousModelHelper, names,
+                                                unresolvedTypes, (BUnionType) type);
         }
     }
 
@@ -737,6 +687,80 @@ public class ImmutableTypeCloner {
             immutableObjectSymbol.scope.define(funcName, immutableFuncSymbol);
         }
         immutableObjectSymbol.attachedFuncs = immutableFuncs;
+    }
+
+    private static BIntersectionType defineImmutableUnionType(Location pos, Types types, SymbolEnv env,
+                                                              PackageID pkgId, BSymbol owner, SymbolTable symTable,
+                                                              BLangAnonymousModelHelper anonymousModelHelper,
+                                                              Names names, Set<BType> unresolvedTypes,
+                                                              BUnionType type) {
+        BTypeSymbol origUnionTypeSymbol = type.tsymbol;
+
+        LinkedHashSet<BType> originalMemberList = type.getMemberTypes();
+        if (unresolvedTypes.contains(type) && type.immutableType != null) {
+            return type.immutableType;
+        } else {
+            type.immutableType = createImmutableIntersectionType(env,
+                    type, BUnionType.create(origUnionTypeSymbol), symTable);
+        }
+
+
+        LinkedHashSet<BType> readOnlyMemTypes = new LinkedHashSet<>(originalMemberList.size());
+        BUnionType unionEffectiveImmutableType = (BUnionType) type.immutableType.effectiveType;
+        unionEffectiveImmutableType.isCyclic = type.isCyclic;
+        unionEffectiveImmutableType.setMemberTypes(readOnlyMemTypes);
+
+        String originalTypeName = origUnionTypeSymbol == null ? "" : origUnionTypeSymbol.name.getValue();
+        if (!originalTypeName.isEmpty()) {
+            unionEffectiveImmutableType.name = getImmutableTypeName(names, originalTypeName);
+        }
+
+        for (BType memberType : originalMemberList) {
+            if (types.isInherentlyImmutableType(memberType)) {
+                unionEffectiveImmutableType.add(memberType);
+                continue;
+            }
+
+            if (!types.isSelectivelyImmutableType(memberType, unresolvedTypes)) {
+                continue;
+            }
+
+            BType immutableMemberType = getImmutableType(pos, types, memberType, env, pkgId, owner, symTable,
+                    anonymousModelHelper, names, unresolvedTypes);
+
+            unionEffectiveImmutableType.add(immutableMemberType);
+        }
+
+        if (readOnlyMemTypes.size() == 1) {
+            type.immutableType.effectiveType = readOnlyMemTypes.iterator().next();
+        } else if (origUnionTypeSymbol != null) {
+            BTypeSymbol immutableUnionTSymbol = getReadonlyTSymbol(names, origUnionTypeSymbol, env, pkgId,
+                    owner);
+            type.immutableType.effectiveType.tsymbol = immutableUnionTSymbol;
+            type.immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
+
+            if (immutableUnionTSymbol != null) {
+                immutableUnionTSymbol.type = type.immutableType.effectiveType;
+            }
+        } else {
+            type.immutableType.effectiveType.flags |= (type.flags | Flags.READONLY);
+        }
+
+        BIntersectionType immutableType = type.immutableType;
+        BType effectiveType = immutableType.effectiveType;
+        BTypeSymbol tsymbol = immutableType.effectiveType.tsymbol;
+        if (effectiveType.tag != TypeTags.UNION || tsymbol == null || tsymbol.name == null ||
+                tsymbol.name.value.isEmpty()) {
+            return immutableType;
+        }
+
+        BLangUnionTypeNode unionTypeNode = (BLangUnionTypeNode) TreeBuilder.createUnionTypeNode();
+        unionTypeNode.type = effectiveType;
+        BLangTypeDefinition typeDefinition = TypeDefBuilderHelper.addTypeDefinition(effectiveType,
+                                                                                    effectiveType.tsymbol,
+                                                                                    unionTypeNode, env);
+        typeDefinition.pos = pos;
+        return immutableType;
     }
 
     private static BTypeSymbol getReadonlyTSymbol(Names names, BTypeSymbol originalTSymbol, SymbolEnv env,
