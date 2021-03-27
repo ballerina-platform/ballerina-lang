@@ -116,9 +116,9 @@ public class BindgenCommand implements BLauncherCmd {
         BindingsGenerator bindingsGenerator = new BindingsGenerator(outStream, outError);
         if (this.outputPath != null) {
             if (Paths.get(outputPath).isAbsolute()) {
-                targetOutputPath = Paths.get(outputPath);
+                targetOutputPath = Paths.get(outputPath).normalize();
             } else {
-                targetOutputPath = Paths.get(targetOutputPath.toString(), outputPath);
+                targetOutputPath = Paths.get(targetOutputPath.toString(), outputPath).normalize();
             }
             bindingsGenerator.setOutputPath(targetOutputPath.toString());
         } else if (modulesFlag) {
