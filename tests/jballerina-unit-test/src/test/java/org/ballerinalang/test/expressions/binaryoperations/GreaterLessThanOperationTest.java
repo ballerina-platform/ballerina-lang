@@ -191,22 +191,22 @@ public class GreaterLessThanOperationTest {
                 "and '1|2|3|4|5.23f[]'", 157, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2|3|4|5.23f[]' " +
                 "and '1|2|3|4|5.23f[]'", 158, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '(1.0f|2)[]' and " +
-                "'(1.0f|2)[]'", 169, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '(1.0f|2)[]' and " +
-                "'(1.0f|2)[]'", 170, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '(1.0f|2)[]' and " +
-                "'(1.0f|2)[]'", 171, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '(1.0f|2)[]' and " +
-                "'(1.0f|2)[]'", 172, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '(float|string)' and '" +
-                "(float|string)'", 181, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '(float|string)' and '" +
-                "(float|string)'", 182, 18);
-        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '(float|string)' and '" +
-                "(float|string)'", 183, 18);
-        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for '(float|string)' and '" +
-                "(float|string)'", 184, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 169, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 170, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 171, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 172, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 181, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 182, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 183, 18);
+        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 184, 18);
     }
 
     @Test(description = "Test decimal greater than, less than expression")
