@@ -108,7 +108,7 @@ public class ValueComparisonUtils {
      */
     public static boolean compareValueLessThan(double lhsValue, double rhsValue) {
         try {
-            return compareValues(lhsValue, rhsValue) < 0;
+            return compareFloatValues(lhsValue, rhsValue) < 0;
         } catch (BError error) {
             return false;
         }
@@ -123,7 +123,7 @@ public class ValueComparisonUtils {
      */
     public static boolean compareValueLessThanOrEqual(double lhsValue, double rhsValue) {
         try {
-            return compareValues(lhsValue, rhsValue) <= 0;
+            return compareFloatValues(lhsValue, rhsValue) <= 0;
         } catch (BError error) {
             return false;
         }
@@ -138,7 +138,7 @@ public class ValueComparisonUtils {
      */
     public static boolean compareValueGreaterThan(double lhsValue, double rhsValue) {
         try {
-            return compareValues(lhsValue, rhsValue) > 0;
+            return compareFloatValues(lhsValue, rhsValue) > 0;
         } catch (BError error) {
             return false;
         }
@@ -154,7 +154,7 @@ public class ValueComparisonUtils {
      */
     public static boolean compareValueGreaterThanOrEqual(double lhsValue, double rhsValue) {
         try {
-            return compareValues(lhsValue, rhsValue) >= 0;
+            return compareFloatValues(lhsValue, rhsValue) >= 0;
         } catch (BError error) {
             return false;
         }
