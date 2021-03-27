@@ -127,34 +127,6 @@ public class CodeActionTest {
                 codeActionFoundOnlyOnce, "Cannot find expected Code Action for: " + title);
     }
 
-//    @Test(dataProvider = "restricted-codeAction-data-mapper-data-provider")
-//    public void testRestrictedDataMapperCodeAction(String config, String source) throws Exception {
-//        // Read expected results
-//        String configJsonPath = "codeaction" + File.separator + config;
-//        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
-//
-//        // Get code action from language server
-//        JsonObject responseJson = getCodeActionResponse(source, configJsonObject, serviceEndpoint);
-//
-//        JsonObject expectedResponse = configJsonObject.get("expected").getAsJsonObject();
-//        String title = expectedResponse.get("title").getAsString();
-//
-//        boolean codeActionFound = false;
-//        for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
-//            JsonElement right = jsonElement.getAsJsonObject().get("right");
-//            JsonElement editText = right.getAsJsonObject().get("edit");
-//            if (editText == null) {
-//                continue;
-//            }
-//            if (right.getAsJsonObject().get("title").getAsString().equals(title)) {
-//                codeActionFound = true;
-//            }
-//        }
-//        Assert.assertFalse(
-//                codeActionFound, "Cannot find expected Code Action for: " + title);
-//    }
-
-
     @DataProvider(name = "codeAction-data-mapper-data-provider")
     public Object[][] codeActionDataMapperDataProvider() {
         log.info("Test textDocument/codeAction QuickFixes");
@@ -181,14 +153,6 @@ public class CodeActionTest {
                         "datamapper-module-test/modules/module3/moduleDataMapper3.bal"},
         };
     }
-
-//    @DataProvider(name = "restricted-codeAction-data-mapper-data-provider")
-//    public Object[][] restrictedCodeActionDataMapperDataProvider() {
-//        log.info("Test textDocument/codeAction QuickFixes");
-//        return new Object[][]{
-//                {"dataMapper6.json", "dataMapper6.bal"},
-//        };
-//    }
 
     @AfterClass
     private void cleanupLanguageServer() {
