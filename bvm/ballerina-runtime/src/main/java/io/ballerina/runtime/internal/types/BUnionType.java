@@ -61,12 +61,7 @@ public class BUnionType extends BType implements UnionType {
     private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE);
 
     public BUnionType(List<Type> memberTypes, int typeFlags, boolean readonly,  boolean isCyclic) {
-        super(null, null, Object.class);
-        this.typeFlags = typeFlags;
-        this.readonly = readonly;
-        this.flags = readonly ? SymbolFlags.READONLY : 0;
-        setMemberTypes(memberTypes, memberTypes);
-        this.isCyclic = isCyclic;
+        this(memberTypes, memberTypes, typeFlags, isCyclic, (readonly ? SymbolFlags.READONLY : 0));
     }
 
     private BUnionType(List<Type> memberTypes, List<Type> originalMemberTypes, int typeFlags, boolean isCyclic,
