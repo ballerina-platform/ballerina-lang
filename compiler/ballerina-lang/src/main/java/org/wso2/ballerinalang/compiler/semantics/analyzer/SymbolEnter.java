@@ -3149,6 +3149,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangSimpleVariable field : classDefinition.fields) {
             defineNode(field, typeDefEnv);
+            // Unless skipped, this causes issues in negative cases such as duplicate fields.
             if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
@@ -3601,6 +3602,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (varNode.expr != null) {
                 symbol.flags |= Flags.OPTIONAL;
                 symbol.isDefaultable = true;
+
+                if (varNode.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
+                    symbol.flags |= Flags.INFER;
+                }
             }
             if (varNode.flagSet.contains(Flag.INCLUDED)) {
                 if (varNode.type.getKind() == TypeKind.RECORD) {

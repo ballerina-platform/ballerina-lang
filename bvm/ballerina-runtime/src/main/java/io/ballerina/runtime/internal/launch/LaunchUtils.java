@@ -20,17 +20,16 @@ package io.ballerina.runtime.internal.launch;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.launch.LaunchListener;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.ConfigMap;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
-import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
+import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
-import io.ballerina.runtime.internal.values.ErrorValue;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
 
@@ -56,19 +55,16 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_C
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_CONFIG_CLASS_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_PROPERTY;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UTIL_LOGGING_MANAGER_CLASS_VALUE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_DATA_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILES_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILE_NOT_FOUND;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_SECRET_FILE_NOT_FOUND;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_CONFIG_PATH;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.DEFAULT_SECRET_PATH;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.EMPTY_CONFIG_STRING;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.SECRET_DATA_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.SECRET_FILE_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.DEFAULT_CONFIG_PATH;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.DEFAULT_SECRET_PATH;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.SECRET_DATA_ENV_VARIABLE;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.SECRET_FILE_ENV_VARIABLE;
 
 /**
  * Util methods to be used during starting and ending a ballerina program.
- *
+ * 
  * @since 1.0
  */
 public class LaunchUtils {
@@ -80,7 +76,6 @@ public class LaunchUtils {
         System.setProperty(UTIL_LOGGING_CONFIG_CLASS_PROPERTY, UTIL_LOGGING_CONFIG_CLASS_VALUE);
         System.setProperty(UTIL_LOGGING_MANAGER_CLASS_PROPERTY, UTIL_LOGGING_MANAGER_CLASS_VALUE);
     }
-
 
     public static String[] initConfigurations(String[] args) {
 
@@ -145,24 +140,28 @@ public class LaunchUtils {
         }
     }
 
-    public static void initConfigurableVariables(Path[] configFilePaths, String secretContent, String configContent,
-                                                 Map<Module, VariableKey[]> configurationData) {
-        try {
-            List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-            if (configContent != null) {
-                supportedConfigProviders.add(new TomlContentProvider(configContent));
-            }
-            for (int i = configFilePaths.length - 1; i >= 0; i--) {
-                supportedConfigProviders.add(new TomlFileProvider(configFilePaths[i]));
-            }
-            if (secretContent != null) {
-                supportedConfigProviders.add(new TomlContentProvider(secretContent));
-            }
-            ConfigResolver configResolver = new ConfigResolver(configurationData, supportedConfigProviders);
-            ConfigMap.setConfigurableMap(configResolver.resolveConfigs());
-        } catch (ConfigException exception) {
-            // TODO : Need to collect all the errors from each providers separately. Issue #29055
-            throw new ErrorValue(StringUtils.fromString(exception.getMessage()));
+    public static void initConfigurableVariables(Module rootModule, Map<Module, VariableKey[]> configurationData,
+                                                 String[] args, Path[] configFilePaths, String secretContent,
+                                                 String configContent) {
+
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        CliProvider cliConfigProvider = new CliProvider(rootModule, args);
+        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+        if (configContent != null) {
+            supportedConfigProviders.add(new TomlContentProvider(configContent));
+        }
+        for (int i = configFilePaths.length - 1; i >= 0; i--) {
+            supportedConfigProviders.add(new TomlFileProvider(configFilePaths[i]));
+        }
+        if (secretContent != null) {
+            supportedConfigProviders.add(new TomlContentProvider(secretContent));
+        }
+        supportedConfigProviders.add(cliConfigProvider);
+        ConfigResolver configResolver = new ConfigResolver(rootModule, configurationData,
+                                                           diagnosticLog, supportedConfigProviders);
+        ConfigMap.setConfigurableMap(configResolver.resolveConfigs());
+        if (!diagnosticLog.getDiagnosticList().isEmpty()) {
+            RuntimeUtils.handleDiagnosticErrors(diagnosticLog);
         }
     }
 
@@ -178,20 +177,12 @@ public class LaunchUtils {
         String configContent = null;
         if (envVars.containsKey(CONFIG_FILES_ENV_VARIABLE)) {
             String[] configPathList = envVars.get(CONFIG_FILES_ENV_VARIABLE).split(File.pathSeparator);
-            for (String pathString: configPathList) {
+            for (String pathString : configPathList) {
                 Path path = Paths.get(pathString);
-                if (!Files.exists(path)) {
-                    throw new ErrorValue(StringUtils.fromString(String.format(CONFIG_FILE_NOT_FOUND, path)));
-                }
                 paths.add(path);
             }
         } else if (envVars.containsKey(CONFIG_DATA_ENV_VARIABLE)) {
-            String configString = envVars.get(CONFIG_DATA_ENV_VARIABLE);
-            if (configString.isEmpty()) {
-                throw new ErrorValue(
-                        StringUtils.fromString(String.format(EMPTY_CONFIG_STRING, CONFIG_DATA_ENV_VARIABLE)));
-            }
-            configContent = configString;
+            return envVars.get(CONFIG_DATA_ENV_VARIABLE);
         } else {
             if (Files.exists(DEFAULT_CONFIG_PATH)) {
                 paths.add(DEFAULT_CONFIG_PATH);
@@ -203,18 +194,9 @@ public class LaunchUtils {
     private static String populateSecretConfigDetails(List<Path> paths, Map<String, String> envVars) {
         String secret = null;
         if (envVars.containsKey(SECRET_FILE_ENV_VARIABLE)) {
-            Path secretPath = Paths.get(envVars.get(SECRET_FILE_ENV_VARIABLE));
-            if (!Files.exists(secretPath)) {
-                throw new ErrorValue(StringUtils.fromString(String.format(CONFIG_SECRET_FILE_NOT_FOUND, secretPath)));
-            }
-            paths.add(secretPath);
+            paths.add(Paths.get(envVars.get(SECRET_FILE_ENV_VARIABLE)));
         } else if (envVars.containsKey(SECRET_DATA_ENV_VARIABLE)) {
-            String secretString = envVars.get(SECRET_DATA_ENV_VARIABLE);
-            if (secretString.isEmpty()) {
-                throw new ErrorValue(
-                        StringUtils.fromString(String.format(EMPTY_CONFIG_STRING, SECRET_DATA_ENV_VARIABLE)));
-            }
-            secret = secretString;
+            return envVars.get(SECRET_DATA_ENV_VARIABLE);
         } else {
             if (Files.exists(DEFAULT_SECRET_PATH)) {
                 paths.add(DEFAULT_SECRET_PATH);

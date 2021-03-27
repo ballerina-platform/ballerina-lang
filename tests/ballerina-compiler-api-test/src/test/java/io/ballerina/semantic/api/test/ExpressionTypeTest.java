@@ -317,7 +317,11 @@ public class ExpressionTypeTest {
                 {109, 4, 109, 10, UNION},
                 {109, 4, 109, 9, UNION},
                 {112, 15, 112, 27, STRING},
-                {112, 15, 112, 26, STRING}
+                {112, 15, 112, 26, STRING},
+                {127, 4, 127, 35, STRING},
+                {127, 4, 127, 34, STRING},
+                {129, 12, 129, 37, INT},
+                {130, 4, 130, 36, BOOLEAN}
         };
     }
 

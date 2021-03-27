@@ -99,7 +99,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "func_def_source_06.bal", "func_def_source_12.bal", "func_def_source_16.bal", "func_def_source_03.bal",
                 "func_def_source_17.bal", "func_def_source_15.bal", "func_def_source_14.bal",
                 "func_params_source_06.bal", "func_def_source_19.bal", "func_def_source_24.bal",
-                "func_def_source_18.bal", "func_params_source_07.bal",
+                "func_def_source_18.bal", "func_params_source_07.bal", "func_def_source_07.bal",
                 "func_params_source_04.bal", "func_def_source_23.bal", "func_def_source_22.bal",
                 "func_params_source_03.bal", "func_def_source_20.bal", "func_def_source_09.bal",
                 "func_def_source_21.bal", "func_params_source_02.bal",
@@ -145,6 +145,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "xml_template_source_27.bal", "xml_template_source_24.bal",
                 "explicit-new-with-object-keyword-with-one-arg-negative02.bal",
                 "explicit-new-with-object-keyword-with-multiple-args-negative02.bal",
+                "explicit-new-with-object-keyword-with-multiple-args.bal", "new_expr_source_03.bal",
                 "explicit-new-with-object-keyword-with-one-arg-negative01.bal",
                 "explicit-new-with-object-keyword-with-multiple-args-negative01.bal", "trap_action_source_02.bal",
                 "query_action_source_03.bal", "query_action_source_06.bal", "remote_method_call_source_10.bal",
@@ -156,7 +157,8 @@ public class ParserTestFormatter extends FormatterTest {
                 "annot_decl_source_02.bal", "do_stmt_source_08.bal", "func_params_source_11.bal",
                 "predeclared-module-prefix_02.bal", "object_type_def_source_44.bal", "record_type_def_source_27.bal",
                 "func_type_source_09.bal", "func_type_source_13.bal", "func_type_source_14.bal",
-                "func_type_source_15.bal", "func_type_source_16.bal", "import_decl_source_24.bal");
+                "func_type_source_15.bal", "func_type_source_16.bal", "import_decl_source_24.bal",
+                "member_access_expr_source_11.bal");
     }
 
     @DataProvider(name = "test-file-provider")
