@@ -158,7 +158,7 @@ public class NeverTypeTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'string', found '(string|xml:Text)'", 158, 18);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected '(int|string)', found 'xml<never> & readonly'", 159, 21);
+                "incompatible types: expected '(int|string)', found 'xml<never>'", 159, 21);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type " +
                         "'never' or equivalent to type 'never'", 163, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
