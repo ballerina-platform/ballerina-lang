@@ -5392,8 +5392,8 @@ public class TypeChecker extends BLangNodeVisitor {
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
         // iExpr contain NEVER_ALLOWED flag if it's in a trap expression
-        if (iExpr.flagSet.contains(Flag.NEVER_ALLOWED) && actualType.tag == TypeTags.NEVER
-                && this.expType.tag == TypeTags.ERROR) {
+        if (iExpr.flagSet != null && iExpr.flagSet.contains(Flag.NEVER_ALLOWED) &&
+                actualType.tag == TypeTags.NEVER && this.expType.tag == TypeTags.ERROR) {
             resultType = actualType;
         } else {
             resultType = types.checkType(iExpr, actualType, this.expType);
