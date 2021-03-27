@@ -19,20 +19,25 @@ package org.ballerinalang.nativeimpl.jvm.tests;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFunctionPointer;
 import io.ballerina.runtime.api.values.BFuture;
+import io.ballerina.runtime.api.values.BMapInitialValueEntry;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BStream;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
+import io.ballerina.runtime.internal.types.BStreamType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -48,13 +53,17 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.runtime.api.TypeTags.ARRAY_TAG;
 import static io.ballerina.runtime.api.TypeTags.BOOLEAN_TAG;
 import static io.ballerina.runtime.api.TypeTags.BYTE_TAG;
 import static io.ballerina.runtime.api.TypeTags.DECIMAL_TAG;
 import static io.ballerina.runtime.api.TypeTags.FLOAT_TAG;
 import static io.ballerina.runtime.api.TypeTags.INT_TAG;
+import static io.ballerina.runtime.api.TypeTags.OBJECT_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.RECORD_TYPE_TAG;
 import static io.ballerina.runtime.api.TypeTags.STRING_TAG;
+import static io.ballerina.runtime.api.TypeTags.XML_COMMENT_TAG;
+import static io.ballerina.runtime.api.TypeTags.XML_ELEMENT_TAG;
 
 /**
  * Native methods for testing functions with variable return types.
@@ -71,7 +80,7 @@ public class VariableReturnType {
     private static final BString JANE_DOE = new BmpStringValue("Jane Doe");
     private static final BString SOFTWARE_ENGINEER = new BmpStringValue("Software Engineer");
 
-    public static Object echo(BTypedesc td, BValue value) {
+    public static Object echo(BValue value, BTypedesc td) {
         return value;
     }
 
@@ -79,15 +88,15 @@ public class VariableReturnType {
         return value;
     }
 
-    public static BStream getStream(BTypedesc td, BStream value) {
+    public static BStream getStream(BStream value, BTypedesc td) {
         return value;
     }
 
-    public static TableValue getTable(BTypedesc td, TableValue value) {
+    public static TableValue getTable(TableValue value, BTypedesc td) {
         return value;
     }
 
-    public static BFunctionPointer getFunction(BTypedesc param, BTypedesc ret, BFunctionPointer fp) {
+    public static BFunctionPointer getFunction(BFunctionPointer fp, BTypedesc param, BTypedesc ret) {
         return fp;
     }
 
@@ -95,7 +104,7 @@ public class VariableReturnType {
         return td;
     }
 
-    public static BFuture getFuture(BTypedesc td, BFuture value) {
+    public static BFuture getFuture(BFuture value, BTypedesc td) {
         return value;
     }
 
@@ -152,6 +161,25 @@ public class VariableReturnType {
         return arr;
     }
 
+    public static ArrayValue getTupleWithRestDesc(BTypedesc td1, BTypedesc td2, BTypedesc td3) {
+        List<Type> memTypes = new ArrayList<>();
+        Type memType1 = td1.getDescribingType();
+        memTypes.add(memType1);
+        Type memType2 = td2.getDescribingType();
+        memTypes.add(memType2);
+        Type restType = td3.getDescribingType();
+        BTupleType tupleType = new BTupleType(memTypes, restType, 0, false);
+
+        ArrayValue arr = new TupleValueImpl(tupleType);
+        arr.add(0, getValue(memType1));
+        arr.add(1, getValue(memType2));
+        Object value = getValue(restType);
+        arr.add(2, value);
+        arr.add(3, value);
+
+        return arr;
+    }
+
     public static MapValue getRecord(BTypedesc td) {
         BRecordType recType = (BRecordType) td.getDescribingType();
         MapValueImpl person = new MapValueImpl(recType);
@@ -198,14 +226,24 @@ public class VariableReturnType {
         return new ArrayValueImpl(new long[]{10, 20, 30}, false);
     }
 
-    public static Object getInvalidValue(BTypedesc td1, BTypedesc td2) {
-        switch (td1.getDescribingType().getTag()) {
-            case INT_TAG:
-                return getRecord(td2);
-            case RECORD_TYPE_TAG:
-                return 200;
+    public static BXml getXml(BTypedesc td, BXml val) {
+        if (td.getDescribingType().getTag() == XML_ELEMENT_TAG) {
+            return val;
         }
-        return null;
+
+        assert td.getDescribingType().getTag() == XML_COMMENT_TAG : td.getDescribingType();
+        return val;
+    }
+
+    public static Object getInvalidValue(BTypedesc td1, BTypedesc td2) {
+        int tag = td1.getDescribingType().getTag();
+
+        if (tag == INT_TAG) {
+            return getRecord(td2);
+        }
+
+        assert tag == RECORD_TYPE_TAG;
+        return 200;
     }
 
     private static Object getValue(Type type) {
@@ -353,5 +391,92 @@ public class VariableReturnType {
         }
 
         return mediaType.length() + header.length() + i;
+    }
+
+    public static Object getSimpleUnion(Object val, BTypedesc td) {
+        if (TypeUtils.getType(val).getTag() == INT_TAG) {
+            if (td.getDescribingType().getTag() == INT_TAG) {
+                return val;
+            }
+
+            return false;
+        }
+
+        if (td.getDescribingType().getTag() == INT_TAG) {
+            return null;
+        }
+
+        return val;
+    }
+
+    public static Object getComplexUnion(BTypedesc td) {
+        if (td.getDescribingType().getTag() == INT_TAG) {
+            return ValueCreator.createArrayValue(new long[]{1, 2});
+        }
+
+        BTupleType tupleType = new BTupleType(List.of(PredefinedTypes.TYPE_INT, PredefinedTypes.TYPE_STRING));
+        BArray tupleValue = ValueCreator.createTupleValue(tupleType);
+        tupleValue.add(0, 100L);
+        tupleValue.add(1, StringUtils.fromString("Hello World"));
+
+        BArrayType arrayType = new BArrayType(tupleType);
+        BArray arrayValue = ValueCreator.createArrayValue(new Object[]{tupleValue}, arrayType);
+
+        BMapInitialValueEntry[] initialValues = {
+                ValueCreator.createKeyFieldEntry(StringUtils.fromString("entry"), arrayValue)};
+        return ValueCreator.createMapValue(new BMapType(arrayType), initialValues);
+    }
+
+    public static long untaintedParamFunc(BTypedesc typedesc) {
+        return 0;
+    }
+
+    public static BArray funcWithMultipleArgs(long i, BTypedesc td, BArray arr) {
+        if (td.getDescribingType().getTag() == STRING_TAG) {
+            arr.append(StringUtils.fromString(Long.toString(i)));
+            return arr;
+        }
+
+        assert td.getDescribingType().getTag() == INT_TAG;
+        return ValueCreator.createArrayValue(new long[]{arr.getLength(), i});
+    }
+
+    public static Object funcReturningUnionWithBuiltInRefType(Object strm, BTypedesc td) {
+        int tag = ((BStreamType) td.getDescribingType()).getConstrainedType().getTag();
+
+        if (tag == INT_TAG) {
+            return strm;
+        }
+
+        assert tag == BYTE_TAG;
+        if (strm == null) {
+            return 100L;
+        }
+
+        return "hello world";
+    }
+
+    public static Object getValueWithUnionReturnType(Object val, BTypedesc td) {
+        int tag = TypeUtils.getType(val).getTag();
+
+        Type describingType = td.getDescribingType();
+        if (tag == RECORD_TYPE_TAG) {
+            assert describingType.getTag() == INT_TAG;
+            return 101L;
+        }
+
+        if (tag == OBJECT_TYPE_TAG) {
+            assert describingType.getTag() == ARRAY_TAG &&
+                    ((BArrayType) describingType).getElementType().getTag() == STRING_TAG;
+            return val;
+        }
+
+        assert describingType.getTag() == BOOLEAN_TAG;
+        return !((boolean) val);
+    }
+
+    public static BFunctionPointer getFunctionWithAnyFunctionParamType(BFunctionPointer x, BTypedesc td) {
+        assert td.getDescribingType().getTag() == INT_TAG;
+        return x;
     }
 }

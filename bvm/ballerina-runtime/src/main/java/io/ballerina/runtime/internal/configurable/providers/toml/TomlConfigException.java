@@ -23,24 +23,24 @@ import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIG_FILE_NAME;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
 
 /**
  * Exception class used for TOML related configuration specific errors.
  *
  * @since 2.0.0
  */
-public class ConfigTomlException extends ConfigException {
+public class TomlConfigException extends ConfigException {
 
-    public ConfigTomlException(String message) {
+    public TomlConfigException(String message) {
         super(message);
     }
 
-    public ConfigTomlException(String message, TomlNode tomlNode) {
+    public TomlConfigException(String message, TomlNode tomlNode) {
         this(getLineRange(tomlNode) + message);
     }
 
-    public ConfigTomlException(String message, Throwable e) {
+    public TomlConfigException(String message, Throwable e) {
         super(message, e);
     }
 

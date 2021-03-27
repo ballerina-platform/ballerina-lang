@@ -99,6 +99,17 @@ public class DependencyFilePathsTest extends BaseTest {
         Path expectedPath = Paths.get("build/repo/bala/samjs/package_b/0.1.0/any/modules/package_b.mod_b1")
                 .resolve("mod1.bal").toAbsolutePath();
         Assert.assertEquals(filepath.toString(), expectedPath.toString());
+
+        // get document id of dependency filepath
+        Project balaProject = ProjectLoader.loadProject(
+                Paths.get("build/repo/bala/samjs/package_b/0.1.0/any/"));
+        DocumentId documentId1 = balaProject.documentId(filepath);
+
+        Module mod1 = balaProject.currentPackage().module(
+                ModuleName.from(balaProject.currentPackage().packageName(), "mod_b1"));
+
+        Assert.assertEquals(documentId1,
+                mod1.documentIds().stream().findFirst().get());
     }
 
     @Test
@@ -145,5 +156,12 @@ public class DependencyFilePathsTest extends BaseTest {
         Path expectedPath = Paths.get("build/repo/bala/ballerina/lang.float/1.0.0/any/modules/lang.float")
                 .resolve("float.bal").toAbsolutePath();
         Assert.assertEquals(filepath.toString(), expectedPath.toString());
+
+        // get document id of dependency filepath
+        Project balaProject = ProjectLoader.loadProject(
+                Paths.get("build/repo/bala/ballerina/lang.float/1.0.0/any"));
+        DocumentId documentId1 = balaProject.documentId(filepath);
+        Assert.assertEquals(documentId1,
+                balaProject.currentPackage().getDefaultModule().documentIds().stream().findFirst().get());
     }
 }

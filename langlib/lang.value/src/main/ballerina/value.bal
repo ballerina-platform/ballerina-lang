@@ -80,7 +80,7 @@ public isolated function cloneReadOnly(CloneableType  v) returns CloneableType &
 # - numeric values can be converted using the NumericConvert abstract operation
 # - if a record type descriptor specifies default values, these will be used
 #   to supply any missing members
-public isolated function cloneWithType(anydata v, typedesc<AnydataType> t) returns AnydataType|error = @java:Method {
+public isolated function cloneWithType(anydata v, typedesc<anydata> t = <>) returns t|error = @java:Method {
     'class: "org.ballerinalang.langlib.value.CloneWithType",
     name: "cloneWithType"
 } external;
@@ -92,7 +92,7 @@ public isolated function cloneWithType(anydata v, typedesc<AnydataType> t) retur
 # + v - the value to be cast
 # + t - a typedesc for the type to which to cast it
 # return - `v` cast to the type described by `t`, or an error, if the cast cannot be done
-public isolated function ensureType(any|error v, typedesc<any> t) returns any|error =  @java:Method {
+public isolated function ensureType(any|error v, typedesc<any> t = <>) returns t|error =  @java:Method {
     'class: "org.ballerinalang.langlib.value.EnsureType",
     name: "ensureType"
 } external;
@@ -232,7 +232,7 @@ public isolated function fromJsonDecimalString(string str) returns JsonDecimal|e
 # + v - json value
 # + t - type to convert to
 # + return - value belonging to type `t` or error if this cannot be done
-public isolated function fromJsonWithType(json v, typedesc<anydata> t)
+public isolated function fromJsonWithType(json v, typedesc<anydata> t = <>)
     returns t|error = @java:Method {
     'class: "org.ballerinalang.langlib.value.FromJsonWithType",
     name: "fromJsonWithType"
@@ -244,7 +244,7 @@ public isolated function fromJsonWithType(json v, typedesc<anydata> t)
 # + str - string in JSON format
 # + t - type to convert to
 # + return - value belonging to type `t` or error if this cannot be done
-public isolated function fromJsonStringWithType(string str, typedesc<anydata> t) returns t|error = @java:Method {
+public isolated function fromJsonStringWithType(string str, typedesc<anydata> t = <>) returns t|error = @java:Method {
     'class: "org.ballerinalang.langlib.value.FromJsonStringWithType",
     name: "fromJsonStringWithType"
 } external;

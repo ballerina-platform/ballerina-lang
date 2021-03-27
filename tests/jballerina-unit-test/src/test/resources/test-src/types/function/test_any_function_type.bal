@@ -178,6 +178,33 @@ function testFunctionWithUnionType() {
     assertEquality(true, l is function (int) returns int|string);
 }
 
+//---------------Test referring to function with 'function' as return type ------------
+
+function testReferringToFunctionWithAnyFunctionReturnType() {
+   any x = func;
+   assertEquality(true, x is function () returns function);
+}
+
+function func() returns function {
+   return function () {};
+}
+
+//---------------Test casting with function with 'function' as return type ------------
+
+function testCastingToFunctionWithAnyFunctionReturnType() {
+   any a = func;
+   var b = <function () returns function> a;
+   assertEquality(a, b);
+
+   any c = function () {};
+   var d = trap <function () returns function> c;
+   assertEquality(true, d is error);
+   error e = <error> d;
+   assertEquality("{ballerina}TypeCastError", e.message());
+   assertEquality("incompatible types: 'function () returns (())' cannot be cast to 'function () returns (function)'",
+                  <string> checkpanic e.detail()["message"]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any expected, any actual) {
