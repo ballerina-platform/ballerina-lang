@@ -19,21 +19,23 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
 
-import static io.ballerina.runtime.internal.configurable.providers.toml.ConfigTomlConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.ConfigConstants.CONFIGURATION_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIGURATION_NOT_SUPPORTED_FOR_TOML;
 
 /**
  * Util methods required for configurable variables.
  *
  * @since 2.0.0
  */
-public class ConfigTomlUtils {
+public class Utils {
 
-    private ConfigTomlUtils() {
+    private Utils() {
     }
 
     static Object getTomlTypeString(TomlNode tomlNode) {
@@ -85,8 +87,20 @@ public class ConfigTomlUtils {
             case TypeTags.TABLE_TAG:
                 tomlType = TomlType.TABLE_ARRAY;
                 break;
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((IntersectionType) expectedType).getEffectiveType();
+                switch (effectiveType.getTag()) {
+                    case TypeTags.XML_ATTRIBUTES_TAG:
+                    case TypeTags.XML_COMMENT_TAG:
+                    case TypeTags.XML_ELEMENT_TAG:
+                    case TypeTags.XML_PI_TAG:
+                    case TypeTags.XML_TAG:
+                    case TypeTags.XML_TEXT_TAG:
+                        throw new TomlConfigException(String.format(CONFIGURATION_NOT_SUPPORTED_FOR_TOML, variableName,
+                                                                    effectiveType.toString()));
+                }
             default:
-                throw new ConfigTomlException(
+                throw new TomlConfigException(
                         String.format(CONFIGURATION_NOT_SUPPORTED, variableName, expectedType.toString()));
         }
         return tomlType;

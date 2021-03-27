@@ -16,24 +16,18 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable.providers.toml;
+package io.ballerina.runtime.internal.configurable.providers.cli;
 
-import java.nio.file.Path;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 
 /**
- * Represents information on Configurable TOML data.
+ * Exception class used for cli related configuration specific errors.
  *
- * @since 2.0
+ * @since 2.0.0
  */
-public class TomlDetails {
+public class CliConfigException extends ConfigException {
 
-    public final Path[] paths;
-    public final String secret;
-    public final String configContent;
-
-    public TomlDetails(Path[] paths, String secret, String configContent) {
-        this.paths = paths;
-        this.secret = secret;
-        this.configContent = configContent;
+    public CliConfigException(CliArg cliArg, String message) {
+        super("[" + cliArg.toString() + "] " +  message);
     }
 }

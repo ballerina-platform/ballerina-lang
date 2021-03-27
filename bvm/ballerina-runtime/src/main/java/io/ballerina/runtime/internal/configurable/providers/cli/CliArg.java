@@ -6,34 +6,35 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
-
-package io.ballerina.runtime.internal.configurable.providers.toml;
-
-import java.nio.file.Path;
+package io.ballerina.runtime.internal.configurable.providers.cli;
 
 /**
- * Represents information on Configurable TOML data.
+ * Used to represent key value command line argument.
  *
- * @since 2.0
+ * @since 2.0.0
  */
-public class TomlDetails {
+public class CliArg {
 
-    public final Path[] paths;
-    public final String secret;
-    public final String configContent;
+    public String key;
 
-    public TomlDetails(Path[] paths, String secret, String configContent) {
-        this.paths = paths;
-        this.secret = secret;
-        this.configContent = configContent;
+    public String value;
+
+    public CliArg(String key, String value) {
+        this.key = key;
+        this.value = value;
+    }
+
+    @Override
+    public String toString() {
+        return key + "=" + value;
     }
 }

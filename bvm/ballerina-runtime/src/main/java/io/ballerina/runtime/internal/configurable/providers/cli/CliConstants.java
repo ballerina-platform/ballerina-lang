@@ -16,24 +16,22 @@
  * under the License.
  */
 
-package io.ballerina.runtime.internal.configurable.providers.toml;
-
-import java.nio.file.Path;
+package io.ballerina.runtime.internal.configurable.providers.cli;
 
 /**
- * Represents information on Configurable TOML data.
+ * Constants used by cli configs.
  *
- * @since 2.0
+ * @since 2.0.0
  */
-public class TomlDetails {
+public class CliConstants {
 
-    public final Path[] paths;
-    public final String secret;
-    public final String configContent;
+    static final String CLI_PREFIX = "-C";
 
-    public TomlDetails(Path[] paths, String secret, String configContent) {
-        this.paths = paths;
-        this.secret = secret;
-        this.configContent = configContent;
+    static final String CLI_ARG_REGEX = "(?<!\\\\)=";
+
+    static final String CONFIGURATION_NOT_SUPPORTED_FOR_CLI = "value for configurable variable '%s' with type " +
+            "'%s' is not supported as a cli arg";
+
+    private CliConstants() {
     }
 }
