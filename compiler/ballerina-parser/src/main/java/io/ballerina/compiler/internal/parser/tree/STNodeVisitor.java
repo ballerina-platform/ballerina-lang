@@ -217,6 +217,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restArgumentNode);
     }
 
+    public void visit(STInferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        visitSyntaxNode(inferredTypedescDefaultNode);
+    }
+
     public void visit(STObjectTypeDescriptorNode objectTypeDescriptorNode) {
         visitSyntaxNode(objectTypeDescriptorNode);
     }
@@ -363,10 +367,6 @@ public abstract class STNodeVisitor {
 
     public void visit(STErrorTypeDescriptorNode errorTypeDescriptorNode) {
         visitSyntaxNode(errorTypeDescriptorNode);
-    }
-
-    public void visit(STErrorTypeParamsNode errorTypeParamsNode) {
-        visitSyntaxNode(errorTypeParamsNode);
     }
 
     public void visit(STStreamTypeDescriptorNode streamTypeDescriptorNode) {

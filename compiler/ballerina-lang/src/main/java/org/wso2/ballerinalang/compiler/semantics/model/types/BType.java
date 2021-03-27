@@ -32,6 +32,7 @@ import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NIL;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.PARAMETERIZED_TYPE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.READONLY;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.STRING;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPEDESC;
@@ -110,6 +111,8 @@ public class BType implements ValueType {
                 return TypeKind.ERROR;
             case READONLY:
                 return TypeKind.READONLY;
+            case PARAMETERIZED_TYPE:
+                return TypeKind.PARAMETERIZED;
             default:
                 return TypeKind.OTHER;
         }

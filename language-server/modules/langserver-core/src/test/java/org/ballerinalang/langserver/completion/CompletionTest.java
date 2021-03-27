@@ -147,6 +147,8 @@ public abstract class CompletionTest {
                     .map(path -> new Object[]{path.toFile().getName(), this.getTestResourceDir()})
                     .toArray(size -> new Object[size][2]);
         } catch (IOException e) {
+            // If failed to load tests, then it's a failure
+            Assert.fail("Unable to load test config", e);
             return new Object[0][];
         }
     }

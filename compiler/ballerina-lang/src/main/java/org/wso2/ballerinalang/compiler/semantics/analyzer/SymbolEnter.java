@@ -1915,10 +1915,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbol.retType = tsymbol.returnType;
         }
 
-        if (varSymbol.type.tag == TypeTags.NEVER && ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD)) {
-            // check if the variable is defined as a 'never' type (except inside a record type)
+        if ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD && !varNode.flagSet.contains(Flag.NEVER_ALLOWED) &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(varSymbol.type)) {
+            // check if the variable is defined as a 'never' type or equivalent to 'never'
+            // (except inside a record type or iterative use (followed by in) in typed binding pattern)
             // if so, log an error
-            dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED, varSymbol.name);
+            if (varNode.flagSet.contains(Flag.REQUIRED_PARAM) || varNode.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
+                dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_DEFAULTABLE_PARAMS);
+            } else {
+                dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED);
+            }
         }
     }
 
@@ -2936,7 +2942,6 @@ public class SymbolEnter extends BLangNodeVisitor {
             symTable.langQueryModuleSymbol = packageSymbol;
             return;
         }
-
         if (langLib.equals(TRANSACTION)) {
             symTable.langTransactionModuleSymbol = packageSymbol;
             return;
@@ -3150,6 +3155,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         for (BLangSimpleVariable field : classDefinition.fields) {
             defineNode(field, typeDefEnv);
+            // Unless skipped, this causes issues in negative cases such as duplicate fields.
             if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
@@ -3602,6 +3608,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (varNode.expr != null) {
                 symbol.flags |= Flags.OPTIONAL;
                 symbol.isDefaultable = true;
+
+                if (varNode.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
+                    symbol.flags |= Flags.INFER;
+                }
             }
             if (varNode.flagSet.contains(Flag.INCLUDED)) {
                 if (varNode.type.getKind() == TypeKind.RECORD) {
@@ -4069,20 +4079,20 @@ public class SymbolEnter extends BLangNodeVisitor {
                 return;
             }
 
-            if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
-                    referencedFunc.symbol)) {
-                BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
-                Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
-                dlog.error(methodPos, DiagnosticErrorCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
-                           referencedFunc.funcName, typeRef);
-            }
-
             if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
                 BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
                 Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
                 dlog.error(methodPos, DiagnosticErrorCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
                            getCompleteFunctionSignature(referencedFunc.symbol),
                            getCompleteFunctionSignature((BInvokableSymbol) matchingObjFuncSym));
+            }
+
+            if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
+                    referencedFunc.symbol) && !types.isAssignable(matchingObjFuncSym.type, referencedFunc.type)) {
+                BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
+                Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
+                dlog.error(methodPos, DiagnosticErrorCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
+                        referencedFunc.funcName, typeRef);
             }
             return;
         }

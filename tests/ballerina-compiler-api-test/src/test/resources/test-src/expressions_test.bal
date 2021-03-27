@@ -120,6 +120,17 @@ service on new Listener() {
     }
 }
 
+function testParameterizedType1(typedesc<anydata> td) returns td = external;
+
+function testParameterizedType2(typedesc td = <>) returns td = external;
+
+function testDependentlyTypedFunctionCall() {
+    testParameterizedType1(string);
+
+    int a = testParameterizedType2();
+    testParameterizedType2(boolean);
+}
+
 // utils
 
 class PersonObj {

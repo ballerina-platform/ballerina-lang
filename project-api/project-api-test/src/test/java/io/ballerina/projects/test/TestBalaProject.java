@@ -27,15 +27,19 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.ModuleMd;
+import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.PackageManifest;
 import io.ballerina.projects.PackageMd;
 import io.ballerina.projects.PackageResolution;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -134,8 +138,8 @@ public class TestBalaProject {
         Assert.assertEquals(pluginDescriptor.get().getCompilerPluginDependencies().size(), 2);
     }
 
-    @Test (description = "test balo project load with newly created balo")
-    public void testBaloProjectAPIWithNewBaloBuild() throws IOException {
+    @Test (description = "test bala project load with newly created bala")
+    public void testBalaProjectAPIWithNewBalaBuild() throws IOException {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
         // 1) Initialize the project instance
@@ -176,5 +180,70 @@ public class TestBalaProject {
         Optional<ModuleMd> mdDocument = baloProject.currentPackage().getDefaultModule().moduleMd();
         Assert.assertTrue(mdDocument.isPresent());
         Assert.assertEquals(mdDocument.get().content(), "# Default Module Md");
+    }
+
+    @Test(expectedExceptions = UnsupportedOperationException.class)
+    public void testGetDocumentIdFromPath() {
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("foo-winery-any-0.1.0.bala");
+        Project balaProject = ProjectLoader.loadProject(balaPath);
+        balaProject.documentId(balaPath.resolve("modules").resolve("winery").resolve("main.bal"));
+    }
+
+    @Test
+    public void testGetDocumentIdFromPathInExtractedBala() {
+        Path balaPath = RESOURCE_DIRECTORY.resolve("balaloader").resolve("extracted-bala");
+        Project balaProject = ProjectLoader.loadProject(balaPath);
+        DocumentId expectedDefaultDocId = balaProject.currentPackage().getDefaultModule()
+                .documentIds().stream().findFirst().get();
+        DocumentId actualDefaultDocId = balaProject
+                .documentId(balaPath.resolve("modules").resolve("a").resolve("main.bal"));
+        Assert.assertEquals(actualDefaultDocId, expectedDefaultDocId);
+
+        DocumentId expectedNonDefaultDocId = balaProject.currentPackage().module(
+                ModuleName.from(balaProject.currentPackage().packageName(), "c"))
+                .documentIds().stream().findFirst().get();
+        DocumentId actualNonDefaultDocId = balaProject
+                .documentId(balaPath.resolve("modules").resolve("a.c").resolve("modc.bal"));
+        Assert.assertEquals(actualNonDefaultDocId, expectedNonDefaultDocId);
+
+        // try to get id of a file that does not belong to the project
+        try {
+            balaProject.documentId(balaPath.resolve("main.bal"));
+            Assert.fail("expected a ProjectException");
+        } catch (ProjectException e) {
+            // ignore
+        }
+
+        // try to get id of the bala root
+        try {
+            balaProject.documentId(balaPath);
+            Assert.fail("expected a ProjectException");
+        } catch (ProjectException e) {
+            // ignore
+        }
+
+        // try to get id of a non-existing file
+        try {
+            balaProject.documentId(Paths.get("foo.bal"));
+            Assert.fail("expected a ProjectException");
+        } catch (ProjectException e) {
+            // ignore
+        }
+
+        // try to get id of a non-bal file from the project
+        try {
+            balaProject.documentId(balaPath.resolve("bala.json"));
+            Assert.fail("expected a ProjectException");
+        } catch (ProjectException e) {
+            // ignore
+        }
+
+        // try to get id of a non-bal file from the project
+        try {
+            balaProject.documentId(null);
+            Assert.fail("expected a ProjectException");
+        } catch (ProjectException e) {
+            // ignore
+        }
     }
 }

@@ -39,7 +39,7 @@ public class Listener {
     }
 
     public function init() {
-        var x = externLInit(self);
+        error? x = externLInit(self);
         self.initialized = true;
     }
 }
@@ -79,7 +79,7 @@ listener Listener lsn = new();
 function testServiceObjectValue() {
     serv:Service serviceVal = new();
 
-    var e = lsn.attach(serviceVal);
+    error? e = lsn.attach(serviceVal);
 
     Listener l = <Listener> getListener(); // get the listener
     assertEquality(true, l.initialized);

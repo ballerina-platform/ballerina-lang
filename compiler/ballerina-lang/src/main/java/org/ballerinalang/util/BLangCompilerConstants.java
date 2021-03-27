@@ -26,7 +26,6 @@ package org.ballerinalang.util;
 public class BLangCompilerConstants {
 
     public static final String ITERABLE_COLLECTION_ITERATOR_FUNC = "iterator";
-    public static final String ITERABLE_OBJECT_ITERATOR_FUNC = "__iterator";
     public static final String RETRY_MANAGER_OBJECT_SHOULD_RETRY_FUNC = "shouldRetry";
     public static final String NEXT_FUNC = "next";
     public static final String CLOSE_FUNC = "close";
@@ -38,7 +37,6 @@ public class BLangCompilerConstants {
     public static final String INTERNAL_VERSION = "0.1.0";
     public static final String ANNOTATIONS_VERSION = "1.0.0";
     public static final String ARRAY_VERSION = "1.1.0";
-    public static final String CONFIG_VERSION = "0.0.1";
     public static final String DECIMAL_VERSION = "1.0.0";
     public static final String ERROR_VERSION = "1.0.0";
     public static final String FLOAT_VERSION = "1.0.0";

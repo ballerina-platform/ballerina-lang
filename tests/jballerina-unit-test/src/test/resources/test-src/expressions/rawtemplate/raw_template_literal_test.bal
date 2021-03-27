@@ -87,6 +87,7 @@ function testComplexExpressions() {
 }
 
 type Template1 object {
+    *ob:RawTemplate;
     public (readonly & string[]) strings;
     public int[] insertions;
 };
@@ -101,6 +102,7 @@ function testSubtyping1() {
 }
 
 type Template2 object {
+    *ob:RawTemplate;
     public (readonly & string[]) strings;
     public [int, string, float] insertions;
 };
@@ -117,6 +119,7 @@ function testSubtyping2() {
     assert(f, t.insertions[2]);
 
     object {
+        *ob:RawTemplate;
         public (readonly & string[]) strings;
         public [int, string, anydata...] insertions;
     } temp2 = `Using tuples 2: ${x}, ${s}, ${f}`;
@@ -127,6 +130,7 @@ function testSubtyping2() {
     assert(f, temp2.insertions[2]);
 
     object {
+        *ob:RawTemplate;
         public (readonly & string[]) strings;
         public [anydata...] insertions;
     } temp3 = `Using tuples 3: ${x}, ${s}, ${f}`;
@@ -146,6 +150,7 @@ function testSubtyping3() {
     int x = 10;
 
     object {
+        *ob:RawTemplate;
         public (readonly & FooBar[]) strings;
         public int[] insertions;
     } temp1 = `Foo${x}Bar`;
@@ -174,6 +179,7 @@ function testUsageWithQueryExpressions() {
 public type Value ()|int|float|decimal|string|xml;
 
 public type ParameterizedQuery object {
+    *ob:RawTemplate;
     public (readonly & string[]) strings;
     public Value[] insertions;
 };
@@ -215,6 +221,7 @@ function testUseWithAny() {
 }
 
 public type Template3 object {
+    *ob:RawTemplate;
     public (string[2] & readonly) strings;
     public int[1] insertions;
 };

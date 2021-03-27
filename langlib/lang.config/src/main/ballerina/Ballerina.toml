@@ -1,4 +1,0 @@
-[package]
-org = "ballerina"
-name = "lang.config"
-version = "0.0.1"

@@ -177,8 +177,8 @@ import org.wso2.ballerinalang.compiler.util.CompilerUtils;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.programfile.CompiledBinaryFile.BIRPackageFile;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -234,7 +234,7 @@ public class BIRGen extends BLangNodeVisitor {
     private static final String MOCK_ANNOTATION_DELIMITER = "#";
     private static final String MOCK_FN_DELIMITER = "~";
 
-    private ResolvedTypeBuilder typeBuilder = new ResolvedTypeBuilder();
+    private Unifier unifier;
 
     private BirScope currentScope;
 
@@ -253,6 +253,7 @@ public class BIRGen extends BLangNodeVisitor {
         this.names = Names.getInstance(context);
         this.symTable = SymbolTable.getInstance(context);
         this.birOptimizer = BIROptimizer.getInstance(context);
+        this.unifier = new Unifier();
     }
 
     public BLangPackage genBIR(BLangPackage astPkg) {
@@ -549,9 +550,9 @@ public class BIRGen extends BLangNodeVisitor {
         List<String> attachPoint = symbol.getAbsResourcePath().orElse(null);
         String attachPointLiteral = symbol.getAttachPointStringLiteral().orElse(null);
         BIRNode.BIRServiceDeclaration serviceDecl =
-                new BIRNode.BIRServiceDeclaration(attachPoint, attachPointLiteral, symbol.name,
-                                                  symbol.getAssociatedClassSymbol().name, symbol.type, symbol.origin,
-                                                  symbol.flags, symbol.pos);
+                new BIRNode.BIRServiceDeclaration(attachPoint, attachPointLiteral, symbol.getListenerTypes(),
+                                                  symbol.name, symbol.getAssociatedClassSymbol().name, symbol.type,
+                                                  symbol.origin, symbol.flags, symbol.pos);
         serviceDecl.setMarkdownDocAttachment(symbol.markdownDocumentation);
         this.env.enclPkg.serviceDecls.add(serviceDecl);
     }
@@ -663,7 +664,7 @@ public class BIRGen extends BLangNodeVisitor {
 
         // TODO: Return variable with NIL type should be written to BIR
         // Special %0 location for storing return values
-        BType retType = typeBuilder.build(astFunc.symbol.type.getReturnType());
+        BType retType = unifier.build(astFunc.symbol.type.getReturnType());
         birFunc.returnVariable = new BIRVariableDcl(astFunc.pos, retType, this.env.nextLocalVarId(names),
                                                     VarScope.FUNCTION, VarKind.RETURN, null);
         birFunc.localVars.add(0, birFunc.returnVariable);

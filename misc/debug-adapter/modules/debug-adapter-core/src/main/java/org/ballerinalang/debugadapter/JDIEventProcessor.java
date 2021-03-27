@@ -57,7 +57,6 @@ import java.util.stream.Collectors;
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
-import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
 /**
  * JDI Event processor implementation.
@@ -69,8 +68,6 @@ public class JDIEventProcessor {
     private final Map<String, Map<Integer, BalBreakpoint>> breakpoints = new HashMap<>();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    private static final String BALLERINA_ORG_PREFIX = "ballerina";
-    private static final String BALLERINAX_ORG_PREFIX = "ballerinax";
     private static final String CONDITION_TRUE = "true";
 
     JDIEventProcessor(ExecutionContext context) {
@@ -129,17 +126,6 @@ public class JDIEventProcessor {
             StepEvent stepEvent = (StepEvent) event;
             long threadId = stepEvent.thread().uniqueID();
             if (isBallerinaSource(stepEvent.location())) {
-                if (isExternalLibSource(stepEvent.location())) {
-                    // If the current step-in event is related to an external source (i.e. lang library, standard
-                    // library, connector module), notifies the user and rolls back to the previous state.
-                    // Todo - add support for external libraries
-                    context.getAdapter().sendOutput("INFO: Stepping into ballerina internal modules " +
-                            "is not supported.", STDOUT);
-                    context.getAdapter().stepOut(threadId);
-                    return;
-                }
-                // If the current step event is related to a ballerina source, suspends all threads and notifies the
-                // client that the debuggee is stopped.
                 notifyStopEvent(event);
             } else {
                 int stepType = ((StepRequest) event.request()).depth();
@@ -337,21 +323,6 @@ public class JDIEventProcessor {
             String sourceName = location.sourceName();
             int sourceLine = location.lineNumber();
             return sourceName.endsWith(BAL_FILE_EXT) && sourceLine > 0;
-        } catch (AbsentInformationException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Checks whether the given source location lies within an external module source (i.e. lang library, standard
-     * library, connector module).
-     *
-     * @param location source location
-     */
-    private static boolean isExternalLibSource(Location location) {
-        try {
-            String srcPath = location.sourcePath();
-            return srcPath.startsWith(BALLERINA_ORG_PREFIX) || srcPath.startsWith(BALLERINAX_ORG_PREFIX);
         } catch (AbsentInformationException e) {
             return false;
         }
