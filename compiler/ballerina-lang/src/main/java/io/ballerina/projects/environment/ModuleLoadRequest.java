@@ -17,7 +17,7 @@
  */
 package io.ballerina.projects.environment;
 
-import io.ballerina.projects.DependencyResolvedType;
+import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageName;
@@ -38,14 +38,14 @@ public class ModuleLoadRequest {
     private final ModuleName moduleName;
     private final PackageVersion version;
     private final PackageDependencyScope scope;
-    private final DependencyResolvedType dependencyResolvedType;
+    private final DependencyResolutionType dependencyResolvedType;
 
     public ModuleLoadRequest(PackageOrg orgName,
                              PackageName packageName,
                              ModuleName moduleName,
                              PackageVersion version,
                              PackageDependencyScope scope,
-                             DependencyResolvedType dependencyResolvedType) {
+                             DependencyResolutionType dependencyResolvedType) {
         if (orgName != null && orgName.value().isEmpty()) {
             throw new IllegalArgumentException("The orgName cannot be an empty string. " +
                     "It should be either null or a non-empty string value");
@@ -78,12 +78,12 @@ public class ModuleLoadRequest {
         return scope;
     }
 
-    public DependencyResolvedType dependencyResolvedType() {
+    public DependencyResolutionType dependencyResolvedType() {
         return dependencyResolvedType;
     }
 
     public boolean injected() {
-        return dependencyResolvedType == DependencyResolvedType.INJECTED;
+        return dependencyResolvedType == DependencyResolutionType.INJECTED;
     }
 
     @Override

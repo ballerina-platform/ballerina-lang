@@ -22,8 +22,8 @@ package io.ballerina.projects;
  *
  * @since 2.0.0
  */
-public enum DependencyResolvedType {
-    DEFAULT,
+public enum DependencyResolutionType {
+    SOURCE,
     INJECTED,
     ;
 }

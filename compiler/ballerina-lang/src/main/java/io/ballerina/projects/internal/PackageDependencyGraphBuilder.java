@@ -19,7 +19,7 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
-import io.ballerina.projects.DependencyResolvedType;
+import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
@@ -78,7 +78,7 @@ public class PackageDependencyGraphBuilder {
     public PackageDependencyGraphBuilder addDependency(PackageDescriptor dependent,
                                                        PackageDescriptor dependency,
                                                        PackageDependencyScope dependencyScope,
-                                                       DependencyResolvedType dependencyResolvedType) {
+                                                       DependencyResolutionType dependencyResolvedType) {
         // Add the correct version of the dependent to the graph.
         Vertex dependentVertex = new Vertex(dependent.org(), dependent.name());
         if (!depGraph.containsKey(dependentVertex)) {
@@ -286,15 +286,15 @@ public class PackageDependencyGraphBuilder {
     private static class Vertex {
         private final PackageOrg org;
         private final PackageName name;
-        private final DependencyResolvedType dependencyResolvedType;
+        private final DependencyResolutionType dependencyResolvedType;
 
         Vertex(PackageOrg org, PackageName name) {
             this.org = org;
             this.name = name;
-            this.dependencyResolvedType = DependencyResolvedType.DEFAULT;
+            this.dependencyResolvedType = DependencyResolutionType.SOURCE;
         }
 
-        Vertex(PackageOrg org, PackageName name, DependencyResolvedType dependencyResolvedType) {
+        Vertex(PackageOrg org, PackageName name, DependencyResolutionType dependencyResolvedType) {
             this.org = org;
             this.name = name;
             this.dependencyResolvedType = dependencyResolvedType;

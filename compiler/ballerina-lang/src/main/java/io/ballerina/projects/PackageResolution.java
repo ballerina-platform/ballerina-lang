@@ -173,14 +173,14 @@ public class PackageResolution {
                 PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), packageName, ModuleName.from(packageName),
-                        null, PackageDependencyScope.DEFAULT, DependencyResolvedType.INJECTED);
+                        null, PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
             {
                 PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_ORG.value), packageName, ModuleName.from(packageName),
-                        null, PackageDependencyScope.DEFAULT, DependencyResolvedType.INJECTED);
+                        null, PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
         }
@@ -397,7 +397,7 @@ public class PackageResolution {
         }
 
         void resolve(ImportModuleRequest importModuleRequest, PackageDependencyScope scope,
-                DependencyResolvedType dependencyResolvedType) {
+                DependencyResolutionType dependencyResolvedType) {
             ImportModuleResponse importModuleResponse = responseMap.get(importModuleRequest);
             if (importModuleResponse != null) {
                 return;
@@ -460,7 +460,7 @@ public class PackageResolution {
         }
 
         private void addPackageToGraph(ResolutionResponse resolutionResponse,
-                DependencyResolvedType dependencyResolvedType) {
+                DependencyResolutionType dependencyResolvedType) {
             // Adding the resolved package to the graph and merge its dependencies
             Package resolvedPackage = resolutionResponse.resolvedPackage();
             ResolutionRequest resolutionRequest = resolutionResponse.packageLoadRequest();
