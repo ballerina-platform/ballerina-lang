@@ -367,7 +367,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         if ((hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol))
                 && !isServiceDeclSymbol(symbol)) {
             Symbol compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, name.getValue());
-            if (compiledSymbols.contains(compiledSymbol)) {
+            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
                 return;
             }
             compiledSymbols.add(compiledSymbol);

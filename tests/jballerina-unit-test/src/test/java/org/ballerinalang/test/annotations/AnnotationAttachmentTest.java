@@ -18,6 +18,7 @@ package org.ballerinalang.test.annotations;
 
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.model.tree.NodeKind;
+import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -453,5 +454,24 @@ public class AnnotationAttachmentTest {
             i++;
         }
         Assert.assertEquals(attachments.size(), i);
+    }
+
+    @Test
+    public void testAnnotWithNullValues() {
+        BLangFunction function = getFunction("fooFunction");
+        Assert.assertEquals(function.annAttachments.size(), 1);
+        Assert.assertEquals(function.annAttachments.get(0).annotationName.getValue(), "f2");
+        BLangExpression expression = ((BLangInvocation) function.annAttachments.get(0).expr).expr;
+        Assert.assertEquals(expression.getKind(), NodeKind.RECORD_LITERAL_EXPR);
+        BLangRecordLiteral recordLiteral = (BLangRecordLiteral) expression;
+        List<RecordLiteralNode.RecordField> recordFields = recordLiteral.getFields();
+        Assert.assertEquals(recordFields.size(), 2);
+        BLangRecordLiteral.BLangRecordKeyValueField keyValuePair =
+                (BLangRecordLiteral.BLangRecordKeyValueField) recordFields.get(0);
+        Assert.assertEquals(getKeyString(keyValuePair), "s1");
+        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "str");
+        keyValuePair = (BLangRecordLiteral.BLangRecordKeyValueField) recordFields.get(1);
+        Assert.assertEquals(getKeyString(keyValuePair), "s2");
+        Assert.assertEquals(((BLangLiteral) keyValuePair.getValue()).value, "null");
     }
 }

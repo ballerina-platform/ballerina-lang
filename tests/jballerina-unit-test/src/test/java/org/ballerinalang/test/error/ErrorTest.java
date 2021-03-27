@@ -43,7 +43,6 @@ public class ErrorTest {
 
     private CompileResult errorTestResult;
     private CompileResult distinctErrorTestResult;
-    private CompileResult negativeCompileResult;
     private CompileResult negativeDistinctErrorRes;
 
     private static final String ERROR1 = "error1";
@@ -57,7 +56,6 @@ public class ErrorTest {
         errorTestResult = BCompileUtil.compile("test-src/error/error_test.bal");
         distinctErrorTestResult = BCompileUtil.compile("test-src/error/distinct_error_test.bal");
         negativeDistinctErrorRes = BCompileUtil.compile("test-src/error/distinct_error_test_negative.bal");
-        negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
     }
 
     @Test
@@ -255,6 +253,7 @@ public class ErrorTest {
 
     @Test
     public void testErrorNegative() {
+        CompileResult negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "invalid error detail type 'map<any>', expected a subtype of 'map<Cloneable>'", 41, 28);
@@ -286,12 +285,6 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<record {| " +
                         "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'error', found 'int'", 127, 5);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'error', found 'string'", 128, 5);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'error', found 'record {| string a; |}'", 129, 5);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
@@ -358,7 +351,7 @@ public class ErrorTest {
         Assert.assertNotNull(expectedException);
         String message = expectedException.getMessage();
         Assert.assertEquals(message, "error: array index out of range: index: 4, size: 2\n\t" +
-                "at ballerina.lang.array.1_1_0:slice(array.bal:132)\n\t" +
+                "at ballerina.lang.array.1_1_0:slice(array.bal:126)\n\t" +
                 "   error_test:testStackTraceInNative(error_test.bal:278)");
     }
 
@@ -408,21 +401,6 @@ public class ErrorTest {
         Assert.assertNull(returns[1]);
         BError bError = (BError) returns[0];
         Assert.assertEquals(bError.getReason(), "panic now");
-    }
-
-    @Test
-    public void testErrorTypeDescriptionInferring() {
-        BRunUtil.invoke(errorTestResult, "testErrorTypeDescriptionInferring");
-    }
-
-    @Test
-    public void testDefaultErrorTypeDescriptionInferring() {
-        BRunUtil.invoke(errorTestResult, "testDefaultErrorTypeDescriptionInferring");
-    }
-
-    @Test
-    public void testUnionErrorTypeDescriptionInferring() {
-        BRunUtil.invoke(errorTestResult, "testUnionErrorTypeDescriptionInferring");
     }
 
     @Test

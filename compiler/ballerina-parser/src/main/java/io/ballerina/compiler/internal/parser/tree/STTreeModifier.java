@@ -677,6 +677,16 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
     }
 
     @Override
+    public STInferredTypedescDefaultNode transform(
+            STInferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        STNode ltToken = modifyNode(inferredTypedescDefaultNode.ltToken);
+        STNode gtToken = modifyNode(inferredTypedescDefaultNode.gtToken);
+        return inferredTypedescDefaultNode.modify(
+                ltToken,
+                gtToken);
+    }
+
+    @Override
     public STObjectTypeDescriptorNode transform(
             STObjectTypeDescriptorNode objectTypeDescriptorNode) {
         STNode objectTypeQualifiers = modifyNode(objectTypeDescriptorNode.objectTypeQualifiers);
@@ -1179,18 +1189,6 @@ public abstract class STTreeModifier extends STNodeTransformer<STNode> {
         return errorTypeDescriptorNode.modify(
                 errorKeywordToken,
                 errorTypeParamsNode);
-    }
-
-    @Override
-    public STErrorTypeParamsNode transform(
-            STErrorTypeParamsNode errorTypeParamsNode) {
-        STNode ltToken = modifyNode(errorTypeParamsNode.ltToken);
-        STNode parameter = modifyNode(errorTypeParamsNode.parameter);
-        STNode gtToken = modifyNode(errorTypeParamsNode.gtToken);
-        return errorTypeParamsNode.modify(
-                ltToken,
-                parameter,
-                gtToken);
     }
 
     @Override

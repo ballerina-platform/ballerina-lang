@@ -1,0 +1,34 @@
+{
+  "packages": [
+    {
+      "org": "samjs",
+      "name": "a",
+      "version": "1.0.0",
+      "dependencies": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "samjs",
+      "package_name": "a",
+      "version": "1.0.0",
+      "module_name": "a.c",
+      "dependencies": []
+    },
+    {
+      "org": "samjs",
+      "package_name": "a",
+      "version": "1.0.0",
+      "module_name": "a",
+      "dependencies": [
+        {
+          "org": "samjs",
+          "package_name": "a",
+          "version": "1.0.0",
+          "module_name": "a.c",
+          "dependencies": []
+        }
+      ]
+    }
+  ]
+}

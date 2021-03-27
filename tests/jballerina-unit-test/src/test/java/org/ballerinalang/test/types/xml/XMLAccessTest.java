@@ -223,20 +223,6 @@ public class XMLAccessTest {
                 " not support member access", 21, 28);
         BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(string|xml:Text)' does " +
                 "not support member access", 22, 14);
-        BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type '(xml:Element|xml<never> " +
-                "& readonly)' does not support xml navigation access", 25, 14);
-        BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type '(xml:Comment|xml<never> " +
-                "& readonly)' does not support xml navigation access", 27, 14);
-        BAssertUtil.validateError(negativeResult, i++, "invalid operation: union type " +
-                "'(xml:ProcessingInstruction|xml<never> & readonly)' does not support xml navigation access", 29, 15);
-        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
-                "'(xml:Element|xml<never> & readonly)' does not support member access", 31, 10);
-        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
-                "'(xml:Comment|xml<never> & readonly)' does not support member access", 32, 10);
-        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type " +
-                "'(xml:ProcessingInstruction|xml<never> & readonly)' does not support member access", 33, 11);
-        BAssertUtil.validateError(negativeResult, i++, "xml langlib functions does not support " +
-                "union types as their arguments", 35, 25);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

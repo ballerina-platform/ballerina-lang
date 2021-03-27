@@ -18,6 +18,7 @@ package org.ballerinalang.debugadapter.evaluation;
 
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
+import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
@@ -33,7 +34,7 @@ public class BExpressionValue {
 
     public BExpressionValue(SuspendedContext context, Value jdiValue) {
         this.context = context;
-        this.jdiValue = jdiValue;
+        this.jdiValue = EvaluationUtils.unboxValue(context, jdiValue);
         this.bVariable = null;
     }
 

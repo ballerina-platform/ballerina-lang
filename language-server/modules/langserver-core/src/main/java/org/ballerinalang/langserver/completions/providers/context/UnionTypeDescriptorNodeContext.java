@@ -59,4 +59,17 @@ public class UnionTypeDescriptorNodeContext extends AbstractCompletionProvider<U
 
         return completionItems;
     }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, UnionTypeDescriptorNode node) {
+        /*
+          Validation added for
+          function foo() {
+             i<cursor>
+             int value5 = 12;
+          }
+          This will recover as <code>i MISSING[|] int value5 = 12;</code>
+         */
+        return !node.pipeToken().isMissing();
+    }
 }
