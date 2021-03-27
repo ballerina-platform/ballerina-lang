@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -19,7 +19,6 @@
 package org.ballerinalang.test.action;
 
 import org.ballerinalang.test.BCompileUtil;
-import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.Test;
 
@@ -27,22 +26,21 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Test cases for nested actons.
+ * Test case for invalid usage of remote method call action.
  *
- * @since 1.3.0
+ * @since 2.0
  */
-public class NestedActionsTest {
+public class RemoteMethodCallActionNegativeTest {
 
     @Test
-    public void testNestedClientObjectActions() {
-        CompileResult result = BCompileUtil.compile("test-src/action/nested_actions.bal");
-        BRunUtil.invoke(result, "testNestedClientObjectActions");
-    }
-
-    @Test
-    public void testNegatives() {
-        CompileResult result = BCompileUtil.compile("test-src/action/nested_actions_negative.bal");
-        validateError(result, 0, "action invocation as an expression not allowed here", 35, 33);
-        assertEquals(result.getErrorCount(), 1);
+    public void testInvalidUsageOfRemoteMethodCallAction() {
+        CompileResult result = BCompileUtil.compile("test-src/action/remote_method_call_action_negative.bal");
+        int i = 0;
+        validateError(result, i++, "undefined module 'wss'", 27, 27);
+        validateError(result, i++, "action invocation as an expression not allowed here", 28, 1);
+        validateError(result, i++, "missing comma token", 28, 1);
+        validateError(result, i++, "missing identifier", 28, 1);
+        validateError(result, i++, "missing close parenthesis token", 28, 90);
+        assertEquals(result.getErrorCount(), i);
     }
 }
