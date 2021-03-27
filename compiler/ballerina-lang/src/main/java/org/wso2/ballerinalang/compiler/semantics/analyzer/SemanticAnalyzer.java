@@ -550,12 +550,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Visit functions as they are not in the same scope/env as the object fields
         for (BLangFunction function : classDefinition.functions) {
-            if (classDefinition.flagSet.contains(Flag.CLIENT) && function.flagSet.contains(Flag.REMOTE) &&
-                    function.returnTypeNode != null &&
-                    types.isNeverTypeOrStructureTypeWithARequiredNeverMember(function.returnTypeNode.type)) {
-                dlog.error(function.returnTypeNode.pos,
-                        DiagnosticErrorCode.INVALID_NEVER_RETURN_TYPED_CLIENT_REMOTE_FUNCTION);
-            }
             analyzeDef(function, env);
             if (function.flagSet.contains(Flag.RESOURCE) && function.flagSet.contains(Flag.NATIVE)) {
                 this.dlog.error(function.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, function.name);

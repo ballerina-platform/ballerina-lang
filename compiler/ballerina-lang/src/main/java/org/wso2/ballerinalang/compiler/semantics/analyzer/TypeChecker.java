@@ -25,6 +25,7 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.ActionNode;
@@ -5364,6 +5365,13 @@ public class TypeChecker extends BLangNodeVisitor {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_METHOD_INVOCATION_SYNTAX, actionName);
             this.resultType = symTable.semanticError;
             return;
+        }
+
+        if (Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) &&
+                Symbols.isFlagOn(expType.flags, Flags.CLIENT) &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember
+                ((BType) ((InvokableSymbol) remoteFuncSymbol).getReturnType())) {
+            dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_CLIENT_REMOTE_METHOD_CALL);
         }
 
         aInv.symbol = remoteFuncSymbol;
