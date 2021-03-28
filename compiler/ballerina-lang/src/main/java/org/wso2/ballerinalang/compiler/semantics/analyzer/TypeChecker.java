@@ -25,6 +25,7 @@ import org.ballerinalang.model.clauses.OrderKeyNode;
 import org.ballerinalang.model.elements.AttachPoint;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.symbols.InvokableSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.ActionNode;
@@ -1945,7 +1946,8 @@ public class TypeChecker extends BLangNodeVisitor {
         for (BField field : type.fields.values()) {
             String fieldName = field.name.value;
 
-            if (!specFieldNames.contains(fieldName) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)) {
+            if (!specFieldNames.contains(fieldName) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)
+                    && field.type.tag != TypeTags.NEVER) {
                 // Check if `field` is explicitly assigned a value in the record literal
                 // If a required field is missing, it's a compile error
                 dlog.error(pos, DiagnosticErrorCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
@@ -3790,6 +3792,9 @@ public class TypeChecker extends BLangNodeVisitor {
     public void visit(BLangTrapExpr trapExpr) {
         boolean firstVisit = trapExpr.expr.type == null;
         BType actualType;
+        if (trapExpr.expr.getKind() == NodeKind.INVOCATION) {
+            ((BLangInvocation) trapExpr.expr).flagSet.add(Flag.NEVER_ALLOWED);
+        }
         BType exprType = checkExpr(trapExpr.expr, env, expType);
         boolean definedWithVar = expType == symTable.noType;
 
@@ -5423,6 +5428,13 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
+        if (Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) &&
+                Symbols.isFlagOn(expType.flags, Flags.CLIENT) &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember
+                ((BType) ((InvokableSymbol) remoteFuncSymbol).getReturnType())) {
+            dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_CLIENT_REMOTE_METHOD_CALL);
+        }
+
         aInv.symbol = remoteFuncSymbol;
         checkInvocationParamAndReturnType(aInv);
     }
@@ -5453,7 +5465,13 @@ public class TypeChecker extends BLangNodeVisitor {
 
     private void checkInvocationParamAndReturnType(BLangInvocation iExpr) {
         BType actualType = checkInvocationParam(iExpr);
-        resultType = types.checkType(iExpr, actualType, this.expType);
+        // iExpr contain NEVER_ALLOWED flag if it's in a trap expression
+        if (iExpr.flagSet != null && iExpr.flagSet.contains(Flag.NEVER_ALLOWED) &&
+                actualType.tag == TypeTags.NEVER && this.expType.tag == TypeTags.ERROR) {
+            resultType = actualType;
+        } else {
+            resultType = types.checkType(iExpr, actualType, this.expType);
+        }
     }
 
     private BVarSymbol incRecordParamAllowAdditionalFields(List<BVarSymbol> openIncRecordParams,
@@ -5839,8 +5857,32 @@ public class TypeChecker extends BLangNodeVisitor {
         if (keyFunctionType.tag == TypeTags.NIL) {
             if (!types.isOrderedType(iExpr.argExprs.get(0).type, false)) {
                 dlog.error(iExpr.argExprs.get(0).pos, DiagnosticErrorCode.INVALID_SORT_ARRAY_MEMBER_TYPE,
-                        iExpr.argExprs.get(0).type);
+                            iExpr.argExprs.get(0).type);
             }
+            return;
+        }
+
+        Location pos;
+        BType returnType;
+
+        if (keyFunction.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            pos = keyFunction.pos;
+            returnType = keyFunction.type.getReturnType();
+        } else if (keyFunction.getKind() == NodeKind.ARROW_EXPR) {
+            BLangArrowFunction arrowFunction = ((BLangArrowFunction) keyFunction);
+            pos = arrowFunction.body.expr.pos;
+            returnType = arrowFunction.body.expr.type;
+            if (returnType.tag == TypeTags.SEMANTIC_ERROR) {
+                return;
+            }
+        } else {
+            BLangLambdaFunction keyLambdaFunction = (BLangLambdaFunction) keyFunction;
+            pos = keyLambdaFunction.function.pos;
+            returnType = keyLambdaFunction.function.type.getReturnType();
+        }
+
+        if (!types.isOrderedType(returnType, false)) {
+            dlog.error(pos, DiagnosticErrorCode.INVALID_SORT_FUNC_RETURN_TYPE, returnType);
         }
     }
 

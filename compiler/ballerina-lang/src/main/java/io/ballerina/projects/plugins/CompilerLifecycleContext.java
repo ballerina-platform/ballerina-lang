@@ -15,24 +15,21 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-
-package org.ballerinalang.langlib.config;
-
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.configurable.ConfigSecurityUtils;
+package io.ballerina.projects.plugins;
 
 /**
- * This class contains the implementation of "decrypt" Ballerina functions in ballerina/config module.
+ * Represent the context required to initialize a {@code CompilerLifecycleListener}.
+ * <p>
+ * This class can be used to add various lifecycle tasks during the {@code CompilerLifecycleListener} initialization.
  *
  * @since 2.0.0
  */
-public class DecryptUtils {
+public interface CompilerLifecycleContext {
 
-    public static BString decryptString(BString value) {
-        return StringUtils.fromString(ConfigSecurityUtils.decryptString(value.getValue()));
-    }
-
-    private DecryptUtils() {
-    }
+    /**
+     * Add a compiler lifecycle task to be triggered once the code-generation is completed.
+     *
+     * @param lifecycleTask the lifecycle task to be executed
+     */
+    void addCodeGenerationCompletedTask(CompilerLifecycleTask<CompilerLifecycleEventContext> lifecycleTask);
 }

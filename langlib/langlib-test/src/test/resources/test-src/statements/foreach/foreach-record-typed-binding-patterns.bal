@@ -125,3 +125,16 @@ function testEmptyRecordIteration() returns string {
     }
     return output;
 }
+
+type Foo record {|
+|};
+
+function testForeachWithClosedRecordWithNoFields() returns any {
+    Foo f = {
+    };
+    any a = "ABC";
+    foreach var x in f {
+        a = x;
+    }
+    return a;
+}

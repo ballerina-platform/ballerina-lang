@@ -78,6 +78,8 @@
             <class name="io.ballerina.semantic.api.test.typebynode.TypeByTypeExprTest" />
 
             <class name="io.ballerina.semantic.api.test.typedescriptors.TypeReferenceTSymbolTest" />
+
+            <class name="io.ballerina.semantic.api.test.incompletesource.InvalidFieldTypeTest" />
         </classes>
     </test>
 </suite>

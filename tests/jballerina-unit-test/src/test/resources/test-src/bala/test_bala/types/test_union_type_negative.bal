@@ -14,12 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/jballerina.java;
+import testorg/foo;
 
-# Returns an decrypted string value for given encrypted config string.
-#
-# + value - the config string to be decrypted
-# + return - a decrypted string
-public isolated function decryptString(string value) returns string = @java:Method  {
-    'class: "org.ballerinalang.langlib.config.DecryptUtils"
-} external;
+function testUnion() {
+    foo:IntOrString a = 1;
+    boolean b = a;
+
+    foo:FooBar c = "hello";
+
+    foo:BazQux d = foo:FOO;
+}

@@ -136,9 +136,9 @@ public class ConfigNegativeTest {
                                                                                 PredefinedTypes.TYPE_XML, 0, true),
                                                           true)}, 0, 1,
                         new String[]{
-                                "warning: configurable variable 'mod1:xmlVar' with type 'xml<lang.xml:Element|lang" +
-                                        ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>' is not supported" +
-                                        " as a toml value"}},
+                                "warning: configurable variable 'mod1:xmlVar' with type 'xml<(lang.xml:Element|lang" +
+                                        ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>' is not " +
+                                        "supported as a toml value"}},
                 // supported toml type but not cli type
                 {new String[]{"-Corg.mod1.intArr=1234"}, "MatchedTypeValues.toml",
                         new VariableKey[]{

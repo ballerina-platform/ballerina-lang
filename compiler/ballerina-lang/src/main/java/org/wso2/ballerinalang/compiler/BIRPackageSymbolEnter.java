@@ -1239,6 +1239,13 @@ public class BIRPackageSymbolEnter {
                         unionType.add(readTypeFromCp());
                     }
 
+                    int unionOriginalMemberCount = inputStream.readInt();
+                    LinkedHashSet<BType> originalMemberTypes = new LinkedHashSet<>(unionOriginalMemberCount);
+                    for (int i = 0; i < unionOriginalMemberCount; i++) {
+                        originalMemberTypes.add(readTypeFromCp());
+                    }
+                    unionType.setOriginalMemberTypes(originalMemberTypes);
+
                     var poppedUnionType = compositeStack.pop();
                     assert poppedUnionType == unionType;
 

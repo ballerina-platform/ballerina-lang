@@ -60,8 +60,7 @@ public class ErrorTest {
 
     @Test
     public void testDistinctFooError() {
-        BValue[] errors = BRunUtil.invoke(distinctErrorTestResult, "testFooError");
-        Assert.assertEquals(errors[0].stringValue(), "error message {\"detailField\":true}");
+        BRunUtil.invoke(distinctErrorTestResult, "testFooError");
     }
 
     @Test
@@ -256,14 +255,17 @@ public class ErrorTest {
         CompileResult negativeCompileResult = BCompileUtil.compile("test-src/error/error_test_negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'map<any>', expected a subtype of 'map<Cloneable>'", 41, 28);
+                "invalid error detail type 'map<any>', expected a subtype of " +
+                        "'map<ballerina/lang.value:1.0.0:Cloneable>'", 41, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 42, 28);
+                "invalid error detail type 'boolean', expected a subtype of '" +
+                        "map<ballerina/lang.value:1.0.0:Cloneable>'", 42, 28);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "error constructor does not accept additional detail args 'one' when error detail type 'Foo' " +
                         "contains individual field descriptors", 45, 58);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "invalid error detail type 'boolean', expected a subtype of 'map<Cloneable>'", 48, 11);
+                "invalid error detail type 'boolean', expected a subtype of " +
+                        "'map<ballerina/lang.value:1.0.0:Cloneable>'", 48, 11);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'string', found 'boolean'", 48, 30);
         BAssertUtil.validateError(negativeCompileResult, i++, "self referenced variable 'e3'", 54, 22);

@@ -21,7 +21,7 @@ function testRefTypes(){
 
     [typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>] tupleValue = [a, b, c, d];
 
-    assertEquality("typedesc xml<lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>", tupleValue[0].toString());
+    assertEquality("typedesc xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>", tupleValue[0].toString());
     assertEquality("typedesc json", b.toString());
     assertEquality("typedesc map", c.toString());
     assertEquality("typedesc table<Employee>", d.toString());

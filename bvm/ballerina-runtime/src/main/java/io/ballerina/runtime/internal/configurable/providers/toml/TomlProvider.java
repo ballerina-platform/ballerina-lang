@@ -37,7 +37,6 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
-import io.ballerina.runtime.internal.configurable.ConfigSecurityUtils;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BTableType;
@@ -135,7 +134,6 @@ public class TomlProvider implements ConfigProvider {
             return Optional.empty();
         }
         String stringVal = (String) value;
-        ConfigSecurityUtils.handleEncryptedValues(key.module.getName() + ":" + key.variable, stringVal);
         return Optional.of(StringUtils.fromString(stringVal));
     }
 
@@ -521,7 +519,6 @@ public class TomlProvider implements ConfigProvider {
         }
         if (typeTag == TypeTags.STRING_TAG) {
             String stringVal = (String) tomlValue;
-            ConfigSecurityUtils.handleEncryptedValues(variableName, stringVal);
             return StringUtils.fromString(stringVal);
         }
         return tomlValue;

@@ -55,6 +55,7 @@ public class TracingBaseTestCase extends ObservabilityBaseTest {
             + "/MockClient";
     protected static final String OBSERVABLE_ADDER_OBJECT_NAME = TEST_SRC_ORG_NAME + "/" + TEST_SRC_UTILS_MODULE_NAME
             + "/ObservableAdder";
+    protected static final String ZERO_SPAN_ID = "0000000000000000";
 
     @BeforeGroups(value = "tracing-test", alwaysRun = true)
     public void setup() throws Exception {

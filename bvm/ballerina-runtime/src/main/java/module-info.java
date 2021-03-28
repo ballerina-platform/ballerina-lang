@@ -5,8 +5,8 @@ module io.ballerina.runtime {
     requires axiom.api;
     requires java.logging;
     requires java.management;
-    requires opentracing.api;
-    requires opentracing.noop;
+    requires io.opentelemetry.api;
+    requires io.opentelemetry.context;
     requires java.transaction.xa;
     requires slf4j.api;
     requires axiom.impl;
@@ -60,5 +60,5 @@ module io.ballerina.runtime {
             io.ballerina.lang.floatingpoint, io.ballerina.lang.map, io.ballerina.lang.string, io.ballerina.lang.table,
             io.ballerina.lang.xml, io.ballerina.testerina.core, io.ballerina.cli.utils, io.ballerina.cli;
     exports io.ballerina.runtime.internal.values to io.ballerina.testerina.core, io.ballerina.testerina.runtime;
-    exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal, io.ballerina.lang.config;
+    exports io.ballerina.runtime.internal.configurable to io.ballerina.lang.internal;
 }
