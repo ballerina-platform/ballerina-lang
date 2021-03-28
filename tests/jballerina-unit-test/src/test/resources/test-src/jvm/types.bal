@@ -733,7 +733,21 @@ function testTupleArrayTypeToString() {
 function testTypeDescValuePrint() {
 	map<int|string> m1 = { one: 1, two: 2 };
     typedesc<map<anydata>> t1 = typeof m1;
-    assertEquality("typedesc map<int|string>", t1.toString());
+    assertEquality("typedesc map<(int|string)>", t1.toString());
+}
+
+enum MyEnum {
+    A,
+    B
+}
+
+type NonEnum A|B;
+
+function func1() returns MyEnum? => ();
+function func2() returns NonEnum? => A;
+
+function testEnumFlagAndMembers() returns [typedesc<function>, typedesc<function>] {
+    return [typeof func1, typeof func2];
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

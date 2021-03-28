@@ -395,8 +395,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         boolean inIsolatedFunction = funcNode.flagSet.contains(Flag.ISOLATED);
 
-        int inferTypedescParamCount = 0;
-
         for (BLangSimpleVariable param : funcNode.requiredParams) {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
             this.analyzeDef(param, funcNode.clonedEnv);
@@ -406,17 +404,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 funcNode.symbol.paramDefaultValTypes.put(param.symbol.name.value, expr.type);
                 ((BInvokableTypeSymbol) funcNode.type.tsymbol).paramDefaultValTypes.put(param.symbol.name.value,
                                                                                         expr.type);
-
-                if (param.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
-                    inferTypedescParamCount++;
-                }
             }
 
             validateIsolatedParamUsage(inIsolatedFunction, param, false);
-        }
-
-        if (inferTypedescParamCount > 1) {
-            dlog.error(funcNode.pos, DiagnosticErrorCode.MULTIPLE_INFER_TYPEDESC_PARAMS);
         }
 
         BLangSimpleVariable restParam = funcNode.restParam;
@@ -711,7 +701,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             type.flags |= Flags.READONLY;
         }
 
-        validateOptionalNeverTypedField(recordTypeNode);
         validateDefaultable(recordTypeNode);
         recordTypeNode.analyzed = true;
     }
@@ -1272,6 +1261,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     // This is a variable declared in a function, an action or a resource
                     // If the variable is parameter then the variable symbol is already defined
                     if (simpleVariable.symbol == null) {
+                        // Add flag to identify variable is used in foreach/from clause/join clause
+                        variable.flagSet.add(Flag.NEVER_ALLOWED);
                         symbolEnter.defineNode(simpleVariable, blockEnv);
                     }
                 }
@@ -3060,15 +3051,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (field.flagSet.contains(Flag.OPTIONAL) && field.expr != null) {
                 dlog.error(field.pos, DiagnosticErrorCode.DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS,
                            field.name.value);
-            }
-        }
-    }
-
-    private void validateOptionalNeverTypedField(BLangRecordTypeNode recordTypeNode) {
-        // Never type is only allowed in an optional field in a record
-        for (BLangSimpleVariable field : recordTypeNode.fields) {
-            if (field.type.tag == TypeTags.NEVER && !field.flagSet.contains(Flag.OPTIONAL)) {
-                dlog.error(field.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_FIELDS, field.name.value);
             }
         }
     }

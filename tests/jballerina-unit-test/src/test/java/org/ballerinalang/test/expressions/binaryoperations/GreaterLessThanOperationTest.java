@@ -19,7 +19,6 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -101,7 +100,7 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 40);
+        Assert.assertEquals(resultNegative.getErrorCount(), 56);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
@@ -173,8 +172,40 @@ public class GreaterLessThanOperationTest {
                 "'decimal'", 136, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'float' and " +
                 "'decimal'", 137, 18);
-        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for 'float' and " +
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'float' and " +
                 "'decimal'", 138, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '(int|string)' " +
+                "and '(int|string)'", 144, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '(int|string)' " +
+                "and '(int|string)'", 145, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '(int|string)' " +
+                "and '(int|string)'", 146, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '(int|string)' " +
+                "and '(int|string)'", 147, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '1|2|3|4|5.23f[]' " +
+                "and '1|2|3|4|5.23f[]'", 155, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '1|2|3|4|5.23f[]' " +
+                "and '1|2|3|4|5.23f[]'", 156, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '1|2|3|4|5.23f[]' " +
+                "and '1|2|3|4|5.23f[]'", 157, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2|3|4|5.23f[]' " +
+                "and '1|2|3|4|5.23f[]'", 158, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 169, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 170, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 171, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'OneOrTwo[]' and " +
+                "'OneOrTwo[]'", 172, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 181, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 182, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 183, 18);
+        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for 'FloatOrString' and " +
+                "'FloatOrString'", 184, 18);
     }
 
     @Test(description = "Test decimal greater than, less than expression")
@@ -183,7 +214,7 @@ public class GreaterLessThanOperationTest {
     }
 
     @Test(dataProvider = "FunctionList")
-    public void testArrayFunctions(String funcName) {
+    public void testValueComparsion(String funcName) {
         BRunUtil.invoke(result, funcName);
     }
 
@@ -194,69 +225,25 @@ public class GreaterLessThanOperationTest {
                 "testBooleanComparison",
                 "testArrayComparison1",
                 "testArrayComparison2",
-                "testArrayComparison3",
                 "testTupleComparison1",
                 "testTupleComparison2",
-                "testUnionComparison",
                 "testTypeComparison1",
                 "testTypeComparison2",
-                "testTypeComparison3"
+                "testTypeComparison3",
+                "testTypeComparison4",
+                "testTypeComparison5",
+                "testUnionComparison1",
+                "testUnionComparison2",
+                "testUnionComparison3",
+                "testUnionComparison4",
+                "testUnorderedTypeComparison1",
+                "testUnorderedTypeComparison2",
+                "testUnorderedTypeComparison3",
+                "testUnorderedTypeComparison4",
+                "testUnorderedTypeComparison5",
+                "testUnorderedTypeComparison6",
+                "testUnorderedTypeComparison7",
+                "testUnorderedTypeComparison8"
         };
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'ABC' is unordered with respect to '\\(\\)'\"}.*")
-    public void testUnorderedTypeComparison1() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison1");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'NaN' is unordered with respect to '123\\.432'\"}.*")
-    public void testUnorderedTypeComparison2() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison2");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'NaN' is unordered with respect to 'NaN'\"}.*")
-    public void testUnorderedTypeComparison3() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison3");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'\\(\\)' is unordered with respect to 'ABC'\"}.*")
-    public void testUnorderedTypeComparison4() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison4");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'400' is unordered with respect to '\\(\\)'\"}.*")
-    public void testUnorderedTypeComparison5() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison5");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'400\\.123' is unordered with respect to 'NaN'\"}.*")
-    public void testUnorderedTypeComparison6() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison6");
-        Assert.fail();
-    }
-
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp =
-                    "error: UnorderedTypesError \\{\"message\":\"'NaN' is unordered with respect to 'NaN'\"}.*")
-    public void testUnorderedTypeComparison7() {
-        BRunUtil.invoke(result, "testUnorderedTypeComparison7");
-        Assert.fail();
     }
 }

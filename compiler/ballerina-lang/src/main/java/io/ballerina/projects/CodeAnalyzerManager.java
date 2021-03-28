@@ -270,7 +270,7 @@ class CodeAnalyzerManager {
      *
      * @since 2.0.0
      */
-    static class CompilationAnalysisContextIml extends CompilationAnalysisContext {
+    static class CompilationAnalysisContextIml implements CompilationAnalysisContext {
         private final Package currentPackage;
         private final PackageCompilation compilation;
         private final List<Diagnostic> diagnostics = new ArrayList<>();

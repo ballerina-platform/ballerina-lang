@@ -167,3 +167,14 @@ function testFunctionWithAnyFunctionParamType() {
 
    function (function, boolean) y = getFunctionWithAnyFunctionParamType(fn);
 }
+
+function quux(typedesc<boolean> td = <>) returns int = external;
+function bar(typedesc<boolean> td = <>) = external;
+function baz(typedesc t, typedesc<boolean> td = <>) returns int|string = external;
+function qux(typedesc t, typedesc<boolean> td = <>) returns int|string|t = external;
+
+function (typedesc<boolean> td = <>) returns int fn1 = quux;
+function (typedesc<boolean> td = <>) fn2 = bar;
+function (typedesc t, typedesc<boolean> td = <>) returns int|string fn3 = baz;
+
+function (typedesc t = <>, typedesc<boolean> td = <>) returns t|td fn4 = baz;

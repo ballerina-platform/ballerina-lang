@@ -1915,10 +1915,16 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbol.retType = tsymbol.returnType;
         }
 
-        if (varSymbol.type.tag == TypeTags.NEVER && ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD)) {
-            // check if the variable is defined as a 'never' type (except inside a record type)
+        if ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD && !varNode.flagSet.contains(Flag.NEVER_ALLOWED) &&
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(varSymbol.type)) {
+            // check if the variable is defined as a 'never' type or equivalent to 'never'
+            // (except inside a record type or iterative use (followed by in) in typed binding pattern)
             // if so, log an error
-            dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED, varSymbol.name);
+            if (varNode.flagSet.contains(Flag.REQUIRED_PARAM) || varNode.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
+                dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_DEFAULTABLE_PARAMS);
+            } else {
+                dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED);
+            }
         }
     }
 
@@ -3632,7 +3638,10 @@ public class SymbolEnter extends BLangNodeVisitor {
             symResolver.resolveTypeNode(invokableNode.returnTypeNode, invokableEnv);
         }
         invokableSymbol.params = paramSymbols;
-        invokableSymbol.retType = invokableNode.returnTypeNode.type;
+        BType retType = invokableNode.returnTypeNode.type;
+        invokableSymbol.retType = retType;
+
+        symResolver.validateInferTypedescParams(invokableNode.pos, invokableNode.getParameters(), retType);
 
         // Create function type
         List<BType> paramTypes = paramSymbols.stream()
@@ -3655,7 +3664,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             functionTypeSymbol.restParam = invokableSymbol.restParam;
             restType = invokableSymbol.restParam.type;
         }
-        invokableSymbol.type = new BInvokableType(paramTypes, restType, invokableNode.returnTypeNode.type, null);
+        invokableSymbol.type = new BInvokableType(paramTypes, restType, retType, null);
         invokableSymbol.type.tsymbol = functionTypeSymbol;
         invokableSymbol.type.tsymbol.type = invokableSymbol.type;
     }

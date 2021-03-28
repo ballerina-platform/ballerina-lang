@@ -22,37 +22,31 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 /**
- * This class provides a context for the compilation analysis task.
+ * The context for the compilation analysis task.
  *
  * @see CodeAnalysisContext
  * @since 2.0.0
  */
-public abstract class CompilationAnalysisContext {
+public  interface CompilationAnalysisContext {
 
     /**
      * Returns the current {@code Package} instance on which the compilation is being performed.
      *
      * @return the current {@code Package} instance
      */
-    public Package currentPackage() {
-        throw new UnsupportedOperationException();
-    }
+    public Package currentPackage();
 
     /**
      * Returns the compilation instance that captures the state of the package compilation.
      *
      * @return the package compilation instance
      */
-    public PackageCompilation compilation() {
-        throw new UnsupportedOperationException();
-    }
+    public PackageCompilation compilation();
 
     /**
      * Reports a diagnostic against the compilation.
      *
      * @param diagnostic the {@code Diagnostic} to be reported
      */
-    public void reportDiagnostic(Diagnostic diagnostic) {
-        throw new UnsupportedOperationException();
-    }
+    public void reportDiagnostic(Diagnostic diagnostic);
 }
