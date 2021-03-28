@@ -2715,7 +2715,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
-        BLangUserDefinedType errorTypeRef = errorConstructorExpr.errorTypeRef;
+        BLangUserDefinedType userProvidedTypeRef = errorConstructorExpr.errorTypeRef;
+        BLangUserDefinedType errorTypeRef = userProvidedTypeRef;
         if (errorTypeRef != null) {
             symResolver.resolveTypeNode(errorTypeRef, env, DiagnosticErrorCode.UNDEFINED_ERROR_TYPE_DESCRIPTOR);
         }
@@ -2816,8 +2817,13 @@ public class TypeChecker extends BLangNodeVisitor {
             }
         }
 
-        errorConstructorExpr.type = errorType;
-        resultType = types.checkType(errorConstructorExpr.pos, errorType, expType,
+        if (userProvidedTypeRef != null) {
+            errorConstructorExpr.type = userProvidedTypeRef.type;
+        } else {
+            errorConstructorExpr.type = errorType;
+        }
+
+        resultType = types.checkType(errorConstructorExpr.pos, errorConstructorExpr.type, expType,
                 DiagnosticErrorCode.INCOMPATIBLE_TYPES);
     }
 
@@ -2883,11 +2889,7 @@ public class TypeChecker extends BLangNodeVisitor {
             candidateType = errorConstructorExpr.errorTypeRef.type;
         }
 
-        List<BType> expectedErrorTypes = expandExpectedErrorTypes(candidateType);
-        if (!expectedErrorTypes.isEmpty()) {
-            return expectedErrorTypes;
-        }
-        return List.of(symTable.errorType);
+        return expandExpectedErrorTypes(candidateType);
     }
 
     private List<BType> expandExpectedErrorTypes(BType candidateType) {

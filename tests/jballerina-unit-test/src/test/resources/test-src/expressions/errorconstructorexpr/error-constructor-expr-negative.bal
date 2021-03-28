@@ -38,9 +38,9 @@ function testErrorTypeRefNegative() {
                                                      //                   "'string', found 'int'
 }
 
-type Error error<record { int i; string j; }>;
-Error e = error("msg", i = 1, j = 2, k = error("msg"));
-Error e2 = error("msg", i = 1);
+type ErrorIJ error<record { int i; string j; }>;
+ErrorIJ e = error("msg", i = 1, j = 2, k = error("msg"));
+ErrorIJ e2 = error("msg", i = 1);
 
 type ErrorA error;
 type ErrorB error<map<string>>;

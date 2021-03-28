@@ -78,30 +78,20 @@ public class ErrorConstructorExprTest {
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'", 22, 22);
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found 'string'", 23, 28);
         validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 24, 27);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'", 26, 16);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 26, 16);
         validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 26, 27);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'", 27, 16);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 27, 16);
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'", 27, 28);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'", 28, 16);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 28, 16);
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'error'", 28, 28);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'", 29, 16);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 29, 16);
         validateError(negativeSemanticResult, i++, "incompatible types: expected 'error?', found 'string'", 29, 34);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'i'", 30, 17);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 30, 17);
         validateError(negativeSemanticResult, i++, "additional positional arg in error constructor", 30, 34);
         validateError(negativeSemanticResult, i++, "undefined error type descriptor 'MyError'", 36, 26);
         validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'c', expected " +
                 "'string', found 'int'", 37, 46);
         validateError(negativeSemanticResult, i++, "invalid arg type in error detail field 'j', expected " +
-                "'string', found 'int'", 42, 31);
+                "'string', found 'int'", 42, 33);
         validateError(negativeSemanticResult, i++,
                 "error constructor does not accept additional detail args 'k' when error detail type " +
-                        "'record {| int i; string j; anydata...; |}' contains individual field descriptors", 42, 38);
-        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 43, 12);
+                        "'record {| int i; string j; anydata...; |}' contains individual field descriptors", 42, 40);
+        validateError(negativeSemanticResult, i++, "missing error detail arg for error detail field 'j'", 43, 14);
         validateError(negativeSemanticResult, i++, "cannot infer type of the error from '(error|ErrorB)'", 50, 20);
         validateError(negativeSemanticResult, i++, "cannot infer type of the error from '(error|ErrorB)'", 51, 20);
         Assert.assertEquals(negativeSemanticResult.getErrorCount(), i);

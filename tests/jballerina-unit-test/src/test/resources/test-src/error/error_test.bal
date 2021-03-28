@@ -352,25 +352,6 @@ function testStackOverFlow() returns [error:CallStackElement[], string]? {
     }
 }
 
-function testErrorTypeDescriptionInferring() {
-    TrxError e = error TrxError("IAmAInferedErr");
-    error<*> err = e;
-    TrxError errSecondRef = err;
-    assertEquality(errSecondRef.detail().toString(), e.detail().toString());
-}
-
-function testDefaultErrorTypeDescriptionInferring() {
-    error e = error("IAmAInferedDefaultErr");
-    error<*> err = e;
-    assertEquality(err.detail().toString(), e.detail().toString());
-}
-
-function testUnionErrorTypeDescriptionInferring() {
-    error|TrxError e = error("IAmAInferedUnionErr", abc = "abc");
-    error<*> err = e;
-    assertEquality(err.detail().toString(), e.detail().toString());
-}
-
 type SampleErrorData record {
     string message?;
     error cause?;
