@@ -167,6 +167,7 @@ public class MainMethodGen {
 
     private void invokeConfigInit(MethodVisitor mv, PackageID packageID) {
         String configClass = JvmCodeGenUtil.getModuleLevelClassName(packageID, CONFIGURATION_CLASS_NAME);
+        mv.visitVarInsn(ALOAD, 0);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "getConfigurationDetails", "()L" + TOML_DETAILS + ";", false);
         int configDetailsIndex = indexMap.addIfNotExists(CONFIG_VAR, symbolTable.anyType);
 
@@ -179,7 +180,7 @@ public class MainMethodGen {
         mv.visitVarInsn(ALOAD, configDetailsIndex);
         mv.visitFieldInsn(GETFIELD, TOML_DETAILS, "configContent", "L" + STRING_VALUE + ";");
         mv.visitMethodInsn(INVOKESTATIC, configClass, CONFIGURE_INIT,
-                String.format("([L%s;L%s;L%s;)V", PATH, STRING_VALUE, STRING_VALUE), false);
+                String.format("([L%s;[L%s;L%s;L%s;)V", STRING_VALUE, PATH, STRING_VALUE, STRING_VALUE), false);
     }
 
     private void generateJavaCompatibilityCheck(MethodVisitor mv) {

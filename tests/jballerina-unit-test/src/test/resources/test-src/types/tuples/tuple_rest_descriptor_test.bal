@@ -129,7 +129,7 @@ function testToStringRepresentation() {
     //[[int...]...] t3 = [[1, 2], [1, 2, 3]]; // https://github.com/ballerina-platform/ballerina-lang/issues/28347
 
     assertEquality("typedesc [string,int,int[]...]", (typeof t1).toString());
-    assertEquality("typedesc [int,string|boolean...]", (typeof t2).toString());
+    assertEquality("typedesc [int,(string|boolean)...]", (typeof t2).toString());
     //assertEquality("typedesc [[int...]...]", (typeof t3).toString());
 }
 

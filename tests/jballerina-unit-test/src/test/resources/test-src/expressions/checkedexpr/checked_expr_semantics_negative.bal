@@ -48,3 +48,8 @@ function readLineProper() returns string | MyError | CustomError {
 function testCheckedExprSemanticErrors5() {
     string line = check readLineProper();
 }
+
+function testCheckedExprSemanticErrors6() returns error? {
+    string|error line = readLineSuccess();
+    check line;
+}

@@ -172,5 +172,9 @@ public enum Flag {
     /**
      * Indicates flagged node is a `function` type.
      */
-    ANY_FUNCTION;
+    ANY_FUNCTION,
+    /**
+     * Indicates flagged node allows never type.
+     */
+    NEVER_ALLOWED;
 }

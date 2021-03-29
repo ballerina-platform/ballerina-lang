@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -106,6 +107,13 @@ public class PackageCompilation {
         List<Diagnostic> reportedDiagnostics = codeAnalyzerManager.runCodeAnalyzerTasks();
         addCompilerPluginDiagnostics(compilation, reportedDiagnostics);
         return compilation;
+    }
+
+    public List<Diagnostic> notifyCompilationCompletion(Path filePath) {
+        CompilerLifecycleManager manager = this.compilerPluginManager.getCompilerLifecycleListenerManager();
+        List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks(filePath);
+        this.pluginDiagnostics.addAll(diagnostics);
+        return diagnostics;
     }
 
     public PackageResolution getResolution() {

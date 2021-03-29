@@ -445,7 +445,7 @@ public class TypedescriptorTest {
     @DataProvider(name = "StreamTypePosProvider")
     public Object[][] getStreamTypePos() {
         return new Object[][]{
-                {93, 19, TYPE_REFERENCE, NEVER},
+                {93, 19, TYPE_REFERENCE, NIL},
                 {94, 23, TYPE_REFERENCE, NIL},
                 {95, 45, RECORD, ERROR}
         };
@@ -643,6 +643,24 @@ public class TypedescriptorTest {
         assertTrue(symbol.typeDescriptor().restParam().isEmpty());
         assertTrue(symbol.typeDescriptor().returnTypeDescriptor().isEmpty());
         assertEquals(symbol.typeDescriptor().signature(), "function");
+    }
+
+    @Test
+    public void testParameterizedType() {
+        Symbol symbol = getSymbol(219, 9);
+        FunctionTypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor();
+        TypeSymbol returnTypeSymbol = type.returnTypeDescriptor().get();
+        assertEquals(returnTypeSymbol.signature(), "td");
+
+        symbol = getSymbol(221, 9);
+        type = ((FunctionSymbol) symbol).typeDescriptor();
+        returnTypeSymbol = type.returnTypeDescriptor().get();
+        assertEquals(returnTypeSymbol.typeKind(), UNION);
+        assertEquals(returnTypeSymbol.signature(), "error|td");
+        List<TypeSymbol> members = ((UnionTypeSymbol) returnTypeSymbol).memberTypeDescriptors();
+        assertEquals(members.size(), 2);
+        assertEquals(members.get(0).typeKind(), ERROR);
+        assertEquals(members.get(1).signature(), "td");
     }
 
     private Symbol getSymbol(int line, int column) {

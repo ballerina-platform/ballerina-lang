@@ -88,7 +88,6 @@ import static io.ballerina.projects.util.ProjectConstants.PROPERTIES_FILE;
 import static io.ballerina.projects.util.ProjectConstants.TEST_CORE_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.TEST_RUNTIME_JAR_PREFIX;
 import static io.ballerina.projects.util.ProjectConstants.USER_NAME;
-import static org.wso2.ballerinalang.compiler.util.Names.BALLERINA_INTERNAL_ORG;
 
 /**
  * Project related util methods.
@@ -520,33 +519,62 @@ public class ProjectUtils {
     /**
      * Get `Dependencies.toml` content as a string.
      *
-     * @param pkgDependencies direct dependencies of the package
-     * @param dependencies    list of dependencies as of root package manifest
+     * @param pkgGraphDependencies    direct dependencies of the package dependency graph
+     * @param pkgManifestDependencies list of dependencies as of root package manifest
      * @return Dependencies.toml` content
      */
-    public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgDependencies,
-            List<PackageManifest.Dependency> dependencies) {
+    public static String getDependenciesTomlContent(Collection<ResolvedPackageDependency> pkgGraphDependencies,
+            List<PackageManifest.Dependency> pkgManifestDependencies) {
         StringBuilder content = new StringBuilder();
-        for (ResolvedPackageDependency dependency : pkgDependencies) {
-            PackageDescriptor descriptor = dependency.packageInstance().descriptor();
+
+        // write dependencies already in the `Dependencies.toml`
+        pkgManifestDependencies.forEach(manifestDependency -> {
+            addDependencyContent(content, manifestDependency.org().value(), manifestDependency.name().value(),
+                                 manifestDependency.version().value().toString());
+            if (manifestDependency.repository() != null) {
+                content.append("repository = \"").append(manifestDependency.repository()).append("\"\n");
+            }
+            content.append("\n");
+        });
+
+        // write dependencies from package dependency graph
+        pkgGraphDependencies.forEach(graphDependency -> {
+            PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
 
             // ignore lang libs & ballerina internal packages
-            if (!(descriptor.isLangLibPackage() || descriptor.org().value().equals(BALLERINA_INTERNAL_ORG.value))) {
-                content.append("[[dependency]]\n");
-                content.append("org = \"").append(descriptor.org().value()).append("\"\n");
-                content.append("name = \"").append(descriptor.name().value()).append("\"\n");
-                content.append("version = \"").append(descriptor.version().value()).append("\"\n");
-                dependencies.forEach(dependency1 -> {
-                    if (dependency1.org().value().equals(dependency.packageInstance().packageOrg().value())
-                            && dependency1.name().value().equals(dependency.packageInstance().packageName().value())
-                            && dependency1.repository() != null) {
-                        content.append("repository = \"").append(dependency1.repository()).append("\"\n");
-                    }
-                });
-                content.append("\n");
+            if (!descriptor.isLangLibPackage() && !graphDependency.injected()) {
+                // write dependency, if it not already exists in `Dependencies.toml`
+                if (!isPkgManifestDependency(graphDependency, pkgManifestDependencies)) {
+                    addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
+                                         descriptor.version().value().toString());
+                    content.append("\n");
+                }
+            }
+        });
+        return String.valueOf(content);
+    }
+
+    private static boolean isPkgManifestDependency(ResolvedPackageDependency graphDependency,
+            List<PackageManifest.Dependency> pkgManifestDependencies) {
+        if (pkgManifestDependencies.isEmpty()) {
+            return false;
+        }
+
+        for (PackageManifest.Dependency manifestDependency : pkgManifestDependencies) {
+            if (manifestDependency.org().value().equals(graphDependency.packageInstance().packageOrg().value())
+                    && manifestDependency.name().value()
+                    .equals(graphDependency.packageInstance().packageName().value())) {
+                return true;
             }
         }
-        return String.valueOf(content);
+        return false;
+    }
+
+    private static void addDependencyContent(StringBuilder content, String org, String name, String version) {
+        content.append("[[dependency]]\n");
+        content.append("org = \"").append(org).append("\"\n");
+        content.append("name = \"").append(name).append("\"\n");
+        content.append("version = \"").append(version).append("\"\n");
     }
 
     public static List<PackageName> getPossiblePackageNames(String moduleName) {

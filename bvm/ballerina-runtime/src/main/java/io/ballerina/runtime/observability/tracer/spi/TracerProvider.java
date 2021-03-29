@@ -17,7 +17,8 @@
  */
 package io.ballerina.runtime.observability.tracer.spi;
 
-import io.opentracing.Tracer;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.propagation.ContextPropagators;
 
 /**
  * This returns a tracer for a service
@@ -44,4 +45,6 @@ public interface TracerProvider {
      * @return the Tracer
      */
     Tracer getTracer(String serviceName);
+
+    ContextPropagators getPropagators();
 }

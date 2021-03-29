@@ -186,6 +186,7 @@ import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.AttachPoints;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
@@ -238,6 +239,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private BType expType;
     private DiagnosticCode diagCode;
     private BType resType;
+    private Unifier unifier;
 
     private Map<BVarSymbol, BType.NarrowedTypes> narrowedTypeInfo;
     // Stack holding the fall-back environments. fall-back env is the env to go back
@@ -269,6 +271,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         this.constantAnalyzer = ConstantAnalyzer.getInstance(context);
         this.constantValueResolver = ConstantValueResolver.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
+        this.unifier = new Unifier();
     }
 
     public BLangPackage analyze(BLangPackage pkgNode) {
@@ -380,7 +383,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateAnnotationAttachmentCount(funcNode.annAttachments);
         }
 
-        if (funcNode.returnTypeNode != null) {
+        BLangType returnTypeNode = funcNode.returnTypeNode;
+        boolean hasReturnType = returnTypeNode != null;
+        if (hasReturnType) {
             funcNode.returnTypeAnnAttachments.forEach(annotationAttachment -> {
                 annotationAttachment.attachPoints.add(AttachPoint.Point.RETURN);
                 this.analyzeDef(annotationAttachment, funcEnv);
@@ -394,10 +399,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
             this.analyzeDef(param, funcNode.clonedEnv);
 
-            if (param.expr != null) {
-                funcNode.symbol.paramDefaultValTypes.put(param.symbol.name.value, param.expr.type);
+            BLangExpression expr = param.expr;
+            if (expr != null) {
+                funcNode.symbol.paramDefaultValTypes.put(param.symbol.name.value, expr.type);
                 ((BInvokableTypeSymbol) funcNode.type.tsymbol).paramDefaultValTypes.put(param.symbol.name.value,
-                                                                                        param.expr.type);
+                                                                                        expr.type);
             }
 
             validateIsolatedParamUsage(inIsolatedFunction, param, false);
@@ -410,10 +416,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             validateIsolatedParamUsage(inIsolatedFunction, restParam, true);
         }
 
+        if (hasReturnType && Symbols.isFlagOn(returnTypeNode.type.flags, Flags.PARAMETERIZED)) {
+            unifier.validate(returnTypeNode.type, funcNode, symTable, env, types, dlog);
+        }
+
         validateObjectAttachedFunction(funcNode);
 
         if (funcNode.hasBody()) {
-            analyzeNode(funcNode.body, funcEnv, funcNode.returnTypeNode.type, null);
+            analyzeNode(funcNode.body, funcEnv, returnTypeNode.type, null);
         }
 
         if (funcNode.anonForkName != null) {
@@ -691,7 +701,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             type.flags |= Flags.READONLY;
         }
 
-        validateOptionalNeverTypedField(recordTypeNode);
         validateDefaultable(recordTypeNode);
         recordTypeNode.analyzed = true;
     }
@@ -809,6 +818,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     types.isAssignable(lhsType, symTable.stringType) ||
                     types.isAssignable(lhsType, symTable.booleanType) ||
                     types.isAssignable(lhsType, symTable.decimalType) ||
+                    types.isAssignable(lhsType, symTable.xmlType) ||
                     types.isAssignable(lhsType, symTable.arrayType) ||
                     types.isAssignable(lhsType, symTable.mapAnydataType) ||
                     types.isAssignable(lhsType, symTable.tableType))) {
@@ -1251,6 +1261,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     // This is a variable declared in a function, an action or a resource
                     // If the variable is parameter then the variable symbol is already defined
                     if (simpleVariable.symbol == null) {
+                        // Add flag to identify variable is used in foreach/from clause/join clause
+                        variable.flagSet.add(Flag.NEVER_ALLOWED);
                         symbolEnter.defineNode(simpleVariable, blockEnv);
                     }
                 }
@@ -3039,15 +3051,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (field.flagSet.contains(Flag.OPTIONAL) && field.expr != null) {
                 dlog.error(field.pos, DiagnosticErrorCode.DEFAULT_VALUES_NOT_ALLOWED_FOR_OPTIONAL_FIELDS,
                            field.name.value);
-            }
-        }
-    }
-
-    private void validateOptionalNeverTypedField(BLangRecordTypeNode recordTypeNode) {
-        // Never type is only allowed in an optional field in a record
-        for (BLangSimpleVariable field : recordTypeNode.fields) {
-            if (field.type.tag == TypeTags.NEVER && !field.flagSet.contains(Flag.OPTIONAL)) {
-                dlog.error(field.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_FIELDS, field.name.value);
             }
         }
     }

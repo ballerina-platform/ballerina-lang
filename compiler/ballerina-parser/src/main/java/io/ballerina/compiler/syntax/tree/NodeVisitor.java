@@ -227,6 +227,10 @@ public abstract class NodeVisitor {
         visitSyntaxNode(restArgumentNode);
     }
 
+    public void visit(InferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        visitSyntaxNode(inferredTypedescDefaultNode);
+    }
+
     public void visit(ObjectTypeDescriptorNode objectTypeDescriptorNode) {
         visitSyntaxNode(objectTypeDescriptorNode);
     }

@@ -33,7 +33,7 @@ public class ForeachNegativeTests {
     @Test
     public void testForeachSemanticsNegative() {
         CompileResult compile = BCompileUtil.compile("test-src/statements/foreach/foreach-semantics-negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 16);
+        Assert.assertEquals(compile.getErrorCount(), 15);
         int index = 0;
         BAssertUtil.validateError(compile, index++,
                 "invalid list binding pattern: attempted to infer a list type, but found 'string'",
@@ -64,9 +64,8 @@ public class ForeachNegativeTests {
         BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 141, 18);
         BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 142, 18);
         BAssertUtil.validateError(compile, index++, "undefined function 'Error'", 143, 18);
-        BAssertUtil.validateError(compile, index++,
+        BAssertUtil.validateError(compile, index,
                 "incompatible types: '(json|error)' cannot be cast to 'json'", 166, 21);
-        BAssertUtil.validateError(compile, index, "cannot iterate a closed record with no fields", 220, 6);
     }
 
     @Test
