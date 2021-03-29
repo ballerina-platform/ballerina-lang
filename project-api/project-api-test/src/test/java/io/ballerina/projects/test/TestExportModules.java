@@ -38,7 +38,7 @@ import java.util.Arrays;
  *
  * @since 2.0.0
  */
-public class TestExportModules extends BaseTest {
+public class TestExportModules {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
     private static final Path EXPORT_MODULES = RESOURCE_DIRECTORY.resolve("export_modules");
 

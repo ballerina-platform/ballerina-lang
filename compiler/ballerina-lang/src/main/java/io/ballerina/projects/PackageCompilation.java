@@ -19,9 +19,8 @@ package io.ballerina.projects;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
-import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
-import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.projects.CompilerBackend.TargetPlatform;
+import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
@@ -251,40 +250,22 @@ public class PackageCompilation {
                 continue;
             }
 
-            for (DocumentId documentId : moduleContext.srcDocumentIds()) {
-                DocumentContext documentContext = moduleContext.documentContext(documentId);
-                ModulePartNode modulePartNode = documentContext.syntaxTree().rootNode();
-
-                for (ImportDeclarationNode importDcl : modulePartNode.imports()) {
-                    if (importDcl.orgName().isPresent()) {
-                        // foo/winery.storage
-                        String orgName = importDcl.orgName().get().orgName().text(); // foo
-
-                        String pkgName;
-                        String moduleName;
-                        if (importDcl.moduleName().size() == 1) {
-                            pkgName = importDcl.moduleName().get(0).text(); // winery
-                            moduleName = pkgName; // winery
-                        } else if (importDcl.moduleName().size() == 2) {
-                            pkgName = importDcl.moduleName().get(0).text(); // winery
-                            moduleName = pkgName + "." + importDcl.moduleName().get(1).text(); // winery.storage
-                        } else {
-                            throw new ProjectException("invalid import declaration:" + importDcl.moduleName());
-                        }
-
-                        for (ResolvedPackageDependency pkgDependency : directDependencies) {
-                            if (orgName.equals(pkgDependency.packageInstance().descriptor().org().value())
-                                    && pkgName.equals(pkgDependency.packageInstance().descriptor().name().value())) {
-                                List<String> exportedModuleNames = pkgDependency.packageInstance().manifest().export();
-
-                                if (!exportedModuleNames.contains(moduleName)) {
-                                    Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(new DiagnosticInfo(
-                                        "cannot resolve module",
-                                        "module '" + moduleName + "' is not an exported module",
-                                        DiagnosticSeverity.ERROR), importDcl.location());
-                                    nonExportedModulesDiagnostics.add(diagnostic);
-                                }
-                            }
+            for (ModuleLoadRequest moduleLoadRequest : moduleContext.moduleLoadRequests()) {
+                // Get exported packages using dependent module package manifest
+                for (ResolvedPackageDependency pkgDependency : directDependencies) {
+                    if (moduleLoadRequest.orgName().isPresent() &&
+                            moduleLoadRequest.orgName().get().value()
+                                    .equals(pkgDependency.packageInstance().descriptor().org().value()) &&
+                            moduleLoadRequest.packageName().value()
+                                    .equals(pkgDependency.packageInstance().descriptor().name().value())) {
+                        List<String> exportedModuleNames = pkgDependency.packageInstance().manifest().export();
+                        if (!exportedModuleNames.contains(moduleLoadRequest.moduleName().toString())) {
+                            Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(new DiagnosticInfo(
+                                    "cannot resolve module",
+                                    "module '" + moduleLoadRequest.moduleName().toString()
+                                            + "' is not an exported module",
+                                    DiagnosticSeverity.ERROR), moduleLoadRequest.location().get());
+                            nonExportedModulesDiagnostics.add(diagnostic);
                         }
                     }
                 }

@@ -173,14 +173,14 @@ public class PackageResolution {
                 PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value), packageName, ModuleName.from(packageName),
-                        null, PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                        null, PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED, null);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
             {
                 PackageName packageName = PackageName.from(Names.OBSERVE.getValue());
                 ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
                         PackageOrg.from(Names.BALLERINA_ORG.value), packageName, ModuleName.from(packageName),
-                        null, PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+                        null, PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED, null);
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
         }

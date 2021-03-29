@@ -186,6 +186,15 @@ class ModuleContext {
         return moduleLoadRequests;
     }
 
+    Set<ModuleLoadRequest> moduleLoadRequests() {
+        if (allModuleLoadRequests != null) {
+            return allModuleLoadRequests;
+        }
+        populateModuleLoadRequests();
+        populateTestSrcModuleLoadRequests();
+        return allModuleLoadRequests;
+    }
+
     BLangPackage bLangPackage() {
         return getBLangPackageOrThrow();
     }

@@ -59,7 +59,7 @@ import static org.mockito.Mockito.when;
  *
  * @since 2.0.0
  */
-public class TestBalaWriter extends BaseTest {
+public class TestBalaWriter {
     private static final Path RESOURCE_DIRECTORY = Paths.get("src", "test", "resources");
     private Path tmpDir;
     private Path balaExportPath;
