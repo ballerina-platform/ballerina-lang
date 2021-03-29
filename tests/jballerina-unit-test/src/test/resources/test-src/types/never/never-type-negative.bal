@@ -189,12 +189,16 @@ function blow3(never rec) {
 function blow4(int val, record {| never x; |} rec = {}) {
 }
 
-client object {} object1 = client object {
-    remote function invoke1(string a) returns never {
-        error e = error(a);
-        panic e;
+function blow5() returns error? {
+    Bam bam = new;
+    bam->func();
+}
+
+client class Bam {
+    remote function func() returns never {
+        panic error("error!");
     }
-};
+}
 
 function testNeverTypeInTypedBindingPattern2() {
     [never] x = [];

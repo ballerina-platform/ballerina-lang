@@ -43,3 +43,12 @@ function useUnion() {
 function testUnion() returns int|string {
     return "test";
 }
+
+function getInt() returns int? {
+    return ();
+}
+
+function checkNilCast() {
+    int? val = getInt();
+    () nil = val;
+}

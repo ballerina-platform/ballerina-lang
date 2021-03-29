@@ -950,6 +950,10 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         return null;
     }
 
+    public boolean refersInferableParamName(String paramWithInferredTypedescDefault, BType type) {
+        return refersInferableParamName(List.of(paramWithInferredTypedescDefault), type, new HashSet<>());
+    }
+
     private boolean refersInferableParamName(List<String> paramsWithInferredTypedescDefault, BType type) {
         return refersInferableParamName(paramsWithInferredTypedescDefault, type, new HashSet<>());
     }

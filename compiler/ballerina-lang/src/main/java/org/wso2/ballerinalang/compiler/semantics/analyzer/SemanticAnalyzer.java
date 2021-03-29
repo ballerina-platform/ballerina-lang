@@ -395,8 +395,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         boolean inIsolatedFunction = funcNode.flagSet.contains(Flag.ISOLATED);
 
-        int inferTypedescParamCount = 0;
-
         for (BLangSimpleVariable param : funcNode.requiredParams) {
             symbolEnter.defineExistingVarSymbolInEnv(param.symbol, funcNode.clonedEnv);
             this.analyzeDef(param, funcNode.clonedEnv);
@@ -406,17 +404,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 funcNode.symbol.paramDefaultValTypes.put(param.symbol.name.value, expr.type);
                 ((BInvokableTypeSymbol) funcNode.type.tsymbol).paramDefaultValTypes.put(param.symbol.name.value,
                                                                                         expr.type);
-
-                if (param.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
-                    inferTypedescParamCount++;
-                }
             }
 
             validateIsolatedParamUsage(inIsolatedFunction, param, false);
-        }
-
-        if (inferTypedescParamCount > 1) {
-            dlog.error(funcNode.pos, DiagnosticErrorCode.MULTIPLE_INFER_TYPEDESC_PARAMS);
         }
 
         BLangSimpleVariable restParam = funcNode.restParam;
@@ -550,12 +540,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         // Visit functions as they are not in the same scope/env as the object fields
         for (BLangFunction function : classDefinition.functions) {
-            if (classDefinition.flagSet.contains(Flag.CLIENT) && function.flagSet.contains(Flag.REMOTE) &&
-                    function.returnTypeNode != null &&
-                    types.isNeverTypeOrStructureTypeWithARequiredNeverMember(function.returnTypeNode.type)) {
-                dlog.error(function.returnTypeNode.pos,
-                        DiagnosticErrorCode.INVALID_NEVER_RETURN_TYPED_CLIENT_REMOTE_FUNCTION);
-            }
             analyzeDef(function, env);
             if (function.flagSet.contains(Flag.RESOURCE) && function.flagSet.contains(Flag.NATIVE)) {
                 this.dlog.error(function.pos, DiagnosticErrorCode.RESOURCE_FUNCTION_CANNOT_BE_EXTERN, function.name);
