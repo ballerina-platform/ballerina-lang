@@ -1168,7 +1168,10 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatementNode) {
-
+        if(PositionUtil.withinBlock(this.linePosition, matchStatementNode.getPosition())) {
+            matchStatementNode.getMatchClauses()
+                    .forEach(bLangMatchClause -> this.acceptNode(bLangMatchClause, this.symbolEnv));
+        }
     }
 
     @Override
@@ -1284,6 +1287,11 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
+        if(PositionUtil.withinBlock(this.linePosition, matchClause.getPosition())) {
+            SymbolEnv blockEnv = SymbolEnv.createBlockEnv(matchClause.blockStmt, this.symbolEnv);
+            this.scope = blockEnv;
+            this.acceptNode(matchClause.blockStmt, blockEnv);
+        }
     }
 
     @Override
