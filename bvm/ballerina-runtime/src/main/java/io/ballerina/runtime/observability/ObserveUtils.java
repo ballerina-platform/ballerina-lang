@@ -39,8 +39,10 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_BUIL
 import static io.ballerina.runtime.observability.ObservabilityConstants.CHECKPOINT_EVENT_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.KEY_OBSERVER_CONTEXT;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_ACCESSOR_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_POSITION;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_OBJECT_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_CLIENT_REMOTE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_MAIN_FUNCTION;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_IS_SRC_SERVICE_REMOTE;
@@ -162,12 +164,16 @@ public class ObserveUtils {
             setObserverContextToCurrentFrame(env, newObserverContext);
 
             newObserverContext.setEntrypointFunctionModule(observerContext.getEntrypointFunctionModule());
-            newObserverContext.setEntrypointFunctionPosition(observerContext.getEntrypointFunctionPosition());
+            newObserverContext.setEntrypointObjectName(observerContext.getEntrypointObjectName());
+            newObserverContext.setEntrypointFunctionName(observerContext.getEntrypointFunctionName());
+            newObserverContext.setEntrypointAccessorName(observerContext.getEntrypointAccessorName());
             newObserverContext.setParent(observerContext);
             observerContext = newObserverContext;
         } else {    // If created now or the listener created to add more tags
             observerContext.setEntrypointFunctionModule(module.getValue());
-            observerContext.setEntrypointFunctionPosition(position.getValue());
+            observerContext.setEntrypointObjectName(serviceName.getValue());
+            observerContext.setEntrypointFunctionName(resourcePathOrFunction.getValue());
+            observerContext.setEntrypointAccessorName(resourceAccessor.getValue());
         }
         observerContext.setServiceName(serviceName.getValue());
 
@@ -196,9 +202,17 @@ public class ObserveUtils {
             observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE,
                     observerContext.getEntrypointFunctionModule());
         }
-        if (observerContext.getEntrypointFunctionPosition() != null) {
-            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION,
-                    observerContext.getEntrypointFunctionPosition());
+        if (observerContext.getEntrypointObjectName() != null) {
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_OBJECT_NAME,
+                    observerContext.getEntrypointObjectName());
+        }
+        if (observerContext.getEntrypointFunctionName() != null) {
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_NAME,
+                    observerContext.getEntrypointFunctionName());
+        }
+        if (observerContext.getEntrypointAccessorName() != null) {
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_ACCESSOR_NAME,
+                    observerContext.getEntrypointAccessorName());
         }
 
         observerContext.setServer();
@@ -304,12 +318,12 @@ public class ObserveUtils {
         if (prevObserverCtx != null) {
             newObContext.setServiceName(prevObserverCtx.getServiceName());
             newObContext.setEntrypointFunctionModule(prevObserverCtx.getEntrypointFunctionModule());
-            newObContext.setEntrypointFunctionPosition(prevObserverCtx.getEntrypointFunctionPosition());
+            newObContext.setEntrypointFunctionName(prevObserverCtx.getEntrypointFunctionName());
             newObContext.setParent(prevObserverCtx);
         } else {
             newObContext.setServiceName(DEFAULT_SERVICE_NAME);
             newObContext.setEntrypointFunctionModule(module.getValue());
-            newObContext.setEntrypointFunctionPosition(position.getValue());
+            newObContext.setEntrypointFunctionName(functionName.getValue());
         }
 
         if (isMainEntryPoint) {
@@ -338,8 +352,8 @@ public class ObserveUtils {
         if (newObContext.getEntrypointFunctionModule() != null) {
             newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, newObContext.getEntrypointFunctionModule());
         }
-        if (newObContext.getEntrypointFunctionPosition() != null) {
-            newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_POSITION, newObContext.getEntrypointFunctionPosition());
+        if (newObContext.getEntrypointFunctionName() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_NAME, newObContext.getEntrypointFunctionName());
         }
 
         newObContext.setStarted();
