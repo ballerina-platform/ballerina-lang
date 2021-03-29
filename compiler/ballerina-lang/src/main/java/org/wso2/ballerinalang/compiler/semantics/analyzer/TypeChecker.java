@@ -2156,9 +2156,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.symbol = varSym;
                 actualType = varSym.type;
                 markAndRegisterClosureVariable(symbol, varRefExpr.pos);
-            } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
-                actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
-                varRefExpr.symbol = symbol;
             } else if ((symbol.tag & SymTag.CONSTANT) == SymTag.CONSTANT) {
                 BConstantSymbol constSymbol = (BConstantSymbol) symbol;
                 varRefExpr.symbol = constSymbol;
@@ -2178,6 +2175,9 @@ public class TypeChecker extends BLangNodeVisitor {
                     actualType = symTable.semanticError;
                     dlog.error(varRefExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_CONSTANT_VALUE);
                 }
+            } else if ((symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF || (symbol.tag & SymTag.TYPE) == SymTag.TYPE) {
+                actualType = symbol.type.tag == TypeTags.TYPEDESC ? symbol.type : new BTypedescType(symbol.type, null);
+                varRefExpr.symbol = symbol;
             } else {
                 varRefExpr.symbol = symbol; // Set notFoundSymbol
                 logUndefinedSymbolError(varRefExpr.pos, varName.value);
@@ -3888,14 +3888,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypedescExpr accessExpr) {
-        if (accessExpr.typeNode == null) {
-            return;
+        if (accessExpr.resolvedType == null) {
+            accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
         }
 
-        accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
         int resolveTypeTag = accessExpr.resolvedType.tag;
         final BType actualType;
-
         if (resolveTypeTag != TypeTags.TYPEDESC && resolveTypeTag != TypeTags.NONE) {
             actualType = new BTypedescType(accessExpr.resolvedType, null);
         } else {
@@ -4821,21 +4819,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (exprWithCheckingKeyword.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
                 operatorType.equals("check") && types.isUnionOfSimpleBasicTypes(expType)) {
-            ArrayList<BLangExpression> argExprs = new ArrayList<>();
-            BType typedescType = new BTypedescType(expType, null);
-            BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
-            typedescExpr.resolvedType = expType;
-            typedescExpr.type = typedescType;
-            argExprs.add(typedescExpr);
-            BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
-                    argExprs, exprWithCheckingKeyword, checkedExpr.pos);
-            BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.
-                    lookupLangLibMethod(typeOfExprWithCheckingKeyword, names.fromString(invocation.name.value));
-            BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
-            bInvokableType.retType = typeOfExprWithCheckingKeyword;
-            invocation.symbol = invokableSymbol;
-            invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-            checkedExpr.expr = invocation;
+            BType varRefType = getTypeOfExprInFieldAccess(((BLangFieldBasedAccess) exprWithCheckingKeyword).expr);
+            if (types.isLax(varRefType)) {
+                ArrayList<BLangExpression> argExprs = new ArrayList<>();
+                BType typedescType = new BTypedescType(expType, null);
+                BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+                typedescExpr.resolvedType = expType;
+                typedescExpr.type = typedescType;
+                argExprs.add(typedescExpr);
+                BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
+                                                                    argExprs, exprWithCheckingKeyword, checkedExpr.pos);
+                invocation.symbol = symResolver.lookupLangLibMethod(typeOfExprWithCheckingKeyword,
+                                                                    names.fromString(invocation.name.value));
+                invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+                checkedExpr.expr = invocation;
+            }
         }
 
         BType exprType = checkExpr(checkedExpr.expr, env, typeOfExprWithCheckingKeyword);
