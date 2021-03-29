@@ -3991,6 +3991,10 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseStatement(STNode annots, List<STNode> qualifiers) {
         parseTypeDescQualifiers(qualifiers);
         STToken nextToken = peek();
+        if (isPredeclaredIdentifier(nextToken.kind)) {
+            return parseStmtStartsWithTypeOrExpr(getAnnotations(annots), qualifiers);
+        }
+        
         switch (nextToken.kind) {
             case CLOSE_BRACE_TOKEN:
                 // Returning null marks the end of statements
@@ -4092,7 +4096,6 @@ public class BallerinaParser extends AbstractParser {
                 return parseStatementStartsWithOpenBracket(getAnnotations(annots), false);
             case FUNCTION_KEYWORD:
             case OPEN_PAREN_TOKEN:
-            case IDENTIFIER_TOKEN:
                 // Can be a singleton type or expression.
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
