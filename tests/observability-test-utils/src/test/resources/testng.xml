@@ -19,7 +19,7 @@
 <suite name="jBallerina-Test-Suite">
     <test name="ballerina-observability-tests" parallel="false">
         <classes>
-            <class name="org.ballerina.testobserve.ListenerEndpointTest"/>
+<!--            <class name="org.ballerina.testobserve.ListenerEndpointTest"/>-->
         </classes>
     </test>
 </suite>

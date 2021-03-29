@@ -863,18 +863,20 @@ public abstract class BIRNode {
 
         public List<String> attachPoint;
         public String attachPointLiteral;
+        public List<BType> listenerTypes;
         public Name generatedName;
         public Name associatedClassName;
         public BType type;
         public SymbolOrigin origin;
         public long flags;
 
-        public BIRServiceDeclaration(List<String> attachPoint, String attachPointLiteral, Name generatedName,
-                                     Name associatedClassName, BType type, SymbolOrigin origin, long flags,
-                                     Location location) {
+        public BIRServiceDeclaration(List<String> attachPoint, String attachPointLiteral, List<BType> listenerTypes,
+                                     Name generatedName, Name associatedClassName, BType type, SymbolOrigin origin,
+                                     long flags, Location location) {
             super(location);
             this.attachPoint = attachPoint;
             this.attachPointLiteral = attachPointLiteral;
+            this.listenerTypes = listenerTypes;
             this.generatedName = generatedName;
             this.associatedClassName = associatedClassName;
             this.type = type;

@@ -643,6 +643,15 @@ public class STNodeFactory extends STAbstractNodeFactory {
                 expression);
     }
 
+    public static STNode createInferredTypedescDefaultNode(
+            STNode ltToken,
+            STNode gtToken) {
+
+        return new STInferredTypedescDefaultNode(
+                ltToken,
+                gtToken);
+    }
+
     public static STNode createObjectTypeDescriptorNode(
             STNode objectTypeQualifiers,
             STNode objectKeyword,
@@ -1112,17 +1121,6 @@ public class STNodeFactory extends STAbstractNodeFactory {
         return new STErrorTypeDescriptorNode(
                 errorKeywordToken,
                 errorTypeParamsNode);
-    }
-
-    public static STNode createErrorTypeParamsNode(
-            STNode ltToken,
-            STNode parameter,
-            STNode gtToken) {
-
-        return new STErrorTypeParamsNode(
-                ltToken,
-                parameter,
-                gtToken);
     }
 
     public static STNode createStreamTypeDescriptorNode(

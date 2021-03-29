@@ -30,11 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "from ",
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -471,24 +471,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "createVehicle(Model model)(Vehicle)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject.models:0.1.0_  \n  \n  \n**Params**  \n- `Model` model  \n  \n**Returns** `Vehicle`   \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "createVehicle(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
       "label": "createVehicleModel(string name)(Model)",
       "kind": "Function",
       "detail": "Function",
@@ -500,6 +482,24 @@
       },
       "sortText": "A",
       "insertText": "createVehicleModel(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
+      "label": "createVehicle(Model model)(Vehicle)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject.models:0.1.0_  \n  \n  \n**Params**  \n- `Model` model  \n  \n**Returns** `Vehicle`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "createVehicle(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",

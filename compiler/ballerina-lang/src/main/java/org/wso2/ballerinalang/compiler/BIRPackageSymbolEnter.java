@@ -690,6 +690,12 @@ public class BIRPackageSymbolEnter {
         BServiceSymbol serviceDecl = new BServiceSymbol((BClassSymbol) classSymbol, flags,
                                                         names.fromString(serviceName), this.env.pkgSymbol.pkgID, type,
                                                         this.env.pkgSymbol, pos, SymbolOrigin.toOrigin(origin));
+
+        int nListeners = inputStream.readInt();
+        for (int i = 0; i < nListeners; i++) {
+            serviceDecl.addListenerType(readBType(inputStream));
+        }
+        
         serviceDecl.setAttachPointStringLiteral(attachPointLiteral);
         serviceDecl.setAbsResourcePath(attachPoint);
         this.env.pkgSymbol.scope.define(names.fromString(serviceName), serviceDecl);
@@ -1232,6 +1238,13 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < unionMemberCount; i++) {
                         unionType.add(readTypeFromCp());
                     }
+
+                    int unionOriginalMemberCount = inputStream.readInt();
+                    LinkedHashSet<BType> originalMemberTypes = new LinkedHashSet<>(unionOriginalMemberCount);
+                    for (int i = 0; i < unionOriginalMemberCount; i++) {
+                        originalMemberTypes.add(readTypeFromCp());
+                    }
+                    unionType.setOriginalMemberTypes(originalMemberTypes);
 
                     var poppedUnionType = compositeStack.pop();
                     assert poppedUnionType == unionType;

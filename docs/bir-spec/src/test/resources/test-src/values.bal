@@ -276,7 +276,7 @@ function testMergeJsonSuccessForValuesWithNonIntersectingCyclicRefererences() re
     map<json> j2 = { x: { b: 2 } };
     j2["p"] = j2;
     var result = j1.mergeJson(j2);
-    return (checkpanic j1.x) == <json> { a: 1, b: 2 } && j1.z === j1 && j2.p === j2;
+    return result === j1 && (checkpanic j1.x) == <json> { a: 1, b: 2 } && j1.z === j1 && j2.p === j2;
 }
 
 function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() returns boolean {
@@ -990,16 +990,9 @@ public function functionWithRangeExpressions() {
     foreach int i in 25 ..< 28 {
         // do nothing
     }
-     object {
-        public function __iterator() returns
-            object {
-                public isolated function next() returns record {|int value;|}?;
-            };
-    } iterableObj = 25 ..< 28;
+    var iterableObj = 25 ..< 28;
 
-    object {
-            public isolated function next() returns (record {|int value;|}?);
-    } iterator = iterableObj.__iterator();
+    var iterator = iterableObj.iterator();
 
     while (true) {
         record {|int value;|}? r = iterator.next();

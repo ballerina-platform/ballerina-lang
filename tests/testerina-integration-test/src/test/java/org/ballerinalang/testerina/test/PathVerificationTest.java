@@ -49,12 +49,9 @@ public class PathVerificationTest extends BaseTestCase {
 
     @Test
     public void verifyMissingTestsDirectory() throws BallerinaTestException {
-        String msg = "No tests found";
         String[] args = mergeCoverageArgs(new String[]{"missing-tests-dir"});
         String output = balClient.runMainAndReadStdOut("test", args,
-                new HashMap<>(), projectPath, false);
-        if (!output.contains(msg)) {
-            AssertionUtils.assertForTestFailures(output, "missing test directory verification failure");
-        }
+                new HashMap<>(), projectPath, true);
+        AssertionUtils.assertForTestFailures(output, "missing test directory verification failure");
     }
 }

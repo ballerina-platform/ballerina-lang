@@ -41,8 +41,8 @@ import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
 import org.wso2.ballerinalang.compiler.bir.model.BirScope;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
@@ -98,7 +98,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE
  * The common functions used in CodeGen.
  */
 public class JvmCodeGenUtil {
-    public static final ResolvedTypeBuilder TYPE_BUILDER = new ResolvedTypeBuilder();
+    public static final Unifier UNIFIER = new Unifier();
     public static final String INITIAL_METHOD_DESC = String.format("(L%s;", STRAND_CLASS);
     private static final Pattern JVM_RESERVED_CHAR_SET = Pattern.compile("[\\.:/<>]");
     public static final String SCOPE_PREFIX = "_SCOPE_";
@@ -378,7 +378,11 @@ public class JvmCodeGenUtil {
     }
 
     public static String generateReturnType(BType bType) {
-        bType = JvmCodeGenUtil.TYPE_BUILDER.build(bType);
+        if (bType == null) {
+            return String.format(")L%s;", OBJECT);
+        }
+
+        bType = JvmCodeGenUtil.UNIFIER.build(bType);
         if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             return String.format(")L%s;", OBJECT);
         } else if (TypeTags.isIntegerTypeTag(bType.tag)) {
