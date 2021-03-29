@@ -138,6 +138,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
@@ -1160,7 +1161,12 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchStatement matchStatementNode) {
-
+        if(PositionUtil.withinBlock(this.linePosition, matchStatementNode.getPosition())) {
+            SymbolEnv matchStatementEnv = SymbolEnv.createMatchStatementEnv(matchStatementNode, this.symbolEnv);
+            this.scope = matchStatementEnv;
+            matchStatementNode.getMatchClauses()
+                    .forEach(bLangMatchClause -> this.acceptNode(bLangMatchClause, matchStatementEnv));
+        }
     }
 
     @Override
@@ -1274,6 +1280,12 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
+        if(PositionUtil.withinBlock(this.linePosition, matchClause.getPosition())) {
+            SymbolEnv matchStatementEnv = SymbolEnv.createMatchClauseEnv(matchClause, this.symbolEnv);
+            this.scope = matchStatementEnv;
+            matchClause.getMatchPatterns()
+                    .forEach(pattern -> this.acceptNode((BLangMatchPattern) pattern, matchStatementEnv));
+        }
     }
 
     @Override
