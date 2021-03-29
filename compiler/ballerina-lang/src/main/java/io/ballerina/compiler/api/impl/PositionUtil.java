@@ -83,17 +83,17 @@ class PositionUtil {
     }
 
     //  todo to be removed once https://github.com/ballerina-platform/ballerina-lang/discussions/28983 is sorted
-    static boolean withinRightInclusive(LinePosition cursorPos, Location symbolPosition) {
-        int startLine = symbolPosition.lineRange().startLine().line();
-        int startColumn = symbolPosition.lineRange().startLine().offset();
-        int endLine = symbolPosition.lineRange().endLine().line();
+    static boolean withinRightInclusive(LinePosition cursorPos, Location nodePosition) {
+        int startLine = nodePosition.lineRange().startLine().line();
+        int startColumn = nodePosition.lineRange().startLine().offset();
+        int endLine = nodePosition.lineRange().endLine().line();
 
         int cursorLine = cursorPos.line();
         int cursorColumn = cursorPos.offset();
         return (startLine < cursorLine && endLine > cursorLine)
                 || (startLine < cursorLine && endLine == cursorLine)
-                || (startLine == cursorLine && endLine > cursorLine)
-                || (startLine == endLine && startLine == cursorLine
+                || ((startLine == cursorLine && endLine > cursorLine)
+                || (startLine == endLine && startLine == cursorLine)
                 && startColumn <= cursorColumn);
     }
 }
