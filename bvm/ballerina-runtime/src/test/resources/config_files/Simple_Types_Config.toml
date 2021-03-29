@@ -1,5 +1,4 @@
-[myorg.simple_types]
-
+[simple_types]
 intVar = 42
 byteVar = 5
 floatVar = 3.5

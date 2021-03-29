@@ -40,6 +40,7 @@ import io.ballerina.compiler.syntax.tree.ErrorTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.ExternalFunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.MarkdownCodeBlockNode;
 import io.ballerina.compiler.syntax.tree.MarkdownCodeLineNode;
@@ -122,66 +123,7 @@ public class Generator {
                     TypeDefinitionNode typeDefinition = (TypeDefinitionNode) node;
                     if (typeDefinition.visibilityQualifier().isPresent() && typeDefinition.visibilityQualifier().get()
                             .kind().equals(SyntaxKind.PUBLIC_KEYWORD) || isTypePram(typeDefinition.metadata())) {
-                        if (typeDefinition.typeDescriptor().kind().equals(SyntaxKind.RECORD_TYPE_DESC)) {
-                            hasPublicConstructs = true;
-                            module.records.add(getRecordTypeModel(typeDefinition, semanticModel));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            module.objectTypes.add(getObjectTypeModel(typeDefinition, semanticModel));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
-                            if (unionType.memberTypes.stream().allMatch(type -> type.category.equals("errors") ||
-                                    (type.category.equals("builtin") && type.name.equals("error")))) {
-                                module.errors.add(new Error(typeDefinition.typeName().text(),
-                                        getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
-                                        .metadata()), Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
-                            } else {
-                                module.types.add(getUnionTypeModel(typeDefinition, semanticModel));
-                            }
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
-                            hasPublicConstructs = true;
-                            Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
-                            if (refType.category.equals("errors")) {
-                                module.errors.add(new Error(typeDefinition.typeName().text(),
-                                        getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
-                                        .metadata()), refType));
-                            } else {
-                                module.types.add(getUnionTypeModel(typeDefinition, semanticModel));
-                            }
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
-                                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
-                                        == SyntaxKind.ERROR_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            module.errors.add(new Error(typeDefinition.typeName().text(),
-                                    getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
-                                    .metadata()), null));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ERROR_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            ErrorTypeDescriptorNode errorTypeDescriptor = (ErrorTypeDescriptorNode)
-                                    typeDefinition.typeDescriptor();
-                            Type type = null;
-                            if (errorTypeDescriptor.errorTypeParamsNode().isPresent()) {
-                                type = Type.fromNode(errorTypeDescriptor.errorTypeParamsNode().get().parameter(),
-                                        semanticModel);
-                            }
-                            module.errors.add(new Error(typeDefinition.typeName().text(),
-                                    getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
-                                    .metadata()), type));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TUPLE_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            module.types.add(getTupleTypeModel(typeDefinition, semanticModel));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            module.types.add(getIntersectionTypeModel(typeDefinition, semanticModel));
-                        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
-                            hasPublicConstructs = true;
-                            module.types.add(getTypeDescModel(typeDefinition, semanticModel));
-                        }
-                        // TODO: handle value type nodes
-                        // TODO: handle function type nodes
-                        // TODO: handle built in ref type
-                        // TODO: handle constrained types
+                        hasPublicConstructs = addTypeDefinition(typeDefinition, module, semanticModel);
                     }
                 } else if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
                     ClassDefinitionNode classDefinition = (ClassDefinitionNode) node;
@@ -221,7 +163,74 @@ public class Generator {
         return hasPublicConstructs;
     }
 
-    private static boolean containsToken(NodeList<Token> nodeList, SyntaxKind kind) {
+    public static boolean addTypeDefinition(TypeDefinitionNode typeDefinition, Module module, SemanticModel
+            semanticModel) {
+
+        String typeName = typeDefinition.typeName().text();
+        Optional<MetadataNode> metaDataNode = typeDefinition.metadata();
+        if (typeDefinition.typeDescriptor().kind().equals(SyntaxKind.RECORD_TYPE_DESC)) {
+            module.records.add(getRecordTypeModel((RecordTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                    typeName, metaDataNode, semanticModel));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+            module.objectTypes.add(getObjectTypeModel((ObjectTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                    typeName, metaDataNode, semanticModel));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.UNION_TYPE_DESC) {
+            Type unionType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
+            if (unionType.memberTypes.stream().allMatch(type -> type.category.equals("errors") ||
+                    (type.category.equals("builtin") && type.name.equals("error")))) {
+                module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
+                        Type.fromNode(typeDefinition.typeDescriptor(), semanticModel)));
+            } else {
+                module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(),
+                        typeName, metaDataNode, semanticModel));
+            }
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            Type refType = Type.fromNode(typeDefinition.typeDescriptor(), semanticModel);
+            if (refType.category.equals("errors")) {
+                module.errors.add(new Error(typeDefinition.typeName().text(),
+                        getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition
+                        .metadata()), refType));
+            } else {
+                module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode,
+                        semanticModel));
+            }
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.DISTINCT_TYPE_DESC &&
+                ((DistinctTypeDescriptorNode) (typeDefinition.typeDescriptor())).typeDescriptor().kind()
+                        == SyntaxKind.ERROR_TYPE_DESC) {
+            module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode),
+                    null));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.ERROR_TYPE_DESC) {
+            ErrorTypeDescriptorNode errorTypeDescriptor = (ErrorTypeDescriptorNode) typeDefinition.typeDescriptor();
+            Type type = null;
+            if (errorTypeDescriptor.errorTypeParamsNode().isPresent()) {
+                type = Type.fromNode(errorTypeDescriptor.errorTypeParamsNode().get().typeNode(),
+                        semanticModel);
+            }
+            module.errors.add(new Error(typeName, getDocFromMetadata(metaDataNode), isDeprecated(metaDataNode), type));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TUPLE_TYPE_DESC) {
+            module.types.add(getTupleTypeModel((TupleTypeDescriptorNode) typeDefinition.typeDescriptor(),
+                    typeName, metaDataNode, semanticModel));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INTERSECTION_TYPE_DESC) {
+            addIntersectionTypeModel((IntersectionTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName,
+                    metaDataNode, semanticModel, module);
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.TYPEDESC_TYPE_DESC) {
+            module.types.add(getTypeDescModel((TypedescTypeDescriptorNode) typeDefinition.typeDescriptor(), typeName,
+                    metaDataNode, semanticModel));
+        } else if (typeDefinition.typeDescriptor().kind() == SyntaxKind.INT_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.DECIMAL_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.XML_TYPE_DESC ||
+                typeDefinition.typeDescriptor().kind() == SyntaxKind.FUNCTION_TYPE_DESC) {
+            module.types.add(getUnionTypeModel(typeDefinition.typeDescriptor(), typeName, metaDataNode, semanticModel));
+        } else {
+            return false;
+        }
+        return true;
+        // TODO: handle value type nodes
+        // TODO: handle built in ref type
+        // TODO: handle constrained types
+    }
+
+    public static boolean containsToken(NodeList<Token> nodeList, SyntaxKind kind) {
         for (Node node: nodeList) {
             if (node.kind() == kind) {
                 return true;
@@ -292,58 +301,74 @@ public class Generator {
         return new Constant(constantName, desc, isDeprecated(constantNode.metadata()), type, value);
     }
 
-    private static BType getIntersectionTypeModel(TypeDefinitionNode typeDefinition,
-                                                  SemanticModel semanticModel) {
+    private static void addIntersectionTypeModel(IntersectionTypeDescriptorNode typeDescriptor, String typeName,
+                                                 Optional<MetadataNode> optionalMetadataNode,
+                                                 SemanticModel semanticModel, Module module) {
+        boolean isReadonly = typeDescriptor.leftTypeDesc().kind() == SyntaxKind.READONLY_TYPE_DESC ||
+                typeDescriptor.rightTypeDesc().kind() == SyntaxKind.READONLY_TYPE_DESC;
+        if (isReadonly) {
+            Node typeDef = typeDescriptor.leftTypeDesc().kind() == SyntaxKind.READONLY_TYPE_DESC ?
+                    typeDescriptor.rightTypeDesc() : typeDescriptor.leftTypeDesc();
+            if (typeDef.kind() == SyntaxKind.RECORD_TYPE_DESC) {
+                Record record = getRecordTypeModel((RecordTypeDescriptorNode) typeDef, typeName, optionalMetadataNode,
+                        semanticModel);
+                record.isReadOnly = true;
+                module.records.add(record);
+                return;
+            } else if (typeDef.kind() == SyntaxKind.OBJECT_TYPE_DESC) {
+                BObjectType bObj = getObjectTypeModel((ObjectTypeDescriptorNode) typeDef, typeName,
+                        optionalMetadataNode, semanticModel);
+                bObj.isReadOnly = true;
+                module.objectTypes.add(bObj);
+                return;
+            }
+        }
         List<Type> memberTypes = new ArrayList<>();
-        IntersectionTypeDescriptorNode typeDescriptor = (IntersectionTypeDescriptorNode) typeDefinition
-                .typeDescriptor();
         memberTypes.add(Type.fromNode(typeDescriptor.leftTypeDesc(), semanticModel));
         memberTypes.add(Type.fromNode(typeDescriptor.rightTypeDesc(), semanticModel));
-        BType bType = new BType(typeDefinition.typeName().text(),
-                getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), memberTypes);
+        BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
+                isDeprecated(optionalMetadataNode), memberTypes);
         bType.isIntersectionType = true;
-        return bType;
+        module.types.add(bType);
     }
 
-    private static BType getTupleTypeModel(TypeDefinitionNode typeDefinition,
-                                           SemanticModel semanticModel) {
+    private static BType getTupleTypeModel(TupleTypeDescriptorNode typeDescriptor, String tupleTypeName,
+                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
         List<Type> memberTypes = new ArrayList<>();
-        TupleTypeDescriptorNode typeDescriptor = (TupleTypeDescriptorNode) typeDefinition.typeDescriptor();
         memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(type ->
                 Type.fromNode(type, semanticModel)).collect(Collectors.toList()));
-        BType bType = new BType(typeDefinition.typeName().text(),
-                getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), memberTypes);
+        BType bType = new BType(tupleTypeName, getDocFromMetadata(optionalMetadataNode),
+                isDeprecated(optionalMetadataNode), memberTypes);
         bType.isTuple = true;
         return bType;
     }
 
-    private static BType getTypeDescModel(TypeDefinitionNode typeDefinition,
-                                           SemanticModel semanticModel) {
-        TypedescTypeDescriptorNode typeDescriptor = (TypedescTypeDescriptorNode) typeDefinition.typeDescriptor();
+    private static BType getTypeDescModel(TypedescTypeDescriptorNode typeDescriptor, String typeName,
+                                          Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
         Type type = null;
         if (typeDescriptor.typedescTypeParamsNode().isPresent()) {
             type = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel);
         }
-        BType bType = new BType(typeDefinition.typeName().text(),
-                getDocFromMetadata(typeDefinition.metadata()), isDeprecated(typeDefinition.metadata()), null);
+        BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode), isDeprecated(optionalMetadataNode),
+                null);
         bType.isTypeDesc = true;
         bType.version = BallerinaDocGenerator.getBallerinaShortVersion();
         bType.elementType = type;
         return bType;
     }
 
-    private static BType getUnionTypeModel(TypeDefinitionNode typeDefinition,
-                                           SemanticModel semanticModel) {
+    private static BType getUnionTypeModel(Node unionTypeDescriptor, String unionName,
+                                           Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
         List<Type> memberTypes = new ArrayList<>();
-        Node typeDescriptor = typeDefinition.typeDescriptor();
+        Node typeDescriptor = unionTypeDescriptor;
         while (typeDescriptor.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
             UnionTypeDescriptorNode unionType = (UnionTypeDescriptorNode) typeDescriptor;
             memberTypes.add(Type.fromNode(unionType.leftTypeDesc(), semanticModel));
             typeDescriptor = unionType.rightTypeDesc();
         }
         memberTypes.add(Type.fromNode(typeDescriptor, semanticModel));
-        BType bType = new BType(typeDefinition.typeName().text(), getDocFromMetadata(typeDefinition.metadata()),
-                                isDeprecated(typeDefinition.metadata()), memberTypes);
+        BType bType = new BType(unionName, getDocFromMetadata(optionalMetadataNode),
+                                isDeprecated(optionalMetadataNode), memberTypes);
         bType.isAnonymousUnionType = true;
         return bType;
     }
@@ -393,16 +418,15 @@ public class Generator {
         }
     }
 
-    private static BObjectType getObjectTypeModel(TypeDefinitionNode typeDefinition,
+    private static BObjectType getObjectTypeModel(ObjectTypeDescriptorNode typeDescriptorNode, String objectName,
+                                                  Optional<MetadataNode> optionalMetadataNode,
                                                   SemanticModel semanticModel) {
         List<Function> functions = new ArrayList<>();
-        String name = typeDefinition.typeName().text();
-        String description = getDocFromMetadata(typeDefinition.metadata());
-        ObjectTypeDescriptorNode typeDescriptorNode = (ObjectTypeDescriptorNode) typeDefinition.typeDescriptor();
-        boolean isDeprecated = isDeprecated(typeDefinition.metadata());
+        String description = getDocFromMetadata(optionalMetadataNode);
+        boolean isDeprecated = isDeprecated(optionalMetadataNode);
 
         List<DefaultableVariable> fields = getDefaultableVariableList(typeDescriptorNode.members(),
-                typeDefinition.metadata(), semanticModel);
+                optionalMetadataNode, semanticModel);
 
         for (Node member : typeDescriptorNode.members()) {
             if (member instanceof MethodDeclarationNode) {
@@ -448,7 +472,7 @@ public class Generator {
                 functions.addAll(getInclusionFunctions(typeSymbol, originType, typeDescriptorNode.members()));
             }
         }
-        return new BObjectType(name, description, isDeprecated, fields, functions);
+        return new BObjectType(objectName, description, isDeprecated, fields, functions);
     }
 
     // TODO: Revisit this. This probably can be written in a much simpler way.
@@ -546,15 +570,15 @@ public class Generator {
                 returnParams);
     }
 
-    private static Record getRecordTypeModel(TypeDefinitionNode recordTypeDefinition,
+    private static Record getRecordTypeModel(RecordTypeDescriptorNode recordTypeDesc, String recordName,
+                                             Optional<MetadataNode> optionalMetadataNode,
                                              SemanticModel semanticModel) {
-        String recordName = recordTypeDefinition.typeName().text();
-        List<DefaultableVariable> fields = getDefaultableVariableList(((RecordTypeDescriptorNode) recordTypeDefinition
-                .typeDescriptor()).fields(), recordTypeDefinition.metadata(), semanticModel);
-        boolean isClosed = ((((RecordTypeDescriptorNode) recordTypeDefinition.typeDescriptor()).bodyStartDelimiter()))
-                .kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
-        return new Record(recordName, getDocFromMetadata(recordTypeDefinition.metadata()),
-                          isDeprecated(recordTypeDefinition.metadata()), isClosed, fields);
+
+        List<DefaultableVariable> fields = getDefaultableVariableList(recordTypeDesc.fields(),
+                optionalMetadataNode, semanticModel);
+        boolean isClosed = (recordTypeDesc.bodyStartDelimiter()).kind().equals(SyntaxKind.OPEN_BRACE_PIPE_TOKEN);
+        return new Record(recordName, getDocFromMetadata(optionalMetadataNode),
+                          isDeprecated(optionalMetadataNode), isClosed, fields);
     }
 
     public static List<DefaultableVariable> getDefaultableVariableList(NodeList nodeList,
@@ -690,6 +714,14 @@ public class Generator {
                 Type type = new Type(paramName);
                 type.isRestParam = true;
                 type.elementType = Type.fromNode(restParameter.typeName(), semanticModel);
+                variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
+                        optionalMetadataNode), false, type, ""));
+            } else if (node instanceof IncludedRecordParameterNode) {
+                IncludedRecordParameterNode includedRecord = (IncludedRecordParameterNode) node;
+                String paramName = includedRecord.paramName().isPresent() ?
+                        includedRecord.paramName().get().text() : "";
+                Type type = Type.fromNode(includedRecord.typeName(), semanticModel);
+                type.isInclusion = true;
                 variables.add(new DefaultableVariable(paramName, getParameterDocFromMetadataList(paramName,
                         optionalMetadataNode), false, type, ""));
             }

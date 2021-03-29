@@ -37,6 +37,7 @@ class CompilerPluginManager {
     private final List<CompilerPluginContextIml> compilerPluginContexts;
 
     private CodeAnalyzerManager codeAnalyzerManager;
+    private CompilerLifecycleManager compilerLifecycleListenerManager;
 
     private CompilerPluginManager(PackageCompilation compilation,
                                   List<CompilerPluginContextIml> compilerPluginContexts) {
@@ -131,5 +132,14 @@ class CompilerPluginManager {
                     ":" + packageDesc.name() +
                     ":" + packageDesc.version() + "'. " + e.getMessage(), e);
         }
+    }
+
+    public CompilerLifecycleManager getCompilerLifecycleListenerManager() {
+        if (compilerLifecycleListenerManager == null) {
+            return compilerLifecycleListenerManager =
+                    CompilerLifecycleManager.from(compilation, compilerPluginContexts);
+        }
+
+        return compilerLifecycleListenerManager;
     }
 }

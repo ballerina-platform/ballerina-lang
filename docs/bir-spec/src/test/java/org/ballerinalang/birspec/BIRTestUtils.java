@@ -47,6 +47,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -496,6 +497,15 @@ class BIRTestUtils {
             if (expServiceDecl.attachPointLiteral != null) {
                 assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.attachPointLiteral()),
                                         expServiceDecl.attachPointLiteral);
+            }
+
+            // assert listener types
+            Assert.assertEquals(actualServiceDecl.listenerTypes().size(), expServiceDecl.listenerTypes.size());
+
+            Iterator<BType> iterator = expServiceDecl.listenerTypes.iterator();
+            for (int j = 0; j < expServiceDecl.listenerTypes.size(); j++) {
+                assertConstantPoolEntry(constantPoolEntries.get(actualServiceDecl.listenerTypes().get(j).typeCpIndex()),
+                                        iterator.next());
             }
         }
     }

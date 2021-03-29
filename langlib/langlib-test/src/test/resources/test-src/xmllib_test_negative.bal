@@ -60,3 +60,12 @@ function testGetContentNegative() returns string {
     xmllib:Element element = <xmllib:Element> xml `<elem attr="attr1">content</elem>`;
     return element.getContent();
 }
+
+xml theXml = xml `<book>the book</book>`;
+xml bitOfText = xml `bit of text\u2702\u2705`;
+xml compositeXml = theXml + bitOfText;
+
+function testGetDescendantsFromSeq() returns xml {
+   xml x4 = compositeXml.getDescendants();
+   return x4;
+}

@@ -1,5 +1,49 @@
 import docerina_project.world as prj;
 
+
+public type KeyValues record {|
+    never msg?;
+    never 'error?;
+    Value...;
+|};
+
+public isolated function printDebug(*KeyValues keyValues) {
+}
+
+# A function that returns anydata type
+public type Valuer isolated function() returns anydata;
+
+# A value of anydata type
+public type Value anydata|Valuer;
+
+# Holds the seconds as a decimal value.
+public type Seconds decimal;
+
+# Contains links to readonly object type and record
+#
+public function testReadonlyRecordObjectsLinks(Controller cnt, Uuid uuid) {
+}
+
+# Represents a readonly object type
+#
+public type Controller readonly & object {
+   int id;
+   string[] codes;
+
+   function getId() returns string;
+};
+
+# Represents a readonly record
+#
+public type Uuid readonly & record {
+    ints:Unsigned32 timeLow;
+    ints:Unsigned16 timeMid;
+    ints:Unsigned16 timeHiAndVersion;
+    ints:Unsigned8 clockSeqHiAndReserved;
+    ints:Unsigned8 clockSeqLo;
+    int node;    // Should be Unsigned48, but not available in lang.int at the moment
+};
+
 # Test inline record with typedesc
 # + rowType - Typedesc with empty record
 public function testTypeDesc(typedesc<record {}>? rowType) {

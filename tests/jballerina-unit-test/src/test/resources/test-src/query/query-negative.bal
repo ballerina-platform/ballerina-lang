@@ -257,7 +257,7 @@ function testReassignValueInLet() returns FullName[]{
 	    let float twiceScore = (student.score*2)
 	    do {
 	        twiceScore = 1000;
-	        if(twiceScore<50){
+	        if(twiceScore < 50.00){
 	            FullName fullname = {firstName:student.firstName,lastName:student.lastName};
 	            nameList.push(fullname);
 	        }
@@ -415,4 +415,8 @@ public function testInvalidInputType() {
     int x = 1;
     int[] w = from var a in x
                 select 1;
+}
+
+function testIncompatibleSelectType(stream<string, error> clientStream) returns error? {
+    return from string num in clientStream select {a: 1};
 }

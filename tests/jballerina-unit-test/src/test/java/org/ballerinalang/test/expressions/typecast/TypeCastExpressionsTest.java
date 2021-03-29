@@ -80,14 +80,14 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: '\\(string\\|int\\|\\(\\)\\)\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
+                    "types: '\\(string\\|int\\)\\?\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
     public void testArrayCastNegative() {
         BRunUtil.invoke(result, "testArrayCastNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: '\\[string,int\\|string,float\\]' cannot be cast" +
-                    " to '\\[string,int,float\\]'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: '\\[string,\\(int\\|string\\),float\\]' cannot " +
+                    "be cast to '\\[string,int,float\\]'.*")
     public void testTupleCastNegative() {
         BRunUtil.invoke(result, "testTupleCastNegative");
     }
@@ -119,8 +119,8 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = ".*incompatible types: 'string' cannot be cast to 'xml\\" +
-                    "<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
-                    "lang\\.xml:Text\\>'.*")
+                    "<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                    "lang\\.xml:Text\\)\\>'.*")
     public void testXmlCastNegative() {
         BRunUtil.invoke(result, "testXmlCastNegative");
     }
@@ -171,16 +171,21 @@ public class TypeCastExpressionsTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'int' cannot be cast to 'string\\|boolean'.*")
+                    "types: 'int' cannot be cast to '\\(string\\|boolean\\)'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeOne() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_1");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible " +
-                    "types: 'string' cannot be cast to 'Lead\\|int'.*")
+                    "types: 'string' cannot be cast to '\\(Lead\\|int\\)'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeTwo() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");
+    }
+
+    @Test
+    public void testMutableJsonMappingToExclusiveRecordNegative() {
+        BRunUtil.invoke(result, "testMutableJsonMappingToExclusiveRecordNegative");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -252,9 +257,9 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to 'string\\|xml\\" +
-            "<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
-                    "lang\\.xml:Text\\>'.*")
+            expectedExceptionsMessageRegExp = ".*incompatible types: 'int' cannot be cast to '\\(string\\|xml\\" +
+            "<\\(lang\\.xml:Element\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                    "lang\\.xml:Text\\)\\>\\)'.*")
     public void testFiniteTypeToRefTypeCastNegative() {
         BRunUtil.invoke(result, "testFiniteTypeToRefTypeCastNegative");
     }
@@ -278,9 +283,9 @@ public class TypeCastExpressionsTest {
 
         int errIndex = 0;
         validateError(resultNegative, errIndex++, "incompatible types: 'Def' cannot be cast to 'Abc'", 19, 15);
-        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to '(int|foo)'",
+        validateError(resultNegative, errIndex++, "incompatible types: 'boolean' cannot be cast to 'FooInt'",
                 30, 16);
-        validateError(resultNegative, errIndex++, "incompatible types: '(int|foo)' cannot be cast to 'xml'", 35, 13);
+        validateError(resultNegative, errIndex++, "incompatible types: 'FooInt' cannot be cast to 'xml'", 35, 13);
         validateError(resultNegative, errIndex++, "incompatible types: '(int|error)' cannot be cast to 'int'", 67, 13);
         validateError(resultNegative, errIndex++, "incompatible types: '(json|error)' cannot be cast to 'string'", 68
                 , 13);
@@ -352,6 +357,19 @@ public class TypeCastExpressionsTest {
         Assert.assertSame(returns[0].getClass(), BMap.class);
         Assert.assertEquals(((BMap) returns[0]).get("name").stringValue(), "Em Zee");
         Assert.assertEquals(((BMap) returns[0]).get("id").stringValue(), "1100");
+    }
+
+    @DataProvider
+    public Object[] mappingToRecordTests() {
+        return new Object[]{
+                "testImmutableJsonMappingToExclusiveRecordPositive",
+                "testImmutableJsonMappingToInclusiveRecordPositive"
+        };
+    }
+
+    @Test(dataProvider = "positiveTests")
+    public void testJsonMappingToRecordPositive(String functionName) {
+        BRunUtil.invoke(result, functionName);
     }
 
     @AfterClass

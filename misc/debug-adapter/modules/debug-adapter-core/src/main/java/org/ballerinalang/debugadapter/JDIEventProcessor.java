@@ -19,7 +19,6 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
-import com.sun.jdi.StackFrame;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
 import com.sun.jdi.event.BreakpointEvent;
@@ -55,9 +54,9 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
-import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
 /**
  * JDI Event processor implementation.
@@ -69,8 +68,6 @@ public class JDIEventProcessor {
     private final Map<String, Map<Integer, BalBreakpoint>> breakpoints = new HashMap<>();
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
-    private static final String BALLERINA_ORG_PREFIX = "ballerina";
-    private static final String BALLERINAX_ORG_PREFIX = "ballerinax";
     private static final String CONDITION_TRUE = "true";
 
     JDIEventProcessor(ExecutionContext context) {
@@ -129,17 +126,6 @@ public class JDIEventProcessor {
             StepEvent stepEvent = (StepEvent) event;
             long threadId = stepEvent.thread().uniqueID();
             if (isBallerinaSource(stepEvent.location())) {
-                if (isExternalLibSource(stepEvent.location())) {
-                    // If the current step-in event is related to an external source (i.e. lang library, standard
-                    // library, connector module), notifies the user and rolls back to the previous state.
-                    // Todo - add support for external libraries
-                    context.getAdapter().sendOutput("INFO: Stepping into ballerina internal modules " +
-                            "is not supported.", STDOUT);
-                    context.getAdapter().stepOut(threadId);
-                    return;
-                }
-                // If the current step event is related to a ballerina source, suspends all threads and notifies the
-                // client that the debuggee is stopped.
                 notifyStopEvent(event);
             } else {
                 int stepType = ((StepRequest) event.request()).depth();
@@ -218,23 +204,34 @@ public class JDIEventProcessor {
         ThreadReferenceProxyImpl threadReference = context.getAdapter().getAllThreads().get(threadId);
         try {
             List<StackFrameProxyImpl> jStackFrames = threadReference.frames();
-            List<StackFrame> balStackFrames = jStackFrames.stream().map(stackFrameProxy -> {
-                try {
-                    StackFrame stackFrame = stackFrameProxy.getStackFrame();
-                    return JBallerinaDebugServer.isBalStackFrame(stackFrame) ? stackFrame : null;
-                } catch (JdiProxyException e) {
-                    return null;
-                }
-            }).filter(Objects::nonNull).collect(Collectors.toList());
+            List<BallerinaStackFrame> validFrames = jStackFrames.stream()
+                    .map(stackFrameProxy -> {
+                        try {
+                            if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
+                                return null;
+                            }
+                            return new BallerinaStackFrame(context, 0L, stackFrameProxy);
+                        } catch (Exception e) {
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
+                    .filter(ballerinaStackFrame -> {
+                        if (ballerinaStackFrame.getAsDAPStackFrame().isEmpty()) {
+                            return false;
+                        }
+                        return JBallerinaDebugServer.isValidFrame(ballerinaStackFrame.getAsDAPStackFrame().get());
+                    })
+                    .collect(Collectors.toList());
 
-            if (!balStackFrames.isEmpty()) {
-                configureBreakpointsForMethod(threadId, balStackFrames.get(0));
+            if (!validFrames.isEmpty()) {
+                configureBreakpointsForMethod(validFrames.get(0));
             }
             // If the current function is invoked within another ballerina function, we need to explicitly set another
             // temporary breakpoint on the location of its invocation. This is supposed to handle the situations where
             // the user wants to step over on an exit point of the current function.
-            if (balStackFrames.size() > 1) {
-                configureBreakpointsForMethod(threadId, balStackFrames.get(1));
+            if (validFrames.size() > 1) {
+                configureBreakpointsForMethod(validFrames.get(1));
             }
         } catch (JdiProxyException e) {
             LOGGER.error(e.getMessage());
@@ -247,9 +244,9 @@ public class JDIEventProcessor {
      * Configures temporary(dynamic) breakpoints for all the lines within the method, which encloses the given stack
      * frame location. This strategy is used when processing STEP_OVER requests.
      */
-    private void configureBreakpointsForMethod(long threadId, StackFrame frame) {
+    private void configureBreakpointsForMethod(BallerinaStackFrame balStackFrame) {
         try {
-            Location currentLocation = frame.location();
+            Location currentLocation = balStackFrame.getJStackFrame().location();
             ReferenceType referenceType = currentLocation.declaringType();
             List<Location> allLocations = currentLocation.method().allLineLocations();
             Optional<Location> firstLocation = allLocations.stream().min(Comparator.comparingInt(Location::lineNumber));
@@ -267,10 +264,8 @@ public class JDIEventProcessor {
                 }
                 nextStepPoint++;
             } while (nextStepPoint <= lastLocation.get().lineNumber());
-        } catch (AbsentInformationException e) {
+        } catch (AbsentInformationException | JdiProxyException e) {
             LOGGER.error(e.getMessage());
-            int stepType = ((StepRequest) this.stepEventRequests.get(0)).depth();
-            sendStepRequest(threadId, stepType);
         }
     }
 
@@ -328,21 +323,6 @@ public class JDIEventProcessor {
             String sourceName = location.sourceName();
             int sourceLine = location.lineNumber();
             return sourceName.endsWith(BAL_FILE_EXT) && sourceLine > 0;
-        } catch (AbsentInformationException e) {
-            return false;
-        }
-    }
-
-    /**
-     * Checks whether the given source location lies within an external module source (i.e. lang library, standard
-     * library, connector module).
-     *
-     * @param location source location
-     */
-    private static boolean isExternalLibSource(Location location) {
-        try {
-            String srcPath = location.sourcePath();
-            return srcPath.startsWith(BALLERINA_ORG_PREFIX) || srcPath.startsWith(BALLERINAX_ORG_PREFIX);
         } catch (AbsentInformationException e) {
             return false;
         }

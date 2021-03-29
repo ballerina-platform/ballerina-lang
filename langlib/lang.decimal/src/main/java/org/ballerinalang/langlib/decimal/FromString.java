@@ -19,11 +19,9 @@
 package org.ballerinalang.langlib.decimal;
 
 import io.ballerina.runtime.api.creators.ErrorCreator;
-import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
-
-import java.math.BigDecimal;
+import io.ballerina.runtime.internal.TypeConverter;
 
 /**
  * Native implementation of lang.decimal:fromString(string).
@@ -40,7 +38,7 @@ public class FromString {
 
     public static Object fromString(BString s) {
         try {
-            return ValueCreator.createDecimalValue(new BigDecimal(s.getValue()));
+            return TypeConverter.stringToDecimal(s.getValue());
         } catch (NumberFormatException e) {
             // TODO: 6/21/19 Improve this error value
             return ErrorCreator.createError(StringUtils.fromString(e.getMessage()), e);

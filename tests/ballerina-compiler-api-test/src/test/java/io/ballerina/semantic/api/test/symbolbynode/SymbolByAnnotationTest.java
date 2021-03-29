@@ -63,7 +63,7 @@ public class SymbolByAnnotationTest extends SymbolByNodeTest {
 
     @Override
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 4);
+        assertEquals(getAssertCount(), 6);
     }
 
     private void assertSymbol(Node node, SemanticModel model) {

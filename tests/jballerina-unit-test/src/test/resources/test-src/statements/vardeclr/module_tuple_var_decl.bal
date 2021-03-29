@@ -18,7 +18,7 @@
 [int, float] [a, b] = [1, 2.5];
 [boolean, float, string] [c, d, e] = [true, 2.25, "Jhone"];
 public function testBasic() {
-    while (d < 3) {
+    while (d < 3.0) {
         d += 1;
     }
     assertTrue(c);
@@ -71,12 +71,17 @@ var [[intVar], {a: intVar2}, error(message), ...restBp] = getComplexTuple();
 
 function getComplexTuple() returns [[int], map<int>, error, int...] => [[5], {a: 6}, error("error msg"), 12, 13];
 
+var [{b: [intVar3, _]}] = getComplexTuple2();
+
+function getComplexTuple2() returns [map<[int, string]>] => [{b: [20, "Ballerina"]}];
+
 function testDeclaredWithVar2() {
     assertEquality(5, intVar);
     assertEquality(6, intVar2);
     assertEquality("error msg", message);
     assertEquality(12, restBp[0]);
     assertEquality(13, restBp[1]);
+    assertEquality(20, intVar3);
 }
 
 var [[intVal], {a: intVal2}, ...otherValues] = getComplexTuple();
@@ -88,12 +93,14 @@ function testDeclaredWithVar3() {
     assertEquality(true, err is error);
     error err0 = <error> err;
     assertEquality("error msg", err0.message());
+
     int|error val1 = otherValues[1];
     if (val1 is int) {
         assertEquality(12, val1);
     } else {
         panic getError("12", val1.toString());
     }
+
     int|error val2 = otherValues[2];
     if (val2 is int) {
         assertEquality(13, val2);

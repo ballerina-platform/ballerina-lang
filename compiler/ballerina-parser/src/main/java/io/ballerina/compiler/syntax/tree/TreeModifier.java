@@ -862,6 +862,18 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
     }
 
     @Override
+    public InferredTypedescDefaultNode transform(
+            InferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        Token ltToken =
+                modifyToken(inferredTypedescDefaultNode.ltToken());
+        Token gtToken =
+                modifyToken(inferredTypedescDefaultNode.gtToken());
+        return inferredTypedescDefaultNode.modify(
+                ltToken,
+                gtToken);
+    }
+
+    @Override
     public ObjectTypeDescriptorNode transform(
             ObjectTypeDescriptorNode objectTypeDescriptorNode) {
         NodeList<Token> objectTypeQualifiers =
@@ -1499,26 +1511,11 @@ public abstract class TreeModifier extends NodeTransformer<Node> {
             ErrorTypeDescriptorNode errorTypeDescriptorNode) {
         Token errorKeywordToken =
                 modifyToken(errorTypeDescriptorNode.errorKeywordToken());
-        ErrorTypeParamsNode errorTypeParamsNode =
+        TypeParameterNode errorTypeParamsNode =
                 modifyNode(errorTypeDescriptorNode.errorTypeParamsNode().orElse(null));
         return errorTypeDescriptorNode.modify(
                 errorKeywordToken,
                 errorTypeParamsNode);
-    }
-
-    @Override
-    public ErrorTypeParamsNode transform(
-            ErrorTypeParamsNode errorTypeParamsNode) {
-        Token ltToken =
-                modifyToken(errorTypeParamsNode.ltToken());
-        Node parameter =
-                modifyNode(errorTypeParamsNode.parameter());
-        Token gtToken =
-                modifyToken(errorTypeParamsNode.gtToken());
-        return errorTypeParamsNode.modify(
-                ltToken,
-                parameter,
-                gtToken);
     }
 
     @Override

@@ -21,7 +21,7 @@ service /testServiceTwo on new testobserve:Listener(10092) {
     # Resource function for test custom tags
     resource function post testAddTagToMetrics(testobserve:Caller caller) {
          // Add a custom tag to span, this should not be included in system metrics
-         var res = observe:addTagToSpan("tracing", "Tracing Value");
+         error? res = observe:addTagToSpan("tracing", "Tracing Value");
         // Add a custom tag to system metrics
         _ = checkpanic observe:addTagToMetrics("metric", "Metric Value");
         checkpanic caller->respond("Invocation Successful");

@@ -26,6 +26,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -75,7 +76,23 @@ public class NullableTypeTest {
     public void testNilableTypeArrayIteration() {
         CompileResult result = BCompileUtil.compile("test-src/types/nullable/nilable_types_negative.bal");
         Assert.assertEquals(result.getErrorCount(), 1);
-        validateError(result, 0, "incompatible types: expected '(()|any)', found '(()|any)?'", 33, 19);
+        validateError(result, 0, "incompatible types: expected 'BType', found 'BType?'", 33, 19);
+    }
+
+    @Test(dataProvider = "dataToTestNullUsageWithDifferentTypes", description = "Test null in JSON related context")
+    public void testNullUsageWithDifferentTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestNullUsageWithDifferentTypes() {
+        return new Object[]{
+                "testNullWithBasicTypes",
+                "testNullWithMap",
+                "testNullWithMap2",
+                "testNullWithArray",
+                "testNullWithType"
+        };
     }
 
     @AfterClass

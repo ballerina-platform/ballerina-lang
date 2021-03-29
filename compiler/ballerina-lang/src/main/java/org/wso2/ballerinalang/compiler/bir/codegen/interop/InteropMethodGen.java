@@ -140,7 +140,7 @@ public class InteropMethodGen {
         BType retType = birFunc.type.retType;
 
         if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = JvmCodeGenUtil.TYPE_BUILDER.build(birFunc.type.retType);
+            retType = JvmCodeGenUtil.UNIFIER.build(birFunc.type.retType);
         }
 
         String desc = JvmCodeGenUtil.getMethodDesc(birFunc.type.paramTypes, retType);
@@ -320,7 +320,7 @@ public class InteropMethodGen {
         // resetting the variable generation index
         BType retType = birFunc.type.retType;
         if (Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = JvmCodeGenUtil.TYPE_BUILDER.build(birFunc.type.retType);
+            retType = JvmCodeGenUtil.UNIFIER.build(birFunc.type.retType);
         }
         JMethod jMethod = birFunc.jMethod;
         Class<?>[] jMethodParamTypes = jMethod.getParamTypes();
