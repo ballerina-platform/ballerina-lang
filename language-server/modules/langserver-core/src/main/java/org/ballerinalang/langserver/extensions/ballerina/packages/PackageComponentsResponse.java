@@ -20,7 +20,7 @@ import com.google.gson.JsonArray;
 /**
  * Package components API response.
  */
-public class PackageComponentResponse {
+public class PackageComponentsResponse {
 
     private JsonArray packages;
 

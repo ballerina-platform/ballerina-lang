@@ -20,7 +20,7 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
 /**
  * Package components API request.
  */
-public class PackageComponentRequest {
+public class PackageComponentsRequest {
 
     private TextDocumentIdentifier[] documentIdentifiers;
 
@@ -28,7 +28,7 @@ public class PackageComponentRequest {
         return documentIdentifiers;
     }
 
-    protected void setDocumentIdentifiers(TextDocumentIdentifier[] documentIdentifiers) {
-        this.documentIdentifiers = documentIdentifiers;
+    public void setDocumentIdentifiers(TextDocumentIdentifier[] documentIdentifiers) {
+        this.documentIdentifiers = documentIdentifiers == null ? null : documentIdentifiers.clone();
     }
 }

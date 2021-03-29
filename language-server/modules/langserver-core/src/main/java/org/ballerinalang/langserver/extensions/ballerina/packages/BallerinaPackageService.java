@@ -30,5 +30,5 @@ public interface BallerinaPackageService {
     CompletableFuture<PackageMetadataResponse> metadata(PackageMetadataRequest params);
 
     @JsonRequest
-    CompletableFuture<PackageComponentResponse> components(PackageComponentRequest request);
+    CompletableFuture<PackageComponentsResponse> components(PackageComponentsRequest request);
 }

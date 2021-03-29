@@ -79,7 +79,7 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
                 metadata.setKind(projectKind.name());
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaPackage/metadata' failed!";
-                this.clientLogger.logError(PackageContext.PROJ_PROJECT, msg, e, request.getDocumentIdentifier(),
+                this.clientLogger.logError(PackageContext.PACKAGE_METADATA, msg, e, request.getDocumentIdentifier(),
                         (Position) null);
             }
             return metadata;
@@ -87,9 +87,9 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
     }
 
     @Override
-    public CompletableFuture<PackageComponentResponse> components(PackageComponentRequest request) {
+    public CompletableFuture<PackageComponentsResponse> components(PackageComponentsRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            PackageComponentResponse response = new PackageComponentResponse();
+            PackageComponentsResponse response = new PackageComponentsResponse();
             JsonArray jsonPackages = new JsonArray();
             TextDocumentIdentifier[] documentIdentifiers = request.getDocumentIdentifiers();
             try {
@@ -104,7 +104,7 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
                 response.setProjectPackages(jsonPackages);
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaPackage/components' failed!";
-                this.clientLogger.logError(PackageContext.PROJ_COMPONENTS, msg, e, null, (Position) null);
+                this.clientLogger.logError(PackageContext.PACKAGE_COMPONENTS, msg, e, null, (Position) null);
             }
             return response;
         });

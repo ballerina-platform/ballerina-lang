@@ -28,7 +28,8 @@ public class PackageMetadataRequest {
         return documentIdentifier;
     }
 
-    protected void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
-        this.documentIdentifier = documentIdentifier;
+    public void setDocumentIdentifier(TextDocumentIdentifier documentIdentifier) {
+        this.documentIdentifier = documentIdentifier == null ? null :
+                new TextDocumentIdentifier(documentIdentifier.getUri());
     }
 }

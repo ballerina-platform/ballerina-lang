@@ -21,8 +21,8 @@ import org.ballerinalang.langserver.commons.LSOperation;
  * Package service context.
  */
 public enum PackageContext implements LSOperation {
-    PROJ_PROJECT("ballerinaPackage/metadata"),
-    PROJ_COMPONENTS("ballerinaPackage/components");
+    PACKAGE_METADATA("ballerinaPackage/metadata"),
+    PACKAGE_COMPONENTS("ballerinaPackage/components");
 
     private final String name;
 
