@@ -113,3 +113,10 @@ public function echo(any val, typedesc<any> td) returns td = @java:Method {
     name: "echo",
     paramTypes: ["io.ballerina.runtime.api.values.BValue", "io.ballerina.runtime.api.values.BTypedesc"]
 } external;
+
+public function getDependentlyTypedXml(typedesc<xml:Element|xml:Comment> td = <>,
+                                       xml<xml:Element|xml:Comment> val = xml `<foo/>`)
+    returns xml<td> = @java:Method {
+                          name: "getXml",
+                          'class: "org.ballerinalang.nativeimpl.jvm.tests.VariableReturnType"
+                      } external;
