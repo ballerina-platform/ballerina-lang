@@ -695,6 +695,13 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BField field : ((BStructureType) effectiveIncludedType).fields.values()) {
                 if (fieldNames.containsKey(field.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(field.name.value);
+                    if ((Symbols.isFlagOn(Flags.asMask(existingVariable.flagSet), Flags.PUBLIC) !=
+                            Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC)) ||
+                            Symbols.isFlagOn(Flags.asMask(existingVariable.flagSet), Flags.PRIVATE)) {
+                        dlog.error(existingVariable.pos,
+                                DiagnosticErrorCode.MISMATCHING_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
+                                existingVariable.name.value);
+                    }
                     if (types.isAssignable(existingVariable.type, field.type)) {
                         continue;
                     }
