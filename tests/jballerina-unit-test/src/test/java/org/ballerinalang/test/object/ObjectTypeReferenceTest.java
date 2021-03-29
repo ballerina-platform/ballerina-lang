@@ -204,6 +204,12 @@ public class ObjectTypeReferenceTest {
                 "descriptor in a 'class' that is not 'readonly'", 135, 6);
         BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
                 "descriptor in an 'object' type descriptor", 141, 6);
+        BAssertUtil.validateError(negativeResult, i++, "mismatching visibility qualifiers in referenced object " +
+                "field and referencing object field 'vals'", 154, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatching visibility qualifiers in referenced object " +
+                "field and referencing object field 'name'", 155, 5);
+        BAssertUtil.validateError(negativeResult, i++, "mismatching visibility qualifiers in referenced object " +
+                "field and referencing object field 'age'", 156, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

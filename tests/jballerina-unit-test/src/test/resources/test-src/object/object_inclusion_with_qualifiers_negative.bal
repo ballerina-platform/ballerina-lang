@@ -142,3 +142,16 @@ type InvalidObjectTypeDescriptorWithInvalidReadOnlyIntersectionInclusion object 
 
     public function toInt() returns int;
 };
+
+public type Type object {
+    public int[] vals;
+    string name;
+    int age;
+};
+
+public class Class {
+    *Type;
+    int[] vals = [];
+    public string name = "";
+    private int age = 23;
+}
