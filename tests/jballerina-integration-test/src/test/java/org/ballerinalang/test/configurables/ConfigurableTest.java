@@ -281,12 +281,12 @@ public class ConfigurableTest extends BaseTest {
         return new Object[][]{
                 {"invalidComplexArray", "[Config.toml:(2:17,2:41)] configurable variable 'main:intComplexArr' with " +
                         "type '(int[] & readonly)[] & readonly' is not supported"},
-                {"invalidRecordField", "[Config.toml:(4:1,4:40)] field type '(string[][] & readonly)' in configurable" +
-                        " variable 'main:testUser' is not supported"},
+                {"invalidRecordField", " [Config.toml:(4:1,4:40)] field type 'string[][]' in configurable variable " +
+                        "'main:testUsers' is not supported"},
                 {"invalidByteRange", "value provided for byte variable 'main:byteVar' is out of range. " +
                         "Expected range is (0-255), found '355'"},
-                {"invalidMapType",
-                        "configurable variable 'main:intMap' with type 'map<int> & readonly' is not supported"},
+                {"invalidMapType", "[main.bal:(17:14,17:33)] configurable variable currently not supported for '" +
+                        "(map<int> & readonly)'"},
                 {"invalidTableConstraint", "[Config.toml:(1:1,2:16)] table constraint type 'map<string>' in " +
                         "configurable variable 'main:tab' is not supported"}
         };
@@ -341,19 +341,9 @@ public class ConfigurableTest extends BaseTest {
                 {"array_multi_type", "[array_multi_type.toml:(4:15,4:21)] configurable variable 'main:intArr[1]' is " +
                         "expected to be of type 'int', but found 'string'"},
                 {"additional_field", "[additional_field.toml:(7:1,7:19)] additional field 'scopes' provided for " +
-                        "configurable variable 'main:testUser' of record " +
-                        "'main:(testOrg/main:0.1.0:AuthInfo & readonly)' is not supported"},
-                {"missing_record_field", "[missing_record_field.toml:(4:1,5:22)] value not provided for " +
-                        "non-defaultable required field 'username' of record " +
-                        "'main:(testOrg/main:0.1.0:AuthInfo & readonly)' in configurable variable 'main:testUser'"},
-                {"record_type_error", "[record_type_error.toml:(3:1,3:39)] configurable variable 'main:testUser' is" +
-                        " expected to be of type " +
-                        "'main:(testOrg/main:0.1.0:AuthInfo & readonly)', but found 'string'"},
-                {"record_field_structure_error", "[record_field_structure_error.toml:(5:1,5:28)] field 'username' " +
-                        "from configurable variable 'main:testUser' is expected to be of type 'string', " +
-                        "but found 'record'"},
-                {"record_field_type_error", "[record_field_type_error.toml:(5:12,5:16)] field 'username' from " +
-                        "configurable variable 'main:testUser' is expected to be of type 'string', but found 'int'"},
+                        "configurable variable 'main:users' of record 'main:AuthInfo' is not supported"},
+                {"missing_record_field", "[missing_record_field.toml:(4:1,5:22)] value required for key 'username'" +
+                        " of type 'table<main:AuthInfo> key(username)' in configurable variable 'main:users'"},
                 {"missing_table_key", "[missing_table_key.toml:(8:1,9:21)] value required for key 'username' of type " +
                         "'table<main:AuthInfo> key(username)' in configurable variable 'main:users'"},
                 {"table_type_error", "[table_type_error.toml:(4:1,6:21)] configurable variable 'main:users' is " +
@@ -362,8 +352,8 @@ public class ConfigurableTest extends BaseTest {
                         "configurable variable 'main:users' is expected to be of type 'string', but found 'int'"},
                 {"table_field_structure_error", "[table_field_structure_error.toml:(5:1,5:29)] field 'username' from " +
                         "configurable variable 'main:users' is expected to be of type 'string', but found 'record'"},
-                {"warning_defaultable_field", "[warning_defaultable_field.toml:(11:1,13:17)] defaultable readonly " +
-                        "record field 'name' in configurable variable 'main:employee' is not supported"}
+                {"warning_defaultable_field", "[warning_defaultable_field.toml:(8:1,10:17)] defaultable readonly " +
+                        "record field 'name' in configurable variable 'main:employees' is not supported"}
         };
     }
 
