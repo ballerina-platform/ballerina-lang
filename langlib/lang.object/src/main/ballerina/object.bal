@@ -22,6 +22,6 @@ public type Iterable distinct object {
     #
     # + return - a new iterator object
     public function iterator() returns object {
-        public isolated function next() returns record {| any|error value; |}|error?;
+        public function next() returns record {| any|error value; |}|error?;
     };
 };
