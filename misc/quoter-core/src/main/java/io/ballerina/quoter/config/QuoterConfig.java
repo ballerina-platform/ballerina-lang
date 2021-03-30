@@ -40,7 +40,7 @@ public class QuoterConfig {
 
     private final File templateFile;
     private final boolean useTemplate;
-    private final String formatterName;
+    private final Formatter formatter;
     private final int formatterTabStart;
     private final long parserTimeout;
     private final boolean ignoreMinutiae;
@@ -49,7 +49,7 @@ public class QuoterConfig {
     private QuoterConfig(Builder builder) {
         this.templateFile = builder.templateFile;
         this.useTemplate = builder.useTemplate;
-        this.formatterName = builder.formatterName;
+        this.formatter = builder.formatter;
         this.formatterTabStart = builder.formatterTabStart;
         this.parserTimeout = builder.parserTimeout;
         this.ignoreMinutiae = builder.ignoreMinutiae;
@@ -65,8 +65,8 @@ public class QuoterConfig {
         return Files.readString(templateFile.toPath(), Charset.defaultCharset());
     }
 
-    public String formatterName() {
-        return formatterName;
+    public Formatter formatter() {
+        return formatter;
     }
 
     public int formatterTabStart() {
@@ -115,10 +115,17 @@ public class QuoterConfig {
     /**
      *
      */
+    public enum Formatter {
+        NONE, DEFAULT, VARIABLE
+    }
+
+    /**
+     *
+     */
     public static class Builder {
         private File templateFile;
         private boolean useTemplate;
-        private String formatterName;
+        private Formatter formatter;
         private int formatterTabStart;
         private long parserTimeout;
         private boolean ignoreMinutiae;
@@ -137,8 +144,8 @@ public class QuoterConfig {
             return Builder.this;
         }
 
-        public Builder formatterName(String formatterName) {
-            this.formatterName = formatterName;
+        public Builder formatter(Formatter formatter) {
+            this.formatter = formatter;
             return Builder.this;
         }
 
@@ -163,9 +170,12 @@ public class QuoterConfig {
         }
 
         public QuoterConfig build() {
-            Objects.requireNonNull(this.templateFile, "Template file must be provided.");
-            Objects.requireNonNull(this.formatterName, "Formatter name must be provided.");
-            Objects.requireNonNull(this.parser, "Parser type must be provided.");
+            if (this.useTemplate) {
+                Objects.requireNonNull(this.templateFile, "" +
+                        "Template must be provided if use template flag is set.");
+            }
+            this.parser = Objects.requireNonNullElse(this.parser, Parser.MODULE);
+            this.formatter = Objects.requireNonNullElse(this.formatter, Formatter.DEFAULT);
             return new QuoterConfig(this);
         }
     }

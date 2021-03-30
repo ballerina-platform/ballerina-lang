@@ -22,6 +22,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.quoter.BallerinaQuoter;
+import io.ballerina.quoter.config.QuoterConfig;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -60,6 +62,13 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
 
     @Override
     public CompletableFuture<BallerinaSyntaxTreeResponse> quote(BallerinaSyntaxTreeRequest request) {
+        QuoterConfig quoterConfig = new QuoterConfig.Builder()
+                .formatterTabStart(2)
+                .parserTimeout(10000)
+                .useTemplate(true)
+                .ignoreMinutiae(false)
+                .build();
+        String javaCode = BallerinaQuoter.run("import ballerina/io;", quoterConfig);
         return null;
     }
 
@@ -92,7 +101,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTree' failed!";
             this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE, msg, e, request.getDocumentIdentifier(),
-                                       (Position) null);
+                    (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
@@ -205,7 +214,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/syntaxTreeModify' failed!";
             this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_MODIFY, msg, e, request.getDocumentIdentifier(),
-                                       (Position) null);
+                    (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
@@ -231,7 +240,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             reply.setParseSuccess(false);
             String msg = "Operation 'ballerinaDocument/ast' failed!";
             this.clientLogger.logError(DocumentContext.DC_AST, msg, e, request.getDocumentIdentifier(),
-                                       (Position) null);
+                    (Position) null);
         }
         return CompletableFuture.supplyAsync(() -> reply);
     }
@@ -262,7 +271,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/project' failed!";
                 this.clientLogger.logError(DocumentContext.DC_PROJECT, msg, e, params.getDocumentIdentifier(),
-                                           (Position) null);
+                        (Position) null);
             }
             return ballerinaProject;
         });
@@ -274,9 +283,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             String fileUri = params.getDocumentIdentifier().getUri();
             try {
                 DocumentServiceContext context = ContextBuilder.buildBaseContext(fileUri,
-                                                                                 this.workspaceManager,
-                                                                                 LSContextOperation.DOC_DIAGNOSTICS,
-                                                                                 this.serverContext);
+                        this.workspaceManager,
+                        LSContextOperation.DOC_DIAGNOSTICS,
+                        this.serverContext);
                 DiagnosticsHelper diagnosticsHelper = DiagnosticsHelper.getInstance(this.serverContext);
                 return diagnosticsHelper.getLatestDiagnostics(context).entrySet().stream()
                         .map((entry) -> new PublishDiagnosticsParams(entry.getKey(), entry.getValue()))
@@ -284,7 +293,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaDocument/diagnostics' failed!";
                 this.clientLogger.logError(DocumentContext.DC_DIAGNOSTICS, msg, e, params.getDocumentIdentifier(),
-                                           (Position) null);
+                        (Position) null);
                 return Collections.emptyList();
             }
         });

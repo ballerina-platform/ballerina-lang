@@ -28,10 +28,6 @@ import java.io.IOException;
  * Base formatter.
  */
 public abstract class SegmentFormatter {
-    private static final String NONE_FORMATTER = "none";
-    private static final String VARIABLE_FORMATTER = "variable";
-    private static final String DEFAULT_FORMATTER = "default";
-
     /**
      * Creates a formatter based on the configuration option.
      * Creates a template formatter with the internal formatter if that option is set.
@@ -55,16 +51,15 @@ public abstract class SegmentFormatter {
      * @return Created formatter.
      */
     protected static SegmentFormatter getInternalFormatter(QuoterConfig config) {
-        String formatterName = config.formatterName();
-        switch (formatterName) {
-            case NONE_FORMATTER:
+        switch (config.formatter()) {
+            case NONE:
                 return new NoFormatter();
-            case DEFAULT_FORMATTER:
+            case DEFAULT:
                 return new DefaultFormatter();
-            case VARIABLE_FORMATTER:
+            case VARIABLE:
                 return new VariableFormatter();
             default:
-                throw new QuoterException("Unknown formatter name: " + formatterName);
+                throw new QuoterException("Unknown formatter name: " + config.formatter());
         }
     }
 

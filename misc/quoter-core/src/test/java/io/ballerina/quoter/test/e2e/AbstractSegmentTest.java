@@ -64,7 +64,7 @@ public abstract class AbstractSegmentTest {
      * @param formatter    Base formatter name to use.
      * @param templateFile Template to use for dynamic class loading.
      */
-    protected void testForGeneratedCode(String sourceCode, String formatter, String templateFile)
+    protected void testForGeneratedCode(String sourceCode, QuoterConfig.Formatter formatter, String templateFile)
             throws URISyntaxException {
         sourceCode = sourceCode.trim();
         URL fileUrl = getClass().getClassLoader().getResource(templateFile);
@@ -72,7 +72,7 @@ public abstract class AbstractSegmentTest {
         QuoterConfig config = new QuoterConfig.Builder()
                 .formatterTabStart(2)
                 .templateFile(Paths.get(fileUrl.toURI()).toFile())
-                .formatterName(formatter)
+                .formatter(formatter)
                 .parserTimeout(10000)
                 .useTemplate(true)
                 .ignoreMinutiae(false)
@@ -90,9 +90,9 @@ public abstract class AbstractSegmentTest {
      */
     protected void testAssertionContent(String sourceCode) {
         try {
-            testForGeneratedCode(sourceCode, "default", "template-default.java");
-            testForGeneratedCode(sourceCode, "variable", "template-variable.java");
-            testForGeneratedCode(sourceCode, "none", "template-default.java");
+            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.DEFAULT, "template-default.java");
+            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.VARIABLE, "template-variable.java");
+            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.NONE, "template-default.java");
         } catch (URISyntaxException e) {
             throw new AssertionError(e);
         }
