@@ -58,7 +58,7 @@ public class SyntaxTreeByRangeTest {
     @Test(description = "Generate tree for a range that is a sub tree of the file's syntax tree")
     public void testSubTreeNode() throws Exception {
         TestUtil.openDocument(serviceEndpoint, mainFile);
-        Range range = new Range(new Position(0, 0), new Position(0, 25));
+        Range range = new Range(new Position(0, 0), new Position(0, 20));
         BallerinaSyntaxTreeResponse syntaxTreeByRangeResponse = LSExtensionTestUtil.getBallerinaSyntaxTreeByRange(
                 mainFile.toString(), range, this.serviceEndpoint);
         Assert.assertTrue(syntaxTreeByRangeResponse.isParseSuccess());
@@ -78,7 +78,7 @@ public class SyntaxTreeByRangeTest {
     @Test(description = "Generate tree for a range that captures a list of nodes")
     public void testModulePartNode() throws Exception {
         TestUtil.openDocument(serviceEndpoint, mainFile);
-        Range range = new Range(new Position(0, 4), new Position(4, 0));
+        Range range = new Range(new Position(0, 4), new Position(3, 15));
         BallerinaSyntaxTreeResponse syntaxTreeByRangeResponse = LSExtensionTestUtil.getBallerinaSyntaxTreeByRange(
                 mainFile.toString(), range, this.serviceEndpoint);
         Assert.assertTrue(syntaxTreeByRangeResponse.isParseSuccess());

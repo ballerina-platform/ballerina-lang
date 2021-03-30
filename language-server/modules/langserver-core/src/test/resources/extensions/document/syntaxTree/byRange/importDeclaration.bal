@@ -1,1 +1,1 @@
-import ballerina/module1;
+import ballerina/io;

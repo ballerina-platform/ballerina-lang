@@ -1,7 +1,164 @@
 {
   "syntaxTree":{
     "imports":[
+      {
+        "kind":"ImportDeclaration",
+        "importKeyword":{
+          "kind":"ImportKeyword",
+          "isToken":true,
+          "value":"import",
+          "isMissing":false,
+          "position":{
+            "startLine":0,
+            "startColumn":0,
+            "endLine":0,
+            "endColumn":6
+          },
+          "leadingMinutiae":[
 
+          ],
+          "trailingMinutiae":[
+            {
+              "kind":"WHITESPACE_MINUTIAE",
+              "minutiae":" ",
+              "isInvalid":false
+            }
+          ]
+        },
+        "orgName":{
+          "kind":"ImportOrgName",
+          "orgName":{
+            "kind":"IdentifierToken",
+            "isToken":true,
+            "value":"ballerina",
+            "isMissing":false,
+            "position":{
+              "startLine":0,
+              "startColumn":7,
+              "endLine":0,
+              "endColumn":16
+            },
+            "leadingMinutiae":[
+
+            ],
+            "trailingMinutiae":[
+
+            ]
+          },
+          "slashToken":{
+            "kind":"SlashToken",
+            "isToken":true,
+            "value":"/",
+            "isMissing":false,
+            "position":{
+              "startLine":0,
+              "startColumn":16,
+              "endLine":0,
+              "endColumn":17
+            },
+            "leadingMinutiae":[
+
+            ],
+            "trailingMinutiae":[
+
+            ]
+          },
+          "source":"ballerina/",
+          "syntaxDiagnostics":[
+
+          ],
+          "leadingMinutiae":[
+
+          ],
+          "trailingMinutiae":[
+
+          ],
+          "position":{
+            "startLine":0,
+            "startColumn":7,
+            "endLine":0,
+            "endColumn":17
+          },
+          "typeData":{
+            "diagnostics":[
+
+            ]
+          }
+        },
+        "moduleName":[
+          {
+            "kind":"IdentifierToken",
+            "isToken":true,
+            "value":"io",
+            "isMissing":false,
+            "position":{
+              "startLine":0,
+              "startColumn":17,
+              "endLine":0,
+              "endColumn":19
+            },
+            "leadingMinutiae":[
+
+            ],
+            "trailingMinutiae":[
+
+            ]
+          }
+        ],
+        "semicolon":{
+          "kind":"SemicolonToken",
+          "isToken":true,
+          "value":";",
+          "isMissing":false,
+          "position":{
+            "startLine":0,
+            "startColumn":19,
+            "endLine":0,
+            "endColumn":20
+          },
+          "leadingMinutiae":[
+
+          ],
+          "trailingMinutiae":[
+            {
+              "kind":"END_OF_LINE_MINUTIAE",
+              "minutiae":"\n",
+              "isInvalid":false
+            }
+          ]
+        },
+        "source":"import ballerina/io;\n",
+        "syntaxDiagnostics":[
+
+        ],
+        "leadingMinutiae":[
+
+        ],
+        "trailingMinutiae":[
+          {
+            "kind":"END_OF_LINE_MINUTIAE",
+            "minutiae":"\n",
+            "isInvalid":false
+          }
+        ],
+        "position":{
+          "startLine":0,
+          "startColumn":0,
+          "endLine":0,
+          "endColumn":20
+        },
+        "typeData":{
+          "diagnostics":[
+            {
+              "message":"cannot resolve module 'ballerina/io'",
+              "diagnosticInfo":{
+                "code":"BCE2003",
+                "severity":"ERROR"
+              }
+            }
+          ]
+        }
+      }
     ],
     "members":[
       {
@@ -13,13 +170,17 @@
             "value":"public",
             "isMissing":false,
             "position":{
-              "startLine":0,
+              "startLine":2,
               "startColumn":0,
-              "endLine":0,
+              "endLine":2,
               "endColumn":6
             },
             "leadingMinutiae":[
-
+              {
+                "kind":"END_OF_LINE_MINUTIAE",
+                "minutiae":"\n",
+                "isInvalid":false
+              }
             ],
             "trailingMinutiae":[
               {
@@ -36,9 +197,9 @@
           "value":"function",
           "isMissing":false,
           "position":{
-            "startLine":0,
+            "startLine":2,
             "startColumn":7,
-            "endLine":0,
+            "endLine":2,
             "endColumn":15
           },
           "leadingMinutiae":[
@@ -58,9 +219,9 @@
           "value":"bar",
           "isMissing":false,
           "position":{
-            "startLine":0,
+            "startLine":2,
             "startColumn":16,
-            "endLine":0,
+            "endLine":2,
             "endColumn":19
           },
           "leadingMinutiae":[
@@ -81,9 +242,9 @@
             "value":"(",
             "isMissing":false,
             "position":{
-              "startLine":0,
+              "startLine":2,
               "startColumn":19,
-              "endLine":0,
+              "endLine":2,
               "endColumn":20
             },
             "leadingMinutiae":[
@@ -102,9 +263,9 @@
             "value":")",
             "isMissing":false,
             "position":{
-              "startLine":0,
+              "startLine":2,
               "startColumn":20,
-              "endLine":0,
+              "endLine":2,
               "endColumn":21
             },
             "leadingMinutiae":[
@@ -133,9 +294,9 @@
             }
           ],
           "position":{
-            "startLine":0,
+            "startLine":2,
             "startColumn":19,
-            "endLine":0,
+            "endLine":2,
             "endColumn":21
           },
           "typeData":{
@@ -152,9 +313,9 @@
             "value":"{",
             "isMissing":false,
             "position":{
-              "startLine":0,
+              "startLine":2,
               "startColumn":22,
-              "endLine":0,
+              "endLine":2,
               "endColumn":23
             },
             "leadingMinutiae":[
@@ -184,9 +345,9 @@
                     "value":"int",
                     "isMissing":false,
                     "position":{
-                      "startLine":1,
+                      "startLine":3,
                       "startColumn":4,
-                      "endLine":1,
+                      "endLine":3,
                       "endColumn":7
                     },
                     "leadingMinutiae":[
@@ -223,9 +384,9 @@
                     }
                   ],
                   "position":{
-                    "startLine":1,
+                    "startLine":3,
                     "startColumn":4,
-                    "endLine":1,
+                    "endLine":3,
                     "endColumn":7
                   },
                   "typeData":{
@@ -269,9 +430,9 @@
                     "value":"x",
                     "isMissing":false,
                     "position":{
-                      "startLine":1,
+                      "startLine":3,
                       "startColumn":8,
-                      "endLine":1,
+                      "endLine":3,
                       "endColumn":9
                     },
                     "leadingMinutiae":[
@@ -300,9 +461,9 @@
                     }
                   ],
                   "position":{
-                    "startLine":1,
+                    "startLine":3,
                     "startColumn":8,
-                    "endLine":1,
+                    "endLine":3,
                     "endColumn":9
                   },
                   "typeData":{
@@ -344,9 +505,9 @@
                   }
                 ],
                 "position":{
-                  "startLine":1,
+                  "startLine":3,
                   "startColumn":4,
-                  "endLine":1,
+                  "endLine":3,
                   "endColumn":9
                 },
                 "typeData":{
@@ -375,9 +536,9 @@
                 "value":"=",
                 "isMissing":false,
                 "position":{
-                  "startLine":1,
+                  "startLine":3,
                   "startColumn":10,
-                  "endLine":1,
+                  "endLine":3,
                   "endColumn":11
                 },
                 "leadingMinutiae":[
@@ -399,9 +560,9 @@
                   "value":"10",
                   "isMissing":false,
                   "position":{
-                    "startLine":1,
+                    "startLine":3,
                     "startColumn":12,
-                    "endLine":1,
+                    "endLine":3,
                     "endColumn":14
                   },
                   "leadingMinutiae":[
@@ -422,9 +583,9 @@
 
                 ],
                 "position":{
-                  "startLine":1,
+                  "startLine":3,
                   "startColumn":12,
-                  "endLine":1,
+                  "endLine":3,
                   "endColumn":14
                 },
                 "typeData":{
@@ -444,9 +605,9 @@
                 "value":";",
                 "isMissing":false,
                 "position":{
-                  "startLine":1,
+                  "startLine":3,
                   "startColumn":14,
-                  "endLine":1,
+                  "endLine":3,
                   "endColumn":15
                 },
                 "leadingMinutiae":[
@@ -479,9 +640,9 @@
                 }
               ],
               "position":{
-                "startLine":1,
+                "startLine":3,
                 "startColumn":4,
-                "endLine":1,
+                "endLine":3,
                 "endColumn":15
               },
               "typeData":{
@@ -519,9 +680,9 @@
                     "value":"int",
                     "isMissing":false,
                     "position":{
-                      "startLine":2,
+                      "startLine":4,
                       "startColumn":4,
-                      "endLine":2,
+                      "endLine":4,
                       "endColumn":7
                     },
                     "leadingMinutiae":[
@@ -558,9 +719,9 @@
                     }
                   ],
                   "position":{
-                    "startLine":2,
+                    "startLine":4,
                     "startColumn":4,
-                    "endLine":2,
+                    "endLine":4,
                     "endColumn":7
                   },
                   "typeData":{
@@ -604,9 +765,9 @@
                     "value":"y",
                     "isMissing":false,
                     "position":{
-                      "startLine":2,
+                      "startLine":4,
                       "startColumn":8,
-                      "endLine":2,
+                      "endLine":4,
                       "endColumn":9
                     },
                     "leadingMinutiae":[
@@ -635,9 +796,9 @@
                     }
                   ],
                   "position":{
-                    "startLine":2,
+                    "startLine":4,
                     "startColumn":8,
-                    "endLine":2,
+                    "endLine":4,
                     "endColumn":9
                   },
                   "typeData":{
@@ -679,9 +840,9 @@
                   }
                 ],
                 "position":{
-                  "startLine":2,
+                  "startLine":4,
                   "startColumn":4,
-                  "endLine":2,
+                  "endLine":4,
                   "endColumn":9
                 },
                 "typeData":{
@@ -710,9 +871,9 @@
                 "value":"=",
                 "isMissing":false,
                 "position":{
-                  "startLine":2,
+                  "startLine":4,
                   "startColumn":10,
-                  "endLine":2,
+                  "endLine":4,
                   "endColumn":11
                 },
                 "leadingMinutiae":[
@@ -734,9 +895,9 @@
                   "value":"20",
                   "isMissing":false,
                   "position":{
-                    "startLine":2,
+                    "startLine":4,
                     "startColumn":12,
-                    "endLine":2,
+                    "endLine":4,
                     "endColumn":14
                   },
                   "leadingMinutiae":[
@@ -757,9 +918,9 @@
 
                 ],
                 "position":{
-                  "startLine":2,
+                  "startLine":4,
                   "startColumn":12,
-                  "endLine":2,
+                  "endLine":4,
                   "endColumn":14
                 },
                 "typeData":{
@@ -779,9 +940,9 @@
                 "value":";",
                 "isMissing":false,
                 "position":{
-                  "startLine":2,
+                  "startLine":4,
                   "startColumn":14,
-                  "endLine":2,
+                  "endLine":4,
                   "endColumn":15
                 },
                 "leadingMinutiae":[
@@ -814,9 +975,9 @@
                 }
               ],
               "position":{
-                "startLine":2,
+                "startLine":4,
                 "startColumn":4,
-                "endLine":2,
+                "endLine":4,
                 "endColumn":15
               },
               "typeData":{
@@ -840,24 +1001,21 @@
               }
             },
             {
-              "kind":"LocalVarDecl",
-              "annotations":[
-
-              ],
-              "typedBindingPattern":{
-                "kind":"TypedBindingPattern",
-                "typeDescriptor":{
-                  "kind":"IntTypeDesc",
-                  "name":{
-                    "kind":"IntKeyword",
+              "kind":"CallStatement",
+              "expression":{
+                "kind":"FunctionCall",
+                "functionName":{
+                  "kind":"QualifiedNameReference",
+                  "modulePrefix":{
+                    "kind":"IdentifierToken",
                     "isToken":true,
-                    "value":"int",
+                    "value":"io",
                     "isMissing":false,
                     "position":{
-                      "startLine":3,
+                      "startLine":5,
                       "startColumn":4,
-                      "endLine":3,
-                      "endColumn":7
+                      "endLine":5,
+                      "endColumn":6
                     },
                     "leadingMinutiae":[
                       {
@@ -867,14 +1025,46 @@
                       }
                     ],
                     "trailingMinutiae":[
-                      {
-                        "kind":"WHITESPACE_MINUTIAE",
-                        "minutiae":" ",
-                        "isInvalid":false
-                      }
+
                     ]
                   },
-                  "source":"    int ",
+                  "colon":{
+                    "kind":"ColonToken",
+                    "isToken":true,
+                    "value":":",
+                    "isMissing":false,
+                    "position":{
+                      "startLine":5,
+                      "startColumn":6,
+                      "endLine":5,
+                      "endColumn":7
+                    },
+                    "leadingMinutiae":[
+
+                    ],
+                    "trailingMinutiae":[
+
+                    ]
+                  },
+                  "identifier":{
+                    "kind":"IdentifierToken",
+                    "isToken":true,
+                    "value":"print",
+                    "isMissing":false,
+                    "position":{
+                      "startLine":5,
+                      "startColumn":7,
+                      "endLine":5,
+                      "endColumn":12
+                    },
+                    "leadingMinutiae":[
+
+                    ],
+                    "trailingMinutiae":[
+
+                    ]
+                  },
+                  "source":"    io:print",
                   "syntaxDiagnostics":[
 
                   ],
@@ -886,183 +1076,160 @@
                     }
                   ],
                   "trailingMinutiae":[
-                    {
-                      "kind":"WHITESPACE_MINUTIAE",
-                      "minutiae":" ",
-                      "isInvalid":false
-                    }
+
                   ],
                   "position":{
-                    "startLine":3,
+                    "startLine":5,
                     "startColumn":4,
-                    "endLine":3,
-                    "endColumn":7
+                    "endLine":5,
+                    "endColumn":12
                   },
                   "typeData":{
                     "typeSymbol":{
-                      "typeKind":"int",
+                      "typeKind":"CompilationError",
                       "kind":"TYPE",
-                      "signature":"int"
-                    },
-                    "symbol":{
-                      "name":"int",
-                      "typeKind":"typeReference",
-                      "moduleID":{
-                        "orgName":"ballerina",
-                        "moduleName":"lang.annotations",
-                        "version":"1.0.0"
-                      },
-                      "kind":"TYPE",
-                      "signature":"int"
+                      "signature":"$CompilationError$"
                     },
                     "diagnostics":[
-
+                      {
+                        "message":"undefined function 'print'",
+                        "diagnosticInfo":{
+                          "code":"BCE2011",
+                          "severity":"ERROR"
+                        }
+                      },
+                      {
+                        "message":"undefined module 'io'",
+                        "diagnosticInfo":{
+                          "code":"BCE2000",
+                          "severity":"ERROR"
+                        }
+                      }
                     ]
                   }
                 },
-                "bindingPattern":{
-                  "kind":"CaptureBindingPattern",
-                  "variableName":{
-                    "kind":"IdentifierToken",
-                    "isToken":true,
-                    "value":"ans",
-                    "isMissing":false,
-                    "position":{
-                      "startLine":3,
-                      "startColumn":8,
-                      "endLine":3,
-                      "endColumn":11
-                    },
-                    "leadingMinutiae":[
-
-                    ],
-                    "trailingMinutiae":[
-                      {
-                        "kind":"WHITESPACE_MINUTIAE",
-                        "minutiae":" ",
-                        "isInvalid":false
-                      }
-                    ]
+                "openParenToken":{
+                  "kind":"OpenParenToken",
+                  "isToken":true,
+                  "value":"(",
+                  "isMissing":false,
+                  "position":{
+                    "startLine":5,
+                    "startColumn":12,
+                    "endLine":5,
+                    "endColumn":13
                   },
-                  "source":"ans ",
-                  "syntaxDiagnostics":[
-
-                  ],
                   "leadingMinutiae":[
 
                   ],
                   "trailingMinutiae":[
-                    {
-                      "kind":"WHITESPACE_MINUTIAE",
-                      "minutiae":" ",
-                      "isInvalid":false
-                    }
-                  ],
-                  "position":{
-                    "startLine":3,
-                    "startColumn":8,
-                    "endLine":3,
-                    "endColumn":11
-                  },
-                  "typeData":{
-                    "typeSymbol":{
-                      "typeKind":"int",
-                      "kind":"TYPE",
-                      "signature":"int"
-                    },
-                    "symbol":{
-                      "deprecated":false,
-                      "moduleID":{
-                        "orgName":"$anon",
-                        "moduleName":".",
-                        "version":"0.0.0"
-                      },
-                      "kind":"VARIABLE"
-                    },
-                    "diagnostics":[
-
-                    ]
-                  }
-                },
-                "source":"    int ans ",
-                "syntaxDiagnostics":[
-
-                ],
-                "leadingMinutiae":[
-                  {
-                    "kind":"WHITESPACE_MINUTIAE",
-                    "minutiae":"    ",
-                    "isInvalid":false
-                  }
-                ],
-                "trailingMinutiae":[
-                  {
-                    "kind":"WHITESPACE_MINUTIAE",
-                    "minutiae":" ",
-                    "isInvalid":false
-                  }
-                ],
-                "position":{
-                  "startLine":3,
-                  "startColumn":4,
-                  "endLine":3,
-                  "endColumn":11
-                },
-                "typeData":{
-                  "typeSymbol":{
-                    "typeKind":"int",
-                    "kind":"TYPE",
-                    "signature":"int"
-                  },
-                  "symbol":{
-                    "deprecated":false,
-                    "moduleID":{
-                      "orgName":"$anon",
-                      "moduleName":".",
-                      "version":"0.0.0"
-                    },
-                    "kind":"VARIABLE"
-                  },
-                  "diagnostics":[
 
                   ]
-                }
-              },
-              "equalsToken":{
-                "kind":"EqualToken",
-                "isToken":true,
-                "value":"=",
-                "isMissing":false,
-                "position":{
-                  "startLine":3,
-                  "startColumn":12,
-                  "endLine":3,
-                  "endColumn":13
                 },
-                "leadingMinutiae":[
-
-                ],
-                "trailingMinutiae":[
+                "arguments":[
                   {
-                    "kind":"WHITESPACE_MINUTIAE",
-                    "minutiae":" ",
-                    "isInvalid":false
-                  }
-                ]
-              },
-              "initializer":{
-                "kind":"BinaryExpression",
-                "lhsExpr":{
-                  "kind":"SimpleNameReference",
-                  "name":{
-                    "kind":"IdentifierToken",
+                    "kind":"PositionalArg",
+                    "expression":{
+                      "kind":"SimpleNameReference",
+                      "name":{
+                        "kind":"IdentifierToken",
+                        "isToken":true,
+                        "value":"x",
+                        "isMissing":false,
+                        "position":{
+                          "startLine":5,
+                          "startColumn":13,
+                          "endLine":5,
+                          "endColumn":14
+                        },
+                        "leadingMinutiae":[
+
+                        ],
+                        "trailingMinutiae":[
+
+                        ]
+                      },
+                      "source":"x",
+                      "syntaxDiagnostics":[
+
+                      ],
+                      "leadingMinutiae":[
+
+                      ],
+                      "trailingMinutiae":[
+
+                      ],
+                      "position":{
+                        "startLine":5,
+                        "startColumn":13,
+                        "endLine":5,
+                        "endColumn":14
+                      },
+                      "typeData":{
+                        "typeSymbol":{
+                          "typeKind":"int",
+                          "kind":"TYPE",
+                          "signature":"int"
+                        },
+                        "symbol":{
+                          "deprecated":false,
+                          "moduleID":{
+                            "orgName":"$anon",
+                            "moduleName":".",
+                            "version":"0.0.0"
+                          },
+                          "kind":"VARIABLE"
+                        },
+                        "diagnostics":[
+
+                        ]
+                      }
+                    },
+                    "source":"x",
+                    "syntaxDiagnostics":[
+
+                    ],
+                    "leadingMinutiae":[
+
+                    ],
+                    "trailingMinutiae":[
+
+                    ],
+                    "position":{
+                      "startLine":5,
+                      "startColumn":13,
+                      "endLine":5,
+                      "endColumn":14
+                    },
+                    "typeData":{
+                      "typeSymbol":{
+                        "typeKind":"int",
+                        "kind":"TYPE",
+                        "signature":"int"
+                      },
+                      "symbol":{
+                        "deprecated":false,
+                        "moduleID":{
+                          "orgName":"$anon",
+                          "moduleName":".",
+                          "version":"0.0.0"
+                        },
+                        "kind":"VARIABLE"
+                      },
+                      "diagnostics":[
+
+                      ]
+                    }
+                  },
+                  {
+                    "kind":"CommaToken",
                     "isToken":true,
-                    "value":"x",
+                    "value":",",
                     "isMissing":false,
                     "position":{
-                      "startLine":3,
+                      "startLine":5,
                       "startColumn":14,
-                      "endLine":3,
+                      "endLine":5,
                       "endColumn":15
                     },
                     "leadingMinutiae":[
@@ -1076,239 +1243,123 @@
                       }
                     ]
                   },
-                  "source":"x ",
-                  "syntaxDiagnostics":[
+                  {
+                    "kind":"PositionalArg",
+                    "expression":{
+                      "kind":"SimpleNameReference",
+                      "name":{
+                        "kind":"IdentifierToken",
+                        "isToken":true,
+                        "value":"y",
+                        "isMissing":false,
+                        "position":{
+                          "startLine":5,
+                          "startColumn":16,
+                          "endLine":5,
+                          "endColumn":17
+                        },
+                        "leadingMinutiae":[
 
-                  ],
-                  "leadingMinutiae":[
+                        ],
+                        "trailingMinutiae":[
 
-                  ],
-                  "trailingMinutiae":[
-                    {
-                      "kind":"WHITESPACE_MINUTIAE",
-                      "minutiae":" ",
-                      "isInvalid":false
-                    }
-                  ],
-                  "position":{
-                    "startLine":3,
-                    "startColumn":14,
-                    "endLine":3,
-                    "endColumn":15
-                  },
-                  "typeData":{
-                    "typeSymbol":{
-                      "typeKind":"int",
-                      "kind":"TYPE",
-                      "signature":"int"
-                    },
-                    "symbol":{
-                      "deprecated":false,
-                      "moduleID":{
-                        "orgName":"$anon",
-                        "moduleName":".",
-                        "version":"0.0.0"
+                        ]
                       },
-                      "kind":"VARIABLE"
-                    },
-                    "diagnostics":[
+                      "source":"y",
+                      "syntaxDiagnostics":[
 
-                    ]
-                  }
-                },
-                "operator":{
-                  "kind":"PlusToken",
-                  "isToken":true,
-                  "value":"+",
-                  "isMissing":false,
-                  "position":{
-                    "startLine":3,
-                    "startColumn":16,
-                    "endLine":3,
-                    "endColumn":17
-                  },
-                  "leadingMinutiae":[
+                      ],
+                      "leadingMinutiae":[
 
-                  ],
-                  "trailingMinutiae":[
-                    {
-                      "kind":"WHITESPACE_MINUTIAE",
-                      "minutiae":" ",
-                      "isInvalid":false
-                    }
-                  ]
-                },
-                "rhsExpr":{
-                  "kind":"SimpleNameReference",
-                  "name":{
-                    "kind":"IdentifierToken",
-                    "isToken":true,
-                    "value":"y",
-                    "isMissing":false,
-                    "position":{
-                      "startLine":3,
-                      "startColumn":18,
-                      "endLine":3,
-                      "endColumn":19
+                      ],
+                      "trailingMinutiae":[
+
+                      ],
+                      "position":{
+                        "startLine":5,
+                        "startColumn":16,
+                        "endLine":5,
+                        "endColumn":17
+                      },
+                      "typeData":{
+                        "typeSymbol":{
+                          "typeKind":"int",
+                          "kind":"TYPE",
+                          "signature":"int"
+                        },
+                        "symbol":{
+                          "deprecated":false,
+                          "moduleID":{
+                            "orgName":"$anon",
+                            "moduleName":".",
+                            "version":"0.0.0"
+                          },
+                          "kind":"VARIABLE"
+                        },
+                        "diagnostics":[
+
+                        ]
+                      }
                     },
+                    "source":"y",
+                    "syntaxDiagnostics":[
+
+                    ],
                     "leadingMinutiae":[
 
                     ],
                     "trailingMinutiae":[
 
-                    ]
-                  },
-                  "source":"y",
-                  "syntaxDiagnostics":[
+                    ],
+                    "position":{
+                      "startLine":5,
+                      "startColumn":16,
+                      "endLine":5,
+                      "endColumn":17
+                    },
+                    "typeData":{
+                      "typeSymbol":{
+                        "typeKind":"int",
+                        "kind":"TYPE",
+                        "signature":"int"
+                      },
+                      "symbol":{
+                        "deprecated":false,
+                        "moduleID":{
+                          "orgName":"$anon",
+                          "moduleName":".",
+                          "version":"0.0.0"
+                        },
+                        "kind":"VARIABLE"
+                      },
+                      "diagnostics":[
 
-                  ],
+                      ]
+                    }
+                  }
+                ],
+                "closeParenToken":{
+                  "kind":"CloseParenToken",
+                  "isToken":true,
+                  "value":")",
+                  "isMissing":false,
+                  "position":{
+                    "startLine":5,
+                    "startColumn":17,
+                    "endLine":5,
+                    "endColumn":18
+                  },
                   "leadingMinutiae":[
 
                   ],
                   "trailingMinutiae":[
 
-                  ],
-                  "position":{
-                    "startLine":3,
-                    "startColumn":18,
-                    "endLine":3,
-                    "endColumn":19
-                  },
-                  "typeData":{
-                    "typeSymbol":{
-                      "typeKind":"int",
-                      "kind":"TYPE",
-                      "signature":"int"
-                    },
-                    "symbol":{
-                      "deprecated":false,
-                      "moduleID":{
-                        "orgName":"$anon",
-                        "moduleName":".",
-                        "version":"0.0.0"
-                      },
-                      "kind":"VARIABLE"
-                    },
-                    "diagnostics":[
-
-                    ]
-                  }
+                  ]
                 },
-                "source":"x + y",
+                "source":"    io:print(x, y)",
                 "syntaxDiagnostics":[
 
                 ],
-                "leadingMinutiae":[
-
-                ],
-                "trailingMinutiae":[
-
-                ],
-                "position":{
-                  "startLine":3,
-                  "startColumn":14,
-                  "endLine":3,
-                  "endColumn":19
-                },
-                "typeData":{
-                  "typeSymbol":{
-                    "typeKind":"int",
-                    "kind":"TYPE",
-                    "signature":"int"
-                  },
-                  "symbol":{
-                    "deprecated":false,
-                    "moduleID":{
-                      "orgName":"$anon",
-                      "moduleName":".",
-                      "version":"0.0.0"
-                    },
-                    "kind":"VARIABLE"
-                  },
-                  "diagnostics":[
-
-                  ]
-                }
-              },
-              "semicolonToken":{
-                "kind":"SemicolonToken",
-                "isToken":true,
-                "value":";",
-                "isMissing":false,
-                "position":{
-                  "startLine":3,
-                  "startColumn":19,
-                  "endLine":3,
-                  "endColumn":20
-                },
-                "leadingMinutiae":[
-
-                ],
-                "trailingMinutiae":[
-                  {
-                    "kind":"END_OF_LINE_MINUTIAE",
-                    "minutiae":"\n",
-                    "isInvalid":false
-                  }
-                ]
-              },
-              "source":"    int ans = x + y;\n",
-              "syntaxDiagnostics":[
-
-              ],
-              "leadingMinutiae":[
-                {
-                  "kind":"WHITESPACE_MINUTIAE",
-                  "minutiae":"    ",
-                  "isInvalid":false
-                }
-              ],
-              "trailingMinutiae":[
-                {
-                  "kind":"END_OF_LINE_MINUTIAE",
-                  "minutiae":"\n",
-                  "isInvalid":false
-                }
-              ],
-              "position":{
-                "startLine":3,
-                "startColumn":4,
-                "endLine":3,
-                "endColumn":20
-              },
-              "typeData":{
-                "typeSymbol":{
-                  "typeKind":"int",
-                  "kind":"TYPE",
-                  "signature":"int"
-                },
-                "symbol":{
-                  "deprecated":false,
-                  "moduleID":{
-                    "orgName":"$anon",
-                    "moduleName":".",
-                    "version":"0.0.0"
-                  },
-                  "kind":"VARIABLE"
-                },
-                "diagnostics":[
-
-                ]
-              }
-            },
-            {
-              "kind":"ReturnStatement",
-              "returnKeyword":{
-                "kind":"ReturnKeyword",
-                "isToken":true,
-                "value":"return",
-                "isMissing":false,
-                "position":{
-                  "startLine":4,
-                  "startColumn":4,
-                  "endLine":4,
-                  "endColumn":10
-                },
                 "leadingMinutiae":[
                   {
                     "kind":"WHITESPACE_MINUTIAE",
@@ -1317,48 +1368,13 @@
                   }
                 ],
                 "trailingMinutiae":[
-                  {
-                    "kind":"WHITESPACE_MINUTIAE",
-                    "minutiae":" ",
-                    "isInvalid":false
-                  }
-                ]
-              },
-              "expression":{
-                "kind":"SimpleNameReference",
-                "name":{
-                  "kind":"IdentifierToken",
-                  "isToken":true,
-                  "value":"ans",
-                  "isMissing":false,
-                  "position":{
-                    "startLine":4,
-                    "startColumn":11,
-                    "endLine":4,
-                    "endColumn":14
-                  },
-                  "leadingMinutiae":[
-
-                  ],
-                  "trailingMinutiae":[
-
-                  ]
-                },
-                "source":"ans",
-                "syntaxDiagnostics":[
-
-                ],
-                "leadingMinutiae":[
-
-                ],
-                "trailingMinutiae":[
 
                 ],
                 "position":{
-                  "startLine":4,
-                  "startColumn":11,
-                  "endLine":4,
-                  "endColumn":14
+                  "startLine":5,
+                  "startColumn":4,
+                  "endLine":5,
+                  "endColumn":18
                 },
                 "typeData":{
                   "typeSymbol":{
@@ -1366,20 +1382,18 @@
                     "kind":"TYPE",
                     "signature":"$CompilationError$"
                   },
-                  "symbol":{
-                    "deprecated":false,
-                    "moduleID":{
-                      "orgName":"$anon",
-                      "moduleName":".",
-                      "version":"0.0.0"
-                    },
-                    "kind":"VARIABLE"
-                  },
                   "diagnostics":[
                     {
-                      "message":"incompatible types: expected '()', found 'int'",
+                      "message":"undefined function 'print'",
                       "diagnosticInfo":{
-                        "code":"BCE2066",
+                        "code":"BCE2011",
+                        "severity":"ERROR"
+                      }
+                    },
+                    {
+                      "message":"undefined module 'io'",
+                      "diagnosticInfo":{
+                        "code":"BCE2000",
                         "severity":"ERROR"
                       }
                     }
@@ -1392,10 +1406,10 @@
                 "value":";",
                 "isMissing":false,
                 "position":{
-                  "startLine":4,
-                  "startColumn":14,
-                  "endLine":4,
-                  "endColumn":15
+                  "startLine":5,
+                  "startColumn":18,
+                  "endLine":5,
+                  "endColumn":19
                 },
                 "leadingMinutiae":[
 
@@ -1408,7 +1422,7 @@
                   }
                 ]
               },
-              "source":"    return ans;\n",
+              "source":"    io:print(x, y);\n",
               "syntaxDiagnostics":[
 
               ],
@@ -1427,17 +1441,29 @@
                 }
               ],
               "position":{
-                "startLine":4,
+                "startLine":5,
                 "startColumn":4,
-                "endLine":4,
-                "endColumn":15
+                "endLine":5,
+                "endColumn":19
               },
               "typeData":{
+                "typeSymbol":{
+                  "typeKind":"CompilationError",
+                  "kind":"TYPE",
+                  "signature":"$CompilationError$"
+                },
                 "diagnostics":[
                   {
-                    "message":"incompatible types: expected '()', found 'int'",
+                    "message":"undefined function 'print'",
                     "diagnosticInfo":{
-                      "code":"BCE2066",
+                      "code":"BCE2011",
+                      "severity":"ERROR"
+                    }
+                  },
+                  {
+                    "message":"undefined module 'io'",
+                    "diagnosticInfo":{
+                      "code":"BCE2000",
                       "severity":"ERROR"
                     }
                   }
@@ -1451,9 +1477,9 @@
             "value":"}",
             "isMissing":false,
             "position":{
-              "startLine":5,
+              "startLine":6,
               "startColumn":0,
-              "endLine":5,
+              "endLine":6,
               "endColumn":1
             },
             "leadingMinutiae":[
@@ -1467,7 +1493,7 @@
               }
             ]
           },
-          "source":"{\n    int x = 10;\n    int y = 20;\n    int ans = x + y;\n    return ans;\n}\n",
+          "source":"{\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
           "syntaxDiagnostics":[
 
           ],
@@ -1482,9 +1508,9 @@
             }
           ],
           "position":{
-            "startLine":0,
+            "startLine":2,
             "startColumn":22,
-            "endLine":5,
+            "endLine":6,
             "endColumn":1
           },
           "typeData":{
@@ -1493,12 +1519,16 @@
             ]
           }
         },
-        "source":"public function bar() {\n    int x = 10;\n    int y = 20;\n    int ans = x + y;\n    return ans;\n}\n",
+        "source":"\npublic function bar() {\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
         "syntaxDiagnostics":[
 
         ],
         "leadingMinutiae":[
-
+          {
+            "kind":"END_OF_LINE_MINUTIAE",
+            "minutiae":"\n",
+            "isInvalid":false
+          }
         ],
         "trailingMinutiae":[
           {
@@ -1508,9 +1538,9 @@
           }
         ],
         "position":{
-          "startLine":0,
+          "startLine":2,
           "startColumn":0,
-          "endLine":5,
+          "endLine":6,
           "endColumn":1
         },
         "typeData":{
@@ -1527,9 +1557,7 @@
           "diagnostics":[
 
           ]
-        },
-        "isNodePath":true,
-        "isLocatedNode":true
+        }
       }
     ],
     "eofToken":{
@@ -1538,9 +1566,9 @@
       "value":"",
       "isMissing":false,
       "position":{
-        "startLine":6,
+        "startLine":7,
         "startColumn":0,
-        "endLine":6,
+        "endLine":7,
         "endColumn":0
       },
       "leadingMinutiae":[
@@ -1550,7 +1578,7 @@
 
       ]
     },
-    "source":"public function bar() {\n    int x = 10;\n    int y = 20;\n    int ans = x + y;\n    return ans;\n}\n",
+    "source":"import ballerina/io;\n\npublic function bar() {\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
     "kind":"ModulePart",
     "syntaxDiagnostics":[
 
@@ -1564,16 +1592,23 @@
     "position":{
       "startLine":0,
       "startColumn":0,
-      "endLine":5,
+      "endLine":6,
       "endColumn":1
     },
     "typeData":{
       "diagnostics":[
-
+        {
+          "message":"cannot resolve module 'ballerina/io'",
+          "diagnosticInfo":{
+            "code":"BCE2003",
+            "severity":"ERROR"
+          }
+        }
       ]
     },
-    "isNodePath":true
-    },
-  "source":"public function bar() {\n    int x = 10;\n    int y = 20;\n    int ans = x + y;\n    return ans;\n}\n",
+    "isNodePath":true,
+    "isLocatedNode": true
+  },
+  "source":"import ballerina/io;\n\npublic function bar() {\n    int x = 10;\n    int y = 20;\n    io:print(x, y);\n}\n",
   "parseSuccess":true
 }

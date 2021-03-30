@@ -89,13 +89,13 @@
           {
             "kind":"IdentifierToken",
             "isToken":true,
-            "value":"module1",
+            "value":"io",
             "isMissing":false,
             "position":{
               "startLine":0,
               "startColumn":17,
               "endLine":0,
-              "endColumn":24
+              "endColumn":19
             },
             "leadingMinutiae":[
 
@@ -112,9 +112,9 @@
           "isMissing":false,
           "position":{
             "startLine":0,
-            "startColumn":24,
+            "startColumn":19,
             "endLine":0,
-            "endColumn":25
+            "endColumn":20
           },
           "leadingMinutiae":[
 
@@ -127,7 +127,7 @@
             }
           ]
         },
-        "source":"import ballerina/module1;\n",
+        "source":"import ballerina/io;\n",
         "syntaxDiagnostics":[
 
         ],
@@ -145,27 +145,14 @@
           "startLine":0,
           "startColumn":0,
           "endLine":0,
-          "endColumn":25
+          "endColumn":20
         },
         "typeData":{
-          "symbol":{
-            "id":{
-              "orgName":"ballerina",
-              "moduleName":"module1",
-              "version":"0.1.0"
-            },
-            "moduleID":{
-              "orgName":"ballerina",
-              "moduleName":"module1",
-              "version":"0.1.0"
-            },
-            "kind":"MODULE"
-          },
           "diagnostics":[
             {
-              "message":"unused import module 'ballerina/module1'",
+              "message":"cannot resolve module 'ballerina/io'",
               "diagnosticInfo":{
-                "code":"BCE2002",
+                "code":"BCE2003",
                 "severity":"ERROR"
               }
             }
@@ -345,7 +332,342 @@
             ]
           },
           "statements":[
+            {
+              "kind":"CallStatement",
+              "expression":{
+                "kind":"FunctionCall",
+                "functionName":{
+                  "kind":"QualifiedNameReference",
+                  "modulePrefix":{
+                    "kind":"IdentifierToken",
+                    "isToken":true,
+                    "value":"io",
+                    "isMissing":false,
+                    "position":{
+                      "startLine":3,
+                      "startColumn":4,
+                      "endLine":3,
+                      "endColumn":6
+                    },
+                    "leadingMinutiae":[
+                      {
+                        "kind":"WHITESPACE_MINUTIAE",
+                        "minutiae":"    ",
+                        "isInvalid":false
+                      }
+                    ],
+                    "trailingMinutiae":[
 
+                    ]
+                  },
+                  "colon":{
+                    "kind":"ColonToken",
+                    "isToken":true,
+                    "value":":",
+                    "isMissing":false,
+                    "position":{
+                      "startLine":3,
+                      "startColumn":6,
+                      "endLine":3,
+                      "endColumn":7
+                    },
+                    "leadingMinutiae":[
+
+                    ],
+                    "trailingMinutiae":[
+
+                    ]
+                  },
+                  "identifier":{
+                    "kind":"IdentifierToken",
+                    "isToken":true,
+                    "value":"println",
+                    "isMissing":false,
+                    "position":{
+                      "startLine":3,
+                      "startColumn":7,
+                      "endLine":3,
+                      "endColumn":14
+                    },
+                    "leadingMinutiae":[
+
+                    ],
+                    "trailingMinutiae":[
+
+                    ]
+                  },
+                  "source":"    io:println",
+                  "syntaxDiagnostics":[
+
+                  ],
+                  "leadingMinutiae":[
+                    {
+                      "kind":"WHITESPACE_MINUTIAE",
+                      "minutiae":"    ",
+                      "isInvalid":false
+                    }
+                  ],
+                  "trailingMinutiae":[
+
+                  ],
+                  "position":{
+                    "startLine":3,
+                    "startColumn":4,
+                    "endLine":3,
+                    "endColumn":14
+                  },
+                  "typeData":{
+                    "typeSymbol":{
+                      "typeKind":"CompilationError",
+                      "kind":"TYPE",
+                      "signature":"$CompilationError$"
+                    },
+                    "diagnostics":[
+                      {
+                        "message":"undefined function 'println'",
+                        "diagnosticInfo":{
+                          "code":"BCE2011",
+                          "severity":"ERROR"
+                        }
+                      },
+                      {
+                        "message":"undefined module 'io'",
+                        "diagnosticInfo":{
+                          "code":"BCE2000",
+                          "severity":"ERROR"
+                        }
+                      }
+                    ]
+                  }
+                },
+                "openParenToken":{
+                  "kind":"OpenParenToken",
+                  "isToken":true,
+                  "value":"(",
+                  "isMissing":false,
+                  "position":{
+                    "startLine":3,
+                    "startColumn":14,
+                    "endLine":3,
+                    "endColumn":15
+                  },
+                  "leadingMinutiae":[
+
+                  ],
+                  "trailingMinutiae":[
+
+                  ]
+                },
+                "arguments":[
+                  {
+                    "kind":"PositionalArg",
+                    "expression":{
+                      "kind":"StringLiteral",
+                      "literalToken":{
+                        "kind":"StringLiteralToken",
+                        "isToken":true,
+                        "value":"\"Hello, World!\"",
+                        "isMissing":false,
+                        "position":{
+                          "startLine":3,
+                          "startColumn":15,
+                          "endLine":3,
+                          "endColumn":30
+                        },
+                        "leadingMinutiae":[
+
+                        ],
+                        "trailingMinutiae":[
+
+                        ]
+                      },
+                      "source":"\"Hello, World!\"",
+                      "syntaxDiagnostics":[
+
+                      ],
+                      "leadingMinutiae":[
+
+                      ],
+                      "trailingMinutiae":[
+
+                      ],
+                      "position":{
+                        "startLine":3,
+                        "startColumn":15,
+                        "endLine":3,
+                        "endColumn":30
+                      },
+                      "typeData":{
+                        "typeSymbol":{
+                          "typeKind":"string",
+                          "kind":"TYPE",
+                          "signature":"string"
+                        },
+                        "diagnostics":[
+
+                        ]
+                      }
+                    },
+                    "source":"\"Hello, World!\"",
+                    "syntaxDiagnostics":[
+
+                    ],
+                    "leadingMinutiae":[
+
+                    ],
+                    "trailingMinutiae":[
+
+                    ],
+                    "position":{
+                      "startLine":3,
+                      "startColumn":15,
+                      "endLine":3,
+                      "endColumn":30
+                    },
+                    "typeData":{
+                      "typeSymbol":{
+                        "typeKind":"string",
+                        "kind":"TYPE",
+                        "signature":"string"
+                      },
+                      "diagnostics":[
+
+                      ]
+                    }
+                  }
+                ],
+                "closeParenToken":{
+                  "kind":"CloseParenToken",
+                  "isToken":true,
+                  "value":")",
+                  "isMissing":false,
+                  "position":{
+                    "startLine":3,
+                    "startColumn":30,
+                    "endLine":3,
+                    "endColumn":31
+                  },
+                  "leadingMinutiae":[
+
+                  ],
+                  "trailingMinutiae":[
+
+                  ]
+                },
+                "source":"    io:println(\"Hello, World!\")",
+                "syntaxDiagnostics":[
+
+                ],
+                "leadingMinutiae":[
+                  {
+                    "kind":"WHITESPACE_MINUTIAE",
+                    "minutiae":"    ",
+                    "isInvalid":false
+                  }
+                ],
+                "trailingMinutiae":[
+
+                ],
+                "position":{
+                  "startLine":3,
+                  "startColumn":4,
+                  "endLine":3,
+                  "endColumn":31
+                },
+                "typeData":{
+                  "typeSymbol":{
+                    "typeKind":"CompilationError",
+                    "kind":"TYPE",
+                    "signature":"$CompilationError$"
+                  },
+                  "diagnostics":[
+                    {
+                      "message":"undefined function 'println'",
+                      "diagnosticInfo":{
+                        "code":"BCE2011",
+                        "severity":"ERROR"
+                      }
+                    },
+                    {
+                      "message":"undefined module 'io'",
+                      "diagnosticInfo":{
+                        "code":"BCE2000",
+                        "severity":"ERROR"
+                      }
+                    }
+                  ]
+                }
+              },
+              "semicolonToken":{
+                "kind":"SemicolonToken",
+                "isToken":true,
+                "value":";",
+                "isMissing":false,
+                "position":{
+                  "startLine":3,
+                  "startColumn":31,
+                  "endLine":3,
+                  "endColumn":32
+                },
+                "leadingMinutiae":[
+
+                ],
+                "trailingMinutiae":[
+                  {
+                    "kind":"END_OF_LINE_MINUTIAE",
+                    "minutiae":"\n",
+                    "isInvalid":false
+                  }
+                ]
+              },
+              "source":"    io:println(\"Hello, World!\");\n",
+              "syntaxDiagnostics":[
+
+              ],
+              "leadingMinutiae":[
+                {
+                  "kind":"WHITESPACE_MINUTIAE",
+                  "minutiae":"    ",
+                  "isInvalid":false
+                }
+              ],
+              "trailingMinutiae":[
+                {
+                  "kind":"END_OF_LINE_MINUTIAE",
+                  "minutiae":"\n",
+                  "isInvalid":false
+                }
+              ],
+              "position":{
+                "startLine":3,
+                "startColumn":4,
+                "endLine":3,
+                "endColumn":32
+              },
+              "typeData":{
+                "typeSymbol":{
+                  "typeKind":"CompilationError",
+                  "kind":"TYPE",
+                  "signature":"$CompilationError$"
+                },
+                "diagnostics":[
+                  {
+                    "message":"undefined function 'println'",
+                    "diagnosticInfo":{
+                      "code":"BCE2011",
+                      "severity":"ERROR"
+                    }
+                  },
+                  {
+                    "message":"undefined module 'io'",
+                    "diagnosticInfo":{
+                      "code":"BCE2000",
+                      "severity":"ERROR"
+                    }
+                  }
+                ]
+              }
+            }
           ],
           "closeBraceToken":{
             "kind":"CloseBraceToken",
@@ -359,11 +681,7 @@
               "endColumn":1
             },
             "leadingMinutiae":[
-              {
-                "kind":"END_OF_LINE_MINUTIAE",
-                "minutiae":"\n",
-                "isInvalid":false
-              }
+
             ],
             "trailingMinutiae":[
               {
@@ -373,7 +691,7 @@
               }
             ]
           },
-          "source":"{\n\n}\n",
+          "source":"{\n    io:println(\"Hello, World!\");\n}\n",
           "syntaxDiagnostics":[
 
           ],
@@ -399,7 +717,7 @@
             ]
           }
         },
-        "source":"\npublic function main() {\n\n}\n",
+        "source":"\npublic function main() {\n    io:println(\"Hello, World!\");\n}\n",
         "syntaxDiagnostics":[
 
         ],
@@ -458,7 +776,7 @@
 
       ]
     },
-    "source":"import ballerina/module1;\n\npublic function main() {\n\n}\n",
+    "source":"import ballerina/io;\n\npublic function main() {\n    io:println(\"Hello, World!\");\n}\n",
     "kind":"ModulePart",
     "syntaxDiagnostics":[
 
@@ -478,9 +796,9 @@
     "typeData":{
       "diagnostics":[
         {
-          "message":"unused import module 'ballerina/module1'",
+          "message":"cannot resolve module 'ballerina/io'",
           "diagnosticInfo":{
-            "code":"BCE2002",
+            "code":"BCE2003",
             "severity":"ERROR"
           }
         }
@@ -488,6 +806,6 @@
     },
     "isNodePath":true
   },
-  "source":"import ballerina/io;\n\npublic function main() {\n}\n",
+  "source":"import ballerina/io;\n\npublic function main() {\n    io:println(\"Hello, World!\");\n}\n",
   "parseSuccess":true
 }
