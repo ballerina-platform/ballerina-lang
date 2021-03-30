@@ -31,6 +31,9 @@ import java.util.concurrent.CompletableFuture;
 public interface BallerinaDocumentService {
 
     @JsonRequest
+    CompletableFuture<BallerinaSyntaxTreeResponse> quote(BallerinaSyntaxTreeRequest request);
+
+    @JsonRequest
     CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTree(BallerinaSyntaxTreeRequest request);
 
     @JsonRequest

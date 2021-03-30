@@ -43,6 +43,7 @@ dependencies {
     implementation project(':ballerina-parser')
     implementation project(':formatter:formatter-core')
     implementation project(':diagram-util')
+    implementation project(':quoter-core')
     implementation project(':language-server:language-server-commons')
     implementation project(':toml-parser')
 

@@ -59,6 +59,11 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
+    public CompletableFuture<BallerinaSyntaxTreeResponse> quote(BallerinaSyntaxTreeRequest request) {
+        return null;
+    }
+
+    @Override
     public CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTree(BallerinaSyntaxTreeRequest request) {
         BallerinaSyntaxTreeResponse reply = new BallerinaSyntaxTreeResponse();
         String fileUri = request.getDocumentIdentifier().getUri();

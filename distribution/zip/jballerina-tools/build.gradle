@@ -114,6 +114,7 @@ dependencies {
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
     dist project(':diagram-util')
+    dist project(':quoter-core')
     dist project(':language-server:language-server-commons')
     dist project(':docerina')
     dist project(':observability-symbol-collector')
