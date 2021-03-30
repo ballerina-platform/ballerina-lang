@@ -109,13 +109,7 @@
                               "value": "module1"
                             },
                             {
-                              "kind": "COLON_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "COLON_TOKEN"
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
@@ -160,7 +154,13 @@
                   "kind": "IMPLICIT_NEW_EXPRESSION",
                   "children": [
                     {
-                      "kind": "NEW_KEYWORD"
+                      "kind": "NEW_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "PARENTHESIZED_ARG_LIST",
@@ -250,13 +250,7 @@
                               "value": "module1"
                             },
                             {
-                              "kind": "COLON_TOKEN",
-                              "trailingMinutiae": [
-                                {
-                                  "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
-                                }
-                              ]
+                              "kind": "COLON_TOKEN"
                             },
                             {
                               "kind": "IDENTIFIER_TOKEN",
@@ -301,7 +295,13 @@
                   "kind": "IMPLICIT_NEW_EXPRESSION",
                   "children": [
                     {
-                      "kind": "NEW_KEYWORD"
+                      "kind": "NEW_KEYWORD",
+                      "trailingMinutiae": [
+                        {
+                          "kind": "WHITESPACE_MINUTIAE",
+                          "value": " "
+                        }
+                      ]
                     },
                     {
                       "kind": "PARENTHESIZED_ARG_LIST",

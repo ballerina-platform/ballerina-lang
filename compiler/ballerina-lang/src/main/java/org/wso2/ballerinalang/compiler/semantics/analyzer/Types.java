@@ -1652,7 +1652,8 @@ public class Types {
                     break;
                 }
                 varType = streamType.constraint;
-                if (streamType.error != null) {
+                List<BType> completionType = getAllTypes(streamType.error);
+                if (completionType.stream().anyMatch(type -> type.tag != TypeTags.NIL)) {
                     BType actualType = BUnionType.create(null, varType, streamType.error);
                     dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);

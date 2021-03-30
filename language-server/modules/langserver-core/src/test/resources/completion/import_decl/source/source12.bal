@@ -1,5 +1,6 @@
-import ballerina/module1;
+// Test avoiding the suggestion of imports for already imported modules
+
+import ballerina/module1 
 
 function testFunction() {
-    module1:Type|module1: test = new();
 }

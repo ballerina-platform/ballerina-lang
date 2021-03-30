@@ -90,6 +90,6 @@ public class VarDeclarationTest extends AbstractStatementTest {
 
     @Test
     public void testLocalVarDeclWithComplexTypeMissingVarName() {
-        test("var-decl-stmt/local_var_decl_source_13.bal", "var-decl-stmt/local_var_decl_assert_13.bal");
+        testFile("var-decl-stmt/local_var_decl_source_13.bal", "var-decl-stmt/local_var_decl_assert_13.json");
     }
 }
