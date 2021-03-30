@@ -52,11 +52,11 @@ public class ObserverContext {
 
     private String entrypointFunctionModule;
 
-    private String entrypointObjectName;
+    private String entrypointServiceName;
 
     private String entrypointFunctionName;
 
-    private String entrypointAccessorName;
+    private String entrypointResourceAccessor;
 
     private String serviceName;
 
@@ -115,12 +115,12 @@ public class ObserverContext {
         this.entrypointFunctionModule = entrypointFunctionModule;
     }
 
-    public String getEntrypointObjectName() {
-        return entrypointObjectName;
+    public String getEntrypointServiceName() {
+        return entrypointServiceName;
     }
 
-    public void setEntrypointObjectName(String entrypointObjectName) {
-        this.entrypointObjectName = entrypointObjectName;
+    public void setEntrypointServiceName(String entrypointServiceName) {
+        this.entrypointServiceName = entrypointServiceName;
     }
 
     public String getEntrypointFunctionName() {
@@ -131,12 +131,12 @@ public class ObserverContext {
         this.entrypointFunctionName = entrypointFunctionName;
     }
 
-    public String getEntrypointAccessorName() {
-        return entrypointAccessorName;
+    public String getEntrypointResourceAccessor() {
+        return entrypointResourceAccessor;
     }
 
-    public void setEntrypointAccessorName(String entrypointAccessorName) {
-        this.entrypointAccessorName = entrypointAccessorName;
+    public void setEntrypointResourceAccessor(String entrypointResourceAccessor) {
+        this.entrypointResourceAccessor = entrypointResourceAccessor;
     }
 
     public String getServiceName() {

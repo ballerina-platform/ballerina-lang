@@ -36,10 +36,10 @@ import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
 import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_ACCESSOR_NAME;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
 import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_NAME;
-import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_OBJECT_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_SERVICE_NAME;
 
 /**
  * This class wraps opentracing apis and exposes extern functions to use within ballerina.
@@ -93,17 +93,17 @@ public class OpenTracerBallerinaWrapper {
         if (prevObserverContext != null) {
             serviceName = prevObserverContext.getServiceName();
             String entrypointFunctionModule = prevObserverContext.getEntrypointFunctionModule();
-            String entrypointObjectName = prevObserverContext.getEntrypointObjectName();
+            String entrypointServiceName = prevObserverContext.getEntrypointServiceName();
             String entrypointFunctionName = prevObserverContext.getEntrypointFunctionName();
-            String entrypointAccessorName = prevObserverContext.getEntrypointAccessorName();
+            String entrypointResourceAccessor = prevObserverContext.getEntrypointResourceAccessor();
             observerContext.setEntrypointFunctionModule(entrypointFunctionModule);
-            observerContext.setEntrypointObjectName(entrypointObjectName);
+            observerContext.setEntrypointServiceName(entrypointServiceName);
             observerContext.setEntrypointFunctionName(entrypointFunctionName);
-            observerContext.setEntrypointAccessorName(entrypointAccessorName);
+            observerContext.setEntrypointResourceAccessor(entrypointResourceAccessor);
             observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, entrypointFunctionModule);
-            observerContext.addTag(TAG_KEY_ENTRYPOINT_OBJECT_NAME, entrypointObjectName);
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_SERVICE_NAME, entrypointServiceName);
             observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_NAME, entrypointFunctionName);
-            observerContext.addTag(TAG_KEY_ENTRYPOINT_ACCESSOR_NAME, entrypointAccessorName);
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR, entrypointResourceAccessor);
         } else {
             serviceName = DEFAULT_SERVICE_NAME;
         }

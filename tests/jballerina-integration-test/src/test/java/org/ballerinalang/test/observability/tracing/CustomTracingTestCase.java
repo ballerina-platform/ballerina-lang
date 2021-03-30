@@ -83,9 +83,9 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
-                    new AbstractMap.SimpleEntry<>("entrypoint.accessor.name", "post"),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.object.name", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
                     new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
@@ -104,9 +104,9 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
-                    new AbstractMap.SimpleEntry<>("entrypoint.accessor.name", "post"),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("custom", "true"),
                     new AbstractMap.SimpleEntry<>("index", "1")
             ));
@@ -141,9 +141,9 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
-                    new AbstractMap.SimpleEntry<>("entrypoint.accessor.name", "post"),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("custom", "true"),
                     new AbstractMap.SimpleEntry<>("index", "2")
             ));
@@ -211,9 +211,9 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
-                    new AbstractMap.SimpleEntry<>("entrypoint.accessor.name", "post"),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.object.name", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
                     new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
@@ -271,9 +271,9 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
-                    new AbstractMap.SimpleEntry<>("entrypoint.accessor.name", "post"),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("custom", "true"),
                     new AbstractMap.SimpleEntry<>("index", "3")
             ));
@@ -290,9 +290,9 @@ public class CustomTracingTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("resource", resourceName),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.object.name", SERVICE_NAME),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", SERVICE_NAME),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
-                    new AbstractMap.SimpleEntry<>("entrypoint.accessor.name", "post"),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("custom", "true"),
                     new AbstractMap.SimpleEntry<>("index", "4")
             ));
