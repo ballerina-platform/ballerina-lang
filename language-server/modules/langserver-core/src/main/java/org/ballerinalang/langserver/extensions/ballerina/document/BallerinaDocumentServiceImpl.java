@@ -61,14 +61,40 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaSyntaxTreeResponse> quote(BallerinaSyntaxTreeRequest request) {
-        QuoterConfig quoterConfig = new QuoterConfig.Builder()
-                .formatterTabStart(2)
-                .parserTimeout(10000)
-                .ignoreMinutiae(false)
-                .build();
-        String javaCode = BallerinaQuoter.generate("import ballerina/io;", quoterConfig);
-        return null;
+    public CompletableFuture<BallerinaSyntaxApiQuoteResponse> syntaxApiQuote(BallerinaSyntaxApiQuoteRequest request) {
+        BallerinaSyntaxApiQuoteResponse reply = new BallerinaSyntaxApiQuoteResponse();
+        String fileUri = request.getDocumentIdentifier().getUri();
+        Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+        if (filePath.isEmpty()) {
+            return CompletableFuture.supplyAsync(() -> reply);
+        }
+
+        try {
+            Optional<Document> srcFile = this.workspaceManager.document(filePath.get());
+            if (srcFile.isEmpty()) {
+                return CompletableFuture.supplyAsync(() -> reply);
+            }
+            // Create the config object
+            QuoterConfig quoterConfig = new QuoterConfig.Builder()
+                    .ignoreMinutiae(request.getIgnoreMinutiae()).build();
+
+            // Get the source file content.
+            String srcContent = srcFile.get().textDocument().toString();
+
+            // Get the generated syntax API quote.
+            String javaCode = BallerinaQuoter.generate(srcContent, quoterConfig);
+
+            // Preparing the response.
+            reply.setSource(srcFile.get().syntaxTree().toSourceCode());
+            reply.setCode(javaCode);
+            reply.setParseSuccess(reply.getCode() != null);
+        } catch (Throwable e) {
+            reply.setParseSuccess(false);
+            String msg = "Operation 'ballerinaDocument/syntaxApiQuote' failed!";
+            this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE, msg, e, request.getDocumentIdentifier(),
+                    (Position) null);
+        }
+        return CompletableFuture.supplyAsync(() -> reply);
     }
 
     @Override
