@@ -50,6 +50,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.exception.LSConnectorException;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.tree.ClassDefinition;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBalaRepo;
@@ -168,7 +169,9 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 });
 
                 Map<String, TypeDefinitionNode> jsonRecords = new HashMap<>();
+                Map<String, ClassDefinitionNode> objectTypes = new HashMap<>();
                 connectorNodeVisitor.getRecords().forEach(jsonRecords::put);
+                connectorNodeVisitor.getObjectTypes().forEach(objectTypes::put);
 
                 Gson gson = new Gson();
                 List<ClassDefinitionNode> connectorNodes = connectorNodeVisitor.getConnectors();
@@ -183,7 +186,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                             FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) child;
                             functionDefinitionNode.functionSignature().parameters().forEach(parameterNode -> {
                                 populateConnectorFunctionParamRecords(parameterNode, semanticModel, jsonRecords,
-                                        connectorRecords);
+                                        objectTypes, connectorRecords);
                             });
                         }
                     }
@@ -192,6 +195,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     if (jsonST instanceof JsonObject && ((JsonObject) jsonST).has("typeData")) {
                         JsonElement recordsJson = gson.toJsonTree(connectorRecords);
                         ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("records", recordsJson);
+//                        ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("classes", classesJson);
+//                        ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("classes", classesJson);
                     }
                     connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
                             request.getVersion(), connector.className().text(), jsonST);
@@ -213,6 +218,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
     private void populateConnectorFunctionParamRecords(Node parameterNode, SemanticModel semanticModel,
                                                        Map<String, TypeDefinitionNode> jsonRecords,
+                                                       Map<String, ClassDefinitionNode> classDefinitions,
                                                        Map<String, JsonElement> connectorRecords) {
         Optional<TypeSymbol> paramType = semanticModel.type(parameterNode.lineRange());
         if (paramType.isPresent()) {
@@ -241,7 +247,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
                 if (jsonRecords.get(parameterTypeName) != null) {
                     connectorRecords.put(parameterTypeName,
-                            DiagramUtil.getTypeDefinitionSyntaxJson(jsonRecords.get(parameterTypeName), semanticModel));
+                            DiagramUtil
+                                    .getTypeDefinitionSyntaxJson(jsonRecords.get(parameterTypeName), semanticModel));
                 }
                 Arrays.stream(paramType.get().signature().split("\\|")).forEach(type -> {
                     String refinedType = type.replace("?", "");
@@ -268,14 +275,21 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     }
                 }
             } else if (paramType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
-                if (record != null) {
+                if (jsonRecords.containsKey(paramType.get().signature())) {
+                    TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
+
                     connectorRecords.put(paramType.get().signature(),
                             DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
                     if (record.typeDescriptor() instanceof RecordTypeDescriptorNode) {
                         populateConnectorTypeDef((RecordTypeDescriptorNode) record.typeDescriptor(), semanticModel,
                                 jsonRecords, connectorRecords, record.typeName().text());
                     }
+                }
+
+                if (classDefinitions.containsKey(paramType.get().signature())) {
+                    ClassDefinitionNode classDefinition= classDefinitions.get(paramType.get().signature());
+                    connectorRecords.put(paramType.get().signature(),
+                            DiagramUtil.getClassDefinitionSyntaxJson(classDefinition, semanticModel));
                 }
             }
         }
