@@ -225,6 +225,15 @@ function testPrintAttribMap() {
     print(attrMap);
 }
 
+function testCharacterReferencesInXmlAttributeValue() {
+    var x = xml`<p att="x&amp;y"/>`;
+    string att = checkpanic x.att;
+    if (att == "x&y") {
+        return;
+    }
+    panic error("Assertion error, expected `x&y`, found `" + att + "`");
+}
+
 public function print(any|error... values) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
