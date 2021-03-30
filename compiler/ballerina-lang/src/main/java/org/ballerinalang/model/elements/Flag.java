@@ -178,7 +178,7 @@ public enum Flag {
      */
     NEVER_ALLOWED,
     /**
-     * Indicates flagged node is a member of an enum
+     * Indicates flagged node is a member of an enum.
      */
     ENUM_MEMBER
 }
