@@ -363,6 +363,13 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
                 "deptAccess:\"XYZ\", address:{city:\"Colombo\", country:\"SL\"}}");
     }
 
+    @Test(description = "Test looping a stream with foreach")
+    public void testForeachStream() {
+        BValue[] returnValues = BRunUtil.invoke(result, "testForeachStream");
+        Assert.assertNotNull(returnValues);
+        Assert.assertTrue(((BBoolean) returnValues[0]).booleanValue());
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
