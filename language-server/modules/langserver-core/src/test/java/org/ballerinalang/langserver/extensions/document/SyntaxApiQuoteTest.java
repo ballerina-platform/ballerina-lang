@@ -80,8 +80,8 @@ public class SyntaxApiQuoteTest {
         String mainFileContent = new String(Files.readAllBytes(mainFile));
         String mainFileResultContent = new String(Files.readAllBytes(mainFileResult));
         Assert.assertTrue(response.isParseSuccess());
-        Assert.assertEquals(response.getSource(), mainFileContent);
-        Assert.assertEquals(response.getCode().trim(), mainFileResultContent.trim());
+        Assert.assertEquals(replaceLineEnds(response.getSource()), replaceLineEnds(mainFileContent));
+        Assert.assertEquals(replaceLineEnds(response.getCode().trim()), replaceLineEnds(mainFileResultContent.trim()));
         TestUtil.closeDocument(this.serviceEndpoint, mainFile);
     }
 
@@ -93,8 +93,12 @@ public class SyntaxApiQuoteTest {
         String mainFileContent = new String(Files.readAllBytes(mainFile));
         String mainFileResultContent = new String(Files.readAllBytes(mainFileWoMinutiaeResult));
         Assert.assertTrue(response.isParseSuccess());
-        Assert.assertEquals(response.getSource(), mainFileContent);
-        Assert.assertEquals(response.getCode().trim(), mainFileResultContent.trim());
+        Assert.assertEquals(replaceLineEnds(response.getSource()), replaceLineEnds(mainFileContent));
+        Assert.assertEquals(replaceLineEnds(response.getCode().trim()), replaceLineEnds(mainFileResultContent.trim()));
         TestUtil.closeDocument(this.serviceEndpoint, mainFile);
+    }
+
+    private String replaceLineEnds(String source) {
+        return source.replace("\r\n", "\n").replace("\\r\\n", "\\n");
     }
 }
