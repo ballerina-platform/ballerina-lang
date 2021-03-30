@@ -23,11 +23,11 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 /**
  * This class contains a list of diagnostic hint codes.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public enum DiagnosticHintCode implements DiagnosticCode {
 
-    UNNECESSARY_CONDITION("BCE40000", "unnecessary.condition");
+    UNNECESSARY_CONDITION("BCH2000", "unnecessary.condition");
 
     private String diagnosticId;
     private String messageKey;
