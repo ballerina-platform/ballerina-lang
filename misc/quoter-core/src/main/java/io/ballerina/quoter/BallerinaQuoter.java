@@ -37,7 +37,7 @@ public class BallerinaQuoter {
      * @param config     Configuration object
      * @return Generated Java code
      */
-    public static String run(String sourceCode, QuoterConfig config) {
+    public static String generate(String sourceCode, QuoterConfig config) {
         try {
             QuoterParser parser = QuoterParser.fromConfig(config);
             NodeSegmentFactory factory = NodeSegmentFactory.fromConfig(config);

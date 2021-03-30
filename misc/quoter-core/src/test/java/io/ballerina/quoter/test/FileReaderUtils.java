@@ -18,8 +18,12 @@
 
 package io.ballerina.quoter.test;
 
+import java.io.File;
 import java.io.InputStream;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.charset.Charset;
+import java.nio.file.Paths;
 import java.util.Objects;
 import java.util.Scanner;
 
@@ -41,5 +45,11 @@ public class FileReaderUtils {
         Objects.requireNonNull(inputStream, "File open failed");
         Scanner scanner = new Scanner(inputStream, Charset.defaultCharset()).useDelimiter(SPECIAL_DELIMITER);
         return scanner.hasNext() ? scanner.next() : "";
+    }
+
+    public static File getResourceFile(String fileName) throws URISyntaxException {
+        URL fileUrl = FileReaderUtils.class.getClassLoader().getResource(fileName);
+        Objects.requireNonNull(fileUrl, "Template file resource could not be found.");
+        return Paths.get(fileUrl.toURI()).toFile();
     }
 }

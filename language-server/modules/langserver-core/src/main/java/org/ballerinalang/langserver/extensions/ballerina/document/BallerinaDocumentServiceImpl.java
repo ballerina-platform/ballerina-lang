@@ -65,10 +65,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         QuoterConfig quoterConfig = new QuoterConfig.Builder()
                 .formatterTabStart(2)
                 .parserTimeout(10000)
-                .useTemplate(true)
                 .ignoreMinutiae(false)
                 .build();
-        String javaCode = BallerinaQuoter.run("import ballerina/io;", quoterConfig);
+        String javaCode = BallerinaQuoter.generate("import ballerina/io;", quoterConfig);
         return null;
     }
 

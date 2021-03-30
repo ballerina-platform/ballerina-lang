@@ -39,7 +39,6 @@ public class QuoterConfig {
     public static final String SYNTAX_TREE_DESCRIPTOR_FILE = "syntax_tree_descriptor.json";
 
     private final File templateFile;
-    private final boolean useTemplate;
     private final Formatter formatter;
     private final int formatterTabStart;
     private final long parserTimeout;
@@ -48,7 +47,6 @@ public class QuoterConfig {
 
     private QuoterConfig(Builder builder) {
         this.templateFile = builder.templateFile;
-        this.useTemplate = builder.useTemplate;
         this.formatter = builder.formatter;
         this.formatterTabStart = builder.formatterTabStart;
         this.parserTimeout = builder.parserTimeout;
@@ -65,28 +63,61 @@ public class QuoterConfig {
         return Files.readString(templateFile.toPath(), Charset.defaultCharset());
     }
 
+    /**
+     * Whether to use a template file.
+     */
+    public boolean useTemplate() {
+        return templateFile != null;
+    }
+
+    /**
+     * The formatter that will be used to format the final source code.
+     * Currently {@code Formatter.DEFAULT}, {@code Formatter.VARIABLE} or
+     * {@code Formatter.NONE} are the used formatters.
+     * The {@code Formatter.DEFAULT} will be used if this is not set.
+     * <p>
+     * {@code Formatter.DEFAULT} will format nested method calls.
+     * {@code Formatter.VARIABLE} will format variable assigned method calls.
+     * {@code Formatter.NONE} will not format the result.
+     */
     public Formatter formatter() {
         return formatter;
     }
 
+    /**
+     * The tab position for the formatter to start.
+     * The formatter will output code assuming that this is the tab position of input source.
+     */
     public int formatterTabStart() {
         return formatterTabStart;
     }
 
-    public long parserTimeout() {
-        return parserTimeout;
-    }
-
-    public boolean ignoreMinutiae() {
-        return ignoreMinutiae;
-    }
-
+    /**
+     * Parser to use. The parser should be dependent on the context of the code snippet.
+     * Currently {@code Parser.EXPRESSION}, {@code Parser.STATEMENT}, and {@code Parser.MODULE}
+     * are implemented. Default if not set is {@code Parser.MODULE}.
+     * <p>
+     * {@code Parser.EXPRESSION} will parse assuming the snippet is an expression.
+     * {@code Parser.STATEMENT} will parse assuming the snippet is an statement.
+     * {@code Parser.MODULE} will parser assuming the snippet is a file.
+     */
     public Parser parser() {
         return parser;
     }
 
-    public boolean useTemplate() {
-        return useTemplate;
+    /**
+     * Timeout (in milliseconds) for the parser to wait for parsing.
+     * If this exceeds, the parser will exit.
+     */
+    public long parserTimeout() {
+        return parserTimeout;
+    }
+
+    /**
+     * Whether to ignore minutiae nodes and only to generate code for other nodes.
+     */
+    public boolean ignoreMinutiae() {
+        return ignoreMinutiae;
     }
 
     /**
@@ -106,25 +137,29 @@ public class QuoterConfig {
     }
 
     /**
-     *
+     * Available parsers.
+     * Will activate {@link io.ballerina.quoter.parser.ExpressionParser},
+     * {@link io.ballerina.quoter.parser.StatementParser} or {@link io.ballerina.quoter.parser.ModuleParser}.
      */
     public enum Parser {
         EXPRESSION, STATEMENT, MODULE
     }
 
     /**
-     *
+     * Available formatters.
+     * Will activate {@link io.ballerina.quoter.formatter.NoFormatter},
+     * {@link io.ballerina.quoter.formatter.DefaultFormatter} or
+     * {@link io.ballerina.quoter.formatter.VariableFormatter}.
      */
     public enum Formatter {
         NONE, DEFAULT, VARIABLE
     }
 
     /**
-     *
+     * The builder for the config.
      */
     public static class Builder {
         private File templateFile;
-        private boolean useTemplate;
         private Formatter formatter;
         private int formatterTabStart;
         private long parserTimeout;
@@ -132,48 +167,69 @@ public class QuoterConfig {
         private Parser parser;
 
         public Builder() {
+            this.formatterTabStart = 0;
+            this.parserTimeout = 10000;
+            this.ignoreMinutiae = false;
         }
 
+        /**
+         * Set the template file to be used.
+         * If not set, no template will be used.
+         */
         public Builder templateFile(File templateFile) {
             this.templateFile = templateFile;
             return Builder.this;
         }
 
-        public Builder useTemplate(boolean useTemplate) {
-            this.useTemplate = useTemplate;
-            return Builder.this;
-        }
-
+        /**
+         * Set the formatter to use.
+         * If not set, {@code Formatter.DEFAULT} will be used.
+         */
         public Builder formatter(Formatter formatter) {
             this.formatter = formatter;
             return Builder.this;
         }
 
+        /**
+         * Set the formatter tab start.
+         * If not set, {@code 0} will be used.
+         */
         public Builder formatterTabStart(int formatterTabStart) {
             this.formatterTabStart = formatterTabStart;
             return Builder.this;
         }
 
-        public Builder parserTimeout(long parserTimeout) {
-            this.parserTimeout = parserTimeout;
-            return Builder.this;
-        }
-
-        public Builder ignoreMinutiae(boolean ignoreMinutiae) {
-            this.ignoreMinutiae = ignoreMinutiae;
-            return Builder.this;
-        }
-
+        /**
+         * Set the parser to use.
+         * If not set, {@code Parser.MODULE} will be used.
+         */
         public Builder parser(Parser parser) {
             this.parser = parser;
             return Builder.this;
         }
 
+        /**
+         * Set the timeout for the parser (in milliseconds).
+         * If not set, {@code 10000} will be used.
+         */
+        public Builder parserTimeout(long parserTimeout) {
+            this.parserTimeout = parserTimeout;
+            return Builder.this;
+        }
+
+        /**
+         * Set whether to ignore minutiae.
+         * Default is {@code false}.
+         */
+        public Builder ignoreMinutiae(boolean ignoreMinutiae) {
+            this.ignoreMinutiae = ignoreMinutiae;
+            return Builder.this;
+        }
+
+        /**
+         * Build the configuration object.
+         */
         public QuoterConfig build() {
-            if (this.useTemplate) {
-                Objects.requireNonNull(this.templateFile, "" +
-                        "Template must be provided if use template flag is set.");
-            }
             this.parser = Objects.requireNonNullElse(this.parser, Parser.MODULE);
             this.formatter = Objects.requireNonNullElse(this.formatter, Formatter.DEFAULT);
             return new QuoterConfig(this);

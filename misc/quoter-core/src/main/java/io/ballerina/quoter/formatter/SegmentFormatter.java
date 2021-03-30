@@ -18,7 +18,6 @@
 
 package io.ballerina.quoter.formatter;
 
-import io.ballerina.quoter.QuoterException;
 import io.ballerina.quoter.config.QuoterConfig;
 import io.ballerina.quoter.segment.Segment;
 
@@ -54,12 +53,10 @@ public abstract class SegmentFormatter {
         switch (config.formatter()) {
             case NONE:
                 return new NoFormatter();
-            case DEFAULT:
-                return new DefaultFormatter();
             case VARIABLE:
                 return new VariableFormatter();
             default:
-                throw new QuoterException("Unknown formatter name: " + config.formatter());
+                return new DefaultFormatter();
         }
     }
 

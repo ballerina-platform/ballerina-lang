@@ -26,12 +26,10 @@ import io.ballerina.quoter.test.TemplateCode;
 import net.openhft.compiler.CachedCompiler;
 import org.testng.Assert;
 
+import java.io.File;
 import java.net.URISyntaxException;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
-import java.util.Objects;
 
 /**
  * Test Base class with several helper functions.
@@ -47,7 +45,7 @@ public abstract class AbstractSegmentTest {
      */
     protected SyntaxTree createSegmentAndRun(String sourceCode, QuoterConfig config) {
         try {
-            String javaCode = BallerinaQuoter.run(sourceCode, config);
+            String javaCode = BallerinaQuoter.generate(sourceCode, config);
             TemplateCode templateCode = AccessController.doPrivileged(new TemplatePrivilegedAction(javaCode));
             return templateCode.getNode().syntaxTree();
         } catch (Exception exception) {
@@ -64,17 +62,14 @@ public abstract class AbstractSegmentTest {
      * @param formatter    Base formatter name to use.
      * @param templateFile Template to use for dynamic class loading.
      */
-    protected void testForGeneratedCode(String sourceCode, QuoterConfig.Formatter formatter, String templateFile)
+    protected void testForGeneratedCode(String sourceCode, QuoterConfig.Formatter formatter, File templateFile)
             throws URISyntaxException {
         sourceCode = sourceCode.trim();
-        URL fileUrl = getClass().getClassLoader().getResource(templateFile);
-        Objects.requireNonNull(fileUrl, "Template file resource could not be found.");
         QuoterConfig config = new QuoterConfig.Builder()
-                .formatterTabStart(2)
-                .templateFile(Paths.get(fileUrl.toURI()).toFile())
+                .templateFile(templateFile)
                 .formatter(formatter)
+                .formatterTabStart(2)
                 .parserTimeout(10000)
-                .useTemplate(true)
                 .ignoreMinutiae(false)
                 .parser(QuoterConfig.Parser.MODULE)
                 .build();
@@ -90,9 +85,11 @@ public abstract class AbstractSegmentTest {
      */
     protected void testAssertionContent(String sourceCode) {
         try {
-            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.DEFAULT, "template-default.java");
-            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.VARIABLE, "template-variable.java");
-            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.NONE, "template-default.java");
+            File templateDefaultFile = FileReaderUtils.getResourceFile("template-default.java");
+            File templateVariableFile = FileReaderUtils.getResourceFile("template-variable.java");
+            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.DEFAULT, templateDefaultFile);
+            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.VARIABLE, templateVariableFile);
+            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.NONE, templateDefaultFile);
         } catch (URISyntaxException e) {
             throw new AssertionError(e);
         }
@@ -109,9 +106,15 @@ public abstract class AbstractSegmentTest {
         testAssertionContent(sourceCode);
     }
 
+    /**
+     * A class loader for java runner.
+     */
     private static class SegmentClassLoader extends ClassLoader {
     }
 
+    /**
+     * A privileged action runner to execute generated test code.
+     */
     private static class TemplatePrivilegedAction implements PrivilegedAction<TemplateCode> {
         private final String javaCode;
 
