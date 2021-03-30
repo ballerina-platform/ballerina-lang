@@ -60,8 +60,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -120,7 +120,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
-    private static ResolvedTypeBuilder typeBuilder;
+    private static Unifier unifier;
 
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
@@ -146,7 +146,7 @@ public class JvmPackageGen {
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
         frameClassGen = new FrameClassGen();
-        typeBuilder = new ResolvedTypeBuilder();
+        unifier = new Unifier();
 
         JvmInstructionGen.anyType = symbolTable.anyType;
     }
@@ -330,7 +330,7 @@ public class JvmPackageGen {
 
         BType retType = functionTypeDesc.retType;
         if (isExternFunc(currentFunc) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = typeBuilder.build(retType);
+            retType = unifier.build(retType);
         }
 
         String jvmMethodDescription;

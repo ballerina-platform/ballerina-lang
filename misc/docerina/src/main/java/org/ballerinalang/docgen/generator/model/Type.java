@@ -19,10 +19,12 @@ import com.google.gson.annotations.Expose;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -83,6 +85,8 @@ public class Type {
     @Expose
     public boolean isAnonymousUnionType;
     @Expose
+    public boolean isInclusion;
+    @Expose
     public boolean isArrayType;
     @Expose
     public boolean isNullable;
@@ -98,6 +102,8 @@ public class Type {
     public boolean isRestParam;
     @Expose
     public boolean isLambda;
+    @Expose
+    public boolean isIsolated;
     @Expose
     public boolean isDeprecated;
     @Expose
@@ -208,6 +214,7 @@ public class Type {
         } else if (node instanceof FunctionTypeDescriptorNode) {
             type.isLambda = true;
             FunctionTypeDescriptorNode functionDescNode = (FunctionTypeDescriptorNode) node;
+            type.isIsolated = Generator.containsToken(functionDescNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD);
             if (functionDescNode.functionSignature().isPresent()) {
                 FunctionSignatureNode functionSignature = functionDescNode.functionSignature().get();
                 List<DefaultableVariable> variables =
@@ -284,7 +291,9 @@ public class Type {
 
         if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
-            if (typeSymbol.typeDescriptor() != null) {
+            if (typeSymbol.definition().kind().equals(SymbolKind.ENUM)) {
+                type.category = "enums";
+            } else if (typeSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(typeSymbol.typeDescriptor());
             }
         } else if (symbol instanceof ConstantSymbol) {
@@ -294,10 +303,15 @@ public class Type {
             if (variableSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(variableSymbol.typeDescriptor());
             }
+        } else if (symbol instanceof TypeDefinitionSymbol) {
+            TypeDefinitionSymbol typeDefSymbol = (TypeDefinitionSymbol) symbol;
+            if (typeDefSymbol.typeDescriptor() != null) {
+                type.category = getTypeCategory(typeDefSymbol.typeDescriptor());
+            }
         }
     }
 
-    private static String getTypeCategory(TypeSymbol typeDescriptor) {
+    public static String getTypeCategory(TypeSymbol typeDescriptor) {
         if (typeDescriptor.kind().equals(SymbolKind.TYPE)) {
             if (typeDescriptor.typeKind().equals(TypeDescKind.RECORD)) {
                 return "records";
@@ -319,6 +333,12 @@ public class Type {
                 }
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
                 return getTypeCategory(((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor());
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.DECIMAL) ||
+                    typeDescriptor.typeKind().isXMLType() ||
+                    typeDescriptor.typeKind().equals(TypeDescKind.FUNCTION)) {
+                return "types";
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.INTERSECTION)) {
+                return getIntersectionTypeCategory((IntersectionTypeSymbol) typeDescriptor);
             }
         } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {
             Qualifiable classSymbol = (Qualifiable) typeDescriptor;
@@ -333,6 +353,16 @@ public class Type {
         }
 
         return "not_found";
+    }
+
+    public static String getIntersectionTypeCategory(IntersectionTypeSymbol intersectionTypeSymbol) {
+        for (TypeSymbol memberType : intersectionTypeSymbol.memberTypeDescriptors()) {
+            String category = getTypeCategory(memberType);
+            if (!category.equals("not_found")) {
+                return category;
+            }
+        }
+        return "types";
     }
 
     public Type(String name) {

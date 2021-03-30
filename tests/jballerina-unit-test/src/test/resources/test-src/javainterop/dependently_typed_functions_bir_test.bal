@@ -98,7 +98,7 @@ function testXML() {
 function testStream() {
     string[] stringList = ["hello", "world", "from", "ballerina"];
     stream<string> st = stringList.toStream();
-    stream<string> newSt = rt:getStream(string, st);
+    stream<string> newSt = rt:getStream(st, string);
     string s = "";
 
     error? err = newSt.forEach(function (string x) { s += x; });
@@ -113,13 +113,13 @@ function testTable() {
         { name: "Granier", age: 34, designation: "SE" }
     ];
 
-    table<Person> newTab = rt:getTable(Person, tab);
+    table<Person> newTab = rt:getTable(tab, Person);
     assert(tab, newTab);
 }
 
 function testFunctionPointers() {
     function (anydata) returns int fn = s => 10;
-    function (string) returns int newFn = rt:getFunction(string, int, fn);
+    function (string) returns int newFn = rt:getFunction(fn, string, int);
     assertSame(fn, newFn);
     assert(fn("foo"), newFn("foo"));
 }
@@ -132,7 +132,7 @@ function testTypedesc() {
 function testFuture() {
     var fn = function (string name) returns string => "Hello " + name;
     future<string> f = start fn("Pubudu");
-    future<string> fNew = rt:getFuture(string, f);
+    future<string> fNew = rt:getFuture(f, string);
     string res = wait fNew;
     assertSame(f, fNew);
     assert("Hello Pubudu", res);
@@ -155,22 +155,22 @@ type IntStream stream<int>;
 type IntArray int[];
 
 function testComplexTypes() {
-    json j = rt:echo(json, <json>{"name": "John Doe"});
+    json j = rt:echo(<json>{"name": "John Doe"}, json);
     assert(<json>{"name": "John Doe"}, j);
 
-    xml x = rt:echo(xml, xml `<hello>xml content</hello>`);
+    xml x = rt:echo(xml `<hello>xml content</hello>`, xml);
     assert(xml `<hello>xml content</hello>`, x);
 
-    int[] ar = rt:echo(IntArray, <int[]>[20, 30, 40]);
+    int[] ar = rt:echo(<int[]>[20, 30, 40], IntArray);
     assert(<int[]>[20, 30, 40], ar);
 
     PersonObj pObj = new("John", "Doe");
-    PersonObj nObj = rt:echo(PersonObj, pObj);
+    PersonObj nObj = rt:echo(pObj, PersonObj);
     assertSame(pObj, nObj);
 
     int[] intList = [10, 20, 30, 40, 50];
     stream<int> st = intList.toStream();
-    stream<int> newSt = rt:echo(IntStream, st);
+    stream<int> newSt = rt:echo(st, IntStream);
     int tot = 0;
 
     error? err = newSt.forEach(function (int x) { tot+= x; });
@@ -183,10 +183,47 @@ function testComplexTypes() {
         { name: "Granier", age: 34}
     ];
 
-    table<Person> newTab = rt:echo(PersonTable, tab);
+    table<Person> newTab = rt:echo(tab, PersonTable);
     assert(tab, newTab);
 }
 
+type XmlComment xml:Comment;
+
+function testTypedescInferring() {
+    xml:Comment x1 = xml `<!--Comment 1-->`;
+    xml<xml:Comment> x2 = <xml<xml:Comment>> x1.concat(xml `<!--Comment 2-->`);
+    xml<xml:Comment> a = rt:getDependentlyTypedXml(val = x2);
+    assert(x2, a);
+    assert(2, a.length());
+    any v1 = a;
+    assert(true, v1 is xml<xml:Comment>);
+
+    xml<xml:Element> x3 = xml `<hello/>`;
+    xml<xml:Element> b = rt:getDependentlyTypedXml(val = x3);
+    assert(x3, b);
+    assert(1, b.length());
+    any v2 = b;
+    assert(true, v2 is xml<xml:Element>);
+
+    xml<xml:Comment> c = rt:getDependentlyTypedXml(XmlComment, x2);
+    assert(x2, c);
+    assert(2, c.length());
+    any v3 = c;
+    assert(true, v3 is xml<xml:Comment>);
+
+    xml<xml:Element|xml:Comment> d = rt:getDependentlyTypedXml(td = XmlElement, val = x3);
+    assert(x3, d);
+    assert(1, d.length());
+    any v4 = d;
+    assert(true, v4 is xml<xml:Element>);
+
+    xml<xml:Element> x5 = xml `<foo/>`;
+    xml<xml:Element> e = rt:getDependentlyTypedXml();
+    assert(x5, e);
+    assert(1, e.length());
+    any v5 = e;
+    assert(true, v5 is xml<xml:Element>);
+}
 
 // Util functions
 function assert(anydata expected, anydata actual) {

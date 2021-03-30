@@ -61,7 +61,6 @@ dependencies {
     balSource project(path: ':ballerina-lang:jballerina.java', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:annotations', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:array', configuration: 'balSource')
-    balSource project(path: ':ballerina-lang:config', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:decimal', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:error', configuration: 'balSource')
     balSource project(path: ':ballerina-lang:floatingpoint', configuration: 'balSource')

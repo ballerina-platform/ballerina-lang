@@ -462,19 +462,17 @@ public class DebugTestRunner {
     /**
      * Can be used to get child variables from parent variable.
      *
-     * @param childVariable child variable
+     * @param parentVariable parent variable
      * @return variable map with child variables information
      * @throws BallerinaTestException if an error occurs when fetching debug hit child variables
      */
-    public Map<String, Variable> fetchChildVariables(Variable childVariable) throws BallerinaTestException {
-        Map<String, Variable> variables = new HashMap<>();
-        VariablesArguments childVariableArgs = new VariablesArguments();
-        childVariableArgs.setVariablesReference(childVariable.getVariablesReference());
+    public Map<String, Variable> fetchChildVariables(Variable parentVariable) throws BallerinaTestException {
         try {
-            VariablesResponse childVariableResp = listener.getConnector().getRequestManager()
-                .variables(childVariableArgs);
-            Arrays.stream(childVariableResp.getVariables())
-                .forEach(variable -> variables.put(variable.getName(), variable));
+            Map<String, Variable> variables = new HashMap<>();
+            VariablesArguments childVarArgs = new VariablesArguments();
+            childVarArgs.setVariablesReference(parentVariable.getVariablesReference());
+            VariablesResponse response = listener.getConnector().getRequestManager().variables(childVarArgs);
+            Arrays.stream(response.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching debug hit child variables", e);

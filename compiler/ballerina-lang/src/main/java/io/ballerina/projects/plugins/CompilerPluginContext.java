@@ -30,4 +30,11 @@ public interface CompilerPluginContext {
      * @param codeAnalyzer the {@code CodeAnalyzer} instance
      */
     void addCodeAnalyzer(CodeAnalyzer codeAnalyzer);
+
+    /**
+     * Add a {@code CompilerLifecycleListener} instance to the current compilation.
+     *
+     * @param lifecycleListener the {@code CompilerLifecycleListener} instance
+     */
+    void addCompilerLifecycleListener(CompilerLifecycleListener lifecycleListener);
 }

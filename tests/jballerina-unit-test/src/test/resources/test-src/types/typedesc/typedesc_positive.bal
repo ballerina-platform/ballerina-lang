@@ -21,7 +21,7 @@ function testRefTypes(){
 
     [typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>] tupleValue = [a, b, c, d];
 
-    assertEquality("typedesc xml<lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>", tupleValue[0].toString());
+    assertEquality("typedesc xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>", tupleValue[0].toString());
     assertEquality("typedesc json", b.toString());
     assertEquality("typedesc map", c.toString());
     assertEquality("typedesc table<Employee>", d.toString());
@@ -200,14 +200,14 @@ type ImmutableIntArray int[] & readonly;
 function testTypeDefWithIntersectionTypeDescAsTypedesc() {
     typedesc<anydata> a = ImmutableIntArray;
     (int|string)[] arr = [1, 2, 3];
-    var b = arr.cloneWithType(a);
+    anydata|error b = arr.cloneWithType(a);
     // https://github.com/ballerina-platform/ballerina-lang/issues/28912
     //assertEquality(true, (typeof b).toString());
     //assertEquality(true, b is int[]);
     //assertEquality(true, (<int[]> checkpanic b).isReadOnly());
     //assertEquality(<int[]> [1, 2, 3], b);
 
-    var c = arr.fromJsonWithType(ImmutableIntArray);
+    anydata|error c = arr.fromJsonWithType(ImmutableIntArray);
     // https://github.com/ballerina-platform/ballerina-lang/issues/28912
     //assertEquality(true, c is int[]);
     //assertEquality(true, (<int[]> checkpanic c).isReadOnly());

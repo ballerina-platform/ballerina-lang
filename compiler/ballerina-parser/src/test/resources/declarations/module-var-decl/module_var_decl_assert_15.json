@@ -956,7 +956,7 @@
               "isMissing": true,
               "hasDiagnostics": true,
               "diagnostics": [
-                "ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED"
+                "ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED_OR_REQUIRED"
               ]
             },
             {

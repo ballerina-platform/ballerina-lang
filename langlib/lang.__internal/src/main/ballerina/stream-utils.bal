@@ -22,7 +22,7 @@ import ballerina/jballerina.java;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-public type ErrorType error|never;
+public type ErrorType error?;
 
 @typeParam
 public type Type any|error;
@@ -32,7 +32,7 @@ public type Type1 any|error;
 
 # An `EmptyIterator` which returns nil on next() method invocation.
 class EmptyIterator {
-    public isolated function next() returns record {|Type value;|}? {
+    public isolated function next() returns record {|Type value;|}|ErrorType? {
         return ();
     }
 }

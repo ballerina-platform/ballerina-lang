@@ -49,7 +49,6 @@ import static org.ballerinalang.compiler.CompilerOptionName.TOOLING_COMPILATION;
 import static org.ballerinalang.model.elements.PackageID.ANNOTATIONS;
 import static org.ballerinalang.model.elements.PackageID.ARRAY;
 import static org.ballerinalang.model.elements.PackageID.BOOLEAN;
-import static org.ballerinalang.model.elements.PackageID.CONFIG;
 import static org.ballerinalang.model.elements.PackageID.DECIMAL;
 import static org.ballerinalang.model.elements.PackageID.ERROR;
 import static org.ballerinalang.model.elements.PackageID.FLOAT;
@@ -155,7 +154,6 @@ public class CompilerDriver {
             symResolver.bootstrapCloneableType();
             symResolver.defineOperators();
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
-            symbolTable.langConfigModuleSymbol = pkgLoader.loadPackageSymbol(CONFIG, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
             symbolTable.langFloatModuleSymbol = pkgLoader.loadPackageSymbol(FLOAT, null, null);

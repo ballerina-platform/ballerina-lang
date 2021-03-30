@@ -39,14 +39,16 @@ type CallStackElement record {|
 |};
 
 # Register a listener object with a module.
-# + listener - the listener object to be registered. The listener becomes a module listener of the module from which
-#       this function is called.
+# + listener - the listener object to be registered
+# The listener becomes a module listener of the module from which this
+# function is called.
 public isolated function registerListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
 } external;
 
 # Deregister a listener from a module.
-# + listener - the listener object to be unregistered. The `listener` ceases to be a module listener of the module from
+# + listener - the listener object to be unregistered
+# The `listener` ceases to be a module listener of the module from
 # which this function is called.
 public isolated function deregisterListener(DynamicListener 'listener) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Registry"
@@ -59,9 +61,19 @@ public isolated function sleep(decimal seconds) = @java:Method {
     'class: "org.ballerinalang.langlib.runtime.Sleep"
 } external;
 
-# Returns a stack trace for the current call stack.
-#
-# + return - An array representing the current call stack
+# Type representing a stack frame.
+# A call stack is represented as an array of stack frames.
+# This type is also present in lang.error to avoid a dependency.
+public type StackFrame readonly & object {
+   # Returns a string representing this StackFrame.
+   # This must not contain any newline characters.
+   # + return - a string
+   public function toString() returns string;
+};
+
+# Return a stack trace for the current call stack.
+# + return - an array representing the current call stack
+# The first member of the array represents the top of the call stack.
 public isolated function getStackTrace() returns StackFrame[] {
     StackFrame[] stackFrame = [];
     int i = 0;
@@ -74,16 +86,6 @@ public isolated function getStackTrace() returns StackFrame[] {
     return stackFrame;
 }
 
-# Represents a stack frame.
-// todo use readonly qualifier once #27501 fixed
-# public type StackFrame readonly & object {
-public type StackFrame object {
-
-   # Returns a string representing the StackFrame.
-   #
-   # + return - A StackFrame as a `string`
-   public function toString() returns string;
-};
 
 isolated function externGetStackTrace() returns CallStackElement[] = @java:Method {
     name: "getStackTrace",
