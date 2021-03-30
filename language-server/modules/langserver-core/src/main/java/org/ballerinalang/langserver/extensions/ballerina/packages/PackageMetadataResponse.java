@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2018, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,26 +13,15 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.ballerinalang.langserver.extensions.ballerina.document;
-
-import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataResponse;
+package org.ballerinalang.langserver.extensions.ballerina.packages;
 
 /**
- * Represents metadata of a Ballerina Project.
- *
- * @deprecated use {@link PackageMetadataResponse} instead.
+ * Package metadata API request.
  */
-@Deprecated (since = "2.0.0", forRemoval = true)
-public class BallerinaProject {
+public class PackageMetadataResponse {
 
     private String path;
-
-    private String version;
-
-    private String author;
-
     private String packageName;
-
     private String kind;
 
     public String getPath() {
@@ -41,22 +30,6 @@ public class BallerinaProject {
 
     public void setPath(String path) {
         this.path = path;
-    }
-
-    public String getVersion() {
-        return version;
-    }
-
-    public void setVersion(String version) {
-        this.version = version;
-    }
-
-    public String getAuthor() {
-        return author;
-    }
-
-    public void setAuthor(String author) {
-        this.author = author;
     }
 
     public String getPackageName() {
