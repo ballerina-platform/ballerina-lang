@@ -93,8 +93,7 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
             return Optional.of(this.params);
         }
 
-        // Becomes null for the function typedesc.
-        if (this.typeSymbol.params == null) {
+        if (Symbols.isFlagOn(this.typeSymbol.flags, Flags.ANY_FUNCTION)) {
             return Optional.empty();
         }
 
