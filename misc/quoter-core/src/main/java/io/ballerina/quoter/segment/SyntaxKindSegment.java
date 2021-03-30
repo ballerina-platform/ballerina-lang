@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -23,6 +23,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 /**
  * Syntax kind segment which has the format.
  * "SyntaxKind.ABC_KIND"
+ *
+ * @since 2.0.0
  */
 public class SyntaxKindSegment extends Segment {
     private static final String SYNTAX_KIND_PREFIX = "SyntaxKind.";

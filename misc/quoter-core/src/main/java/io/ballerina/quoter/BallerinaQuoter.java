@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -28,6 +28,8 @@ import io.ballerina.quoter.segment.factories.NodeSegmentFactory;
 /**
  * Ballerina Quoter programme main class.
  * CLI will run via QuoterCommandLine
+ *
+ * @since 2.0.0
  */
 public class BallerinaQuoter {
     /**

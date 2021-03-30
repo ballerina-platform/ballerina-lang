@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -22,6 +22,8 @@ import org.testng.annotations.Test;
 
 /**
  * Test bbe examples to segment conversion.
+ *
+ * @since 2.0.0
  */
 public class BbeExampleTest extends AbstractSegmentTest {
     @Test
@@ -342,12 +344,6 @@ public class BbeExampleTest extends AbstractSegmentTest {
     @Test
     public void testGrpcUnaryNonBlockingService() {
         test("bbe-examples/grpc_unary_non_blocking_service.bal");
-    }
-
-    @Test
-    public void testGrpcUnaryNonBlockingServiceClient() {
-        // TODO: Github Link Invalid
-        // test("bbe-examples/grpc_unary_non_blocking_service_client.bal");
     }
 
     @Test
@@ -1273,12 +1269,6 @@ public class BbeExampleTest extends AbstractSegmentTest {
     @Test
     public void testWebsocketChatApplication() {
         test("bbe-examples/websocket_chat_application.bal");
-    }
-
-    @Test
-    public void testWebsocketClient() {
-        // TODO: Github Link Invalid
-        // test("bbe-examples/websocket_client.bal");
     }
 
     @Test

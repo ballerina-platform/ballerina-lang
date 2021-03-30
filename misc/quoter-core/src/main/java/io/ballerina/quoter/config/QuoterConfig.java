@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -34,6 +34,8 @@ import java.util.Objects;
 
 /**
  * Base configuration file format.
+ *
+ * @since 2.0.0
  */
 public class QuoterConfig {
     public static final String SYNTAX_TREE_DESCRIPTOR_FILE = "syntax_tree_descriptor.json";
@@ -140,6 +142,8 @@ public class QuoterConfig {
      * Available parsers.
      * Will activate {@link io.ballerina.quoter.parser.ExpressionParser},
      * {@link io.ballerina.quoter.parser.StatementParser} or {@link io.ballerina.quoter.parser.ModuleParser}.
+     *
+     * @since 2.0.0
      */
     public enum Parser {
         EXPRESSION, STATEMENT, MODULE
@@ -150,6 +154,8 @@ public class QuoterConfig {
      * Will activate {@link io.ballerina.quoter.formatter.NoFormatter},
      * {@link io.ballerina.quoter.formatter.DefaultFormatter} or
      * {@link io.ballerina.quoter.formatter.VariableFormatter}.
+     *
+     * @since 2.0.0
      */
     public enum Formatter {
         NONE, DEFAULT, VARIABLE
@@ -157,6 +163,8 @@ public class QuoterConfig {
 
     /**
      * The builder for the config.
+     *
+     * @since 2.0.0
      */
     public static class Builder {
         private File templateFile;
