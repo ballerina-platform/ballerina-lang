@@ -129,9 +129,9 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     /**
      * Log a hint.
      *
-     * @param location Location of the error in the source code.
-     * @param code     Error code
-     * @param args     Parameters associated with the error
+     * @param location Location of the hint in the source code.
+     * @param code     Hint code
+     * @param args     Parameters associated with the hint
      */
     public void hint(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(HINT_PREFIX, code, args);
