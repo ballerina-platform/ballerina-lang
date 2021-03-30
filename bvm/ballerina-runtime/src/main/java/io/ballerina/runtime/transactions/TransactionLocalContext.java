@@ -21,6 +21,7 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.scheduling.Strand;
 
+import java.nio.ByteBuffer;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Stack;
@@ -63,7 +64,7 @@ public class TransactionLocalContext {
         this.rollbackOnlyError = null;
         this.isTransactional = true;
         this.transactionId = ValueCreator.createArrayValue(globalTransactionId.getBytes());
-        transactionResourceManager.transactionInfoMap.put(transactionId, infoRecord);
+        transactionResourceManager.transactionInfoMap.put(ByteBuffer.wrap(transactionId.getBytes()), infoRecord);
     }
 
     public static TransactionLocalContext createTransactionParticipantLocalCtx(String globalTransactionId,
@@ -166,7 +167,7 @@ public class TransactionLocalContext {
     }
 
     public void removeTransactionInfo() {
-        transactionResourceManager.transactionInfoMap.remove(transactionId);
+        transactionResourceManager.transactionInfoMap.remove(ByteBuffer.wrap(transactionId.getBytes()));
     }
 
     public void notifyLocalParticipantFailure() {
@@ -221,7 +222,7 @@ public class TransactionLocalContext {
     }
 
     public Object getInfoRecord() {
-        return transactionResourceManager.transactionInfoMap.get(transactionId);
+        return transactionResourceManager.transactionInfoMap.get(ByteBuffer.wrap(transactionId.getBytes()));
     }
 
     public boolean isTransactional() {
