@@ -195,8 +195,6 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     if (jsonST instanceof JsonObject && ((JsonObject) jsonST).has("typeData")) {
                         JsonElement recordsJson = gson.toJsonTree(connectorRecords);
                         ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("records", recordsJson);
-//                        ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("classes", classesJson);
-//                        ((JsonObject) ((JsonObject) jsonST).get("typeData")).add("classes", classesJson);
                     }
                     connectorCache.addConnectorConfig(request.getOrg(), request.getModule(),
                             request.getVersion(), connector.className().text(), jsonST);
@@ -287,7 +285,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 }
 
                 if (classDefinitions.containsKey(paramType.get().signature())) {
-                    ClassDefinitionNode classDefinition= classDefinitions.get(paramType.get().signature());
+                    ClassDefinitionNode classDefinition = classDefinitions.get(paramType.get().signature());
                     connectorRecords.put(paramType.get().signature(),
                             DiagramUtil.getClassDefinitionSyntaxJson(classDefinition, semanticModel));
                 }
