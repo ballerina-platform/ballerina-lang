@@ -24,11 +24,9 @@ import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
 import org.ballerinalang.test.packaging.PackerinaTestUtils;
 import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Map;
 
@@ -247,114 +245,13 @@ public class ConfigurableTest extends BaseTest {
     }
 
     @Test
-    public void testNoConfigFile() throws BallerinaTestException {
-        Path filePath = Paths.get(negativeTestFileLocation, "no_config.bal").toAbsolutePath();
-        LogLeecher errorLeecher =
-                new LogLeecher("error: value not provided for required configurable variable 'name'", ERROR);
-        bMainInstance.runMain("run", new String[]{filePath.toString()}, null, new String[]{},
-                new LogLeecher[]{errorLeecher}, testFileLocation + "/negative_tests");
-        errorLeecher.waitForText(5000);
-    }
-
-    @Test
-    public void testInvalidTomlFile() throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "invalidTomlFile").toAbsolutePath();
-        String tomlError1 = "[Config.toml:(0:9,0:9)] missing identifier";
-        String tomlError2 = "[Config.toml:(0:20,0:20)] missing identifier";
-        String tomlError3 = "[Config.toml:(0:21,0:21)] missing identifier";
-        String errorMsg = "warning: invalid `Config.toml` file : ";
-        LogLeecher errorLeecher1 = new LogLeecher(errorMsg, ERROR);
-        LogLeecher errorLeecher2 = new LogLeecher(tomlError1, ERROR);
-        LogLeecher errorLeecher3 = new LogLeecher(tomlError2, ERROR);
-        LogLeecher errorLeecher4 = new LogLeecher(tomlError3, ERROR);
-
-        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLeecher1, errorLeecher2, errorLeecher3, errorLeecher4}, projectPath.toString());
-        errorLeecher1.waitForText(5000);
-        errorLeecher2.waitForText(5000);
-        errorLeecher3.waitForText(5000);
-        errorLeecher4.waitForText(5000);
-    }
-
-    @DataProvider(name = "negative-projects")
-    public Object[][] getNegativeTestProjects() {
-        return new Object[][]{
-                {"invalidComplexArray", "[Config.toml:(2:17,2:41)] configurable variable 'main:intComplexArr' with " +
-                        "type '(int[] & readonly)[] & readonly' is not supported"},
-                {"invalidRecordField", " [Config.toml:(4:1,4:40)] field type 'string[][]' in configurable variable " +
-                        "'main:testUsers' is not supported"},
-                {"invalidByteRange", "value provided for byte variable 'main:byteVar' is out of range. " +
-                        "Expected range is (0-255), found '355'"},
-                {"invalidMapType", "[main.bal:(17:14,17:33)] configurable variable currently not supported for '" +
-                        "(map<int> & readonly)'"},
-                {"invalidTableConstraint", "[Config.toml:(1:1,2:16)] table constraint type 'map<string>' in " +
-                        "configurable variable 'main:tab' is not supported"}
-        };
-    }
-
-    @Test(dataProvider = "negative-projects")
-    public void testNegativeCasesInProjects(String projectName, String errorMsg) throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, projectName).toAbsolutePath();
+    public void testInvalidDefaultableField() throws BallerinaTestException {
+        String errorMsg = "[Config.toml:(1:1,3:17)] defaultable readonly record field 'name' in configurable variable" +
+                " 'invalidDefaultable:employee' is not supported";
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
-        bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLog}, projectPath.toString());
+        bMainInstance.runMain("run", new String[]{"invalidDefaultable"}, null, new String[]{},
+                new LogLeecher[]{errorLog}, negativeTestFileLocation);
         errorLog.waitForText(5000);
-    }
-
-    @Test(dataProvider = "negative-tests")
-    public void testNegativeCases(String tomlFileName, String errorMsg) throws BallerinaTestException {
-        Path projectPath = Paths.get(negativeTestFileLocation, "configProject").toAbsolutePath();
-        Path tomlPath = Paths.get(negativeTestFileLocation, "config_files", tomlFileName + ".toml").toAbsolutePath();
-        LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
-        bMainInstance.runMain("run", new String[]{"main"},
-                              addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE,
-                                                                              tomlPath.toString()))),
-                              new String[]{}, new LogLeecher[]{errorLog}, projectPath.toString());
-        errorLog.waitForText(5000);
-    }
-
-    @DataProvider(name = "negative-tests")
-    public Object[][] getNegativeTests() {
-        return new Object[][]{
-                {"empty_config_file", "an empty configuration file is found in path "},
-                {"no_module_config", "[no_module_config.toml:(1:1,2:12)] invalid module structure found for module " +
-                        "'main'. Please provide the module name as '[main]'"},
-                {"invalid_org_name", "[invalid_org_name.toml:(1:1,3:21)] invalid module structure found for module " +
-                        "'main'. Please provide the module name as '[main]'"},
-                {"invalid_org_structure", "[invalid_org_structure.toml:(1:1,1:13)] invalid module structure found for" +
-                        " module 'testOrg.main'. Please provide the module name as '[testOrg.main]'"},
-                {"invalid_module_structure", "[invalid_module_structure.toml:(1:1,1:17)] invalid module structure " +
-                        "found for module 'main'. Please provide the module name as '[main]'"},
-                {"invalid_sub_module_structure", "[invalid_sub_module_structure.toml:(3:1,3:9)] invalid module " +
-                        "structure found for module 'main.foo'. Please provide the module name as '[main.foo]'"},
-                {"required_negative", "value not provided for required configurable variable 'stringVar'"},
-                {"primitive_type_error", "[primitive_type_error.toml:(2:10,2:14)] configurable variable 'main:intVar'" +
-                        " is expected to be of type 'int', but found 'float'"},
-                {"primitive_structure_error", "[primitive_structure_error.toml:(2:1,2:24)] configurable variable " +
-                        "'main:intVar' is expected to be of type 'int', but found 'record'"},
-                {"array_type_error", "[array_type_error.toml:(4:10,4:17)] configurable variable 'main:intArr' is " +
-                        "expected to be of type 'int[] & readonly', but found 'string'"},
-                {"array_structure_error", "[array_structure_error.toml:(4:1,4:32)] configurable variable " +
-                        "'main:intArr' is expected to be of type 'int[] & readonly', but found 'record'"},
-                {"array_element_structure", "[array_element_structure.toml:(4:19,4:26)] configurable variable " +
-                        "'main:intArr[2]' is expected to be of type 'int', but found 'array'"},
-                {"array_multi_type", "[array_multi_type.toml:(4:15,4:21)] configurable variable 'main:intArr[1]' is " +
-                        "expected to be of type 'int', but found 'string'"},
-                {"additional_field", "[additional_field.toml:(7:1,7:19)] additional field 'scopes' provided for " +
-                        "configurable variable 'main:users' of record 'main:AuthInfo' is not supported"},
-                {"missing_record_field", "[missing_record_field.toml:(4:1,5:22)] value required for key 'username'" +
-                        " of type 'table<main:AuthInfo> key(username)' in configurable variable 'main:users'"},
-                {"missing_table_key", "[missing_table_key.toml:(8:1,9:21)] value required for key 'username' of type " +
-                        "'table<main:AuthInfo> key(username)' in configurable variable 'main:users'"},
-                {"table_type_error", "[table_type_error.toml:(4:1,6:21)] configurable variable 'main:users' is " +
-                        "expected to be of type 'table<main:AuthInfo> key(username)', but found 'record'"},
-                {"table_field_type_error", "[table_field_type_error.toml:(5:12,5:16)] field 'username' from " +
-                        "configurable variable 'main:users' is expected to be of type 'string', but found 'int'"},
-                {"table_field_structure_error", "[table_field_structure_error.toml:(5:1,5:29)] field 'username' from " +
-                        "configurable variable 'main:users' is expected to be of type 'string', but found 'record'"},
-                {"warning_defaultable_field", "[warning_defaultable_field.toml:(8:1,10:17)] defaultable readonly " +
-                        "record field 'name' in configurable variable 'main:employees' is not supported"}
-        };
     }
 
     private void executeBalCommand(String projectPath, LogLeecher log, String packageName,

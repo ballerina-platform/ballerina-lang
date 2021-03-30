@@ -1,7 +1,0 @@
-[main]
-stringVar = "required"
-
-[[main.users]]
-username.structure = "alice"
-password="password1"
- 

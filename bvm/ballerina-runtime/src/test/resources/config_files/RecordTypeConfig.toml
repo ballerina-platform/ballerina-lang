@@ -1,0 +1,6 @@
+[test_module.recordVar]
+name = "Peter"
+age = 25
+
+[test_module.recordOptionalVar]
+name = "Anna"

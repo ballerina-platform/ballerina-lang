@@ -1,0 +1,3 @@
+[myOrg..test_module.file..]
+intVar = 42
+booleanVar = true

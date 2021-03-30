@@ -1,0 +1,3 @@
+[test_module]
+stringVar = "required"
+foo = 22

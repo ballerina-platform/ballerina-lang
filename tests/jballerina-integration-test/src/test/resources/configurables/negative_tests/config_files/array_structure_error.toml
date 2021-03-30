@@ -1,4 +1,0 @@
-[testOrg.main]
-intVar = 4
-stringVar = "string"
-intArr.structure = [11, 22, 33]
