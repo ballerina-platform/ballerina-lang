@@ -71,13 +71,15 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
 
-        Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(
+        Optional<TypeSymbol> lhsTypeSymbol = positionDetails.diagnosticProperty(
                 DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_EXPECTED_SYMBOL_INDEX);
-        if (rhsTypeSymbol.isEmpty()) {
+        Optional<TypeSymbol> rhsTypeSymbol = positionDetails.diagnosticProperty(
+                DiagBasedPositionDetails.DIAG_PROP_INCOMPATIBLE_TYPES_FOUND_SYMBOL_INDEX);
+        if (lhsTypeSymbol.isEmpty()) {
             return Collections.emptyList();
         }
 
-        if (rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
+        if (rhsTypeSymbol.isPresent() && rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
             // If RHS is a union and has error member type; skip code-action
             UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) rhsTypeSymbol.get();
             boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
@@ -93,7 +95,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         }
 
         List<TextEdit> edits = new ArrayList<>();
-        Optional<String> typeName = CodeActionUtil.getPossibleType(rhsTypeSymbol.get(), edits, context);
+        Optional<String> typeName = CodeActionUtil.getPossibleType(lhsTypeSymbol.get(), edits, context);
         if (typeName.isEmpty()) {
             return Collections.emptyList();
         }

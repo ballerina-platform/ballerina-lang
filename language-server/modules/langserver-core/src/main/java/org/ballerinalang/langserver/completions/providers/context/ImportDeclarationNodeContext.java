@@ -313,14 +313,23 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         int moduleNameEnd = moduleName.get(moduleName.size() - 1).textRange().endOffset();
         int cursor = context.getCursorPositionInTree();
 
-        return node.prefix().isEmpty() && cursor > moduleNameEnd;
+        /*
+        The as keyword missing check is added to satisfy the following case where the prefix exist while the
+        as keyword being empty
+        eg:
+        (1) import alpha3_packagex.mod2 <cursor>
+        (2) import alpha3_packagex.mod2 a<cursor>
+         */
+        return (node.prefix().isEmpty() || node.prefix().get().asKeyword().isMissing())
+                && cursor > moduleNameEnd;
     }
 
     private boolean onPrefixContext(BallerinaCompletionContext context, ImportDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         Optional<ImportPrefixNode> prefix = node.prefix();
 
-        return prefix.isPresent() && cursor > prefix.get().asKeyword().textRange().endOffset();
+        return prefix.isPresent() && !prefix.get().asKeyword().isMissing() &&
+                cursor > prefix.get().asKeyword().textRange().endOffset();
     }
 
     private boolean onSuggestCurrentProjectModules(BallerinaCompletionContext context, ImportDeclarationNode node,
@@ -331,7 +340,11 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         (1) import pkgname.
         (2) import pkg.m
          */
-        return module.isPresent() && (moduleNameComponents.size() >= 2 || node.moduleName().separatorSize() != 0);
+        int cursor = context.getCursorPositionInTree();
+        return !moduleNameComponents.isEmpty()
+                && module.isPresent() && (moduleNameComponents.size() >= 2 || node.moduleName().separatorSize() != 0)
+                && node.orgName().isEmpty()
+                && moduleNameComponents.get(moduleNameComponents.size() - 1).textRange().endOffset() <= cursor;
     }
 
     private enum ContextScope {

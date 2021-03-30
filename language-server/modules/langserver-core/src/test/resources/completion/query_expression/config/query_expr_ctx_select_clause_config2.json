@@ -432,11 +432,57 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "personList",
+      "kind": "Variable",
+      "detail": "Person[]",
+      "sortText": "B",
+      "insertText": "personList",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "onConflictError",
       "kind": "Variable",
       "detail": "error",
       "sortText": "B",
       "insertText": "onConflictError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testOnConflictClauseWithNonTableTypes()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "insertText": "testOnConflictClauseWithNonTableTypes()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "newAge",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "newAge",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "person",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "B",
+      "insertText": "person",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p3",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "B",
+      "insertText": "p3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -453,36 +499,6 @@
       "detail": "Person",
       "sortText": "B",
       "insertText": "p2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p3",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p3",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testOnConflictClauseWithNonTableTypes()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "testOnConflictClauseWithNonTableTypes()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "personList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "B",
-      "insertText": "personList",
       "insertTextFormat": "Snippet"
     },
     {

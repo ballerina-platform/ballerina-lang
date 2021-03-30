@@ -10,4 +10,8 @@ service / on lst {
     resource function get getResource() {
         createIntWithError()
     }
+    
+    remote function onCreate(TestClass cc) {
+        createIntWithError()
+    }
 }
