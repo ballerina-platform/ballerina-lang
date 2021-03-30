@@ -114,6 +114,14 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
+        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
+
+        //Checks for instances in which the LS needs to be initiated in lightweight mode
+        //Note: if multiple initOptions are available, the "enableLightWeightMode" flag should be assessed
+        if (params.getInitializationOptions() != null) {
+            return CompletableFuture.supplyAsync(() -> res);
+        }
+
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
         final List<String> commandList = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
                 .getCommandsList();
@@ -122,7 +130,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
 
         res.getCapabilities().setCompletionProvider(completionOptions);
-        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
         res.getCapabilities().setDocumentSymbolProvider(false);
