@@ -291,7 +291,9 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(serviceNode.serviceClass);
         lookupNodes(serviceNode.attachedExprs);
 
-        if (PositionUtil.withinBlock(this.cursorPos, serviceNode.pos) && this.symbolAtCursor == null) {
+        // A service decl is a special case. Since there isn't a name associated with it, we take the starting
+        // position of the node to lookup the service symbol.
+        if (this.symbolAtCursor == null && this.cursorPos.equals(serviceNode.pos.lineRange().startLine())) {
             this.symbolAtCursor = serviceNode.symbol;
         }
     }
