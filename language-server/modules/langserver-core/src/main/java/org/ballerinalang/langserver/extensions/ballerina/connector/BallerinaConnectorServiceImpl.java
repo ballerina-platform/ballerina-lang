@@ -49,7 +49,6 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.exception.LSConnectorException;
 import org.ballerinalang.model.elements.PackageID;
-import org.ballerinalang.model.tree.ClassDefinition;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
 import org.wso2.ballerinalang.compiler.packaging.repo.HomeBalaRepo;
