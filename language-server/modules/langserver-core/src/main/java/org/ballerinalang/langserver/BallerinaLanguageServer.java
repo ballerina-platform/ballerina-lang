@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -117,9 +118,12 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
         //Checks for instances in which the LS needs to be initiated in lightweight mode
-        //Note: if multiple initOptions are available, the "enableLightWeightMode" flag should be assessed
         if (params.getInitializationOptions() != null) {
-            return CompletableFuture.supplyAsync(() -> res);
+            JsonObject initOptions = (JsonObject) params.getInitializationOptions();
+            if (initOptions.has("enableLightWeightMode")
+                && initOptions.get("enableLightWeightMode").getAsBoolean()) {
+                return CompletableFuture.supplyAsync(() -> res);
+            }
         }
 
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
