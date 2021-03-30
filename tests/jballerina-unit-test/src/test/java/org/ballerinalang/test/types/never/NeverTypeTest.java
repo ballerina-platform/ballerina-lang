@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.types.never;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
@@ -199,9 +198,7 @@ public class NeverTypeTest {
 
     @Test(description = "Test never type with trap expression")
     public void testNeverWithTrapExpr() {
-        BValue[] returns = BRunUtil.invoke(neverTypeTestResult, "testNeverWithTrapExpr");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "Bad Sad!! {}");
+        BRunUtil.invoke(neverTypeTestResult, "testNeverWithTrapExpr");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,

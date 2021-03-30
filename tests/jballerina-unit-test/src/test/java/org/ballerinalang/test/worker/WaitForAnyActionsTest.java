@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BCompileUtil;
@@ -179,9 +178,7 @@ public class WaitForAnyActionsTest {
 
     @Test
     public void waitTest19() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest19", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertEquals("err returned {}", vals[0].stringValue());
+        BRunUtil.invoke(result, "waitTest19", new BValue[0]);
     }
 
     @Test
@@ -213,10 +210,7 @@ public class WaitForAnyActionsTest {
 
     @Test
     public void waitTest24() {
-        BValue[] vals = BRunUtil.invoke(result, "waitTest24", new BValue[0]);
-        Assert.assertEquals(vals.length, 1);
-        Assert.assertTrue(vals[0] instanceof BError);
-        Assert.assertEquals(((BError) vals[0]).getReason(), "A hazardous error occurred!!! Abort immediately!!");
+        BRunUtil.invoke(result, "waitTest24", new BValue[0]);
     }
 
     @AfterClass

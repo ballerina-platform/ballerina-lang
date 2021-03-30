@@ -82,13 +82,9 @@ public class ClientObjectTest {
     public void testReferringEndpointInDifferentPkg() {
         CompileResult compileResult = BCompileUtil.compile("test-src/endpoint/TestEndpointProject");
 
-        BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
-        Assert.assertEquals(result.length, 1);
-        Assert.assertEquals(result[0].stringValue(), "i1 {}");
+        BRunUtil.invoke(compileResult, "testCheck");
 
-        result = BRunUtil.invoke(compileResult, "testNewEP", new BValue[] { new BString("done") });
-        Assert.assertEquals(result.length, 1);
-        Assert.assertEquals(result[0].stringValue(), "donedone");
+        BRunUtil.invoke(compileResult, "testNewEP", new BValue[] { new BString("done") });
     }
 
     @Test(groups = { "brokenOnNewParser" })

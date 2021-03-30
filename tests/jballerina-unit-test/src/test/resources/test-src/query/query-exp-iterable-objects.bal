@@ -104,12 +104,15 @@ class IterableWithError {
     }
 }
 
-public function testIterableWithError() returns int[]|error {
+public function testIterableWithError() {
     IterableWithError p = new IterableWithError();
     int[]|error integers = from var item in p
                      select item;
 
-    return integers;
+    if (integers is error) {
+        return;
+    }
+    panic error("Expected error, found: " + (typeof integers).toString());
 }
 
 class NumberGenerator {
