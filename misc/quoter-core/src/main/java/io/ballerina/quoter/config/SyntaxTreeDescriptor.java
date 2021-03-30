@@ -50,6 +50,14 @@ public class SyntaxTreeDescriptor {
 
     private static class Attribute {
         private String name;
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
     }
 
     private static class Node {
@@ -58,6 +66,22 @@ public class SyntaxTreeDescriptor {
 
         private Node() {
             this.attributes = new ArrayList<>();
+        }
+
+        public String getName() {
+            return name;
+        }
+
+        public void setName(String name) {
+            this.name = name;
+        }
+
+        public List<Attribute> getAttributes() {
+            return attributes;
+        }
+
+        public void setAttributes(List<Attribute> attributes) {
+            this.attributes = attributes;
         }
     }
 }
