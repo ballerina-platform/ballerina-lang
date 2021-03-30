@@ -21,6 +21,8 @@ package io.ballerina.quoter.formatter;
 import io.ballerina.quoter.config.QuoterConfig;
 import io.ballerina.quoter.segment.Segment;
 
+import java.io.IOException;
+
 /**
  * Formatter that inserts the default formatter output in a template.
  * Template is defined via configs.
@@ -45,9 +47,9 @@ public class TemplateFormatter extends SegmentFormatter {
      * @param config Configuration object.
      * @return Created formatter.
      */
-    public static TemplateFormatter fromConfig(QuoterConfig config) {
+    public static TemplateFormatter fromConfig(QuoterConfig config) throws IOException {
         String template = config.readTemplateFile();
-        int indent = Integer.parseInt(config.getOrThrow(QuoterConfig.EXTERNAL_FORMATTER_TAB_START));
+        int indent = config.formatterTabStart();
         return new TemplateFormatter(SegmentFormatter.getInternalFormatter(config), template, indent);
     }
 

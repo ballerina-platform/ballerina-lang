@@ -22,6 +22,8 @@ import io.ballerina.quoter.QuoterException;
 import io.ballerina.quoter.config.QuoterConfig;
 import io.ballerina.quoter.segment.Segment;
 
+import java.io.IOException;
+
 /**
  * Base formatter.
  */
@@ -37,8 +39,8 @@ public abstract class SegmentFormatter {
      * @param config Configuration object.
      * @return Created formatter.
      */
-    public static SegmentFormatter getFormatter(QuoterConfig config) {
-        if (config.getBooleanOrThrow(QuoterConfig.EXTERNAL_FORMATTER_USE_TEMPLATE)) {
+    public static SegmentFormatter getFormatter(QuoterConfig config) throws IOException {
+        if (config.useTemplate()) {
             return TemplateFormatter.fromConfig(config);
         } else {
             return getInternalFormatter(config);
@@ -53,7 +55,7 @@ public abstract class SegmentFormatter {
      * @return Created formatter.
      */
     protected static SegmentFormatter getInternalFormatter(QuoterConfig config) {
-        String formatterName = config.getOrThrow(QuoterConfig.EXTERNAL_FORMATTER_NAME);
+        String formatterName = config.formatterName();
         switch (formatterName) {
             case NONE_FORMATTER:
                 return new NoFormatter();

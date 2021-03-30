@@ -34,9 +34,6 @@ import java.util.concurrent.Future;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 
-import static io.ballerina.quoter.config.QuoterConfig.EXTERNAL_PARSER_NAME;
-import static io.ballerina.quoter.config.QuoterConfig.EXTERNAL_PARSER_TIMEOUT;
-
 /**
  * In this stage the correct syntax tree is identified.
  * The root node of the syntax tree must be the corresponding
@@ -46,10 +43,7 @@ import static io.ballerina.quoter.config.QuoterConfig.EXTERNAL_PARSER_TIMEOUT;
  * {@code ImportDeclarationNode} as the root node.
  */
 public abstract class QuoterParser {
-    private static final String EXPRESSION_PARSER = "expression";
-    private static final String STATEMENT_PARSER = "statement";
     private static final Set<String> SILENCED_ERRORS = Set.of("BCE0517");
-
     private final long timeoutMs;
 
     protected QuoterParser(long timeoutMs) {
@@ -60,12 +54,11 @@ public abstract class QuoterParser {
      * Creates a parser depending on the configuration given.
      */
     public static QuoterParser fromConfig(QuoterConfig config) {
-        String parserName = config.getOrThrow(EXTERNAL_PARSER_NAME);
-        long timeoutMs = Long.parseLong(config.getOrThrow(EXTERNAL_PARSER_TIMEOUT));
-        switch (parserName) {
-            case EXPRESSION_PARSER:
+        long timeoutMs = config.parserTimeout();
+        switch (config.parser()) {
+            case EXPRESSION:
                 return new ExpressionParser(timeoutMs);
-            case STATEMENT_PARSER:
+            case STATEMENT:
                 return new StatementParser(timeoutMs);
             default:
                 return new ModuleParser(timeoutMs);
@@ -135,7 +128,6 @@ public abstract class QuoterParser {
      *
      * @param condition Condition to check.
      * @param message   Error message if failed.
-     * @throws QuoterException If condition is not satisfied.
      */
     protected void assertIf(boolean condition, String message) {
         if (!condition) {

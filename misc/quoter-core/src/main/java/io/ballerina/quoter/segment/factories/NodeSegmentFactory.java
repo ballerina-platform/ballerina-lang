@@ -27,8 +27,6 @@ import io.ballerina.quoter.segment.Segment;
 import io.ballerina.quoter.segment.factories.cache.ChildNamesCache;
 import io.ballerina.quoter.segment.factories.cache.NodeFactoryMethodCache;
 
-import static io.ballerina.quoter.config.QuoterConfig.EXTERNAL_IGNORE_MINUTIAE;
-
 /**
  * Handles {@link Node} to {@link Segment} conversion.
  */
@@ -54,7 +52,7 @@ public class NodeSegmentFactory {
         return new NodeSegmentFactory(
                 ChildNamesCache.fromConfig(config),
                 NodeFactoryMethodCache.create(),
-                config.getBooleanOrThrow(EXTERNAL_IGNORE_MINUTIAE)
+                config.ignoreMinutiae()
         );
     }
 

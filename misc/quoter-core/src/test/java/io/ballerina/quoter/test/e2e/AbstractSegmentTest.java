@@ -23,12 +23,15 @@ import io.ballerina.quoter.BallerinaQuoter;
 import io.ballerina.quoter.config.QuoterConfig;
 import io.ballerina.quoter.test.FileReaderUtils;
 import io.ballerina.quoter.test.TemplateCode;
-import io.ballerina.quoter.test.TestQuoterConfig;
 import net.openhft.compiler.CachedCompiler;
 import org.testng.Assert;
 
+import java.net.URISyntaxException;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Objects;
 
 /**
  * Test Base class with several helper functions.
@@ -42,24 +45,10 @@ public abstract class AbstractSegmentTest {
      * @param config Configuration to run
      * @return Output from the generated code.
      */
-    @SuppressWarnings({"unchecked", "rawtypes"})
     protected SyntaxTree createSegmentAndRun(String sourceCode, QuoterConfig config) {
         try {
             String javaCode = BallerinaQuoter.run(sourceCode, config);
-
-            TemplateCode templateCode = AccessController.doPrivileged(
-                    (PrivilegedAction<TemplateCode>) () -> {
-                        try {
-                            ClassLoader classLoader = new SegmentClassLoader();
-                            CachedCompiler compiler = new CachedCompiler(null, null);
-                            Class templateCodeImpl = compiler.loadFromJava(classLoader, TEMPLATE_PACKAGE_NAME, javaCode);
-                            return (TemplateCode) templateCodeImpl.getDeclaredConstructor().newInstance();
-                        } catch (ReflectiveOperationException e) {
-                            throw new RuntimeException(e);
-                        }
-                    }
-            );
-
+            TemplateCode templateCode = AccessController.doPrivileged(new TemplatePrivilegedAction(javaCode));
             return templateCode.getNode().syntaxTree();
         } catch (Exception exception) {
             throw new RuntimeException(exception);
@@ -75,10 +64,20 @@ public abstract class AbstractSegmentTest {
      * @param formatter    Base formatter name to use.
      * @param templateFile Template to use for dynamic class loading.
      */
-    protected void testForGeneratedCode(String sourceCode, String formatter, String templateFile) {
+    protected void testForGeneratedCode(String sourceCode, String formatter, String templateFile)
+            throws URISyntaxException {
         sourceCode = sourceCode.trim();
-        int tabSpace = 2;
-        QuoterConfig config = new TestQuoterConfig(templateFile, tabSpace, formatter);
+        URL fileUrl = getClass().getClassLoader().getResource(templateFile);
+        Objects.requireNonNull(fileUrl, "Template file resource could not be found.");
+        QuoterConfig config = new QuoterConfig.Builder()
+                .formatterTabStart(2)
+                .templateFile(Paths.get(fileUrl.toURI()).toFile())
+                .formatterName(formatter)
+                .parserTimeout(10000)
+                .useTemplate(true)
+                .ignoreMinutiae(false)
+                .parser(QuoterConfig.Parser.MODULE)
+                .build();
         SyntaxTree tree = createSegmentAndRun(sourceCode, config);
         Assert.assertEquals(tree.toSourceCode().trim(), sourceCode);
     }
@@ -90,9 +89,13 @@ public abstract class AbstractSegmentTest {
      * @param sourceCode Input source code
      */
     protected void testAssertionContent(String sourceCode) {
-        testForGeneratedCode(sourceCode, "default", "template-default.java");
-        testForGeneratedCode(sourceCode, "variable", "template-variable.java");
-        testForGeneratedCode(sourceCode, "none", "template-default.java");
+        try {
+            testForGeneratedCode(sourceCode, "default", "template-default.java");
+            testForGeneratedCode(sourceCode, "variable", "template-variable.java");
+            testForGeneratedCode(sourceCode, "none", "template-default.java");
+        } catch (URISyntaxException e) {
+            throw new AssertionError(e);
+        }
     }
 
     /**
@@ -107,5 +110,25 @@ public abstract class AbstractSegmentTest {
     }
 
     private static class SegmentClassLoader extends ClassLoader {
+    }
+
+    private static class TemplatePrivilegedAction implements PrivilegedAction<TemplateCode> {
+        private final String javaCode;
+
+        private TemplatePrivilegedAction(String javaCode) {
+            this.javaCode = javaCode;
+        }
+
+        @Override
+        public TemplateCode run() {
+            try {
+                ClassLoader classLoader = new SegmentClassLoader();
+                CachedCompiler compiler = new CachedCompiler(null, null);
+                Class<?> templateCodeImpl = compiler.loadFromJava(classLoader, TEMPLATE_PACKAGE_NAME, javaCode);
+                return (TemplateCode) templateCodeImpl.getDeclaredConstructor().newInstance();
+            } catch (ReflectiveOperationException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

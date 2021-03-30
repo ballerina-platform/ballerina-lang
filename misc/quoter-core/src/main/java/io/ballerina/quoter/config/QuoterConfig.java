@@ -21,9 +21,13 @@ package io.ballerina.quoter.config;
 import com.google.gson.Gson;
 import io.ballerina.quoter.BallerinaQuoter;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -31,34 +35,25 @@ import java.util.Objects;
 /**
  * Base configuration file format.
  */
-public abstract class QuoterConfig {
-    public static final String INTERNAL_SYNTAX_TREE_DESCRIPTOR = "internal.syntax.tree.descriptor";
-    public static final String EXTERNAL_FORMATTER_TEMPLATE = "external.formatter.template";
-    public static final String EXTERNAL_FORMATTER_USE_TEMPLATE = "external.formatter.use.template";
-    public static final String EXTERNAL_FORMATTER_TAB_START = "external.formatter.tab.start";
-    public static final String EXTERNAL_FORMATTER_NAME = "external.formatter.name";
-    public static final String EXTERNAL_PARSER_NAME = "external.parser.name";
-    public static final String EXTERNAL_PARSER_TIMEOUT = "external.parser.timeout";
-    public static final String EXTERNAL_IGNORE_MINUTIAE = "external.ignore.minutiae";
+public class QuoterConfig {
+    public static final String SYNTAX_TREE_DESCRIPTOR_FILE = "syntax_tree_descriptor.json";
 
-    /**
-     * Get the value assigned to the key.
-     * Throw an error if key is not found.
-     *
-     * @param key Property key
-     * @return Value assigned for the key.
-     */
-    public abstract String getOrThrow(String key);
+    private final File templateFile;
+    private final boolean useTemplate;
+    private final String formatterName;
+    private final int formatterTabStart;
+    private final long parserTimeout;
+    private final boolean ignoreMinutiae;
+    private final Parser parser;
 
-    /**
-     * Get the boolean value assigned to the key.
-     * True if value is "true".
-     *
-     * @param key Property key
-     * @return Boolean Value assigned for the key.
-     */
-    public boolean getBooleanOrThrow(String key) {
-        return getOrThrow(key).equalsIgnoreCase("true");
+    private QuoterConfig(Builder builder) {
+        this.templateFile = builder.templateFile;
+        this.useTemplate = builder.useTemplate;
+        this.formatterName = builder.formatterName;
+        this.formatterTabStart = builder.formatterTabStart;
+        this.parserTimeout = builder.parserTimeout;
+        this.ignoreMinutiae = builder.ignoreMinutiae;
+        this.parser = builder.parser;
     }
 
     /**
@@ -66,7 +61,33 @@ public abstract class QuoterConfig {
      *
      * @return The content of the template file.
      */
-    public abstract String readTemplateFile();
+    public String readTemplateFile() throws IOException {
+        return Files.readString(templateFile.toPath(), Charset.defaultCharset());
+    }
+
+    public String formatterName() {
+        return formatterName;
+    }
+
+    public int formatterTabStart() {
+        return formatterTabStart;
+    }
+
+    public long parserTimeout() {
+        return parserTimeout;
+    }
+
+    public boolean ignoreMinutiae() {
+        return ignoreMinutiae;
+    }
+
+    public Parser parser() {
+        return parser;
+    }
+
+    public boolean useTemplate() {
+        return useTemplate;
+    }
 
     /**
      * Get the node children config json specified in the configurations.
@@ -75,13 +96,77 @@ public abstract class QuoterConfig {
      * @return Parsed content of the children json file.
      */
     public Map<String, List<String>> readChildNamesJson() {
-        String jsonFile = getOrThrow(INTERNAL_SYNTAX_TREE_DESCRIPTOR);
         ClassLoader classLoader = BallerinaQuoter.class.getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream(jsonFile);
+        InputStream inputStream = classLoader.getResourceAsStream(SYNTAX_TREE_DESCRIPTOR_FILE);
         Gson gson = new Gson();
         Objects.requireNonNull(inputStream, "File open failed");
         InputStreamReader reader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
         SyntaxTreeDescriptor syntaxTreeDescriptor = gson.fromJson(reader, SyntaxTreeDescriptor.class);
         return syntaxTreeDescriptor.getChildNames();
+    }
+
+    /**
+     *
+     */
+    public enum Parser {
+        EXPRESSION, STATEMENT, MODULE
+    }
+
+    /**
+     *
+     */
+    public static class Builder {
+        private File templateFile;
+        private boolean useTemplate;
+        private String formatterName;
+        private int formatterTabStart;
+        private long parserTimeout;
+        private boolean ignoreMinutiae;
+        private Parser parser;
+
+        public Builder() {
+        }
+
+        public Builder templateFile(File templateFile) {
+            this.templateFile = templateFile;
+            return Builder.this;
+        }
+
+        public Builder useTemplate(boolean useTemplate) {
+            this.useTemplate = useTemplate;
+            return Builder.this;
+        }
+
+        public Builder formatterName(String formatterName) {
+            this.formatterName = formatterName;
+            return Builder.this;
+        }
+
+        public Builder formatterTabStart(int formatterTabStart) {
+            this.formatterTabStart = formatterTabStart;
+            return Builder.this;
+        }
+
+        public Builder parserTimeout(long parserTimeout) {
+            this.parserTimeout = parserTimeout;
+            return Builder.this;
+        }
+
+        public Builder ignoreMinutiae(boolean ignoreMinutiae) {
+            this.ignoreMinutiae = ignoreMinutiae;
+            return Builder.this;
+        }
+
+        public Builder parser(Parser parser) {
+            this.parser = parser;
+            return Builder.this;
+        }
+
+        public QuoterConfig build() {
+            Objects.requireNonNull(this.templateFile, "Template file must be provided.");
+            Objects.requireNonNull(this.formatterName, "Formatter name must be provided.");
+            Objects.requireNonNull(this.parser, "Parser type must be provided.");
+            return new QuoterConfig(this);
+        }
     }
 }
