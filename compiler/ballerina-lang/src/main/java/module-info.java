@@ -72,4 +72,5 @@ module io.ballerina.lang {
     exports io.ballerina.projects.repos;
     exports io.ballerina.projects.internal.model; // TODO Remove this exports
     exports io.ballerina.projects.internal.environment; // TODO Remove these exports
+    exports io.ballerina.compiler.api.impl.symbols;
 }
