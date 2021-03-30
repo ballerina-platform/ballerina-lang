@@ -1058,6 +1058,13 @@ function FieldsTestResource_setGetStaticThrowable(JArithmeticException arg) {
     org_ballerinalang_bindgen_FieldsTestResource_setGetStaticThrowable(arg.jObj);
 }
 
+# The function that retrieves the value of the public field `TEST_FIELD`.
+#
+# + return - The `int` value of the field.
+function FieldsTestResource_getTEST_FIELD(int arg) returns int {
+    return org_ballerinalang_bindgen_FieldsTestResource_getTEST_FIELD(arg);
+}
+
 function org_ballerinalang_bindgen_FieldsTestResource_equals(handle receiver, handle arg0) returns boolean = @java:Method {
     name: "equals",
     'class: "org.ballerinalang.bindgen.FieldsTestResource",
@@ -1709,6 +1716,11 @@ function org_ballerinalang_bindgen_FieldsTestResource_getGetStaticThrowable(hand
 
 function org_ballerinalang_bindgen_FieldsTestResource_setGetStaticThrowable(handle arg) = @java:FieldSet {
     name: "getStaticThrowable",
+    'class: "org.ballerinalang.bindgen.FieldsTestResource"
+} external;
+
+function org_ballerinalang_bindgen_FieldsTestResource_getTEST_FIELD(int arg) returns int = @java:FieldGet {
+    name: "TEST_FIELD",
     'class: "org.ballerinalang.bindgen.FieldsTestResource"
 } external;
 

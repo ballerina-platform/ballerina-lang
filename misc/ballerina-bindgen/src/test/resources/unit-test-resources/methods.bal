@@ -723,6 +723,13 @@ function MethodsTestResource_returnStaticVoid() {
     org_ballerinalang_bindgen_MethodsTestResource_returnStaticVoid();
 }
 
+# The function that retrieves the value of the public field `TEST_FIELD`.
+#
+# + return - The `int` value of the field.
+function MethodsTestResource_getTEST_FIELD(int arg) returns int {
+    return org_ballerinalang_bindgen_MethodsTestResource_getTEST_FIELD(arg);
+}
+
 function org_ballerinalang_bindgen_MethodsTestResource_equals(handle receiver, handle arg0) returns boolean = @java:Method {
     name: "equals",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
@@ -1144,6 +1151,11 @@ function org_ballerinalang_bindgen_MethodsTestResource_wait3(handle receiver, in
     name: "wait",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["long", "int"]
+} external;
+
+function org_ballerinalang_bindgen_MethodsTestResource_getTEST_FIELD(int arg) returns int = @java:FieldGet {
+    name: "TEST_FIELD",
+    'class: "org.ballerinalang.bindgen.MethodsTestResource"
 } external;
 
 function org_ballerinalang_bindgen_MethodsTestResource_newMethodsTestResource1() returns handle = @java:Constructor {

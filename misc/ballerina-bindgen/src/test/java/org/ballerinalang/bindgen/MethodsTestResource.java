@@ -31,7 +31,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class MethodsTestResource {
+public class MethodsTestResource implements InterfaceTestResource {
 
     // Different instance method combinations
 

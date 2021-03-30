@@ -31,7 +31,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class FieldsTestResource {
+public class FieldsTestResource implements InterfaceTestResource {
 
     // Instance primitive fields
     public byte getInstanceByte = 10;
