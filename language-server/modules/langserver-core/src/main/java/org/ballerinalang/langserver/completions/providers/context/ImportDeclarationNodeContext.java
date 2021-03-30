@@ -21,7 +21,6 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
