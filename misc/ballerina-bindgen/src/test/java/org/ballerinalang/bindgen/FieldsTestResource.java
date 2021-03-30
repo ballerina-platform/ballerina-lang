@@ -119,4 +119,9 @@ public class FieldsTestResource implements InterfaceTestResource {
     private static short getStaticPrivateField = 2;
     protected static Path getStaticProtectedField = Paths.get("/test.txt");
     static int getStaticDefaultField = 3;
+
+    @Override
+    public int testMethod(int x) {
+        return 0;
+    }
 }

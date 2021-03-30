@@ -543,6 +543,14 @@ distinct class MethodsTestResource {
         org_ballerinalang_bindgen_MethodsTestResource_returnVoid(self.jObj);
     }
 
+    # The function that maps to the `testMethod` method of `org.ballerinalang.bindgen.MethodsTestResource`.
+    #
+    # + arg0 - The `int` value required to map with the Java method parameter.
+    # + return - The `int` value returning from the Java mapping.
+    function testMethod(int arg0) returns int {
+        return org_ballerinalang_bindgen_MethodsTestResource_testMethod(self.jObj, arg0);
+    }
+
     # The function that maps to the `wait` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + return - The `InterruptedException` value returning from the Java mapping.
@@ -1133,6 +1141,12 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnVoid(handle receive
     name: "returnVoid",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: []
+} external;
+
+function org_ballerinalang_bindgen_MethodsTestResource_testMethod(handle receiver, int arg0) returns int = @java:Method {
+    name: "testMethod",
+    'class: "org.ballerinalang.bindgen.MethodsTestResource",
+    paramTypes: ["int"]
 } external;
 
 function org_ballerinalang_bindgen_MethodsTestResource_wait1(handle receiver) returns error? = @java:Method {

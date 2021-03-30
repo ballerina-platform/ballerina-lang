@@ -24,4 +24,6 @@ package org.ballerinalang.bindgen;
  */
 public interface InterfaceTestResource {
     public static long TEST_FIELD = 123456;
+
+    public int testMethod(int x);
 }

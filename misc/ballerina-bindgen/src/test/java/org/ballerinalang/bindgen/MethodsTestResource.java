@@ -281,4 +281,9 @@ public class MethodsTestResource implements InterfaceTestResource {
     public static File[] returnStaticObjectThrowableError1() throws FileNotFoundException {
         return new File[2];
     }
+
+    @Override
+    public int testMethod(int x) {
+        return 0;
+    }
 }
