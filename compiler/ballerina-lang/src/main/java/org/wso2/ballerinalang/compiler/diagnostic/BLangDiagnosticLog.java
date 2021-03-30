@@ -60,6 +60,7 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     private static final String ERROR_PREFIX = "error";
     private static final String WARNING_PREFIX = "warning";
     private static final String NOTE_PREFIX = "note";
+    private static final String HINT_PREFIX = "hint";
     private static final ResourceBundle MESSAGES = ResourceBundle.getBundle("compiler", Locale.getDefault());
 
     private int errorCount = 0;
@@ -123,6 +124,18 @@ public class BLangDiagnosticLog implements DiagnosticLog {
     public void note(Location location, DiagnosticCode code, Object... args) {
         String msg = formatMessage(NOTE_PREFIX, code, args);
         reportDiagnostic((ModuleDescriptor) null, code, location, msg, DiagnosticSeverity.INFO, args);
+    }
+
+    /**
+     * Log a hint.
+     *
+     * @param location Location of the error in the source code.
+     * @param code     Error code
+     * @param args     Parameters associated with the error
+     */
+    public void hint(Location location, DiagnosticCode code, Object... args) {
+        String msg = formatMessage(HINT_PREFIX, code, args);
+        reportDiagnostic((ModuleDescriptor) null, code, location, msg, DiagnosticSeverity.HINT, args);
     }
 
     /**
