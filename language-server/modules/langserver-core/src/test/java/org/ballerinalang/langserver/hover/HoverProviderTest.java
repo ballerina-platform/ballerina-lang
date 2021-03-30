@@ -65,12 +65,12 @@ public class HoverProviderTest {
         boolean result = response.equals(expected);
         if (!result) {
             // Fix test cases replacing expected using responses
-            JsonObject obj = new JsonObject();
-            obj.add("position", configJson.get("position"));
-            obj.add("source", configJson.get("source"));
-            obj.add("expected", parser.parse(response));
-            java.nio.file.Files.write(FileUtils.RES_DIR.resolve("hover").resolve("configs").resolve(config),
-                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+//            JsonObject obj = new JsonObject();
+//            obj.add("position", configJson.get("position"));
+//            obj.add("source", configJson.get("source"));
+//            obj.add("expected", parser.parse(response));
+//            java.nio.file.Files.write(FileUtils.RES_DIR.resolve("hover").resolve("configs").resolve(config),
+//                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
             Assert.fail("Failed Test for: " + config);
         }
     }
