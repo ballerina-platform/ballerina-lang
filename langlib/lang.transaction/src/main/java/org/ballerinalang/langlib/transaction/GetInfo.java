@@ -21,8 +21,6 @@ package org.ballerinalang.langlib.transaction;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.transactions.TransactionResourceManager;
 
-import java.nio.ByteBuffer;
-
 /**
  * Extern function transaction:getInfo.
  *
@@ -31,7 +29,6 @@ import java.nio.ByteBuffer;
 public class GetInfo {
 
     public static Object getInfo(BArray xid) {
-        TransactionResourceManager transactionResourceManager = TransactionResourceManager.getInstance();
-        return transactionResourceManager.transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes()));
+        return TransactionResourceManager.getInstance().getTransactionRecord(xid);
     }
 }

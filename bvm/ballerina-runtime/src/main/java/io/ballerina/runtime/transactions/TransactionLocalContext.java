@@ -64,7 +64,8 @@ public class TransactionLocalContext {
         this.rollbackOnlyError = null;
         this.isTransactional = true;
         this.transactionId = ValueCreator.createArrayValue(globalTransactionId.getBytes());
-        transactionResourceManager.transactionInfoMap.put(ByteBuffer.wrap(transactionId.getBytes()), infoRecord);
+        transactionResourceManager.transactionInfoMap.put(ByteBuffer.wrap(transactionId.getBytes().clone()),
+                infoRecord);
     }
 
     public static TransactionLocalContext createTransactionParticipantLocalCtx(String globalTransactionId,

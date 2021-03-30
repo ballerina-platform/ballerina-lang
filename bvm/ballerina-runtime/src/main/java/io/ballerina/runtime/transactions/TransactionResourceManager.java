@@ -101,7 +101,7 @@ public class TransactionResourceManager {
     private boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;
 
-    public Map<ByteBuffer, Object> transactionInfoMap;
+    Map<ByteBuffer, Object> transactionInfoMap;
 
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
@@ -605,5 +605,9 @@ public class TransactionResourceManager {
         if (participantBlockIds != null && participantBlockIds.contains(blockId)) {
             failedLocalParticipantSet.add(gTransactionId);
         }
+    }
+
+    public Object getTransactionRecord(BArray xid) {
+        return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes().clone()));
     }
 }
