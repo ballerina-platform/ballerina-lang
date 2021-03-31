@@ -239,6 +239,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_VARIABLE_NAME("BCE0521", "error.missing.variable.name"),
     ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT("BCE0522",
             "error.metadata.not.attached.to.a.top.level.construct"),
+    ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER("BCE0523", "error.metadata.not.attached.to.a.object.member"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),

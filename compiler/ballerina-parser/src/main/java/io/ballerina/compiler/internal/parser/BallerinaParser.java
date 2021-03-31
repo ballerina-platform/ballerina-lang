@@ -6115,9 +6115,13 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-                reportInvalidMetaData(metadata);
-                reportInvalidQualifierList(qualifiers);
-                return null;
+                STNode objectField = parseObjectField(metadata, STNodeFactory.createEmptyNode(),
+                        qualifiers, isObjectTypeDesc);
+                if (metadata != null) {
+                    objectField = SyntaxErrors.addDiagnostic(objectField,
+                            DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER);
+                }
+                return objectField;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
