@@ -31,7 +31,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertNull;
 
 /**
  * This class tests error lang module functionality.
