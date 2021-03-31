@@ -38,7 +38,7 @@ public class ObjectWithPrivateFieldsNegativeTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/RuntimeObjEgNegativeProject");
         BValue[] returns = BRunUtil.invoke(compileResult, "testRuntimeObjEqNegative");
 
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {message:\"incompatible types:" +
                 " 'pkg.org_foo:user' cannot be cast to 'pkg:userB'\"}");
     }
 

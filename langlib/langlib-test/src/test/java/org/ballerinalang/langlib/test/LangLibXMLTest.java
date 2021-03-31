@@ -244,10 +244,17 @@ public class LangLibXMLTest {
     public void testGet() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGet");
         assertEquals(returns[0].stringValue(), "<elem/>");
-        assertEquals(returns[1].stringValue(), "xml sequence index out of range. Length: '1' requested: '3' {}");
+        assertEquals(returns[1].stringValue(), "{ballerina/lang.xml}XmlSequenceIndexOutOfRange " +
+                "{message:\"xml sequence index out of range. Length: '1' requested: '3'\"}");
         assertEquals(returns[2].stringValue(), "<!--Comment content-->");
         assertEquals(returns[3].stringValue(), "<?PITarget VAL-0?>");
-        assertEquals(returns[4].stringValue(), "xml sequence index out of range. Length: '3' requested: '-1' {}");
+        assertEquals(returns[4].stringValue(), "{ballerina/lang.xml}XmlSequenceIndexOutOfRange " +
+                "{message:\"xml sequence index out of range. Length: '3' requested: '-1'\"}");
+    }
+
+    @Test
+    public void testXmlIndexOutOfRangeError() {
+        BRunUtil.invoke(compileResult, "testXmlIndexOutOfRangeError");
     }
 
     @Test

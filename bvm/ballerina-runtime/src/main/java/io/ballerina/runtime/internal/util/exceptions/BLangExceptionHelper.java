@@ -50,6 +50,11 @@ public class BLangExceptionHelper {
                                               .format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params));
     }
 
+    public static BString getErrorMessage(RuntimeErrorType runtimeErrors, Object... params) {
+        return StringUtils.fromString(MessageFormat
+                .format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params));
+    }
+
     /**
      * Handle any json related exception.
      *

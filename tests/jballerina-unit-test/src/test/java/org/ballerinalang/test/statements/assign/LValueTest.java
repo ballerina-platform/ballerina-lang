@@ -140,7 +140,7 @@ public class LValueTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IncompatibleType " +
                     "\\{\"message\":\"incompatible types: expected 'int', found 'string'\"\\}.*")
     public void testInherentTypeViolatingUpdate3() {
         BRunUtil.invoke(result, "testInherentTypeViolatingUpdate3");
@@ -154,7 +154,7 @@ public class LValueTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IndexOutOfRange \\{\"message\":\"array " +
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}ArrayIndexOutOfRange \\{\"message\":\"array " +
                     "index out of range: index: 2, size: 2\"\\}.*")
     public void testInvalidUpdateOnClosedArray() {
         BRunUtil.invoke(result, "testInvalidUpdateOnClosedArray");

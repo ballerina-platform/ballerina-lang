@@ -63,6 +63,11 @@ public class RuntimeConstants {
                                                                         "lang.error", "1.0.0");
     public static final Module BALLERINA_AUTH_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "auth", "1.0.0");
 
+    public static final Module BALLERINA_LANG_ARRAY_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
+            "lang.array", "1.1.0");
+    public static final Module BALLERINA_LANG_RUNTIME_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
+            "lang.runtime", "0.0.1");
+
     // Lang libs
     public static final String STRING_LANG_LIB = "lang.string";
     public static final String MAP_LANG_LIB = "lang.map";

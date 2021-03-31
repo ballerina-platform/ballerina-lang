@@ -75,7 +75,7 @@ public abstract class ValueCreator {
 
     public static ValueCreator getValueCreator(String key) {
         if (!runtimeValueCreators.containsKey(key)) {
-            throw new BallerinaException("Value creator object is not available");
+            throw new BallerinaException("Value creator object is not found to load the Module " + key);
         }
         return runtimeValueCreators.get(key);
     }

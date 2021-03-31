@@ -354,7 +354,7 @@ public class SealedArrayTest {
     @Test(description = "Test accessing invalid index of sealed array matched union type",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
+                    "error: \\{ballerina/lang.array\\}ArrayIndexOutOfRange " +
                             "\\{\"message\":\"array index out of range: index: 4, size: 3.*")
     public void accessInvalidIndexJSONArray() {
         BInteger bInteger = new BInteger(1);

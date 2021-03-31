@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'string as strings;
+import ballerina/lang.test as test;
 
 string str = "Hello Ballerina!";
 string str1 = "Hello Hello Ballerina!";
@@ -107,8 +108,25 @@ function testFromCodePointInts(int[] ints) returns string|error {
     return strings:fromCodePointInts(ints);
 }
 
-function testSubstringOutRange() returns string {
-    return "abcdef".substring(7, 9);
+function testSubstringOutOfRange() {
+    string err = "";
+    string errDetail = "";
+    string|error ss = trap "abcdef".substring(7, 9);
+    if (ss is runtime:StringIndexOutOfRange) {
+        err = ss.message();
+        errDetail = ss.detail().toString();
+    }
+    test:assertValueEqual(err, "{ballerina/lang.string}StringIndexOutOfRange");
+    test:assertValueEqual(errDetail, "{\"message\":\"string index out of range. Length:'6' requested: '7' to '9'\"}");
+}
+
+function testInvalidSubstringRangeError() {
+    string|error ss = trap "abcdef".substring(5, 1);
+    runtime:StringOperationError err = <runtime:StringOperationError> ss;
+
+    var errDetail = err.detail();
+    test:assertValueEqual(err.message(), "{ballerina/lang.string}InvalidSubstringRange");
+    test:assertValueEqual(errDetail.toString(), "{\"message\":\"invalid substring range. Length:'6' requested: '5' to '1'\"}");
 }
 
 function testSubstring(string s, int si, int ei) returns error|string {

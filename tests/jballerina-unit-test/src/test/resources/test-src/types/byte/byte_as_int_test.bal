@@ -187,7 +187,7 @@ function testDowncastOfByteArrayCastToIntArray() {
 }
 
 function testInherentTypeViolationOfByteArrayCastToIntArray() {
-    final string expErrorReason = "{ballerina/lang.array}InherentTypeViolation";
+    final string expErrorReason = "{ballerina/lang.array}IncompatibleType";
     final string expErrorDetailMessage = "incompatible types: expected 'byte', found 'int'";
 
     byte[] barr = [0, 1, 2, 255];

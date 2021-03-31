@@ -253,6 +253,19 @@ function testGet() returns [xml|error, xml|error, xml|error, xml|error, xml|erro
     return [e1, e2, c1, item, item2];
 }
 
+function testXmlIndexOutOfRangeError() {
+    string errMessage = "";
+    string errDetail = "";
+    var x = 'xml:createElement("XmlElem");
+    xml|error x1  = trap x.get(2);
+    if (x1 is runtime:XmlSequenceIndexOutOfRange) {
+        errMessage = x1.message();
+        errDetail = x1.detail().toString();
+    }
+    assert(errMessage, "{ballerina/lang.xml}XmlSequenceIndexOutOfRange");
+    assert(errDetail, "{\"message\":\"xml sequence index out of range. Length: '1' requested: '2'\"}");
+}
+
 xml bookstore = xml `<bookstore><book category="cooking">
                             <title lang="en">Everyday Italian</title>
                             <author>Giada De Laurentiis</author>

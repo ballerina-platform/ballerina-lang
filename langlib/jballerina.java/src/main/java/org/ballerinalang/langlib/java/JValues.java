@@ -17,9 +17,12 @@
  */
 package org.ballerinalang.langlib.java;
 
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 /**
@@ -41,8 +44,8 @@ class JValues {
         }
 
         if (index < 0 || index >= arr.length) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                                                           RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, arr.length);
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, RuntimeConstants.ARRAY_LANG_LIB,
+                    index, arr.length);
         }
     }
 }

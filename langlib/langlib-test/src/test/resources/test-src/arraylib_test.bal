@@ -539,7 +539,7 @@ function testInvalidPushOnUnionOfSameBasicType() {
 
     var message = err.detail()["message"];
     string detailMessage = message is error? message.toString() : message.toString();
-    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
+    assertValueEquality("{ballerina/lang.array}IncompatibleType", err.message());
     assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage);
 
     fn = function () {
@@ -553,7 +553,7 @@ function testInvalidPushOnUnionOfSameBasicType() {
 
     message = err.detail()["message"];
     detailMessage = message is error? message.toString() : message.toString();
-    assertValueEquality("{ballerina/lang.array}InherentTypeViolation", err.message());
+    assertValueEquality("{ballerina/lang.array}IncompatibleType", err.message());
     assertValueEquality("incompatible types: expected 'int', found 'string'", detailMessage);
 }
 

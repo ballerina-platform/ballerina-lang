@@ -49,7 +49,7 @@ public class ArrayAccessExprTest {
     //TODO try to validate all the lines in the exception message
     @Test(description = "Test access an non-initialized arrays",
             expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IndexOutOfRange " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}ArrayIndexOutOfRange " +
                     "\\{\"message\":\"array index out of range: index: 5, size: 0.*")
     public void testNonInitArrayAccess() {
         BRunUtil.invoke(compileResult, "testNonInitArrayAccess");

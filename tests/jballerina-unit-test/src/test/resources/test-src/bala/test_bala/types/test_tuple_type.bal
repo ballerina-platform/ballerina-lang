@@ -14,7 +14,7 @@
 
 import tuples/tuple_type_project as tuples;
 
-const INDEX_OUT_OF_RANGE = "{ballerina/lang.array}IndexOutOfRange";
+const INDEX_OUT_OF_RANGE = "{ballerina/lang.array}TupleIndexOutOfRange";
 
 function testTupleWithMemberAndRestDesc() {
     any anyVal = tuples:getTupleWithMemberAndRestDesc();

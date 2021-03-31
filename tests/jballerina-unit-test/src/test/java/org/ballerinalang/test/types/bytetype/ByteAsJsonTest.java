@@ -49,7 +49,7 @@ public class ByteAsJsonTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.array\\}IncompatibleType " +
                     "\\{\"message\":\"incompatible" +
                     " types: expected 'byte', found 'int'.*")
     public void testInherentTypeViolationForArray() {

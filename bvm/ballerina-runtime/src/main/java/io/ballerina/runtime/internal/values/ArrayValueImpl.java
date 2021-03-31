@@ -20,7 +20,6 @@ package io.ballerina.runtime.internal.values;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.ArrayType.ArrayState;
 import io.ballerina.runtime.api.types.Type;
@@ -29,11 +28,13 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.IOException;
@@ -1017,24 +1018,21 @@ public class ArrayValueImpl extends AbstractArrayValue {
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index >= size) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, RuntimeConstants.ARRAY_LANG_LIB,
+                    index, size);
         }
     }
 
     @Override
     protected void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INDEX_NUMBER_TOO_LARGE,
+                    ARRAY_LANG_LIB, index);
         }
 
         if ((int) index < 0 || index >= maxSize) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, index, size);
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, RuntimeConstants.ARRAY_LANG_LIB,
+                    index, size);
         }
     }
 
@@ -1099,10 +1097,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types
         if (!TypeChecker.checkIsType(value, sourceType, this.elementType)) {
-            BString reason = getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
-            BString detail = BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, this.elementType,
-                    sourceType);
-            throw ErrorCreator.createError(reason, detail);
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, ARRAY_LANG_LIB,
+                    this.elementType, sourceType);
         }
 
         int intIndex = (int) index;

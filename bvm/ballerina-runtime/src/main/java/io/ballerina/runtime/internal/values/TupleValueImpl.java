@@ -17,7 +17,6 @@
 */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -25,10 +24,12 @@ import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.IOException;
@@ -42,7 +43,6 @@ import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
@@ -575,24 +575,21 @@ public class TupleValueImpl extends AbstractArrayValue {
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index < 0 || index >= size) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.TUPLE_INDEX_OUT_OF_RANGE,
+                    ARRAY_LANG_LIB, index, size);
         }
     }
 
     @Override
     protected void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INDEX_NUMBER_TOO_LARGE,
+                    ARRAY_LANG_LIB, index);
         }
 
         if ((this.tupleType.getRestType() == null && index >= this.maxSize) || (int) index < 0) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.TUPLE_INDEX_OUT_OF_RANGE, index, size);
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.TUPLE_INDEX_OUT_OF_RANGE,
+                    ARRAY_LANG_LIB, index, size);
         }
     }
 
@@ -679,10 +676,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         if (!TypeChecker.checkIsType(value, elemType)) {
-            throw ErrorCreator.createError(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INCOMPATIBLE_TYPE, elemType,
-                                                         TypeChecker.getType(value)));
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, ARRAY_LANG_LIB, elemType,
+                    TypeChecker.getType(value));
         }
 
         fillerValueCheck(intIndex, size);
@@ -728,9 +723,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         int lastIndex = size() + unshiftByN - 1;
         prepareForConsecutiveMultiAdd(lastIndex, arrLength);
         if (index > lastIndex) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, ARRAY_LANG_LIB, index);
         }
 
         int i = (int) index;

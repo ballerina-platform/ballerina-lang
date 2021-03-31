@@ -169,8 +169,8 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
-            symbolTable.langRuntimeModuleSymbol = pkgLoader.loadPackageSymbol(RUNTIME, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
+            symbolTable.langRuntimeModuleSymbol = pkgLoader.loadPackageSymbol(RUNTIME, null, null);
             symbolTable.loadPredeclaredModules();
             symbolTable.updateBuiltinSubtypeOwners();
             return;

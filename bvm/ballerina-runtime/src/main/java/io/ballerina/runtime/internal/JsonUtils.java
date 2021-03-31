@@ -41,6 +41,7 @@ import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -260,8 +261,8 @@ public class JsonUtils {
      */
     public static MapValueImpl<BString, ?> jsonToMap(Object json, MapType mapType) {
         if (!isJSONObject(json)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                                                           getComplexObjectTypeName(OBJECT), getTypeName(json));
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, MAP_LANG_LIB,
+                    getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
         MapValueImpl<BString, Object> map = new MapValueImpl<>(mapType);
@@ -289,8 +290,8 @@ public class JsonUtils {
      */
     public static MapValueImpl<BString, Object> convertJSONToRecord(Object json, StructureType structType) {
         if (!isJSONObject(json)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                                                           getComplexObjectTypeName(OBJECT), getTypeName(json));
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, MAP_LANG_LIB,
+                    getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
         MapValueImpl<BString, Object> bStruct = new MapValueImpl<>(structType);
@@ -332,8 +333,8 @@ public class JsonUtils {
                 return jsonNodeToBoolean(jsonValue);
             case TypeTags.JSON_TAG:
                 if (jsonValue != null && !TypeChecker.checkIsType(jsonValue, targetType)) {
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
-                                                                   getTypeName(jsonValue));
+                    throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType,
+                            getTypeName(jsonValue));
                 }
                 // fall through
             case TypeTags.ANY_TAG:
@@ -362,11 +363,10 @@ public class JsonUtils {
                 }
                 // fall through
             default:
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
+                throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType,
                         getTypeName(jsonValue));
         }
-        throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE, targetType,
-                getTypeName(jsonValue));
+        throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType, getTypeName(jsonValue));
     }
 
     /**
@@ -406,8 +406,8 @@ public class JsonUtils {
             case TypeTags.JSON_TAG:
                 return source;
             default:
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                                                               PredefinedTypes.TYPE_JSON, type);
+                throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR,
+                        PredefinedTypes.TYPE_JSON, type);
         }
     }
 
@@ -509,7 +509,7 @@ public class JsonUtils {
      */
     public static ArrayValue convertJSONToBArray(Object json, BArrayType targetArrayType) {
         if (!(json instanceof ArrayValue)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR,
                     getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
@@ -705,8 +705,8 @@ public class JsonUtils {
                     json.append(convertArrayToJSON((ArrayValue) value));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                                                                   PredefinedTypes.TYPE_JSON, type);
+                    throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR,
+                            PredefinedTypes.TYPE_JSON, type);
             }
         }
         return json;
@@ -797,8 +797,8 @@ public class JsonUtils {
                     json.put(key, convertMapToJSON((MapValueImpl<BString, ?>) value, (BJsonType) exptType));
                     break;
                 default:
-                    throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE,
-                                                                   PredefinedTypes.TYPE_JSON, type);
+                    throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR,
+                            PredefinedTypes.TYPE_JSON, type);
             }
         } catch (Exception e) {
             handleError(e, key.getValue());

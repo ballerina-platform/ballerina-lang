@@ -17,7 +17,7 @@
 package io.ballerina.runtime.api.utils;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
@@ -29,9 +29,11 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.BalStringUtils;
 import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.values.AbstractObjectValue;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -51,10 +53,6 @@ import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
-
-import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for String manipulation.
@@ -102,10 +100,8 @@ public class StringUtils {
 
     public static BString getStringAt(BString s, long index) {
         if (index < 0 || index >= s.length()) {
-            throw ErrorCreator.createError(getModulePrefixedReason(STRING_LANG_LIB,
-                                                                   INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                                           fromString("string index out of range: index: " + index + ", size: " +
-                                                               s.length()));
+            throw ErrorUtils.getRuntimeError(RuntimeErrorType.STRING_INDEX_OUT_OF_RANGE,
+                    RuntimeConstants.STRING_LANG_LIB, index, s.length());
         }
 
         return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));

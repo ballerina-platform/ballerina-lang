@@ -49,7 +49,7 @@ public class ByteAsIntTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.array\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = ".*error: \\{ballerina/lang.array\\}IncompatibleType " +
                     "\\{\"message\":\"incompatible types: expected 'byte', found 'int'.*")
     public void testInherentTypeViolationForArray() {
         BRunUtil.invoke(result, "testInherentTypeViolationForArray");

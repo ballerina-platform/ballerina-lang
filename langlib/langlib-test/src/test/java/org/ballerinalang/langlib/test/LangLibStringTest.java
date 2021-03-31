@@ -236,12 +236,14 @@ public class LangLibStringTest {
         };
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.string\\}StringOperationError " +
-                    "\\{\"message\":\"string index out of range. Length:'6' requested: '7' to '9'\"\\}.*")
-    public void testSubstringOutRange() {
-        BRunUtil.invoke(compileResult, "testSubstringOutRange");
-        Assert.fail();
+    @Test
+    public void testSubstringOutOfRange() {
+        BRunUtil.invoke(compileResult, "testSubstringOutOfRange");
+    }
+
+    @Test
+    public void testInvalidSubstringRangeError() {
+        BRunUtil.invoke(compileResult, "testInvalidSubstringRangeError");
     }
 
     @Test(dataProvider = "testSubstringDataProvider")
@@ -249,8 +251,17 @@ public class LangLibStringTest {
         BValue[] args = {new BString(str), new BInteger(start), new BInteger(end)};
         BValue[] returns = BRunUtil.invoke(compileResult, "testSubstring", args);
         Assert.assertEquals(returns[0].stringValue(),
-                            "{ballerina/lang.string}StringOperationError {\"message\":\"" + result + "\"}");
+                            "{ballerina/lang.string}StringIndexOutOfRange {message:\"" + result + "\"}");
     }
+
+    @Test(dataProvider = "testInvalidSubstringRangeDataProvider")
+    public void testInvalidSubstringRange(String str, int start, int end, String result) {
+        BValue[] args = {new BString(str), new BInteger(start), new BInteger(end)};
+        BValue[] returns = BRunUtil.invoke(compileResult, "testSubstring", args);
+        Assert.assertEquals(returns[0].stringValue(),
+                "{ballerina/lang.string}InvalidSubstringRange {message:\"" + result + "\"}");
+    }
+
 
     @Test
     public void testEqualsIgnoreCaseAscii() {
@@ -262,6 +273,12 @@ public class LangLibStringTest {
         return new Object[][]{
                 {"abcdef", -2, -1, "string index out of range. Length:'6' requested: '-2' to '-1'"},
                 {"abcdef", -2, -5, "string index out of range. Length:'6' requested: '-2' to '-5'"},
+        };
+    }
+
+    @DataProvider(name = "testInvalidSubstringRangeDataProvider")
+    public Object[][] testInvalidSubstringRangeDataProvider() {
+        return new Object[][]{
                 {"abcdef",  0, -1, "invalid substring range. Length:'6' requested: '0' to '-1'"},
                 {"",        0, -1, "invalid substring range. Length:'0' requested: '0' to '-1'"},
                 {"abcdef",  3,  2, "invalid substring range. Length:'6' requested: '3' to '2'"},
