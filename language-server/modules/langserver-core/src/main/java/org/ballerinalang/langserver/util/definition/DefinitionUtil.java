@@ -78,7 +78,10 @@ public class DefinitionUtil {
             return Optional.empty();
         }
         Optional<String> uri = CommonUtil.getSymbolUriInProject(context, symbol);
-
-        return Optional.of(new Location(uri.orElseThrow(), range));
+        
+        if (uri.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(new Location(uri.get(), range));
     }
 }
