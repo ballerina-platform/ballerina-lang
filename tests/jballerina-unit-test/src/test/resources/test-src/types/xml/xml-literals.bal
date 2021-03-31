@@ -27,6 +27,8 @@ function testXMLSequence() {
 
     xml<'xml:Text> x7 = xml `text1 text2`;
     assert(x7.toString(), "text1 text2");
+    'xml:Text x26 = x7;
+    assert(x26.toString(), "text1 text2");
     xml<xml<'xml:Text>> x19 = xml `text1 text2`;
     assert(x19.toString(), "text1 text2");
     'xml:Text x20 = xml `text1 text2`;
