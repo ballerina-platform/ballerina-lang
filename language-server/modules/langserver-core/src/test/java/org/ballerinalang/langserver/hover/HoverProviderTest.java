@@ -58,7 +58,8 @@ public class HoverProviderTest {
         JsonObject source = configJson.getAsJsonObject("source");
         Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String response = TestUtil.getHoverResponse(sourcePath.toString(), position, serviceEndpoint);
+        String response = parser.parse(TestUtil.getHoverResponse(sourcePath.toString(), position, serviceEndpoint))
+                .getAsJsonObject().toString();
         String expected = configJson.getAsJsonObject("expected").toString();
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
