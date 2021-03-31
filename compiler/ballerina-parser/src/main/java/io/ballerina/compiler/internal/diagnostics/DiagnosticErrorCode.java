@@ -237,6 +237,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0519", "error.missing.positional.arg.in.error.constructor"),
     ERROR_MISSING_ARG_WITHIN_PARENTHESIS("BCE0520", "error.missing.arg.within.parenthesis"),
     ERROR_MISSING_VARIABLE_NAME("BCE0521", "error.missing.variable.name"),
+    ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT("BCE0522",
+            "error.metadata.not.attached.to.a.top.level.construct"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),

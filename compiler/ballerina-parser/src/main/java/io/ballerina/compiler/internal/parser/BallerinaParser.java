@@ -262,7 +262,10 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 if (metadata != null) {
-                    addInvalidNodeToNextToken(metadata, DiagnosticErrorCode.ERROR_INVALID_METADATA);
+                    STNode moduleVarDecl = parseModuleVarDecl(metadata);
+                    moduleVarDecl = SyntaxErrors.addDiagnostic(moduleVarDecl, 
+                            DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT);
+                    return moduleVarDecl;
                 }
                 return null;
             case PUBLIC_KEYWORD:
@@ -781,10 +784,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case EOF_TOKEN:
-                reportInvalidMetaData(metadata);
-                reportInvalidQualifier(publicQualifier);
-                reportInvalidQualifierList(qualifiers);
-                return null;
+                return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
             case FUNCTION_KEYWORD:
                 // Anything starts with a function keyword could be a function definition
                 // or a module-var-decl with function type desc.
