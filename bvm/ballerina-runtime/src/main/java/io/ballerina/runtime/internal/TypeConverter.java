@@ -25,8 +25,11 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.utils.XmlUtils;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -575,6 +578,36 @@ public class TypeConverter {
             throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_STRING_CHAR);
         }
         return StringUtils.fromString(Objects.toString(sourceVal));
+    }
+
+    public static Long stringToInt(String value) throws NumberFormatException {
+        return Long.parseLong(value);
+    }
+
+    public static int stringToByte(String value) throws NumberFormatException, BError {
+        int byteValue = Integer.parseInt(value);
+        return intToByte(byteValue);
+    }
+
+    public static Double stringToFloat(String value) throws NumberFormatException {
+        return Double.parseDouble(value);
+    }
+
+    public static Boolean stringToBoolean(String value) throws NumberFormatException {
+        if ("true".equalsIgnoreCase(value) || "1".equalsIgnoreCase(value)) {
+            return true;
+        } else if ("false".equalsIgnoreCase(value) || "0".equalsIgnoreCase(value)) {
+            return false;
+        }
+        throw new NumberFormatException();
+    }
+
+    public static BDecimal stringToDecimal(String value) throws NumberFormatException {
+        return new DecimalValue(value);
+    }
+
+    public static BXml stringToXml(String value) throws BError {
+        return XmlUtils.parse(value);
     }
 
     public static BString anyToChar(Object sourceVal) {

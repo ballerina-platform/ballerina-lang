@@ -90,6 +90,7 @@ public enum TypeKind {
     HANDLE("handle"),
     READONLY("readonly"),
     TYPEPARAM("typeparam"),
+    PARAMETERIZED("parameterized")
     ;
 
     private String name;

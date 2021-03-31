@@ -20,6 +20,7 @@ package org.ballerinalang.testerina.test;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.testerina.test.utils.AssertionUtils;
+import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -70,7 +71,7 @@ public class SelectedFunctionTest extends BaseTestCase {
         String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, false);
         if (!output.contains(msg)) {
-            AssertionUtils.assertForTestFailures(output, "non existing function execution failure");
+            Assert.fail("Test failed due to non existing function execution failure.");
         }
     }
 

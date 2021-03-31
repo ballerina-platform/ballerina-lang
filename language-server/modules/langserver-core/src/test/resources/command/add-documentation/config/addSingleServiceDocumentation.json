@@ -1,6 +1,16 @@
 {
-  "nodeType": "SERVICE",
-  "nodeLine": "7",
+  "arguments": {
+    "node.range": {
+      "start": {
+        "line": 7,
+        "character": 0
+      },
+      "end": {
+        "line": 12,
+        "character": 1
+      }
+    }
+  },
   "expected": {
     "result": {
       "edit": {
@@ -18,7 +28,7 @@
                     "character": 0
                   }
                 },
-                "newText": "# Description\n"
+                "newText": "# Description  \n"
               }
             ]
           }

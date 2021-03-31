@@ -416,6 +416,13 @@ public final class XmlItem extends XmlValue implements BXmlItem {
         return children.descendants(qnames);
     }
 
+    @Override
+    public XmlValue descendants() {
+        List<BXml> descendants = new ArrayList<>();
+        addDescendants(descendants, this);
+        return new XmlSequence(descendants);
+    }
+
     /**
      * {@inheritDoc}
      */

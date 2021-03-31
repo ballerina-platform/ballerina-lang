@@ -66,7 +66,7 @@ public class SelectivelyImmutableTypeBalaTest {
                 "incompatible types: expected 'testorg/selectively_immutable:1.0.0:(" +
                         "testorg/selectively_immutable:1.0.0:Student & readonly)', " +
                               "found 'testorg/selectively_immutable:1.0.0:Student'", 43, 29);
-        validateError(result, index++, "incompatible types: expected '(A|B|(any & readonly))', found 'Obj'", 57, 26);
+        validateError(result, index++, "incompatible types: expected '(ABAny & readonly)', found 'Obj'", 57, 26);
 
         // Updates.
         validateError(result, index++, "cannot update 'readonly' value of type 'testorg/selectively_immutable:1.0.0:" +

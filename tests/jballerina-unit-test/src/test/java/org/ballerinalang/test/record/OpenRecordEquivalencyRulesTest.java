@@ -165,7 +165,7 @@ public class OpenRecordEquivalencyRulesTest {
     @Test(description = "Adding an invalid rest field type",
           expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp = ".*invalid value for record field 'rest3': expected value of type " +
-                  "'string\\|int', found 'float'.*")
+                  "'\\(string\\|int\\)', found 'float'.*")
     public void testORToORRestFieldToRestField2() {
         BRunUtil.invoke(openRecToOpenRec, "testRestFieldToRestField2");
     }

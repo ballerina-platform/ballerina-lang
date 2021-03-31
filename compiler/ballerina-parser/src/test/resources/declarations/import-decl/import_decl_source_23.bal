@@ -1,14 +1,14 @@
-import ballerina/io;
+import foobar/bar;
 
 function foo() {
 
 }
 
-import ballerina/http;
+import foobar/baz;
 
 type Person record {
     int a;
     string b = 10;
 }
 
-import ballerina/io;
+import foobar/bar;

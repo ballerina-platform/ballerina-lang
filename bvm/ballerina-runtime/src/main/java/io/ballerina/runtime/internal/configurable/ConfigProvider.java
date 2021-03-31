@@ -23,8 +23,8 @@ import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.api.values.BXml;
 
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -34,7 +34,7 @@ import java.util.Optional;
  */
 public interface ConfigProvider {
 
-    void initialize(Map<Module, VariableKey[]> configVarMap);
+    void initialize();
 
     boolean hasConfigs();
 
@@ -55,5 +55,7 @@ public interface ConfigProvider {
     Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key);
 
     Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key);
+
+    Optional<BXml> getAsXmlAndMark(Module module, VariableKey key);
 
 }
