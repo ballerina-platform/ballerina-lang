@@ -75,7 +75,8 @@ public class DependentlyTypedFunctionsBalaTest {
                 {"testFunctionPointers"},
                 {"testTypedesc"},
                 {"testFuture"},
-                {"testComplexTypes"}
+                {"testComplexTypes"},
+                {"testTypedescInferring"}
         };
     }
 

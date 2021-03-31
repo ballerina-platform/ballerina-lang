@@ -24,6 +24,7 @@ package io.ballerina.runtime.internal.configurable.exceptions;
  * @since 2.0.0
  */
 public class ConfigException extends RuntimeException {
+
     public ConfigException(String message) {
         super(message);
     }

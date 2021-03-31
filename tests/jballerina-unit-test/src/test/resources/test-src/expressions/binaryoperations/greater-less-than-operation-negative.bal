@@ -137,3 +137,49 @@ function checkComparisonWithDifferentStaticTypes3() {
     boolean x3 = a1 > b1;
     boolean x4 = a1 >= b1;
 }
+
+function checkComparisonWithUnorderedTypes6() {
+    int|string a = 12;
+    int|string b = 12;
+    boolean x1 = a < b;
+    boolean x2 = a <= b;
+    boolean x3 = a > b;
+    boolean x4 = a >= b;
+}
+
+type NumberSet 1|2|3|4|5.23;
+
+function checkComparisonWithUnorderedTypes7() {
+    NumberSet[] a = [1];
+    NumberSet[] b = [2];
+    boolean x1 = a < b;
+    boolean x2 = a <= b;
+    boolean x3 = a > b;
+    boolean x4 = a >= b;
+}
+
+const float ONE = 1.0;
+const int TWO = 2;
+
+type OneOrTwo ONE|TWO;
+
+function checkComparisonWithUnorderedTypes8() {
+    OneOrTwo[] a = [1];
+    OneOrTwo[] b = [2];
+    boolean x1 = a < b;
+    boolean x2 = a <= b;
+    boolean x3 = a > b;
+    boolean x4 = a >= b;
+}
+
+type FloatOrString float|string;
+
+function checkComparisonWithUnorderedTypes9() {
+    FloatOrString a = 12.12;
+    FloatOrString b = 24.1;
+
+    boolean x1 = a < b;
+    boolean x2 = a <= b;
+    boolean x3 = a > b;
+    boolean x4 = a >= b;
+}

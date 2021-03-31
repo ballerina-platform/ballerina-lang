@@ -142,14 +142,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fork",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "fork {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "transaction",
       "kind": "Snippet",
       "detail": "Statement",
@@ -464,14 +456,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "K",
-      "insertText": "TestObject",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -480,6 +464,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "K",
+      "insertText": "TestObject",
       "insertTextFormat": "Snippet"
     },
     {

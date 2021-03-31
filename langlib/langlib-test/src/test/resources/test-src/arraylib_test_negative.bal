@@ -172,4 +172,16 @@ function testArrSortNegativeScenarios() {
 
     any[] arr4 = [2, "AC", {"x":10}, 12.30];
     any[] sortedArr16 = arr4.sort(array:DESCENDING, (x) => x);
+
+    (string|int)[] arr5 = [23, "A", "Z", 10, "D"];
+
+    (string|int)[] sortedArr17 = arr5.sort();
+
+    (string|int)[] sortedArr18 = arr5.sort(array:DESCENDING);
+
+    (string|int)[] sortedArr19 = arr5.sort(array:DESCENDING, ());
+
+    (string|int)[] sortedArr20 = arr5.sort(array:DESCENDING, isolated function((string|int) val) returns string|int {
+        return val;
+    });
 }

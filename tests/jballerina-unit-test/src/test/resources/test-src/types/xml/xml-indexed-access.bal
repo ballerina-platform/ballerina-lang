@@ -1,10 +1,29 @@
 function testXMLAccessWithIndex() {
     xml x1 = xml `<root><!-- comment node--><name>supun</name><city>colombo</city></root>`;
     xml x2 = x1[0]/*;
-
     assert(x1[0].toString(), "<root><!-- comment node--><name>supun</name><city>colombo</city></root>");
     assert(x2[0].toString(), "<!-- comment node-->");
     assert(x2[1].toString(), "<name>supun</name>");
+
+    'xml:Element x15 = xml `<root><!-- comment node--><name>anne</name><city>colombo</city></root>`;
+    xml x16 = x15[0]/*;
+    assert(x16.toString(), "<!-- comment node--><name>anne</name><city>colombo</city>");
+    'xml:Comment x17 = xml `<!-- comment node-->`;
+    xml x18 = x17[0]/*;
+    assert(x18.toString(), "");
+    'xml:ProcessingInstruction x19 = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
+    xml x20 = x19[0]/*;
+    assert(x20.toString(), "");
+
+    x16 = x15[0][0];
+    assert(x16.toString(), "<root><!-- comment node--><name>anne</name><city>colombo</city></root>");
+    x18 = x17[0][0];
+    assert(x18.toString(), "<!-- comment node-->");
+    x20 = x19[0][0];
+    assert(x20.toString(), "<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>");
+
+    int i = 'xml:length(x15[0]);
+    assert(i.toString(), "1");
 
     xml<'xml:Text> x3 = xml `sample test`;
     assert(x3[0].toString(), "sample test");

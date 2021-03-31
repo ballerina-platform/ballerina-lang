@@ -856,6 +856,26 @@ function testSimpleXmlPositive() returns boolean {
     return x1 == x2 && !(x1 != x2) && x3 == x4 && !(x3 != x4) && x5 == x6 && !(x5 != x6) && x7 == x8 && !(x7 != x8);
 }
 
+function testReferenceEqualityXml() {
+    assert(xml`abc` === xml`abc`, true);
+    assert(xml`<book>The Lost World</book>` === xml`<book>The Lost World</book>`, false);
+    assert(xml`<!--comment-->` === xml`<!--comment-->`, false);
+    assert(xml`<?target data?>` === xml`<?target data?>`, false);
+    //assert(xml`<?target data?><!--comment--><root>test</root>` === xml`<?target data?><!--comment--><root>test</root>`,
+    //true);
+    assert(xml`<?target data?><!--comment--><root>test</root>` === xml`<?target data?><!--comment-->test`,
+    false);
+
+    assert(xml`abc` !== xml`abc`, false);
+    assert(xml`<book>The Lost World</book>` !== xml`<book>The Lost World</book>`, true);
+    assert(xml`<!--comment-->` !== xml`<!--comment-->`, true);
+    assert(xml`<?target data?>` !== xml`<?target data?>`, true);
+    //assert(xml`<?target data?><!--comment--><root>test</root>` !== xml`<?target data?><!--comment--><root>test</root>`,
+    //false);
+    assert(xml`<?target data?><!--comment--><root>test</root>` !== xml`<?target data?><!--comment-->test`,
+    true);
+}
+
 function testSimpleXmlNegative() returns boolean {
     xml x1 = xml `<book>The Lot World</book>`;
     xml x2 = xml `<book>The Lost World</book>`;
@@ -1222,3 +1242,15 @@ function testEmptyMapAndRecordEquality() returns boolean {
 function isEqual(anydata a, anydata b) returns boolean {
     return a == b && !(b != a);
 }
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
+}
+

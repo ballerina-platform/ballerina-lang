@@ -118,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -3025,13 +3026,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 dlog.warning(invocationExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
                              invocationExpr);
             }
-
-            if (((BInvokableSymbol) funcSymbol).getReturnType().tag == TypeTags.NEVER &&
-                    invocationExpr.parent.getKind() != NodeKind.EXPRESSION_STATEMENT) {
-                // Log an error if the function returns never and invoked invalidly.
-                dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION,
-                        funcSymbol);
-            }
         }
     }
 
@@ -3737,6 +3731,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
+        /* Ignore */
     }
 
     // private methods

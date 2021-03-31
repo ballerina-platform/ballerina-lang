@@ -98,4 +98,8 @@ public class CompileResult {
     PackageManifest packageManifest() {
         return this.pkg.manifest();
     }
+
+    public DiagnosticResult getDiagnosticResult() {
+        return diagnosticResult;
+    }
 }

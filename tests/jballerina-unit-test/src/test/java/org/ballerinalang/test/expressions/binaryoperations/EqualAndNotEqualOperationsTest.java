@@ -644,6 +644,11 @@ public class EqualAndNotEqualOperationsTest {
     }
 
     @Test
+    public void testReferenceEqualityXml() {
+        BRunUtil.invoke(result, "testReferenceEqualityXml");
+    }
+
+    @Test
     public void testSimpleXmlNegative() {
         BValue[] returns = BRunUtil.invoke(result, "testSimpleXmlNegative");
         Assert.assertEquals(returns.length, 1);

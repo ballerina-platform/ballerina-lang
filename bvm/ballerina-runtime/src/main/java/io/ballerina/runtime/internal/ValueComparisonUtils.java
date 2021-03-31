@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
@@ -42,7 +43,11 @@ public class ValueComparisonUtils {
      * @return True if left hand side ordered type value is less than right hand side ordered type value, else false.
      */
     public static boolean compareValueLessThan(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue) < 0;
+        try {
+            return compareValues(lhsValue, rhsValue) < 0;
+        } catch (BError error) {
+            return false;
+        }
     }
 
     /**
@@ -54,7 +59,11 @@ public class ValueComparisonUtils {
      * value, else false.
      */
     public static boolean compareValueLessThanOrEqual(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue) <= 0;
+        try {
+            return compareValues(lhsValue, rhsValue) <= 0;
+        } catch (BError error) {
+            return false;
+        }
     }
 
     /**
@@ -66,7 +75,11 @@ public class ValueComparisonUtils {
      * false.
      */
     public static boolean compareValueGreaterThan(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue) > 0;
+        try {
+            return compareValues(lhsValue, rhsValue) > 0;
+        } catch (BError error) {
+            return false;
+        }
     }
 
     /**
@@ -79,7 +92,11 @@ public class ValueComparisonUtils {
      * false.
      */
     public static boolean compareValueGreaterThanOrEqual(Object lhsValue, Object rhsValue) {
-        return compareValues(lhsValue, rhsValue) >= 0;
+        try {
+            return compareValues(lhsValue, rhsValue) >= 0;
+        } catch (BError error) {
+            return false;
+        }
     }
 
     /**
@@ -90,7 +107,11 @@ public class ValueComparisonUtils {
      * @return True if left hand side float value is less than right hand side float value, else false.
      */
     public static boolean compareValueLessThan(double lhsValue, double rhsValue) {
-        return compareFloatValues(lhsValue, rhsValue) < 0;
+        try {
+            return compareFloatValues(lhsValue, rhsValue) < 0;
+        } catch (BError error) {
+            return false;
+        }
     }
 
     /**
@@ -101,7 +122,11 @@ public class ValueComparisonUtils {
      * @return True if left hand side float value is less than or equal to the right hand side float value, else false.
      */
     public static boolean compareValueLessThanOrEqual(double lhsValue, double rhsValue) {
-        return compareFloatValues(lhsValue, rhsValue) <= 0;
+        try {
+            return compareFloatValues(lhsValue, rhsValue) <= 0;
+        } catch (BError error) {
+            return false;
+        }
     }
 
     /**
@@ -112,7 +137,11 @@ public class ValueComparisonUtils {
      * @return True if left hand side float value is greater than the right hand side float value, else false.
      */
     public static boolean compareValueGreaterThan(double lhsValue, double rhsValue) {
-        return compareFloatValues(lhsValue, rhsValue) > 0;
+        try {
+            return compareFloatValues(lhsValue, rhsValue) > 0;
+        } catch (BError error) {
+            return false;
+        }
     }
 
     /**
@@ -124,7 +153,11 @@ public class ValueComparisonUtils {
      * false.
      */
     public static boolean compareValueGreaterThanOrEqual(double lhsValue, double rhsValue) {
-        return compareFloatValues(lhsValue, rhsValue) >= 0;
+        try {
+            return compareFloatValues(lhsValue, rhsValue) >= 0;
+        } catch (BError error) {
+            return false;
+        }
     }
 
     private static int compareValues(Object lhsValue, Object rhsValue) {

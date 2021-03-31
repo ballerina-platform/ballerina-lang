@@ -23,7 +23,9 @@ import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
@@ -54,6 +56,8 @@ public class CompilerPluginTests {
                 "compiler_plugin_tests/package_comp_plugin_with_two_java_dependencies");
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_with_func_node_analyzer");
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_lifecycle_listener");
     }
 
     @Test
@@ -112,6 +116,14 @@ public class CompilerPluginTests {
 
         Assert.assertEquals(diagnosticResult.errorCount(), 7);
         Assert.assertEquals(diagnosticResult.warningCount(), 9);
+    }
+
+    @Test
+    public void testCodeGenerationCompletedPlugin() {
+        String path = RESOURCE_DIRECTORY.resolve("package_plugin_user_6").toString();
+        CompileResult result = BCompileUtil.compileAndCacheBala(path);
+        Assert.assertEquals(result.getWarnCount(), 1);
+        BAssertUtil.validateWarning(result, 0, "End of codegen", 1, 1);
     }
 
     public void assertDiagnostics(Package currentPackage) {

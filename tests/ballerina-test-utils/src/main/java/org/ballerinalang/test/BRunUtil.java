@@ -1375,7 +1375,8 @@ public class BRunUtil {
         final Scheduler scheduler = new Scheduler(false);
         TomlDetails configurationDetails = LaunchUtils.getConfigurationDetails();
         directRun(compileResult.getClassLoader().loadClass(configClassName), "$configureInit",
-                new Class[]{Path[].class, String.class, String.class}, new Object[]{configurationDetails.paths,
+                new Class[]{String[].class, Path[].class, String.class, String.class},
+                  new Object[]{new String[]{}, configurationDetails.paths,
                         configurationDetails.secret, configurationDetails.configContent});
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleInit"), scheduler);
         runOnSchedule(initClazz, ASTBuilderUtil.createIdentifier(null, "$moduleStart"), scheduler);
