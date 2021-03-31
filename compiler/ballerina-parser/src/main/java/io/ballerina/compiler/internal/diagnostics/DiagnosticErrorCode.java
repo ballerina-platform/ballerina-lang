@@ -236,6 +236,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.missing.resource.path.in.resource.accessor.declaration"),
     ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0519", "error.missing.positional.arg.in.error.constructor"),
     ERROR_MISSING_ARG_WITHIN_PARENTHESIS("BCE0520", "error.missing.arg.within.parenthesis"),
+    ERROR_MISSING_VARIABLE_NAME("BCE0521", "error.missing.variable.name"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -320,7 +321,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED("BCE667", "error.complex.variable.must.be.initialized"),
     ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC("BCE668", "error.isolated.var.cannot.be.declared.as.public"),
     ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC("BCE669", "error.variable.declared.with.var.cannot.be.public"),
-    ERROR_FIELD_BP_INSIDE_LIST_BP("BCE670", "error.field.binding.pattern.inside.list.binding.pattern")
+    ERROR_FIELD_BP_INSIDE_LIST_BP("BCE670", "error.field.binding.pattern.inside.list.binding.pattern"),
+    ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.invalid.expression.expected.a.call.expression")
     ;
 
     String diagnosticId;
