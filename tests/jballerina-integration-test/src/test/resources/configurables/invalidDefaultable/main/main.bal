@@ -20,7 +20,9 @@ type Employee record {|
     readonly float salary?;
 |};
 
-configurable Employee employee = ?;
+type EmployeeTable table<Employee> key(id) & readonly;
+
+configurable EmployeeTable employees = ?;
 
 public function main() {
     // do nothing

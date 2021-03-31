@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
-import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
@@ -166,16 +165,6 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<BArray> getAsArrayAndMark(Module module, VariableKey key) {
-        CliArg cliArg = getCliArg(module, key);
-        if (cliArg.value == null) {
-            return Optional.empty();
-        }
-        throw new CliConfigException(cliArg, String.format(CliConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
-                                                           key.variable, key.type));
-    }
-
-    @Override
-    public Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key) {
         CliArg cliArg = getCliArg(module, key);
         if (cliArg.value == null) {
             return Optional.empty();

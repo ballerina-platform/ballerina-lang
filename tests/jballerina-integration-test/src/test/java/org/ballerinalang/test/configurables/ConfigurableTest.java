@@ -219,7 +219,7 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testInvalidDefaultableField() throws BallerinaTestException {
         String errorMsg = "[Config.toml:(1:1,3:17)] defaultable readonly record field 'name' in configurable variable" +
-                " 'main:employee' is not supported";
+                " 'main:employees' is not supported";
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, testFileLocation + "/invalidDefaultable");

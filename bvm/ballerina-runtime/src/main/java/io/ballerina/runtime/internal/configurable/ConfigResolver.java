@@ -46,15 +46,15 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.TomlCons
  */
 public class ConfigResolver {
 
-    private Map<Module, VariableKey[]> configVarMap;
+    private final Map<Module, VariableKey[]> configVarMap;
 
-    private List<ConfigProvider> supportedConfigProviders;
+    private final List<ConfigProvider> supportedConfigProviders;
 
-    private List<ConfigProvider> runtimeConfigProviders;
+    private final List<ConfigProvider> runtimeConfigProviders;
 
-    private Module rootModule;
+    private final Module rootModule;
 
-    private DiagnosticLog diagnosticLog;
+    private final DiagnosticLog diagnosticLog;
 
     public ConfigResolver(Module rootModule, Map<Module, VariableKey[]> configVarMap,
                           DiagnosticLog diagnosticLog, List<ConfigProvider> supportedConfigProviders) {
@@ -112,18 +112,12 @@ public class ConfigResolver {
             case TypeTags.STRING_TAG:
                 return getConfigValue(module, key, configProvider -> configProvider
                         .getAsStringAndMark(module, key));
-            case TypeTags.RECORD_TYPE_TAG:
-                return getConfigValue(module, key, configProvider -> configProvider
-                        .getAsRecordAndMark(module, key));
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 switch (effectiveType.getTag()) {
                     case TypeTags.ARRAY_TAG:
                         return getConfigValue(module, key, configProvider -> configProvider
                                 .getAsArrayAndMark(module, key));
-                    case TypeTags.RECORD_TYPE_TAG:
-                        return getConfigValue(module, key, configProvider -> configProvider
-                                .getAsRecordAndMark(module, key));
                     case TypeTags.TABLE_TAG:
                         return getConfigValue(module, key, configProvider -> configProvider
                                 .getAsTableAndMark(module, key));
