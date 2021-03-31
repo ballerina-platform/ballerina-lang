@@ -91,7 +91,9 @@ public class JClass {
             // Append the prefix "J" in front of bindings generated for Java exceptions.
             if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
                     .isAssignableFrom(exception)) {
-                return "J" + name;
+                String shortClassName = "J" + name;
+                env.setAlias(shortClassName, exception.getName());
+                return shortClassName;
             }
         } catch (ClassNotFoundException ignore) {
             // Silently ignore if the exception class cannot be found.

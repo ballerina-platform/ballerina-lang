@@ -99,6 +99,21 @@ public class BindgenUnitTest {
         Assert.assertFalse(moduleSyntaxTree.hasDiagnostics());
     }
 
+    @Test(description = "Test the bindings generated for a direct throwable class mapping.")
+    public void directThrowableMapping() throws FormatterException, ClassNotFoundException,
+            BindgenException, IOException {
+        BindgenEnv throwableBindgenEnv = getBindgenEnv();
+        BindgenFileGenerator throwableBindingsGenerator = new BindgenFileGenerator(throwableBindgenEnv);
+        Path throwableMappingPath = Paths.get(resourceDirectory.toString(),
+                "unit-test-resources", "throwableMapping.bal");
+        String throwableMappingValue = Files.readString(resourceDirectory.resolve(throwableMappingPath));
+        SyntaxTree throwableSyntaxTree = throwableBindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("java.io.IOException"), throwableBindgenEnv));
+        Assert.assertEquals(Formatter.format(throwableSyntaxTree.toSourceCode()),
+                Formatter.format(throwableMappingValue));
+        Assert.assertFalse(throwableSyntaxTree.hasDiagnostics());
+    }
+
     private BindgenEnv getBindgenEnv() {
         BindgenEnv bindgenEnv = new BindgenEnv();
         bindgenEnv.setDirectJavaClass(true);

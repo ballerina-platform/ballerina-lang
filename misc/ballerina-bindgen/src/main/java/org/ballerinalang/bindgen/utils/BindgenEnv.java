@@ -128,7 +128,7 @@ public class BindgenEnv {
         return aliases.get(alias);
     }
 
-    void setAlias(String alias, String className) {
+    public void setAlias(String alias, String className) {
         this.aliases.put(alias, className);
     }
 

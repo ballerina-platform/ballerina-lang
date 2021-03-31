@@ -61,7 +61,7 @@ public class BindgenFileGenerator {
         this.jClass = jClass;
         this.currentClass = jClass.getCurrentClass();
         setClassNameAlias();
-        if (Throwable.class.isAssignableFrom(jClass.getCurrentClass())) {
+        if (Throwable.class.isAssignableFrom(jClass.getCurrentClass()) && !env.isDirectJavaClass()) {
             // Generate Ballerina error bindings for Java throwable classes.
             return generateFromTemplate(jErrorTemplatePath);
         } else if (!env.isDirectJavaClass()) {
