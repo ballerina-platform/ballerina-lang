@@ -638,25 +638,31 @@ public class SymbolTable {
     private void defineBinaryOperatorsWithUnionType() {
         BType[] types = {unionType, intType, floatType, byteType, decimalType, stringType, booleanType,
                 nilType, finiteType};
-        for (BType lhs : types) {
-            for (BType rhs : types) {
-                defineBinaryOperator(OperatorKind.LESS_THAN, lhs, rhs, booleanType);
-                defineBinaryOperator(OperatorKind.LESS_EQUAL, lhs, rhs, booleanType);
-                defineBinaryOperator(OperatorKind.GREATER_THAN, lhs, rhs, booleanType);
-                defineBinaryOperator(OperatorKind.GREATER_EQUAL, lhs, rhs, booleanType);
-            }
+        for (BType rhsOrLhsType : types) {
+            defineBinaryOperator(OperatorKind.LESS_THAN, unionType, rhsOrLhsType, booleanType);
+            defineBinaryOperator(OperatorKind.LESS_EQUAL, unionType, rhsOrLhsType, booleanType);
+            defineBinaryOperator(OperatorKind.GREATER_THAN, unionType, rhsOrLhsType, booleanType);
+            defineBinaryOperator(OperatorKind.GREATER_EQUAL, unionType, rhsOrLhsType, booleanType);
+
+            defineBinaryOperator(OperatorKind.LESS_THAN, rhsOrLhsType, unionType, booleanType);
+            defineBinaryOperator(OperatorKind.LESS_EQUAL, rhsOrLhsType, unionType, booleanType);
+            defineBinaryOperator(OperatorKind.GREATER_THAN, rhsOrLhsType, unionType, booleanType);
+            defineBinaryOperator(OperatorKind.GREATER_EQUAL, rhsOrLhsType, unionType, booleanType);
         }
     }
 
     private void defineBinaryOperatorsWithFiniteType() {
         BType[] types = {finiteType, intType, floatType, byteType, decimalType, stringType, booleanType, nilType};
-        for (BType lhs : types) {
-            for (BType rhs : types) {
-                defineBinaryOperator(OperatorKind.LESS_THAN, lhs, rhs, booleanType);
-                defineBinaryOperator(OperatorKind.LESS_EQUAL, lhs, rhs, booleanType);
-                defineBinaryOperator(OperatorKind.GREATER_THAN, lhs, rhs, booleanType);
-                defineBinaryOperator(OperatorKind.GREATER_EQUAL, lhs, rhs, booleanType);
-            }
+        for (BType rhsOrLhsType : types) {
+            defineBinaryOperator(OperatorKind.LESS_THAN, finiteType, rhsOrLhsType, booleanType);
+            defineBinaryOperator(OperatorKind.LESS_EQUAL, finiteType, rhsOrLhsType, booleanType);
+            defineBinaryOperator(OperatorKind.GREATER_THAN, finiteType, rhsOrLhsType, booleanType);
+            defineBinaryOperator(OperatorKind.GREATER_EQUAL, finiteType, rhsOrLhsType, booleanType);
+
+            defineBinaryOperator(OperatorKind.LESS_THAN, rhsOrLhsType, finiteType, booleanType);
+            defineBinaryOperator(OperatorKind.LESS_EQUAL, rhsOrLhsType, finiteType, booleanType);
+            defineBinaryOperator(OperatorKind.GREATER_THAN, rhsOrLhsType, finiteType, booleanType);
+            defineBinaryOperator(OperatorKind.GREATER_EQUAL, rhsOrLhsType, finiteType, booleanType);
         }
     }
 
