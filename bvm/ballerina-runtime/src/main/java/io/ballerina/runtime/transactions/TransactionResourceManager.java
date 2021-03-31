@@ -608,6 +608,6 @@ public class TransactionResourceManager {
     }
 
     public Object getTransactionRecord(BArray xid) {
-        return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes().clone()));
+        return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes()));
     }
 }
