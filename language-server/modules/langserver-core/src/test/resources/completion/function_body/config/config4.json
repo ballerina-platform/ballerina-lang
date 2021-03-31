@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 10,
-    "character": 9
+    "line": 5,
+    "character": 12
   },
-  "source": "service_decl/source/source16.bal",
+  "source": "function_body/source/source4.bal",
   "items": [
     {
       "label": "xmlns",
@@ -448,14 +448,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -467,11 +459,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "K",
-      "insertText": "TestObject",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -587,42 +579,38 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()(int)",
+      "label": "validator2",
+      "kind": "Variable",
+      "detail": "boolean",
+      "sortText": "B",
+      "insertText": "validator2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "validator1",
+      "kind": "Variable",
+      "detail": "boolean",
+      "sortText": "B",
+      "insertText": "validator1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunction(boolean validator1, boolean validator2)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `boolean` validator1  \n- `boolean` validator2"
         }
       },
       "sortText": "C",
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "self",
-      "kind": "Variable",
-      "detail": "isolated service object {resource function name . () returns () ;}",
-      "sortText": "B",
-      "insertText": "self",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lst",
-      "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "B",
-      "insertText": "lst",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "worker",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "O",
-      "insertText": "worker ${1:name} {\n\t${2}\n}",
-      "insertTextFormat": "Snippet"
+      "insertText": "testFunction(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     }
   ]
 }
