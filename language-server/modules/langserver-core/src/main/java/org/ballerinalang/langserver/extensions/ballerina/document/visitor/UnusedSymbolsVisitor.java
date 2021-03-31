@@ -17,7 +17,13 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document.visitor;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
+import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
@@ -36,6 +42,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 
 /**
  * Common node visitor to override and remove assertion errors from NodeVisitor methods.
@@ -105,24 +112,29 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     }
 
     private void moveUnusedtoUsedImport(LineRange lineRange, ImportDeclarationNode importDeclarationNode) {
-        List<Location> locations = this.semanticModel.references(srcFile, lineRange.startLine());
-        boolean availableOutSideDeleteRange = false;
-        for (Location location : locations) {
-            if (isWithinLineRange(importDeclarationNode.lineRange(), location.lineRange())) {
-                continue;
+        Optional<Symbol> symbol = semanticModel.symbol(importDeclarationNode);
+
+        if (symbol.isPresent()) {
+            List<Location> locations = this.semanticModel.references(symbol.get());
+            boolean availableOutSideDeleteRange = false;
+            for (Location location : locations) {
+                if (isWithinLineRange(importDeclarationNode.lineRange(), location.lineRange())) {
+                    continue;
+                }
+                LineRange deleteRange = getDeleteRange(location.lineRange());
+                if (deleteRange == null) {
+                    availableOutSideDeleteRange = true;
+                }
             }
-            LineRange deleteRange = getDeleteRange(location.lineRange());
-            if (deleteRange == null) {
-                availableOutSideDeleteRange = true;
+            if (availableOutSideDeleteRange) {
+                this.unusedImports.remove(getImportModuleName(importDeclarationNode.orgName().isPresent()
+                        ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()));
+                this.usedImports.put(getImportModuleName(importDeclarationNode.orgName().isPresent()
+                                ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()),
+                        importDeclarationNode);
             }
         }
-        if (availableOutSideDeleteRange) {
-            this.unusedImports.remove(getImportModuleName(importDeclarationNode.orgName().isPresent()
-                    ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()));
-            this.usedImports.put(getImportModuleName(importDeclarationNode.orgName().isPresent()
-                            ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()),
-                    importDeclarationNode);
-        }
+
     }
 
     private void decideVariablesToBeDeleted(LineRange lineRange) {
@@ -188,6 +200,26 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
                 && variableDeclarationNode.typedBindingPattern().bindingPattern() != null
                 && variableDeclarationNode.typedBindingPattern().bindingPattern().lineRange() != null) {
             decideVariablesToBeDeleted(variableDeclarationNode.typedBindingPattern().bindingPattern().lineRange());
+        }
+    }
+
+    @Override
+    public void visit(AnnotationNode annotationNode) {
+        super.visit(annotationNode);
+        Optional<Symbol> annotationNodeSymbol = semanticModel.symbol(annotationNode);
+
+        if (annotationNodeSymbol.isPresent()) {
+            Optional<ModuleSymbol> moduleSymbol = annotationNodeSymbol.get().getModule();
+
+            if (moduleSymbol.isPresent()) {
+                ModuleID moduleID  = moduleSymbol.get().id();
+                String importKey = String.format("%s/%s",
+                        moduleID.orgName(), moduleID.moduleName()) ;
+                if (unusedImports.containsKey(importKey)) {
+                    this.usedImports.put(importKey, this.unusedImports.get(importKey));
+                    this.unusedImports.remove(importKey);
+                }
+            }
         }
     }
 }
