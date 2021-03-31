@@ -36,6 +36,7 @@ import org.slf4j.LoggerFactory;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -100,7 +101,7 @@ public class TransactionResourceManager {
     private boolean transactionManagerEnabled;
     private static final PrintStream stderr = System.err;
 
-    public Map<BArray, Object> transactionInfoMap;
+    Map<ByteBuffer, Object> transactionInfoMap;
 
     private TransactionResourceManager() {
         resourceRegistry = new HashMap<>();
@@ -604,5 +605,9 @@ public class TransactionResourceManager {
         if (participantBlockIds != null && participantBlockIds.contains(blockId)) {
             failedLocalParticipantSet.add(gTransactionId);
         }
+    }
+
+    public Object getTransactionRecord(BArray xid) {
+        return transactionInfoMap.get(ByteBuffer.wrap(xid.getBytes()));
     }
 }
