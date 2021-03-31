@@ -4235,7 +4235,8 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        if (expType.tag != TypeTags.XML && expType.tag != TypeTags.UNION && expType.tag != TypeTags.XML_TEXT) {
+        if (expType.tag != TypeTags.XML && expType.tag != TypeTags.UNION && expType.tag != TypeTags.XML_TEXT
+        && expType != symTable.noType) {
             dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
                     "XML Sequence");
             resultType = symTable.semanticError;
@@ -4262,7 +4263,7 @@ public class TypeChecker extends BLangNodeVisitor {
         unMuteErrorLog(prevNonErrorLoggingCheck, errorCount);
 
         // Set type according to items in xml sequence and expected type
-        if (expType.tag == TypeTags.XML) {
+        if (expType.tag == TypeTags.XML || expType == symTable.noType) {
             if (xmlTypesInSequence.size() == 1) {
                 resultType = getXMLSequenceType(xmlTypesInSequence.get(0));
                 return;
