@@ -10,15 +10,37 @@ function testXMLSequence() {
     xml x4 = xml `<!--comment--><?foo ${v1}?>text1${v1}<root>text2 ${v2}${v1} text3!<foo>12</foo><bar></bar></root>text2${v2}`;
     assert(x4.toString(), "<!--comment--><?foo interpolation1?>text1interpolation1<root>text2 "+
     "interpolation2interpolation1 text3!<foo>12</foo><bar></bar></root>text2interpolation2");
-
     xml x5 = xml `<!--comment-->text1`;
     assert(x5.toString(), "<!--comment-->text1");
     xml x6 = xml `<!--comment-->`;
     assert(x6.toString(), "<!--comment-->");
+
+    xml<'xml:Element> x23 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    assert(x23.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+    xml<xml<'xml:Element>> x24 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    assert(x24.toString(), "<foo>Anne</foo><fuu>Peter</fuu>");
+
+    xml<'xml:ProcessingInstruction> x17 = xml `<?foo?><?faa?>`;
+    assert(x17.toString(), "<?foo ?><?faa ?>");
+    xml<xml<'xml:ProcessingInstruction>> x18 = xml `<?foo?><?faa?>`;
+    assert(x18.toString(), "<?foo ?><?faa ?>");
+
     xml<'xml:Text> x7 = xml `text1 text2`;
     assert(x7.toString(), "text1 text2");
+    xml<xml<'xml:Text>> x19 = xml `text1 text2`;
+    assert(x19.toString(), "text1 text2");
+    'xml:Text x20 = xml `text1 text2`;
+    assert(x20.toString(), "text1 text2");
+    'xml:Text x25 = xml `text1 ${v1}`;
+    assert(x25.toString(), "text1 interpolation1");
     'xml:Text x8 = xml `text1`;
     assert(x8.toString(), "text1");
+
+    xml<'xml:Comment> x21 = xml `<!--comment1--><!--comment2-->`;
+    assert(x21.toString(), "<!--comment1--><!--comment2-->");
+    xml<xml<'xml:Comment>> x22 = xml `<!--comment1--><!--comment2-->`;
+    assert(x22.toString(), "<!--comment1--><!--comment2-->");
+
     xml<'xml:Text|'xml:Comment> x9 = xml `<!--comment-->`;
     assert(x9.toString(), "<!--comment-->");
     xml<'xml:Text>|xml<'xml:Comment> x12 = xml `<!--comment-->`;

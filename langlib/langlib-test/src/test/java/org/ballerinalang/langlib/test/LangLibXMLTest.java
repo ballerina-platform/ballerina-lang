@@ -282,6 +282,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXmlFilter() {
+        BRunUtil.invoke(compileResult, "testXmlFilter");
+    }
+
+    @Test
     public void testNegativeCases() {
         negativeResult = BCompileUtil.compile("test-src/xmllib_test_negative.bal");
         int i = 0;

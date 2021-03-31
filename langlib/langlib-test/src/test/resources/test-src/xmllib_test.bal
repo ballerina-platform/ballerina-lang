@@ -472,6 +472,15 @@ function testSelectingTextFromXml() {
     assert(textValues2.toString(), textValues.toString());
 }
 
+function testXmlFilter() {
+    xml x1 = xml `<authors><name>Enid Blyton</name></authors>`;
+    xml x5 = x1.filter(function (xml x2) returns boolean {
+        xml elements = (x2/*).elements();
+        return (elements/*).toString() == "Enid Blyton";
+        });
+    assert(x5.toString(), "<authors><name>Enid Blyton</name></authors>");
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

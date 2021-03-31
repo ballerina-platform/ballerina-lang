@@ -4184,15 +4184,16 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public BType getXMLTypeFromLiteralKind(BLangExpression childXMLExpressions) {
-        if (childXMLExpressions instanceof BLangXMLElementLiteral) {
+        if (childXMLExpressions.getKind() == NodeKind.XML_ELEMENT_LITERAL) {
             return symTable.xmlElementType;
-        } else if (childXMLExpressions instanceof BLangXMLTextLiteral) {
-            return symTable.xmlTextType;
-        } else if (childXMLExpressions instanceof BLangXMLProcInsLiteral) {
-            return symTable.xmlTextType;
-        } else {
-            return symTable.xmlCommentType;
         }
+        if (childXMLExpressions.getKind() == NodeKind.XML_TEXT_LITERAL) {
+            return symTable.xmlTextType;
+        }
+        if (childXMLExpressions.getKind() == NodeKind.XML_PI_LITERAL) {
+            return symTable.xmlPIType;
+        }
+        return symTable.xmlCommentType;
     }
 
     public void muteErrorLog() {
@@ -4205,6 +4206,20 @@ public class TypeChecker extends BLangNodeVisitor {
         this.dlog.setErrorCount(errorCount);
         if (!prevNonErrorLoggingCheck) {
             this.dlog.unmute();
+        }
+    }
+
+    public BType getXMLSequenceType(BType xmlSubType) {
+        switch (xmlSubType.tag) {
+            case TypeTags.XML_ELEMENT:
+                return new BXMLType(symTable.xmlElementType,  null);
+            case TypeTags.XML_COMMENT:
+                return new BXMLType(symTable.xmlCommentType,  null);
+            case TypeTags.XML_PI:
+                return new BXMLType(symTable.xmlPIType,  null);
+            default:
+                // Since 'xml:Text is same as xml<'xml:Text>
+                return symTable.xmlTextType;
         }
     }
 
@@ -4235,21 +4250,21 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         unMuteErrorLog(prevNonErrorLoggingCheck, errorCount);
 
-        // set type according to items in xml sequence and expected type
+        // Set type according to items in xml sequence and expected type
         if (expType.tag == TypeTags.XML) {
             if (xmlTypesInSequence.size() == 1) {
-                resultType = xmlTypesInSequence.get(0);
+                resultType = getXMLSequenceType(xmlTypesInSequence.get(0));
                 return;
             }
             resultType = symTable.xmlType;
             return;
         }
-        //since 'xml:Text is same as xml<'xml:Text>
+        // Since 'xml:Text is same as xml<'xml:Text>
         if (expType.tag == TypeTags.XML_TEXT) {
-            resultType = symTable.xmlType;
+            resultType = symTable.xmlTextType;
             return;
         }
-        // disallow unions with 'xml:T (singleton) items
+        // Disallow unions with 'xml:T (singleton) items
          for (BType item : ((BUnionType) expType).getMemberTypes()) {
              if (item.tag != TypeTags.XML_TEXT && item.tag != TypeTags.XML) {
                  dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,

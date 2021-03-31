@@ -78,4 +78,25 @@ function testXMLSequence() {
     'xml:Element x20 = xml `<foo>100</foo><foo>200</foo>`;
     'xml:Comment|'xml:Element x21 = xml `<foo>foo</foo><bar/><!--comment-->`;
     'xml:Comment|'xml:Element x22 = xml `<foo>foo</foo><bar/>`;
+
+    'xml:ProcessingInstruction x23 = xml `<?foo?><?faa?>`;
+    'xml:Element x24 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    'xml:Comment x25 = xml `<!--comment1--><!--comment2-->`;
+
+    string val1 = "text1";
+    xml<'xml:ProcessingInstruction> x26 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    xml<'xml:ProcessingInstruction> x27 = xml `text1 ${val1}`;
+    xml<'xml:ProcessingInstruction> x28 = xml `<!--comment1--><!--comment2-->`;
+
+    xml<'xml:Element> x29 = xml `text1 ${val1}`;
+    xml<'xml:Element> x30 = xml `<?foo?><?faa?>`;
+    xml<'xml:Element> x31 = xml `<!--comment1--><!--comment2-->`;
+
+    xml<'xml:Comment> x32 = xml `<?foo?><?faa?>`;
+    xml<'xml:Comment> x33 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    xml<'xml:Comment> x34 = xml `text1 ${val1}`;
+
+    xml<'xml:Text> x35 = xml `<!--comment1--><!--comment2-->`;
+    xml<'xml:Text> x36 = xml `<foo>Anne</foo><fuu>Peter</fuu>`;
+    xml<'xml:Text> x37 = xml `<?foo?><?faa?>`;
 }

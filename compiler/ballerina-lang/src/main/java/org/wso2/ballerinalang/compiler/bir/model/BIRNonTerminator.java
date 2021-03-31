@@ -572,7 +572,7 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     /**
      * New xml sequence instruction.
      *
-     * @since alpha
+     * @since 2.0.0
      */
     public static class NewXMLSequence extends BIRNonTerminator {
 

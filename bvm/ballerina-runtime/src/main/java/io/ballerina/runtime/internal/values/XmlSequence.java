@@ -17,7 +17,9 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.XmlNodeType;
@@ -29,13 +31,11 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlSequence;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.types.BArrayType;
+import io.ballerina.runtime.internal.types.BUnionType;
+import io.ballerina.runtime.internal.types.BXmlType;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_EMPTY_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
@@ -292,20 +292,23 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
     public void addChildren(BXml xmlItem) {
         children.add(xmlItem);
 
-        //if sequence contains children of same type
+        // If sequence contains children of same type
         // the sequence type should be changed to that corresponding xml type
         boolean isSameType = true;
         Type tempExprType = null;
-        for (int i = 0; i < children.size(); i++) {
-            if (i == 0) {
-                tempExprType = children.get(i).getType();
-            } else if (tempExprType != children.get(i).getType()) {
+
+        if (!children.isEmpty()) {
+            tempExprType = children.get(0).getType();
+        }
+
+        for (int i = 1; i < children.size(); i++) {
+             if (tempExprType != children.get(i).getType()) {
                 isSameType = false;
                 break;
             }
         }
         if (isSameType) {
-            this.type = tempExprType;
+            this.type = getSequenceType(tempExprType);
             return;
         }
         this.type = PredefinedTypes.TYPE_XML;;
@@ -620,5 +623,19 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
             return this.children.size() == 1 && this.children.get(0).equals(obj);
         }
         return false;
+    }
+
+    private Type getSequenceType(Type tempExprType) {
+        switch (tempExprType.getTag()) {
+            case TypeTags.XML_ELEMENT_TAG:
+                return new BXmlType(PredefinedTypes.TYPE_ELEMENT, false);
+            case TypeTags.XML_COMMENT_TAG:
+                return new BXmlType(PredefinedTypes.TYPE_COMMENT, false);
+            case TypeTags.XML_PI_TAG:
+                return new BXmlType(PredefinedTypes.TYPE_PROCESSING_INSTRUCTION, false);
+            default:
+                // Since 'xml:Text is same as xml<'xml:Text>
+                return PredefinedTypes.TYPE_TEXT;
+        }
     }
 }

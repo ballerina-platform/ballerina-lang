@@ -175,10 +175,6 @@ public class Types {
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
     }
 
-    public BUnionType getExpandedXMLBuiltinSubtypes() {
-        return this.expandedXMLBuiltinSubtypes;
-    }
-
     public List<BType> checkTypes(BLangExpression node,
                                   List<BType> actualTypes,
                                   List<BType> expTypes) {
@@ -1015,7 +1011,8 @@ public class Types {
             BXMLType source = (BXMLType) sourceType;
             if (targetTag == TypeTags.XML_TEXT) {
                 if (source.constraint != null) {
-                    return source.constraint.tag == TypeTags.NEVER;
+                    return source.constraint.tag == TypeTags.NEVER ||
+                            source.constraint.tag == TypeTags.XML_TEXT;
                 }
                 return false;
             }

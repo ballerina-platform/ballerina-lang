@@ -116,6 +116,41 @@ public class XMLLiteralTest {
                 "'(xml:Comment|xml:Element)', found 'xml'", 79, 37);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'(xml:Comment|xml:Element)', found 'xml'", 80, 37);
+
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml:ProcessingInstruction', found 'XML Sequence'", 82, 38);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml:Element', found 'XML Sequence'", 83, 24);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml:Comment', found 'XML Sequence'", 84, 24);
+
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:ProcessingInstruction>', found 'xml:Element'", 87, 43);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:ProcessingInstruction>', found 'xml:Text'", 88, 43);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:ProcessingInstruction>', found 'xml:Comment'", 89, 43);
+
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:Element>', found 'xml:Text'", 91, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:Element>', found 'xml:ProcessingInstruction'", 92, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:Element>', found 'xml:Comment'", 93, 29);
+
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:Comment>', found 'xml:ProcessingInstruction'", 95, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:Comment>', found 'xml:Element'", 96, 29);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:Comment>', found 'xml:Text'", 97, 29);
+
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:Text>', found 'xml:Comment'", 99, 26);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:Text>', found 'xml:Element'", 100, 26);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'xml<xml:Text>', found 'xml:ProcessingInstruction'", 101, 26);
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 

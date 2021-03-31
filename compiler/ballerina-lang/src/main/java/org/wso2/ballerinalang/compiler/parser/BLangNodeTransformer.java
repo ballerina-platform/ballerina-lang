@@ -4071,23 +4071,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                     continue;
                 }
             }
-            //handle previous node if it was of xml:Text or interpolation type
+            // Handle previous node if it was of xml:Text or interpolation type
             if (lastNode != null && (lastNode.kind() == SyntaxKind.XML_TEXT ||
                     lastNode.kind() == SyntaxKind.INTERPOLATION)) {
                 if (adjacentTextNodes.size() > 1) {
-                    //adjacent XML Text Literals (contains interpolated items and xml:Text items) should be
+                    // Adjacent XML Text Literals (contains interpolated items and xml:Text items) should be
                     // concatenated together
                     xmlSequenceLiteral.xmlItems.add((BLangExpression) createXMLTextLiteral(adjacentTextNodes));
                 } else {
                     xmlSequenceLiteral.xmlItems.add(createXmlSingletonItem(lastNode));
                 }
                 adjacentTextNodes.clear();
-                //identify if sequence ends with xml:Text type or interpolation type
+                // Identify if sequence ends with xml:Text type or interpolation type
                 if (lastNode.kind() == childItem.kind()) {
                     continue;
                 }
             }
-            //handle current node that is not of xml:Text type or interpolation type
+            // Handle current node that is not of xml:Text type or interpolation type
             xmlSequenceLiteral.xmlItems.add(createXmlSingletonItem(childItem));
             lastNode = childItem;
         }
