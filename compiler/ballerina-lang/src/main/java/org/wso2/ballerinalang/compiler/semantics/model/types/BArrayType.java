@@ -90,6 +90,11 @@ public class BArrayType extends BType implements ArrayType {
     }
 
     @Override
+    public <T, R> R accept(OrderedTypeVisitor<T, R> visitor, T t) {
+        return visitor.visit(this, t);
+    }
+
+    @Override
     public String toString() {
         StringBuilder sb = new StringBuilder(eType.toString());
         String tempSize = (state == BArrayState.INFERRED) ? "*" : String.valueOf(size);

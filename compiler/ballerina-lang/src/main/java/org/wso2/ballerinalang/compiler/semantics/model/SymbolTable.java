@@ -72,6 +72,7 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -116,14 +117,9 @@ public class SymbolTable {
     public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY);
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
-    
-    public final BType simpleTypeUnion = BUnionType.create(null, nilType, booleanType, intType, byteType, floatType,
-            decimalType, stringType);
-    public final BType arrayTypeOfSimpleTypeUnion = new BArrayType(simpleTypeUnion);
-    public final BType orderedType = BUnionType.create(null, simpleTypeUnion, arrayTypeOfSimpleTypeUnion);
-    public final BType orderedTupleType = new BTupleType(Lists.of(orderedType));
-    public final BType orderedArrayType = new BArrayType(orderedType);
+
     public final BType finiteType = new BFiniteType(null, new HashSet<>());
+    public final BType unionType = BUnionType.create(null, new LinkedHashSet<>());
 
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
@@ -569,7 +565,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.REF_NOT_EQUAL, byteType, intType, booleanType);
 
         // Binary comparison operators <=, <, >=, >
-        defineBinaryOperator(OperatorKind.LESS_THAN, finiteType, finiteType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, byteType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, intType, byteType, booleanType);
@@ -579,11 +574,10 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.LESS_THAN, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, nilType, nilType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, orderedType, orderedType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, orderedArrayType, orderedArrayType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, orderedTupleType, orderedTupleType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, unionType, unionType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, arrayType, arrayType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_THAN, tupleType, tupleType, booleanType);
 
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, finiteType, finiteType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, byteType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, byteType, booleanType);
@@ -593,11 +587,9 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.LESS_EQUAL, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, nilType, nilType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedType, orderedType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedArrayType, orderedArrayType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, orderedTupleType, orderedTupleType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, arrayType, arrayType, booleanType);
+        defineBinaryOperator(OperatorKind.LESS_EQUAL, tupleType, tupleType, booleanType);
 
-        defineBinaryOperator(OperatorKind.GREATER_THAN, finiteType, finiteType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, byteType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, byteType, booleanType);
@@ -607,11 +599,9 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_THAN, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, nilType, nilType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedType, orderedType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedArrayType, orderedArrayType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, orderedTupleType, orderedTupleType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, arrayType, arrayType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_THAN, tupleType, tupleType, booleanType);
 
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, finiteType, finiteType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, byteType, byteType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, byteType, booleanType);
@@ -621,9 +611,11 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, nilType, nilType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedType, orderedType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedArrayType, orderedArrayType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, orderedTupleType, orderedTupleType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, arrayType, arrayType, booleanType);
+        defineBinaryOperator(OperatorKind.GREATER_EQUAL, tupleType, tupleType, booleanType);
+
+        defineBinaryOperatorsWithFiniteType();
+        defineBinaryOperatorsWithUnionType();
 
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType);
@@ -641,6 +633,31 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType);
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType);
 
+    }
+
+    private void defineBinaryOperatorsWithUnionType() {
+        BType[] types = {unionType, intType, floatType, byteType, decimalType, stringType, booleanType,
+                nilType, finiteType};
+        for (BType lhs : types) {
+            for (BType rhs : types) {
+                defineBinaryOperator(OperatorKind.LESS_THAN, lhs, rhs, booleanType);
+                defineBinaryOperator(OperatorKind.LESS_EQUAL, lhs, rhs, booleanType);
+                defineBinaryOperator(OperatorKind.GREATER_THAN, lhs, rhs, booleanType);
+                defineBinaryOperator(OperatorKind.GREATER_EQUAL, lhs, rhs, booleanType);
+            }
+        }
+    }
+
+    private void defineBinaryOperatorsWithFiniteType() {
+        BType[] types = {finiteType, intType, floatType, byteType, decimalType, stringType, booleanType, nilType};
+        for (BType lhs : types) {
+            for (BType rhs : types) {
+                defineBinaryOperator(OperatorKind.LESS_THAN, lhs, rhs, booleanType);
+                defineBinaryOperator(OperatorKind.LESS_EQUAL, lhs, rhs, booleanType);
+                defineBinaryOperator(OperatorKind.GREATER_THAN, lhs, rhs, booleanType);
+                defineBinaryOperator(OperatorKind.GREATER_EQUAL, lhs, rhs, booleanType);
+            }
+        }
     }
 
     private void defineXmlStringConcatanationOperations() {

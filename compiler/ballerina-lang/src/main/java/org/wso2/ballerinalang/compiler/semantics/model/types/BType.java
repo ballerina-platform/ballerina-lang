@@ -86,6 +86,10 @@ public class BType implements ValueType {
         return visitor.visit(this, t);
     }
 
+    public <T, R> R accept(OrderedTypeVisitor<T, R> visitor, T t) {
+        return visitor.visit(this, t);
+    }
+
     @Override
     public TypeKind getKind() {
         switch (tag) {
