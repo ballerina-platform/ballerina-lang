@@ -58,19 +58,20 @@ public class HoverProviderTest {
         JsonObject source = configJson.getAsJsonObject("source");
         Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
         TestUtil.openDocument(serviceEndpoint, sourcePath);
-        String response = TestUtil.getHoverResponse(sourcePath.toString(), position, serviceEndpoint);
+        String response = parser.parse(TestUtil.getHoverResponse(sourcePath.toString(), position, serviceEndpoint))
+                .getAsJsonObject().toString();
         String expected = configJson.getAsJsonObject("expected").toString();
         TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         boolean result = response.equals(expected);
         if (!result) {
             // Fix test cases replacing expected using responses
-            JsonObject obj = new JsonObject();
-            obj.add("position", configJson.get("position"));
-            obj.add("source", configJson.get("source"));
-            obj.add("expected", parser.parse(response));
-            java.nio.file.Files.write(FileUtils.RES_DIR.resolve("hover").resolve("configs").resolve(config),
-                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+//            JsonObject obj = new JsonObject();
+//            obj.add("position", configJson.get("position"));
+//            obj.add("source", configJson.get("source"));
+//            obj.add("expected", parser.parse(response));
+//            java.nio.file.Files.write(FileUtils.RES_DIR.resolve("hover").resolve("configs").resolve(config),
+//                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
             Assert.fail("Failed Test for: " + config);
         }
     }

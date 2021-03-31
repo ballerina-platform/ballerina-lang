@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -52,7 +53,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
         Optional<Node> arrayLength = node.arrayLength();
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (arrayLength.isPresent() && this.onQualifiedNameIdentifier(context, arrayLength.get())) {
+        if (arrayLength.isPresent() && QNameReferenceUtil.onQualifiedNameIdentifier(context, arrayLength.get())) {
             QualifiedNameReferenceNode qName = (QualifiedNameReferenceNode) arrayLength.get();
             List<Symbol> moduleConstants = QNameReferenceUtil.getModuleContent(context, qName, constantFilter());
 
@@ -78,5 +79,19 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
             TypeSymbol constExprType = ((ConstantSymbol) symbol).broaderTypeDescriptor();
             return constExprType != null && constExprType.typeKind().isIntegerType();
         };
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ArrayTypeDescriptorNode node) {
+        /*
+        Array type descriptor suggests the completions only if the cursor is within the brackets
+        eg:
+        (1) TypeName[<cursor>] ...
+         */
+        int cursor = context.getCursorPositionInTree();
+        Token openBracket = node.openBracket();
+        Token closeBracket = node.closeBracket();
+        
+        return cursor > openBracket.textRange().startOffset() && cursor < closeBracket.textRange().endOffset();
     }
 }

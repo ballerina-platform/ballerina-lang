@@ -1,4 +1,4 @@
-[main.testUser]
+[[main.testUsers]]
 username = "Jane"
 password = "password"
 invalidField = [["a", "b"], ["c", "d"]]
