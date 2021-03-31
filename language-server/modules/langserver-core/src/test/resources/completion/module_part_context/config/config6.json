@@ -1,56 +1,32 @@
 {
   "position": {
-    "line": 10,
-    "character": 9
+    "line": 5,
+    "character": 0
   },
-  "source": "service_decl/source/source16.bal",
+  "source": "module_part_context/source/source6.bal",
   "items": [
     {
-      "label": "xmlns",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "O",
-      "insertText": "xmlns \"${1}\" as ${2:ns};",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "xmlns",
+      "label": "import",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "xmlns ",
+      "insertText": "import ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var",
+      "label": "type",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "var ",
+      "insertText": "type ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "wait",
+      "label": "public",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "wait ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "start",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "start ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "flush",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "flush ",
+      "insertText": "public ",
       "insertTextFormat": "Snippet"
     },
     {
@@ -62,30 +38,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "transactional",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "transactional",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "checkpanic",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "checkpanic ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "check",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "check ",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "final",
       "kind": "Keyword",
       "detail": "Keyword",
@@ -94,91 +46,194 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fail",
+      "label": "const",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "fail ",
+      "insertText": "const ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "if",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "if ${1:true} {\n\t${2}\n}",
+      "label": "listener",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "listener ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "while",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "while ${1:true} {\n\t${2}\n}",
+      "label": "client",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "client ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "do",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "do {\n\t${1}\n}",
+      "label": "var",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "var ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lock",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "lock {\n\t${1}\n}",
+      "label": "enum",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "enum ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "foreach",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "foreach ${1:var} ${2:item} in ${3:itemList} {\n\t${4}\n}",
+      "label": "xmlns",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "xmlns ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "transaction",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "transaction {\n\t${1}\n}",
+      "label": "class",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "class ",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "retry transaction",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "retry transaction {\n\t${1}\n}",
+      "label": "transactional",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "transactional",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "match",
+      "label": "function",
       "kind": "Snippet",
-      "detail": "Statement",
+      "detail": "Snippet",
       "sortText": "O",
-      "insertText": "match ",
+      "insertText": "function ${1:name}(${2})${3} {\n\t${4}\n}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "return",
+      "label": "public main function",
       "kind": "Snippet",
-      "detail": "Statement",
+      "detail": "Snippet",
       "sortText": "O",
-      "insertText": "return ",
+      "insertText": "public function main() {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "panic",
+      "label": "service/http",
       "kind": "Snippet",
-      "detail": "Statement",
+      "detail": "Snippet",
       "sortText": "O",
-      "insertText": "panic ",
+      "insertText": "service /${1} on new http:Listener(8080) {\n\tresource function ${2:get} ${3:getResource}(http:Caller ${4:caller}, http:Request ${5:req}) {\n\t\t\n\t}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/http;\n"
+        }
+      ]
+    },
+    {
+      "label": "configurable",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "configurable",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "annotation",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "annotation ${1:typeName} ${2:name} on ${3:attachmentPoint};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type <RecordName> record",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "type ${1:RecordName} record {\n\t${2}\n};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "xmlns",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "xmlns \"${1}\" as ${2:ns};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type <ObjectName> object",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "type ${1:ObjectName} object {${2}};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "class",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "class ${1:className} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "enum",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "enum ${1:enumName} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type <RecordName> closed record",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "type ${1:RecordName} record {|\n\t${2}\n|};",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type <ErrorName> error<?>",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "type ${1:ErrorName} error<${2:map<anydata>}>;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type TypeName table<>;",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "type ${1:TypeName} table<${2}>;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "type TypeName table<> key",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "type ${1:TypeName} table<${2}> key${3}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -187,6 +242,145 @@
       "detail": "Snippet",
       "sortText": "O",
       "insertText": "stream<${1}> ${2:streamName} = new;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "service on ${1:listenerName} {\n\t${2}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "service",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "record ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "record {${1}}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "record {||}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "record {|${1}|}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "distinct",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "distinct",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "object {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "object {${1}}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -445,183 +639,6 @@
       "detail": "type",
       "sortText": "Q",
       "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "K",
-      "insertText": "TestObject",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "readonly",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "readonly",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "handle",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "handle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "never",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "never",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "json",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "json",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "anydata",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "anydata",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "any",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "any",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "byte",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "byte",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "record",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "record ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "function",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "function ",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "record {}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "O",
-      "insertText": "record {${1}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "record {||}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "O",
-      "insertText": "record {|${1}|}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "distinct",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "distinct",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "object {}",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "O",
-      "insertText": "object {${1}}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunction()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "self",
-      "kind": "Variable",
-      "detail": "isolated service object {resource function name . () returns () ;}",
-      "sortText": "B",
-      "insertText": "self",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lst",
-      "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "B",
-      "insertText": "lst",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "worker",
-      "kind": "Snippet",
-      "detail": "Snippet",
-      "sortText": "O",
-      "insertText": "worker ${1:name} {\n\t${2}\n}",
       "insertTextFormat": "Snippet"
     }
   ]
