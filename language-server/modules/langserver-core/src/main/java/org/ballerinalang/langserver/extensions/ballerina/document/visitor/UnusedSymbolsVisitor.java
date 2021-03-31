@@ -21,8 +21,6 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.syntax.tree.AnnotationAttachPointNode;
-import io.ballerina.compiler.syntax.tree.AnnotationDeclarationNode;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
@@ -42,7 +40,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import org.ballerinalang.model.tree.AnnotationAttachmentNode;
 
 /**
  * Common node visitor to override and remove assertion errors from NodeVisitor methods.
@@ -212,9 +209,9 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
             Optional<ModuleSymbol> moduleSymbol = annotationNodeSymbol.get().getModule();
 
             if (moduleSymbol.isPresent()) {
-                ModuleID moduleID  = moduleSymbol.get().id();
+                ModuleID moduleID = moduleSymbol.get().id();
                 String importKey = String.format("%s/%s",
-                        moduleID.orgName(), moduleID.moduleName()) ;
+                        moduleID.orgName(), moduleID.moduleName());
                 if (unusedImports.containsKey(importKey)) {
                     this.usedImports.put(importKey, this.unusedImports.get(importKey));
                     this.unusedImports.remove(importKey);
