@@ -226,12 +226,17 @@ function testPrintAttribMap() {
 }
 
 function testCharacterReferencesInXmlAttributeValue() {
-    var x = xml`<p att="x&amp;y"/>`;
+    string u9 = "\u{9}";
+    string uA = "\u{A}";
+    string uD = "\u{D}";
+
+    var x = xml`<p att="x&amp;y|${u9}|${uA}|${uD}|&lt;&gt;"/>`; // last segment: space followed by a tab character
     string att = checkpanic x.att;
-    if (att == "x&y") {
+    string expected = string `x&y|${u9}|${uA}|${uD}|<>`;
+    if (att == expected) {
         return;
     }
-    panic error("Assertion error, expected `x&y`, found `" + att + "`");
+    panic error("Assertion error, expected `" + expected + "`, found `" + att + "`");
 }
 
 public function print(any|error... values) = @java:Method {
