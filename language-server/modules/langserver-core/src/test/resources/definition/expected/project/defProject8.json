@@ -3,22 +3,22 @@
     "file": "defObjectTypeDef1.bal"
   },
   "position": {
-    "line": 15,
+    "line": 4,
     "character": 17
   },
   "result": [
     {
       "range": {
         "start": {
-          "line": 24,
-          "character": 15
+          "line": 33,
+          "character": 0
         },
         "end": {
-          "line": 24,
-          "character": 21
+          "line": 37,
+          "character": 1
         }
       },
-      "uri": "src/ballerina_module1_0.1.0/types/type_source1.bal"
+      "uri": "repo/bala/ballerina/module1/0.1.0/any/modules/module1/functions_source1.bal"
     }
   ]
 }
