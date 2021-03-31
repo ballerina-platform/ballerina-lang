@@ -58,17 +58,13 @@ public class LangLibErrorTest {
     @Test
     public void testErrorCause() {
         CompileResult errorCtor = BCompileUtil.compile("test-src/errorlib_error_ctor_test.bal");
-        BValue[] returns = BRunUtil.invoke(errorCtor, "testErrorCause");
-        assertNull(returns[0]);
-        assertEquals(returns[1].stringValue(), "This is the cause {}");
-        assertEquals(returns[2].stringValue(), "This is the cause {}");
+        BRunUtil.invoke(errorCtor, "testErrorCause");
     }
 
-    @Test(enabled = false)
+    @Test
     public void testErrorDestructureWithCause() {
         CompileResult errorCtor = BCompileUtil.compile("test-src/errorlib_error_ctor_test.bal");
-        BValue[] returns = BRunUtil.invoke(errorCtor, "testErrorDestructureWithCause");
-        assertEquals(returns[0].stringValue(), "This is the cause {}");
+        BRunUtil.invoke(errorCtor, "testErrorDestructureWithCause");
     }
 
     @Test
