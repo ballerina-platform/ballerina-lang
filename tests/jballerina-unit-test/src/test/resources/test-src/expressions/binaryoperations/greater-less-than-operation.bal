@@ -284,6 +284,65 @@ function testTypeComparison5() {
     test:assertFalse(a >= b);
 }
 
+type TenOrEleven 10|11;
+
+function testTypeComparison6() {
+    TenOrEleven a = 10;
+    NumberSet b = 2;
+
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertTrue(a > b);
+    test:assertTrue(a >= b);
+
+    test:assertTrue(b < a);
+    test:assertTrue(b <= a);
+    test:assertFalse(b > a);
+    test:assertFalse(b >= a);
+}
+
+type TwoFloats 50.6|32.5;
+
+function testTypeComparison7() {
+    OneOrTwo a = 2.0;
+    TwoFloats b = 32.5;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
+function testTypeComparison8() {
+    float a = 2.0;
+    TwoFloats b = 32.5;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
+function testTypeComparison9() {
+    float? a = 2.0;
+    TwoFloats? b = 32.5;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
 function testUnionComparison1() {
     int? a = 1;
     int? b = 2;
@@ -324,6 +383,23 @@ function testUnionComparison4() {
     test:assertTrue(a <= b);
     test:assertFalse(a > b);
     test:assertFalse(a >= b);
+}
+
+function testUnionComparison5() {
+    OneOrTwo? a = 2.0;
+    TwoFloats? b = 32.5;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    TwoFloats? c = ();
+
+    test:assertFalse(c < a);
+    test:assertFalse(c <= a);
+    test:assertFalse(c > a);
+    test:assertFalse(c >= a);
 }
 
 function testUnorderedTypeComparison1() {

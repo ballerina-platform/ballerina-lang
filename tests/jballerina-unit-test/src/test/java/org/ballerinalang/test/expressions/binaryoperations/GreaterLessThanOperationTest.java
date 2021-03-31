@@ -100,7 +100,7 @@ public class GreaterLessThanOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 56);
+        Assert.assertEquals(resultNegative.getErrorCount(), 76);
         int index = 0;
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'json' and 'json'", 7, 12);
         BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'json' and 'json'", 16, 12);
@@ -204,8 +204,48 @@ public class GreaterLessThanOperationTest {
                 "'FloatOrString'", 182, 18);
         BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'FloatOrString' and " +
                 "'FloatOrString'", 183, 18);
-        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for 'FloatOrString' and " +
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'FloatOrString' and " +
                 "'FloatOrString'", 184, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '1|2' and '10|11'",
+                194, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '1|2' and '10|11'",
+                195, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '1|2' and '10|11'",
+                196, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2' and '10|11'",
+                197, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'FiveOrSix' and '1|2'",
+                209, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'FiveOrSix' and '1|2'",
+                210, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'FiveOrSix' and '1|2'",
+                211, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for 'FiveOrSix' and '1|2'",
+                212, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '1|2' and '1|2?'",
+                219, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '1|2' and '1|2?'",
+                220, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '1|2' and '1|2?'",
+                221, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2' and '1|2?'",
+                222, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for '1|2' and 'string'",
+                229, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for '1|2' and 'string'",
+                230, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for '1|2' and 'string'",
+                231, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>=' not defined for '1|2' and 'string'",
+                232, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<' not defined for 'string?' and 'string'",
+                239, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '<=' not defined for 'string?' and 'string'",
+                240, 18);
+        BAssertUtil.validateError(resultNegative, index++, "operator '>' not defined for 'string?' and 'string'",
+                241, 18);
+        BAssertUtil.validateError(resultNegative, index, "operator '>=' not defined for 'string?' and 'string'",
+                242, 18);
     }
 
     @Test(description = "Test decimal greater than, less than expression")
@@ -232,10 +272,15 @@ public class GreaterLessThanOperationTest {
                 "testTypeComparison3",
                 "testTypeComparison4",
                 "testTypeComparison5",
+                "testTypeComparison6",
+                "testTypeComparison7",
+                "testTypeComparison8",
+                "testTypeComparison9",
                 "testUnionComparison1",
                 "testUnionComparison2",
                 "testUnionComparison3",
                 "testUnionComparison4",
+                "testUnionComparison5",
                 "testUnorderedTypeComparison1",
                 "testUnorderedTypeComparison2",
                 "testUnorderedTypeComparison3",
