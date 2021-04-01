@@ -202,6 +202,11 @@ public class BinaryExpressionEvaluator extends Evaluator {
     }
 
     private BExpressionValue compare(BVariable lVar, BVariable rVar, SyntaxKind operator) throws EvaluationException {
+
+        // Tests the relative order of two values. There must be an ordered type to which the static type of both
+        // operands belong. The static type of the result is boolean.
+        //
+        // OrderedType ::= ()|boolean|int|float|decimal|string|OrderedType[]
         List<Value> argList = new ArrayList<>();
         argList.add(getValueAsObject(context, lVar));
         argList.add(getValueAsObject(context, rVar));
