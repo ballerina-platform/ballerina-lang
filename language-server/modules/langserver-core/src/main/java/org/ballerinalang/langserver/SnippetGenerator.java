@@ -1289,6 +1289,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Retry Statement Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRetryStatementSnippet() {
+        String snippet = "retry {" + CommonUtil.LINE_SEPARATOR
+                + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RETRY, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
+    }
+
+    /**
      * Get Trap Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
