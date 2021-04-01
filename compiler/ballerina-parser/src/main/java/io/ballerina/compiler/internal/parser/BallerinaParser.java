@@ -10240,8 +10240,9 @@ public class BallerinaParser extends AbstractParser {
                 return true;
             default:
                 // Validate if the close brace is the end close brace of interpolation
-                return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN &&
-                        this.tokenReader.getCurrentMode() == ParserMode.TEMPLATE;
+                ParserMode currentLexerMode = this.tokenReader.getCurrentMode();
+                return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN && currentLexerMode != ParserMode.INTERPOLATION &&
+                        currentLexerMode != ParserMode.INTERPOLATION_BRACED_CONTENT;
         }
     }
 

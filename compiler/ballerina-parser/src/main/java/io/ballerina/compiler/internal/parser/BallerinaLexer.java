@@ -1508,6 +1508,7 @@ public class BallerinaLexer extends AbstractLexer {
                 endMode();
                 break;
             case LexerTerminals.BACKTICK:
+                // Recursively end backtick string related contexts
                 while (this.mode != ParserMode.DEFAULT) {
                     endMode();
                 }
