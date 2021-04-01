@@ -32,8 +32,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_ADD_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BINARY_EXPR_HELPER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_ARITHMETIC_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_AND_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_OR_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_XOR_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DIV_METHOD;
@@ -41,11 +42,14 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_GT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LEFT_SHIFT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LOGICAL_AND_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LOGICAL_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LOGICAL_OR_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LT_EQUALS_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_MOD_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_MUL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_RELATIONAL_EXPR_HELPER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SHIFT_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SIGNED_RIGHT_SHIFT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SUB_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
@@ -123,10 +127,11 @@ public class BinaryExpressionEvaluator extends Evaluator {
             case BITWISE_AND_TOKEN:
             case PIPE_TOKEN:
             case BITWISE_XOR_TOKEN:
+                return performBitwiseOperation(lVar, rVar, operatorType);
             case DOUBLE_LT_TOKEN:
             case DOUBLE_GT_TOKEN:
             case TRIPPLE_GT_TOKEN:
-                return performBitwiseOperation(lVar, rVar, operatorType);
+                return performShiftOperation(lVar, rVar, operatorType);
             case LOGICAL_AND_TOKEN:
             case LOGICAL_OR_TOKEN:
                 return performLogicalOperation(lVar, rVar, operatorType);
@@ -173,19 +178,19 @@ public class BinaryExpressionEvaluator extends Evaluator {
             GeneratedStaticMethod genMethod;
             switch (operator) {
                 case PLUS_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_ADD_METHOD);
+                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_ADD_METHOD);
                     break;
                 case MINUS_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_SUB_METHOD);
+                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_SUB_METHOD);
                     break;
                 case ASTERISK_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_MUL_METHOD);
+                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_MUL_METHOD);
                     break;
                 case SLASH_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_DIV_METHOD);
+                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_DIV_METHOD);
                     break;
                 case PERCENT_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_MOD_METHOD);
+                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_MOD_METHOD);
                     break;
                 default:
                     throw createUnsupportedOperationException(lVar, rVar, operator);
@@ -204,16 +209,16 @@ public class BinaryExpressionEvaluator extends Evaluator {
         GeneratedStaticMethod genMethod;
         switch (operator) {
             case LT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LT_METHOD);
+                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_LT_METHOD);
                 break;
             case LT_EQUAL_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LT_EQUALS_METHOD);
+                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_LT_EQUALS_METHOD);
                 break;
             case GT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_GT_METHOD);
+                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_GT_METHOD);
                 break;
             case GT_EQUAL_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_GT_EQUALS_METHOD);
+                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_GT_EQUALS_METHOD);
                 break;
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operator);
@@ -232,22 +237,38 @@ public class BinaryExpressionEvaluator extends Evaluator {
         GeneratedStaticMethod genMethod;
         switch (operator) {
             case BITWISE_AND_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_BITWISE_AND_METHOD);
+                genMethod = getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_AND_METHOD);
                 break;
             case PIPE_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_BITWISE_OR_METHOD);
+                genMethod = getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_OR_METHOD);
                 break;
             case BITWISE_XOR_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_BITWISE_XOR_METHOD);
+                genMethod = getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_XOR_METHOD);
                 break;
+            default:
+                throw createUnsupportedOperationException(lVar, rVar, operator);
+        }
+        genMethod.setArgValues(argList);
+        Value result = genMethod.invoke();
+        return new BExpressionValue(context, result);
+    }
+
+    private BExpressionValue performShiftOperation(BVariable lVar, BVariable rVar, SyntaxKind operator)
+            throws EvaluationException {
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
+
+        GeneratedStaticMethod genMethod;
+        switch (operator) {
             case DOUBLE_LT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LEFT_SHIFT_METHOD);
+                genMethod = getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_LEFT_SHIFT_METHOD);
                 break;
             case DOUBLE_GT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_SIGNED_RIGHT_SHIFT_METHOD);
+                genMethod = getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_SIGNED_RIGHT_SHIFT_METHOD);
                 break;
             case TRIPPLE_GT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_UNSIGNED_RIGHT_SHIFT_METHOD);
+                genMethod = getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_UNSIGNED_RIGHT_SHIFT_METHOD);
                 break;
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operator);
@@ -266,10 +287,10 @@ public class BinaryExpressionEvaluator extends Evaluator {
         GeneratedStaticMethod genMethod;
         switch (operator) {
             case LOGICAL_AND_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LOGICAL_AND_METHOD);
+                genMethod = getGeneratedMethod(context, B_LOGICAL_EXPR_HELPER_CLASS, B_LOGICAL_AND_METHOD);
                 break;
             case LOGICAL_OR_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LOGICAL_OR_METHOD);
+                genMethod = getGeneratedMethod(context, B_LOGICAL_EXPR_HELPER_CLASS, B_LOGICAL_OR_METHOD);
                 break;
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operator);
