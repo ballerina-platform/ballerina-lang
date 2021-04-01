@@ -2,6 +2,6 @@
 stringVar = "required"
 
 [main.testUser]
-username = "Jane"
+username.structure = "Jane"
 password = "password"
 scopes = ["write"]

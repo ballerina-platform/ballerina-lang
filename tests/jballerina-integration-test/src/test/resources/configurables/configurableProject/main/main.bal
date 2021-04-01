@@ -75,7 +75,10 @@ type PersonInfoTable table<PersonInfo> & readonly;
 
 type EmpInfoTable table<EmployeeInfo>;
 
+configurable AuthInfo & readonly admin = ?;
 configurable UserTable & readonly users = ?;
+configurable PersonInfo personInfo = ?;
+configurable EmployeeInfo & readonly empInfo = ?;
 configurable EmployeeTable employees = ?;
 configurable PersonTable people = ?;
 configurable nonKeyTable & readonly nonKeyUsers = ?;
@@ -85,6 +88,7 @@ configurable EmpInfoTable & readonly empInfoTab = ?;
 public function main() {
     testSimpleValues();
     testArrayValues();
+    testRecordValues();
     testTableValues();
 
     print("Tests passed");
@@ -116,13 +120,28 @@ function testArrayValues() {
     test:assertEquals(byteArr, resultArr2);
 }
 
+function testRecordValues() {
+    test:assertEquals("jack", admin.username);
+    test:assertEquals("password", admin.password);
+    test:assertEquals(["write", "read", "execute"], admin["scopes"]);
+    test:assertTrue(admin.isAdmin);
+
+    test:assertEquals("harry", personInfo.name);
+    test:assertEquals("Colombo", personInfo.address);
+    test:assertEquals(28, personInfo["age"]);
+
+    test:assertEquals(34, empInfo.id);
+    test:assertEquals("test", empInfo.name);
+    test:assertEquals(75000.0, empInfo["salary"]);
+}
+
 function testTableValues() {
 
     test:assertEquals(3, users.length());
     test:assertEquals(3, nonKeyUsers.length());
     test:assertEquals(3, employees.length());
     test:assertEquals(3, people.length());
-    test:assertEquals(3, peopleInfo.length());
+    test:assertEquals(3, personInfo.length());
     test:assertEquals(3, empInfoTab.length());
 
     AuthInfo & readonly user1 = {

@@ -15,14 +15,12 @@
 // under the License.
 
 type AuthInfo record {
-   readonly string username;
+   readonly string username = "";
    string password;
    string[][] invalidField;
 };
 
-type UserTable table<AuthInfo> key(username);
-
-configurable UserTable & readonly testUsers = ?;
+configurable AuthInfo & readonly testUser = ?;
 
 public function main() {
     //do nothing

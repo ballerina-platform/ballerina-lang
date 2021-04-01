@@ -1,5 +1,5 @@
 [main]
 stringVar = "required"
 
-[[main.users]]
+[main.testUser]
 password = "password"

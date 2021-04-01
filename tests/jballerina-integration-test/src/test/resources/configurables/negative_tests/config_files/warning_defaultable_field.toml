@@ -5,6 +5,9 @@ stringVar = "required variable"
 username = "alice"
 password="password1"
 
-[[main.employees]]
+[main.testUser]
+username = "user"
+
+[main.employee]
 id = 222
 salary = 34000.0
