@@ -216,6 +216,7 @@ public class SymbolUtil {
             case METHOD:
                 return Optional.ofNullable(((FunctionSymbol) symbol).typeDescriptor());
             case CONSTANT:
+            case ENUM_MEMBER:
                 return Optional.ofNullable(((ConstantSymbol) symbol).typeDescriptor());
             case CLASS:
                 return Optional.of((ClassSymbol) symbol);
