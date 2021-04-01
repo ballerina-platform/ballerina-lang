@@ -317,6 +317,31 @@ public class SymbolLookupTest {
         assert symbolStringList.containsAll(expectedNameList);
     }
 
+    @Test
+    public void testSymbolLookupInMatchClause() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_match.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsInMappingMatch = getSymbolsInFile(model, srcFile, 21, 26, moduleID);
+        assertList(symbolsInMappingMatch, Arrays.asList("a", "func", "v", "x1", "x2"));
+
+        Map<String, Symbol> symbolsInTupleMatch = getSymbolsInFile(model, srcFile, 25, 26, moduleID);
+        assertList(symbolsInTupleMatch, Arrays.asList("a", "func", "v", "x3", "x4"));
+
+        Map<String, Symbol> symbolsInErrorMatch = getSymbolsInFile(model, srcFile, 29, 26, moduleID);
+        assertList(symbolsInErrorMatch, Arrays.asList("a", "func", "v", "x5", "x6"));
+
+        Map<String, Symbol> symbolsInVarMatch = getSymbolsInFile(model, srcFile, 33, 26, moduleID);
+        assertList(symbolsInVarMatch, Arrays.asList("a", "func", "v", "x7"));
+    }
+
     private String createSymbolString(Symbol symbol) {
         return (symbol.getName().isPresent() ? symbol.getName().get() : "") + symbol.kind();
     }
