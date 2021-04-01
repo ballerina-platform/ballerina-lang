@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -133,7 +134,9 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_DO.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
+        if (this.onSuggestFork(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
+        }
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
@@ -293,5 +296,18 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                             SnippetBlock.Kind.SNIPPET);
                     return new SnippetCompletionItem(ctx, cItemSnippet);
                 }).collect(Collectors.toList());
+    }
+    
+    private boolean onSuggestFork(Node node) {
+        Node parent = node.parent();
+        while (parent != null) {
+            if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                return ((FunctionDefinitionNode) parent).qualifierList().stream()
+                        .noneMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
+            }
+            parent = parent.parent();
+        }
+        
+        return false;
     }
 }
