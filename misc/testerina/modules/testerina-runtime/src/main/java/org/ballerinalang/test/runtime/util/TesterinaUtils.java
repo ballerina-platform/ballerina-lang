@@ -79,8 +79,8 @@ public class TesterinaUtils {
                 throw new RuntimeException("there are test failures");
             }
         } catch (BallerinaTestException e) {
-            errStream.println("error: " + e.getMessage());
-            RuntimeUtils.silentlyLogBadSad(e);
+            errStream.println("error: " + e.getCause());
+            RuntimeUtils.silentlyLogBadSad(e.getCause());
             throw e;
         } catch (Throwable e) {
             RuntimeUtils.silentlyLogBadSad(e);
