@@ -309,4 +309,8 @@
         <Method name="extractBala"/>
         <Bug pattern="RCN_REDUNDANT_NULLCHECK_WOULD_HAVE_BEEN_A_NPE"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.projects.ModuleContext"/>
+        <Bug pattern="NM_SAME_SIMPLE_NAME_AS_INTERFACE"/>
+    </Match>
 </FindBugsFilter>

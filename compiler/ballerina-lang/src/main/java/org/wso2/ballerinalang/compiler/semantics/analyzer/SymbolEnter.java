@@ -894,6 +894,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         PackageID pkgId = new PackageID(orgName, nameComps, version);
 
+        // Un-exported modules is not allowed to import.
+        BPackageSymbol bPackageSymbol = this.packageCache.getSymbol(pkgId);
+        if (bPackageSymbol != null && bPackageSymbol.moduleContext() != null
+                && !bPackageSymbol.moduleContext().isExported()) {
+            dlog.error(importPkgNode.pos, DiagnosticErrorCode.MODULE_NOT_FOUND,
+                       bPackageSymbol.toString() + " is not exported");
+        }
+
         // Built-in Annotation module is not allowed to import.
         if (pkgId.equals(PackageID.ANNOTATIONS) || pkgId.equals(PackageID.INTERNAL) || pkgId.equals(PackageID.QUERY)) {
             // Only peer lang.* modules able to see these two modules.

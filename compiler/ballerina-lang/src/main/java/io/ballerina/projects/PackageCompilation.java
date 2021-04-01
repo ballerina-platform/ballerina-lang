@@ -20,14 +20,10 @@ package io.ballerina.projects;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.impl.BallerinaSemanticModel;
 import io.ballerina.projects.CompilerBackend.TargetPlatform;
-import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticFactory;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
-import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.plugins.CompilerPlugin;
 import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
@@ -35,14 +31,12 @@ import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
 import java.nio.file.Path;
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
 import java.util.function.Function;
 
-import static io.ballerina.projects.util.ProjectConstants.DOT;
 import static org.ballerinalang.compiler.CompilerOptionName.CLOUD;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR;
 import static org.ballerinalang.compiler.CompilerOptionName.DUMP_BIR_FILE;
@@ -112,10 +106,6 @@ public class PackageCompilation {
         // We can run SyntaxNodeAnalysis for each module compilation in the future.
         List<Diagnostic> reportedDiagnostics = codeAnalyzerManager.runCodeAnalyzerTasks();
         addCompilerPluginDiagnostics(compilation, reportedDiagnostics);
-
-        // Module export check
-        reportNonExportedModules(compilation);
-
         return compilation;
     }
 
@@ -227,57 +217,5 @@ public class PackageCompilation {
         // TODO I had to put the following line in order to make compiler plugin diagnostics
         //  available to the build command
         compilation.pluginDiagnostics.addAll(reportedDiagnostics);
-    }
-
-    /**
-     * Report if non exported module is imported in the current package.
-     *
-     * @param compilation package compilation
-     */
-    private static void reportNonExportedModules(PackageCompilation compilation) {
-        ResolvedPackageDependency resolvedPackageDependency = new ResolvedPackageDependency(
-                compilation.rootPackageContext.project().currentPackage(), PackageDependencyScope.DEFAULT);
-        Collection<ResolvedPackageDependency> directDependencies = compilation.packageResolution.dependencyGraph()
-                .getDirectDependencies(resolvedPackageDependency);
-
-        List<Diagnostic> allDiagnostics = new ArrayList<>(compilation.diagnosticResult.diagnostics());
-        List<Diagnostic> nonExportedModulesDiagnostics = new ArrayList<>();
-
-        for (ModuleId moduleId: compilation.rootPackageContext.project().currentPackage().moduleIds()) {
-            ModuleContext moduleContext = compilation.rootPackageContext.moduleContext(moduleId);
-
-            if (DOT.equals(moduleContext.moduleName().toString())) {
-                continue;
-            }
-
-            for (ModuleLoadRequest moduleLoadRequest : moduleContext.moduleLoadRequests()) {
-                // Get exported packages using dependent module package manifest
-                for (ResolvedPackageDependency pkgDependency : directDependencies) {
-                    if (moduleLoadRequest.orgName().isPresent() &&
-                            moduleLoadRequest.orgName().get().value()
-                                    .equals(pkgDependency.packageInstance().descriptor().org().value()) &&
-                            moduleLoadRequest.packageName().value()
-                                    .equals(pkgDependency.packageInstance().descriptor().name().value())) {
-                        List<String> exportedModuleNames = pkgDependency.packageInstance().manifest().export();
-                        if (!exportedModuleNames.contains(moduleLoadRequest.moduleName().toString())) {
-                            Diagnostic diagnostic = DiagnosticFactory.createDiagnostic(new DiagnosticInfo(
-                                    "cannot resolve module",
-                                    "module '" + moduleLoadRequest.moduleName().toString()
-                                            + "' is not an exported module",
-                                    DiagnosticSeverity.ERROR), moduleLoadRequest.location().get());
-                            nonExportedModulesDiagnostics.add(diagnostic);
-                        }
-                    }
-                }
-            }
-        }
-
-        allDiagnostics.addAll(nonExportedModulesDiagnostics);
-        compilation.diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
-
-        // TODO We need to refactor how diagnostics are stored and returned
-        // TODO I had to put the following line in order to make compiler plugin diagnostics
-        //  available to the build command
-        compilation.pluginDiagnostics.addAll(nonExportedModulesDiagnostics);
     }
 }

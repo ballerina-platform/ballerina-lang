@@ -17,6 +17,7 @@
 */
 package org.wso2.ballerinalang.compiler.semantics.model.symbols;
 
+import io.ballerina.projects.internal.ModuleContext;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
@@ -47,6 +48,7 @@ public class BPackageSymbol extends BTypeSymbol {
     public CompiledPackage compiledPackage;
     public Name compUnit;
     public boolean isUsed = false;
+    private ModuleContext moduleContext;
 
     // TODO Temporary mechanism to hold a reference to the generated bir model
     public BIRNode.BIRPackage bir;   // TODO try to remove this
@@ -66,6 +68,14 @@ public class BPackageSymbol extends BTypeSymbol {
     public BPackageSymbol(PackageID pkgID, BSymbol owner, long flags, Location pos, SymbolOrigin origin) {
         this(pkgID, owner, pos, origin);
         this.flags = flags;
+    }
+
+    public void setModuleContext(ModuleContext moduleContext) {
+        this.moduleContext = moduleContext;
+    }
+
+    public ModuleContext moduleContext() {
+        return this.moduleContext;
     }
 
     @Override

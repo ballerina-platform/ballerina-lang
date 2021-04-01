@@ -59,7 +59,7 @@ import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
  *
  * @since 2.0.0
  */
-class ModuleContext {
+public class ModuleContext implements io.ballerina.projects.internal.ModuleContext {
     private final ModuleId moduleId;
     private final ModuleDescriptor moduleDescriptor;
     private final Collection<DocumentId> srcDocIds;
@@ -151,6 +151,12 @@ class ModuleContext {
 
     Project project() {
         return this.project;
+    }
+
+    @Override
+    public boolean isExported() {
+        List<String> exports = this.project.currentPackage().manifest().export();
+        return exports.contains(moduleDescriptor.name().toString());
     }
 
     boolean isDefaultModule() {
@@ -443,6 +449,7 @@ class ModuleContext {
         PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();
         moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(
                 moduleCompilationId, null, moduleContext.birBytes);
+        moduleContext.bPackageSymbol.setModuleContext(moduleContext);
         packageCache.putSymbol(moduleCompilationId, moduleContext.bPackageSymbol);
     }
 
