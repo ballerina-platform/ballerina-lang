@@ -6,7 +6,7 @@ import ballerina/jballerina.java.arrays as jarrays;
 distinct class JIOException {
 
     *java:JObject;
-    *Exception;
+    *JException;
 
     # The `handle` field that stores the reference to the `java.io.IOException` object.
     handle jObj;
@@ -206,20 +206,20 @@ distinct class JIOException {
 
 # The constructor function to generate an object of `java.io.IOException`.
 #
-# + return - The new `IOException` class generated.
-function newJIOException1() returns IOException {
+# + return - The new `JIOException` class generated.
+function newJIOException1() returns JIOException {
     handle externalObj = java_io_IOException_newJIOException1();
-    IOException newObj = new (externalObj);
+    JIOException newObj = new (externalObj);
     return newObj;
 }
 
 # The constructor function to generate an object of `java.io.IOException`.
 #
 # + arg0 - The `string` value required to map with the Java constructor parameter.
-# + return - The new `IOException` class generated.
-function newJIOException2(string arg0) returns IOException {
+# + return - The new `JIOException` class generated.
+function newJIOException2(string arg0) returns JIOException {
     handle externalObj = java_io_IOException_newJIOException2(java:fromString(arg0));
-    IOException newObj = new (externalObj);
+    JIOException newObj = new (externalObj);
     return newObj;
 }
 
@@ -227,20 +227,20 @@ function newJIOException2(string arg0) returns IOException {
 #
 # + arg0 - The `string` value required to map with the Java constructor parameter.
 # + arg1 - The `Throwable` value required to map with the Java constructor parameter.
-# + return - The new `IOException` class generated.
-function newJIOException3(string arg0, Throwable arg1) returns IOException {
+# + return - The new `JIOException` class generated.
+function newJIOException3(string arg0, Throwable arg1) returns JIOException {
     handle externalObj = java_io_IOException_newJIOException3(java:fromString(arg0), arg1.jObj);
-    IOException newObj = new (externalObj);
+    JIOException newObj = new (externalObj);
     return newObj;
 }
 
 # The constructor function to generate an object of `java.io.IOException`.
 #
 # + arg0 - The `Throwable` value required to map with the Java constructor parameter.
-# + return - The new `IOException` class generated.
-function newJIOException4(Throwable arg0) returns IOException {
+# + return - The new `JIOException` class generated.
+function newJIOException4(Throwable arg0) returns JIOException {
     handle externalObj = java_io_IOException_newJIOException4(arg0.jObj);
-    IOException newObj = new (externalObj);
+    JIOException newObj = new (externalObj);
     return newObj;
 }
 
