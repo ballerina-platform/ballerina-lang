@@ -110,7 +110,7 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
 
         signature.append(this.getName().get()).append(" ").append(this.resourcePath().signature()).append(" (");
 
-        for (ParameterSymbol requiredParam : this.typeDescriptor().parameters()) {
+        for (ParameterSymbol requiredParam : this.typeDescriptor().params().get()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);
         }

@@ -71,28 +71,28 @@ public class HoverUtil {
             return HoverUtil.getDefaultHoverObject();
         }
 
-        switch (symbolAtCursor.get().kind()) {
+        return getHoverForSymbol(symbolAtCursor.get(), context);
+    }
+
+    private static Hover getHoverForSymbol(Symbol symbol, HoverContext context) {
+        switch (symbol.kind()) {
             case FUNCTION:
-                return getFunctionHoverMarkupContent((FunctionSymbol) symbolAtCursor.get(), context);
+                return getFunctionHoverMarkupContent((FunctionSymbol) symbol, context);
             case METHOD:
-                return getFunctionHoverMarkupContent((MethodSymbol) symbolAtCursor.get(), context);
+                return getFunctionHoverMarkupContent((MethodSymbol) symbol, context);
             case RESOURCE_METHOD:
-                return getFunctionHoverMarkupContent((ResourceMethodSymbol) symbolAtCursor.get(), context);
+                return getFunctionHoverMarkupContent((ResourceMethodSymbol) symbol, context);
             case TYPE_DEFINITION:
-                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) symbolAtCursor.get(), context);
+                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) symbol, context);
             case CLASS:
-                return getClassHoverMarkupContent((ClassSymbol) symbolAtCursor.get(), context);
+                return getClassHoverMarkupContent((ClassSymbol) symbol, context);
             case CONSTANT:
             case ANNOTATION:
             case ENUM:
             case VARIABLE:
-                return getDescriptionOnlyHoverObject(symbolAtCursor.get());
+                return getDescriptionOnlyHoverObject(symbol);
             case TYPE:
-                if (((TypeSymbol) symbolAtCursor.get()).typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                    return getTypeRefHoverMarkupContent((TypeReferenceTypeSymbol) symbolAtCursor.get(),
-                            semanticModel.get(), srcFile.get(), context);
-                }
-                return getDefaultHoverObject();
+                return getHoverForSymbol(((TypeReferenceTypeSymbol) symbol).definition(), context);
             default:
                 return HoverUtil.getDefaultHoverObject();
         }
@@ -210,26 +210,6 @@ public class HoverUtil {
         return hover;
     }
 
-    private static Hover getTypeRefHoverMarkupContent(TypeReferenceTypeSymbol typeSymbol, SemanticModel model,
-                                                      Document srcFile, HoverContext context) {
-        Optional<Symbol> associatedDef = model.symbol(srcFile, typeSymbol.getLocation().get().lineRange().startLine());
-
-        if (associatedDef.isEmpty()) {
-            return getDefaultHoverObject();
-        }
-
-        switch (associatedDef.get().kind()) {
-            case TYPE_DEFINITION:
-                return getTypeDefHoverMarkupContent((TypeDefinitionSymbol) associatedDef.get(), context);
-            case ENUM:
-                return getDescriptionOnlyHoverObject(associatedDef.get());
-            case CLASS:
-                return getClassHoverMarkupContent((ClassSymbol) associatedDef.get(), context);
-        }
-
-        return getDefaultHoverObject();
-    }
-
     /**
      * Get the default hover object.
      *
@@ -299,7 +279,7 @@ public class HoverUtil {
             List<String> params = new ArrayList<>();
             params.add(header(3, ContextConstants.PARAM_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
-            params.addAll(symbol.typeDescriptor().parameters().stream()
+            params.addAll(symbol.typeDescriptor().params().get().stream()
                     .map(param -> {
                         if (param.getName().isEmpty()) {
                             return quotedString(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()));
