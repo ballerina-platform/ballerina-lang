@@ -59,7 +59,7 @@ import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
  *
  * @since 2.0.0
  */
-public class ModuleContext implements io.ballerina.projects.internal.ModuleContext {
+class ModuleContext implements io.ballerina.projects.internal.ModuleContext {
     private final ModuleId moduleId;
     private final ModuleDescriptor moduleDescriptor;
     private final Collection<DocumentId> srcDocIds;
