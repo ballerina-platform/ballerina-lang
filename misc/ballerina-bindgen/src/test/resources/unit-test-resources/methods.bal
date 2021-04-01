@@ -57,6 +57,7 @@ distinct class MethodsTestResource {
     #
     # + arg0 - The `JIOException` value required to map with the Java method parameter.
     # + arg1 - The `string[]` value required to map with the Java method parameter.
+    # + return - The `error?` value returning from the Java mapping.
     function errorParam(JIOException arg0, string[] arg1) returns error? {
         org_ballerinalang_bindgen_MethodsTestResource_errorParam(self.jObj, arg0.jObj, check jarrays:toHandle(arg1,
         "java.lang.String"));
@@ -96,6 +97,7 @@ distinct class MethodsTestResource {
     # + arg0 - The `Map` value required to map with the Java method parameter.
     # + arg1 - The `Object[]` value required to map with the Java method parameter.
     # + arg2 - The `Object[]` value required to map with the Java method parameter.
+    # + return - The `error?` value returning from the Java mapping.
     function interfaceParam(Map arg0, Object[] arg1, Object[] arg2) returns error? {
         org_ballerinalang_bindgen_MethodsTestResource_interfaceParam(self.jObj, arg0.jObj, check jarrays:toHandle(arg1,
         "java.lang.Object"), check jarrays:toHandle(arg2, "java.lang.Object"));
@@ -635,6 +637,7 @@ function MethodsTestResource_genericObjectStaticParam(Set arg0) returns Set {
 #
 # + arg0 - The `Map` value required to map with the Java method parameter.
 # + arg1 - The `boolean[]` value required to map with the Java method parameter.
+# + return - The `error?` value returning from the Java mapping.
 function MethodsTestResource_interfaceStaticParam(Map arg0, boolean[] arg1) returns error? {
     org_ballerinalang_bindgen_MethodsTestResource_interfaceStaticParam(arg0.jObj, check
     jarrays:toHandle(arg1, "boolean"));

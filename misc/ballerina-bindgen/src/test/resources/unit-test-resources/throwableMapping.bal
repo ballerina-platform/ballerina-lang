@@ -160,6 +160,7 @@ distinct class JIOException {
     # The function that maps to the `setStackTrace` method of `java.io.IOException`.
     #
     # + arg0 - The `StackTraceElement[]` value required to map with the Java method parameter.
+    # + return - The `error?` value returning from the Java mapping.
     function setStackTrace(StackTraceElement[] arg0) returns error? {
         java_io_IOException_setStackTrace(self.jObj, check jarrays:toHandle(arg0, "java.lang.StackTraceElement"));
     }

@@ -138,6 +138,10 @@ public class JMethod extends BFunction {
         } else {
             super.setFunctionName(methodName);
         }
+
+        if (exceptionName == null && returnType == null && javaArraysModule) {
+            setErrorType("error?");
+        }
     }
 
     private void setReturnTypeAttributes(Class returnTypeClass) {
