@@ -487,6 +487,18 @@ public class BIRTypeWriter implements TypeVisitor {
                 birbuf.writeInt(parameter.description == null ? -1
                         : addStringCPEntry(parameter.description));
             }
+
+            if (markdownDocAttachment.deprecatedDocumentation != null) {
+                birbuf.writeInt(addStringCPEntry(markdownDocAttachment.deprecatedDocumentation));
+            } else {
+                birbuf.writeInt(-1);
+            }
+
+            birbuf.writeInt(markdownDocAttachment.deprecatedParams.size());
+            for (MarkdownDocAttachment.Parameter param : markdownDocAttachment.deprecatedParams) {
+                birbuf.writeInt(addStringCPEntry(param.name));
+                birbuf.writeInt(addStringCPEntry(param.description));
+            }
         }
         int length = birbuf.nioBuffer().limit();
         buf.writeInt(length);
