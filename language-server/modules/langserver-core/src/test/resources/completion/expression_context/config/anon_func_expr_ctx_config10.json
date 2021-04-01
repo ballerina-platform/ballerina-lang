@@ -158,6 +158,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "retry",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "retry {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "retry transaction",
       "kind": "Snippet",
       "detail": "Statement",
@@ -587,28 +595,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value4",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value4",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "a",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "a",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "b",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "b",
-      "insertTextFormat": "Snippet"
+      "label": "lambda(int a, int b)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "insertText": "lambda(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "testFunction()",
@@ -622,6 +624,22 @@
       },
       "sortText": "C",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -643,37 +661,27 @@
       }
     },
     {
-      "label": "lambda(int a, int b)(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "lambda(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "value2",
+      "label": "a",
       "kind": "Variable",
       "detail": "int",
       "sortText": "B",
-      "insertText": "value2",
+      "insertText": "a",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value1",
+      "label": "b",
       "kind": "Variable",
       "detail": "int",
       "sortText": "B",
-      "insertText": "value1",
+      "insertText": "b",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value4",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value4",
       "insertTextFormat": "Snippet"
     },
     {
