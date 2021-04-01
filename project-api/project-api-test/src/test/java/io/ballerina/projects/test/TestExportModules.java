@@ -44,13 +44,13 @@ public class TestExportModules {
 
     @Test(description = "tests loading a valid bala project with export in package.json")
     public void testBalaProjectWithExportModules() {
-        Path balaPath = EXPORT_MODULES.resolve("bala_with_export").resolve("foo-winery-any-0.1.0.bala");
+        Path balaDirPath = EXPORT_MODULES.resolve("bala_with_export");
         // Initialize the project instance
         BalaProject balaProject = null;
         try {
             ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
             defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-            balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+            balaProject = BalaProject.loadProject(defaultBuilder, balaDirPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage(), e);
         }
@@ -62,13 +62,13 @@ public class TestExportModules {
 
     @Test(description = "tests loading a valid bala project without export in package.json")
     public void testBalaProjectWithoutExportModules() {
-        Path balaPath = EXPORT_MODULES.resolve("bala_without_export").resolve("foo-winery-any-0.1.0.bala");
+        Path balaDirPath = EXPORT_MODULES.resolve("bala_without_export");
         // Initialize the project instance
         BalaProject balaProject = null;
         try {
             ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
             defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-            balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+            balaProject = BalaProject.loadProject(defaultBuilder, balaDirPath);
         } catch (Exception e) {
             Assert.fail(e.getMessage(), e);
         }
