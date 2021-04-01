@@ -72,6 +72,7 @@ public class JClass {
         if (sClass != null) {
             env.setClassListForLooping(sClass.getName());
             String simpleClassName = getAlias(sClass, env.getAliases()).replace("$", "");
+            simpleClassName = getExceptionName(sClass, simpleClassName);
             superClassPackage.put(simpleClassName, sClass.getPackageName().replace(".", ""));
         }
 

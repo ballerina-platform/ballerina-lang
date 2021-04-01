@@ -53,23 +53,19 @@ public class BindgenFileGenerator {
 
     public SyntaxTree generate(JError jError) throws BindgenException {
         this.currentClass = jError.getCurrentClass();
-        setClassNameAlias();
-        return generateFromTemplate(jErrorTemplatePath);
+        return generateFromTemplate(jErrorTemplatePath, jError.getShortExceptionName());
     }
 
     public SyntaxTree generate(JClass jClass) throws BindgenException {
         this.jClass = jClass;
         this.currentClass = jClass.getCurrentClass();
         setClassNameAlias();
-        if (Throwable.class.isAssignableFrom(jClass.getCurrentClass()) && !env.isDirectJavaClass()) {
-            // Generate Ballerina error bindings for Java throwable classes.
-            return generateFromTemplate(jErrorTemplatePath);
-        } else if (!env.isDirectJavaClass()) {
+        if (!env.isDirectJavaClass()) {
             // Generate Ballerina empty class bindings for dependent Java classes.
-            return generateFromTemplate(jEmptyClassTemplatePath);
+            return generateFromTemplate(jEmptyClassTemplatePath, null);
         } else {
             // Generate Ballerina class bindings for Java classes.
-            syntaxTree = generateFromTemplate(jClassTemplatePath);
+            syntaxTree = generateFromTemplate(jClassTemplatePath, null);
             return generateSyntaxTree();
         }
     }
@@ -83,18 +79,20 @@ public class BindgenFileGenerator {
         }
     }
 
-    private SyntaxTree generateFromTemplate(Path filePath) throws BindgenException {
+    private SyntaxTree generateFromTemplate(Path filePath, String alias) throws BindgenException {
         String content = readTemplateFile(filePath);
-        return replacePlaceholders(content);
+        return replacePlaceholders(content, alias);
     }
 
 
-    private SyntaxTree replacePlaceholders(String content) {
+    private SyntaxTree replacePlaceholders(String content, String alias) {
+        if (alias == null) {
+            alias = env.getAlias(currentClass.getName());
+        }
         String modifiedContent = content.replace("FULL_CLASS_NAME", currentClass.getName())
                 .replace("CLASS_TYPE", currentClass.isInterface() ? "interface" : "class")
-                .replace("SIMPLE_CLASS_NAME_CAPS", env.getAlias(currentClass.getName())
-                        .toUpperCase(Locale.getDefault()))
-                .replace("SIMPLE_CLASS_NAME", env.getAlias(currentClass.getName()))
+                .replace("SIMPLE_CLASS_NAME_CAPS", alias.toUpperCase(Locale.getDefault()))
+                .replace("SIMPLE_CLASS_NAME", alias)
                 .replace("ACCESS_MODIFIER", env.hasPublicFlag() ? "public " : "");
         return SyntaxTree.from(TextDocuments.from(modifiedContent));
     }
