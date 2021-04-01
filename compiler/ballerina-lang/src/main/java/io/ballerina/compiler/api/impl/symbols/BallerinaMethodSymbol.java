@@ -29,6 +29,8 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,11 +41,14 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class BallerinaMethodSymbol implements MethodSymbol {
+public class BallerinaMethodSymbol extends BallerinaSymbol implements MethodSymbol {
 
     private final FunctionSymbol functionSymbol;
 
-    public BallerinaMethodSymbol(FunctionSymbol functionSymbol) {
+    public BallerinaMethodSymbol(FunctionSymbol functionSymbol,
+                                 BInvokableSymbol invokableSymbol,
+                                 CompilerContext context) {
+        super(functionSymbol.getName().get(), functionSymbol.kind(), invokableSymbol, context);
         this.functionSymbol = functionSymbol;
     }
 

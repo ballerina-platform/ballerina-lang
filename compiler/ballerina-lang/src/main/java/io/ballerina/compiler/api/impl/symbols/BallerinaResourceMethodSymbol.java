@@ -56,7 +56,7 @@ public class BallerinaResourceMethodSymbol extends BallerinaMethodSymbol impleme
 
     public BallerinaResourceMethodSymbol(FunctionSymbol functionSymbol, BInvokableSymbol symbol,
                                          CompilerContext context) {
-        super(functionSymbol);
+        super(functionSymbol, symbol, context);
         this.internalSymbol = symbol;
         this.context = context;
     }

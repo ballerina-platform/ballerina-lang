@@ -243,7 +243,7 @@ public class SymbolFactory {
         TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(invokableSymbol.type);
         BallerinaFunctionSymbol functionSymbol = createFunctionSymbol(invokableSymbol, name);
         if (typeDescriptor.typeKind() == TypeDescKind.FUNCTION) {
-            return new BallerinaMethodSymbol(functionSymbol);
+            return new BallerinaMethodSymbol(functionSymbol, invokableSymbol, this.context);
         }
 
         throw new AssertionError("Invalid type descriptor found");
