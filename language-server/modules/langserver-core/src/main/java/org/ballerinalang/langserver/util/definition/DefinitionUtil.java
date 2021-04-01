@@ -90,7 +90,7 @@ public class DefinitionUtil {
             filepath = getFilePathForDependency(orgName, moduleName, project.get(), symbol);
         }
 
-        if (filepath.isEmpty()) {
+        if (filepath.isEmpty() || symbol.getLocation().isEmpty()) {
             return Optional.empty();
         }
 
@@ -107,9 +107,12 @@ public class DefinitionUtil {
 
     private static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
                                                            Project project, Symbol symbol) {
+        if (symbol.getLocation().isEmpty()) {
+            return Optional.empty();
+        }
         Collection<ResolvedPackageDependency> dependencies =
                 project.currentPackage().getResolution().dependencyGraph().getNodes();
-        Path filepath = null;
+        Optional<Path> filepath = Optional.empty();
         String sourceFile = symbol.getLocation().get().lineRange().filePath();
         for (ResolvedPackageDependency depNode : dependencies) {
             Package depPackage = depNode.packageInstance();
@@ -120,7 +123,7 @@ public class DefinitionUtil {
                     for (DocumentId docId : module.documentIds()) {
                         if (module.document(docId).name().equals(sourceFile)) {
                             filepath =
-                                    module.project().documentPath(docId).orElseThrow();
+                                    module.project().documentPath(docId);
                             break;
                         }
                     }
@@ -128,7 +131,7 @@ public class DefinitionUtil {
             }
         }
 
-        return Optional.ofNullable(filepath);
+        return filepath;
     }
 
     private static Optional<Path> getFilePathForLanglib(String orgName, String moduleName,
@@ -137,18 +140,18 @@ public class DefinitionUtil {
                 .getPackages(PackageOrg.from(orgName), PackageName.from(moduleName)).get(0);
         String sourceFile = symbol.getLocation().get().lineRange().filePath();
 
-        Path filepath = null;
+        Optional<Path> filepath = Optional.empty();
         for (ModuleId moduleId : langLibPackage.moduleIds()) {
             Module module = langLibPackage.module(moduleId);
             for (DocumentId docId : module.documentIds()) {
                 if (module.document(docId).name().equals(sourceFile)) {
                     filepath =
-                            module.project().documentPath(docId).orElseThrow();
+                            module.project().documentPath(docId);
                     break;
                 }
             }
         }
 
-        return Optional.ofNullable(filepath);
+        return filepath;
     }
 }
