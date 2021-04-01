@@ -1401,7 +1401,7 @@ public class SnippetGenerator {
     }
 
     /**
-     * Common method to generate {@code do} statement/clause
+     * Common method to generate {@code do} statement/clause.
      *
      * @param snippetType      Snippet type
      * @param snippetBlockKind Snippet block kind
