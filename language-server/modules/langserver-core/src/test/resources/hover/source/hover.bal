@@ -224,4 +224,6 @@ public function main() {
         field2: 0,
         field3: 0
     };
+    
+    module1:Client cl = new("http://localhost/test");
 }

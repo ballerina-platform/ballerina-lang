@@ -103,4 +103,12 @@ public class ConstantDeclarationNodeContext extends AbstractCompletionProvider<C
         
         return true;
     }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ConstantDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token constKeyword = node.constKeyword();
+        
+        return !constKeyword.isMissing() && cursor > constKeyword.textRange().endOffset();
+    }
 }

@@ -28,12 +28,12 @@ type Employee record {|
 |};
 
 type UserTable table<AuthInfo> key(username);
+type EmployeeTable table<Employee> key(id);
 
 configurable int intVar = 5;
 configurable string stringVar = ?;
 configurable int[] & readonly intArr = [11, 33];
-configurable AuthInfo & readonly testUser = {username: "Anna"};
-configurable Employee employee = {id: 121, salary: 35000.0};
+configurable EmployeeTable & readonly employees = table [{id: 121, salary: 35000.0}];
 configurable UserTable & readonly users = table [{username: "Tom"}];
 
 public function main() {

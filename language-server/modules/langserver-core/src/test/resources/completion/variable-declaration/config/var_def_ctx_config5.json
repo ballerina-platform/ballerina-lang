@@ -160,6 +160,54 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Signed32",
+      "kind": "TypeParameter",
+      "detail": "Signed32",
+      "sortText": "A",
+      "insertText": "Signed32",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Signed16",
+      "kind": "TypeParameter",
+      "detail": "Signed16",
+      "sortText": "A",
+      "insertText": "Signed16",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Signed8",
+      "kind": "TypeParameter",
+      "detail": "Signed8",
+      "sortText": "A",
+      "insertText": "Signed8",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Unsigned32",
+      "kind": "TypeParameter",
+      "detail": "Unsigned32",
+      "sortText": "A",
+      "insertText": "Unsigned32",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Unsigned16",
+      "kind": "TypeParameter",
+      "detail": "Unsigned16",
+      "sortText": "A",
+      "insertText": "Unsigned16",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Unsigned8",
+      "kind": "TypeParameter",
+      "detail": "Unsigned8",
+      "sortText": "A",
+      "insertText": "Unsigned8",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "abs(int n)(int)",
       "kind": "Function",
       "detail": "Function",
