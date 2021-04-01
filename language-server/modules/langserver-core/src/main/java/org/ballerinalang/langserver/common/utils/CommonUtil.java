@@ -244,7 +244,7 @@ public class CommonUtil {
                 if (objectTypeSymbol.kind() == SymbolKind.CLASS) {
                     ClassSymbol classSymbol = (ClassSymbol) objectTypeSymbol;
                     if (classSymbol.initMethod().isPresent()) {
-                        List<ParameterSymbol> params = classSymbol.initMethod().get().typeDescriptor().parameters();
+                        List<ParameterSymbol> params = classSymbol.initMethod().get().typeDescriptor().params().get();
                         String text = params.stream()
                                 .map(param -> getDefaultValueForType(param.typeDescriptor()))
                                 .collect(Collectors.joining(", "));
