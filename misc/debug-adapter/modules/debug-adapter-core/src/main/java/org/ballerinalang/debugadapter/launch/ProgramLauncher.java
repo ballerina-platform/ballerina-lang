@@ -80,13 +80,18 @@ public abstract class ProgramLauncher {
             command.add(balFile);
         }
 
+        // Adds command options to enable trace logs.
         boolean networkLogs = configHolder.isNetworkLogsEnabled();
         if (networkLogs && !isTestDebugMode && configHolder.getNetworkLogsPort().isPresent()) {
             command.add("--b7a.http.tracelog.host=localhost");
             command.add("--b7a.http.tracelog.port=" + configHolder.getNetworkLogsPort());
         }
+
         // Adds program arguments.
-        command.addAll(configHolder.getProgramArguments());
+        if (!configHolder.getProgramArguments().isEmpty()) {
+            command.add("--");
+            command.addAll(configHolder.getProgramArguments());
+        }
         return command;
     }
 }
