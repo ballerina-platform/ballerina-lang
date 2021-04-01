@@ -64,6 +64,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -86,6 +87,8 @@ class AIDataMapperCodeActionUtil {
     private static HashMap<String, String> leftFieldMap = new HashMap<>();
     private static HashMap<String, String> responseFieldMap = new HashMap<>();
     private static HashMap<String, String> restFieldMap = new HashMap<>();
+    private static HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
+    private static HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
 
     private static final String SCHEMA = "schema";
     private static final String ID = "id";
@@ -110,9 +113,9 @@ class AIDataMapperCodeActionUtil {
         String diagnosticMessage = diagnostic.message();
         Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
 
-        if (!(matcher.find() && matcher.groupCount() > 1)) {
-            return fEdits;
-        }
+//        if (!(matcher.find() && matcher.groupCount() > 1)) {
+//            return fEdits;
+//        }
 
         Optional<Document> srcFile = context.workspace().document(context.filePath());
         if (srcFile.isEmpty()) {
@@ -243,7 +246,7 @@ class AIDataMapperCodeActionUtil {
                 // Get the generated record mapping function
                 String mappingFromServer =
                         getGeneratedRecordMapping(context, foundTypeLeft, foundTypeRight, lftTypeSymbol,
-                                rhsTypeSymbol, syntaxTree);
+                                rhsTypeSymbol, syntaxTree, semanticModel);
 
                 // To handle the multi-module projects
                 String rightModule = null;
@@ -301,12 +304,13 @@ class AIDataMapperCodeActionUtil {
      * @param foundTypeLeft  {@link String}
      * @param foundTypeRight {@link String}
      * @param syntaxTree
+     * @param semanticModel
      * @return function string with mapped schemas
      * @throws IOException throws if error occurred when getting mapped function
      */
     private static String getGeneratedRecordMapping(CodeActionContext context, String foundTypeLeft,
                                                     String foundTypeRight,
-                                                    Symbol lftTypeSymbol, Symbol rhsTypeSymbol, SyntaxTree syntaxTree)
+                                                    Symbol lftTypeSymbol, Symbol rhsTypeSymbol, SyntaxTree syntaxTree, SemanticModel semanticModel)
 
             throws IOException {
         JsonObject rightRecordJSON = new JsonObject();
@@ -315,15 +319,30 @@ class AIDataMapperCodeActionUtil {
         List<RecordTypeSymbol> symbolList = checkMappingCapability(lftTypeSymbol, rhsTypeSymbol);
         if (!symbolList.contains(null)) {
             // Schema 1
-            Map<String, RecordFieldSymbol> rightSchemaFields = symbolList.get(0).fieldDescriptors();
-            JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields.values());
 
             // To get the rest field details
             DataMapperNodeVisitor nodeVisitor = new DataMapperNodeVisitor(foundTypeRight);
+            nodeVisitor.setModel(semanticModel);
             syntaxTree.rootNode().accept(nodeVisitor);
             restFieldMap = nodeVisitor.restFields;
+            spreadFieldMap = nodeVisitor.spreadFields;
+
+
+            Map<String, RecordFieldSymbol> rightSchemaFields = symbolList.get(0).fieldDescriptors();
+            JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields.values());
+
             if (!restFieldMap.isEmpty()) {
                 rightSchema = insertRestFields(rightSchema, foundTypeRight);
+            }
+
+            if(!spreadFieldMap.isEmpty()){
+                for (Map.Entry<String, Map<String, RecordFieldSymbol>> field : spreadFieldMap.entrySet()) {
+                    JsonObject spreadFieldDetails = new JsonObject();
+                    spreadFieldDetails.addProperty(ID, "dummy_id");
+                    spreadFieldDetails.addProperty(TYPE, "ballerina_type");
+                    spreadFieldDetails.add(PROPERTIES, recordToJSON(field.getValue().values()));
+                    rightSchema.add(field.getKey(), spreadFieldDetails);
+                }
             }
 
             rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
@@ -363,7 +382,6 @@ class AIDataMapperCodeActionUtil {
     private static JsonObject insertRestFields(JsonObject rightSchema, String foundTypeRight) {
         // Added to get the rest fields
         HashMap<String, String> tempRestFieldMap = new HashMap<>(restFieldMap);
-//        tempRestFieldMap = restFieldMap;
         Set<Map.Entry<String, String>> entrySet = tempRestFieldMap.entrySet();
         for (Map.Entry<String, String> restField : entrySet) {
             JsonObject fieldDetails = new JsonObject();
@@ -405,6 +423,53 @@ class AIDataMapperCodeActionUtil {
             } else {
                 fieldKey.append(field.getKey());
                 leftFieldMap.put(fieldKey.toString(), ((LinkedTreeMap) field.getValue()).get(TYPE).toString());
+            }
+        }
+    }
+
+    /**
+     * To generate the spread field detail map.
+     *
+     * @param key {@link String}
+     * @param schemaFields {@link List<RecordFieldSymbol>}
+     */
+    private static void getSpreadFieldDetails(String key, Collection<RecordFieldSymbol> schemaFields) {
+        Iterator iterator = schemaFields.iterator();
+        while (iterator.hasNext()){
+            RecordFieldSymbol attribute = (RecordFieldSymbol) iterator.next();
+            TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
+
+            if (!key.isEmpty()){
+                if(!(key.charAt(key.length()-1) == '.')){
+                    key = key + ".";
+                }
+            }
+
+            if (attributeType.typeKind() == TypeDescKind.RECORD) {
+                Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
+                key = key + attribute.getName().get();
+                getSpreadFieldDetails(key, recordFields.values());
+            } else if (attributeType.typeKind() == TypeDescKind.INTERSECTION) {
+                // To get the fields of a readonly record type
+                List<TypeSymbol> memberTypeList = ((IntersectionTypeSymbol) attribute.typeDescriptor()).
+                        memberTypeDescriptors();
+                for (TypeSymbol attributeTypeReference : memberTypeList) {
+                    if (attributeTypeReference.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                        TypeSymbol attributeTypeRecord = ((TypeReferenceTypeSymbol) attributeTypeReference).
+                                typeDescriptor();
+                        if (attributeTypeRecord.typeKind() == TypeDescKind.RECORD) {
+                            Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeTypeRecord).
+                                    fieldDescriptors();
+                            key = key + attribute.getName().get();
+                            getSpreadFieldDetails(key, recordFields.values());
+                        }
+                    }
+                }
+            } else {
+                spreadFieldResponseMap.put(key + attribute.getName().get() , attributeType.typeKind().getName());
+                if (!iterator.hasNext()) {
+                    key = "";
+                }
             }
         }
     }
@@ -454,6 +519,8 @@ class AIDataMapperCodeActionUtil {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
     }
+
+
 
     /**
      * Convert record type symbols to json objects.
@@ -557,6 +624,7 @@ class AIDataMapperCodeActionUtil {
         mappingFromServer = mappingFromServer.replaceAll(",", ", ");
         mappingFromServer = mappingFromServer.replaceAll(":", ": ");
 
+        // change the generated mapping function to be compatible with optional fields.
         if (!isOptionalMap.isEmpty()) {
             for (Map.Entry<String, String> field : isOptionalMap.entrySet()) {
                 if (mappingFromServer.contains(field.getKey() + ",") ||
@@ -570,6 +638,7 @@ class AIDataMapperCodeActionUtil {
             }
         }
 
+        // change the generated mapping function to be compatible with rest fields.
         if (!restFieldMap.isEmpty()) {
             for (Map.Entry<String, String> field : restFieldMap.entrySet()) {
                 if (mappingFromServer.contains(field.getKey() + ",") ||
@@ -581,6 +650,27 @@ class AIDataMapperCodeActionUtil {
                             field.getValue() + "> " + replacement);
                 }
             }
+            restFieldMap.clear();
+        }
+
+        // change the generated mapping function to be compatible with spread fields.
+        if(!spreadFieldMap.isEmpty()){
+            for (Map.Entry<String, Map<String, RecordFieldSymbol>> field : spreadFieldMap.entrySet()){
+                if (mappingFromServer.contains("." + field.getKey() + ".")){
+                    getSpreadFieldDetails("", field.getValue().values());
+
+                    String commonString = foundTypeRight.toLowerCase() + "." + field.getKey() + "." ;
+
+                    for(Map.Entry<String, String> spreadField : spreadFieldResponseMap.entrySet()){
+                        String targetString = commonString + spreadField.getKey();
+                        String replaceString = "<" + spreadField.getValue() + "> " + foundTypeRight.toLowerCase() + "[\""
+                                + spreadField.getKey() + "\"]";
+                        mappingFromServer = mappingFromServer.replace(targetString, replaceString);
+                    }
+                }
+                spreadFieldResponseMap.clear();
+            }
+            spreadFieldMap.clear();
         }
 
         if (leftModule != null) {
