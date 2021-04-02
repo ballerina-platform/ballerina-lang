@@ -37,7 +37,7 @@ import java.util.Map;
 /**
  * Test cases specific for configuration provided via cli.
  */
-public class CLIConfigProviderTest {
+public class CliConfigProviderTest {
 
     private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1.0.0");
 

@@ -46,9 +46,7 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -74,7 +72,8 @@ public class TomlProviderTest {
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(getConfigPath("ArrayConfig.toml"))));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-        Assert.assertTrue(configValueMap.get(arrayKey) instanceof BArray);
+        Assert.assertTrue(configValueMap.get(arrayKey) instanceof BArray,
+                "Non-array value received for variable : " + arrayKey.variable);
         Object[] configuredArrayValues = arrayGetFunction.apply((BArray) configValueMap.get(arrayKey));
         for (int i = 0; i < configuredArrayValues.length; i++) {
             Assert.assertEquals(configuredArrayValues[i], expectedArray[i]);
@@ -122,105 +121,145 @@ public class TomlProviderTest {
         };
     }
 
-    @Test
-    public void testTomlProviderTables() {
-        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
-        Field age = TypeCreator.createField(PredefinedTypes.TYPE_INT, "age", SymbolFlags.OPTIONAL);
-        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("age", age));
+    @Test(dataProvider = "record-data-provider")
+    public void testTomlProviderRecords(String variableName, Map<String, Field> fields,
+                                        Map<String, Object> expectedValues) {
         RecordType type = TypeCreator.createRecordType("Person", module, SymbolFlags.READONLY, fields, null, true, 6);
-        TableType tableType = TypeCreator.createTableType(type, new String[]{"name"}, true);
+        VariableKey recordVar = new VariableKey(module, variableName, type, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{recordVar}));
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(getConfigPath("RecordTypeConfig.toml"))));
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        Assert.assertTrue(configValueMap.get(recordVar) instanceof BMap<?, ?>,
+                "Non-map value received for variable : " + variableName);
+        BMap<?, ?> record = (BMap<?, ?>) configValueMap.get(recordVar);
+        for (Map.Entry<String, Object> expectedField : expectedValues.entrySet()) {
+            BString fieldName = StringUtils.fromString(fields.get(expectedField.getKey()).getFieldName());
+            Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
+        }
+    }
+
+    @DataProvider(name = "record-data-provider")
+    public Object[][] recordDataProvider() {
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Field nameReadOnly = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.READONLY);
+        Field age = TypeCreator.createField(PredefinedTypes.TYPE_INT, "age", SymbolFlags.OPTIONAL);
+        return new Object[][]{
+                {"requiredFieldRecord", Map.ofEntries(Map.entry("name", name)),
+                        Map.ofEntries(Map.entry("name", StringUtils.fromString("John")))},
+                {"readonlyFieldRecord", Map.ofEntries(Map.entry("name", nameReadOnly)),
+                        Map.ofEntries(Map.entry("name", StringUtils.fromString("Jade")))},
+                {"optionalFieldRecord", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)),
+                        Map.ofEntries(Map.entry("name", StringUtils.fromString("Anna")), Map.entry("age", 21L))},
+                {"optionalMissingField", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)),
+                        Map.ofEntries(Map.entry("name", StringUtils.fromString("Peter")))},
+        };
+    }
+
+    @Test(dataProvider = "table-data-provider")
+    public void testTomlProviderTables(String variableName, Map<String, Field> fields, String key, Map<String,
+            Object>[] expectedValues) {
+        RecordType type = TypeCreator.createRecordType("Person", module, SymbolFlags.READONLY, fields, null, true, 6);
+        TableType tableType = TypeCreator.createTableType(type, new String[]{key}, true);
         IntersectionType intersectionType = new BIntersectionType(module, new Type[]{tableType,
                 PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
 
-        VariableKey tableVar = new VariableKey(module, "tableVar", intersectionType, true);
+        VariableKey tableVar = new VariableKey(module, variableName, intersectionType, true);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{tableVar}));
         DiagnosticLog diagnosticLog = new DiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(getConfigPath("TableTypeConfig.toml"))));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
-        Assert.assertTrue(configValueMap.get(tableVar) instanceof BTable<?, ?>);
+        Assert.assertTrue(configValueMap.get(tableVar) instanceof BTable<?, ?>, "Non-table value received for " +
+                "variable : " + variableName);
         BTable<?, ?> table = (BTable<?, ?>) configValueMap.get(tableVar);
 
-        Assert.assertTrue(table.containsKey("Elsa"));
-        Assert.assertTrue(table.get("Elsa") instanceof BMap);
-        BMap<BString, Object> person1 = (BMap<BString, Object>) table.get("Elsa");
-
-        BString nameField = StringUtils.fromString("name");
-        Assert.assertTrue(person1.containsKey(nameField));
-        Assert.assertTrue(person1.get(nameField) instanceof BString);
-        Assert.assertEquals(((BString) person1.get(nameField)).getValue(), "Elsa");
-
-        BString ageField = StringUtils.fromString("age");
-        Assert.assertTrue(person1.containsKey(ageField));
-        Assert.assertTrue(person1.get(ageField) instanceof Long);
-        Assert.assertEquals(((Long) person1.get(ageField)).intValue(), 34);
-
-
-        Assert.assertTrue(table.containsKey("Jack"));
-        Assert.assertTrue(table.get("Jack") instanceof BMap);
-        BMap<BString, Object> person2 = (BMap<BString, Object>) table.get("Jack");
-
-        BString nameField2 = StringUtils.fromString("name");
-        Assert.assertTrue(person2.containsKey(nameField2));
-        Assert.assertTrue(person2.get(nameField2) instanceof BString);
-        Assert.assertEquals(((BString) person2.get(nameField2)).getValue(), "Jack");
-
-        BString ageField2 = StringUtils.fromString("age");
-        Assert.assertFalse(person2.containsKey(ageField2));
-        Assert.assertNull(person2.get(ageField2));
+        for (Map<String, Object> tableEntry : expectedValues) {
+            Object keyValue = tableEntry.get(key);
+            Assert.assertTrue(table.containsKey(keyValue), "The key '" + key + "'is not found in table");
+            BMap<?, ?> record = (BMap<?, ?>) table.get(keyValue);
+            for (Map.Entry<String, Object> expectedField : tableEntry.entrySet()) {
+                BString fieldName = StringUtils.fromString(fields.get(expectedField.getKey()).getFieldName());
+                Assert.assertEquals((record.get(fieldName)), expectedField.getValue());
+            }
+        }
     }
 
-    @Test
-    public void testTomlProviderWithMultipleModules() {
+    @DataProvider(name = "table-data-provider")
+    public Object[][] tableDataProvider() {
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Field nameReadOnly = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.READONLY);
+        Field age = TypeCreator.createField(PredefinedTypes.TYPE_INT, "age", SymbolFlags.OPTIONAL);
+        return new Object[][]{
+                {"requiredFieldTable", Map.ofEntries(Map.entry("name", name)), "name",
+                        new Map[]{Map.ofEntries(Map.entry("name", StringUtils.fromString("AAA"))),
+                                Map.ofEntries(Map.entry("name", StringUtils.fromString("BBB"))),
+                                Map.ofEntries(Map.entry("name", StringUtils.fromString("CCC")))}},
+                {"readonlyFieldTable", Map.ofEntries(Map.entry("name", nameReadOnly)), "name",
+                        new Map[]{Map.ofEntries(Map.entry("name", StringUtils.fromString("Tom"))),
+                                Map.ofEntries(Map.entry("name", StringUtils.fromString("Daniel"))),
+                                Map.ofEntries(Map.entry("name", StringUtils.fromString("Emma")))}},
+                {"optionalFieldTable", Map.ofEntries(Map.entry("name", nameReadOnly), Map.entry("age", age)), "name",
+                        new Map[]{
+                                Map.ofEntries(Map.entry("name", StringUtils.fromString("Ann")), Map.entry("age", 21L)),
+                                Map.ofEntries(Map.entry("name", StringUtils.fromString("Bob"))),
+                                Map.ofEntries(Map.entry("name", StringUtils.fromString("Charlie")), Map.entry("age",
+                                        23L))}},
+        };
+    }
+
+    @Test(dataProvider = "multi-module-data-provider")
+    public void testTomlProviderWithMultipleModules(Map<Module, VariableKey[]> variableMap,
+                                                    Map<VariableKey, Object> expectedValues,
+                                                    List<ConfigProvider> providers) {
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog, providers);
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
+            VariableKey key = keyEntry.getKey();
+            Object value = configValueMap.get(key);
+            Assert.assertNotNull(value, "value not found for variable : " + key.variable);
+            Assert.assertEquals(value, keyEntry.getValue());
+        }
+    }
+
+    @DataProvider(name = "multi-module-data-provider")
+    public Object[][] multiModuleDataProvider() {
         VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
         VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
+        VariableKey[] variableKeys = {intVar, stringVar};
+
         VariableKey subIntVar = new VariableKey(subModule, "intVar", PredefinedTypes.TYPE_INT, true);
         VariableKey subStringVar = new VariableKey(subModule, "stringVar", PredefinedTypes.TYPE_STRING, true);
-        Map<Module, VariableKey[]> configVarMap =
-                Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}), Map.entry(subModule,
-                        new VariableKey[]{subIntVar, subStringVar}));
+        VariableKey[] subVariableKeys = {subIntVar, subStringVar};
 
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                List.of(new TomlFileProvider(getConfigPath("MultiModuleConfig.toml"))));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+        return new Object[][]{
+                {Map.ofEntries(Map.entry(module, variableKeys), Map.entry(subModule, subVariableKeys)),
+                        Map.ofEntries(Map.entry(intVar, 42L), Map.entry(stringVar, StringUtils.fromString("abc")),
+                                Map.entry(subIntVar, 24L), Map.entry(subStringVar, StringUtils.fromString("world"))),
+                        List.of(new TomlFileProvider(getConfigPath("MultiModuleConfig.toml")))},
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys)),
+                        Map.ofEntries(Map.entry(subIntVar, 89L), Map.entry(subStringVar, StringUtils.fromString(
+                                "Hello World!"))),
+                        List.of(new TomlFileProvider(getConfigPath("SubModuleConfig.toml")))},
+                {Map.ofEntries(Map.entry(module, variableKeys)),
+                        Map.ofEntries(Map.entry(intVar, 77L), Map.entry(stringVar, StringUtils.fromString(
+                                "test string"))),
+                        List.of(new TomlFileProvider(getConfigPath("Config_A.toml")),
+                                new TomlFileProvider(getConfigPath("Config_B.toml")))},
+                {Map.ofEntries(Map.entry(module, variableKeys)),
+                        Map.ofEntries(Map.entry(intVar, 54L), Map.entry(stringVar, StringUtils.fromString(
+                                "final string"))),
+                        List.of(new TomlFileProvider(getConfigPath("Config_2.toml")),
+                                new TomlFileProvider(getConfigPath("Config_1.toml")))
+                }
 
-        Object intValue = configValueMap.get(intVar);
-        Assert.assertTrue(intValue instanceof Long);
-        Assert.assertEquals(((Long) intValue).intValue(), 42);
+        };
 
-        Object stringValue = configValueMap.get(stringVar);
-        Assert.assertTrue(stringValue instanceof BString);
-        Assert.assertEquals(((BString) stringValue).getValue(), "abc");
-
-        Object subIntValue = configValueMap.get(subIntVar);
-        Assert.assertTrue(subIntValue instanceof Long);
-        Assert.assertEquals(((Long) subIntValue).intValue(), 24);
-
-        Object subStringValue = configValueMap.get(subStringVar);
-        Assert.assertTrue(subStringValue instanceof BString);
-        Assert.assertEquals(((BString) subStringValue).getValue(), "world");
-    }
-
-    @Test
-    public void testTomlProviderForOnlySubModules() {
-        VariableKey byteVar = new VariableKey(subModule, "byteVar", PredefinedTypes.TYPE_BYTE, true);
-        VariableKey decimalVar = new VariableKey(subModule, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true);
-        Map<Module, VariableKey[]> configVarMap =
-                Map.ofEntries(Map.entry(subModule, new VariableKey[]{byteVar, decimalVar}));
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                List.of(new TomlFileProvider(getConfigPath("SubModuleConfig.toml"))));
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-
-        Object byteValue = configValueMap.get(byteVar);
-        Assert.assertTrue(byteValue instanceof Integer);
-        Assert.assertEquals(((Integer) byteValue).intValue(), 67);
-
-        Object decimalValue = configValueMap.get(decimalVar);
-        Assert.assertTrue(decimalValue instanceof BDecimal);
-        Assert.assertEquals(((BDecimal) decimalValue).decimalValue(), new BigDecimal("4.88"));
     }
 
     @Test
@@ -237,16 +276,18 @@ public class TomlProviderTest {
         configVarMap.put(module, keys);
         String tomlContent = "[test_module] intVar = 33 stringVar = \"xyz\" " +
                 "stringArr = [\"aa\", \"bb\", \"cc\"] booleanArr = [false, true, true, false]";
-        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlContentProvider(tomlContent));
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, new DiagnosticLog(),
-                supportedConfigProviders);
+                List.of(new TomlContentProvider(tomlContent)));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
-        Assert.assertTrue(configValueMap.get(keys[0]) instanceof Long);
-        Assert.assertTrue(configValueMap.get(keys[1]) instanceof BString);
-        Assert.assertTrue(configValueMap.get(keys[2]) instanceof BArray);
-        Assert.assertTrue(configValueMap.get(keys[3]) instanceof BArray);
+        Assert.assertTrue(configValueMap.get(keys[0]) instanceof Long,
+                "Value received for variable : " + keys[0].variable + "is not 'Long'");
+        Assert.assertTrue(configValueMap.get(keys[1]) instanceof BString,
+                "Value received for variable : " + keys[1].variable + "is not 'BString'");
+        Assert.assertTrue(configValueMap.get(keys[2]) instanceof BArray,
+                "Value received for variable : " + keys[2].variable + "is not 'Array'");
+        Assert.assertTrue(configValueMap.get(keys[3]) instanceof BArray,
+                "Value received for variable : " + keys[3].variable + "is not 'Array'");
 
         Assert.assertEquals(((Long) configValueMap.get(keys[0])).intValue(), 33);
         Assert.assertEquals(((BString) configValueMap.get(keys[1])).getValue(), "xyz");
@@ -259,17 +300,12 @@ public class TomlProviderTest {
     @Test
     public void testTomlProviderWithStringNegative() {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
-        VariableKey[] keys = {
-                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
-                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true),
-        };
+        VariableKey[] keys = getSimpleVariableKeys(module);
         String tomlContent = "[test_module] intVar = 42.22 floatVar = 3 stringVar = 11";
         configVarMap.put(module, keys);
-        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlContentProvider(tomlContent));
         DiagnosticLog diagnosticLog = new DiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                supportedConfigProviders);
+                List.of(new TomlContentProvider(tomlContent)));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: [BAL_CONFIG_DATA:(1:24,1:29)" +
@@ -279,60 +315,22 @@ public class TomlProviderTest {
     }
 
     @Test
-    public void testMultipleTomlProviders() {
-        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
-        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
-        Map<Module, VariableKey[]> configVarMap =
-                Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}));
-        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_A.toml")));
-        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_B.toml")));
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, new DiagnosticLog(),
-                supportedConfigProviders);
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-
-        Assert.assertTrue(configValueMap.get(intVar) instanceof Long);
-        Assert.assertTrue(configValueMap.get(stringVar) instanceof BString);
-        Assert.assertEquals(((Long) configValueMap.get(intVar)).intValue(), 77);
-        Assert.assertEquals(((BString) configValueMap.get(stringVar)).getValue(), "test string");
-    }
-
-    @Test
-    public void testMultipleTomlProvidersOverriding() {
-        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
-        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
-        Map<Module, VariableKey[]> configVarMap =
-                Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}));
-        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_2.toml")));
-        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_1.toml")));
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog ,
-                supportedConfigProviders);
-        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-
-        Assert.assertTrue(configValueMap.get(intVar) instanceof Long);
-        Assert.assertTrue(configValueMap.get(stringVar) instanceof BString);
-        Assert.assertEquals(((Long) configValueMap.get(intVar)).intValue(), 54);
-        Assert.assertEquals(((BString) configValueMap.get(stringVar)).getValue(), "final string");
-    }
-
-    @Test
     public void testMultipleTomlProvidersNegative() {
-        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
-        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
-        Map<Module, VariableKey[]> configVarMap =
-                Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}));
-        List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
-        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_First.toml")));
-        supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_Second.toml")));
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, getSimpleVariableKeys(module)));
         DiagnosticLog diagnosticLog = new DiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                supportedConfigProviders);
+                List.of(new TomlFileProvider(getConfigPath("Config_First.toml")),
+                        new TomlFileProvider(getConfigPath("Config_Second.toml"))));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: value not provided for " +
                 "required configurable variable 'myOrg/test_module:stringVar'");
+    }
+
+    private VariableKey[] getSimpleVariableKeys(Module module) {
+        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
+        return new VariableKey[]{intVar, stringVar};
     }
 
 }

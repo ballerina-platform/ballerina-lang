@@ -46,7 +46,7 @@ import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 /**
  * Test cases specific for configuration provided via TOML files/content.
  */
-public class TOMLProviderNegativeTest {
+public class TomlProviderNegativeTest {
 
     private final Module module = new Module("myOrg", "test_module", "1.0.0");
     private final Module subModule = new Module("myOrg", "test_module.util.foo", "1.0.0");
@@ -61,7 +61,8 @@ public class TOMLProviderNegativeTest {
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(diagnosticLog.getWarningCount(), warningCount);
-        Assert.assertTrue(diagnosticLog.getDiagnosticList().get(0).toString().matches(errorMsg));
+        Assert.assertTrue(diagnosticLog.getDiagnosticList().get(0).toString().matches(errorMsg), "Error message does " +
+                "not match. Expected : " + errorMsg);
     }
 
     @DataProvider(name = "path-test-provider")
@@ -172,6 +173,48 @@ public class TOMLProviderNegativeTest {
         String errorMsg = "[InvalidTableField.toml:(3:1,3:40)] field type 'int[][] & readonly' in configurable " +
                 "variable 'test_module:tableVar' is not supported";
         validateTomlProviderErrors("InvalidTableField", errorMsg, configVarMap, 1);
+    }
+
+    @Test(dataProvider = "record-negative-tests")
+    public void testRecordNegativeConfig(String tomlFileName, String errorMsg) {
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name));
+        RecordType type = TypeCreator.createRecordType("Person", module, SymbolFlags.READONLY, fields, null, true, 6);
+
+        VariableKey recordVar = new VariableKey(module, "recordVar", type, true);
+
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{recordVar}));
+
+        validateTomlProviderErrors(tomlFileName, errorMsg, configVarMap, 1);
+    }
+
+    @DataProvider(name = "record-negative-tests")
+    public Object[][] getRecordNegativeTests() {
+        return new Object[][]{
+                {"RecordTypeError", "[RecordTypeError.toml:(2:1,2:40)] configurable variable 'test_module:recordVar' " +
+                        "is expected to be of type 'test_module:Person', but found 'string'"},
+                {"RecordFieldTypeError", "[RecordFieldTypeError.toml:(2:8,2:12)] field 'name' from configurable " +
+                        "variable 'test_module:recordVar' is expected to be of type 'string', but found 'int'"},
+                {"RecordFieldStructureError", "[RecordFieldStructureError.toml:(2:1,2:24)] field 'name' from " +
+                        "configurable variable 'test_module:recordVar' is expected to be of type 'string', but found " +
+                        "'record'"},
+                {"AdditionalFieldRecord", "[AdditionalFieldRecord.toml:(3:1,3:9)] additional field 'age' provided for" +
+                        " configurable variable 'test_module:recordVar' of record 'test_module:Person' is not " +
+                        "supported"},
+                {"MissingRecordField", "[MissingRecordField.toml:(1:1,1:24)] value not provided for non-defaultable " +
+                        "required field 'name' of record 'test_module:Person' in configurable variable " +
+                        "'test_module:recordVar'"},
+        };
+    }
+
+    @Test()
+    public void testInvalidMapType() {
+        MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_INT, true);
+        VariableKey mapInt = new VariableKey(module, "mapVar", mapType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{mapInt}));
+        String errorMsg =  "configurable variable 'test_module:mapVar' with type 'map<int> & readonly' is not " +
+                "supported";
+        validateTomlProviderErrors("InvalidMapType", errorMsg, configVarMap, 1);
     }
 
     @Test(dataProvider = "table-negative-tests")

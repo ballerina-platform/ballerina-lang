@@ -1,3 +1,4 @@
 [test_module.util.foo]
-byteVar = 67
-decimalVar = 4.88
+intVar = 89
+stringVar = "Hello World!"
+

@@ -62,7 +62,8 @@ public class ConfigTest {
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
                                                            Arrays.asList(configProvider));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
-        Assert.assertTrue(expectedJClass.isInstance(configValueMap.get(key)));
+        Assert.assertTrue(expectedJClass.isInstance(configValueMap.get(key)),
+                "Invalid value provided for variable : " + key.variable);
         Assert.assertEquals(configValueMap.get(key), expectedValue);
     }
 

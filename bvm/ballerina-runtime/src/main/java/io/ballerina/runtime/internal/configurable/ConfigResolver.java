@@ -112,12 +112,18 @@ public class ConfigResolver {
             case TypeTags.STRING_TAG:
                 return getConfigValue(module, key, configProvider -> configProvider
                         .getAsStringAndMark(module, key));
+            case TypeTags.RECORD_TYPE_TAG:
+                return getConfigValue(module, key, configProvider -> configProvider
+                        .getAsRecordAndMark(module, key));
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) type).getEffectiveType();
                 switch (effectiveType.getTag()) {
                     case TypeTags.ARRAY_TAG:
                         return getConfigValue(module, key, configProvider -> configProvider
                                 .getAsArrayAndMark(module, key));
+                    case TypeTags.RECORD_TYPE_TAG:
+                        return getConfigValue(module, key, configProvider -> configProvider
+                                .getAsRecordAndMark(module, key));
                     case TypeTags.TABLE_TAG:
                         return getConfigValue(module, key, configProvider -> configProvider
                                 .getAsTableAndMark(module, key));

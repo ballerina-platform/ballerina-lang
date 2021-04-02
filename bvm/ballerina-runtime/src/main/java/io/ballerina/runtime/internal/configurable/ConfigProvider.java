@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal.configurable;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BDecimal;
+import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
@@ -50,6 +51,8 @@ public interface ConfigProvider {
     Optional<BString> getAsStringAndMark(Module module, VariableKey key);
 
     Optional<BArray> getAsArrayAndMark(Module module, VariableKey key);
+
+    Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key);
 
     Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key);
 
