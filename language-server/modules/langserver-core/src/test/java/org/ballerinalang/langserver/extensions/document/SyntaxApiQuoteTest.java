@@ -33,22 +33,13 @@ import java.nio.file.Path;
  * @since 2.0.0
  */
 public class SyntaxApiQuoteTest {
-    private final Path emptyFile = FileUtils.RES_DIR.resolve("extensions")
+    private final Path syntaxApiQuote = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
-            .resolve("syntaxApiQuote")
-            .resolve("empty.bal");
-    private final Path mainFile = FileUtils.RES_DIR.resolve("extensions")
-            .resolve("document")
-            .resolve("syntaxApiQuote")
-            .resolve("main.bal");
-    private final Path mainFileWoMinutiaeResult = FileUtils.RES_DIR.resolve("extensions")
-            .resolve("document")
-            .resolve("syntaxApiQuote")
-            .resolve("main.no.minutiae.txt");
-    private final Path mainFileResult = FileUtils.RES_DIR.resolve("extensions")
-            .resolve("document")
-            .resolve("syntaxApiQuote")
-            .resolve("main.result.txt");
+            .resolve("syntaxApiQuote");
+    private final Path emptyFile = syntaxApiQuote.resolve("empty.bal");
+    private final Path mainFile = syntaxApiQuote.resolve("main.bal");
+    private final Path mainFileWoMinutiaeResult = syntaxApiQuote.resolve("main.no.minutiae.txt");
+    private final Path mainFileResult = syntaxApiQuote.resolve("main.result.txt");
     private Endpoint serviceEndpoint;
 
     @BeforeClass
