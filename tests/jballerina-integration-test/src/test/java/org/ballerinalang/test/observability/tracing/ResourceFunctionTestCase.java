@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 public class ResourceFunctionTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "02_resource_function.bal";
     private static final String BASE_PATH = "/testServiceTwo";
-    private static final String BASE_URL = "http://localhost:9092";
+    private static final String BASE_URL = "http://localhost:19092";
 
     @DataProvider(name = "success-response-data-provider")
     public Object[][] getSuccessResponseData() {

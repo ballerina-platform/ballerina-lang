@@ -80,11 +80,11 @@ public class BuildCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-        this.compile = true;
+        this.compile = compile;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport) {
+                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport, Boolean coverage) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -92,6 +92,7 @@ public class BuildCommand implements BLauncherCmd {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.skipTests = skipTests;
         this.testReport = testReport;
+        this.coverage = coverage;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
@@ -189,7 +190,7 @@ public class BuildCommand implements BLauncherCmd {
         if (FileUtils.hasExtension(this.projectPath)) {
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
-                        "'-c' or '--compile' can only be used with modules.", null, false);
+                        "'-c' or '--compile' can only be used with a Ballerina package.", null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -219,6 +220,17 @@ public class BuildCommand implements BLauncherCmd {
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
+        }
+
+        if (this.compile && project.currentPackage().ballerinaToml().get().tomlDocument().toml()
+                .getTable("package").isEmpty()) {
+            CommandUtil.printError(this.errStream,
+                    "'package' information not found in " + ProjectConstants.BALLERINA_TOML,
+                    null,
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+
         }
 
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.

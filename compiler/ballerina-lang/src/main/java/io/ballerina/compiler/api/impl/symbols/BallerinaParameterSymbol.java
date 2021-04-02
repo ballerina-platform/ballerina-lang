@@ -89,7 +89,9 @@ public class BallerinaParameterSymbol extends BallerinaSymbol implements Paramet
         StringJoiner joiner = new StringJoiner(" ");
         this.qualifiers().forEach(accessModifier -> joiner.add(accessModifier.getValue()));
         String signature;
-        if (this.paramKind() == ParameterKind.REST) {
+        if (this.paramKind() == ParameterKind.INCLUDED_RECORD) {
+            signature = "*" + this.typeDescriptor().signature();
+        } else if (this.paramKind() == ParameterKind.REST) {
             signature = this.typeDescriptor().signature();
             signature = signature.substring(0, signature.length() - 2) + "...";
         } else {
