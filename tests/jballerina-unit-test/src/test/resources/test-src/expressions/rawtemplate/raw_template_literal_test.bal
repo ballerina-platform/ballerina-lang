@@ -248,7 +248,7 @@ function testIndirectAssignmentToConcreteType() {
 
     error err = <error>trap rt2.insertions.push(12.34);
 
-    assert("{ballerina/lang.array}IncompatibleType", err.message());
+    assert("{ballerina/lang.runtime}IncompatibleType", err.message());
     assert("incompatible types: expected 'int', found 'float'", <string> checkpanic err.detail().get("message"));
 }
 

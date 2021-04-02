@@ -64,28 +64,30 @@ public class MapToRecordAssignabilityTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidMapInsertion \\{\"message\":" +
+                  "\"invalid map insertion: " +
                   "expected value of type 'decimal', found 'float'.*")
     public void testInherentTypeViolationInInclusiveRecords() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationInInclusiveRecords");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: " +
-                  "expected value of type 'int', found 'string'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidMapInsertion \\{\"message\":" +
+                  "\"invalid map insertion: expected value of type 'int', found 'string'.*")
     public void testInherentTypeViolationInExclusiveRecords() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationInExclusiveRecords");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"invalid field access: field 'cc' " +
-                  "not found in record type 'Bar'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidRecordFieldAccess \\{\"message\"" +
+                  ":\"invalid field access: field 'cc' not found in record type 'Bar'.*")
     public void testSubtyping() {
         BRunUtil.invoke(compileResult, "testSubtyping");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*InherentTypeViolation \\{\"message\":\"invalid map insertion: expected" +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}InvalidMapInsertion \\{\"message\":" +
+                  "\"invalid map insertion: expected" +
                                             " value of type 'Bar', found 'record \\{\\| int c; \\|\\}'.*")
     public void testComplexSubtyping2() {
         BRunUtil.invoke(compileResult, "testComplexSubtyping2");

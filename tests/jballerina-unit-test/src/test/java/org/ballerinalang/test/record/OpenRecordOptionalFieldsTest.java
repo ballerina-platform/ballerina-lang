@@ -121,7 +121,8 @@ public class OpenRecordOptionalFieldsTest {
 
     @Test(description = "Test non-defaultable optional field access",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'adrs'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}MapKeyNotFound \\{\"message\":" +
+                  "\"key 'adrs' not found.*")
     public void testOptionalNonDefField3() {
         BRunUtil.invoke(compileResult, "testOptionalNonDefField3");
     }

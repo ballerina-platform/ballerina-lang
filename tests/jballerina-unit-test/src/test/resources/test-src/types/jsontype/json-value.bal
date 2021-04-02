@@ -1,3 +1,5 @@
+import ballerina/lang.test as test;
+
 function testStringAsJsonVal () returns (json) {
     json j = "Supun";
     return j;
@@ -99,9 +101,15 @@ function testGetJson () returns (json|error) {
     return j.address;
 }
 
-function testGetNonExistingElement () returns (json|error) {
+function testGetNonExistingElement () {
     json j2 = {age:43};
-    return j2.name;
+    json|error res = trap j2.name;
+
+    error err = <error> res;
+    test:assertTrue(err is runtime:KeyNotFound);
+    test:assertTrue(err is map:MapKeyNotFound);
+    test:assertValueEqual("{ballerina/lang.map}MapKeyNotFound", err.message());
+    test:assertValueEqual("{\"message\":\"key 'name' not found\"}", err.detail().toString());
 }
 
 function testAddString () returns (json) {
@@ -277,9 +285,14 @@ function testGetArrayOutofBoundElement () returns (string) {
     return value;
 }
 
-function testGetElementFromPrimitive () returns (json|error) {
+function testGetElementFromPrimitive () {
     json j = {name:"Supun"};
-    return j.name.fname;
+    json|error res = trap j.name.fname;
+
+    error err = <error> res;
+    test:assertTrue(err is runtime:JSONOperationError);
+    test:assertValueEqual("{ballerina/lang.runtime}JSONOperationError", err.message());
+    test:assertValueEqual("{\"message\":\"JSON value is not a mapping\"}", err.detail().toString());
 }
 
 function testUpdateNestedElement () returns (json) {
@@ -339,9 +352,14 @@ function testJsonToJsonArrayInvalidCasting () returns (json[][][] | error) {
     return j2;
 }
 
-function testGetFromNull () returns (json|error) {
+function testGetFromNull () {
     json j2 = {age:43, name:null};
-    return j2.name.fname;
+    json|error res = trap j2.name.fname;
+
+    error err = <error> res;
+    test:assertTrue(err is runtime:JSONOperationError);
+    test:assertValueEqual("{ballerina/lang.runtime}JSONOperationError", err.message());
+    test:assertValueEqual("{\"message\":\"JSON value is not a mapping\"}", err.detail().toString());
 }
 
 function testAddToNull () returns (json) {

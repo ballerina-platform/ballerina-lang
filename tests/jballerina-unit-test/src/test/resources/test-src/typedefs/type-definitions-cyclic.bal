@@ -196,7 +196,7 @@ function testCastingToImmutableCyclicUnion() {
     (MyCyclicUnion & readonly)|error b = trap <MyCyclicUnion & readonly> a;
     assert(true, b is error);
     error err = <error> b;
-    assert("{ballerina}TypeCastError", err.message());
+    assert("{ballerina/lang.runtime}TypeCastError", err.message());
     assert("incompatible types: 'MyCyclicUnion[]' cannot be cast to '(MyCyclicUnion & readonly)'",
            <string> checkpanic err.detail()["message"]);
 
@@ -209,7 +209,7 @@ function testCastingToImmutableCyclicUnion() {
     (value:Cloneable & readonly)|error f = trap <value:Cloneable & readonly> e;
     assert(true, f is error);
     err = <error> f;
-    assert("{ballerina}TypeCastError", err.message());
+    assert("{ballerina/lang.runtime}TypeCastError", err.message());
     assert("incompatible types: 'ballerina/lang.value:1.0.0:Cloneable[]' cannot be cast to '(ballerina/lang.value:1.0.0:Cloneable & readonly)'",
            <string> checkpanic err.detail()["message"]);
 

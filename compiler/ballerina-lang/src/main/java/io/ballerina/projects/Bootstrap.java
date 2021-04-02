@@ -151,6 +151,7 @@ public class Bootstrap {
         symbolTable.langJavaModuleSymbol = loadLangLibFromBala(JAVA, compilerContext);
         symbolTable.langInternalModuleSymbol = loadLangLibFromBala(INTERNAL, compilerContext);
         symbolTable.langValueModuleSymbol = loadLangLibFromBala(VALUE, compilerContext);
+        symbolTable.langRuntimeModuleSymbol = loadLangLibFromBala(RUNTIME, compilerContext);
         symResolver.bootstrapJsonType();
         symResolver.bootstrapAnydataType();
         symResolver.boostrapErrorType();
@@ -174,7 +175,6 @@ public class Bootstrap {
         symbolTable.langBooleanModuleSymbol = loadLangLibFromBala(BOOLEAN, compilerContext);
         symbolTable.langQueryModuleSymbol = loadLangLibFromBala(QUERY, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLangLibFromBala(TRANSACTION, compilerContext);
-        symbolTable.langRuntimeModuleSymbol = loadLangLibFromBala(RUNTIME, compilerContext);
         symbolTable.loadPredeclaredModules();
         symResolver.bootstrapIntRangeType();
         symbolTable.updateBuiltinSubtypeOwners();

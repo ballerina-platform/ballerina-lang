@@ -191,9 +191,7 @@ public class JSONTest {
     @Test
     public void testFieldAccessOfNullableJSON() {
         CompileResult compileResult = BCompileUtil.compile("test-src/types/jsontype/nullable-json-test.bal");
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
-        String errorMsg = ((BMap<String, BString>) ((BError) returns[0]).getDetails()).get("message").stringValue();
-        Assert.assertEquals(errorMsg, "JSON value is not a mapping");
+        BRunUtil.invoke(compileResult, "testFieldAccessOfNullableJSON");
     }
 
     @Test

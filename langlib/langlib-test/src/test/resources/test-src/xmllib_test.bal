@@ -16,6 +16,7 @@
 
 import ballerina/lang.'xml;
 import ballerina/lang.'int as langint;
+import ballerina/lang.test as test;
 
 'xml:Element catalog = xml `<CATALOG>
                        <CD>
@@ -258,12 +259,25 @@ function testXmlIndexOutOfRangeError() {
     string errDetail = "";
     var x = 'xml:createElement("XmlElem");
     xml|error x1  = trap x.get(2);
-    if (x1 is runtime:XmlSequenceIndexOutOfRange) {
+    if (x1 is xml:XmlSequenceIndexOutOfRange) {
         errMessage = x1.message();
         errDetail = x1.detail().toString();
     }
-    assert(errMessage, "{ballerina/lang.xml}XmlSequenceIndexOutOfRange");
-    assert(errDetail, "{\"message\":\"xml sequence index out of range. Length: '1' requested: '2'\"}");
+    test:assertValueEqual("{ballerina/lang.xml}XmlSequenceIndexOutOfRange", errMessage);
+    test:assertValueEqual("{\"message\":\"xml sequence index out of range. Length: '1' requested: '2'\"}", errDetail);
+}
+
+function testIndexOutOfRange() {
+    var x1 = 'xml:createElement("elem1");
+    var c = 'xml:createComment("comment");
+    var x2 = 'xml:createElement("elem2");
+    var xm = 'xml:concat(x1, c, x2);
+
+    var e = trap xm.get(4);
+    runtime:IndexOutOfRange err = <runtime:IndexOutOfRange> e;
+    test:assertValueEqual("{ballerina/lang.xml}XmlSequenceIndexOutOfRange", err.message());
+    test:assertValueEqual("{\"message\":\"xml sequence index out of range. Length: '3' requested: '4'\"}",
+    err.detail().toString());
 }
 
 xml bookstore = xml `<bookstore><book category="cooking">

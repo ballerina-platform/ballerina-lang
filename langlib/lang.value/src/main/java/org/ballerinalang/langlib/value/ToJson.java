@@ -19,6 +19,7 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
@@ -32,11 +33,13 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BRefValue;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.JsonUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
@@ -158,14 +161,21 @@ public class ToJson {
     }
 
     private static BError createConversionError(Object inputValue, Type targetType) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType));
+        return ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+                RuntimeErrorType.INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType);
     }
 
     private static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
-        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
-                INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
-                .concat(StringUtils.fromString(": ".concat(detailMessage))));
+//        return createError(VALUE_LANG_LIB_CONVERSION_ERROR, BLangExceptionHelper.getErrorMessage(
+//                INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType)
+//                .concat(StringUtils.fromString(": ".concat(detailMessage))));
+//        return ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+//                RuntimeErrorType.INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType);
+
+        return createError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+                RuntimeErrorType.INCOMPATIBLE_CONVERT_OPERATION.getErrorName(),
+                ErrorUtils.getModulePrefixedErrorName(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+                        RuntimeErrorType.INCOMPATIBLE_CONVERT_OPERATION)
+                        .concat(StringUtils.fromString(": ".concat(detailMessage))), null, null);
     }
 }

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.test as test;
+
 function testIntWithoutArgs() returns int {
    int b = 7;
    return b;
@@ -338,9 +340,21 @@ function testGetJson () returns (json|error) {
     return j.address;
 }
 
-function testGetNonExistingElement () returns (any|error) {
+function testGetNonExistingElement () {
     json j2 = {age:43};
-    return j2.name;
+    any|error res = trap j2.name;
+
+    error err = <error> res;
+    assertEquality("{ballerina/lang.map}MapKeyNotFound", err.message());
+    assertEquality("{\"message\":\"key 'name' not found\"}", err.detail().toString());
+
+    runtime:KeyNotFound err1 = <runtime:KeyNotFound> res;
+    assertEquality("{ballerina/lang.map}MapKeyNotFound", err1.message());
+    assertEquality("{\"message\":\"key 'name' not found\"}", err1.detail().toString());
+
+    map:MapKeyNotFound err2 = <map:MapKeyNotFound> res;
+    assertEquality("{ballerina/lang.map}MapKeyNotFound", err2.message());
+    assertEquality("{\"message\":\"key 'name' not found\"}", err2.detail().toString());
 }
 
 function testAddString () returns (json) {
@@ -540,11 +554,27 @@ function testSetToNonObjectWithKey () returns [json, json, json] {
     return [j1, j2, j3];
 }
 
-function testGetFromNonObjectWithKey () returns [json|error, json|error, json|error] {
+function testGetFromNonObjectWithKey () {
     json j1 = [1, 2, 3];
     json j2 = "foo";
     json j3 = true;
-    return [j1.name, j2.name, j3.name];
+
+    json|error res = trap j1.name;
+    error err = <error> res;
+    test:assertTrue(err is runtime:JSONOperationError);
+    test:assertValueEqual("{ballerina/lang.runtime}JSONOperationError", err.message());
+    test:assertValueEqual("{\"message\":\"JSON value is not a mapping\"}", err.detail().toString());
+
+    res = trap j2.name;
+    err = <runtime:JSONOperationError> res;
+    test:assertValueEqual("{ballerina/lang.runtime}JSONOperationError", err.message());
+    test:assertValueEqual("{\"message\":\"JSON value is not a mapping\"}", err.detail().toString());
+
+    res = trap j3.name;
+    err = <error> res;
+    test:assertTrue(err is runtime:JSONOperationError);
+    test:assertValueEqual("{ballerina/lang.runtime}JSONOperationError", err.message());
+    test:assertValueEqual("{\"message\":\"JSON value is not a mapping\"}", err.detail().toString());
 }
 
 function testGetStringInArray () returns (string) {
@@ -563,9 +593,14 @@ function testGetArrayOutofBoundElement () returns (string) {
     return value;
 }
 
-function testGetElementFromPrimitive () returns (json|error) {
+function testGetElementFromPrimitive () {
     json j = {name:"Supun"};
-    return j.name.fname;
+    json|error res = trap j.name.fname;
+
+    error err = <error> res;
+    test:assertTrue(err is runtime:JSONOperationError);
+    test:assertValueEqual("{ballerina/lang.runtime}JSONOperationError", err.message());
+    test:assertValueEqual("{\"message\":\"JSON value is not a mapping\"}", err.detail().toString());
 }
 
 function testUpdateNestedElement () returns (json) {

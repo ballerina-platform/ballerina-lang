@@ -14,8 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.object}InherentTypeViolation";
-const INVALID_UPDATE_REASON = "{ballerina/lang.object}InvalidUpdate";
+const INVALID_UPDATE_REASON = "{ballerina/lang.runtime}InvalidFinalFieldUpdate";
 
 function testFinalObjectFields() {
     testObjectWithSimpleFinalFields();

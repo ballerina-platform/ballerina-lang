@@ -38,8 +38,8 @@ function testFieldAccessWithOptionalFieldAccess2() returns boolean {
 
 function testFieldAccessWithOptionalFieldAccess3() returns boolean {
     json j1 = { a: 1, b: { c: "qwer", d: 12.0 } };
-    json|error j2 = j1?.a.b;
-    json|error j3 = j1?.d.b;
+    json|error j2 = trap j1?.a.b;
+    json|error j3 = trap j1?.d.b;
     return assertNonMappingJsonError(j2) && assertNonMappingJsonError(j3);
 }
 
@@ -130,7 +130,8 @@ function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
         var detailMessage = je.detail()["message"];
         string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
-        return je.message() == "{ballerina}JSONOperationError" && detailMessageString == "JSON value is not a mapping";
+        return je.message() == "{ballerina/lang.runtime}JSONOperationError" && detailMessageString == "JSON value " +
+        "is not a mapping";
     }
     return false;
 }

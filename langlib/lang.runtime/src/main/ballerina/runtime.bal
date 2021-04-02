@@ -15,8 +15,12 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import ballerina/lang.'array as lang_array;
-import ballerina/lang.'value as lang_value;
+
+# A type parameter that is a subtype of `any|error`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+@typeParam
+type Type any|error;
 
 # A listener that is dynamically registered with a module.
 public type DynamicListener object {
@@ -78,7 +82,7 @@ public isolated function getStackTrace() returns StackFrame[] {
     StackFrame[] stackFrame = [];
     int i = 0;
     CallStackElement[] callStackElements = externGetStackTrace();
-    lang_array:forEach(callStackElements, function (CallStackElement callStackElement) {
+    forEach(callStackElements, function (CallStackElement callStackElement) {
                                 stackFrame[i] = new java:StackFrameImpl(callStackElement.callableName,
                                 callStackElement.moduleName, callStackElement.fileName, callStackElement.lineNumber);
                                 i += 1;
@@ -90,4 +94,9 @@ public isolated function getStackTrace() returns StackFrame[] {
 isolated function externGetStackTrace() returns CallStackElement[] = @java:Method {
     name: "getStackTrace",
     'class: "org.ballerinalang.langlib.runtime.GetStackTrace"
+} external;
+
+isolated function forEach(Type[] arr, @isolatedParam function(Type val) returns () func) returns () = @java:Method {
+    'class: "org.ballerinalang.langlib.runtime.ForEach",
+    name: "forEach"
 } external;

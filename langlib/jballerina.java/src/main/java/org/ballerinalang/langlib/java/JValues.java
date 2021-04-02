@@ -39,13 +39,13 @@ class JValues {
 
     static void rangeCheck(long index, Object[] arr) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR,
-                                                           RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if (index < 0 || index >= arr.length) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, RuntimeConstants.ARRAY_LANG_LIB,
-                    index, arr.length);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, index, arr.length);
         }
     }
 }

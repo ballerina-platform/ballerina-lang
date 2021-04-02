@@ -39,35 +39,40 @@ public class StructEquivalencyNegativeTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*ConversionError \\{\"message\":\"'equivalencynegative:employee01' " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.typedesc\\}IncompatibleConvertOperation " +
+                    "\\{\"message\":\"'equivalencynegative:employee01' " +
                     "value cannot be converted to 'equivalencynegative:person01'.*")
     public void testEqOfStructsInSamePackageFieldNameMismatch() {
         BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage01");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*ConversionError \\{\"message\":\"'equivalencynegative:employee02' " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.typedesc\\}IncompatibleConvertOperation " +
+                    "\\{\"message\":\"'equivalencynegative:employee02' " +
                     "value cannot be converted to 'equivalencynegative:person02'.*")
     public void testEqOfStructsInSamePackageTypeNameMismatch() {
         BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage02");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*ConversionError \\{\"message\":\"'equivalencynegative:employee03' " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.typedesc\\}IncompatibleConvertOperation " +
+                    "\\{\"message\":\"'equivalencynegative:employee03' " +
                     "value cannot be converted to 'equivalencynegative:person03'.*")
     public void testEqOfStructsInSamePackageFieldCountMismatch() {
         BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage03");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*ConversionError \\{\"message\":\"'equivalencynegative:employee06' " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.typedesc\\}IncompatibleConvertOperation " +
+                    "\\{\"message\":\"'equivalencynegative:employee06' " +
                     "value cannot be converted to 'equivalencynegative:person06'.*")
     public void testEqOfStructsInSamePackageTypeMismatch() {
         BValue[] result = BRunUtil.invoke(compileResult, "testEqOfStructsInSamePackage06");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*ConversionError \\{\"message\":\"'equivalencynegative.bar:userBar' " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.typedesc}IncompatibleConvertOperation " +
+                    "\\{\"message\":\"'equivalencynegative.bar:userBar' " +
                     "value cannot be converted to 'equivalencynegative.foo:userFoo'.*")
     public void testEquivalenceOfStructsInSamePackageFromDifferentPackage() {
         BValue[] result = BRunUtil.invoke(compileResult, "testStructEqViewFromThirdPackage");

@@ -26,9 +26,17 @@ public enum RuntimeErrorType {
 
     // TypeCastError
     TYPE_CAST_ERROR("TypeCastError", "incompatible.types.cannot.cast", "RT-0001"),
+    J_TYPE_CAST_ERROR("TypeCastError", "incompatible.jtypes.cannot.cast", "RT-0002"),
 
-    // IncompatibleTypeError
+    // InherentTypeViolation
     INCOMPATIBLE_TYPE_ERROR("IncompatibleType", "incompatible.types", "RT-0002"),
+    ILLEGAL_ARRAY_SIZE_ERROR("IllegalArraySize", "illegal.array.size", "RT-0006"),
+    ILLEGAL_TUPLE_SIZE_ERROR("IllegalTupleSize", "illegal.tuple.size", "RT-0007"),
+    ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE("IllegalTupleWithRestTypeSize", "illegal.rest.tuple.size", "RT-0008"),
+    INVALID_MAP_INSERTION("InvalidMapInsertion", "invalid.map.insertion", "RT-0016"),
+    INVALID_RECORD_FIELD_ADDITION("InvalidRecordFieldAddition", "invalid.record.field.addition", "RT-0018"),
+    INVALID_OBJECT_FIELD_VALUE("InvalidObjectFieldValue", "invalid.object.field.value", "RT-0033"),
+    INHERENT_TABLE_TYPE_VIOLATION("InherentTableTypeViolation", "type.inconsistent.with.inherent.table", "RT-0032"),
 
     // IndexOutOfRangeError
     INDEX_NUMBER_TOO_LARGE("IndexNumberTooLarge", "index.number.too.large", "RT-0003"),
@@ -40,13 +48,38 @@ public enum RuntimeErrorType {
 
     // StringOperationError
     INVALID_SUBSTRING_RANGE("InvalidSubstringRange", "invalid.substring.range", "RT-0008"),
+    STRING_INDEX_TOO_LARGE("StringIndexTooLarge", "string.index.number.too.large", "RT-0008"),
 
 
     // ConversionError
     INCOMPATIBLE_NUMBER_CONVERSION_ERROR("NumberConversionError", "incompatible.convert.operation", "RT-0035"),
     SIMPLE_TYPE_NUMBER_CONVERSION_ERROR("NumberConversionError",
-            "incompatible.simple.type.convert.operation", "RT-0035");
+            "incompatible.simple.type.convert.operation", "RT-0035"),
+    CANNOT_CONVERT_NIL("CannotConvertNil", "cannot.convert.nil", "RT-0023"),
+    CYCLIC_VALUE_REFERENCE("CyclicValueReference", "cyclic.value.reference", "RT-0022"),
+    INCOMPATIBLE_CONVERT_OPERATION("IncompatibleConvertOperation", "incompatible.convert.operation", "RT-0024"),
 
+    // IllegalListInsertionError
+    ILLEGAL_ARRAY_INSERTION("IllegalArrayInsertion", "illegal.array.insertion", "RT-0014"),
+    ILLEGAL_TUPLE_INSERTION("IllegalTupleInsertion", "illegal.tuple.insertion", "RT-0015"),
+
+    // InvalidUpdate
+    OBJECT_INVALID_FINAL_FIELD_UPDATE("InvalidFinalFieldUpdate", "object.invalid.final.field.update", "RT-0020"),
+    INVALID_READONLY_FIELD_UPDATE("InvalidReadonlyFieldUpdate", "record.invalid.readonly.field.update", "RT-0019"),
+    INVALID_READONLY_VALUE_UPDATE("InvalidReadonlyValueUpdate", "invalid.update.on.readonly.value", "RT-0021"),
+
+    // KeyNotFoundError
+    MAP_KEY_NOT_FOUND("MapKeyNotFound", "map.key.not.found", "RT-0029"),
+    TABLE_KEY_NOT_FOUND("TableKeyNotFound", "table.key.not.found", "RT-0030"),
+    TABLE_KEY_NOT_DEFINED("TableKeyNotFound", "key.not.defined", "RT-0030"),
+    KEY_NOT_FOUND_IN_VALUE("TableKeyNotFound", "key.not.found.in.value", "RT-0030"),
+    INVALID_RECORD_FIELD_ACCESS("InvalidRecordFieldAccess", "invalid.record.field.access", "RT-0017"),
+
+    // KeyConstraintViolation
+    TABLE_KEY_CONSTRAINT_VIOLATION("TableKeyConstraintViolation", "table.has.a.value.for.key", "RT-0031"),
+
+    // JsonOperationError
+    JSON_OPERATION_ERROR("JSONOperationError", "json.value.not.a.mapping", "RT-0026");
 
     private String errorName;
     private String errorMsgKey;

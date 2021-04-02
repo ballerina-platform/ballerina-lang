@@ -101,6 +101,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SIGNED16_MAX_VALUE;
@@ -113,6 +114,8 @@ import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED16_MAX
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED32_MAX_VALUE;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.UNSIGNED8_MAX_VALUE;
 import static io.ballerina.runtime.api.utils.TypeUtils.isValueType;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType.J_TYPE_CAST_ERROR;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType.TYPE_CAST_ERROR;
 
 /**
  * Responsible for performing runtime type checking.
@@ -145,109 +148,118 @@ public class TypeChecker {
             }
         }
 
-        throw ErrorUtils.createTypeCastError(sourceVal, targetType);
+        throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, TYPE_CAST_ERROR,
+                getType(sourceVal), targetType);
     }
 
     public static long anyToInt(Object sourceVal) {
         return TypeConverter.anyToIntCast(sourceVal,
-                () -> ErrorUtils.createTypeCastError(sourceVal, TYPE_INT));
+                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, TYPE_CAST_ERROR,
+                        getType(sourceVal), TYPE_INT));
     }
 
     public static long anyToSigned32(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_SIGNED_32,
-                                                 () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                      TYPE_INT_SIGNED_32));
+                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                         TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_SIGNED_32));
     }
 
     public static long anyToSigned16(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_SIGNED_16,
-                                                 () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                      TYPE_INT_SIGNED_16));
+                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                         TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_SIGNED_16));
     }
 
     public static long anyToSigned8(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_SIGNED_8,
-                                                 () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                      TYPE_INT_SIGNED_8));
+                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                         TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_SIGNED_8));
     }
 
     public static long anyToUnsigned32(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_UNSIGNED_32,
-                                                 () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                      TYPE_INT_UNSIGNED_32));
+                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                         TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_UNSIGNED_32));
     }
 
     public static long anyToUnsigned16(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_UNSIGNED_16,
-                                                 () -> ErrorUtils
-                                                         .createTypeCastError(sourceVal, TYPE_INT_UNSIGNED_16));
+                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                         TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_UNSIGNED_16));
     }
 
     public static long anyToUnsigned8(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_UNSIGNED_8,
-                                                 () -> ErrorUtils
-                                                         .createTypeCastError(sourceVal,
-                                                                              TYPE_INT_UNSIGNED_8));
+                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                         TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_UNSIGNED_8));
     }
 
     public static double anyToFloat(Object sourceVal) {
-        return TypeConverter.anyToFloatCast(sourceVal, () -> ErrorUtils
-                .createTypeCastError(sourceVal, TYPE_FLOAT));
+        return TypeConverter.anyToFloatCast(sourceVal, () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                TYPE_CAST_ERROR, getType(sourceVal), TYPE_FLOAT));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
-        return TypeConverter.anyToBooleanCast(sourceVal, () -> ErrorUtils
-                .createTypeCastError(sourceVal, TYPE_BOOLEAN));
+        return TypeConverter.anyToBooleanCast(sourceVal, () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                TYPE_CAST_ERROR, getType(sourceVal), TYPE_BOOLEAN));
     }
 
     public static int anyToByte(Object sourceVal) {
-        return TypeConverter.anyToByteCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                           TYPE_BYTE));
+        return TypeConverter.anyToByteCast(sourceVal, () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                TYPE_CAST_ERROR, getType(sourceVal), TYPE_BYTE));
     }
 
     public static DecimalValue anyToDecimal(Object sourceVal) {
-        return TypeConverter.anyToDecimal(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
-                                                                                          TYPE_DECIMAL));
+        return TypeConverter.anyToDecimal(sourceVal, () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                TYPE_CAST_ERROR, getType(sourceVal), TYPE_DECIMAL));
     }
 
     public static byte anyToJByte(Object sourceVal) {
         return TypeConverter.anyToJByteCast(sourceVal,
-                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "byte"));
+                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                        getType(sourceVal), "byte"));
     }
 
     public static char anyToJChar(Object sourceVal) {
         return TypeConverter.anyToJCharCast(sourceVal,
-                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "char"));
+                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                        getType(sourceVal), "char"));
     }
 
     public static short anyToJShort(Object sourceVal) {
         return TypeConverter.anyToJShortCast(sourceVal,
-                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "short"));
+                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                        getType(sourceVal), "short"));
     }
 
     public static int anyToJInt(Object sourceVal) {
         return TypeConverter.anyToJIntCast(sourceVal,
-                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "int"));
+                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                        getType(sourceVal), "int"));
     }
 
     public static long anyToJLong(Object sourceVal) {
         return TypeConverter.anyToJLongCast(sourceVal,
-                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "long"));
+                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                        getType(sourceVal), "long"));
     }
 
     public static float anyToJFloat(Object sourceVal) {
         return TypeConverter.anyToJFloatCast(sourceVal,
-                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "float"));
+                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                        getType(sourceVal), "float"));
     }
 
     public static double anyToJDouble(Object sourceVal) {
         return TypeConverter.anyToJDoubleCast(sourceVal,
-                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "double"));
+                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                        getType(sourceVal), "double"));
     }
 
     public static boolean anyToJBoolean(Object sourceVal) {
         return TypeConverter.anyToJBooleanCast(sourceVal,
-                () -> ErrorUtils.createBToJTypeCastError(sourceVal, "boolean"));
+                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                        getType(sourceVal), "boolean"));
     }
 
     /**

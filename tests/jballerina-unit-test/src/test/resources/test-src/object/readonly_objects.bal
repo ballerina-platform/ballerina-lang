@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const OBJECT_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.object}InherentTypeViolation";
-const MAPPING_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InherentTypeViolation";
+const OBJECT_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.runtime}InvalidReadonlyValueUpdate";
+const MAPPING_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InvalidReadonlyFieldUpdate";
 
 type Details record {|
     string name;

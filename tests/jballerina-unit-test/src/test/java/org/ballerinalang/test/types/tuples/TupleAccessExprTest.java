@@ -159,7 +159,7 @@ public class TupleAccessExprTest {
 
     @Test(description = "Test invalid type inserted to tuple due to a dynamic index",
             expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IncompatibleType " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}IncompatibleType " +
                     "\\{\"message\":\"incompatible types: expected 'string', found 'boolean'.*")
     public void testInvalidInsertionToTuple() {
         BRunUtil.invoke(compileResult, "testInvalidInsertionToTuple");

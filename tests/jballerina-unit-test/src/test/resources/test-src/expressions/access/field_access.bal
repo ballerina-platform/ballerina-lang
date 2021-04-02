@@ -89,27 +89,27 @@ function testJsonFieldAccessPositive2(json j) returns boolean {
 }
 
 function testNonMappingJsonFieldAccessNegative1(json j) returns boolean {
-    json|error a = j.a.b.c;
+    json|error a = trap j.a.b.c;
     return assertNonMappingJsonError(a);
 }
 
 function testNonMappingJsonFieldAccessNegative2(json j) returns boolean {
-    json|error a = j.a.b.c.d;
+    json|error a = trap j.a.b.c.d;
     return assertNonMappingJsonError(a);
 }
 
 function testJsonFieldAccessNegativeMissingKey1(json j) returns boolean {
-    json|error a = j.a.d;
+    json|error a = trap j.a.d;
     return assertKeyNotFoundError(a, "d");
 }
 
 function testJsonFieldAccessNegativeMissingKey2(json j) returns boolean {
-    json|error a = j.e;
+    json|error a = trap j.e;
     return assertKeyNotFoundError(a, "e");
 }
 
 function testJsonFieldAccessNegativeMissingKey3(json j) returns boolean {
-    json|error a = j.e.f;
+    json|error a = trap j.e.f;
     return assertKeyNotFoundError(a, "e");
 }
 
@@ -135,45 +135,45 @@ function testMapJsonFieldAccessPositive2(map<json> j) returns boolean {
 }
 
 function testNonMappingMapJsonFieldAccessNegative1(map<json> j) returns boolean {
-    json|error a = j.a.b.c;
+    json|error a = trap j.a.b.c;
     return assertNonMappingJsonError(a);
 }
 
 function testNonMappingMapJsonFieldAccessNegative2(map<json> j) returns boolean {
-    json|error a = j.a.b.c.d;
+    json|error a = trap j.a.b.c.d;
     return assertNonMappingJsonError(a);
 }
 
 function testMapJsonFieldAccessNegativeMissingKey1(map<json> j) returns boolean {
-    json|error a = j.a.d;
+    json|error a = trap j.a.d;
     return assertKeyNotFoundError(a, "d");
 }
 
 function testMapJsonFieldAccessNegativeMissingKey2(map<json> j) returns boolean {
-    json|error a = j.e;
+    json|error a = trap j.e;
     return assertKeyNotFoundError(a, "e");
 }
 
 function testMapJsonFieldAccessNegativeMissingKey3(map<json> j) returns boolean {
-    json|error a = j.e.f;
+    json|error a = trap j.e.f;
     return assertKeyNotFoundError(a, "e");
 }
 
 function testNonNilLiftingJsonAccess1() returns boolean {
     json a = ();
-    json|error b = a.one;
+    json|error b = trap a.one;
     return assertNonMappingJsonError(b);
 }
 
 function testNonNilLiftingJsonAccess2() returns boolean {
     json a = ();
-    json|error b = a.one.two;
+    json|error b = trap a.one.two;
     return assertNonMappingJsonError(b);
 }
 
 function testNonNilLiftingJsonAccess3() returns boolean {
     map<json> a = { one: (), two: "two", three: { j: "mapping" } };
-    json|error b = a.one.two;
+    json|error b = trap a.one.two;
     return assertNonMappingJsonError(b);
 }
 
@@ -187,39 +187,37 @@ function testLaxUnionFieldAccessPositive() returns boolean {
 function testLaxUnionFieldAccessNegative1() returns boolean {
     map<map<json>> m = { a: { b: i }, c: { d: "string value" } };
     map<map<json>>|json mj = m;
-    json|error jv = mj.a.b.c;
+    json|error jv = trap mj.a.b.c;
     return assertNonMappingJsonError(jv);
 }
 
 function testLaxUnionFieldAccessNegative2() returns boolean {
     map<map<json>> m = { a: { b: i }, c: { d: "string value" } };
     map<map<json>>|json mj = m;
-    json|error jv = mj.a.e;
+    json|error jv = trap mj.a.e;
     return assertKeyNotFoundError(jv, "e");
 }
 
 function testLaxUnionFieldAccessNegative3() returns boolean {
     map<map<json>> m = { a: { b: i }, c: { d: "string value" } };
     map<map<json>>|json mj = m;
-    json|error jv = mj.e;
+    json|error jv = trap mj.e;
     return assertKeyNotFoundError(jv, "e");
 }
 
 function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
-        var detailMessage = je.detail()["message"];
-        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
-        return je.message() == "{ballerina}JSONOperationError" && detailMessageString == "JSON value is not a mapping";
+        return je.message() == "{ballerina/lang.runtime}JSONOperationError" && je.detail().toString() == "{\"message\":" +
+                                                                                    "\"JSON value is not a mapping\"}";
     }
     return false;
 }
 
 function assertKeyNotFoundError(json|error je, string key) returns boolean {
     if (je is error) {
-        var detailMessage = je.detail()["message"];
-        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
-        return je.message() == "{ballerina/lang.map}KeyNotFound" &&
-                                detailMessageString == "Key '" + key + "' not found in JSON mapping";
+        return je.message() == "{ballerina/lang.map}MapKeyNotFound";
+        //&&
+        //                        je.detail().toString() == "{\"message\":\"Key '" + key + "' not found\"}";
     }
     return false;
 }

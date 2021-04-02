@@ -14,6 +14,14 @@
 // specific language governing permissions and limitations
 // under the License.
 
+# Type for value that can be cloned.
+# This is the same as in lang.value, but is copied here to avoid a dependency.
+type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>;
+
+# Error Detail Record
+public type Detail record {|
+   Cloneable...;
+|};
 
 // TypeCastError
 public type TypeCastError distinct error;
@@ -24,11 +32,12 @@ public type IndexNumberTooLarge distinct IndexOutOfRange;
 public type ArrayIndexOutOfRange distinct IndexOutOfRange;
 public type TupleIndexOutOfRange distinct IndexOutOfRange;
 public type StringIndexOutOfRange distinct IndexOutOfRange;
-public type XmlSequenceIndexOutOfRange distinct IndexOutOfRange;
 
 // InherentTypeViolationError
 public type InherentTypeViolation distinct error;
 public type IncompatibleType distinct InherentTypeViolation;
+public type InvalidObjectFieldValue distinct InherentTypeViolation;
+public type InherentTableTypeViolation distinct InherentTypeViolation;
 
 // StringOperationError
 public type StringOperationError distinct error;
@@ -42,3 +51,20 @@ public type ArithmeticOperationError distinct error;
 // ConversionError
 public type ConversionError distinct error;
 public type NumberConversionError distinct ConversionError;
+
+// KeyConstraintViolationError
+public type KeyConstraintViolation distinct error;
+
+// IllegalListInsertionError
+public type IllegalListInsertion distinct error;
+
+// KeyNotFoundError
+public type KeyNotFound distinct error;
+
+// InvalidUpdate
+public type InvalidUpdate distinct error;
+public type InvalidReadonlyValueUpdate distinct InvalidUpdate;
+public type InvalidFinalFieldUpdate distinct InvalidUpdate;
+
+// JSONOperationError
+public type JSONOperationError distinct error;

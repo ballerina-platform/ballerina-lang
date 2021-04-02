@@ -108,7 +108,7 @@ public class ArrayLValueFillTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalArrayInsertion " +
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
                   "filler values.*")
     public void test2DObjectArrays3() {
@@ -116,7 +116,7 @@ public class ArrayLValueFillTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalArrayInsertion " +
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
                   "filler values.*")
     public void testRecordsWithoutFillerValues() {
@@ -124,7 +124,7 @@ public class ArrayLValueFillTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalArrayInsertion " +
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 1 without " +
                   "filler values.*")
     public void testRecordsWithoutFillerValues2() {
@@ -162,7 +162,7 @@ public class ArrayLValueFillTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalListInsertion " +
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array\\}IllegalArrayInsertion " +
                   "\\{\"message\":\"array of length 0 cannot be expanded into array of length 2 without " +
                   "filler values.*")
     public void testNoDefFiniteTyped2DArrays() {

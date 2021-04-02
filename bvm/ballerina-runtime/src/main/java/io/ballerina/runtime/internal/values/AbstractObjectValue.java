@@ -17,7 +17,6 @@
  */
 package io.ballerina.runtime.internal.values;
 
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
@@ -29,21 +28,18 @@ import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BObjectType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.StringJoiner;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.OBJECT_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * <p>
@@ -189,18 +185,15 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     protected void checkFieldUpdate(String fieldName, Object value) {
         if (type.isReadOnly()) {
-            throw ErrorCreator.createError(
-                    getModulePrefixedReason(OBJECT_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_READONLY_VALUE_UPDATE));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.INVALID_READONLY_VALUE_UPDATE);
         }
 
         Field field = type.getFields().get(fieldName);
 
         if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL)) {
-            throw ErrorCreator.createError(
-                    getModulePrefixedReason(OBJECT_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.OBJECT_INVALID_FINAL_FIELD_UPDATE,
-                                                         fieldName, type));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.OBJECT_INVALID_FINAL_FIELD_UPDATE, fieldName, type);
         }
         checkFieldUpdateType(fieldName, value);
     }
@@ -211,11 +204,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
             return;
         }
 
-        throw ErrorCreator.createError(getModulePrefixedReason(OBJECT_LANG_LIB,
-                                                               INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                       StringUtils.fromString("invalid value for object field '" + fieldName +
-                                                                       "': expected value of type '" + fieldType +
-                                                                       "', found '" + TypeChecker.getType(value) +
-                                                                       "'"));
+        throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.INVALID_OBJECT_FIELD_VALUE,
+                fieldName, fieldType, TypeChecker.getType(value));
     }
 }

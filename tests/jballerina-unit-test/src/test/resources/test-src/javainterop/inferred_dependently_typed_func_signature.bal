@@ -68,7 +68,7 @@ function testRuntimeCastError() {
     map<anydata>|error m1 = trap query("foo");
 
     error err = <error>m1;
-    assert("{ballerina}TypeCastError", err.message());
+    assert("{ballerina/lang.runtime}TypeCastError", err.message());
     assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", <string> checkpanic err.detail()["message"]);
 }
 
@@ -134,7 +134,7 @@ function testCastingForInvalidValues() {
     error? y = trap fn();
     assert(true, y is error);
     error err = <error> y;
-    assert("{ballerina}TypeCastError", err.message());
+    assert("{ballerina/lang.runtime}TypeCastError", err.message());
     assert("incompatible types: 'Person' cannot be cast to 'int'", <string> checkpanic err.detail()["message"]);
 }
 
@@ -243,7 +243,7 @@ function testFunctionAssignment() {
     var v = trap <int>fn(string);
 
     error err = <error>v;
-    assert("{ballerina}TypeCastError", err.message());
+    assert("{ballerina/lang.runtime}TypeCastError", err.message());
     assert("incompatible types: 'string' cannot be cast to 'int'", <string> checkpanic err.detail()["message"]);
 }
 

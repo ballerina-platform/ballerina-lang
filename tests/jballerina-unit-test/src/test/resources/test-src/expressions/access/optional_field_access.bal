@@ -163,18 +163,18 @@ function testOptionalFieldAccessNilLiftingOnMapJson() returns boolean {
 
 function testOptionalFieldAccessErrorOnNonMappingJson() returns boolean {
     json j = 1;
-    json|error j2 = j?.a;
+    json|error j2 = trap j?.a;
     return assertNonMappingJsonError(j2);
 }
 
 function testOptionalFieldAccessErrorLiftingOnNonMappingJson() returns boolean {
     json j = 1;
-    return assertNonMappingJsonError(j?.a?.b);
+    return assertNonMappingJsonError(trap j?.a?.b);
 }
 
 function testOptionalFieldAccessErrorLiftingOnMapJson() returns boolean {
     map<json> j = { a: 1 };
-    return assertNonMappingJsonError(j?.a?.b?.c);
+    return assertNonMappingJsonError(trap j?.a?.b?.c);
 }
 
 function testOptionalFieldAccessOnJsonMappingPositive() returns boolean {
@@ -263,8 +263,8 @@ function testOptionalFieldAccessErrorReturnOnLaxUnion() returns boolean {
     json j = { a: 1, b: { c: "foo" } };
     map<json>|json j1 = j;
 
-    json|error j2 = j1?.a?.b;
-    json|error j3 = j1?.b?.c?.d;
+    json|error j2 = trap j1?.a?.b;
+    json|error j3 = trap j1?.b?.c?.d;
 
     return assertNonMappingJsonError(j2) && assertNonMappingJsonError(j3);
 }
@@ -273,8 +273,8 @@ function testOptionalFieldAccessErrorLiftingOnLaxUnion() returns boolean {
     map<json> j = { a: 1, b: { c: 44.4 } };
     map<json>|map<map<json>> j1 = j;
 
-    json|error j2 = j1?.a?.e?.f;
-    json|error j3 = j1?.b?.c?.e;
+    json|error j2 = trap j1?.a?.e?.f;
+    json|error j3 = trap j1?.b?.c?.e;
 
     return assertNonMappingJsonError(j2) && assertNonMappingJsonError(j3);
 }
@@ -283,7 +283,8 @@ function assertNonMappingJsonError(json|error je) returns boolean {
     if (je is error) {
         var detailMessage = je.detail()["message"];
         string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
-        return je.message() == "{ballerina}JSONOperationError" && detailMessageString == "JSON value is not a mapping";
+        return je.message() == "{ballerina/lang.runtime}JSONOperationError" &&
+        detailMessageString == "JSON value is not a mapping";
     }
     return false;
 }
@@ -292,8 +293,8 @@ function assertKeyNotFoundError(json|error je, string key) returns boolean {
     if (je is error) {
         var detailMessage = je.detail()["message"];
         string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
-        return je.message() == "{ballerina}KeyNotFound" &&
-                                detailMessageString == "Key '" + key + "' not found in JSON mapping";
+        return je.message() == "{ballerina/lang.runtime}MapKeyNotFound" &&
+                                detailMessageString == "Key '" + key + "' not found";
     }
     return false;
 }

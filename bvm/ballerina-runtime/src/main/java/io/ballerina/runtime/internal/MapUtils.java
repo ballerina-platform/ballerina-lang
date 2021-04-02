@@ -27,13 +27,11 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BRecordType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.values.MapValue;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_MAP_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
@@ -66,10 +64,8 @@ public class MapUtils {
         Type expType = mapType.getConstrainedType();
         Type valuesType = TypeChecker.getType(value);
 
-        throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                                                               INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorMessage(RuntimeErrors.INVALID_MAP_INSERTION,
-                                                                               expType, valuesType));
+        throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.INVALID_MAP_INSERTION,
+                expType, valuesType);
     }
 
     public static void handleInherentTypeViolatingRecordUpdate(MapValue mapValue, BString fieldName, Object value,
@@ -84,10 +80,8 @@ public class MapUtils {
             // expression.
             if (!initialValue && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.READONLY)) {
 
-                throw ErrorCreator.createError(
-                        getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                        BLangExceptionHelper.getErrorMessage(RuntimeErrors.RECORD_INVALID_READONLY_FIELD_UPDATE,
-                                                             fieldName, recType));
+                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+                        RuntimeErrorType.INVALID_READONLY_FIELD_UPDATE, fieldName, recType);
             }
 
             // If it can be updated, use it.
@@ -98,9 +92,8 @@ public class MapUtils {
         } else {
             // If both of the above conditions fail, the implication is that this is an attempt to insert a
             // value to a non-existent field in a closed record.
-            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR,
-                                           BLangExceptionHelper.getErrorMessage(
-                                                      RuntimeErrors.INVALID_RECORD_FIELD_ACCESS, fieldName, recType));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+                    RuntimeErrorType.INVALID_RECORD_FIELD_ACCESS, fieldName, recType);
         }
 
         if (TypeChecker.checkIsType(value, recFieldType)) {
@@ -108,11 +101,8 @@ public class MapUtils {
         }
         Type valuesType = TypeChecker.getType(value);
 
-        throw ErrorCreator.createError(getModulePrefixedReason(MAP_LANG_LIB,
-                                                               INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorMessage(
-                                                  RuntimeErrors.INVALID_RECORD_FIELD_ADDITION, fieldName, recFieldType,
-                                                  valuesType));
+        throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.INVALID_RECORD_FIELD_ADDITION,
+                fieldName, recFieldType, valuesType);
     }
 
     public static BError createOpNotSupportedError(Type type, String op) {

@@ -71,7 +71,7 @@ public class LangLibRecordTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  ".*error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"cannot find key 'NonExistent'\"\\}.*")
+                  ".*error: \\{ballerina/lang.map\\}MapKeyNotFound \\{\"message\":\"key 'NonExistent' not found\"\\}.*")
     public void testGetNonExistentKey() {
         BRunUtil.invoke(compileResult, "testGet", new BValue[]{new BString("NonExistent")});
     }

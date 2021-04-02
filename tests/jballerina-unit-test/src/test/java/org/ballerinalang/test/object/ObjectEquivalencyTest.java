@@ -135,9 +135,9 @@ public class ObjectEquivalencyTest {
 
     @Test(description = "Test inherent type violation with nil value.",
             expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.object\\}InherentTypeViolation " +
-                    "\\{\"message\":\"invalid value for object field 'x': expected value of type 'string', " +
-                    "found '\\(\\)'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}InvalidObjectFieldValue " +
+                    "\\{\"message\":\"invalid value for object field 'x': " +
+                    "expected value of type 'string', found '\\(\\)'.*")
     public void testInherentTypeViolationWithNilType() {
         BRunUtil.invoke(compileResult, "testInherentTypeViolationWithNilType");
     }

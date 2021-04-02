@@ -203,7 +203,7 @@ function testCastingToFunctionWithAnyFunctionReturnType() {
     var d = trap <function () returns function> c;
     assertEquality(true, d is error);
     error e = <error> d;
-    assertEquality("{ballerina}TypeCastError", e.message());
+    assertEquality("{ballerina/lang.runtime}TypeCastError", e.message());
     assertEquality("incompatible types: 'function () returns (())' cannot be cast to 'function () returns (function)'",
                    <string> checkpanic e.detail()["message"]);
 }

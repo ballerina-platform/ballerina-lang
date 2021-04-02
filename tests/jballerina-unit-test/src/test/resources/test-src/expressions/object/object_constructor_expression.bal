@@ -267,7 +267,7 @@ function testObjectConstructorExprWithReadOnlyCET() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err.message());
+    assertValueEquality("{ballerina/lang.runtime}InvalidReadonlyValueUpdate", err.message());
     assertValueEquality("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
 
     assertTrue(<any> v5 is readonly);
@@ -287,7 +287,7 @@ function validateInvalidUpdateErrorForFieldA(Object ob) {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err.message());
+    assertValueEquality("{ballerina/lang.runtime}InvalidReadonlyValueUpdate", err.message());
     assertValueEquality("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
 }
 
@@ -311,7 +311,7 @@ function validateInvalidUpdateErrorForFieldB(Object ob) {
     assertTrue(res2 is error);
 
     error err2 = <error> res2;
-    assertValueEquality("{ballerina/lang.object}InherentTypeViolation", err2.message());
+    assertValueEquality("{ballerina/lang.runtime}InvalidReadonlyValueUpdate", err2.message());
     assertValueEquality("modification not allowed on readonly value", <string> checkpanic err2.detail()["message"]);
 }
 

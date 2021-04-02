@@ -18,14 +18,16 @@
 
 package org.ballerinalang.langlib.map;
 
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
 import static io.ballerina.runtime.internal.MapUtils.checkIsMapOnlyOperation;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static org.ballerinalang.langlib.map.util.MapLibUtils.validateRequiredFieldForRecord;
 import static org.wso2.ballerinalang.compiler.util.Constants.REMOVE;
 
@@ -50,7 +52,7 @@ public class Remove {
             }
         }
 
-        throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
-                .fromString("cannot find key '" + k + "'"));
+        throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_MAP_PKG_ID,
+                RuntimeErrorType.MAP_KEY_NOT_FOUND, k);
     }
 }

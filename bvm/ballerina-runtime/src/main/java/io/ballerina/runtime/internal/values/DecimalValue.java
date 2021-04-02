@@ -25,11 +25,15 @@ import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.internal.DecimalValueKind;
 import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
 import java.math.BigDecimal;
 import java.math.BigInteger;
 import java.math.MathContext;
 import java.util.Map;
+
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID;
 
 /**
  * <p>
@@ -153,16 +157,23 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public long intValue() {
         switch (valueKind) {
             case NOT_A_NUMBER:
-                throw ErrorUtils.createNumericConversionError(NaN, PredefinedTypes.TYPE_INT);
+                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        TypeChecker.getType(NaN), NaN, PredefinedTypes.TYPE_INT);
             case NEGATIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(NEGATIVE_INF, PredefinedTypes.TYPE_INT);
+                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        TypeChecker.getType(NEGATIVE_INF), NEGATIVE_INF, PredefinedTypes.TYPE_INT);
             case POSITIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(POSITIVE_INF, PredefinedTypes.TYPE_INT);
+                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        TypeChecker.getType(POSITIVE_INF), POSITIVE_INF, PredefinedTypes.TYPE_INT);
         }
 
         if (!isDecimalWithinIntRange(value)) {
-            throw ErrorUtils.createNumericConversionError(this.stringValue(null), PredefinedTypes.TYPE_DECIMAL,
-                                                          PredefinedTypes.TYPE_INT);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.SIMPLE_TYPE_NUMBER_CONVERSION_ERROR, PredefinedTypes.TYPE_DECIMAL,
+                    this.stringValue(null), PredefinedTypes.TYPE_INT);
         }
         return (long) Math.rint(value.doubleValue());
     }
@@ -185,17 +196,24 @@ public class DecimalValue implements SimpleValue, BDecimal {
     public int byteValue() {
         switch (valueKind) {
             case NOT_A_NUMBER:
-                throw ErrorUtils.createNumericConversionError(NaN, PredefinedTypes.TYPE_BYTE);
+                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        TypeChecker.getType(NaN), NaN, PredefinedTypes.TYPE_BYTE);
             case NEGATIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(NEGATIVE_INF, PredefinedTypes.TYPE_BYTE);
+                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        TypeChecker.getType(NEGATIVE_INF), NEGATIVE_INF, PredefinedTypes.TYPE_BYTE);
             case POSITIVE_INFINITY:
-                throw ErrorUtils.createNumericConversionError(POSITIVE_INF, PredefinedTypes.TYPE_BYTE);
+                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        TypeChecker.getType(POSITIVE_INF), POSITIVE_INF, PredefinedTypes.TYPE_BYTE);
         }
 
         int intVal = (int) Math.rint(this.value.doubleValue());
         if (!isByteLiteral(intVal)) {
-            throw ErrorUtils.createNumericConversionError(value, PredefinedTypes.TYPE_DECIMAL,
-                                                          PredefinedTypes.TYPE_BYTE);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.SIMPLE_TYPE_NUMBER_CONVERSION_ERROR, PredefinedTypes.TYPE_DECIMAL, value,
+                    PredefinedTypes.TYPE_BYTE);
         }
         return intVal;
     }

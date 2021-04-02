@@ -33,6 +33,7 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
 import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.JsonUtils;
@@ -45,6 +46,7 @@ import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -61,10 +63,10 @@ import java.util.Set;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_MAP_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.JsonUtils.mergeJson;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
 import static io.ballerina.runtime.internal.values.ReadOnlyUtils.handleInvalidUpdate;
@@ -158,8 +160,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
-            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
-                    .fromString("cannot find key '" + key + "'"));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.MAP_KEY_NOT_FOUND, key);
         }
         return this.get(key);
     }
@@ -188,8 +189,8 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             } else {
                 if (recordType.sealed) {
                     // Panic if this record type does not contain a key by the specified name.
-                    throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
-                            .fromString("cannot find key '" + key + "'"));
+                    throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+                            RuntimeErrorType.MAP_KEY_NOT_FOUND, key);
                 }
                 expectedType = recordType.restFieldType;
             }
@@ -199,8 +200,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
-            throw ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
-                    .fromString("cannot find key '" + key + "'"));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.MAP_KEY_NOT_FOUND, key);
         }
 
         Object value = expectedType.getZeroValue();

@@ -95,8 +95,8 @@ public class ForeachJSONTests {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}KeyNotFound \\{\"message\":\"Key 'city'" +
-                    " not found in JSON mapping\"\\}\n" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}MapKeyNotFound \\{\"message\":\"key 'city'" +
+                    " not found\"\\}\n" +
                     "\tat foreach-json:testJSONNull\\(foreach-json.bal:79\\)")
     public void testJSONNull() {
         BRunUtil.invoke(program, "testJSONNull");

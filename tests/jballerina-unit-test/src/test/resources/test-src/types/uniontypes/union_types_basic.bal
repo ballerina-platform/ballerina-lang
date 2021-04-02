@@ -224,7 +224,7 @@ function testCastToImmutableUnion() {
     (MyUnion & readonly)|error y = trap <MyUnion & readonly> x;
     assertEquality(true, y is error);
     error err = <error> y;
-    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("{ballerina/lang.runtime}TypeCastError", err.message());
     assertEquality("incompatible types: 'int[]' cannot be cast to '(MyUnion & readonly)'",
                    <string> checkpanic err.detail()["message"]);
 }

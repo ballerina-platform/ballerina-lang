@@ -258,6 +258,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testIndexOutOfRange() {
+        BRunUtil.invoke(compileResult, "testIndexOutOfRange");
+    }
+
+    @Test
     public void testAsyncFpArgsWithXmls() {
         BValue[] results = BRunUtil.invoke(compileResult, "testAsyncFpArgsWithXmls");
         assertTrue(results[0] instanceof BInteger);

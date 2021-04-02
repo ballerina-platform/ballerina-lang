@@ -17,6 +17,7 @@
 */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.TupleType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -26,11 +27,8 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeChecker;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -42,9 +40,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID;
 
 /**
  * <p>
@@ -575,21 +571,21 @@ public class TupleValueImpl extends AbstractArrayValue {
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index < 0 || index >= size) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.TUPLE_INDEX_OUT_OF_RANGE,
-                    ARRAY_LANG_LIB, index, size);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.TUPLE_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
     @Override
     protected void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INDEX_NUMBER_TOO_LARGE,
-                    ARRAY_LANG_LIB, index);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if ((this.tupleType.getRestType() == null && index >= this.maxSize) || (int) index < 0) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.TUPLE_INDEX_OUT_OF_RANGE,
-                    ARRAY_LANG_LIB, index, size);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.TUPLE_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
@@ -604,8 +600,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
         // to the array, then an exception will be thrown.
         if (!TypeChecker.hasFillerValue(this.tupleType.getRestType()) && (index > size)) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
-                    RuntimeErrors.ILLEGAL_TUPLE_INSERTION, size, index + 1);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_TUPLE_INSERTION,
+                    size, index + 1);
         }
     }
 
@@ -644,13 +640,12 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     protected void checkFixedLength(long length) {
         if (this.tupleType.getRestType() == null) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    RuntimeErrors.ILLEGAL_TUPLE_SIZE, size, length);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_TUPLE_SIZE_ERROR,
+                    size, length);
         } else if (this.tupleType.getTupleTypes().size() > length) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    RuntimeErrors.ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE, this.tupleType.getTupleTypes().size(), length);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE,
+                    this.tupleType.getTupleTypes().size(), length);
         }
     }
 
@@ -676,8 +671,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         if (!TypeChecker.checkIsType(value, elemType)) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, ARRAY_LANG_LIB, elemType,
-                    TypeChecker.getType(value));
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, elemType, TypeChecker.getType(value));
         }
 
         fillerValueCheck(intIndex, size);
@@ -689,8 +684,8 @@ public class TupleValueImpl extends AbstractArrayValue {
     private void fillRead(long index, int currentArraySize) {
         Type restType = this.tupleType.getRestType();
         if (!TypeChecker.hasFillerValue(restType)) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
-                                                           RuntimeErrors.ILLEGAL_TUPLE_INSERTION, size, index + 1);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_TUPLE_INSERTION,
+                    size, index + 1);
         }
 
         int intIndex = (int) index;
@@ -723,7 +718,8 @@ public class TupleValueImpl extends AbstractArrayValue {
         int lastIndex = size() + unshiftByN - 1;
         prepareForConsecutiveMultiAdd(lastIndex, arrLength);
         if (index > lastIndex) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, ARRAY_LANG_LIB, index);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         int i = (int) index;

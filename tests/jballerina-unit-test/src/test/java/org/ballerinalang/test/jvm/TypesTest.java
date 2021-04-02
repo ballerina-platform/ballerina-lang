@@ -30,7 +30,6 @@ import org.ballerinalang.core.model.types.BTypes;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BByte;
 import org.ballerinalang.core.model.values.BDecimal;
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
@@ -343,10 +342,7 @@ public class TypesTest {
 
     @Test
     public void testGetNonExistingElement() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetNonExistingElement");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "{ballerina/lang.map}KeyNotFound");
-
+        BRunUtil.invoke(compileResult, "testGetNonExistingElement");
     }
 
     @Test
@@ -535,16 +531,7 @@ public class TypesTest {
 
     @Test
     public void testGetFromNonObjectWithKey() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetFromNonObjectWithKey");
-        Assert.assertNotNull(returns[0]);
-        Assert.assertNotNull(returns[1]);
-        Assert.assertNotNull(returns[2]);
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(),
-                            "{\"message\":\"JSON value is not a mapping\"}");
-        Assert.assertEquals(((BError) returns[1]).getDetails().stringValue(),
-                            "{\"message\":\"JSON value is not a mapping\"}");
-        Assert.assertEquals(((BError) returns[2]).getDetails().stringValue(),
-                            "{\"message\":\"JSON value is not a mapping\"}");
+        BRunUtil.invoke(compileResult, "testGetFromNonObjectWithKey");
     }
 
     @Test
@@ -563,9 +550,7 @@ public class TypesTest {
 
     @Test
     public void testGetElementFromPrimitive() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testGetElementFromPrimitive");
-        Assert.assertEquals(((BError) returns[0]).getDetails().stringValue(),
-                            "{\"message\":\"JSON value is not a mapping\"}");
+        BRunUtil.invoke(compileResult, "testGetElementFromPrimitive");
     }
 
     @Test
@@ -583,10 +568,9 @@ public class TypesTest {
     }
 
     @Test(expectedExceptions = {BLangRuntimeException.class},
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}JSONOperationError \\{\"message\":\"JSON value " +
-                    "is not " +
-                    "a mapping\"\\}\n" +
-                    "\tat types:testGetFromNull\\(types.bal:588\\)")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}JSONOperationError \\{\"message\":" +
+                    "\"JSON value is not a mapping\"\\}\n" +
+                    "\tat types:testGetFromNull\\(types.bal:623\\)")
     public void testGetFromNull() {
         BRunUtil.invoke(compileResult, "testGetFromNull");
     }

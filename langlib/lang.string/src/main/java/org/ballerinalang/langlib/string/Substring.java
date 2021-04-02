@@ -54,12 +54,12 @@ public class Substring {
         }
 
         if (startIndex < 0 || endIndex > value.length()) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.SUBSTRING_INDEX_OUT_OF_RANGE,
-                    RuntimeConstants.STRING_LANG_LIB, value.length(), startIndex, endIndex);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+                    RuntimeErrorType.SUBSTRING_INDEX_OUT_OF_RANGE, value.length(), startIndex, endIndex);
         }
         if (endIndex < startIndex) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INVALID_SUBSTRING_RANGE,
-                    RuntimeConstants.STRING_LANG_LIB, value.length(), startIndex, endIndex);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+                    RuntimeErrorType.INVALID_SUBSTRING_RANGE, value.length(), startIndex, endIndex);
         }
         return value.substring((int) startIndex, (int) endIndex);
     }

@@ -104,7 +104,8 @@ public class OpenRecordEquivalencyRulesTest {
 
     @Test(description = "RHS closed and LHS open with RHS optional fields corresponding to LHS optional fields",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'age'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}MapKeyNotFound \\{\"message\":" +
+                  "\"key 'age' not found.*")
     public void testCRToOROptFieldToOptField2() {
         BRunUtil.invoke(closedRecToOpenRec, "testOptFieldToOptField2");
     }
@@ -143,7 +144,8 @@ public class OpenRecordEquivalencyRulesTest {
 
     @Test(description = "RHS and LHS both open with RHS optional fields corresponding to LHS optional fields",
           expectedExceptions = BLangRuntimeException.class,
-          expectedExceptionsMessageRegExp = ".*KeyNotFound \\{\"message\":\"cannot find key 'age'.*")
+          expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map\\}MapKeyNotFound \\{\"message\":" +
+                  "\"key 'age' not found.*")
     public void testORToOROptFieldToOptField2() {
         BRunUtil.invoke(openRecToOpenRec, "testOptFieldToOptField2");
     }

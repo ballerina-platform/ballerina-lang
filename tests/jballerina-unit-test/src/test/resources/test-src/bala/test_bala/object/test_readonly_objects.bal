@@ -16,8 +16,8 @@
 
 import testorg/readonly_objects as ro;
 
-const OBJECT_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.object}InherentTypeViolation";
-const MAPPING_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InherentTypeViolation";
+const OBJECT_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.runtime}InvalidReadonlyValueUpdate";
+const MAPPING_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InvalidReadonlyFieldUpdate";
 
 function testReadonlyObjects() {
     testBasicReadOnlyObject();

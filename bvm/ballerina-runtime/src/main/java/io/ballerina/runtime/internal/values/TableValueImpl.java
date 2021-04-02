@@ -31,6 +31,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.CycleUtils;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.TableUtils;
 import io.ballerina.runtime.internal.TypeChecker;
@@ -39,6 +40,7 @@ import io.ballerina.runtime.internal.types.BRecordType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.util.exceptions.BLangFreezeException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
@@ -55,12 +57,9 @@ import java.util.StringJoiner;
 import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_TABLE_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.TABLE_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.TABLE_HAS_A_VALUE_FOR_KEY_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.TABLE_KEY_NOT_FOUND_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * The runtime representation of table.
@@ -234,8 +233,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     @Override
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
-            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_TABLE_PKG_ID, RuntimeErrorType.TABLE_KEY_NOT_FOUND, key);
         }
         return this.get(key);
     }
@@ -243,8 +241,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     public V removeOrThrow(Object key) {
         handleFrozenTableValue();
         if (!containsKey(key)) {
-            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_TABLE_PKG_ID, RuntimeErrorType.TABLE_KEY_NOT_FOUND, key);
         }
         return this.remove(key);
     }
@@ -274,8 +271,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
-            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_TABLE_PKG_ID, RuntimeErrorType.TABLE_KEY_NOT_FOUND, key);
         }
 
         Object value = expectedType.getZeroValue();
@@ -429,13 +425,11 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V getData(K key) {
-            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_TABLE_PKG_ID, RuntimeErrorType.TABLE_KEY_NOT_FOUND, key);
         }
 
         public V putData(K key, V data) {
-            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_TABLE_PKG_ID, RuntimeErrorType.TABLE_KEY_NOT_FOUND, key);
         }
 
         public V putData(V data) {
@@ -448,8 +442,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public V remove(K key) {
-            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("cannot find key '" + key + "'"));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_TABLE_PKG_ID, RuntimeErrorType.TABLE_KEY_NOT_FOUND, key);
         }
 
         public boolean containsKey(K key) {
@@ -457,8 +450,7 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
         }
 
         public Type getKeyType() {
-            throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR,
-                                           StringUtils.fromString("keys are not defined"));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_TABLE_PKG_ID, RuntimeErrorType.TABLE_KEY_NOT_DEFINED);
         }
     }
 
@@ -481,8 +473,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             K key = this.keyWrapper.wrapKey(dataMap);
 
             if (containsKey((K) key)) {
-                throw ErrorCreator.createError(TABLE_HAS_A_VALUE_FOR_KEY_ERROR,
-                                               StringUtils.fromString("A value " + "found for key '" + key + "'"));
+                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_TABLE_PKG_ID,
+                        RuntimeErrorType.TABLE_KEY_CONSTRAINT_VIOLATION, key);
             }
 
             if (nextKeySupported && (keys.size() == 0 || maxIntKey < TypeChecker.anyToInt(key))) {
@@ -505,8 +497,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
-                throw ErrorCreator.createError(TABLE_KEY_NOT_FOUND_ERROR, StringUtils.fromString("The key '" +
-                        key + "' not found in value " + data.toString()));
+                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_TABLE_PKG_ID, RuntimeErrorType.KEY_NOT_FOUND_IN_VALUE,
+                        key, data.toString());
             }
 
             return putData(key, data, entry, hash);
@@ -604,10 +596,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
     // This method checks for inherent table type violation
     private void checkInherentTypeViolation(MapValue dataMap, TableType type) {
         if (!TypeChecker.checkIsType(dataMap.getType(), type.getConstrainedType())) {
-            BString reason = getModulePrefixedReason(TABLE_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER);
-            BString detail = StringUtils.fromString("value type '" + dataMap.getType() + "' inconsistent with the " +
-                                                            "inherent table type '" + type + "'");
-            throw ErrorCreator.createError(reason, detail);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_TABLE_PKG_ID,
+                    RuntimeErrorType.INHERENT_TABLE_TYPE_VIOLATION, dataMap.getType(), type);
         }
     }
 

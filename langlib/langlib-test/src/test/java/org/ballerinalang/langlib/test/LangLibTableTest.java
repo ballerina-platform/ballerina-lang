@@ -140,7 +140,7 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot find key 'AAA'\"\\}.*")
+                    "error: \\{ballerina/lang.table\\}TableKeyNotFound \\{\"message\":\"cannot find key 'AAA'\"\\}.*")
     public void getWithInvalidKey() {
         BRunUtil.invoke(compileResult, "getWithInvalidKey");
         Assert.fail();
@@ -148,7 +148,7 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.table\\}KeyNotFound \\{\"message\":\"cannot find key 'AAA'\"\\}.*")
+                    "error: \\{ballerina/lang.table\\}TableKeyNotFound \\{\"message\":\"cannot find key 'AAA'\"\\}.*")
     public void removeWithInvalidKey() {
         BRunUtil.invoke(compileResult, "removeWithInvalidKey");
         Assert.fail();
@@ -205,7 +205,7 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.table\\}KeyConstraintViolation \\{\"message\":\"A value found for key " +
+                    "error: \\{ballerina/lang.table\\}TableKeyConstraintViolation \\{\"message\":\"a value found for key " +
                             "'5'\"\\}.*")
     public void testAddExistingMember() {
         BRunUtil.invoke(compileResult, "testAddExistingMember");
@@ -213,7 +213,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type 'table<Engineer> "
                     + "key\\(name\\)'\"\\}.*")
     public void testAddInconsistentData() {
@@ -222,7 +222,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type 'table<Engineer>"
                     + " key\\(name\\)'\"\\}.*")
     public void testAddInconsistentData2() {
@@ -231,7 +231,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testAddInconsistentDataWithMapConstrTbl() {
@@ -240,7 +240,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'map<string>' inconsistent with the inherent table type " +
                     "'table<Teacher>'\"\\}.*")
     public void testAddInconsistentDataWithMapConstrTbl2() {
@@ -273,7 +273,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type 'table<Engineer> "
                     + "key\\(name\\)'\"\\}.*")
     public void testPutInconsistentData() {
@@ -282,7 +282,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type 'table<Engineer>"
                     + " key\\(name\\)'\"\\}.*")
     public void testPutInconsistentData2() {
@@ -291,7 +291,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testPutInconsistentDataWithMapConstrTbl() {
@@ -300,7 +300,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'map<string>' inconsistent with the inherent table type " +
                     "'table<Teacher>'\"\\}.*")
     public void testPutInconsistentDataWithMapConstrTbl2() {
@@ -391,7 +391,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testAddInconsistentDataToKeylessTbl() {
@@ -400,7 +400,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testAddInconsistentDataToKeylessTbl2() {
@@ -409,7 +409,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'Person' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testPutInconsistentDataToKeylessTbl() {
@@ -418,7 +418,7 @@ public class LangLibTableTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTypeViolation " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table\\}InherentTableTypeViolation " +
                     "\\{\"message\":\"value type 'Student' inconsistent with the inherent table type " +
                     "'table<Engineer>'\"\\}.*")
     public void testPutInconsistentDataToKeylessTbl2() {

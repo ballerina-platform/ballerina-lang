@@ -303,8 +303,9 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
-                    "\"cannot update 'readonly' field 'name' in record of type '\\(Employee & readonly\\)'\".*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidReadonlyFieldUpdate " +
+                    "\\{\"message\":\"cannot update 'readonly' field 'name' in record of type " +
+                    "'\\(Employee & readonly\\)'\".*")
     public void
     testFrozenAnyArrayElementUpdate() {
         BRunUtil.invoke(result, "testFrozenAnyArrayElementUpdate", new BValue[0]);
@@ -318,15 +319,17 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
-                    "\"cannot update 'readonly' field 'name' in record of type '\\(DeptEmployee & readonly\\)'\".*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidReadonlyFieldUpdate " +
+                    "\\{\"message\":\"cannot update 'readonly' field 'name' in record of type " +
+                    "'\\(DeptEmployee & readonly\\)'\".*")
     public void testFrozenRecordUpdate() {
         BRunUtil.invoke(result, "testFrozenRecordUpdate", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InherentTypeViolation \\{\"message\":" +
-                    "\"cannot update 'readonly' field 'code' in record of type '\\(Dept & readonly\\)'\".*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.map}InvalidReadonlyFieldUpdate " +
+                    "\\{\"message\":\"cannot update 'readonly' field 'code' in record of type " +
+                    "'\\(Dept & readonly\\)'\".*")
     public void testFrozenInnerRecordUpdate() {
         BRunUtil.invoke(result, "testFrozenInnerRecordUpdate", new BValue[0]);
     }

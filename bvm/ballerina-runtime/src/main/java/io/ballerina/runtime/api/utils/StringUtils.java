@@ -100,8 +100,8 @@ public class StringUtils {
 
     public static BString getStringAt(BString s, long index) {
         if (index < 0 || index >= s.length()) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.STRING_INDEX_OUT_OF_RANGE,
-                    RuntimeConstants.STRING_LANG_LIB, index, s.length());
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.STRING_INDEX_OUT_OF_RANGE, index, s.length());
         }
 
         return StringUtils.fromString(String.valueOf(Character.toChars(s.getCodePoint((int) index))));

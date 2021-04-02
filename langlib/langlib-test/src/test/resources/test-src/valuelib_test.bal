@@ -553,7 +553,7 @@ public function testCloneWithTypeOptionalFieldToMandotoryField() {
     error bbe = <error> b;
     var message = bbe.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
-    assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(bbe.message(), "{ballerina/lang.typedesc}IncompatibleConvertOperation");
     assert(messageString, "'CRec' value cannot be converted to 'BRec'");
 }
 
@@ -733,7 +733,7 @@ function testCloneWithTypeWithInferredArgument() {
    error err = <error>h;
    var message = err.detail()["message"];
    string messageString = message is error ? message.toString() : message.toString();
-   assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+   assert(err.message(), "{ballerina/lang.typedesc}IncompatibleConvertOperation");
    assert(messageString, "'CRec' value cannot be converted to 'BRec'");
 
    Foo i = {s: "test string"};
@@ -1563,7 +1563,7 @@ function testEnsureTypeNegative() {
     error? err3 = testRequiredTypeWithInvalidCast3();
     error? err4 = trap testRequiredTypeWithInvalidCast4();
     error? err5 = testRequiredTypeWithInvalidCast5();
-    error? err6 = testRequiredTypeWithInvalidCast6();
+    error? err6 = trap testRequiredTypeWithInvalidCast6();
 
     error e1 = <error> err1;
     error e2 = <error> err2;
@@ -1572,12 +1572,18 @@ function testEnsureTypeNegative() {
     error e5 = <error> err5;
     error e6 = <error> err6;
 
-    assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'int'\")", e1.toString());
-    assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'decimal'\")", e2.toString());
-    assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float'\")", e3.toString());
-    assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float[]'\")", e4.toString());
-    assertEquality("error(\"{ballerina}TypeCastError\",message=\"incompatible types: '()' cannot be cast to 'int'\")", e5.toString());
-    assertEquality("error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'children' not found in JSON mapping\")", e6.toString());
+    assertEquality("error TypeCastError (\"{ballerina/lang.runtime}TypeCastError\",message=\"incompatible types: " +
+    "'string' cannot be cast to 'int'\")", e1.toString());
+    assertEquality("error TypeCastError (\"{ballerina/lang.runtime}TypeCastError\",message=\"incompatible types: " +
+    "'string' cannot be cast to 'decimal'\")", e2.toString());
+    assertEquality("error TypeCastError (\"{ballerina/lang.runtime}TypeCastError\",message=\"incompatible types: " +
+    "'string' cannot be cast to 'float'\")", e3.toString());
+    assertEquality("error TypeCastError (\"{ballerina/lang.runtime}TypeCastError\",message=\"incompatible types: " +
+    "'string' cannot be cast to 'float[]'\")", e4.toString());
+    assertEquality("error TypeCastError (\"{ballerina/lang.runtime}TypeCastError\",message=\"incompatible types: " +
+    "'()' cannot be cast to 'int'\")", e5.toString());
+    assertEquality("error MapKeyNotFound (\"{ballerina/lang.map}MapKeyNotFound\",message=\"key 'children' not found\")",
+    e6.toString());
 }
 
 function testEnsureTypeWithInferredArgument() {

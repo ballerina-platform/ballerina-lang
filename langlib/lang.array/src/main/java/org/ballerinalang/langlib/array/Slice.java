@@ -28,9 +28,7 @@ import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.internal.ErrorUtils;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -48,19 +46,19 @@ public class Slice {
         int size = arr.size();
 
         if (startIndex < 0) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, RuntimeConstants.ARRAY_LANG_LIB,
-                    startIndex, size);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, startIndex, size);
         }
 
         if (endIndex > size) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, RuntimeConstants.ARRAY_LANG_LIB,
-                    endIndex, size);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, endIndex, size);
         }
 
         long sliceSize = endIndex - startIndex;
         if (sliceSize < 0) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, RuntimeConstants.ARRAY_LANG_LIB,
-                    sliceSize, size);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 
         Type arrType = arr.getType();

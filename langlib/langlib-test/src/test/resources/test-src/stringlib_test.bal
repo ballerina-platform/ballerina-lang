@@ -112,7 +112,7 @@ function testSubstringOutOfRange() {
     string err = "";
     string errDetail = "";
     string|error ss = trap "abcdef".substring(7, 9);
-    if (ss is runtime:StringIndexOutOfRange) {
+    if (ss is strings:StringIndexOutOfRange) {
         err = ss.message();
         errDetail = ss.detail().toString();
     }

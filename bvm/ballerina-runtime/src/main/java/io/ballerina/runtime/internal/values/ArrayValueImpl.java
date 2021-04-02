@@ -31,11 +31,8 @@ import io.ballerina.runtime.internal.CycleUtils;
 import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.types.BArrayType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.io.IOException;
 import java.io.OutputStream;
@@ -46,10 +43,7 @@ import java.util.Objects;
 import java.util.StringJoiner;
 import java.util.stream.IntStream;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID;
 
 /**
  * <p>
@@ -1018,21 +1012,21 @@ public class ArrayValueImpl extends AbstractArrayValue {
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index >= size) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, RuntimeConstants.ARRAY_LANG_LIB,
-                    index, size);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
     @Override
     protected void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INDEX_NUMBER_TOO_LARGE,
-                    ARRAY_LANG_LIB, index);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if ((int) index < 0 || index >= maxSize) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, RuntimeConstants.ARRAY_LANG_LIB,
-                    index, size);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
 
@@ -1044,8 +1038,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
         if (index > size) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
-                                                           RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_ARRAY_INSERTION,
+                    size, index + 1);
         }
     }
 
@@ -1073,9 +1067,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     protected void checkFixedLength(long length) {
         if (this.arrayType.getState() == ArrayState.CLOSED) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    RuntimeErrors.ILLEGAL_ARRAY_SIZE, size, length);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_ARRAY_SIZE_ERROR,
+                    size, length);
         }
     }
 
@@ -1097,8 +1090,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types
         if (!TypeChecker.checkIsType(value, sourceType, this.elementType)) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, ARRAY_LANG_LIB,
-                    this.elementType, sourceType);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, this.elementType, sourceType);
         }
 
         int intIndex = (int) index;
@@ -1111,8 +1104,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     private void fillRead(long index, int currentArraySize) {
         if (!arrayType.hasFillerValue()) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.ILLEGAL_LIST_INSERTION_ERROR,
-                                                           RuntimeErrors.ILLEGAL_ARRAY_INSERTION, size, index + 1);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_ARRAY_INSERTION,
+                    size, index + 1);
         }
 
         int intIndex = (int) index;
@@ -1162,9 +1155,8 @@ public class ArrayValueImpl extends AbstractArrayValue {
         Object arr = getArrayFromType(elementType.getTag());
 
         if (index > lastIndex) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(ARRAY_LANG_LIB, INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, index);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID,
+                    RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         int i = (int) index;

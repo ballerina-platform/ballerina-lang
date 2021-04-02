@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Field;
@@ -58,10 +59,10 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_MAP_PKG_ID;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.JSON_OPERATION_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.MAP_KEY_NOT_FOUND_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
@@ -169,8 +170,7 @@ public class JsonUtils {
      */
     private static Object getMappingElement(Object json, BString elementName, boolean returnNilOnMissingKey) {
         if (!isJSONObject(json)) {
-            return ErrorCreator.createError(JSON_OPERATION_ERROR,
-                                            StringUtils.fromString("JSON value is not a mapping"));
+            return ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.JSON_OPERATION_ERROR);
         }
 
         MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
@@ -180,8 +180,8 @@ public class JsonUtils {
                 return null;
             }
 
-            return ErrorCreator.createError(MAP_KEY_NOT_FOUND_ERROR, StringUtils
-                    .fromString("Key '" + elementName + "' not found in JSON mapping"));
+            return ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+                    RuntimeErrorType.MAP_KEY_NOT_FOUND, elementName);
         }
 
         try {
@@ -261,8 +261,8 @@ public class JsonUtils {
      */
     public static MapValueImpl<BString, ?> jsonToMap(Object json, MapType mapType) {
         if (!isJSONObject(json)) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, MAP_LANG_LIB,
-                    getComplexObjectTypeName(OBJECT), getTypeName(json));
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
         MapValueImpl<BString, Object> map = new MapValueImpl<>(mapType);
@@ -290,8 +290,8 @@ public class JsonUtils {
      */
     public static MapValueImpl<BString, Object> convertJSONToRecord(Object json, StructureType structType) {
         if (!isJSONObject(json)) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, MAP_LANG_LIB,
-                    getComplexObjectTypeName(OBJECT), getTypeName(json));
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
         MapValueImpl<BString, Object> bStruct = new MapValueImpl<>(structType);
@@ -333,8 +333,8 @@ public class JsonUtils {
                 return jsonNodeToBoolean(jsonValue);
             case TypeTags.JSON_TAG:
                 if (jsonValue != null && !TypeChecker.checkIsType(jsonValue, targetType)) {
-                    throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType,
-                            getTypeName(jsonValue));
+                    throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                            RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType, getTypeName(jsonValue));
                 }
                 // fall through
             case TypeTags.ANY_TAG:
@@ -363,10 +363,11 @@ public class JsonUtils {
                 }
                 // fall through
             default:
-                throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType,
-                        getTypeName(jsonValue));
+                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType, getTypeName(jsonValue));
         }
-        throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType, getTypeName(jsonValue));
+        throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType, getTypeName(jsonValue));
     }
 
     /**
@@ -406,8 +407,8 @@ public class JsonUtils {
             case TypeTags.JSON_TAG:
                 return source;
             default:
-                throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR,
-                        PredefinedTypes.TYPE_JSON, type);
+                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, PredefinedTypes.TYPE_JSON, type);
         }
     }
 
@@ -509,8 +510,8 @@ public class JsonUtils {
      */
     public static ArrayValue convertJSONToBArray(Object json, BArrayType targetArrayType) {
         if (!(json instanceof ArrayValue)) {
-            throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR,
-                    getComplexObjectTypeName(ARRAY), getTypeName(json));
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
         Type targetElementType = targetArrayType.getElementType();
@@ -705,8 +706,8 @@ public class JsonUtils {
                     json.append(convertArrayToJSON((ArrayValue) value));
                     break;
                 default:
-                    throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR,
-                            PredefinedTypes.TYPE_JSON, type);
+                    throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                            RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, PredefinedTypes.TYPE_JSON, type);
             }
         }
         return json;
@@ -797,8 +798,8 @@ public class JsonUtils {
                     json.put(key, convertMapToJSON((MapValueImpl<BString, ?>) value, (BJsonType) exptType));
                     break;
                 default:
-                    throw ErrorUtils.getRuntimeError(RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR,
-                            PredefinedTypes.TYPE_JSON, type);
+                    throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                            RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, PredefinedTypes.TYPE_JSON, type);
             }
         } catch (Exception e) {
             handleError(e, key.getValue());
