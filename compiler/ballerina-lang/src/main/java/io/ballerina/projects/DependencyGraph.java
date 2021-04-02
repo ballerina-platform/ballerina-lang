@@ -79,7 +79,15 @@ public class DependencyGraph<T> {
     }
 
     public Collection<T> getDirectDependents(T node) {
-        throw new UnsupportedOperationException();
+        Set<T> deps = new HashSet<>();
+        for (T depNode : dependencies.keySet()) {
+            if (!depNode.equals(node)) {
+                if (dependencies.get(depNode).contains(node)) {
+                    deps.add(depNode);
+                }
+            }
+        }
+        return deps;
     }
 
     public Collection<T> getDirectDependencies(T node) {

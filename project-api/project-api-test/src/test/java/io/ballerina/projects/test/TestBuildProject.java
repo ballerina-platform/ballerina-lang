@@ -1046,7 +1046,7 @@ public class TestBuildProject {
 
     @Test
     public void testEditDependantModuleDocument() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_for_module_edit_test");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_module_edit_tests/package_with_dependencies");
         String updatedFunctionStr = "public function concatStrings(string a, string b, string c) returns string {\n" +
                 "\treturn a + b;\n" +
                 "}\n";
@@ -1081,7 +1081,7 @@ public class TestBuildProject {
 
     @Test
     public void testRemoveDependantModuleDocument() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_for_module_edit_test");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("projects_for_module_edit_tests/package_with_dependencies");
 
         // 1) Initialize the project instance
         BuildProject project = null;
@@ -1113,7 +1113,8 @@ public class TestBuildProject {
 
     @Test
     public void testEditTransitivelyDependantModuleDocument() {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("project_for_module_edit_test2");
+        Path projectPath = RESOURCE_DIRECTORY
+                .resolve("projects_for_module_edit_tests/package_with_transitive_dependencies");
         String updatedFunctionStr = "public function concatStrings(string a, string b) returns string {\n" +
                 "\treturn a + b;\n" +
                 "}\n";
@@ -1131,6 +1132,43 @@ public class TestBuildProject {
         // 3) Compile the package
         PackageCompilation compilation = currentPackage.getCompilation();
         Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 0);
+
+        // 4) Edit a module that is used by another module
+        Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
+        DocumentId documentId = module.documentIds().stream().findFirst().get();
+        module.document(documentId).modify().withContent(updatedFunctionStr).apply();
+
+        PackageCompilation compilation1 = project.currentPackage().getCompilation();
+        DiagnosticResult diagnosticResult = compilation1.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 1);
+
+        Assert.assertEquals(diagnosticResult.diagnostics().stream().findAny().get().location().lineRange().filePath(),
+                Paths.get("modules").resolve("schema").resolve("schema.bal").toString());
+        Assert.assertTrue(diagnosticResult.diagnostics().stream().findAny().get().message()
+                .contains("unknown type 'PersonalDetails'"));
+    }
+
+    @Test
+    public void testEditPackageWithCyclicDependency() {
+        Path projectPath = RESOURCE_DIRECTORY
+                .resolve("projects_for_module_edit_tests/package_with_cyclic_dependencies");
+        String updatedFunctionStr = "public function concatStrings(string a, string b) returns string {\n" +
+                "\treturn a + b;\n" +
+                "}\n";
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load current package
+        Package currentPackage = project.currentPackage();
+
+        // 3) Compile the package
+        PackageCompilation compilation = currentPackage.getCompilation();
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 4);
 
         // 4) Edit a module that is used by another module
         Module module = currentPackage.module(ModuleName.from(PackageName.from("myproject"), "util"));
