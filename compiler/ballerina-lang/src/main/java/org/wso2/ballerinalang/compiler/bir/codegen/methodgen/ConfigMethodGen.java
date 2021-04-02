@@ -27,11 +27,16 @@ import org.wso2.ballerinalang.compiler.bir.codegen.JvmBStringConstantsGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil;
 import org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static org.objectweb.asm.ClassWriter.COMPUTE_FRAMES;
 import static org.objectweb.asm.Opcodes.AASTORE;
@@ -81,6 +86,11 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VARIABLE_
  */
 public class ConfigMethodGen {
     String innerClassName;
+    private final SymbolTable symbolTable;
+
+    public ConfigMethodGen(SymbolTable symbolTable) {
+        this.symbolTable = symbolTable;
+    }
 
     public void generateConfigMapper(List<PackageID> imprtMods, BIRNode.BIRPackage pkg, String moduleInitClass,
                                      JvmBStringConstantsGen stringConstantsGen, Map<String, byte[]> jarEntries) {
@@ -174,7 +184,25 @@ public class ConfigMethodGen {
                 mv.visitFieldInsn(GETSTATIC, moduleClass, CURRENT_MODULE_VAR_NAME,
                         "L" + MODULE + ";");
                 mv.visitLdcInsn(globalVar.name.value);
-                jvmTypeGen.loadType(mv, globalVar.type);
+                BType type = globalVar.type;
+                if (type.tag == TypeTags.INTERSECTION) {
+                    Set<BType> constituentTypes = ((BIntersectionType) type).getConstituentTypes();
+                    if (constituentTypes.size() == 2) {
+                        boolean hasReadonly = false;
+                        BType otherType = null;
+                        for (BType constituentType : constituentTypes) {
+                            if (constituentType == symbolTable.readonlyType) {
+                                hasReadonly = true;
+                            } else {
+                                otherType = constituentType;
+                            }
+                        }
+                        if (hasReadonly && otherType != null) {
+                            type = otherType;
+                        }
+                    }
+                }
+                jvmTypeGen.loadType(mv, type);
                 if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
                     mv.visitInsn(ICONST_1);
                 } else {

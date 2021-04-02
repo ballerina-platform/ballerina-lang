@@ -144,7 +144,7 @@ public class JvmPackageGen {
         this.dlog = dlog;
         methodGen = new MethodGen(this);
         initMethodGen = new InitMethodGen(symbolTable);
-        configMethodGen = new ConfigMethodGen();
+        configMethodGen = new ConfigMethodGen(symbolTable);
         frameClassGen = new FrameClassGen();
         unifier = new Unifier();
 
