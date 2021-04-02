@@ -404,7 +404,7 @@ public class TomlProvider implements ConfigProvider {
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && type.isReadOnly()) {
             return createReadOnlyFieldRecord(initialValueEntries, recordType, variableName, tomlValue);
         }
-        return ValueCreator.createReadonlyRecordValue(recordPkg, recordName, initialValueEntries);
+        return ValueCreator.createRecordValue(recordPkg, recordName, initialValueEntries);
     }
 
     private BMap<BString, Object> createReadOnlyFieldRecord(Map<String, Object> initialValueEntries,
@@ -485,7 +485,8 @@ public class TomlProvider implements ConfigProvider {
             if (keys != null) {
                 validateKeyField(tableNodeList.get(i), keys, tableType, variableName);
             }
-            Object value = retrieveRecordValues(tableNodeList.get(i), variableName, constraintType);
+            BMap<BString, Object> value = retrieveRecordValues(tableNodeList.get(i), variableName, constraintType);
+            value.freezeDirect();
             tableEntries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData =
