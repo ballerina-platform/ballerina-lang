@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
-import io.ballerina.compiler.syntax.tree.Token;
+import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -26,18 +26,19 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import java.util.List;
 
 /**
- * Completion Provider for {@link FieldAccessExpressionNode} context.
+ * Completion provider for {@link MethodCallExpressionNode} context.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAccessExpressionNode> {
-    public FieldAccessExpressionNodeContext() {
-        super(FieldAccessExpressionNode.class);
+public class MethodCallExpressionNodeContext extends FieldAccessContext<MethodCallExpressionNode> {
+
+    public MethodCallExpressionNodeContext() {
+        super(MethodCallExpressionNode.class);
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FieldAccessExpressionNode node)
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, MethodCallExpressionNode node)
             throws LSCompletionException {
         ExpressionNode expression = node.expression();
         List<LSCompletionItem> completionItems = getEntries(context, expression, false);
@@ -47,17 +48,19 @@ public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAc
     }
 
     @Override
-    public boolean onPreValidation(BallerinaCompletionContext context, FieldAccessExpressionNode node) {
-        int cursor = context.getCursorPositionInTree();
-        Token dotToken = node.dotToken();
+    public boolean onPreValidation(BallerinaCompletionContext context, MethodCallExpressionNode node) {
         /*
-        Added the cursor check against the dot token in order to validate the following and move to the enclosing 
-        block.
-        This check will skip the field access and accordingly navigate to MethodCallExpressionNodeContext
-        and the particular onPreValidation will route to the it's own parent (ex: BlockNode)
-        (1) s<cursor>abc.def.testMethod()
+        Supports the following only
+        eg:
+        (1) abc.def.test<cursor>Method()
+        With this check, the following example also will come to the methodCall navigating through the parent 
+        hierarchy and skip properly
+        eg:
+        (2) s<cursor>abc.def.testMethod()
          */
-        return cursor <= node.textRange().endOffset() && !dotToken.isMissing() &&
-                cursor > dotToken.textRange().startOffset();
+        int cursor = context.getCursorPositionInTree();
+        NameReferenceNode nameRef = node.methodName();
+
+        return cursor >= nameRef.textRange().startOffset() && cursor <= nameRef.textRange().endOffset();
     }
 }
