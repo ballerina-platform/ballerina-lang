@@ -34,6 +34,7 @@ public class ItemResolverConstants {
     public static final String TRANSACTION = "transaction";
     public static final String TRANSACTIONAL = "transactional";
     public static final String RETRY_TRANSACTION = "retry transaction";
+    public static final String RETRY = "retry";
     public static final String TRAP = "trap";
     public static final String WHILE = "while";
     public static final String DO = "do";

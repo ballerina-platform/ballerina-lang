@@ -327,6 +327,8 @@ public enum Snippet {
 
     STMT_TRANSACTION(SnippetGenerator.getTransactionStatementSnippet()),
 
+    STMT_RETRY(SnippetGenerator.getRetryStatementSnippet()),
+
     STMT_RETRY_TRANSACTION(SnippetGenerator.getRetryTransactionStatementSnippet()),
 
     STMT_TRAP(SnippetGenerator.getTrapSnippet()),
