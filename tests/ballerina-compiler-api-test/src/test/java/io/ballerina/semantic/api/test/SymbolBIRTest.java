@@ -99,12 +99,8 @@ public class SymbolBIRTest {
     public void testRecordFieldSymbol(int line, int col, String fieldName, TypeDescKind typeKind, boolean isOptional,
                                       boolean hasDefaultValue, String signature) {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_record_field_imports_test.bal");
-        Package currentPackage = project.currentPackage();
-        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        SemanticModel model = getDefaultModulesSemanticModel(project);
         Document srcFile = getDocumentForSingleSource(project);
-
-        PackageCompilation packageCompilation = currentPackage.getCompilation();
-        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
 
         Symbol symbol = model.symbol(srcFile, from(line, col))
                 .orElseThrow(() -> new AssertionError("Expected a symbol at: (" + line + ", " + col + ")"));
