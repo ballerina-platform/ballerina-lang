@@ -18,20 +18,20 @@ function func() {
     any|error v = {x1: 1, b: true};
 
     match v {
-        var  {x1, b: x2} => {
+        var {x1, b: x2} => {
             any|error a = x1;
         }
 
         [var x3, var x4] => {
-            any|error a = x4;
+            any|error b = x4;
         }
 
         error(var x5, val = var x6) => {
-            any|error a = x5;
+            any|error c = x5;
         }
 
         var x7 => {
-            any|error a = x7;
+            any|error d = x7;
         }
     }
 }

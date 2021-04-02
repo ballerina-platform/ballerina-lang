@@ -317,8 +317,8 @@ public class SymbolLookupTest {
         assert symbolStringList.containsAll(expectedNameList);
     }
 
-    @Test
-    public void testSymbolLookupInMatchClause() {
+    @Test(dataProvider = "PositionProvider5")
+    public void testSymbolLookupInMatchClause(int line, int column, int expSymbols, List<String> expSymbolNames) {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_match.bal");
         Package currentPackage = project.currentPackage();
         ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
@@ -329,17 +329,22 @@ public class SymbolLookupTest {
         BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
         ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
 
-        Map<String, Symbol> symbolsInMappingMatch = getSymbolsInFile(model, srcFile, 21, 26, moduleID);
-        assertList(symbolsInMappingMatch, Arrays.asList("a", "func", "v", "x1", "x2"));
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, column, moduleID);
+        assertEquals(symbolsInFile.size(), expSymbols);
 
-        Map<String, Symbol> symbolsInTupleMatch = getSymbolsInFile(model, srcFile, 25, 26, moduleID);
-        assertList(symbolsInTupleMatch, Arrays.asList("a", "func", "v", "x3", "x4"));
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
+    }
 
-        Map<String, Symbol> symbolsInErrorMatch = getSymbolsInFile(model, srcFile, 29, 26, moduleID);
-        assertList(symbolsInErrorMatch, Arrays.asList("a", "func", "v", "x5", "x6"));
-
-        Map<String, Symbol> symbolsInVarMatch = getSymbolsInFile(model, srcFile, 33, 26, moduleID);
-        assertList(symbolsInVarMatch, Arrays.asList("a", "func", "v", "x7"));
+    @DataProvider(name = "PositionProvider5")
+    public Object[][] getPositionsForMatchStatement() {
+        return new Object[][]{
+                {21, 26, 5, asList("a", "func", "v", "x1", "x2")},
+                {25, 26, 5, asList("b", "func", "v", "x3", "x4")},
+                {29, 26, 5, asList("c", "func", "v", "x5", "x6")},
+                {33, 26, 4, asList("d", "func", "v", "x7")}
+        };
     }
 
     private String createSymbolString(Symbol symbol) {
