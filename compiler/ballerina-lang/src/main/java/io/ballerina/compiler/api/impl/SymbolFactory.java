@@ -152,6 +152,9 @@ public class SymbolFactory {
             if (Symbols.isFlagOn(symbol.flags, Flags.DEFAULTABLE_PARAM)) {
                 return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.DEFAULTABLE);
             }
+            if (Symbols.isFlagOn(symbol.flags, Flags.INCLUDED)) {
+                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.INCLUDED_RECORD);
+            }
             if (Symbols.isFlagOn(symbol.flags, Flags.REST_PARAM)) {
                 return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REST);
             }

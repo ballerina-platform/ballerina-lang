@@ -1289,6 +1289,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Retry Statement Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRetryStatementSnippet() {
+        String snippet = "retry {" + CommonUtil.LINE_SEPARATOR
+                + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RETRY, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
+    }
+
+    /**
      * Get Trap Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1388,9 +1400,28 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getDoStatementSnippet() {
+        return getDoSnippet(ItemResolverConstants.STATEMENT_TYPE, Kind.STATEMENT);
+    }
+
+    /**
+     * Get {@code do} Clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDoClauseSnippet() {
+        return getDoSnippet(ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Common method to generate {@code do} statement/clause.
+     *
+     * @param snippetType      Snippet type
+     * @param snippetBlockKind Snippet block kind
+     * @return Snippet block for do stmt/clause
+     */
+    private static SnippetBlock getDoSnippet(String snippetType, Kind snippetBlockKind) {
         String snippet = "do {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.DO, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                Kind.STATEMENT);
+        return new SnippetBlock(ItemResolverConstants.DO, snippet, snippetType, snippetBlockKind);
     }
 
     /**

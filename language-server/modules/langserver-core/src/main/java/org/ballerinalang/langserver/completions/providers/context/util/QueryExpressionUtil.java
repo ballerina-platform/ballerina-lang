@@ -37,7 +37,7 @@ public class QueryExpressionUtil {
                 new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()),
                 new SnippetCompletionItem(context, Snippet.KW_ORDERBY.get()),
                 new SnippetCompletionItem(context, Snippet.KW_LIMIT.get()),
-                new SnippetCompletionItem(context, Snippet.STMT_DO.get()),
+                new SnippetCompletionItem(context, Snippet.CLAUSE_DO.get()),
                 new SnippetCompletionItem(context, Snippet.KW_SELECT.get())
         );
     }
