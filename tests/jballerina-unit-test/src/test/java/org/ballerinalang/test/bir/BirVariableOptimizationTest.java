@@ -67,7 +67,7 @@ public class BirVariableOptimizationTest {
         }
         if (!"".equals(expectedBir)) {
             String funcBir = birEmitter.emitFunction(func, 0);
-            Assert.assertEquals(expectedBir, funcBir);
+            Assert.assertEquals(funcBir, expectedBir);
         }
     }
 
