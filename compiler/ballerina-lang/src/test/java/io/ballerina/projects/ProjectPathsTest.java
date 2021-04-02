@@ -149,6 +149,9 @@ public class ProjectPathsTest {
         Assert.assertTrue(ProjectPaths.isStandaloneBalFile(
                 buildProjectPath.resolve("test-utils").resolve("utils.bal")));
         Assert.assertTrue(ProjectPaths.isStandaloneBalFile(tempDir.resolve("test.bal")));
+
+        Assert.assertFalse(ProjectPaths.isStandaloneBalFile(
+                balaProjectPath.resolve("modules").resolve("mod1").resolve("mod1.bal")));
     }
 
     @Test

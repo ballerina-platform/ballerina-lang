@@ -51,7 +51,7 @@ public function main() returns error? {
             checkpanic caller->respond("Sum of numbers: " + sum.toString());
         }
     };
-    var testObserveListener = new testobserve:Listener(9091);
+    var testObserveListener = new testobserve:Listener(19091);
     check testObserveListener.attach(testServiceInMain, "/testServiceOne");
     check testObserveListener.start();
 }
