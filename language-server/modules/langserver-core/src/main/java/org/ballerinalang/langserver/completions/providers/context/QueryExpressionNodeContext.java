@@ -53,7 +53,7 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
              * multiple intermediate clauses and the select clause.
              * query-expr := [query-construct-type] query-pipeline select-clause [on-conflict-clause]
              */
-            completionItems.addAll(new ArrayList<>(Arrays.asList(
+            completionItems.addAll(Arrays.asList(
                     new SnippetCompletionItem(context, Snippet.KW_FROM.get()),
                     new SnippetCompletionItem(context, Snippet.CLAUSE_FROM.get()),
                     new SnippetCompletionItem(context, Snippet.KW_WHERE.get()),
@@ -62,13 +62,16 @@ public class QueryExpressionNodeContext extends AbstractCompletionProvider<Query
                     new SnippetCompletionItem(context, Snippet.KW_JOIN.get()),
                     new SnippetCompletionItem(context, Snippet.CLAUSE_JOIN.get()),
                     new SnippetCompletionItem(context, Snippet.KW_ORDERBY.get()),
-                    new SnippetCompletionItem(context, Snippet.KW_LIMIT.get()))));
+                    new SnippetCompletionItem(context, Snippet.KW_LIMIT.get())
+            ));
             if (!node.queryPipeline().fromClause().isMissing()) {
                 /*
                  * It is mandatory to have at least one pipeline clause.
                  * Only if that is true we suggest the select clause
                  */
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_SELECT.get()));
+                // Similarly do clause requires at least one query pipeline clause
+                completionItems.add(new SnippetCompletionItem(context, Snippet.CLAUSE_DO.get()));
             }
         }
         this.sort(context, node, completionItems);

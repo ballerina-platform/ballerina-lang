@@ -10221,20 +10221,29 @@ public class BallerinaParser extends AbstractParser {
         STNode expr = parseExpression();
 
         // Remove additional token in interpolation
-        while (true) {
-            STToken nextToken = peek();
-            if (nextToken.kind == SyntaxKind.EOF_TOKEN || nextToken.kind == SyntaxKind.CLOSE_BRACE_TOKEN) {
-                break;
-            } else {
-                nextToken = consume();
-                expr = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(expr, nextToken,
-                        DiagnosticErrorCode.ERROR_INVALID_TOKEN, nextToken.text());
-            }
+        while (!isEndOfInterpolation()) {
+            STToken nextToken = consume();
+            expr = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(expr, nextToken,
+                    DiagnosticErrorCode.ERROR_INVALID_TOKEN, nextToken.text());
         }
 
         STNode closeBrace = parseCloseBrace();
         endContext();
         return STNodeFactory.createInterpolationNode(interpolStart, expr, closeBrace);
+    }
+
+    private boolean isEndOfInterpolation() {
+        SyntaxKind nextTokenKind = peek().kind;
+        switch (nextTokenKind) {
+            case EOF_TOKEN:
+            case BACKTICK_TOKEN:
+                return true;
+            default:
+                // Validate if the close brace is the end close brace of interpolation
+                ParserMode currentLexerMode = this.tokenReader.getCurrentMode();
+                return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN && currentLexerMode != ParserMode.INTERPOLATION &&
+                        currentLexerMode != ParserMode.INTERPOLATION_BRACED_CONTENT;
+        }
     }
 
     /**
@@ -14223,6 +14232,11 @@ public class BallerinaParser extends AbstractParser {
                     return STNodeFactory.createTypedBindingPatternNode(newTypeDesc, typedBP.bindingPattern);
                 }
 
+                // If the next token is an equal, then it is typedBP with union type desc and missing var name
+                if (peek().kind == SyntaxKind.EQUAL_TOKEN) {
+                    return createCaptureBPWithMissingVarName(typeOrExpr, pipe, rhsTypedBPOrExpr);
+                }
+
                 return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, typeOrExpr, pipe,
                         rhsTypedBPOrExpr);
             case BITWISE_AND_TOKEN:
@@ -14238,6 +14252,11 @@ public class BallerinaParser extends AbstractParser {
                     typeOrExpr = getTypeDescFromExpr(typeOrExpr);
                     STNode newTypeDesc = createIntersectionTypeDesc(typeOrExpr, ampersand, typedBP.typeDescriptor);
                     return STNodeFactory.createTypedBindingPatternNode(newTypeDesc, typedBP.bindingPattern);
+                }
+
+                // If the next token is an equal, then it is typedBP with intersection type desc and missing var name
+                if (peek().kind == SyntaxKind.EQUAL_TOKEN) {
+                    return createCaptureBPWithMissingVarName(typeOrExpr, ampersand, rhsTypedBPOrExpr);
                 }
 
                 return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, typeOrExpr, ampersand,
@@ -14288,6 +14307,24 @@ public class BallerinaParser extends AbstractParser {
                 recover(token, ParserRuleContext.BINDING_PATTERN_OR_EXPR_RHS, typeOrExpr, allowAssignment);
                 return parseTypedBindingPatternOrExprRhs(typeOrExpr, allowAssignment);
         }
+    }
+
+    private STNode createCaptureBPWithMissingVarName(STNode lhsType, STNode separatorToken, STNode rhsType) {
+        lhsType = getTypeDescFromExpr(lhsType);
+        rhsType = getTypeDescFromExpr(rhsType);
+
+        STNode newTypeDesc;
+        if (separatorToken.kind == SyntaxKind.PIPE_TOKEN) {
+            newTypeDesc = createUnionTypeDesc(lhsType, separatorToken, rhsType);
+        } else {
+            newTypeDesc = createIntersectionTypeDesc(lhsType, separatorToken, rhsType);
+        }
+
+        STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                ParserRuleContext.VARIABLE_NAME);
+        STNode captureBP = STNodeFactory.createCaptureBindingPatternNode(identifier);
+
+        return STNodeFactory.createTypedBindingPatternNode(newTypeDesc, captureBP);
     }
 
     private STNode parseTypeBindingPatternStartsWithAmbiguousNode(STNode typeDesc) {

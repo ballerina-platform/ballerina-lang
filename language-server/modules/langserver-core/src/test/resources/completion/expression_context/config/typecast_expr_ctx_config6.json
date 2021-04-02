@@ -46,6 +46,52 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
@@ -92,52 +138,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.query",
       "kind": "Module",
       "detail": "Module",
@@ -161,11 +161,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.array",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "array",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -179,7 +179,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.array;\n"
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -470,11 +470,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "C",
-      "insertText": "value1",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "A",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -483,6 +483,97 @@
       "detail": "string",
       "sortText": "C",
       "insertText": "value2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorName",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "ErrorName",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "value1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "byte",
       "insertTextFormat": "Snippet"
     }
   ]

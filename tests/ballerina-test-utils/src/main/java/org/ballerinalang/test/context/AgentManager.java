@@ -37,7 +37,7 @@ public class AgentManager {
         agentPort = Integer.parseInt(System.getProperty(BALLERINA_AGENT_PORT_START_VALUE, DEFAULT_AGENT_PORT_START));
     }
 
-    public static AgentManager getInstance() {
+    public static synchronized AgentManager getInstance() {
         if (agentManager != null) {
             return agentManager;
         }
