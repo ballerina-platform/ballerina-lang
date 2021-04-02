@@ -27,6 +27,7 @@ import org.objectweb.asm.MethodVisitor;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.FieldNameHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.NameHashComparator;
+import org.wso2.ballerinalang.compiler.bir.codegen.internal.TypeHashComparator;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.BIRFunctionWrapper;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethodGen;
 import org.wso2.ballerinalang.compiler.bir.codegen.interop.JFieldBIRFunction;
@@ -144,6 +145,7 @@ class JvmValueGen {
 
     static final FieldNameHashComparator FIELD_NAME_HASH_COMPARATOR = new FieldNameHashComparator();
     static final NameHashComparator NAME_HASH_COMPARATOR = new NameHashComparator();
+    static final TypeHashComparator TYPE_HASH_COMPARATOR = new TypeHashComparator();
     static final String ENCODED_RECORD_INIT =
             IdentifierUtils.encodeFunctionIdentifier(Names.INIT_FUNCTION_SUFFIX.value);
     private final BIRNode.BIRPackage module;

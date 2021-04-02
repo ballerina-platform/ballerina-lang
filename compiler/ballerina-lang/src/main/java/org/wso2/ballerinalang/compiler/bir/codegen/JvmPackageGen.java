@@ -462,6 +462,7 @@ public class JvmPackageGen {
                 cw.visit(V1_8, ACC_PUBLIC + ACC_SUPER, moduleClass, null, VALUE_CREATOR, null);
                 JvmCodeGenUtil.generateDefaultConstructor(cw, VALUE_CREATOR);
                 jvmTypeGen.generateUserDefinedTypeFields(cw, module.typeDefs);
+                jvmTypeGen.generateGetAnonTypeMethod(cw, module.typeDefs, moduleInitClass);
                 jvmTypeGen.generateValueCreatorMethods(cw, module.typeDefs, module.packageID, moduleInitClass,
                                                        symbolTable, asyncDataCollector);
                 // populate global variable to class name mapping and generate them
