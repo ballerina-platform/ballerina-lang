@@ -35,7 +35,6 @@ import java.util.Stack;
  * @since 2.0.0
  */
 public class VariableFormatter extends SegmentFormatter {
-    private static final String NEWLINE_CHAR = "\n";
     private static final String SEMICOLON_CHAR = ";";
     private static final String SPACE_CHAR = " ";
     private static final String EQ_CHAR = " = ";
@@ -86,10 +85,10 @@ public class VariableFormatter extends SegmentFormatter {
                 String leadingMinutiae = formatter.format(params.pop());
                 stringBuilder.append(LEADING_MINUTIAE).append(EQ_CHAR)
                         .append(leadingMinutiae)
-                        .append(SEMICOLON_CHAR).append(NEWLINE_CHAR);
+                        .append(SEMICOLON_CHAR).append(System.lineSeparator());
                 stringBuilder.append(TRAILING_MINUTIAE).append(EQ_CHAR)
                         .append(trailingMinutiae)
-                        .append(SEMICOLON_CHAR).append(NEWLINE_CHAR);
+                        .append(SEMICOLON_CHAR).append(System.lineSeparator());
                 minutiaeNodesPresent = true;
             }
         }
@@ -108,7 +107,8 @@ public class VariableFormatter extends SegmentFormatter {
                 .append(token.getType()).append(SPACE_CHAR)
                 .append(namedContent.name).append(EQ_CHAR)
                 .append(factorySegment)
-                .append(SEMICOLON_CHAR).append(NEWLINE_CHAR).append(NEWLINE_CHAR);
+                .append(SEMICOLON_CHAR).append(System.lineSeparator())
+                .append(System.lineSeparator());
 
         namedContent.content = stringBuilder.toString();
         return namedContent;
@@ -147,7 +147,8 @@ public class VariableFormatter extends SegmentFormatter {
                 .append(factorySegment.getGenericType())
                 .append(SPACE_CHAR).append(namedContent.name)
                 .append(EQ_CHAR).append(factorySegment)
-                .append(SEMICOLON_CHAR).append(NEWLINE_CHAR).append(NEWLINE_CHAR);
+                .append(SEMICOLON_CHAR).append(System.lineSeparator())
+                .append(System.lineSeparator());
         namedContent.content = stringBuilder.toString();
         return namedContent;
     }

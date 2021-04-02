@@ -30,7 +30,6 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class TemplateFormatter extends SegmentFormatter {
-    private static final String NEWLINE_CHAR = "\n";
     private static final String TAB_CHAR = "    ";
 
     private final SegmentFormatter baseFormatter;
@@ -58,8 +57,9 @@ public class TemplateFormatter extends SegmentFormatter {
     @Override
     public String format(Segment segment) {
         String nodeString = baseFormatter.format(segment);
-        String[] lines = nodeString.split(NEWLINE_CHAR);
-        String indentedLines = String.join(NEWLINE_CHAR + TAB_CHAR.repeat(indent), lines);
+        String[] lines = nodeString.split(System.lineSeparator());
+        String indentedLines = String.join(System.lineSeparator()
+                + TAB_CHAR.repeat(indent), lines);
         return String.format(baseTemplate, indentedLines);
     }
 }

@@ -33,7 +33,6 @@ public class DefaultFormatter extends SegmentFormatter {
     private static final char COMMA = ',';
     private static final char QUOTE = '"';
     private static final char ESCAPE = '\\';
-    private static final String NEWLINE_CHAR = "\n";
     private static final String TAB_CHAR = "    ";
 
     /**
@@ -80,18 +79,18 @@ public class DefaultFormatter extends SegmentFormatter {
                 output.append(character);
                 foundCommaInCurrentParen = commaInsideParenPresent(input, position);
                 if (foundCommaInCurrentParen) {
-                    output.append(NEWLINE_CHAR).append(tab(++depth));
+                    output.append(System.lineSeparator()).append(tab(++depth));
                 }
             } else if (character == CLOSE_PAREN) {
                 // Closing parentheses
                 if (input.charAt(position - 1) != OPEN_PAREN && foundCommaInCurrentParen) {
-                    output.append(NEWLINE_CHAR).append(tab(--depth));
+                    output.append(System.lineSeparator()).append(tab(--depth));
                 }
                 foundCommaInCurrentParen = true;
                 output.append(character);
             } else if (character == COMMA) {
                 // Comma
-                output.append(character).append(NEWLINE_CHAR).append(tab(depth));
+                output.append(character).append(System.lineSeparator()).append(tab(depth));
             } else {
                 // Other
                 output.append(character);
