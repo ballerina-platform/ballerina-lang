@@ -113,8 +113,6 @@ public class SymbolBIRTest {
         assertEquals(fieldSymbol.isOptional(), isOptional);
         assertEquals(fieldSymbol.hasDefaultValue(), hasDefaultValue);
         assertEquals(fieldSymbol.signature(), signature);
-
-
     }
 
     @DataProvider(name = "RecordFieldImports")
