@@ -111,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
@@ -3991,8 +3992,14 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         docAttachment.deprecatedDocumentation = deprecatedDocs.getDocumentation();
 
-        for (BLangMarkdownParameterDocumentation param :
-                docNode.getDeprecatedParametersDocumentation().getParameters()) {
+        BLangMarkDownDeprecatedParametersDocumentation deprecatedParamsDocs =
+                docNode.getDeprecatedParametersDocumentation();
+
+        if (deprecatedParamsDocs == null) {
+            return docAttachment;
+        }
+
+        for (BLangMarkdownParameterDocumentation param : deprecatedParamsDocs.getParameters()) {
             docAttachment.deprecatedParams.add(
                     new MarkdownDocAttachment.Parameter(param.parameterName.value, param.getParameterDocumentation()));
         }
