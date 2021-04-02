@@ -41,6 +41,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNoType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BPackageType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BParameterizedType;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BReadonlyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStructureType;
@@ -134,6 +135,10 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
                 return visit((BStreamType) type);
             case TypeTags.INTERSECTION:
                 return visit((BIntersectionType) type);
+            case TypeTags.READONLY:
+                return visit((BReadonlyType) type);
+            case TypeTags.PARAMETERIZED_TYPE:
+                return visit((BParameterizedType) type);
             case TypeTags.SIGNED8_INT:
             case TypeTags.SIGNED16_INT:
             case TypeTags.SIGNED32_INT:
@@ -148,6 +153,8 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
             case TypeTags.XML_COMMENT:
             case TypeTags.XML_TEXT:
                 return visit((BXMLSubType) type);
+            case TypeTags.NONE:
+                return 0;
             default: {
                 if (isVisited(type)) {
                     return visited.get(type);
@@ -321,14 +328,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
 
     @Override
     public Integer visit(BJSONType type) {
-        if (isVisited(type)) {
-            return visited.get(type);
-        }
-        if (isCyclic(type)) {
-            return 0;
-        }
-        Integer hash = hash(baseHash(type), type.getKind().typeName());
-        return addToVisited(type, hash);
+        return visit((BUnionType) type);
     }
 
     @Override
@@ -369,15 +369,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
 
     @Override
     public Integer visit(BNoType type) {
-        if (isVisited(type)) {
-            return visited.get(type);
-        }
-
-        if (isCyclic(type)) {
-            return 0;
-        }
-
-        return addToVisited(type, baseHash(type));
+        return 0;
     }
 
     @Override
