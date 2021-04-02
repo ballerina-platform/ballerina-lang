@@ -33,7 +33,7 @@ test {
 
 description = 'Ballerina - Syntax API Quoter'
 
-ext.moduleName = 'quoter-core'
+ext.moduleName = 'api-quoter'
 
 compileJava {
     inputs.property("moduleName", moduleName)
