@@ -120,7 +120,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
         //Checks for instances in which the LS needs to be initiated in lightweight mode
-        if (params.getInitializationOptions() != null && checkInitMode(params.getInitializationOptions())) {
+        if (isLightWeightMode(params)) {
             return CompletableFuture.supplyAsync(() -> res);
         }
 
@@ -261,10 +261,12 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         languageClient.registerCapability(new RegistrationParams(Collections.singletonList(registration)));
     }
 
-    private Boolean checkInitMode(Object options) {
-        JsonObject initOptions = (JsonObject) options;
-        if (initOptions.has(LS_INIT_MODE_PROPERTY)) {
-            return initOptions.get(LS_INIT_MODE_PROPERTY).getAsBoolean();
+    private Boolean isLightWeightMode(InitializeParams params) {
+        if (params.getInitializationOptions() != null) {
+            JsonObject initOptions = (JsonObject) params.getInitializationOptions();
+            if (initOptions.has(LS_INIT_MODE_PROPERTY)) {
+                return initOptions.get(LS_INIT_MODE_PROPERTY).getAsBoolean();
+            }
         }
         return false;
     }
