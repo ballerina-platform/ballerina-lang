@@ -1936,7 +1936,7 @@ public class JvmTypeGen {
         String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(bType));
 
-        if (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)) {
+        if (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX) && packageID != PackageID.DEFAULT) {
             Integer hash = typeHashVisitor.visit(bType);
             String shape = bType.toString();
             typeHashVisitor.reset();
@@ -1946,7 +1946,7 @@ public class JvmTypeGen {
             mv.visitMethodInsn(INVOKESPECIAL, typeOwner, JVM_INIT_METHOD, "()V", false);
 
             mv.visitLdcInsn(hash);
-            mv.visitLdcInsn(String.format("Package: %s, Shape: %s", packageID, shape));
+            mv.visitLdcInsn(String.format("Package: %s, TypeName: %s, Shape: %s", typeOwner, fieldName, shape));
             mv.visitMethodInsn(INVOKEVIRTUAL, typeOwner, GET_ANON_TYPE,
                     String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), false);
         } else {
