@@ -33,7 +33,6 @@ import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleCompilation;
 import io.ballerina.projects.ModuleConfig;
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleId;
@@ -752,11 +751,11 @@ public class TestBuildProject {
         Module defaultModule = currentPackage.getDefaultModule();
         Assert.assertEquals(defaultModule.documentIds().size(), 2);
 
-        // 5) Compile the module
-        ModuleCompilation compilation = defaultModule.getCompilation();
+        // 5) Compile the package
+        PackageCompilation compilation = project.currentPackage().getCompilation();
 
         // 6) Get semantic model
-        SemanticModel semanticModel = compilation.getSemanticModel();
+        SemanticModel semanticModel = compilation.getSemanticModel(defaultModule.moduleId());
 
         // 7) Get the document
         Document srcFile = null;
