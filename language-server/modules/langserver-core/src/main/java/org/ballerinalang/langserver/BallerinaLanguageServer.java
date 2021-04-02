@@ -90,6 +90,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private final BallerinaPackageService ballerinaPackageService;
     private int shutdown = 1;
 
+    private static final String LS_INIT_MODE_PROPERTY = "enableLightWeightMode";
+
     public BallerinaLanguageServer() {
         this(new LanguageServerContextImpl());
     }
@@ -118,12 +120,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
 
         //Checks for instances in which the LS needs to be initiated in lightweight mode
-        if (params.getInitializationOptions() != null) {
-            JsonObject initOptions = (JsonObject) params.getInitializationOptions();
-            if (initOptions.has("enableLightWeightMode")
-                && initOptions.get("enableLightWeightMode").getAsBoolean()) {
-                return CompletableFuture.supplyAsync(() -> res);
-            }
+        if (params.getInitializationOptions() != null && checkInitMode(params.getInitializationOptions())) {
+            return CompletableFuture.supplyAsync(() -> res);
         }
 
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
@@ -261,5 +259,13 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         Registration registration = new Registration(UUID.randomUUID().toString(),
                                                      "workspace/didChangeWatchedFiles", opts);
         languageClient.registerCapability(new RegistrationParams(Collections.singletonList(registration)));
+    }
+
+    private Boolean checkInitMode(Object options) {
+        JsonObject initOptions = (JsonObject) options;
+        if (initOptions.has(LS_INIT_MODE_PROPERTY)) {
+            return initOptions.get(LS_INIT_MODE_PROPERTY).getAsBoolean();
+        }
+        return false;
     }
 }
