@@ -120,4 +120,15 @@ public class TestExportModules {
         Assert.assertTrue(compileResult.getDiagnostics()[0].message()
                                   .contains("cannot resolve module 'foo/winery.storage:0.1.0 is not exported'"));
     }
+
+    @Test(description = "test build project has non-exported, same package module as an import")
+    public void testBuildProjectHasSamePackageNonExportedModuleImport() {
+        CompileResult compileResult =
+                BCompileUtil.compile("export_modules/build_project_with_non_export_same_package_import");
+        if (compileResult.getErrorCount() > 0) {
+            Arrays.stream(compileResult.getDiagnostics()).forEach(System.out::println);
+            Assert.fail("Compilation contains errors");
+        }
+        Assert.assertEquals(compileResult.getErrorCount(), 0);
+    }
 }

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree;
 
 import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.internal.ModuleContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import org.ballerinalang.compiler.CompilerPhase;
@@ -89,6 +90,7 @@ public class BLangPackage extends BLangNode implements PackageNode {
     private TreeSet<Diagnostic> diagnostics;
 
     public RepoHierarchy repos;
+    public ModuleContext moduleContext;
 
     public BLangPackage() {
         this.compUnits = new ArrayList<>();

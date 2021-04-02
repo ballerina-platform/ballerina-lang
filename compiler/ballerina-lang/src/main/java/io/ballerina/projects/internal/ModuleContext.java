@@ -1,5 +1,7 @@
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.ModuleDescriptor;
+
 /**
  * Interface for {@code ModuleContext}.
  *
@@ -8,4 +10,6 @@ package io.ballerina.projects.internal;
 public interface ModuleContext {
 
     public boolean isExported();
+
+    public ModuleDescriptor descriptor();
 }

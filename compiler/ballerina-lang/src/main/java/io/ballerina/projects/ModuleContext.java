@@ -125,7 +125,8 @@ class ModuleContext implements io.ballerina.projects.internal.ModuleContext {
         return this.moduleId;
     }
 
-    ModuleDescriptor descriptor() {
+    @Override
+    public ModuleDescriptor descriptor() {
         return moduleDescriptor;
     }
 
@@ -365,6 +366,7 @@ class ModuleContext implements io.ballerina.projects.internal.ModuleContext {
 
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         pkgNode.projectKind = moduleContext.project().kind();
+        pkgNode.moduleContext = moduleContext;
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files
@@ -449,7 +451,8 @@ class ModuleContext implements io.ballerina.projects.internal.ModuleContext {
         PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();
         moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(
                 moduleCompilationId, null, moduleContext.birBytes);
-        moduleContext.bPackageSymbol.setModuleContext(moduleContext);
+        moduleContext.bPackageSymbol.exported = moduleContext.isExported();
+        moduleContext.bPackageSymbol.descriptor = moduleContext.descriptor();
         packageCache.putSymbol(moduleCompilationId, moduleContext.bPackageSymbol);
     }
 

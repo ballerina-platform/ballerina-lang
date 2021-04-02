@@ -294,6 +294,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             populateLangLibInSymTable(pkgSymbol);
         }
 
+        if (pkgNode.moduleContext != null) {
+            pkgSymbol.exported = pkgNode.moduleContext.isExported();
+            pkgSymbol.descriptor = pkgNode.moduleContext.descriptor();
+        }
+
         pkgNode.symbol = pkgSymbol;
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
@@ -894,12 +899,17 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         PackageID pkgId = new PackageID(orgName, nameComps, version);
 
-        // Un-exported modules is not allowed to import.
+        // Un-exported modules not inside current package is not allowed to import.
         BPackageSymbol bPackageSymbol = this.packageCache.getSymbol(pkgId);
-        if (bPackageSymbol != null && bPackageSymbol.moduleContext() != null
-                && !bPackageSymbol.moduleContext().isExported()) {
-            dlog.error(importPkgNode.pos, DiagnosticErrorCode.MODULE_NOT_FOUND,
-                       bPackageSymbol.toString() + " is not exported");
+        if (bPackageSymbol != null && this.env.enclPkg.moduleContext != null) {
+            boolean isCurrentPackageModuleImport =
+                    this.env.enclPkg.moduleContext.descriptor().org() == bPackageSymbol.descriptor.org()
+                            && this.env.enclPkg.moduleContext.descriptor().packageName() == bPackageSymbol.descriptor
+                            .packageName();
+            if (!isCurrentPackageModuleImport && !bPackageSymbol.exported) {
+                dlog.error(importPkgNode.pos, DiagnosticErrorCode.MODULE_NOT_FOUND,
+                           bPackageSymbol.toString() + " is not exported");
+            }
         }
 
         // Built-in Annotation module is not allowed to import.
