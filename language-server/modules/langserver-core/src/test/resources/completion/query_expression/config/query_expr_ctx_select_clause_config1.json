@@ -424,19 +424,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "outputPersonList",
+      "label": "person",
       "kind": "Variable",
-      "detail": "Person[]",
+      "detail": "Person",
       "sortText": "B",
-      "insertText": "outputPersonList",
+      "insertText": "person",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "personList",
-      "kind": "Variable",
-      "detail": "Person[]",
-      "sortText": "B",
-      "insertText": "personList",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -445,6 +445,30 @@
       "detail": "error",
       "sortText": "B",
       "insertText": "onConflictError",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p3",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "B",
+      "insertText": "p3",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "p2",
+      "kind": "Variable",
+      "detail": "Person",
+      "sortText": "B",
+      "insertText": "p2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -462,30 +486,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "newAge",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "newAge",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "person",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "person",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "p3",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p3",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "p1",
       "kind": "Variable",
       "detail": "Person",
@@ -494,11 +494,102 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "p2",
+      "label": "outputPersonList",
       "kind": "Variable",
-      "detail": "Person",
+      "detail": "Person[]",
       "sortText": "B",
-      "insertText": "p2",
+      "insertText": "outputPersonList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "newAge",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "newAge",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Person",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Person",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "personList",
+      "kind": "Variable",
+      "detail": "Person[]",
+      "sortText": "B",
+      "insertText": "personList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "byte",
       "insertTextFormat": "Snippet"
     },
     {

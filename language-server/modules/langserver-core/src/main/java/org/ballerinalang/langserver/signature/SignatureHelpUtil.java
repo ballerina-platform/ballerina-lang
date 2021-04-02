@@ -190,7 +190,7 @@ public class SignatureHelpUtil {
             documentation.get().parameterMap().forEach(paramToDesc::put);
         }
         // Add parameters and rest params
-        functionSymbol.typeDescriptor().parameters()
+        functionSymbol.typeDescriptor().params().get()
                 .forEach(param -> parameters.add(new Parameter(param, false, false, context)));
         Optional<ParameterSymbol> restParam = functionSymbol.typeDescriptor().restParam();
         restParam.ifPresent(parameter -> parameters.add(new Parameter(parameter, false, true, context)));

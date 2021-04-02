@@ -75,12 +75,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                 }
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Symbol> filter = symbol ->
-                    symbol.kind() == SymbolKind.TYPE_DEFINITION
-                            || symbol.kind() == SymbolKind.VARIABLE
-                            || symbol.kind() == SymbolKind.CONSTANT
-                            || symbol.kind() == SymbolKind.FUNCTION
-                            || symbol.kind() == SymbolKind.CLASS;
+            Predicate<Symbol> filter = symbol -> symbol.kind() != SymbolKind.SERVICE_DECLARATION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
@@ -138,6 +133,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
         }
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
