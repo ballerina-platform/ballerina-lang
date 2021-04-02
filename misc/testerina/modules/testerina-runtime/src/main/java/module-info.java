@@ -7,4 +7,5 @@ module io.ballerina.testerina.runtime {
     requires org.jacoco.core;
     requires io.ballerina.lang;
     requires io.ballerina.tools.api;
+    requires org.jacoco.report;
 }
