@@ -139,8 +139,10 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
     @Override
     public int hashCode() {
         int result = super.hashCode();
-        result = 31 * result + Arrays.hashCode(paramTypes);
-        result = 31 * result + retType.hashCode();
+        if (!SymbolFlags.isFlagOn(this.flags, SymbolFlags.ANY_FUNCTION)) {
+            result = 31 * result + Arrays.hashCode(paramTypes);
+            result = 31 * result + retType.hashCode();
+        }
         return result;
     }
 
