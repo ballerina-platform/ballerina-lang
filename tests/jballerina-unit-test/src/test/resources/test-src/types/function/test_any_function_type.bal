@@ -23,9 +23,10 @@ function foo(function x) returns int {
 }
 
 //------------ Testing a function with 'function' return type ---------
+int glob = 1;
 
 function bar(int b) returns int {
-    return b;
+    return b + glob;
 }
 
 isolated function bar2(int b) returns int {
@@ -186,23 +187,25 @@ function testReferringToFunctionWithAnyFunctionReturnType() {
 }
 
 function func() returns function {
-   return function () {};
+    int i = 1;
+    return function () { i = 2; };
 }
 
 //---------------Test casting with function with 'function' as return type ------------
 
 function testCastingToFunctionWithAnyFunctionReturnType() {
-   any a = func;
-   var b = <function () returns function> a;
-   assertEquality(a, b);
+    any a = func;
+    var b = <function () returns function> a;
+    assertEquality(a, b);
 
-   any c = function () {};
-   var d = trap <function () returns function> c;
-   assertEquality(true, d is error);
-   error e = <error> d;
-   assertEquality("{ballerina}TypeCastError", e.message());
-   assertEquality("incompatible types: 'function () returns (())' cannot be cast to 'function () returns (function)'",
-                  <string> checkpanic e.detail()["message"]);
+    int i = 1;
+    any c = function () { i = 2; };
+    var d = trap <function () returns function> c;
+    assertEquality(true, d is error);
+    error e = <error> d;
+    assertEquality("{ballerina}TypeCastError", e.message());
+    assertEquality("incompatible types: 'function () returns (())' cannot be cast to 'function () returns (function)'",
+                   <string> checkpanic e.detail()["message"]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
