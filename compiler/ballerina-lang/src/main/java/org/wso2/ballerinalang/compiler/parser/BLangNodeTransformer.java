@@ -3475,6 +3475,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangConstant bLangConstant = (BLangConstant) TreeBuilder.createConstantNode();
         bLangConstant.pos = getPosition(member);
         bLangConstant.flagSet.add(Flag.CONSTANT);
+        bLangConstant.flagSet.add(Flag.ENUM_MEMBER);
         if (publicQualifier) {
             bLangConstant.flagSet.add(Flag.PUBLIC);
         }

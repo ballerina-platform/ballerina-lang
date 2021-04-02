@@ -176,5 +176,9 @@ public enum Flag {
     /**
      * Indicates flagged node allows never type.
      */
-    NEVER_ALLOWED;
+    NEVER_ALLOWED,
+    /**
+     * Indicates flagged node is a member of an enum.
+     */
+    ENUM_MEMBER
 }
