@@ -355,12 +355,16 @@ public class TomlProvider implements ConfigProvider {
     private BMap<BString, Object> retrieveRecordValues(TomlNode tomlNode, String variableName, Type type) {
         RecordType recordType;
         String recordName;
+        Module recordPkg;
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
             recordName = type.getName();
             recordType = (RecordType) type;
+            recordPkg = recordType.getPackage();;
         } else {
-            recordName = ((BIntersectionType) type).getConstituentTypes().get(0).getName();
+            Type originalType = ((BIntersectionType) type).getConstituentTypes().get(0);
+            recordName = originalType.getName();
             recordType = (RecordType) ((BIntersectionType) type).getEffectiveType();
+            recordPkg = originalType.getPackage();
         }
         if (tomlNode.kind() != getEffectiveTomlType(recordType, variableName)) {
             throw new TomlConfigException(String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, variableName, recordType ,
@@ -400,7 +404,7 @@ public class TomlProvider implements ConfigProvider {
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG && type.isReadOnly()) {
             return createReadOnlyFieldRecord(initialValueEntries, recordType, variableName, tomlValue);
         }
-        return ValueCreator.createReadonlyRecordValue(recordType.getPackage(), recordName, initialValueEntries);
+        return ValueCreator.createReadonlyRecordValue(recordPkg, recordName, initialValueEntries);
     }
 
     private BMap<BString, Object> createReadOnlyFieldRecord(Map<String, Object> initialValueEntries,
