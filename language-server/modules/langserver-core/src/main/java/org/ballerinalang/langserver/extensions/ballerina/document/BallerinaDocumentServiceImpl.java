@@ -92,7 +92,7 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             } catch (Throwable e) {
                 reply.setParseSuccess(false);
                 String msg = "Operation 'ballerinaDocument/syntaxApiQuote' failed!";
-                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE, msg, e, request.getDocumentIdentifier(),
+                this.clientLogger.logError(DocumentContext.DC_API_QUOTER, msg, e, request.getDocumentIdentifier(),
                         (Position) null);
             }
             return reply;

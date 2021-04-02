@@ -23,7 +23,7 @@ import org.ballerinalang.langserver.commons.LSOperation;
  * @since 2.0.0
  */
 public enum DocumentContext implements LSOperation {
-    DC_SYNTAX_API_QUOTE("ballerinaDocument/syntaxApiQuote"),
+    DC_API_QUOTER("ballerinaDocument/syntaxApiQuote"),
     DC_SYNTAX_TREE("ballerinaDocument/syntaxTree"),
     DC_SYNTAX_TREE_MODIFY("ballerinaDocument/syntaxTreeModify"),
     DC_SYNTAX_TREE_BY_RANGE("ballerinaDocument/syntaxTreeByRange"),
