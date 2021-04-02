@@ -1,7 +1,0 @@
-[main]
-stringVar = "required"
-
-[main.testUser]
-username.structure = "Jane"
-password = "password"
-scopes = ["write"]

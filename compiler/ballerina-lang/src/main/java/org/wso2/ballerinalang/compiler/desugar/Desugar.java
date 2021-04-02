@@ -149,6 +149,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTableAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
@@ -287,9 +288,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.FieldKind;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -372,7 +373,7 @@ public class Desugar extends BLangNodeVisitor {
     private NodeCloner nodeCloner;
     private SemanticAnalyzer semanticAnalyzer;
     private BLangAnonymousModelHelper anonModelHelper;
-    private ResolvedTypeBuilder typeBuilder;
+    private Unifier unifier;
     private MockDesugar mockDesugar;
 
     private BLangStatementLink currentLink;
@@ -441,7 +442,7 @@ public class Desugar extends BLangNodeVisitor {
         this.semanticAnalyzer = SemanticAnalyzer.getInstance(context);
         this.anonModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.mockDesugar = MockDesugar.getInstance(context);
-        this.typeBuilder = new ResolvedTypeBuilder();
+        this.unifier = new Unifier();
     }
 
     public BLangPackage perform(BLangPackage pkgNode) {
@@ -1289,6 +1290,12 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         result = funcNode;
+    }
+
+    @Override
+    public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
+        BType constraintType = ((BTypedescType) inferTypedescExpr.type).constraint;
+        result = ASTBuilderUtil.createTypedescExpr(inferTypedescExpr.pos, inferTypedescExpr.type, constraintType);
     }
 
     @Override
@@ -6098,7 +6105,7 @@ public class Desugar extends BLangNodeVisitor {
 
         BInvokableSymbol invSym = (BInvokableSymbol) invocation.symbol;
         if (Symbols.isFlagOn(invSym.retType.flags, Flags.PARAMETERIZED)) {
-            BType retType = typeBuilder.build(invSym.retType);
+            BType retType = unifier.build(invSym.retType);
             invocation.type = invocation.async ? new BFutureType(TypeTags.FUTURE, retType, null) : retType;
         }
 

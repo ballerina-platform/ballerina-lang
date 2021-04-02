@@ -38,11 +38,7 @@ public class BClass extends Construct {
     @Expose
     public List<Function> otherMethods;
     @Expose
-    public boolean isReadOnly;
-    @Expose
     public boolean isIsolated;
-    @Expose
-    public String builtInVersion;
 
     public BClass(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
                   List<Function> methods, boolean isReadOnly, boolean isIsolated) {

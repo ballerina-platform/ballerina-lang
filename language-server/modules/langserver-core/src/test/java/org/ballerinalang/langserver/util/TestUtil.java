@@ -30,6 +30,8 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
+import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
 import org.eclipse.lsp4j.CodeActionContext;
 import org.eclipse.lsp4j.CodeActionParams;
@@ -71,6 +73,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
@@ -108,6 +111,10 @@ public class TestUtil {
     private static final String FOLDING_RANGE = "textDocument/foldingRange";
 
     private static final String WORKSPACE_SYMBOL_COMMAND = "workspace/symbol";
+
+    private static final String PACKAGE_METADATA = "ballerinaPackage/metadata";
+
+    private static final String PACKAGE_COMPONENTS = "ballerinaPackage/components";
 
     private static final Gson GSON = new Gson();
 
@@ -302,6 +309,36 @@ public class TestUtil {
         FoldingRangeRequestParams foldingRangeParams = new
                 FoldingRangeRequestParams(getTextDocumentIdentifier(filePath));
         return getResponseString(serviceEndpoint.request(FOLDING_RANGE, foldingRangeParams));
+    }
+
+    /**
+     * Get package service's metadata response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path to evaluate
+     * @return {@link String} Package metadata response
+     */
+    public static String getPackageMetadataResponse(Endpoint serviceEndpoint, String filePath) {
+        PackageMetadataRequest packageMetadataRequest = new PackageMetadataRequest();
+        packageMetadataRequest.setDocumentIdentifier(getTextDocumentIdentifier(filePath));
+        return getResponseString(serviceEndpoint.request(PACKAGE_METADATA, packageMetadataRequest));
+    }
+
+    /**
+     * Get package service's components response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePaths       List of filePaths to evaluate
+     * @return {@link String} Package components response
+     */
+    public static String getPackageComponentsResponse(Endpoint serviceEndpoint, Iterator<String> filePaths) {
+        PackageComponentsRequest packageComponentsRequest = new PackageComponentsRequest();
+        List<TextDocumentIdentifier> documentIdentifiers = new ArrayList<>();
+        filePaths.forEachRemaining(filePath -> {
+            documentIdentifiers.add(getTextDocumentIdentifier(filePath));
+        });
+        packageComponentsRequest.setDocumentIdentifiers(documentIdentifiers.toArray(new TextDocumentIdentifier[0]));
+        return getResponseString(serviceEndpoint.request(PACKAGE_COMPONENTS, packageComponentsRequest));
     }
 
     /**

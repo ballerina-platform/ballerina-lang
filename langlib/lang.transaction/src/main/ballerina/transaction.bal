@@ -21,9 +21,7 @@ configurable boolean managerEnabled = false;
 # Config to specify transaction log directory
 configurable string logBase = "transaction_log_dir";
 
-# Information about a transaction that does not change
-# after the transaction is started.
-public type Info readonly & record {|
+public type InfoInternal record {|
    # Unique identifier for the transaction branch
    byte[] xid;
    # The number of previous attempts in a sequence of retries
@@ -34,6 +32,10 @@ public type Info readonly & record {|
    # The time at which the transaction was started.
    Timestamp startTime;
 |};
+
+# Information about a transaction that does not change
+# after the transaction is started.
+public type Info readonly & InfoInternal;
 
 # An instant in time.
 public type Timestamp readonly & object {

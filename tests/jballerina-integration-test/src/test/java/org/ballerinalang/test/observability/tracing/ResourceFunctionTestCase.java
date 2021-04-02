@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 public class ResourceFunctionTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "02_resource_function.bal";
     private static final String BASE_PATH = "/testServiceTwo";
-    private static final String BASE_URL = "http://localhost:9092";
+    private static final String BASE_URL = "http://localhost:19092";
 
     @DataProvider(name = "success-response-data-provider")
     public Object[][] getSuccessResponseData() {
@@ -66,16 +66,17 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(resourceFunctionPosition, callerResponsePosition)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
@@ -152,16 +153,17 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Collections.singletonList(resourceFunctionPosition)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Map<String, Object> tags = span.getTags();
 //            TODO: Remove the bellow line once #ballerina-lang/issues/28686 is fixed
@@ -212,16 +214,17 @@ public class ResourceFunctionTestCase extends TracingBaseTestCase {
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(resourceFunctionPosition, remoteCallPosition, callerRespondPosition)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),

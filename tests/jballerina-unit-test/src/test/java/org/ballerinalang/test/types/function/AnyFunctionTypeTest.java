@@ -83,4 +83,14 @@ public class AnyFunctionTypeTest {
     public void testObjectWithFunctionTypeField() {
         BRunUtil.invoke(functionTypeTestResult, "testObjectWithFunctionTypeField");
     }
+
+    @Test
+    public void testReferringToFunctionWithAnyFunctionReturnType() {
+        BRunUtil.invoke(functionTypeTestResult, "testReferringToFunctionWithAnyFunctionReturnType");
+    }
+
+    @Test
+    public void testCastingToFunctionWithAnyFunctionReturnType() {
+        BRunUtil.invoke(functionTypeTestResult, "testCastingToFunctionWithAnyFunctionReturnType");
+    }
 }

@@ -306,8 +306,8 @@ public class CodeActionUtil {
             types.add(FunctionGenerator.generateTypeDefinition(importsAcceptor, typeDescriptor, context));
         }
 
-        // Remove brackets of the unions
-        types = types.stream().map(v -> v.replaceAll("^\\((.*)\\)$", "$1")).collect(Collectors.toList());
+        // Remove brackets of the unions, except the nil "()" type
+        types = types.stream().map(v -> v.replaceAll("^\\((.+)\\)$", "$1")).collect(Collectors.toList());
         importEdits.addAll(importsAcceptor.getNewImportTextEdits());
         return types;
     }
@@ -789,7 +789,8 @@ public class CodeActionUtil {
                     parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
                 isFunctionDef = true;
             } else if (parentNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
-                    parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
+                    (parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION
+                            || parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION)) {
                 isFunctionDef = true;
             } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
                     parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {

@@ -23,6 +23,7 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextDocument;
@@ -230,7 +231,10 @@ public class BallerinaTreeModifyUtil {
         // Update file
         Document updatedDoc = document.get().modify().withContent(content).apply();
         // Update project instance
-        return updatedDoc.module().getCompilation().getSemanticModel();
+
+        PackageCompilation packageCompilation = updatedDoc.module().packageInstance().getCompilation();
+        SemanticModel semanticModel = packageCompilation.getSemanticModel(updatedDoc.module().moduleId());
+        return semanticModel;
     }
 
     private static boolean importExist(UnusedSymbolsVisitor unusedSymbolsVisitor, ASTModification astModification) {

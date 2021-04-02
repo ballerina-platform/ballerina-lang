@@ -233,6 +233,13 @@ public interface BXml extends BRefValue, BCollection {
     BXml descendants(List<String> qnames);
 
     /**
+     * Searches in children recursively for elements and returns a sequence containing them all.
+     *
+     * @return All the descendants, as a sequence
+     */
+    BXml descendants();
+
+    /**
      * Get an item from the XML sequence, at the given index.
      * 
      * @param index Index of the item to retrieve

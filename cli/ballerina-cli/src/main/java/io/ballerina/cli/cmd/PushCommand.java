@@ -44,9 +44,12 @@ import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+import java.util.zip.ZipEntry;
+import java.util.zip.ZipInputStream;
 
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
@@ -242,8 +245,30 @@ public class PushCommand implements BLauncherCmd {
                             + " file. Run 'bal build -c' to recompile and generate the bala.");
         }
 
+        try {
+            validatePackageMdAndBalToml(packageBalaFile);
+        } catch (IOException e) {
+            throw new ProjectException("error while validating the bala file", e);
+        }
+
         // bala file path
         return packageBalaFile;
+    }
+
+    private static void validatePackageMdAndBalToml(Path balaPath) throws IOException {
+        try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(balaPath, StandardOpenOption.READ))) {
+            ZipEntry entry;
+            while ((entry = zip.getNextEntry()) != null) {
+                if (entry.getName().equals(
+                        ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME)) {
+                    if (entry.getSize() == 0) {
+                        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " cannot be empty.");
+                    }
+                    return;
+                }
+            }
+        }
+        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " is missing in bala file:" + balaPath);
     }
 
     private void pushBalaToCustomRepo(Path balaFilePath) {

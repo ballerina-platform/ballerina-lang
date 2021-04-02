@@ -102,9 +102,9 @@ import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeDefBuilderHelper;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 import org.wso2.ballerinalang.util.Lists;
 
@@ -147,7 +147,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     private SymbolEnter symbolEnter;
     private BLangAnonymousModelHelper anonymousModelHelper;
     private BLangMissingNodesHelper missingNodesHelper;
-    private ResolvedTypeBuilder typeBuilder;
+    private Unifier unifier;
 
     public static SymbolResolver getInstance(CompilerContext context) {
         SymbolResolver symbolResolver = context.get(SYMBOL_RESOLVER_KEY);
@@ -168,7 +168,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         this.symbolEnter = SymbolEnter.getInstance(context);
         this.anonymousModelHelper = BLangAnonymousModelHelper.getInstance(context);
         this.missingNodesHelper = BLangMissingNodesHelper.getInstance(context);
-        this.typeBuilder = new ResolvedTypeBuilder();
+        this.unifier = new Unifier();
     }
 
     public boolean checkForUniqueSymbol(Location pos, SymbolEnv env, BSymbol symbol) {
@@ -1076,13 +1076,7 @@ public class SymbolResolver extends BLangNodeVisitor {
                 resultType = symTable.noType;
                 return;
             }
-            if (resolvedType.tag == TypeTags.UNION
-                    && resolvedType.tsymbol != null
-                    && !Symbols.isFlagOn(resolvedType.tsymbol.flags, Flags.TYPE_PARAM)) {
-                memberTypes.addAll(((BUnionType) resolvedType).getMemberTypes());
-            } else {
-                memberTypes.add(resolvedType);
-            }
+            memberTypes.add(resolvedType);
         }
 
         BTypeSymbol unionTypeSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(EnumSet.of(Flag.PUBLIC)),
@@ -1163,7 +1157,7 @@ public class SymbolResolver extends BLangNodeVisitor {
     public void visit(BLangStreamType streamTypeNode) {
         BType type = resolveTypeNode(streamTypeNode.type, env);
         BType constraintType = resolveTypeNode(streamTypeNode.constraint, env);
-        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : symTable.neverType;
+        BType error = streamTypeNode.error != null ? resolveTypeNode(streamTypeNode.error, env) : symTable.nilType;
         // If the constrained type is undefined, return noType as the type.
         if (constraintType == symTable.noType) {
             resultType = symTable.noType;
@@ -1448,7 +1442,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             BLangSimpleVariable param = params.get(i);
 
             if (param.name.value.equals(varSym.name.value)) {
-                if (param.expr == null) {
+                if (param.expr == null || param.expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
                     return new ParameterizedTypeInfo(((BTypedescType) varSym.type).constraint, i);
                 }
 
@@ -1478,9 +1472,13 @@ public class SymbolResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
-        resultType = createInvokableType(functionTypeNode.getParams(), functionTypeNode.restParam,
-                                         functionTypeNode.returnTypeNode, Flags.asMask(functionTypeNode.flagSet), env,
-                                         functionTypeNode.pos);
+        List<BLangVariable> params = functionTypeNode.getParams();
+        Location pos = functionTypeNode.pos;
+        BLangType returnTypeNode = functionTypeNode.returnTypeNode;
+        BType invokableType = createInvokableType(params, functionTypeNode.restParam, returnTypeNode,
+                                                  Flags.asMask(functionTypeNode.flagSet), env, pos);
+        resultType = validateInferTypedescParams(pos, params, returnTypeNode == null ? null : returnTypeNode.type) ?
+                        invokableType : symTable.semanticError;
     }
 
     public BType createInvokableType(List<? extends BLangVariable> paramVars,
@@ -1506,6 +1504,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             bInvokableType.tsymbol = tsymbol;
             return bInvokableType;
         }
+
         for (BLangVariable paramNode : paramVars) {
             BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
             Name paramName = names.fromIdNode(param.name);
@@ -1523,30 +1522,19 @@ public class SymbolResolver extends BLangNodeVisitor {
             paramNode.type = type;
             paramTypes.add(type);
 
-            if (param.expr != null) {
-                foundDefaultableParam = true;
-            }
-
-            BVarSymbol symbol = new BVarSymbol(type.flags, paramName, env.enclPkg.symbol.pkgID, type, env.scope.owner,
+            long paramFlags = Flags.asMask(paramNode.flagSet);
+            BVarSymbol symbol = new BVarSymbol(paramFlags, paramName, env.enclPkg.symbol.pkgID, type, env.scope.owner,
                                                param.pos, SOURCE);
             param.symbol = symbol;
 
-            if (param.expr == null && foundDefaultableParam) {
+            if (param.expr != null) {
+                foundDefaultableParam = true;
+                symbol.isDefaultable = true;
+                symbol.flags |= Flags.OPTIONAL;
+            } else if (foundDefaultableParam) {
                 dlog.error(param.pos, DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
             }
 
-            if (param.flagSet.contains(Flag.PUBLIC)) {
-                symbol.flags |= Flags.PUBLIC;
-            }
-
-            if (param.flagSet.contains(Flag.TRANSACTIONAL)) {
-                symbol.flags |= Flags.TRANSACTIONAL;
-            }
-
-            if (param.expr != null) {
-                symbol.flags |= Flags.OPTIONAL;
-                symbol.isDefaultable = true;
-            }
             params.add(symbol);
         }
 
@@ -1564,7 +1552,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return symTable.noType;
             }
             restVariable.type = restType;
-            restParam = new BVarSymbol(restType.flags, names.fromIdNode(((BLangSimpleVariable) restVariable).name),
+            restParam = new BVarSymbol(Flags.asMask(restVariable.flagSet),
+                                       names.fromIdNode(((BLangSimpleVariable) restVariable).name),
                                        env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, SOURCE);
         }
 
@@ -1970,6 +1959,46 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         return types.getTypeIntersection(intersectionContext, lhsType, rhsType, env);
+    }
+
+    boolean validateInferTypedescParams(Location pos, List<? extends BLangVariable> parameters, BType retType) {
+        int inferTypedescParamCount = 0;
+        BVarSymbol paramWithInferredTypedescDefault = null;
+        Location inferDefaultLocation = null;
+
+        for (BLangVariable parameter : parameters) {
+            BType type = parameter.type;
+            BLangExpression expr = parameter.expr;
+            if (type != null && type.tag == TypeTags.TYPEDESC && expr != null &&
+                    expr.getKind() == NodeKind.INFER_TYPEDESC_EXPR) {
+                paramWithInferredTypedescDefault = parameter.symbol;
+                inferDefaultLocation = expr.pos;
+                inferTypedescParamCount++;
+            }
+        }
+
+        if (inferTypedescParamCount > 1) {
+            dlog.error(pos, DiagnosticErrorCode.MULTIPLE_INFER_TYPEDESC_PARAMS);
+            return false;
+        }
+
+        if (paramWithInferredTypedescDefault == null) {
+            return true;
+        }
+
+        if (retType == null) {
+            dlog.error(inferDefaultLocation,
+                       DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
+            return false;
+        }
+
+        if (unifier.refersInferableParamName(paramWithInferredTypedescDefault.name.value, retType)) {
+            return true;
+        }
+
+        dlog.error(inferDefaultLocation,
+                   DiagnosticErrorCode.CANNOT_USE_INFERRED_TYPEDESC_DEFAULT_WITH_UNREFERENCED_PARAM);
+        return false;
     }
 
     private static class ParameterizedTypeInfo {

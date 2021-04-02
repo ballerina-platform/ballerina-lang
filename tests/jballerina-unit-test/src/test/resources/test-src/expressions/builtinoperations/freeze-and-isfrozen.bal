@@ -237,7 +237,7 @@ function testFrozenXmlSetChildren() {
     xml x1 = xml `<book>The Lost World</book>`;
     xml x2 = xml `<author>Doyle</author>`;
 
-    xmllib:Element x3 = <xmllib:Element> x1.cloneReadOnly();
+    xmllib:Element x3 = <xmllib:Element & readonly> x1.cloneReadOnly();
     x3.setChildren(x2);
 }
 
@@ -245,7 +245,7 @@ function testFrozenXmlSetChildrenDeep() {
     xml x1 = xml `<book><name>The Lost World</name><authors></authors></book>`;
     xml x2 = xml `<author>Doyle</author>`;
 
-    xmllib:Element x3 = <xmllib:Element> x1.cloneReadOnly();
+    xmllib:Element x3 = <xmllib:Element & readonly> x1.cloneReadOnly();
     xml author = x3.getChildren().strip()[1];
     xmllib:Element authorEm = <xmllib:Element> author;
     authorEm.setChildren(x2);

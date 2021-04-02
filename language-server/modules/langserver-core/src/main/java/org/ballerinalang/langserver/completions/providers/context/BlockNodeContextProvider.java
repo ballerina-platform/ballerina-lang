@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -74,12 +75,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                 }
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Symbol> filter = symbol ->
-                    symbol.kind() == SymbolKind.TYPE_DEFINITION
-                            || symbol.kind() == SymbolKind.VARIABLE
-                            || symbol.kind() == SymbolKind.CONSTANT
-                            || symbol.kind() == SymbolKind.FUNCTION
-                            || symbol.kind() == SymbolKind.CLASS;
+            Predicate<Symbol> filter = symbol -> symbol.kind() != SymbolKind.SERVICE_DECLARATION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
@@ -133,8 +129,11 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_DO.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
+        if (this.onSuggestFork(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
+        }
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
@@ -293,5 +292,18 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                             SnippetBlock.Kind.SNIPPET);
                     return new SnippetCompletionItem(ctx, cItemSnippet);
                 }).collect(Collectors.toList());
+    }
+    
+    private boolean onSuggestFork(Node node) {
+        Node parent = node.parent();
+        while (parent != null) {
+            if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                return ((FunctionDefinitionNode) parent).qualifierList().stream()
+                        .noneMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
+            }
+            parent = parent.parent();
+        }
+        
+        return false;
     }
 }

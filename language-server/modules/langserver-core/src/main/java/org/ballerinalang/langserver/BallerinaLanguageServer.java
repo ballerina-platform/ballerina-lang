@@ -32,6 +32,8 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocum
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
+import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
@@ -84,6 +86,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private final BallerinaTraceService ballerinaTraceService;
     private final Listener ballerinaTraceListener;
     private final BallerinaSymbolService ballerinaSymbolService;
+    private final BallerinaPackageService ballerinaPackageService;
     private int shutdown = 1;
 
     public BallerinaLanguageServer() {
@@ -100,6 +103,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(this);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl();
+        this.ballerinaPackageService = new BallerinaPackageServiceImpl(workspaceManager, this.serverContext);
 
         LSAnnotationCache.getInstance(this.serverContext).initiate();
     }
@@ -223,6 +227,11 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     public BallerinaSymbolService getBallerinaSymbolService() {
         return ballerinaSymbolService;
+    }
+
+    @Override
+    public BallerinaPackageService getBallerinaPackageService() {
+        return this.ballerinaPackageService;
     }
 
     private void startListeningFileChanges() {

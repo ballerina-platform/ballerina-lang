@@ -84,6 +84,7 @@ import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.IncludedRecordParameterNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.InferredTypedescDefaultNode;
 import io.ballerina.compiler.syntax.tree.InlineCodeReferenceNode;
 import io.ballerina.compiler.syntax.tree.InterpolationNode;
 import io.ballerina.compiler.syntax.tree.IntersectionTypeDescriptorNode;
@@ -322,6 +323,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -3473,6 +3475,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangConstant bLangConstant = (BLangConstant) TreeBuilder.createConstantNode();
         bLangConstant.pos = getPosition(member);
         bLangConstant.flagSet.add(Flag.CONSTANT);
+        bLangConstant.flagSet.add(Flag.ENUM_MEMBER);
         if (publicQualifier) {
             bLangConstant.flagSet.add(Flag.PUBLIC);
         }
@@ -3722,6 +3725,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
         intersectionType.pos = getPosition(intersectionTypeDescriptorNode);
         return intersectionType;
+    }
+
+    @Override
+    public BLangNode transform(InferredTypedescDefaultNode inferDefaultValueNode) {
+        BLangInferredTypedescDefaultNode inferTypedescExpr =
+                (BLangInferredTypedescDefaultNode) TreeBuilder.createInferTypedescExpressionNode();
+        inferTypedescExpr.pos = getPosition(inferDefaultValueNode);
+        return inferTypedescExpr;
     }
 
     @Override
@@ -5427,9 +5438,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
                     BLangIdentifier paraName = new BLangIdentifier();
                     Token parameterName = parameterDocLineNode.parameterName();
-                    paraName.value = parameterName.isMissing() ? "" : parameterName.text();
+                    String parameterNameValue = parameterName.isMissing() ? "" :
+                            IdentifierUtils.unescapeUnicodeCodepoints(parameterName.text());
+                    if (stringStartsWithSingleQuote(parameterNameValue)) {
+                        parameterNameValue = parameterNameValue.substring(1);
+                    }
+                    paraName.value = parameterNameValue;
                     bLangParaDoc.parameterName = paraName;
-
                     NodeList<Node> paraDocElements = parameterDocLineNode.documentElements();
                     String paraDocText = addReferencesAndReturnDocumentationText(references, paraDocElements);
 
@@ -5619,6 +5634,18 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 break;
             default:
                 throw new IllegalArgumentException("Invalid backtick content transformation");
+        }
+        if (bLangRefDoc.identifier != null) {
+            bLangRefDoc.identifier = IdentifierUtils.unescapeUnicodeCodepoints(bLangRefDoc.identifier);
+            if (stringStartsWithSingleQuote(bLangRefDoc.identifier)) {
+                bLangRefDoc.identifier = bLangRefDoc.identifier.substring(1);
+            }
+        }
+        if (bLangRefDoc.qualifier != null) {
+            bLangRefDoc.qualifier = IdentifierUtils.unescapeUnicodeCodepoints(bLangRefDoc.qualifier);
+            if (stringStartsWithSingleQuote(bLangRefDoc.qualifier)) {
+                bLangRefDoc.qualifier = bLangRefDoc.qualifier.substring(1);
+            }
         }
     }
 
