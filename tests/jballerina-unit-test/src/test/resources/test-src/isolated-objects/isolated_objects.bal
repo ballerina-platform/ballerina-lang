@@ -491,6 +491,111 @@ isolated client class IsolatedClientClassWithPrivateMutableFields {
     }
 }
 
+isolated int[] isolatedArr = [];
+
+isolated service / on new Listener() {
+    private int[] x = [];
+
+    remote function foo() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+
+    resource function get bar() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+
+    function baz() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+
+    resource function get corge() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+}
+
+service object {} ser = isolated service object {
+    private int[] x = [];
+
+    remote function foo() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+
+    resource function get bar() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+
+    function baz() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+
+    resource function get corge() {
+        lock {
+            isolatedArr = [];
+        }
+    }
+};
+
+isolated service class ServiceClass {
+    private int[] x = [];
+
+    remote function foo() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+
+    resource function get bar() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+
+    function baz() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+
+    resource function get corge() {
+        lock {
+            isolatedArr = [];
+        }
+    }
+
+    function quuz() {
+        lock {
+            self.x = [2, 3];
+        }
+    }
+}
+
+public class Listener {
+
+    public function 'start() returns error? {}
+
+    public function gracefulStop() returns error? {}
+
+    public function immediateStop() returns error? {}
+
+    public function detach(service object {} s) returns error? {}
+
+    public function attach(service object {} s, string[]? name = ()) returns error? {}
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
