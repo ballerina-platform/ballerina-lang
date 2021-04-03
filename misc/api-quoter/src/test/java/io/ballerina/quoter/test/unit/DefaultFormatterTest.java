@@ -33,7 +33,11 @@ public class DefaultFormatterTest {
     private void assertTest(String input, String expected) {
         Segment source = new CodeSegment(input);
         String target = new DefaultFormatter().format(source);
-        Assert.assertEquals(target, expected);
+        Assert.assertEquals(replaceNewlines(target), expected);
+    }
+
+    private String replaceNewlines(String input) {
+        return input.replaceAll("\r\n", "\n");
     }
 
     @Test
