@@ -22,12 +22,14 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.ArrayTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -49,31 +51,47 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ArrayTypeDescriptorNode node) {
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         Optional<Node> arrayLength = node.arrayLength();
+        List<LSCompletionItem> completionItems = new ArrayList<>();
 
-        if (arrayLength.isPresent() && this.onQualifiedNameIdentifier(context, arrayLength.get())) {
+        if (arrayLength.isPresent() && QNameReferenceUtil.onQualifiedNameIdentifier(context, arrayLength.get())) {
             QualifiedNameReferenceNode qName = (QualifiedNameReferenceNode) arrayLength.get();
             List<Symbol> moduleConstants = QNameReferenceUtil.getModuleContent(context, qName, constantFilter());
 
-            return this.getCompletionItemList(moduleConstants, context);
+            completionItems.addAll(this.getCompletionItemList(moduleConstants, context));
+        } else {
+            List<Symbol> constants = visibleSymbols.stream()
+                    .filter(constantFilter())
+                    .collect(Collectors.toList());
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getCompletionItemList(constants, context));
         }
-
-        List<Symbol> constants = visibleSymbols.stream()
-                .filter(constantFilter())
-                .collect(Collectors.toList());
-        List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
-        completionItems.addAll(this.getCompletionItemList(constants, context));
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }
 
     private Predicate<Symbol> constantFilter() {
         return symbol -> {
-            if (symbol.kind() != SymbolKind.CONSTANT) {
+            if (symbol.kind() != SymbolKind.CONSTANT && symbol.kind() != SymbolKind.ENUM_MEMBER) {
                 return false;
             }
 
             TypeSymbol constExprType = ((ConstantSymbol) symbol).broaderTypeDescriptor();
             return constExprType != null && constExprType.typeKind().isIntegerType();
         };
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, ArrayTypeDescriptorNode node) {
+        /*
+        Array type descriptor suggests the completions only if the cursor is within the brackets
+        eg:
+        (1) TypeName[<cursor>] ...
+         */
+        int cursor = context.getCursorPositionInTree();
+        Token openBracket = node.openBracket();
+        Token closeBracket = node.closeBracket();
+        
+        return cursor > openBracket.textRange().startOffset() && cursor < closeBracket.textRange().endOffset();
     }
 }

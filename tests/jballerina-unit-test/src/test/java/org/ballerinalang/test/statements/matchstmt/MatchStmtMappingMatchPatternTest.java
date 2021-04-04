@@ -200,6 +200,11 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
+    public void testMappingMatchPatternWithRestPattern8() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPattern8");
+    }
+
+    @Test
     public void testMappingMatchPatternNegative() {
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);

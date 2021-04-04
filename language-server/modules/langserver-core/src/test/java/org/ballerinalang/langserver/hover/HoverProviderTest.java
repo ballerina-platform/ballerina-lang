@@ -39,29 +39,36 @@ import java.util.List;
  * Test hover feature in language server.
  */
 public class HoverProviderTest {
-    private final Path balPath = FileUtils.RES_DIR.resolve("hover").resolve("source").resolve("hover.bal");
     private Endpoint serviceEndpoint;
+    protected Path configRoot;
+    protected Path sourceRoot;
     private final JsonParser parser = new JsonParser();
 
     @BeforeClass
     public void loadLangServer() throws IOException {
         serviceEndpoint = TestUtil.initializeLanguageSever();
-        TestUtil.openDocument(serviceEndpoint, balPath);
+        configRoot = FileUtils.RES_DIR.resolve("hover").resolve("configs");
+        sourceRoot = FileUtils.RES_DIR.resolve("hover").resolve("source");
     }
 
     @Test(description = "Test Hover provider", dataProvider = "hover-data-provider")
     public void testHover(String config) throws IOException {
-        JsonObject configJson = FileUtils.fileContentAsObject("hover" + File.separator + "configs"
-                + File.separator + config);
+        JsonObject configJson = FileUtils.fileContentAsObject(configRoot.resolve(config).toString());
         Position position = getPosition(configJson);
-        String response = TestUtil.getHoverResponse(balPath.toString(), position, serviceEndpoint);
+        JsonObject source = configJson.getAsJsonObject("source");
+        Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        String response = parser.parse(TestUtil.getHoverResponse(sourcePath.toString(), position, serviceEndpoint))
+                .getAsJsonObject().toString();
         String expected = configJson.getAsJsonObject("expected").toString();
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
 
         boolean result = response.equals(expected);
         if (!result) {
             // Fix test cases replacing expected using responses
 //            JsonObject obj = new JsonObject();
 //            obj.add("position", configJson.get("position"));
+//            obj.add("source", configJson.get("source"));
 //            obj.add("expected", parser.parse(response));
 //            java.nio.file.Files.write(FileUtils.RES_DIR.resolve("hover").resolve("configs").resolve(config),
 //                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
@@ -95,16 +102,6 @@ public class HoverProviderTest {
 
     private List<String> skipList() {
         return new ArrayList<>();
-    }
-
-    /**
-     * Get the expected value from the config json.
-     *
-     * @param config configuration json to extract the expected value
-     * @return {@link String} expected result in the config
-     */
-    private String getExpectedValue(JsonObject config) {
-        return config.get("result").getAsString();
     }
 
     private Position getPosition(JsonObject config) {

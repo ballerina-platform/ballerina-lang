@@ -30,12 +30,14 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.properties.DiagnosticProperty;
-import io.ballerina.tools.diagnostics.properties.DiagnosticPropertyKind;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
@@ -46,6 +48,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -82,12 +85,14 @@ class AIDataMapperCodeActionUtil {
     /**
      * Returns the workspace edits for the automatic data mapping code action.
      *
-     * @param context    {@link CodeActionContext}
-     * @param diagnostic {@link Diagnostic}
+     * @param positionDetails {@link DiagBasedPositionDetails}
+     * @param context         {@link CodeActionContext}
+     * @param diagnostic      {@link Diagnostic}
      * @return edits for the data mapper code action
      * @throws IOException throws if error occurred when getting generatedRecordMappingFunction
      */
-    static List<TextEdit> getAIDataMapperCodeActionEdits(CodeActionContext context, Diagnostic diagnostic)
+    static List<TextEdit> getAIDataMapperCodeActionEdits(DiagBasedPositionDetails positionDetails,
+                                                         CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
         String diagnosticMessage = diagnostic.message();
@@ -103,15 +108,19 @@ class AIDataMapperCodeActionUtil {
         }
 
         List<DiagnosticProperty<?>> props = diagnostic.properties();
+        TypeDescKind leftSymbolType = ((TypeSymbol) props.get(LEFT_SYMBOL_INDEX).value()).typeKind();
+
         if (props.size() != 2 || props.get(RIGHT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
-                props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC) {
+                props.get(LEFT_SYMBOL_INDEX).kind() != DiagnosticPropertyKind.SYMBOLIC ||
+                ((leftSymbolType != TypeDescKind.TYPE_REFERENCE) && (leftSymbolType != TypeDescKind.RECORD) &&
+                (leftSymbolType != TypeDescKind.UNION))) {
             return fEdits;
         } else {
             Symbol lftTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
             Symbol rhsTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
 
-            String foundTypeLeft = lftTypeSymbol.name();
-            String foundTypeRight = rhsTypeSymbol.name();
+            String foundTypeLeft = lftTypeSymbol.getName().orElse("");
+            String foundTypeRight = rhsTypeSymbol.getName().orElse("");
 
             // Get the semantic model
             SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
@@ -123,7 +132,7 @@ class AIDataMapperCodeActionUtil {
 
             // get the symbol at cursor type
             Symbol symbolAtCursor = semanticModel.symbol(srcFile.get(), linePosition).get();
-            String symbolAtCursorName = symbolAtCursor.name();
+            String symbolAtCursorName = symbolAtCursor.getName().orElse("");
             String symbolAtCursorType = "";
             // Check if function return a record type in multi-module project
             if (SymbolUtil.getTypeDescriptor(symbolAtCursor).isEmpty()) {
@@ -151,32 +160,44 @@ class AIDataMapperCodeActionUtil {
                     if ("".equals(foundTypeLeft)) {
                         List<TypeSymbol> leftTypeSymbols = ((UnionTypeSymbol) lftTypeSymbol).memberTypeDescriptors();
                         lftTypeSymbol = findSymbol(leftTypeSymbols);
-                        foundTypeLeft = lftTypeSymbol.name();
+                        foundTypeLeft = lftTypeSymbol.getName().orElse("");
                         foundErrorLeft = true;
                     }
                     // If the check or checkpanic is used
                     if ("".equals(foundTypeRight)) {
                         List<TypeSymbol> rightTypeSymbols = ((UnionTypeSymbol) rhsTypeSymbol).memberTypeDescriptors();
                         rhsTypeSymbol = findSymbol(rightTypeSymbols);
-                        foundTypeRight = rhsTypeSymbol.name();
+                        foundTypeRight = rhsTypeSymbol.getName().orElse("");
                         foundErrorRight = true;
                     }
 
+                    NonTerminalNode matchedNode = null;
+                    if (positionDetails.matchedNode().kind() == SyntaxKind.FUNCTION_CALL) {
+                        matchedNode = positionDetails.matchedNode();
+                        if (matchedNode.parent().kind() == SyntaxKind.CHECK_EXPRESSION) {
+                            matchedNode = matchedNode.parent();
+                        }
+                    }
 
-                    String functionCall = context.positionDetails().matchedNode().toString();
+                    if (matchedNode == null) {
+                        throw new IllegalStateException("Unexpected node at cursor:" +
+                                positionDetails.matchedNode().kind());
+                    }
+
+                    String functionCall = matchedNode.toString();
                     if (foundErrorRight && !foundErrorLeft) {
-                        symbolAtCursorName = functionCall.split("[=;]")[1].trim();
+                        symbolAtCursorName = functionCall.trim();
                         generatedFunctionName =
                                 String.format("map%sTo%s(check %s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else if (foundErrorLeft && foundErrorRight) {
                         // get the information about the line positions
-                        newTextRange = CommonUtil.toRange(context.positionDetails().matchedNode().lineRange());
+                        newTextRange = CommonUtil.toRange(matchedNode.lineRange());
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else {
-                        symbolAtCursorName = functionCall.split("[=;]")[1].trim();
+                        symbolAtCursorName = functionCall.trim();
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
@@ -188,7 +209,7 @@ class AIDataMapperCodeActionUtil {
 
             // Insert function declaration at the bottom of the file
             String functionName = String.format("map%sTo%s", foundTypeRight, foundTypeLeft);
-            boolean found = fileContentSymbols.stream().anyMatch(p -> p.name().contains(functionName));
+            boolean found = fileContentSymbols.stream().anyMatch(p -> p.getName().get().contains(functionName));
             if (found) {
                 return fEdits;
             } else {
@@ -201,31 +222,31 @@ class AIDataMapperCodeActionUtil {
                 Range newFunctionRange = new Range(startPosOfLastLine, endPosOfLastLine);
 
                 // Get the generated record mapping function
-                String generatedRecordMappingFunction =
-                        getGeneratedRecordMappingFunction(context, foundTypeLeft,
+                String mappingFromServer =
+                        getGeneratedRecordMapping(context, foundTypeLeft,
                                 foundTypeRight, lftTypeSymbol, rhsTypeSymbol);
 
-
-                // Hack for the multi-module projects
-                // Needs to removed when the fix is applied from the data-mapper service
+                // To handle the multi-module projects
+                String rightModule = null;
+                String leftModule = null;
                 Optional<Project> project = context.workspace().project(context.filePath());
                 if (project.get().kind() == ProjectKind.BUILD_PROJECT) {
                     String moduleName = srcFile.get().module().moduleId().moduleName();
 
-                    ModuleID rhsModule = rhsTypeSymbol.moduleID();
-                    ModuleID lftModule = lftTypeSymbol.moduleID();
+                    ModuleID rhsModule =
+                            rhsTypeSymbol.getModule().isPresent() ? rhsTypeSymbol.getModule().get().id() : null;
+                    ModuleID lftModule =
+                            lftTypeSymbol.getModule().isPresent() ? lftTypeSymbol.getModule().get().id() : null;
 
-                    if (!moduleName.equals(rhsModule.moduleName())) {
-                        String rhsType = rhsModule.modulePrefix() + ":" + foundTypeRight;
-                        generatedRecordMappingFunction = generatedRecordMappingFunction.replaceAll("\\b" +
-                                foundTypeRight + "\\b", rhsType);
+                    if (rhsModule != null && !moduleName.equals(rhsModule.moduleName())) {
+                        rightModule = rhsModule.modulePrefix();
                     }
-                    if (!moduleName.equals(lftModule.moduleName())) {
-                        String lftType = lftModule.modulePrefix() + ":" + foundTypeLeft;
-                        generatedRecordMappingFunction = generatedRecordMappingFunction.replaceAll("\\b" +
-                                foundTypeLeft + "\\b", lftType);
+                    if (lftModule != null && !moduleName.equals(lftModule.moduleName())) {
+                        leftModule = lftModule.modulePrefix();
                     }
                 }
+                String generatedRecordMappingFunction = generateMappingFunction(mappingFromServer, foundTypeLeft,
+                        foundTypeRight, leftModule, rightModule);
                 fEdits.add(new TextEdit(newFunctionRange, generatedRecordMappingFunction));
                 return fEdits;
             }
@@ -240,7 +261,7 @@ class AIDataMapperCodeActionUtil {
      */
     public static Symbol findSymbol(List<TypeSymbol> fileContentSymbols) {
         for (Symbol symbol : fileContentSymbols) {
-            if (!"ERROR".equals(symbol.name())) {
+            if (!"ERROR".equals(symbol.getName().get())) {
                 return symbol;
             }
         }
@@ -251,14 +272,14 @@ class AIDataMapperCodeActionUtil {
      * Given two record types, this returns a function with mapped schemas.
      *
      * @param context
-     * @param foundTypeLeft   {@link String}
-     * @param foundTypeRight  {@link String}
+     * @param foundTypeLeft  {@link String}
+     * @param foundTypeRight {@link String}
      * @return function string with mapped schemas
      * @throws IOException throws if error occurred when getting mapped function
      */
-    private static String getGeneratedRecordMappingFunction(CodeActionContext context, String foundTypeLeft,
-                                                            String foundTypeRight,
-                                                            Symbol lftTypeSymbol, Symbol rhsTypeSymbol)
+    private static String getGeneratedRecordMapping(CodeActionContext context, String foundTypeLeft,
+                                                    String foundTypeRight,
+                                                    Symbol lftTypeSymbol, Symbol rhsTypeSymbol)
 
             throws IOException {
         JsonObject rightRecordJSON = new JsonObject();
@@ -294,25 +315,28 @@ class AIDataMapperCodeActionUtil {
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
         schemas.add(rightRecordJSON);
-        return getMapping(schemas, context);
+        return getMapping(schemas, context, foundTypeLeft, foundTypeRight);
     }
 
     /**
      * For a give array of schemas, return a mapping function.
      *
-     * @param schemas {@link JsonArray}
+     * @param schemas        {@link JsonArray}
+     * @param foundTypeLeft  {@link String}
+     * @param foundTypeRight {@link String}
      * @return mapped function
      * @throws IOException throws if an error occurred in HTTP request
      */
-    private static String getMapping(JsonArray schemas, CodeActionContext context) throws IOException {
+    private static String getMapping(JsonArray schemas, CodeActionContext context, String foundTypeLeft,
+                                     String foundTypeRight) throws IOException {
         int hashCode = schemas.hashCode();
         if (mappingCache.asMap().containsKey(hashCode)) {
             return mappingCache.asMap().get(hashCode);
         }
         try {
-            String mappedFunction = getMappingFromServer(schemas, context.languageServercontext());
-            mappingCache.put(hashCode, mappedFunction);
-            return mappedFunction;
+            String mappingFromServer = getMappingFromServer(schemas, context.languageServercontext());
+            mappingCache.put(hashCode, mappingFromServer);
+            return mappingFromServer;
         } catch (IOException e) {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
@@ -337,7 +361,7 @@ class AIDataMapperCodeActionUtil {
             } else {
                 fieldDetails.addProperty(TYPE, attributeType.typeKind().toString());
             }
-            properties.add(attribute.name(), fieldDetails);
+            properties.add(attribute.getName().get(), fieldDetails);
         }
         return properties;
     }
@@ -357,7 +381,7 @@ class AIDataMapperCodeActionUtil {
             headers.put("Accept", "application/json");
             String url = LSClientConfigHolder.getInstance(serverContext)
                     .getConfigAs(ClientExtendedConfigImpl.class).getDataMapper()
-                    .getUrl() + "/map/1.0.0";
+                    .getUrl() + "/map/2.0.0";
             HttpResponse response = HttpClientRequest.doPost(url, dataToSend.toString(), headers);
             int responseCode = response.getResponseCode();
             if (responseCode != HTTP_200_OK) {
@@ -368,10 +392,35 @@ class AIDataMapperCodeActionUtil {
                 }
             }
             JsonParser parser = new JsonParser();
-            return parser.parse(response.getData()).getAsJsonObject().get("answer").getAsString();
+            return parser.parse(response.getData()).getAsJsonObject().get("answer").toString();
         } catch (IOException e) {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
     }
-}
 
+    private static String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
+                                                  String foundTypeRight, String leftModule, String rightModule) {
+
+        String leftType = foundTypeLeft;
+        String rightType = foundTypeRight;
+
+        mappingFromServer = mappingFromServer.replaceAll("\"", "");
+        mappingFromServer = mappingFromServer.replaceAll(",", ", ");
+        mappingFromServer = mappingFromServer.replaceAll(":", ": ");
+
+        if (leftModule != null) {
+            leftType = leftModule + ":" + foundTypeLeft;
+        }
+        if (rightModule != null) {
+            rightType = rightModule + ":" + foundTypeRight;
+        }
+
+        String mappingFunction = "\nfunction map" + foundTypeRight + "To" + foundTypeLeft + " (" + rightType + " " +
+                foundTypeRight.toLowerCase() + ") returns " + leftType + " {" +
+                "\n// Some record fields might be missing in the AI based mapping." +
+                "\n\t" + leftType + " " + foundTypeLeft.toLowerCase() + " = " + mappingFromServer + ";" +
+                "\n\treturn " + foundTypeLeft.toLowerCase() + ";\n}\n";
+
+        return mappingFunction;
+    }
+}

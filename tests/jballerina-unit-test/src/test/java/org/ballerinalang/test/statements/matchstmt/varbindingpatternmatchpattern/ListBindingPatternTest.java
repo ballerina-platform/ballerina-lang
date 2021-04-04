@@ -144,6 +144,11 @@ public class ListBindingPatternTest {
     }
 
     @Test
+    public void testListBindingPattern20() {
+        BRunUtil.invoke(result, "testListBindingPattern20");
+    }
+
+    @Test
     public void testRestBindingPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest1");
     }

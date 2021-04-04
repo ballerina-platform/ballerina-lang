@@ -41,7 +41,7 @@ We have two options to serve as HTML.
 
 ### Output formats
 
-Ballerina build command will generate docs in the markdown format and it will be the format in which docs are pushed to central - alongside balos.
+Ballerina build command will generate docs in the markdown format and it will be the format in which docs are pushed to central - alongside balas.
 
 Ballerina doc command will generate docs in HTML format where the user is able to open them locally in browser (it will allow opting out to md format as well). It’s only for local usage.
 

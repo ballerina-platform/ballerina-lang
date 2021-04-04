@@ -554,7 +554,7 @@ function testMemberAccessOnListConstruct() {
 }
 
 function testMemberAccessOnTableConstruct() {
-    Employee emp  = table key(name) [{name: "Sanjiva", registered: true, id: 1},
+    Employee? emp  = table key(name) [{name: "Sanjiva", registered: true, id: 1},
         {name: "James", registered: true, id: 2}]["James"];
     assertEquality(2, emp["id"]);
 }
@@ -670,7 +670,85 @@ function testNestedAccessOnNilableUnion() returns boolean {
     return true;
 }
 
+function testUnavailableFinalAccessInNestedAccess() {
+    map<map<int>> f = {b: {}}; // `b` is present, but `b` doesn't have `i`.
+    int? i = f["b"]["i"];
+    int? j = (f["b"])["i"];
+    int? k = ((f["b"]["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+}
+
+function testAvailableFinalAccessInNestedAccess() {
+    map<map<int>> f = {b: {i: 1234}}; // `b` is present, and has `i`.
+    int? i = f["b"]["i"];
+    int? j = (f["b"])["i"];
+    int? k = ((f["b"]["i"]));
+
+    assertEquality(1234, i);
+    assertEquality(1234, j);
+    assertEquality(1234, k);
+}
+
+function testUnavailableIntermediateAccessInNestedAccess() {
+    map<map<int>> f = {c: {}};
+    int? i = f["b"]["i"];
+    int? j = (f["b"])["i"];
+    int? k = ((f["b"]["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+}
+
+function testNilValuedFinalAccessInNestedAccess() {
+    map<map<int?>> f = {x: {i: (), j: 2}};
+    int? i = f["x"]["i"];
+    int? j = (f["x"])["i"];
+    int? k = ((f["x"]["i"]));
+
+    assertTrue(i is ());
+    assertTrue(j is ());
+    assertTrue(k is ());
+
+    int? q = ((f["x"]["j"]));
+    assertEquality(2, q);
+}
+
+function testMemberAccessOnStrings() {
+    string a = "ABC"[0];
+    assertEquality("A", a);
+
+    string b = "EFG";
+    string c = b[1];
+    assertEquality("F", c);
+
+    string e = string `${"HIJ"}`;
+    string f = e[2];
+    assertEquality("J", f);
+
+    string:Char g = "K";
+    string h = g[0];
+    assertEquality("K", h);
+}
+
+function testInvalidMemberAccessOnStrings1() {
+    string a = "ABC";
+    string b = a[5];
+}
+
+function testInvalidMemberAccessOnStrings2() {
+    string:Char a = "K";
+    string b = a[3];
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
 
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {

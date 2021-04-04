@@ -1,5 +1,5 @@
-import ballerina/io;
-import ballerina/http;
-import ballerina/log;
-import ballerina/stringutils;
+import foobar/bar;
+import foobar/baz;
+import foobar/qux;
+import foobar/quux;
 

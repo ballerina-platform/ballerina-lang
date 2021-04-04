@@ -17,12 +17,18 @@
 package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
+import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.ErrorTypeSymbol;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+
+import java.util.Optional;
 
 /**
  * Represents an error type descriptor.
@@ -32,9 +38,12 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements ErrorTypeSymbol {
 
     private TypeSymbol detail;
+    private String signature;
+    private ModuleSymbol module;
+    private boolean moduleEvaluated;
 
     public BallerinaErrorTypeSymbol(CompilerContext context, ModuleID moduleID, BErrorType errorType) {
-        super(context, TypeDescKind.ERROR, moduleID, errorType);
+        super(context, TypeDescKind.ERROR, errorType);
     }
 
     /**
@@ -52,13 +61,50 @@ public class BallerinaErrorTypeSymbol extends AbstractTypeSymbol implements Erro
     }
 
     @Override
-    public String signature() {
-        String definitionName = getBType().tsymbol.name.value;
-        if (this.moduleID().moduleName().equals("lang.annotations") && this.moduleID().orgName().equals("ballerina")) {
-            return definitionName;
+    public Optional<ModuleSymbol> getModule() {
+        if (this.module != null || this.moduleEvaluated) {
+            return Optional.ofNullable(this.module);
         }
-        return this.moduleID().orgName() + Names.ORG_NAME_SEPARATOR +
-                this.moduleID().moduleName() + Names.VERSION_SEPARATOR + this.moduleID().version() + ":" +
-                definitionName;
+
+        this.moduleEvaluated = true;
+        BSymbol symbol = this.getBType().tsymbol.owner;
+        while (symbol != null) {
+            if (symbol instanceof BPackageSymbol) {
+                break;
+            }
+            symbol = symbol.owner;
+        }
+
+        if (symbol == null) {
+            return Optional.empty();
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        this.module = symbolFactory.createModuleSymbol((BPackageSymbol) symbol, symbol.name.value);
+        return Optional.of(this.module);
+    }
+
+    @Override
+    public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
+        String definitionName = getBType().tsymbol.name.value;
+
+        if (this.getModule().isEmpty()) {
+            this.signature = definitionName;
+            return this.signature;
+        }
+
+        ModuleID moduleID = this.getModule().get().id();
+        if ("lang.annotations".equals(moduleID.moduleName()) && "ballerina".equals(moduleID.orgName())) {
+            this.signature = definitionName;
+        } else {
+            this.signature = moduleID.orgName() + Names.ORG_NAME_SEPARATOR + moduleID.moduleName() +
+                    Names.VERSION_SEPARATOR + moduleID.version() + ":" + definitionName;
+        }
+
+        return this.signature;
     }
 }

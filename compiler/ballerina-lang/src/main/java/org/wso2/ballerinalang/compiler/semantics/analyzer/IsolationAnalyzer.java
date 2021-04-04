@@ -69,8 +69,16 @@ import org.wso2.ballerinalang.compiler.tree.BLangVariable;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorFieldBindingPatterns;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorMessageBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
@@ -101,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -306,7 +315,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(function, env);
         }
 
-        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
+        for (BLangVariable globalVar : pkgNode.globalVars) {
             analyzeNode(globalVar, env);
         }
 
@@ -343,7 +352,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
 
         for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
-            if (!requiredParam.symbol.defaultableParam) {
+            if (!requiredParam.symbol.isDefaultable) {
                 continue;
             }
 
@@ -639,16 +648,54 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
+    }
+
+    @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         analyzeNode(varBindingPattern.getBindingPattern(), env);
     }
 
     @Override
-    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
+    public void visit(BLangCaptureBindingPattern captureBindingPattern) {
     }
 
     @Override
-    public void visit(BLangCaptureBindingPattern captureBindingPattern) {
+    public void visit(BLangErrorBindingPattern errorBindingPattern) {
+        analyzeNode(errorBindingPattern.errorMessageBindingPattern, env);
+        analyzeNode(errorBindingPattern.errorCauseBindingPattern, env);
+        analyzeNode(errorBindingPattern.errorFieldBindingPatterns, env);
+    }
+
+    @Override
+    public void visit(BLangErrorMessageBindingPattern errorMessageBindingPattern) {
+        analyzeNode(errorMessageBindingPattern.simpleBindingPattern, env);
+    }
+
+    @Override
+    public void visit(BLangSimpleBindingPattern simpleBindingPattern) {
+        analyzeNode(simpleBindingPattern.wildCardBindingPattern, env);
+        analyzeNode(simpleBindingPattern.captureBindingPattern, env);
+    }
+
+    @Override
+    public void visit(BLangErrorCauseBindingPattern errorCauseBindingPattern) {
+        analyzeNode(errorCauseBindingPattern.simpleBindingPattern, env);
+        analyzeNode(errorCauseBindingPattern.errorBindingPattern, env);
+    }
+
+    @Override
+    public void visit(BLangErrorFieldBindingPatterns errorFieldBindingPatterns) {
+        for (BLangNamedArgBindingPattern namedArgBindingPattern : errorFieldBindingPatterns.namedArgBindingPatterns) {
+            analyzeNode(namedArgBindingPattern, env);
+        }
+        analyzeNode(errorFieldBindingPatterns.restBindingPattern, env);
+    }
+
+    @Override
+    public void visit(BLangNamedArgBindingPattern namedArgBindingPattern) {
+        analyzeNode(namedArgBindingPattern.argName, env);
+        analyzeNode(namedArgBindingPattern.bindingPattern, env);
     }
 
     @Override
@@ -699,6 +746,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangRestBindingPattern restBindingPattern) {
+    }
+
+    @Override
+    public void visit(BLangMappingBindingPattern mappingBindingPattern) {
+        for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
+            analyzeNode(fieldBindingPattern, env);
+        }
+    }
+
+    @Override
+    public void visit(BLangFieldBindingPattern fieldBindingPattern) {
+        analyzeNode(fieldBindingPattern.fieldName, env);
+        analyzeNode(fieldBindingPattern.bindingPattern, env);
     }
 
     @Override
@@ -1029,7 +1089,9 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     exprInfo.nonCaptureBindingPatternVarRefsOnLhs.add(varRefExpr);
                 }
             } else if ((!varRefExpr.lhsVar || (parent != null && parent.getKind() != NodeKind.ASSIGNMENT))  &&
-                    !Names.SELF.value.equals(varRefExpr.variableName.value) && isInvalidCopyIn(varRefExpr, env)) {
+                    !Names.SELF.value.equals(varRefExpr.variableName.value) &&
+                    !isIsolated(varRefExpr.symbol.flags) &&
+                    isInvalidCopyIn(varRefExpr, env)) {
                 exprInfo.copyInVarRefs.add(varRefExpr);
             } else if (!varRefExpr.lhsVar && parent != null && isInvalidTransfer(varRefExpr, true)) {
                 exprInfo.copyOutVarRefs.add(varRefExpr);
@@ -1533,6 +1595,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangObjectConstructorExpression objectConstructorExpression) {
         visit(objectConstructorExpression.typeInit);
+    }
+
+    @Override
+    public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
     }
 
     @Override

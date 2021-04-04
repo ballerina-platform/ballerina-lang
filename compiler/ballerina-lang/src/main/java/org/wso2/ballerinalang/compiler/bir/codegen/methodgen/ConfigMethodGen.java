@@ -47,6 +47,8 @@ import static org.objectweb.asm.Opcodes.ASTORE;
 import static org.objectweb.asm.Opcodes.BIPUSH;
 import static org.objectweb.asm.Opcodes.DUP;
 import static org.objectweb.asm.Opcodes.GETSTATIC;
+import static org.objectweb.asm.Opcodes.ICONST_0;
+import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
@@ -57,6 +59,7 @@ import static org.objectweb.asm.Opcodes.RETURN;
 import static org.objectweb.asm.Opcodes.V1_8;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURATION_CLASS_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CONFIGURE_INIT;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HASH_MAP;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -93,29 +96,37 @@ public class ConfigMethodGen {
         mv.visitMaxs(0, 0);
         mv.visitEnd();
 
-        generateConfigInit(cw, imprtMods, pkg.packageID);
+        generateConfigInit(cw, moduleInitClass, imprtMods, pkg.packageID);
         populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(stringConstantsGen));
         cw.visitEnd();
         jarEntries.put(innerClassName + ".class", cw.toByteArray());
     }
 
-    private void generateConfigInit(ClassWriter cw, List<PackageID> imprtMods, PackageID packageID) {
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT, "(L" + PATH + ";)V", null, null);
+    private void generateConfigInit(ClassWriter cw, String moduleInitClass, List<PackageID> imprtMods,
+                                    PackageID packageID) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, CONFIGURE_INIT,
+                String.format("([L%s;[L%s;L%s;L%s;)V", STRING_VALUE, PATH, STRING_VALUE, STRING_VALUE), null, null);
         mv.visitCode();
 
         mv.visitTypeInsn(NEW, HASH_MAP);
         mv.visitInsn(DUP);
         mv.visitMethodInsn(INVOKESPECIAL, HASH_MAP, JVM_INIT_METHOD, "()V", false);
-        mv.visitVarInsn(ASTORE, 1);
+
+        mv.visitVarInsn(ASTORE, 4);
 
         for (PackageID id : imprtMods) {
             generateInvokeConfiguration(mv, id);
         }
         generateInvokeConfiguration(mv, packageID);
+        mv.visitFieldInsn(GETSTATIC, moduleInitClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
+        mv.visitVarInsn(ALOAD, 4);
         mv.visitVarInsn(ALOAD, 0);
         mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 3);
         mv.visitMethodInsn(INVOKESTATIC, LAUNCH_UTILS, "initConfigurableVariables",
-                String.format("(L%s;L%s;)V", PATH, MAP), false);
+                           String.format("(L%s;L%s;[L%s;[L%s;L%s;L%s;)V", MODULE, MAP, STRING_VALUE,
+                                         PATH, STRING_VALUE, STRING_VALUE), false);
         mv.visitInsn(RETURN);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
@@ -127,15 +138,15 @@ public class ConfigMethodGen {
 
         mv.visitMethodInsn(INVOKESTATIC, moduleClass, POPULATE_CONFIG_DATA_METHOD,
                 String.format("()[L%s;", VARIABLE_KEY), false);
-        mv.visitVarInsn(ASTORE, 2);
+        mv.visitVarInsn(ASTORE, 5);
 
-        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 5);
         mv.visitInsn(ARRAYLENGTH);
         Label elseLabel = new Label();
         mv.visitJumpInsn(IFEQ, elseLabel);
-        mv.visitVarInsn(ALOAD, 1);
+        mv.visitVarInsn(ALOAD, 4);
         mv.visitFieldInsn(GETSTATIC, initClass, CURRENT_MODULE_VAR_NAME, String.format("L%s;", MODULE));
-        mv.visitVarInsn(ALOAD, 2);
+        mv.visitVarInsn(ALOAD, 5);
 
         mv.visitMethodInsn(INVOKEINTERFACE, MAP, "put", String.format("(L%s;L%s;)L%s;", OBJECT, OBJECT, OBJECT), true);
         mv.visitInsn(POP);
@@ -147,6 +158,7 @@ public class ConfigMethodGen {
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC | ACC_STATIC, POPULATE_CONFIG_DATA_METHOD,
                 String.format("()[L%s;", VARIABLE_KEY), null, null);
         mv.visitCode();
+        mv.visitMethodInsn(INVOKESTATIC, moduleClass, CURRENT_MODULE_INIT, String.format("()L%s;", OBJECT), false);
 
         //create configuration data array
         mv.visitIntInsn(BIPUSH, calculateConfigArraySize(module.globalVars));
@@ -163,7 +175,12 @@ public class ConfigMethodGen {
                         "L" + MODULE + ";");
                 mv.visitLdcInsn(globalVar.name.value);
                 jvmTypeGen.loadType(mv, globalVar.type);
-                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;)V",
+                if (Symbols.isFlagOn(globalVarFlags, Flags.REQUIRED)) {
+                    mv.visitInsn(ICONST_1);
+                } else {
+                    mv.visitInsn(ICONST_0);
+                }
+                mv.visitMethodInsn(INVOKESPECIAL, VARIABLE_KEY, JVM_INIT_METHOD, String.format("(L%s;L%s;L%s;Z)V",
                         MODULE, STRING_VALUE, TYPE), false);
                 mv.visitVarInsn(ASTORE, varCount + 1);
 

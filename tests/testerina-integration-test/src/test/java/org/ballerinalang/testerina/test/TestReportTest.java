@@ -34,6 +34,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.HashMap;
 
 /**
  * Test class to test report using a ballerina project.
@@ -56,10 +57,12 @@ public class TestReportTest extends BaseTestCase {
     @Test ()
     public void testWarningForReportTools() throws BallerinaTestException, IOException {
         String msg = "warning: Could not find the required HTML report tools for code coverage";
-        LogLeecher clientLeecher = new LogLeecher(msg);
-        balClient.runMain("test", new String[]{"--code-coverage"}, null, new String[]{},
-                new LogLeecher[]{clientLeecher}, projectPath);
-        clientLeecher.waitForText(60000);
+        String[] args = mergeCoverageArgs(new String[]{});
+        String output = balClient.runMainAndReadStdOut("test", args,
+                new HashMap<>(), projectPath, false);
+        if (!output.contains(msg)) {
+            Assert.fail("Test failed due to report tools validation failure.");
+        }
     }
 
     @Test ()
@@ -79,14 +82,12 @@ public class TestReportTest extends BaseTestCase {
     private void runCommand(boolean coverage) throws BallerinaTestException, IOException {
         String[] args;
         if (coverage) {
-            args = new String[]{"--code-coverage"};
+            args = new String[]{"--code-coverage", "--includes=*"};
         } else {
             args = new String[]{"--test-report"};
         }
-
         balClient.runMain("test", args, null, new String[]{},
                 new LogLeecher[]{}, projectPath);
-
         Gson gson = new Gson();
         BufferedReader bufferedReader = Files.newBufferedReader(resultsJsonPath, StandardCharsets.UTF_8);
         resultObj = gson.fromJson(bufferedReader, JsonObject.class);

@@ -27,6 +27,7 @@ import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.List;
@@ -60,7 +61,7 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     && containerVar.getBType() != BVariableType.ARRAY && containerVar.getBType() != BVariableType.MAP
                     && containerVar.getBType() != BVariableType.JSON) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Type `" +
-                        containerVar.getBType().getString() + "' does not support indexing."));
+                        containerVar.getBType().getString() + "' does not support member access."));
             }
             // Todo - verify
             BExpressionValue keyResult = keyEvaluators.get(0).evaluate();
@@ -99,14 +100,13 @@ public class IndexedExpressionEvaluator extends Evaluator {
                                         keyVar.getBType() + "'"));
                     }
                     int index = Integer.parseInt(keyVar.getDapVariable().getValue());
-                    int childSize = ((BCompoundVariable) containerVar).getChildVariables().size();
+                    int childSize = ((BCompoundVariable) containerVar).getChildrenCount();
                     // Validates for IndexOutOfRange errors.
                     if (index < 0 || index >= childSize) {
                         throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
                                 "String index out of range: index=" + index + ", size=" + childSize));
                     }
-                    String indexAsKey = String.format("[%d]", index);
-                    Value child = ((BCompoundVariable) containerVar).getChildByName(indexAsKey);
+                    Value child = ((IndexedCompoundVariable) containerVar).getChildByIndex(index);
                     return new BExpressionValue(context, child);
                 }
                 // Index access of mappings (map, json)
@@ -125,7 +125,7 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     }
                     String keyString = keyVar.getDapVariable().getValue();
                     try {
-                        Value child = ((BCompoundVariable) containerVar).getChildByName(keyString);
+                        Value child = ((IndexedCompoundVariable) containerVar).getChildByName(keyString);
                         return new BExpressionValue(context, child);
                     } catch (DebugVariableException e) {
                         return new BExpressionValue(context, null);
@@ -155,11 +155,11 @@ public class IndexedExpressionEvaluator extends Evaluator {
                     // String substring = containerVar.getDapVariable().getValue().substring(index, index + 1);
                     // return EvaluationUtils.make(context, substring);
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "Type `" + containerVar.getBType().getString() + "' does not support indexing."));
+                            "Type `" + containerVar.getBType().getString() + "' does not support member access."));
                 }
                 default: {
                     throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
-                            "Type `" + containerVar.getBType().getString() + "' does not support indexing."));
+                            "Type `" + containerVar.getBType().getString() + "' does not support member access."));
                 }
             }
         } catch (DebugVariableException e) {

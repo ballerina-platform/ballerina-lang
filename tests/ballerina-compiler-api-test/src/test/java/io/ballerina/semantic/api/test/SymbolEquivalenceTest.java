@@ -19,6 +19,7 @@
 package io.ballerina.semantic.api.test;
 
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -55,7 +56,6 @@ public class SymbolEquivalenceTest {
     private SemanticModel typesModel;
     private Document srcFile;
     private Document typesSrcFile;
-    private final String typesFileName = "typedesc_test.bal";
 
     @BeforeClass
     public void setup() {
@@ -100,7 +100,7 @@ public class SymbolEquivalenceTest {
 
             for (int j = i + 1; j < symbols.size(); j++) {
                 assertFalse(symbol.equals(symbols.get(j)),
-                            "'" + symbol.name() + "' is equal to '" + symbols.get(j).name() + "'");
+                            "'" + symbol.getName().get() + "' is equal to '" + symbols.get(j).getName().get() + "'");
                 assertNotEquals(symbol.hashCode(), symbols.get(j).hashCode());
             }
         }
@@ -122,8 +122,17 @@ public class SymbolEquivalenceTest {
     public void testTypedescriptors(List<LinePosition> positions) {
         List<TypeSymbol> types = positions.stream()
                 .map(pos -> typesModel.symbol(typesSrcFile, pos).get())
-                .map(s -> s.kind() == RECORD_FIELD ?
-                        ((RecordFieldSymbol) s).typeDescriptor() : ((VariableSymbol) s).typeDescriptor())
+                .map(s -> {
+                    switch (s.kind()) {
+                        case RECORD_FIELD:
+                            return ((RecordFieldSymbol) s).typeDescriptor();
+                        case PARAMETER:
+                            return ((ParameterSymbol) s).typeDescriptor();
+                        case VARIABLE:
+                            return ((VariableSymbol) s).typeDescriptor();
+                    }
+                    throw new AssertionError("Unexpected symbol kind: " + s.kind());
+                })
                 .collect(Collectors.toList());
         assertTypeSymbols(types);
     }
@@ -143,7 +152,7 @@ public class SymbolEquivalenceTest {
         List<TypeSymbol> types = positions.stream()
                 .map(pos -> typesModel.symbol(typesSrcFile, pos).get())
                 .map(s -> s.kind() == RECORD_FIELD ?
-                        ((RecordFieldSymbol) s).typeDescriptor() : ((VariableSymbol) s).typeDescriptor())
+                        ((RecordFieldSymbol) s).typeDescriptor() : ((ParameterSymbol) s).typeDescriptor())
                 .collect(Collectors.toList());
 
         for (int i = 0; i < types.size(); i++) {
@@ -164,7 +173,7 @@ public class SymbolEquivalenceTest {
 
             for (int j = i + 1; j < symbols.size(); j++) {
                 assertTrue(symbol.equals(symbols.get(j)),
-                           "'" + symbol.name() + "' not equal to '" + symbols.get(j).name() + "'");
+                           "'" + symbol.getName().get() + "' not equal to '" + symbols.get(j).getName().get() + "'");
                 assertEquals(symbol.hashCode(), symbols.get(j).hashCode());
             }
         }

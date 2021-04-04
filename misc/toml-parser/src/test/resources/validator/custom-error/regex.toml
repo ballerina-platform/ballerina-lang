@@ -1,0 +1,9 @@
+[package]
+name = "anjana"
+org = ""
+version = ""
+port = 5000
+capacity = 4
+repository = "https://github.com/ballerinalang/ballerina"
+keywords = ["ballerina", "security", "crypto"]
+exported = ["winery", "service"]

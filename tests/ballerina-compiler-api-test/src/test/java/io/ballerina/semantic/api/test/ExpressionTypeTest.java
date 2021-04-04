@@ -223,7 +223,7 @@ public class ExpressionTypeTest {
     public void testObjecTypeInit(int sLine, int sCol, int eLine, int eCol) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), TYPE_REFERENCE);
-        assertEquals(((TypeReferenceTypeSymbol) type).name(), "PersonObj");
+        assertEquals(((TypeReferenceTypeSymbol) type).getName().get(), "PersonObj");
         assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), OBJECT);
     }
 
@@ -317,8 +317,17 @@ public class ExpressionTypeTest {
                 {109, 4, 109, 10, UNION},
                 {109, 4, 109, 9, UNION},
                 {112, 15, 112, 27, STRING},
-                {112, 15, 112, 26, STRING}
+                {112, 15, 112, 26, STRING},
+                {127, 4, 127, 35, STRING},
+                {127, 4, 127, 34, STRING},
+                {129, 12, 129, 37, INT},
+                {130, 4, 130, 36, BOOLEAN}
         };
+    }
+
+    @Test
+    public void testTypeWithinServiceDecl() {
+        assertType(118, 15, 118, 16, RECORD);
     }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {

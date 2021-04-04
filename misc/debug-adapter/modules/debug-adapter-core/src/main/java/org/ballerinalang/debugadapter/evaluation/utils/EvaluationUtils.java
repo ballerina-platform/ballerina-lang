@@ -18,6 +18,11 @@ package org.ballerinalang.debugadapter.evaluation.utils;
 
 import com.sun.jdi.ClassObjectReference;
 import com.sun.jdi.ClassType;
+import com.sun.jdi.DoubleValue;
+import com.sun.jdi.FloatValue;
+import com.sun.jdi.IntegerValue;
+import com.sun.jdi.InvocationException;
+import com.sun.jdi.LongValue;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
 import com.sun.jdi.ReferenceType;
@@ -30,11 +35,13 @@ import org.ballerinalang.debugadapter.evaluation.engine.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.RuntimeInstanceMethod;
 import org.ballerinalang.debugadapter.evaluation.engine.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
+import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
@@ -49,6 +56,8 @@ public class EvaluationUtils {
     public static final String B_UNARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.unary";
     public static final String B_BINARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.binary";
     public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
+    public static final String B_TYPE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.TypeCreator";
+    public static final String B_VALUE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.ValueCreator";
     public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
     public static final String B_TYPE_UTILS_CLASS = "io.ballerina.runtime.api.utils.TypeUtils";
     public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.internal.XmlFactory";
@@ -57,11 +66,15 @@ public class EvaluationUtils {
     public static final String B_STRING_CLASS = "io.ballerina.runtime.api.values.BString";
     public static final String FROM_STRING_CLASS = "org.ballerinalang.langlib.xml.FromString";
     public static final String B_TYPE_CLASS = "io.ballerina.runtime.api.types.Type";
+    public static final String B_TYPE_ARRAY_CLASS = "io.ballerina.runtime.api.types.Type[]";
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
     private static final String B_LINK_CLASS = "io.ballerina.runtime.api.values.BLink";
+    private static final String B_ERROR_VALUE_CLASS = "io.ballerina.runtime.internal.values.ErrorValue";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
+    private static final String JAVA_INT_CLASS = "java.lang.Integer";
     private static final String JAVA_LONG_CLASS = "java.lang.Long";
+    private static final String JAVA_FLOAT_CLASS = "java.lang.Float";
     private static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
     private static final String JAVA_LANG_CLASS = "java.lang.Class";
     // Helper methods
@@ -88,6 +101,9 @@ public class EvaluationUtils {
     public static final String B_UNARY_NOT_METHOD = "unaryNot";
     public static final String GET_TYPEDESC_METHOD = "getTypedesc";
     public static final String CHECK_IS_TYPE_METHOD = "checkIsType";
+    public static final String CHECK_CAST_METHOD = "checkCast";
+    public static final String CREATE_UNION_TYPE_METHOD = "createUnionType";
+    public static final String CREATE_DECIMAL_VALUE_METHOD = "createDecimalValue";
     public static final String VALUE_OF_METHOD = "valueOf";
     public static final String VALUE_FROM_STRING_METHOD = "fromString";
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
@@ -98,6 +114,10 @@ public class EvaluationUtils {
     static final String FROM_STRING_METHOD = "fromString";
     private static final String FOR_NAME_METHOD = "forName";
     private static final String GET_STRING_VALUE_METHOD = "getStringValue";
+    private static final String INT_VALUE_METHOD = "intValue";
+    private static final String LONG_VALUE_METHOD = "longValue";
+    private static final String FLOAT_VALUE_METHOD = "floatValue";
+    private static final String DOUBLE_VALUE_METHOD = "doubleValue";
     // Misc
     public static final String STRAND_VAR_NAME = "__strand";
     public static final String REST_ARG_IDENTIFIER = "...";
@@ -149,8 +169,10 @@ public class EvaluationUtils {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load JVM util function: " + methodName));
         }
-        methods = methods.stream().filter(method -> method.isPublic() && method.isStatic())
+        methods = methods.stream()
+                .filter(method -> method.isPublic() && method.isStatic())
                 .collect(Collectors.toList());
+
         if (methods.size() != 1) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
                     "occurred when trying to load JVM util function: " + methodName));
@@ -201,7 +223,49 @@ public class EvaluationUtils {
      */
     public static Value getValueAsObject(SuspendedContext context, Value value) throws EvaluationException {
         BVariable bVar = VariableFactory.getVariable(context, value);
+        if (value instanceof ObjectReference) {
+            return value;
+        }
         return getValueAsObject(context, bVar);
+    }
+
+    /**
+     * Coverts an object of a java wrapper type to its corresponding java primitive value.
+     */
+    public static Value unboxValue(SuspendedContext context, Value value) {
+        try {
+            if (!(value instanceof ObjectReference)) {
+                return value;
+            }
+
+            String typeName = value.type().name();
+            List<Method> method;
+            switch (typeName) {
+                case EvaluationUtils.JAVA_INT_CLASS:
+                    method = ((ObjectReference) value).referenceType().methodsByName(INT_VALUE_METHOD);
+                    break;
+                case EvaluationUtils.JAVA_LONG_CLASS:
+                    method = ((ObjectReference) value).referenceType().methodsByName(LONG_VALUE_METHOD);
+                    break;
+                case EvaluationUtils.JAVA_FLOAT_CLASS:
+                    method = ((ObjectReference) value).referenceType().methodsByName(FLOAT_VALUE_METHOD);
+                    break;
+                case EvaluationUtils.JAVA_DOUBLE_CLASS:
+                    method = ((ObjectReference) value).referenceType().methodsByName(DOUBLE_VALUE_METHOD);
+                    break;
+                default:
+                    return value;
+            }
+
+            if (method.size() != 1) {
+                return value;
+            }
+            RuntimeInstanceMethod unboxingMethod = new RuntimeInstanceMethod(context, value, method.get(0));
+            unboxingMethod.setArgValues(new ArrayList<>());
+            return unboxingMethod.invoke();
+        } catch (EvaluationException e) {
+            return value;
+        }
     }
 
     /**
@@ -214,22 +278,42 @@ public class EvaluationUtils {
     public static Value getValueAsObject(SuspendedContext context, BVariable variable) throws EvaluationException {
         RuntimeStaticMethod method;
         List<String> methodArgTypeNames = new ArrayList<>();
+        Value jvmValue = variable.getJvmValue();
         switch (variable.getBType()) {
             case BOOLEAN:
-                methodArgTypeNames.add("boolean");
+                methodArgTypeNames.add(JVMValueType.BOOLEAN.getString());
                 method = getRuntimeMethod(context, JAVA_BOOLEAN_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
-                method.setArgValues(Collections.singletonList(variable.getJvmValue()));
+                method.setArgValues(Collections.singletonList(jvmValue));
                 return method.invoke();
             case INT:
-                methodArgTypeNames.add("long");
-                method = getRuntimeMethod(context, JAVA_LONG_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
-                method.setArgValues(Collections.singletonList(variable.getJvmValue()));
-                return method.invoke();
+                if (jvmValue instanceof IntegerValue) {
+                    methodArgTypeNames.add(JVMValueType.INT.getString());
+                    method = getRuntimeMethod(context, JAVA_INT_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
+                    method.setArgValues(Collections.singletonList(jvmValue));
+                    return method.invoke();
+                } else if (jvmValue instanceof LongValue) {
+                    methodArgTypeNames.add(JVMValueType.LONG.getString());
+                    method = getRuntimeMethod(context, JAVA_LONG_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
+                    method.setArgValues(Collections.singletonList(jvmValue));
+                    return method.invoke();
+                } else {
+                    return jvmValue;
+                }
             case FLOAT:
-                methodArgTypeNames.add("double");
-                method = getRuntimeMethod(context, JAVA_DOUBLE_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
-                method.setArgValues(Collections.singletonList(variable.getJvmValue()));
-                return method.invoke();
+                jvmValue = variable.getJvmValue();
+                if (jvmValue instanceof FloatValue) {
+                    methodArgTypeNames.add(JVMValueType.FLOAT.getString());
+                    method = getRuntimeMethod(context, JAVA_FLOAT_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
+                    method.setArgValues(Collections.singletonList(variable.getJvmValue()));
+                    return method.invoke();
+                } else if (jvmValue instanceof DoubleValue) {
+                    methodArgTypeNames.add(JVMValueType.DOUBLE.getString());
+                    method = getRuntimeMethod(context, JAVA_DOUBLE_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
+                    method.setArgValues(Collections.singletonList(variable.getJvmValue()));
+                    return method.invoke();
+                } else {
+                    return jvmValue;
+                }
             default:
                 return variable.getJvmValue();
         }
@@ -300,6 +384,32 @@ public class EvaluationUtils {
                 argTypeNames);
         fromStringMethod.setArgValues(Collections.singletonList(stringRef));
         return fromStringMethod.invoke();
+    }
+
+    /**
+     * Converts the user given string literal into a {@link com.sun.jdi.StringReference} instance.
+     *
+     * @param context suspended debug context
+     * @param val     string value
+     * @return {@link com.sun.jdi.StringReference} instance
+     */
+    public static Value getAsJString(SuspendedContext context, String val) throws EvaluationException {
+        return context.getAttachedVm().mirrorOf(val);
+    }
+
+    /**
+     * Checks if a given invocation exception is an instance of {@link io.ballerina.runtime.api.values.BError} and if
+     * so, returns it as a JDI value instance.
+     */
+    public static Optional<Value> getBError(Exception e) {
+        if (!(e instanceof InvocationException)) {
+            return Optional.empty();
+        }
+        String typeName = ((InvocationException) e).exception().referenceType().name();
+        if (typeName.equals(B_ERROR_VALUE_CLASS)) {
+            return Optional.ofNullable(((InvocationException) e).exception());
+        }
+        return Optional.empty();
     }
 
     private static boolean compare(List<String> list1, List<String> list2) {

@@ -38,7 +38,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import static org.ballerinalang.test.context.Constant.BALLERINA_AGENT_PATH;
-import static org.ballerinalang.test.context.Constant.JACOCO_AGENT_ARG_LINE;
 
 /**
  * This class hold the server information and manage the a server instance.
@@ -86,11 +85,12 @@ public class BServerInstance implements BServer {
         agentArgs = "-javaagent:" + balAgent + "=host=" + agentHost + ",port=" + agentPort
                 + ",exitStatus=1,timeout=15000,killStatus=5 ";
 
-        String jacocoArgLine = System.getProperty(JACOCO_AGENT_ARG_LINE);
-        if (jacocoArgLine == null || jacocoArgLine.isEmpty()) {
-            log.warn("Running integration test without jacoco test coverage");
-            return;
-        }
+        // add jacoco agent
+        String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
+                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
+                Paths.get(System.getProperty("user.dir"))
+                        .resolve("build").resolve("jacoco").resolve("test.exec");
+
         agentArgs = jacocoArgLine + " " + agentArgs + " ";
     }
 

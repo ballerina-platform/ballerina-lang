@@ -146,6 +146,7 @@ public class JvmConstants {
     public static final String CURRENT_MODULE_VAR_NAME = "$moduleName";
     public static final String B_STRING_VAR_PREFIX = "$bString";
     public static final String VARIABLE_KEY = "io/ballerina/runtime/internal/configurable/VariableKey";
+    public static final String TOML_DETAILS = "io/ballerina/runtime/internal/configurable/providers/toml/TomlDetails";
     public static final String TYPE_ID_SET = "io/ballerina/runtime/internal/types/BTypeIdSet";
     public static final String TYPE_ID = "io/ballerina/runtime/internal/types/BTypeIdSet$TypeId";
 
@@ -171,6 +172,9 @@ public class JvmConstants {
     public static final String ERROR_UTILS = "io/ballerina/runtime/internal/ErrorUtils";
     public static final String ERROR_CREATOR = "io/ballerina/runtime/api/ErrorCreator";
     public static final String RUNTIME_UTILS = "io/ballerina/runtime/internal/util/RuntimeUtils";
+    public static final String OPTION = "io/ballerina/runtime/internal/cli/Option";
+    public static final String OPERAND = "io/ballerina/runtime/internal/cli/Operand";
+    public static final String CLI_SPEC = "io/ballerina/runtime/internal/cli/CliSpec";
     public static final String ARGUMENT_PARSER = "io/ballerina/runtime/internal/util/ArgumentParser";
     public static final String LAUNCH_UTILS = "io/ballerina/runtime/internal/launch/LaunchUtils";
     public static final String MATH_UTILS = "io/ballerina/runtime/internal/MathUtils";
@@ -182,6 +186,7 @@ public class JvmConstants {
     public static final String COMPATIBILITY_CHECKER = "io/ballerina/runtime/internal/util/CompatibilityChecker";
     public static final String LISTENER_REGISTRY_CLASS =
             "io/ballerina/runtime/internal/scheduling/Scheduler$ListenerRegistry";
+    public static final String VALUE_COMPARISON_UTILS = "io/ballerina/runtime/internal/ValueComparisonUtils";
 
     // other java classes
     public static final String OBJECT = "java/lang/Object";
@@ -205,6 +210,7 @@ public class JvmConstants {
     public static final String PATH = "java/nio/file/Path";
     public static final String PATHS = "java/nio/file/Paths";
     public static final String SYSTEM = "java/lang/System";
+    public static final String BIG_DECIMAL = "java/math/BigDecimal";
 
     // service objects, annotation processing related classes
     public static final String ANNOTATION_UTILS = "io/ballerina/runtime/internal/AnnotationUtils";
@@ -226,6 +232,7 @@ public class JvmConstants {
 
     // union related constants
     public static final String SET_MEMBERS_METHOD = "setMemberTypes";
+    public static final String SET_ORIGINAL_MEMBERS_METHOD = "setOriginalMemberTypes";
     public static final String SET_CYCLIC_METHOD = "setCyclic";
 
     // Immutable type related constants.
@@ -284,7 +291,7 @@ public class JvmConstants {
     public static final String LISTENER_REGISTRY_VARIABLE = "$listenerRegistry";
     public static final String CONFIGURE_INIT = "$configureInit";
     public static final String CONFIGURATION_CLASS_NAME = "$ConfigurationMapper";
-    public static final String POPULATE_CONFIG_DATA_METHOD = "$populateConfigurationData";
+    public static final String POPULATE_CONFIG_DATA_METHOD = "$initAndPopulateConfigData";
 
     // scheduler related constants
     public static final String SCHEDULE_FUNCTION_METHOD = "scheduleFunction";
@@ -294,6 +301,7 @@ public class JvmConstants {
     public static final String SCHEDULER_START_METHOD = "start";
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
+    public static final String CREATE_ERROR_VALUE = "createErrorValue";
 
     // strand data related constants
     public static final String STRAND = "strand";
@@ -311,6 +319,7 @@ public class JvmConstants {
     public static final String REPORT_ERROR_METHOD = "reportError";
     public static final String STOP_OBSERVATION_METHOD = "stopObservation";
     public static final String OBSERVABLE_ANNOTATION = "ballerina/observe/Observable";
+    public static final String DISPLAY_ANNOTATION = "display";
     public static final String RECORD_CHECKPOINT_METHOD = "recordCheckpoint";
 
     // visibility flags

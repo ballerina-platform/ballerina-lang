@@ -44,6 +44,7 @@ under the License.
             <class name="org.ballerinalang.testerina.test.FunctionNameValidationTest" />
             <class name="org.ballerinalang.testerina.test.ImportTest" />
             <class name="org.ballerinalang.testerina.test.ModuleExecutionTest" />
+            <class name="org.ballerinalang.testerina.test.CodeCoverageReportTest" />
         </classes>
     </test>
 </suite>

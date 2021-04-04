@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
@@ -42,13 +43,17 @@ public class TypeCastExpressionNodeContext extends AbstractCompletionProvider<Ty
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, TypeCastExpressionNode node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
         if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
+            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            completionItems.addAll(this.getCompletionItemList(typesInModule, context));
+        } else {
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.addAll(this.getTypeItems(context));
         }
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.getModuleCompletionItems(context));
-        completionItems.addAll(this.getTypeItems(context));
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }

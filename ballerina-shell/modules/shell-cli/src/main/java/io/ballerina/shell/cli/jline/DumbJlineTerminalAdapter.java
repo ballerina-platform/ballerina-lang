@@ -18,6 +18,8 @@
 
 package io.ballerina.shell.cli.jline;
 
+import io.ballerina.shell.cli.ShellExitException;
+import org.jline.reader.EndOfFileException;
 import org.jline.reader.LineReader;
 import org.jline.reader.UserInterruptException;
 
@@ -38,12 +40,14 @@ public class DumbJlineTerminalAdapter extends JlineTerminalAdapter {
     }
 
     @Override
-    public String readLine(String prefix, String postfix) {
+    public String readLine(String prefix, String postfix) throws ShellExitException {
         // No postfix done in dumb
         try {
             return lineReader.readLine(prefix);
         } catch (UserInterruptException e) {
             return "";
+        } catch (EndOfFileException e) {
+            throw new ShellExitException();
         }
     }
 }

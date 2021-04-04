@@ -15,15 +15,18 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.CheckExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -42,16 +45,23 @@ public class CheckExpressionNodeContext extends AbstractCompletionProvider<Check
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, CheckExpressionNode node)
             throws LSCompletionException {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = ctx.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
+        if (node.parent().kind() == SyntaxKind.ASSIGNMENT_STATEMENT
+                || node.parent().kind() == SyntaxKind.LOCAL_VAR_DECL) {
+            completionItems.addAll(CompletionUtil.route(ctx, node.parent()));
+        } else if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, nodeAtCursor)) {
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, nameRef), ctx);
-        }
+            List<Symbol> expressionContextEntries = QNameReferenceUtil.getExpressionContextEntries(ctx, nameRef);
+            completionItems.addAll(this.getCompletionItemList(expressionContextEntries, ctx));
+        } else {
         /*
         We add the action keywords in order to support the check action context completions
          */
-        List<LSCompletionItem> completionItems = new ArrayList<>(this.actionKWCompletions(ctx));
-        completionItems.addAll(this.expressionCompletions(ctx));
+            completionItems.addAll(this.actionKWCompletions(ctx));
+            completionItems.addAll(this.expressionCompletions(ctx));
+        }
+        this.sort(ctx, node, completionItems);
 
         return completionItems;
     }

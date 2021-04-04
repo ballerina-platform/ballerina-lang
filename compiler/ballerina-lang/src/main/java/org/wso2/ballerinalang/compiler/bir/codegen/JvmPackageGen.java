@@ -60,8 +60,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BNilType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.Names;
-import org.wso2.ballerinalang.compiler.util.ResolvedTypeBuilder;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
+import org.wso2.ballerinalang.compiler.util.Unifier;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
@@ -93,7 +93,6 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.getModu
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.isExternFunc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmCodeGenUtil.toNameString;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.BALLERINA;
-import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_INIT;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.CURRENT_MODULE_VAR_NAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.ENCODED_DOT_CHARACTER;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.JVM_INIT_METHOD;
@@ -121,7 +120,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.ExternalMethod
  */
 public class JvmPackageGen {
 
-    private static ResolvedTypeBuilder typeBuilder;
+    private static Unifier unifier;
 
     public final SymbolTable symbolTable;
     public final PackageCache packageCache;
@@ -147,7 +146,7 @@ public class JvmPackageGen {
         initMethodGen = new InitMethodGen(symbolTable);
         configMethodGen = new ConfigMethodGen();
         frameClassGen = new FrameClassGen();
-        typeBuilder = new ResolvedTypeBuilder();
+        unifier = new Unifier();
 
         JvmInstructionGen.anyType = symbolTable.anyType;
     }
@@ -331,7 +330,7 @@ public class JvmPackageGen {
 
         BType retType = functionTypeDesc.retType;
         if (isExternFunc(currentFunc) && Symbols.isFlagOn(retType.flags, Flags.PARAMETERIZED)) {
-            retType = typeBuilder.build(retType);
+            retType = unifier.build(retType);
         }
 
         String jvmMethodDescription;
@@ -549,10 +548,6 @@ public class JvmPackageGen {
 
         linkModuleFunctions(module, initClass, isEntry, jvmClassMap);
 
-
-        // link module init function that will be generated
-        linkModuleFunction(module.packageID, initClass, CURRENT_MODULE_INIT);
-
         // link module stop function that will be generated
         linkModuleFunction(module.packageID, initClass, MODULE_STOP);
 
@@ -637,7 +632,6 @@ public class JvmPackageGen {
         JavaClass klass = new JavaClass(initFunc.pos.lineRange().filePath());
         klass.functions.add(0, initFunc);
         PackageID packageID = birPackage.packageID;
-        initMethodGen.addInitAndTypeInitInstructions(packageID, initFunc);
         jvmClassMap.put(initClass, klass);
         String pkgName = JvmCodeGenUtil.getPackageName(packageID);
         birFunctionMap.put(pkgName + functionName, getFunctionWrapper(initFunc, packageID, initClass));

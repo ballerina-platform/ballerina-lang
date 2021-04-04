@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.'string as strings;
+
 public function testDiagnostics() {
     map<string> words = { a: "ant", b: "bear"};
     var s = words.'map(s => s.toLowerAscii()).indexOf("bear");
@@ -56,8 +58,17 @@ function testToStringNegative() {
     var x6 = foo().toBalString();
 }
 
+function testUndefinedLanLibFunction() {
+    int value = 5;
+    xml s = value.toXML();
+}
+
 function foo() returns int|error {
     return error("Error");
+}
+
+public function joinStrings(){
+	string result = strings:join("string", "string...");
 }
 
 function assertEquality(any|error expected, any|error actual) {

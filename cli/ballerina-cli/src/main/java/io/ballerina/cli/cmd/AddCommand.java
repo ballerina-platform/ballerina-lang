@@ -91,8 +91,8 @@ public class AddCommand implements BLauncherCmd {
 //            for (String template : getTemplates()) {
 //                errStream.println("    - " + template);
 //            }
-//            // Get templates from balos
-//            for (String template : getBaloTemplates()) {
+//            // Get templates from balas
+//            for (String template : getBalaTemplates()) {
 //                errStream.println("    - " + template);
 //            }
 //            return;
@@ -121,7 +121,7 @@ public class AddCommand implements BLauncherCmd {
         if (!(1 == argList.size())) {
             CommandUtil.printError(errStream,
                     "too many arguments.",
-                    "bal add <project-name>",
+                    "bal add <module-name>",
                     true);
             return;
         }
@@ -153,7 +153,7 @@ public class AddCommand implements BLauncherCmd {
         // Check if the template exists
         if (!(template.equalsIgnoreCase("service") || template.equalsIgnoreCase("lib"))) {
             CommandUtil.printError(errStream,
-                    "Using Ballerina Central module templates is not yet supported.",
+                    "Unsupported template provided. run 'bal add --help' to see available templates.",
                     null,
                     false);
             return;
@@ -217,13 +217,13 @@ public class AddCommand implements BLauncherCmd {
                 StandardCopyOption.REPLACE_EXISTING);
     }
 
-//        private void applyBaloTemplate(Path modulePath, String template) {
-//        // find all balos matching org and module name.
-//        Path baloTemplate = findBaloTemplate(template);
-//        if (baloTemplate != null) {
-//            String moduleName = getModuleName(baloTemplate);
+//        private void applyBalaTemplate(Path modulePath, String template) {
+//        // find all balas matching org and module name.
+//        Path balaTemplate = findBalaTemplate(template);
+//        if (balaTemplate != null) {
+//            String moduleName = getModuleName(balaTemplate);
 //
-//            URI zipURI = URI.create("jar:" + baloTemplate.toUri().toString());
+//            URI zipURI = URI.create("jar:" + balaTemplate.toUri().toString());
 //            try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
 //                // Copy sources
 //                Path srcDir = zipfs.getPath("/modules").resolve(moduleName);
@@ -250,16 +250,16 @@ public class AddCommand implements BLauncherCmd {
 //        }
 //    }
 
-//    private String getModuleName(Path baloTemplate) {
-//        Path baloName = baloTemplate.getFileName();
-//        if (baloName != null) {
-//            String fileName = baloName.toString();
+//    private String getModuleName(Path balaTemplate) {
+//        Path balaName = balaTemplate.getFileName();
+//        if (balaName != null) {
+//            String fileName = balaName.toString();
 //            return fileName.split("-")[0];
 //        }
 //        return "";
 //    }
 
-//    private Path findBaloTemplate(String template) {
+//    private Path findBalaTemplate(String template) {
 //        // Split the template in to parts
 //        String[] orgSplit = template.split("/");
 //        String orgName = orgSplit[0].trim();
@@ -270,20 +270,20 @@ public class AddCommand implements BLauncherCmd {
 //        moduleName = moduleSplit[0].trim();
 //        version = (moduleSplit.length > 1) ? moduleSplit[1].trim() : version;
 //
-//        String baloGlob = "glob:**/" + orgName + "/" + moduleName + "/" + version + "/*.balo";
-//        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(baloGlob);
-//        Path baloCache = this.homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
+//        String balaGlob = "glob:**/" + orgName + "/" + moduleName + "/" + version + "/*.bala";
+//        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(balaGlob);
+//        Path balaCache = this.homeCache.resolve(ProjectConstants.BALA_CACHE_DIR_NAME);
 //        // Iterate directories
-//        try (Stream<Path> walk = Files.walk(baloCache)) {
+//        try (Stream<Path> walk = Files.walk(balaCache)) {
 //
-//            List<Path> baloList = walk
+//            List<Path> balaList = walk
 //                    .filter(pathMatcher::matches)
 //                    .collect(Collectors.toList());
 //
-//            Collections.sort(baloList);
+//            Collections.sort(balaList);
 //            // get the latest
-//            if (baloList.size() > 0) {
-//                return baloList.get(baloList.size() - 1);
+//            if (balaList.size() > 0) {
+//                return balaList.get(balaList.size() - 1);
 //            } else {
 //                return null;
 //            }
@@ -295,29 +295,29 @@ public class AddCommand implements BLauncherCmd {
 //            Runtime.getRuntime().exit(1);
 //        }
 //
-//        return homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
+//        return homeCache.resolve(ProjectConstants.BALA_CACHE_DIR_NAME);
 //    }
 //
 //    /**
-//     * Iterate home cache and search for template balos.
+//     * Iterate home cache and search for template balas.
 //     *
 //     * @return list of templates
 //     */
-//    private List<String> getBaloTemplates() {
+//    private List<String> getBalaTemplates() {
 //        List<String> templates = new ArrayList<>();
 //        // get the path to home cache
-//        Path baloCache = this.homeCache.resolve(ProjectConstants.BALO_CACHE_DIR_NAME);
-//        final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.balo");
+//        Path balaCache = this.homeCache.resolve(ProjectConstants.BALA_CACHE_DIR_NAME);
+//        final PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:**/*.bala");
 //        // Iterate directories
-//        try (Stream<Path> walk = Files.walk(baloCache)) {
+//        try (Stream<Path> walk = Files.walk(balaCache)) {
 //
-//            List<Path> baloList = walk
+//            List<Path> balaList = walk
 //                    .filter(pathMatcher::matches)
-//                    .filter(this::isTemplateBalo)
+//                    .filter(this::isTemplateBala)
 //                    .collect(Collectors.toList());
 //
-//            // Convert the balo list to string list.
-//            templates = baloList.stream()
+//            // Convert the bala list to string list.
+//            templates = balaList.stream()
 //                    .map(this::getModuleToml)
 //                    .filter(o -> o != null)
 //                    .map(m -> {
@@ -336,8 +336,8 @@ public class AddCommand implements BLauncherCmd {
 //        return templates;
 //    }
 //
-//    private Module getModuleToml(Path baloPath) {
-//        URI zipURI = URI.create("jar:" + baloPath.toUri().toString());
+//    private Module getModuleToml(Path balaPath) {
+//        URI zipURI = URI.create("jar:" + balaPath.toUri().toString());
 //        try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
 //            Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
 //            // We do a string comparison to be efficient.
@@ -349,15 +349,15 @@ public class AddCommand implements BLauncherCmd {
 //        }
 //    }
 
-//    private boolean isTemplateBalo(Path baloPath) {
-//        URI zipURI = URI.create("jar:" + baloPath.toUri().toString());
+//    private boolean isTemplateBala(Path balaPath) {
+//        URI zipURI = URI.create("jar:" + balaPath.toUri().toString());
 //        try (FileSystem zipfs = FileSystems.newFileSystem(zipURI, new HashMap<>())) {
 //            Path metaDataToml = zipfs.getPath("metadata", "MODULE.toml");
 //            // We do a string comparison to be efficient.
 //            return new String(Files.readAllBytes(metaDataToml), StandardCharsets.UTF_8)
 //                    .contains("template = \"true\"");
 //        } catch (IOException e) {
-//            // we simply ignore the balo file
+//            // we simply ignore the bala file
 //        }
 //        return false;
 //    }

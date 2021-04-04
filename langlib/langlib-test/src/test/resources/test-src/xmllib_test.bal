@@ -180,11 +180,11 @@ function testCreateText() {
     'xml:Text text4 = 'xml:createText("Thisisxmltext");
     'xml:Text text5 = 'xml:createText("XML\ntext");
 
-    assert(<string>text1, "This is xml text");
-    assert(<string>text2, "");
-    assert(<string>text3, "T");
-    assert(<string>text4, "Thisisxmltext");
-    assert(<string>text5, "XML\ntext");
+    assert(text1.toString(), "This is xml text");
+    assert(text2.toString(), "");
+    assert(text3.toString(), "T");
+    assert(text4.toString(), "Thisisxmltext");
+    assert(text5.toString(), "XML\ntext");
 }
 
 function testForEach() {
@@ -229,8 +229,12 @@ function testXMLCycleDueToChildrenOfChildren() returns xml|error {
     var cds = cat.getChildren().strip();
     'xml:Element fc = <'xml:Element> cds[0];
     error? er = trap fc.setChildren(subRoot);
-    check trap fc.setChildren(subRoot);
+    check setChildren(fc, subRoot);
     return cat;
+}
+
+function setChildren('xml:Element fc, 'xml:Element subRoot) returns error? {
+    return trap fc.setChildren(subRoot);
 }
 
 function testGet() returns [xml|error, xml|error, xml|error, xml|error, xml|error] {
@@ -442,6 +446,141 @@ function testXMLIteratorInvocation() {
     } iter5 = seq5.iterator();
 
     assert((iter5.next()).toString(), "{\"value\":`<one>first</one>`}");
+}
+
+function testSelectingTextFromXml() {
+    xml:Element authors = xml `<authors><author><name>Enid<middleName/>Blyton</name></author></authors>`;
+    xml:Text authorsList = authors.text();
+    assert(authorsList.toString(), "");
+
+    xml:Text helloText = xml `hello text`;
+    xml:Text textValues = helloText.text();
+    assert(textValues.toString(), "hello text");
+
+    xml:Comment comment = xml `<!-- This is a comment -->`;
+    xml:Text commentText = comment.text();
+    assert(commentText.toString(), "");
+
+    xml:ProcessingInstruction instruction = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
+    xml:Text instructionText = instruction.text();
+    assert(instructionText.toString(), "");
+
+    xml<xml:Text> authorName = (authors/<author>/<name>/*).text();
+    assert(authorName.toString(),"EnidBlyton");
+
+    var name = xml `<name>Dan<lname>Gerhard</lname><!-- This is a comment -->Brown</name>`;
+    xml nameText = (name/*).text();
+    assert(nameText.toString(), "DanBrown");
+
+    xml<xml:Text> textValues2 = xml:text(helloText);
+    assert(textValues2.toString(), textValues.toString());
+}
+
+function testGetDescendants() {
+    getDescendantsSimpleElement();
+    getDescendantsWithNS();
+    getDescendantsFilterNonElements();
+    getDescendantsFromSeq();
+}
+
+function getDescendantsSimpleElement() {
+    xml:Element bookCatalog = xml `<CATALOG><CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>
+                           <CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD></CATALOG>`;
+
+    xml descendantSeq = bookCatalog.getDescendants();
+
+    xml:Element e1 = xml `<CD><TITLE>Empire Burlesque</TITLE><ARTIST>Bob Dylan</ARTIST></CD>`;
+    xml:Element e2 = xml `<TITLE>Empire Burlesque</TITLE>`;
+    xml:Text e3 = <xml:Text>xml `Empire Burlesque`;
+    xml:Element e4 = xml `<ARTIST>Bob Dylan</ARTIST>`;
+    xml:Text e5 = <xml:Text>xml `Bob Dylan`;
+    xml:Element e6 = xml `<CD><TITLE>Hide your heart</TITLE><ARTIST>Bonnie Tyler</ARTIST></CD>`;
+    xml:Element e7 = xml `<TITLE>Hide your heart</TITLE>`;
+    xml:Text e8 = <xml:Text>xml `Hide your heart`;
+    xml:Element e9 = xml `<ARTIST>Bonnie Tyler</ARTIST>`;
+    xml:Text e10 = <xml:Text>xml `Bonnie Tyler`;
+
+    assert(descendantSeq.length(), 11);
+    assert(descendantSeq[0], e1);
+    assert(descendantSeq[1], e2);
+    assert(descendantSeq[2], e3);
+    assert(descendantSeq[3], e4);
+    assert(descendantSeq[4], e5);
+    assert(descendantSeq[6], e6);
+    assert(descendantSeq[7], e7);
+    assert(descendantSeq[8], e8);
+    assert(descendantSeq[9], e9);
+    assert(descendantSeq[10], e10);
+}
+
+function getDescendantsWithNS() {
+    xmlns "foo" as ns;
+    xml:Element presidents = xml `<Leaders><!-- Comment --><ns:US><fn>Obama</fn></ns:US><US><fn>Trump</fn></US></Leaders>`;
+    xml descendants = presidents.getDescendants();
+
+    xml usNs = descendants.elements("{foo}US");
+    assert(usNs.length(), 1);
+    assert(usNs.toString(), "<ns:US xmlns:ns=\"foo\"><fn>Obama</fn></ns:US>");
+
+    xml:Comment e1 = xml `<!-- Comment -->`;
+    xml:Element e2 = xml `<ns:US><fn>Obama</fn></ns:US>`;
+    xml:Element e3 = xml `<fn>Obama</fn>`;
+    xml:Text e4 = xml `Obama`;
+    xml:Element e5 = xml `<US><fn>Trump</fn></US>`;
+    xml:Element e6 = xml `<fn>Trump</fn>`;
+    xml:Text e7 = xml `Trump`;
+
+    assert(descendants.length(), 7);
+    assert(descendants[0], e1);
+    assert(descendants[1], e2);
+    assert(descendants[2], e3);
+    assert(descendants[3], e4);
+    assert(descendants[4], e5);
+    assert(descendants[5], e6);
+    assert(descendants[6], e7);
+}
+
+function getDescendantsFilterNonElements() {
+    xml:Element books = xml `<bs><?xml-stylesheet type="text/xsl"?><bk><t><en><!-- english --><txt>Everyday Italian</txt></en></t></bk></bs>`;
+
+    xml descendants = books.getDescendants();
+
+    xml:ProcessingInstruction e1 = xml `<?xml-stylesheet type="text/xsl"?>`;
+    xml:Element e2 = xml `<bk><t><en><!-- english --><txt>Everyday Italian</txt></en></t></bk>`;
+    xml:Element e3 = xml `<t><en><!-- english --><txt>Everyday Italian</txt></en></t>`;
+    xml:Element e4 = xml `<en><!-- english --><txt>Everyday Italian</txt></en>`;
+    xml:Comment e5 = xml `<!-- english -->`;
+    xml:Element e6 = xml `<txt>Everyday Italian</txt>`;
+    xml:Text e7 = xml `Everyday Italian`;
+
+    assert(descendants.length(), 7);
+    assert(descendants[0], e1);
+    assert(descendants[1], e2);
+    assert(descendants[2], e3);
+    assert(descendants[3], e4);
+    assert(descendants[4], e5);
+    assert(descendants[5], e6);
+    assert(descendants[6], e7);
+}
+
+function getDescendantsFromSeq() {
+    xml desecndants = xml ``;
+    xml x = xml `<a><b><c>helo</c><d>bye</d></b></a>`;
+    xml b = x/*;
+    if (b is xml:Element) {
+        desecndants = b.getDescendants();
+    }
+
+    xml:Element e1 = xml `<c>helo</c>`;
+    xml:Text e2 = xml `helo`;
+    xml:Element e3 = xml `<d>bye</d>`;
+    xml:Text e4 = xml `bye`;
+
+    assert(desecndants.length(), 4);
+    assert(desecndants[0], e1);
+    assert(desecndants[1], e2);
+    assert(desecndants[2], e3);
+    assert(desecndants[3], e4);
 }
 
 function assert(anydata actual, anydata expected) {

@@ -33,6 +33,8 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
+
 /**
  * Test cases for main function.
  */
@@ -70,22 +72,23 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":57:1"),
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":29:9")
         );
-        List<BMockSpan> spans = this.getFinishedSpans("Unknown Service");
+        List<BMockSpan> spans = this.getFinishedSpans(DEFAULT_SERVICE_NAME);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position, span4Position,
                         span5Position, span6Position)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "main");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
@@ -211,46 +214,51 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         });
     }
 
-    @Test(enabled = false)  // TODO: enable after fixing the anonymous service name issue
+    @Test
     public void testProgrammaticallyStartedService() throws Exception {
-        final String serviceName = "$anonService$_0";
+        final String serviceName = "intg_tests_tracing_tests_svc_0";
+        final String basePath = "testServiceOne";
         final String resourceName = "resourceOne";
         final String resourceFunctionPosition = "01_main_function.bal:45:9";
         final String callerResponsePosition = "01_main_function.bal:51:24";
 
         HttpResponse httpResponse = HttpClientRequest.doPost(
-                "http://localhost:9091/" + serviceName + "/" + resourceName, "15", Collections.emptyMap());
+                "http://localhost:19091/" + basePath + "/" + resourceName, "15", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Sum of numbers: 120");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(serviceName, resourceName);
+        List<BMockSpan> spans = this.getFinishedSpans(serviceName, DEFAULT_MODULE_ID, resourceFunctionPosition);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(resourceFunctionPosition, callerResponsePosition)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
-            Assert.assertEquals(span.getOperationName(), resourceName);
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
+            Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.service.resource", "true"),
-                    new AbstractMap.SimpleEntry<>("http.url", "/" + serviceName + "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("http.url", "/" + basePath + "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
-                    new AbstractMap.SimpleEntry<>("service", serviceName),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
-                    new AbstractMap.SimpleEntry<>("src.object.name", SERVER_CONNECTOR_NAME)
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
+                    new AbstractMap.SimpleEntry<>("src.object.name", serviceName),
+                    new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
+                    new AbstractMap.SimpleEntry<>("src.resource.path", "/" + resourceName)
             ));
         });
 
@@ -267,8 +275,8 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", callerResponsePosition),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
-                    new AbstractMap.SimpleEntry<>("service", serviceName),
-                    new AbstractMap.SimpleEntry<>("resource", resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));

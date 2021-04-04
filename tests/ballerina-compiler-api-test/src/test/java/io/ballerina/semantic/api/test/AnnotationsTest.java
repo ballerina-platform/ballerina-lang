@@ -38,10 +38,12 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
+import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM_MEMBER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.tools.text.LinePosition.from;
@@ -74,27 +76,34 @@ public class AnnotationsTest {
 
         assertEquals(annotSymbols.size(), annots.size());
         for (int i = 0; i < annotSymbols.size(); i++) {
-            assertEquals(annotSymbols.get(i).name(), annots.get(i));
+            assertEquals(annotSymbols.get(i).getName().get(), annots.get(i));
         }
     }
 
     @DataProvider(name = "PosProvider")
     public Object[][] getPos() {
         return new Object[][]{
-                {46, 6, CONSTANT, of("v1")},
-//                {52, 12, TYPE_DEFINITION, of("v1")}, // TODO: Uncomment after fixing #27461
-                {53, 15, RECORD_FIELD, of("v5")},
-                {65, 6, CLASS, of("v1", "v2", "v2")},
-                {66, 15, CLASS_FIELD, of("v5")},
-                {71, 20, METHOD, of("v3")},
-                {71, 69, VARIABLE, of("v4")},
-                {81, 16, FUNCTION, of("v3")},
-                {86, 11, ANNOTATION, of("v1")},
-                {98, 18, CLASS_FIELD, of("v5")},
-                {103, 22, METHOD, of("v3")},
-//                {112, 11, WORKER, of("v1")} // TODO: Uncomment after fixing #27461
-                {121, 5, ENUM, of("v1", "v5")},
-                {125, 4, CONSTANT, of("v1")}
+                {30, 6, CONSTANT, of("v1")},
+//                {36, 12, TYPE_DEFINITION, of("v1")}, // TODO: Uncomment after fixing #27461
+                {37, 15, RECORD_FIELD, of("v5")},
+                {49, 6, CLASS, of("v1", "v2", "v2")},
+                {50, 15, CLASS_FIELD, of("v5")},
+                {55, 20, METHOD, of("v3")},
+                {55, 69, PARAMETER, of("v4")},
+                {65, 16, FUNCTION, of("v3")},
+                {70, 11, ANNOTATION, of("v1")},
+                {82, 18, CLASS_FIELD, of("v5")},
+                {87, 22, RESOURCE_METHOD, of("v3")},
+//                {96, 11, WORKER, of("v1")} // TODO: Uncomment after fixing #27461
+                {105, 5, ENUM, of("v1", "v5")},
+                {109, 4, ENUM_MEMBER, of("v1")}
         };
+    }
+
+    @Test
+    public void testAnnotOnReturnType() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(57, 85));
+        assertEquals(symbol.get().kind(), ANNOTATION);
+        assertEquals(symbol.get().getName().get(), "v5");
     }
 }

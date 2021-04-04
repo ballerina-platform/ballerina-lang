@@ -25,8 +25,11 @@ import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.utils.TypeUtils;
+import io.ballerina.runtime.api.utils.XmlUtils;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BMapType;
@@ -62,7 +65,7 @@ import static io.ballerina.runtime.internal.TypeChecker.isUnsigned8LiteralValue;
 import static io.ballerina.runtime.internal.values.DecimalValue.isDecimalWithinIntRange;
 
 /**
- * Provides utils methods for casting, stamping and conversion of values.
+ * Provides utils methods for casting and conversion of values.
  *
  * @since 0.995.0
  */
@@ -577,6 +580,36 @@ public class TypeConverter {
         return StringUtils.fromString(Objects.toString(sourceVal));
     }
 
+    public static Long stringToInt(String value) throws NumberFormatException {
+        return Long.parseLong(value);
+    }
+
+    public static int stringToByte(String value) throws NumberFormatException, BError {
+        int byteValue = Integer.parseInt(value);
+        return intToByte(byteValue);
+    }
+
+    public static Double stringToFloat(String value) throws NumberFormatException {
+        return Double.parseDouble(value);
+    }
+
+    public static Boolean stringToBoolean(String value) throws NumberFormatException {
+        if ("true".equalsIgnoreCase(value) || "1".equalsIgnoreCase(value)) {
+            return true;
+        } else if ("false".equalsIgnoreCase(value) || "0".equalsIgnoreCase(value)) {
+            return false;
+        }
+        throw new NumberFormatException();
+    }
+
+    public static BDecimal stringToDecimal(String value) throws NumberFormatException {
+        return new DecimalValue(value);
+    }
+
+    public static BXml stringToXml(String value) throws BError {
+        return XmlUtils.parse(value);
+    }
+
     public static BString anyToChar(Object sourceVal) {
         String value = Objects.toString(sourceVal);
         return stringToChar(value);
@@ -794,12 +827,12 @@ public class TypeConverter {
 
     public static Type resolveMatchingTypeForUnion(Object value, Type type) {
         if (value instanceof ArrayValue && ((ArrayValue) value).getType().getTag() == TypeTags.ARRAY_TAG &&
-                !isDeepStampingRequiredForArray(((ArrayValue) value).getType())) {
+                !isDeepConversionRequiredForArray(((ArrayValue) value).getType())) {
             return ((ArrayValue) value).getType();
         }
 
         if (value instanceof MapValue && ((MapValue) value).getType().getTag() == TypeTags.MAP_TAG &&
-                !isDeepStampingRequiredForMap(((MapValue) value).getType())) {
+                !isDeepConversionRequiredForMap(((MapValue) value).getType())) {
             return ((MapValue) value).getType();
         }
 
@@ -849,28 +882,28 @@ public class TypeConverter {
         return null;
     }
 
-    private static boolean isDeepStampingRequiredForArray(Type sourceType) {
+    private static boolean isDeepConversionRequiredForArray(Type sourceType) {
         Type elementType = ((BArrayType) sourceType).getElementType();
 
         if (elementType != null) {
             if (TypeUtils.isValueType(elementType)) {
                 return false;
             } else if (elementType instanceof BArrayType) {
-                return isDeepStampingRequiredForArray(elementType);
+                return isDeepConversionRequiredForArray(elementType);
             }
             return true;
         }
         return true;
     }
 
-    private static boolean isDeepStampingRequiredForMap(Type sourceType) {
+    private static boolean isDeepConversionRequiredForMap(Type sourceType) {
         Type constrainedType = ((BMapType) sourceType).getConstrainedType();
 
         if (constrainedType != null) {
             if (TypeUtils.isValueType(constrainedType)) {
                 return false;
             } else if (constrainedType instanceof BMapType) {
-                return isDeepStampingRequiredForMap(constrainedType);
+                return isDeepConversionRequiredForMap(constrainedType);
             }
             return true;
         }

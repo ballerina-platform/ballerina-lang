@@ -21,44 +21,37 @@ import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.StringJoiner;
+
+import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 
 /**
  * Represents a parameter with a name and type.
  *
  * @since 2.0.0
  */
-public class BallerinaParameterSymbol implements ParameterSymbol {
+public class BallerinaParameterSymbol extends BallerinaSymbol implements ParameterSymbol {
 
     // add the metadata field
-    private List<Qualifier> qualifiers;
-    private List<AnnotationSymbol> annots;
-    private String parameterName;
-    private TypeSymbol typeDescriptor;
-    private ParameterKind kind;
+    private final List<Qualifier> qualifiers;
+    private final List<AnnotationSymbol> annots;
+    private final TypeSymbol typeDescriptor;
+    private final ParameterKind paramKind;
 
     public BallerinaParameterSymbol(String parameterName, TypeSymbol typeDescriptor, List<Qualifier> qualifiers,
-                                    List<AnnotationSymbol> annots, ParameterKind kind) {
+                                    List<AnnotationSymbol> annots, ParameterKind paramKind, BVarSymbol symbol,
+                                    CompilerContext context) {
+        super(parameterName, PARAMETER, symbol, context);
         // TODO: Add the metadata
-        this.parameterName = parameterName;
         this.typeDescriptor = typeDescriptor;
         this.qualifiers = Collections.unmodifiableList(qualifiers);
         this.annots = Collections.unmodifiableList(annots);
-        this.kind = kind;
-    }
-
-    /**
-     * Get the parameter name.
-     *
-     * @return {@link Optional} name of the field
-     */
-    @Override
-    public Optional<String> name() {
-        return Optional.ofNullable(parameterName);
+        this.paramKind = paramKind;
     }
 
     /**
@@ -96,22 +89,24 @@ public class BallerinaParameterSymbol implements ParameterSymbol {
         StringJoiner joiner = new StringJoiner(" ");
         this.qualifiers().forEach(accessModifier -> joiner.add(accessModifier.getValue()));
         String signature;
-        if (this.kind() == ParameterKind.REST) {
+        if (this.paramKind() == ParameterKind.INCLUDED_RECORD) {
+            signature = "*" + this.typeDescriptor().signature();
+        } else if (this.paramKind() == ParameterKind.REST) {
             signature = this.typeDescriptor().signature();
             signature = signature.substring(0, signature.length() - 2) + "...";
         } else {
             signature = this.typeDescriptor().signature();
         }
         joiner.add(signature);
-        if (this.name().isPresent()) {
-            joiner.add(this.name().get());
+        if (this.getName().isPresent()) {
+            joiner.add(this.getName().get());
         }
 
         return joiner.toString();
     }
 
     @Override
-    public ParameterKind kind() {
-        return this.kind;
+    public ParameterKind paramKind() {
+        return this.paramKind;
     }
 }

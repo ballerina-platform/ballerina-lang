@@ -161,6 +161,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPEDESC_VALUE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHECKER;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_COMPARISON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
@@ -657,13 +658,25 @@ public class JvmInstructionGen {
             } else if (opcode == IFGE) {
                 this.mv.visitJumpInsn(IF_ICMPGE, label1);
             }
+        } else if (lhsOpType.tag == TypeTags.BOOLEAN && rhsOpType.tag == TypeTags.BOOLEAN) {
+            if (opcode == IFLT) {
+                this.mv.visitJumpInsn(IF_ICMPLT, label1);
+            } else if (opcode == IFGT) {
+                this.mv.visitJumpInsn(IF_ICMPGT, label1);
+            } else if (opcode == IFLE) {
+                this.mv.visitJumpInsn(IF_ICMPLE, label1);
+            } else {
+                this.mv.visitJumpInsn(IF_ICMPGE, label1);
+            }
         } else if (lhsOpType.tag == TypeTags.FLOAT && rhsOpType.tag == TypeTags.FLOAT) {
-            this.mv.visitInsn(DCMPL);
-            this.mv.visitJumpInsn(opcode, label1);
-        } else if (lhsOpType.tag == TypeTags.DECIMAL && rhsOpType.tag == TypeTags.DECIMAL) {
-            String compareFuncName = this.getDecimalCompareFuncName(opcode);
-            this.mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, compareFuncName,
-                    String.format("(L%s;L%s;)Z", DECIMAL_VALUE, DECIMAL_VALUE), false);
+            String compareFuncName = this.getCompareFuncName(opcode);
+            this.mv.visitMethodInsn(INVOKESTATIC, VALUE_COMPARISON_UTILS, compareFuncName, "(DD)Z", false);
+            this.storeToVar(binaryIns.lhsOp.variableDcl);
+            return;
+        } else {
+            String compareFuncName = this.getCompareFuncName(opcode);
+            this.mv.visitMethodInsn(INVOKESTATIC, VALUE_COMPARISON_UTILS, compareFuncName,
+                    String.format("(L%s;L%s;)Z", OBJECT, OBJECT), false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
             return;
         }
@@ -678,17 +691,16 @@ public class JvmInstructionGen {
         this.storeToVar(binaryIns.lhsOp.variableDcl);
     }
 
-    private String getDecimalCompareFuncName(int opcode) {
-
+    private String getCompareFuncName(int opcode) {
         switch (opcode) {
             case IFGT:
-                return "checkDecimalGreaterThan";
+                return "compareValueGreaterThan";
             case IFGE:
-                return "checkDecimalGreaterThanOrEqual";
+                return "compareValueGreaterThanOrEqual";
             case IFLT:
-                return "checkDecimalLessThan";
+                return "compareValueLessThan";
             case IFLE:
-                return "checkDecimalLessThanOrEqual";
+                return "compareValueLessThanOrEqual";
             default:
                 throw new BLangCompilerException(String.format("Opcode: '%s' is not a comparison opcode.", opcode));
         }
@@ -1431,7 +1443,7 @@ public class JvmInstructionGen {
         this.loadVar(inst.keyOp.variableDcl);
         jvmCastGen.addBoxInsn(this.mv, inst.keyOp.variableDcl.type);
         BType bType = inst.lhsOp.variableDcl.type;
-        this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "getOrThrow",
+        this.mv.visitMethodInsn(INVOKEINTERFACE, TABLE_VALUE, "get",
                 String.format("(L%s;)L%s;", OBJECT, OBJECT), true);
 
         String targetTypeClass = getTargetClass(bType);
@@ -1519,7 +1531,7 @@ public class JvmInstructionGen {
                                               objectNewIns.objectName);
         } else {
             className = getTypeValueClassName(JvmCodeGenUtil.getPackageName(currentPackage),
-                                              objectNewIns.def.name.value);
+                                              objectNewIns.def.internalName.value);
         }
 
         this.mv.visitTypeInsn(NEW, className);

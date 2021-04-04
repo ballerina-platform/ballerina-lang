@@ -22,6 +22,7 @@ import io.ballerina.runtime.api.types.MethodType;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -293,8 +294,9 @@ public class StringUtils {
      *
      * @param value The value on which the function is invoked
      * @return Ballerina value represented by Ballerina expression syntax
+     * @throws BError for any parsing error
      */
-    public static Object parseExpressionStringValue(String value, BLink parent) {
+    public static Object parseExpressionStringValue(String value, BLink parent) throws BallerinaException {
         String exprValue = value.trim();
         int endIndex = exprValue.length() - 1;
         if (exprValue.equals("()")) {
@@ -335,11 +337,10 @@ public class StringUtils {
         if (exprValue.startsWith("...")) {
             return BalStringUtils.parseCycleDetectedExpressionStringValue(exprValue, parent);
         }
-        if (!exprValue.startsWith("error") && !exprValue.startsWith("object")) {
+        if (exprValue.indexOf(' ') != -1) {
             return BalStringUtils.parseTupleExpressionStringValue(exprValue, parent);
         }
-        return ErrorCreator.createError(fromString("{ballerina/lang.value}FromBalStringError"),
-                fromString("fromBalString supported only for Ballerina expression syntax of anydata value"));
+        throw new BallerinaException("invalid expression style string value");
     }
 
     /**

@@ -33,7 +33,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,40 +50,37 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestionsAfterQualifiers(context, node)) {
             // Currently we consider the isolated qualifier only
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
-        }
-        if (this.withinParameterContext(context, node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
+        } else if (this.withinParameterContext(context, node)) {
             /*
             Covers the completions when the cursor is within the parameter context
              */
             if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context,
                         ((QualifiedNameReferenceNode) nodeAtCursor));
-                return this.getCompletionItemList(typesInModule, context);
+                completionItems.addAll(this.getCompletionItemList(typesInModule, context));
+            } else {
+                completionItems.addAll(this.getModuleCompletionItems(context));
+                completionItems.addAll(this.getTypeItems(context));
             }
-
-            List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
-            completionItems.addAll(this.getTypeItems(context));
-
-            return completionItems;
+        } else if (this.withinReturnKWContext(context, node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
         }
+        this.sort(context, node, completionItems);
 
-        if (this.withinReturnKWContext(context, node)) {
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
-        }
-
-        return new ArrayList<>();
+        return completionItems;
     }
 
     private boolean withinParameterContext(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
-        FunctionSignatureNode functionSignatureNode = node.functionSignature();
-        if (functionSignatureNode.isMissing()) {
+        if (node.functionSignature().isEmpty()) {
             return false;
         }
+        FunctionSignatureNode functionSignatureNode = node.functionSignature().get();
         int txtPosInTree = context.getCursorPositionInTree();
         TextRange openParanRange = functionSignatureNode.openParenToken().textRange();
         TextRange closeParanRange = functionSignatureNode.closeParenToken().textRange();
@@ -93,10 +89,10 @@ public class FunctionTypeDescriptorNodeContext extends AbstractCompletionProvide
     }
 
     private boolean withinReturnKWContext(BallerinaCompletionContext context, FunctionTypeDescriptorNode node) {
-        FunctionSignatureNode functionSignatureNode = node.functionSignature();
-        if (functionSignatureNode.isMissing()) {
+        if (node.functionSignature().isEmpty()) {
             return false;
         }
+        FunctionSignatureNode functionSignatureNode = node.functionSignature().get();
         int txtPosInTree = context.getCursorPositionInTree();
         TextRange closeParanRange = functionSignatureNode.closeParenToken().textRange();
         Optional<ReturnTypeDescriptorNode> returnTypeDescNode = functionSignatureNode.returnTypeDesc();

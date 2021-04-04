@@ -71,39 +71,39 @@ public class ClassSymbolTest {
         assertList(symbol.methods(), List.of("getFullName"));
 
         MethodSymbol initMethod = symbol.initMethod().get();
-        assertEquals(initMethod.name(), "init");
-        assertEquals(
-                initMethod.typeDescriptor().parameters().stream().map(p -> p.name().get()).collect(Collectors.toList()),
-                fieldNames);
+        assertEquals(initMethod.getName().get(), "init");
+        assertEquals(initMethod.typeDescriptor().params().get().stream()
+                             .map(p -> p.getName().get())
+                             .collect(Collectors.toList()), fieldNames);
     }
 
     @Test
     public void testTypeReference() {
         Symbol symbol = model.symbol(srcFile, LinePosition.from(40, 6)).get();
-        assertEquals(symbol.name(), "Person1");
+        assertEquals(symbol.getName().get(), "Person1");
         assertEquals(symbol.kind(), TYPE);
 
         TypeReferenceTypeSymbol tSymbol = (TypeReferenceTypeSymbol) symbol;
         assertEquals(tSymbol.typeKind(), TYPE_REFERENCE);
 
         ClassSymbol clazz = (ClassSymbol) tSymbol.typeDescriptor();
-        assertEquals(clazz.name(), "Person1");
+        assertEquals(clazz.getName().get(), "Person1");
         assertEquals(clazz.kind(), CLASS);
         assertEquals(clazz.typeKind(), OBJECT);
-        assertEquals(clazz.initMethod().get().name(), "init");
+        assertEquals(clazz.initMethod().get().getName().get(), "init");
     }
 
     @Test
     public void testClassWithoutInit() {
         Symbol symbol = model.symbol(srcFile, LinePosition.from(41, 4)).get();
-        assertEquals(symbol.name(), "Person2");
+        assertEquals(symbol.getName().get(), "Person2");
         assertEquals(symbol.kind(), TYPE);
 
         TypeReferenceTypeSymbol tSymbol = (TypeReferenceTypeSymbol) symbol;
         assertEquals(tSymbol.typeKind(), TYPE_REFERENCE);
 
         ClassSymbol clazz = (ClassSymbol) tSymbol.typeDescriptor();
-        assertEquals(clazz.name(), "Person2");
+        assertEquals(clazz.getName().get(), "Person2");
         assertEquals(clazz.kind(), CLASS);
         assertEquals(clazz.typeKind(), OBJECT);
         assertTrue(clazz.initMethod().isEmpty());
@@ -113,7 +113,7 @@ public class ClassSymbolTest {
     public void testTypeInit(int line, int col, String name) {
         Symbol symbol = model.symbol(srcFile, LinePosition.from(line, col)).get();
         ClassSymbol clazz = (ClassSymbol) ((TypeReferenceTypeSymbol) symbol).typeDescriptor();
-        assertEquals(clazz.name(), name);
+        assertEquals(clazz.getName().get(), name);
     }
 
     @DataProvider(name = "TypeInitPosProvider")

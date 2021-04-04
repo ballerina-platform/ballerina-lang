@@ -22,6 +22,8 @@ import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 
+import java.util.Objects;
+
 /**
  * Represent the location of a diagnostic in a {@code TextDocument}.
  * <p>
@@ -48,6 +50,21 @@ public class BLangDiagnosticLocation implements Location {
     @Override
     public TextRange textRange() {
         return textRange;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BLangDiagnosticLocation) {
+            BLangDiagnosticLocation location = (BLangDiagnosticLocation) obj;
+            return lineRange.equals(location.lineRange) && textRange.equals(location.textRange);
+        }
+
+        return false;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(lineRange, textRange);
     }
 
     @Override

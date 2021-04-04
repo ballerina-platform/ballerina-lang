@@ -36,7 +36,7 @@ public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements Str
     private String signature;
 
     public BallerinaStreamTypeSymbol(CompilerContext context, ModuleID moduleID, BStreamType streamType) {
-        super(context, TypeDescKind.STREAM, moduleID, streamType);
+        super(context, TypeDescKind.STREAM, streamType);
     }
 
     @Override
@@ -65,7 +65,7 @@ public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements Str
         if (this.signature == null) {
             StringBuilder sigBuilder = new StringBuilder("stream<");
             sigBuilder.append(this.typeParameter().signature());
-            if (this.completionValueTypeParameter().typeKind() != TypeDescKind.NEVER) {
+            if (this.completionValueTypeParameter().typeKind() != TypeDescKind.NIL) {
                 sigBuilder.append(", ").append(this.completionValueTypeParameter().signature());
             }
             sigBuilder.append('>');

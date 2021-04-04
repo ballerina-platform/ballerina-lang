@@ -173,6 +173,9 @@ public class PredefinedTypes {
     public static final ErrorType TYPE_ERROR;
     public static final BUnionType TYPE_CLONEABLE;
 
+    public static final BUnionType TYPE_JSON_DECIMAL;
+    public static final BUnionType TYPE_JSON_FLOAT;
+
     public static final RecordType STRING_ITR_NEXT_RETURN_TYPE =
             IteratorUtils.createIteratorNextReturnType(PredefinedTypes.TYPE_STRING);
 
@@ -184,6 +187,9 @@ public class PredefinedTypes {
             IteratorUtils.createIteratorNextReturnType(TYPE_COMMENT);
     public static final RecordType XML_ITR_NEXT_RETURN_PI_TYPE =
             IteratorUtils.createIteratorNextReturnType(TYPE_PROCESSING_INSTRUCTION);
+
+    public static final Type ANY_AND_READONLY_TYPE = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_ANY);
+    public static final Type ANY_AND_READONLY_OR_ERROR_TYPE;
 
     // type anydata =  ()|boolean|int|float|decimal|string|xml|anydata[]|map<anydata>|table<map<anydata>>
     static {
@@ -242,5 +248,38 @@ public class PredefinedTypes {
         TYPE_DETAIL = new BMapType(TypeConstants.MAP_TNAME, TYPE_CLONEABLE, EMPTY_MODULE);
         TYPE_ERROR_DETAIL = ReadOnlyUtils.setImmutableTypeAndGetEffectiveType(TYPE_DETAIL);
         TYPE_ERROR = new BErrorType(TypeConstants.ERROR, EMPTY_MODULE, TYPE_DETAIL);
+        ANY_AND_READONLY_OR_ERROR_TYPE = new BUnionType(Arrays.asList(ANY_AND_READONLY_TYPE, TYPE_ERROR));
+    }
+
+    // public type JsonDecimal ()|boolean|string|decimal|JsonDecimal[]|map<JsonDecimal>;
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_NULL);
+        members.add(TYPE_BOOLEAN);
+        members.add(TYPE_STRING);
+        members.add(TYPE_DECIMAL);
+        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        BUnionType jsonDecimal = new BUnionType(TypeConstants.JSON_DECIMAL_TNAME, valueModule, members);
+        jsonDecimal.isCyclic = true;
+        MapType internalJsonDecimalMap = new BMapType(TypeConstants.MAP_TNAME, jsonDecimal, valueModule);
+        ArrayType internalJsonDecimalArray = new BArrayType(jsonDecimal);
+        jsonDecimal.addMembers(internalJsonDecimalArray, internalJsonDecimalMap);
+        TYPE_JSON_DECIMAL = jsonDecimal;
+    }
+
+    // public type JsonFloat ()|boolean|string|float|JsonFloat[]|map<JsonFloat>;
+    static {
+        ArrayList<Type> members = new ArrayList<>();
+        members.add(TYPE_NULL);
+        members.add(TYPE_BOOLEAN);
+        members.add(TYPE_STRING);
+        members.add(TYPE_FLOAT);
+        var valueModule = new Module(BALLERINA_BUILTIN_PKG_PREFIX, VALUE_LANG_LIB, null);
+        BUnionType jsonFloat = new BUnionType(TypeConstants.JSON_FLOAT_TNAME, valueModule, members);
+        jsonFloat.isCyclic = true;
+        MapType internalJsonFloatMap = new BMapType(TypeConstants.MAP_TNAME, jsonFloat, valueModule);
+        ArrayType internalJsonFloatArray = new BArrayType(jsonFloat);
+        jsonFloat.addMembers(internalJsonFloatArray, internalJsonFloatMap);
+        TYPE_JSON_FLOAT = jsonFloat;
     }
 }

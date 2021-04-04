@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class ChangeParamTypeTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "change-param-type";
@@ -47,6 +48,7 @@ public class ChangeParamTypeTest extends AbstractCodeActionTest {
                 {"changeParamType1.json", "changeParamType.bal"},
                 {"changeParamType2.json", "changeParamType.bal"},
                 {"changeParamType3.json", "changeParamType.bal"},
+                {"changeParamTypeInService1.json", "changeParamTypeInService.bal"},
         };
     }
 }

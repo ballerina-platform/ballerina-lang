@@ -30,6 +30,8 @@ import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BConstantSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BEnumSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -73,6 +75,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -181,17 +184,21 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BInvokableType bInvokableType) {
-        buff.writeInt(bInvokableType.paramTypes.size());
-        for (BType params : bInvokableType.paramTypes) {
-            writeTypeCpIndex(params);
-        }
+        boolean isAnyFunction = Symbols.isFlagOn(bInvokableType.flags, Flags.ANY_FUNCTION);
+        buff.writeBoolean(isAnyFunction); // write 1 if it’s an any function if not write 0
+        if (!isAnyFunction) {
+            buff.writeInt(bInvokableType.paramTypes.size());
+            for (BType params : bInvokableType.paramTypes) {
+                writeTypeCpIndex(params);
+            }
 
-        boolean restTypeExist = bInvokableType.restType != null;
-        buff.writeBoolean(restTypeExist);
-        if (restTypeExist) {
-            writeTypeCpIndex(bInvokableType.restType);
+            boolean restTypeExist = bInvokableType.restType != null;
+            buff.writeBoolean(restTypeExist);
+            if (restTypeExist) {
+                writeTypeCpIndex(bInvokableType.restType);
+            }
+            writeTypeCpIndex(bInvokableType.retType);
         }
-        writeTypeCpIndex(bInvokableType.retType);
     }
 
     @Override
@@ -291,9 +298,32 @@ public class BIRTypeWriter implements TypeVisitor {
         } else {
             buff.writeBoolean(false);
         }
-        buff.writeInt(bUnionType.getMemberTypes().size());
-        for (BType memberType : bUnionType.getMemberTypes()) {
+        writeMembers(bUnionType.getMemberTypes());
+        writeMembers(bUnionType.getOriginalMemberTypes());
+
+        if (tsymbol instanceof BEnumSymbol) {
+            buff.writeBoolean(true);
+            writeEnumSymbolInfo((BEnumSymbol) tsymbol);
+        } else {
+            buff.writeBoolean(false);
+        }
+    }
+
+    private void writeMembers(Set<BType> memberTypes) {
+        buff.writeInt(memberTypes.size());
+        for (BType memberType : memberTypes) {
             writeTypeCpIndex(memberType);
+        }
+    }
+
+    private void writeEnumSymbolInfo(BEnumSymbol symbol) {
+        writePackageIndex(symbol);
+
+        buff.writeInt(addStringCPEntry(symbol.name.value));
+
+        buff.writeInt(symbol.members.size());
+        for (BConstantSymbol member : symbol.members) {
+            buff.writeInt(addStringCPEntry(member.name.value));
         }
     }
 
@@ -308,11 +338,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BIntersectionType bIntersectionType) {
-        buff.writeInt(bIntersectionType.getConstituentTypes().size());
-        for (BType constituentType : bIntersectionType.getConstituentTypes()) {
-            writeTypeCpIndex(constituentType);
-        }
-
+        writeMembers(bIntersectionType.getConstituentTypes());
         writeTypeCpIndex(bIntersectionType.effectiveType);
     }
 

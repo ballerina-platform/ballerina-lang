@@ -29,6 +29,7 @@ import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnydataType;
@@ -57,6 +58,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLSubType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -65,6 +67,7 @@ import java.util.Map;
 import java.util.Set;
 
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
+import static org.ballerinalang.model.types.TypeKind.PARAMETERIZED;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NONE;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SEMANTIC_ERROR;
@@ -230,7 +233,8 @@ public class TypesFactory {
 
                 return new BallerinaUnionTypeSymbol(this.context, moduleID, finiteType);
             case FUNCTION:
-                return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) bType.tsymbol);
+                return new BallerinaFunctionTypeSymbol(this.context, moduleID, (BInvokableTypeSymbol) bType.tsymbol,
+                        bType);
             case NEVER:
                 return new BallerinaNeverTypeSymbol(this.context, moduleID, (BNeverType) bType);
             case INTERSECTION:
@@ -292,9 +296,9 @@ public class TypesFactory {
         }
 
         final TypeKind kind = bType.getKind();
-        return kind == RECORD || kind == OBJECT || bType.tsymbol.isLabel
+        return kind == RECORD || kind == OBJECT || kind == PARAMETERIZED || bType.tsymbol.isLabel
                 || bType instanceof BIntSubType || bType instanceof BStringSubType || bType instanceof BXMLSubType
-                || bType.tsymbol.kind == SymbolKind.ENUM;
+                || bType.tsymbol.kind == SymbolKind.ENUM || isCustomError(bType.tsymbol);
     }
 
     public static TypeDescKind getTypeDescKind(TypeKind bTypeKind) {
@@ -347,6 +351,7 @@ public class TypesFactory {
                 return TypeDescKind.INTERSECTION;
             case ERROR:
                 return TypeDescKind.ERROR;
+            case PARAMETERIZED:
             case ANNOTATION:
             case BLOB:
             case CHANNEL:
@@ -364,5 +369,9 @@ public class TypesFactory {
             default:
                 return null;
         }
+    }
+
+    private static boolean isCustomError(BTypeSymbol tSymbol) {
+        return tSymbol.kind == SymbolKind.ERROR && !Names.ERROR.equals(tSymbol.name);
     }
 }

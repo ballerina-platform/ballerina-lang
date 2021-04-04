@@ -22,10 +22,11 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.variable.BCompoundVariable;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 import org.ballerinalang.debugadapter.variable.DebugVariableException;
+import org.ballerinalang.debugadapter.variable.IndexedCompoundVariable;
+import org.ballerinalang.debugadapter.variable.NamedCompoundVariable;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 /**
@@ -61,7 +62,13 @@ public class FieldAccessExpressionEvaluator extends Evaluator {
                         "access is not supported on type '" + resultVar.getBType().getString() + "'."));
             }
             String fieldName = syntaxNode.fieldName().toSourceCode().trim();
-            Value fieldValue = ((BCompoundVariable) resultVar).getChildByName(fieldName);
+
+            Value fieldValue;
+            if (resultVar instanceof IndexedCompoundVariable) {
+                fieldValue = ((IndexedCompoundVariable) resultVar).getChildByName(fieldName);
+            } else {
+                fieldValue = ((NamedCompoundVariable) resultVar).getChildByName(fieldName);
+            }
             return new BExpressionValue(context, fieldValue);
         } catch (EvaluationException e) {
             throw e;

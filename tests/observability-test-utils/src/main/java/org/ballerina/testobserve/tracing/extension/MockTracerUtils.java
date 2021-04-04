@@ -21,7 +21,8 @@ package org.ballerina.testobserve.tracing.extension;
 
 import com.google.gson.Gson;
 import io.ballerina.runtime.api.utils.JsonUtils;
-import io.opentracing.mock.MockTracer;
+import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter;
+import io.opentelemetry.sdk.trace.data.SpanData;
 
 import java.util.Collections;
 import java.util.List;
@@ -32,18 +33,20 @@ import java.util.stream.Collectors;
  */
 public class MockTracerUtils {
     public static Object getFinishedSpans(String serviceName) {
-        MockTracer mockTracer = BMockTracerProvider.getTracerMap().get(serviceName);
+        InMemorySpanExporter spanExporter = BMockTracerProvider.getExporterMap().get(serviceName);
+
         List<BMockSpan> mockSpans;
-        if (mockTracer == null) {
+        if (spanExporter == null) {
             mockSpans = Collections.emptyList();
         } else {
-            mockSpans = mockTracer.finishedSpans().stream()
-                    .map(mockSpan -> new BMockSpan(mockSpan.operationName(),
-                            mockSpan.context().traceId(),
-                            mockSpan.context().spanId(),
-                            mockSpan.parentId(),
-                            mockSpan.tags(),
-                            mockSpan.logEntries()))
+            List<SpanData> finishedSpanList = spanExporter.getFinishedSpanItems();
+            mockSpans = finishedSpanList.stream()
+                    .map(spanData -> new BMockSpan(spanData.getName(),
+                            spanData.getTraceId(),
+                            spanData.getSpanId(),
+                            spanData.getParentSpanId(),
+                            spanData.getAttributes(),
+                            spanData.getEvents()))
                     .collect(Collectors.toList());
         }
         return JsonUtils.parse(new Gson().toJson(mockSpans));

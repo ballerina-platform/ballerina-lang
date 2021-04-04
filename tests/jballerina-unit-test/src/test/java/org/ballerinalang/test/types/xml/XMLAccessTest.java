@@ -19,7 +19,6 @@ package org.ballerinalang.test.types.xml;
 
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
-import org.ballerinalang.core.model.values.BXML;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
@@ -215,27 +214,22 @@ public class XMLAccessTest {
     @Test(groups = { "disableOnOldParser" })
     public void testInvalidXMLAccessWithIndex() {
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 5, 5);
-        BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 13, 10);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 18, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 19, 15);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 20, 15);
-
+        BAssertUtil.validateError(negativeResult, i++, "invalid expr in assignment lhs", 4, 10);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 9, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'boolean'", 10, 15);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 11, 15);
+        BAssertUtil.validateError(negativeResult, i++, "cannot update an xml sequence", 18, 5);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(string|xml:Text)' does" +
+                " not support member access", 21, 28);
+        BAssertUtil.validateError(negativeResult, i++, "invalid operation: type '(string|xml:Text)' does " +
+                "not support member access", 22, 14);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
+
     @Test
     public void testXMLAccessWithIndex() {
-        BValue[] returns = BRunUtil.invoke(result, "testXMLAccessWithIndex");
-        Assert.assertTrue(returns[0] instanceof BXML);
-        Assert.assertEquals(returns[0].stringValue(),
-                "<root><!-- comment node--><name>supun</name><city>colombo</city></root>");
-
-        Assert.assertTrue(returns[1] instanceof BXML);
-        Assert.assertEquals(returns[1].stringValue(), "<!-- comment node-->");
-
-        Assert.assertTrue(returns[2] instanceof BXML);
-        Assert.assertEquals(returns[2].stringValue(), "<name>supun</name>");
+        BRunUtil.invoke(result, "testXMLAccessWithIndex");
     }
 
     @Test
@@ -253,9 +247,9 @@ public class XMLAccessTest {
                 "use a grouping expression (parenthesis) " +
                 "if you intend to invoke the method on the result of the navigation expression.";
 
-        String navIndexingMessage = "index operations are not yet supported within XML navigation expressions, " +
-                "use a grouping expression (parenthesis) " +
-                "if you intend to index the result of the navigation expression.";
+        String navIndexingMessage = "member access operations are not yet supported within XML navigation " +
+                "expressions, use a grouping expression (parenthesis) " +
+                "if you intend to member-access the result of the navigation expression.";
         int i = 0;
         BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 3, 14);
         BAssertUtil.validateError(navigationNegative, i++, methodInvocMessage, 4, 14);

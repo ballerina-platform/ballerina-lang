@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -26,7 +27,6 @@ import org.ballerinalang.langserver.completions.providers.AbstractCompletionProv
 import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -44,18 +44,15 @@ public class NamedWorkerDeclarationNodeContext extends AbstractCompletionProvide
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, NamedWorkerDeclarationNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = new ArrayList<>();
         boolean inReturnContext = this.withinReturnTypeContext(context, node);
+        if (!inReturnContext) {
+            return Collections.emptyList();
+        }
 
-        if (inReturnContext && node.returnTypeDesc().isEmpty()) {
+        if (node.returnTypeDesc().isEmpty()) {
             return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
         }
-
-        if (inReturnContext && node.returnTypeDesc().isPresent()) {
-            return CompletionUtil.route(context, node.returnTypeDesc().get());
-        }
-
-        return completionItems;
+        return CompletionUtil.route(context, node.returnTypeDesc().get());
     }
 
     private boolean withinReturnTypeContext(BallerinaCompletionContext context, NamedWorkerDeclarationNode node) {
@@ -63,5 +60,22 @@ public class NamedWorkerDeclarationNodeContext extends AbstractCompletionProvide
         TextRange nameRange = node.workerName().textRange();
         TextRange bodyStart = node.workerBody().openBraceToken().textRange();
         return nameRange.endOffset() < textPosition && textPosition < bodyStart.startOffset();
+    }
+
+    @Override
+    public boolean onPreValidation(BallerinaCompletionContext context, NamedWorkerDeclarationNode node) {
+        /*
+        Added the check to validate the following and to route to the fork statement body.
+        eg: 
+        fork {
+            worker w1 {   
+            }
+            w<cursor>
+        }
+         */
+        int cursor = context.getCursorPositionInTree();
+        Token closeBraceToken = node.workerBody().closeBraceToken();
+        
+        return cursor < closeBraceToken.textRange().endOffset();
     }
 }

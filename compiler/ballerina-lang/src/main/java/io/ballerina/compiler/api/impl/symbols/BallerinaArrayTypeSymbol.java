@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
+import java.util.Objects;
 import java.util.Optional;
 
 /**
@@ -31,11 +32,14 @@ import java.util.Optional;
  * @since 2.0.0
  */
 public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements ArrayTypeSymbol {
-
+    private Integer size;
     private TypeSymbol memberTypeDesc;
 
     public BallerinaArrayTypeSymbol(CompilerContext context, ModuleID moduleID, BArrayType arrayType) {
-        super(context, TypeDescKind.ARRAY, moduleID, arrayType);
+        super(context, TypeDescKind.ARRAY, arrayType);
+        if (arrayType.getSize() >= 0) {
+            size = arrayType.getSize();
+        }
     }
 
     @Override
@@ -49,11 +53,16 @@ public class BallerinaArrayTypeSymbol extends AbstractTypeSymbol implements Arra
 
     @Override
     public String signature() {
-        return memberTypeDescriptor().signature() + "[]";
+        // If the array is of fixed size, the signature should reflect that.
+        String sizeStr = "[" + size().map(Objects::toString).orElse("") + "]";
+        if (memberTypeDescriptor().typeKind() == TypeDescKind.UNION) {
+            return "(" + memberTypeDescriptor().signature() + ")" + sizeStr;
+        }
+        return memberTypeDescriptor().signature() + sizeStr;
     }
 
     @Override
     public Optional<Integer> size() {
-        return Optional.empty();
+        return Optional.ofNullable(size);
     }
 }

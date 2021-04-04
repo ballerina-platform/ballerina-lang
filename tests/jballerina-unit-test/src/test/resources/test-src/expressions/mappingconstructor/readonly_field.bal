@@ -47,8 +47,10 @@ function testBasicReadOnlyField1() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
-                    "cannot update 'readonly' field 'name' in record of type '$anonType$"));
+    var expected = "cannot update 'readonly' field 'name' in record of type " +
+                   "'record {| readonly string name; int id; |}'";
+    var actual = <string> checkpanic err.detail()["message"];
+    assertEquality(expected, actual);
     assertEquality("May", details.name);
 }
 
@@ -73,8 +75,10 @@ function testBasicReadOnlyField2() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
-                    "cannot update 'readonly' field 'name' in record of type '$anonType$"));
+    var expected = "cannot update 'readonly' field 'name' in record of type " +
+                   "'record {| readonly string name; readonly int id; |} & readonly'";
+    var actual = <string> checkpanic err.detail()["message"];
+    assertEquality(expected, actual);
     assertEquality("May", details.name);
 
     fn = function () {
@@ -84,8 +88,10 @@ function testBasicReadOnlyField2() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
-                    "cannot update 'readonly' field 'id' in record of type '$anonType$"));
+    expected = "cannot update 'readonly' field 'id' in record of type " +
+               "'record {| readonly string name; readonly int id; |} & readonly'";
+    actual = <string> checkpanic err.detail()["message"];
+    assertEquality(expected, actual);
     assertEquality(1234, details.id);
 }
 
@@ -114,8 +120,11 @@ function testComplexReadOnlyField() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
-                    "cannot update 'readonly' field 'details' in record of type '$anonType$"));
+
+    var expected = "cannot update 'readonly' field 'details' in record of type " +
+                   "'record {| readonly (Details & readonly) details; readonly string department; |} & readonly'";
+    var actual = <string> checkpanic err.detail()["message"];
+    assertEquality(expected, actual);
     assertEquality("May", details.name);
 
     fn = function () {
@@ -233,8 +242,10 @@ function testReadOnlyFieldsWithSimpleMapCET() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
-                    "cannot update 'readonly' field 'b' in record of type '$anonType$"));
+    var expected = "cannot update 'readonly' field 'b' in record of type " +
+                   "'record {| readonly int b; readonly int c; int...; |}'";
+    var actual = <string> checkpanic err.detail()["message"];
+    assertEquality(expected, actual);
     assertEquality(2, mp["b"]);
 
     map<int> mp2 = {
@@ -260,8 +271,10 @@ function testReadOnlyFieldsWithSimpleMapCET() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
-                    "cannot update 'readonly' field 'b' in record of type '$anonType$"));
+    expected = "cannot update 'readonly' field 'b' in record of type " +
+                   "'record {| readonly int b; readonly int c; int...; |}'";
+    actual = <string> checkpanic err.detail()["message"];
+    assertEquality(expected, actual);
     assertEquality(2, mp["b"]);
 }
 
@@ -345,8 +358,10 @@ function testReadOnlyFieldWithInferredType() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertTrue((<string> checkpanic err.detail()["message"]).startsWith(
-                    "cannot update 'readonly' field 'd1' in record of type '$anonType$"));
+    assertEquality((<string> checkpanic err.detail()["message"]),
+                    "cannot update 'readonly' field 'd1' in record of type 'record {| readonly (Details & readonly) d1;" +
+                    " readonly (Details & readonly) d2; record {| string str; |} d3; readonly record {| string str;" +
+                    " readonly int count; |} & readonly d4; int...; |}'");
     assertEquality(d1, rec["d1"]);
 }
 

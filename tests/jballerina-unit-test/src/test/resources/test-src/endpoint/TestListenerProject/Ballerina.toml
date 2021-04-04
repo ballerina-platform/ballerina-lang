@@ -2,5 +2,3 @@
 org = "testorg"
 name= "endpoint_pkg"
 version= "0.1.0"
-
-[dependencies]

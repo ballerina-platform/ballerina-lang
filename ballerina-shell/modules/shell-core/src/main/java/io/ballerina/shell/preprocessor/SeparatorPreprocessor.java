@@ -18,7 +18,6 @@
 
 package io.ballerina.shell.preprocessor;
 
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.PreprocessorException;
 
 import java.util.ArrayList;
@@ -87,21 +86,12 @@ public class SeparatorPreprocessor extends Preprocessor {
                         brackets.pop();
                     } else if (isClosingBracket(character)) {
                         if (brackets.isEmpty()) {
-                            addDiagnostic(Diagnostic.error("" +
-                                    "Syntax Error. " +
-                                    "Found closing brackets but opening one not found."));
+                            addErrorDiagnostic("syntax error: found closing brackets but opening one not found.");
                             throw new PreprocessorException();
                         }
                     }
                 }
             }
-        }
-
-        if (!brackets.isEmpty()) {
-            addDiagnostic(Diagnostic.error("" +
-                    "Syntax Error. " +
-                    "Brackets/Parenthesis must match."));
-            throw new PreprocessorException();
         }
 
         // Append remaining string to the statements.

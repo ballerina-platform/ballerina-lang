@@ -66,8 +66,8 @@ public class ProjectEnvironmentBuilder {
                 case SINGLE_FILE_PROJECT:
                     compilationCache = TempDirCompilationCache.from(project);
                     break;
-                case BALR_PROJECT:
-                    throw new IllegalStateException("BALRProject should always be created with a CompilationCache");
+                case BALA_PROJECT:
+                    throw new IllegalStateException("BALAProject should always be created with a CompilationCache");
                 default:
                     throw new UnsupportedOperationException("Unsupported ProjectKind: " + project.kind());
             }

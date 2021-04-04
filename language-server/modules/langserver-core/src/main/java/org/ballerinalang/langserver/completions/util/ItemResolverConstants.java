@@ -34,6 +34,7 @@ public class ItemResolverConstants {
     public static final String TRANSACTION = "transaction";
     public static final String TRANSACTIONAL = "transactional";
     public static final String RETRY_TRANSACTION = "retry transaction";
+    public static final String RETRY = "retry";
     public static final String TRAP = "trap";
     public static final String WHILE = "while";
     public static final String DO = "do";
@@ -153,6 +154,7 @@ public class ItemResolverConstants {
     public static final String ISOLATED_KEYWORD = "isolated";
     public static final String PRIVATE_KEYWORD = "private";
     public static final String FINAL_KEYWORD = "final";
+    public static final String CONFIGURABLE_KEYWORD = "configurable";
     public static final String FAIL_KEYWORD = "fail";
     public static final String REMOTE_KEYWORD = "remote";
     public static final String CONST_KEYWORD = "const";

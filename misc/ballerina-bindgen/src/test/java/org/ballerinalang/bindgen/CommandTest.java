@@ -19,7 +19,9 @@ package org.ballerinalang.bindgen;
 
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -46,6 +48,12 @@ public abstract class CommandTest {
         printStream = new PrintStream(console);
     }
 
+    @BeforeMethod
+    public void beforeMethod() {
+        this.console = new ByteArrayOutputStream();
+        this.printStream = new PrintStream(this.console);
+    }
+
     String readOutput(boolean silent) throws IOException {
         String output = "";
         output = console.toString();
@@ -59,7 +67,13 @@ public abstract class CommandTest {
         return output;
     }
 
-    @AfterClass
+    @AfterMethod(alwaysRun = true)
+    public void afterMethod() throws IOException {
+        console.close();
+        printStream.close();
+    }
+
+    @AfterClass (alwaysRun = true)
     public void cleanup() throws IOException {
         Files.walk(tmpDir)
                 .sorted(Comparator.reverseOrder())
@@ -70,7 +84,5 @@ public abstract class CommandTest {
                         Assert.fail(e.getMessage(), e);
                     }
                 });
-        console.close();
-        printStream.close();
     }
 }

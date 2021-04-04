@@ -17,7 +17,8 @@
 import ballerina/testobserve;
 import ballerina/observe;
 
-service /testServiceSix on new testobserve:Listener(9096) {
+@display { label: "testServiceSix" }
+service /testServiceSix on new testobserve:Listener(19096) {
     resource function post resourceOne(testobserve:Caller caller) {
         var customSpanOneId = checkpanic observe:startSpan("customSpanOne");
         _ = checkpanic observe:addTagToSpan("resource", "resourceOne", customSpanOneId);

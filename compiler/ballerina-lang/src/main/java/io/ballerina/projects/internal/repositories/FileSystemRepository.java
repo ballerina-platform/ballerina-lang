@@ -22,7 +22,8 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageVersion;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
@@ -32,13 +33,8 @@ import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.File;
 import java.io.IOException;
-import java.nio.file.FileSystems;
-import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -49,12 +45,13 @@ import java.util.stream.Collectors;
 /**
  * Package Repository stored in file system.
  * The structure of the repository is as bellow
- * - balo
+ * - bala
  *     - org
  *         - package-name
  *             - version
- *                 - org-package-name-version-any.balo
- * - cache
+ *                 - platform (contains extracted bala)
+ *
+ * - cache[-<distShortVersion>]
  *     - org
  *         - package-name
  *             - version
@@ -67,14 +64,20 @@ import java.util.stream.Collectors;
  * @since 2.0.0
  */
 public class FileSystemRepository implements PackageRepository {
-    Path balo;
+    Path bala;
     private final Path cacheDir;
     private final Environment environment;
 
     // TODO Refactor this when we do repository/cache split
     public FileSystemRepository(Environment environment, Path cacheDirectory) {
-        this.cacheDir = cacheDirectory;
-        this.balo = cacheDirectory.resolve(ProjectConstants.REPO_BALO_DIR_NAME);
+        this.cacheDir = cacheDirectory.resolve(ProjectConstants.CACHES_DIR_NAME);
+        this.bala = cacheDirectory.resolve(ProjectConstants.REPO_BALA_DIR_NAME);
+        this.environment = environment;
+    }
+
+    public FileSystemRepository(Environment environment, Path cacheDirectory, String distributionVersion) {
+        this.cacheDir = cacheDirectory.resolve(ProjectConstants.CACHES_DIR_NAME + "-" + distributionVersion);
+        this.bala = cacheDirectory.resolve(ProjectConstants.REPO_BALA_DIR_NAME);
         this.environment = environment;
     }
 
@@ -86,14 +89,14 @@ public class FileSystemRepository implements PackageRepository {
         String version = resolutionRequest.version().isPresent() ?
                 resolutionRequest.version().get().toString() : "0.0.0";
 
-        //First we will check for a balo that match any platform
-        String baloName = ProjectUtils.getBaloName(orgName, packageName, version, null);
-        Path baloPath = this.balo.resolve(orgName).resolve(packageName).resolve(version).resolve(baloName);
-        if (!Files.exists(baloPath)) {
-            //If balo for any platform not exist check for specific platform
-            String javaBaloName = ProjectUtils.getBaloName(orgName, packageName, version, JvmTarget.JAVA_11.code());
-            baloPath = this.balo.resolve(orgName).resolve(packageName).resolve(version).resolve(javaBaloName);
-            if (!Files.exists(baloPath)) {
+        //First we will check for a bala that match any platform
+        Path balaPath = this.bala.resolve(
+                ProjectUtils.getRelativeBalaPath(orgName, packageName, version, null));
+        if (!Files.exists(balaPath)) {
+            //If bala for any platform not exist check for specific platform
+            balaPath = this.bala.resolve(
+                    ProjectUtils.getRelativeBalaPath(orgName, packageName, version, JvmTarget.JAVA_11.code()));
+            if (!Files.exists(balaPath)) {
                 return Optional.empty();
             }
         }
@@ -101,7 +104,7 @@ public class FileSystemRepository implements PackageRepository {
         ProjectEnvironmentBuilder environmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
         environmentBuilder = environmentBuilder.addCompilationCacheFactory(
                 new FileSystemCache.FileSystemCacheFactory(cacheDir));
-        Project project = BaloProject.loadProject(environmentBuilder, baloPath);
+        Project project = BalaProject.loadProject(environmentBuilder, balaPath);
         return Optional.of(project.currentPackage());
     }
 
@@ -110,17 +113,13 @@ public class FileSystemRepository implements PackageRepository {
         // if version and org name is empty we add empty string so we return empty package anyway
         String packageName = resolutionRequest.packageName().value();
         String orgName = resolutionRequest.orgName().value();
-
-        // Here we dont rely on directories we check for available balos
-        String globFilePart = orgName + "-" + packageName + "-*.balo";
-        String glob = "glob:**/" + orgName + "/" + packageName + "/*/" + globFilePart;
-        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher(glob);
         List<Path> versions = new ArrayList<>();
         try {
-            Files.walkFileTree(balo.resolve(orgName).resolve(packageName)
-                    , new SearchModules(pathMatcher, versions));
+            Path balaPackagePath = bala.resolve(orgName).resolve(packageName);
+            if (Files.exists(balaPackagePath)) {
+                versions.addAll(Files.list(balaPackagePath).collect(Collectors.toList()));
+            }
         } catch (IOException e) {
-            // in any error we should report to the top
             throw new RuntimeException("Error while accessing Distribution cache: " + e.getMessage());
         }
 
@@ -128,13 +127,13 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     /**
-     * Get the list of packages in the balo cache.
+     * Get the list of packages in the bala cache.
      *
      * @return {@link List} of package names
      */
     public Map<String, List<String>> getPackages() {
         Map<String, List<String>> packagesMap = new HashMap<>();
-        File[] orgDirs = this.balo.toFile().listFiles();
+        File[] orgDirs = this.bala.toFile().listFiles();
         if (orgDirs == null) {
             return packagesMap;
         }
@@ -143,7 +142,7 @@ public class FileSystemRepository implements PackageRepository {
                 continue;
             }
             String orgName = file.getName();
-            File[] filesList = this.balo.resolve(orgName).toFile().listFiles();
+            File[] filesList = this.bala.resolve(orgName).toFile().listFiles();
             if (filesList == null) {
                 return packagesMap;
             }
@@ -152,7 +151,7 @@ public class FileSystemRepository implements PackageRepository {
                 if (!pkgDir.isDirectory() || pkgDir.isHidden()) {
                     continue;
                 }
-                File[] pkgs = this.balo.resolve(orgName).resolve(pkgDir.getName()).toFile().listFiles();
+                File[] pkgs = this.bala.resolve(orgName).resolve(pkgDir.getName()).toFile().listFiles();
                 if (pkgs == null) {
                     continue;
                 }
@@ -173,40 +172,20 @@ public class FileSystemRepository implements PackageRepository {
     }
 
     private List<PackageVersion> pathToVersions(List<Path> versions) {
-        return versions.stream()
-                .map(path -> {
-                    String version = Optional.ofNullable(path.getParent())
-                            .map(parent -> parent.getFileName())
-                            .map(file -> file.toString())
-                            .orElse("0.0.0");
-                    return PackageVersion.from(version);
-                })
-                .collect(Collectors.toList());
-    }
-
-    private static class SearchModules extends SimpleFileVisitor<Path> {
-
-        private final PathMatcher pathMatcher;
-        private final List<Path> versions;
-
-        public SearchModules(PathMatcher pathMatcher, List<Path> versions) {
-            this.pathMatcher = pathMatcher;
-            this.versions = versions;
-        }
-
-        @Override
-        public FileVisitResult visitFile(Path path,
-                                         BasicFileAttributes attrs) throws IOException {
-            if (pathMatcher.matches(path)) {
-                versions.add(path);
-            }
-            return FileVisitResult.CONTINUE;
-        }
-
-        @Override
-        public FileVisitResult visitFileFailed(Path file, IOException exc)
-                throws IOException {
-            return FileVisitResult.CONTINUE;
-        }
+        List<PackageVersion> availableVersions = new ArrayList<>();
+        versions.stream().map(path -> Optional.ofNullable(path)
+                .map(Path::getFileName)
+                .map(Path::toString)
+                .orElse("0.0.0")).forEach(version -> {
+                    try {
+                        availableVersions.add(PackageVersion.from(version));
+                    } catch (ProjectException ignored) {
+                        // We consider only the semver compatible versions as valid
+                        // bala directories. Since we only allow building and pushing
+                        // semver compatible packages, it is safe to pick only
+                        // the semver compatible versions.
+                    }
+        });
+        return availableVersions;
     }
 }

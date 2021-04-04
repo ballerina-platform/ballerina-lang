@@ -434,7 +434,21 @@ function testListBindingPattern18() {
     assertEquals("1", listBindingPattern18([1, 2, 3, 4, 5]));
 }
 
-function listBindingPattern19(int[3] a) returns int {
+function listBindingPattern19(int[] v) returns int {
+    match v {
+        var [a, b] => {
+            return a + b;
+        }
+    }
+    return -1;
+}
+
+function testListBindingPattern19() {
+    assertEquals(3, listBindingPattern19([1,2]));
+    assertEquals(-1, listBindingPattern19([1,2,3]));
+}
+
+function listBindingPattern20(int[3] a) returns int {
     match a {
         var [x, _, z] => {
             return x + z;
@@ -442,8 +456,8 @@ function listBindingPattern19(int[3] a) returns int {
     }
 }
 
-function testListBindingPattern19() {
-    assertEquals(4, listBindingPattern19([1, 2, 3]));
+function testListBindingPattern20() {
+    assertEquals(4, listBindingPattern20([1, 2, 3]));
 }
 
 function assertEquals(anydata expected, anydata actual) {

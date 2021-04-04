@@ -48,7 +48,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -95,6 +95,12 @@ public class SymbolAtCursorTest {
                 {76, 25, "RSA"},
                 {82, 8, "rsa"},
                 {83, 15, "RSA"},
+                {86, 2, "v1"},
+                {91, 23, "v2"},
+                {92, 23, "v2"},
+                {93, 23, "v2"},
+                {93, 78, "v3"},
+                {102, 2, "v4"},
         };
     }
 
@@ -105,7 +111,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -132,7 +138,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertEquals(value.name(), expSymbolName));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
             assertNull(expSymbolName);
@@ -159,7 +165,7 @@ public class SymbolAtCursorTest {
         Document srcFile = getDocumentForSingleSource(project);
 
         Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
-        symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + value.name()));
+        symbol.ifPresent(value -> assertTrue(true, "Unexpected symbol: " + value.getName().get()));
     }
 
     @DataProvider(name = "MissingConstructPosProvider")

@@ -24,6 +24,7 @@ import org.apache.commons.io.FileUtils;
 import org.ballerina.testobserve.tracing.extension.BMockSpan;
 import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BServerInstance;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.testng.annotations.AfterGroups;
 import org.testng.annotations.BeforeGroups;
@@ -72,13 +73,13 @@ public class HttpTracingBaseTest extends BaseTest {     // TODO: Move this test 
         copyFile(new File(System.getProperty(TEST_NATIVES_JAR)), new File(serverHome + DEST_FUNCTIONS_JAR));
 
         // copy to bre/libs
-        Path observeTestBaloPath =
-                Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-balo", "repo", "ballerina", "testobserve");
-        FileUtils.copyDirectoryToDirectory(observeTestBaloPath.toFile(),
+        Path observeTestBalaPath =
+                Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-bala", "repo", "ballerina", "testobserve");
+        FileUtils.copyDirectoryToDirectory(observeTestBalaPath.toFile(),
                 Paths.get(serverHome, "lib", "repo", "ballerina").toFile());
 
         // copy to bir-cache
-        FileUtils.copyDirectoryToDirectory(observeTestBaloPath.toFile(),
+        FileUtils.copyDirectoryToDirectory(observeTestBalaPath.toFile(),
                 Paths.get(serverHome, "bir-cache", "ballerina").toFile());
         FileUtils.copyDirectoryToDirectory(
                 Paths.get(OBESERVABILITY_TEST_BIR, "build", "generated-bir", "ballerina", "testobserve").toFile(),
@@ -99,11 +100,13 @@ public class HttpTracingBaseTest extends BaseTest {     // TODO: Move this test 
             int[] requiredPorts = new int[]{10010, 10011};
             servicesServerInstance = new BServerInstance(balServer);
             servicesServerInstance.startServer(basePath, "backend", null, args, requiredPorts);
+            Utils.waitForPortsToOpen(requiredPorts, 1000 * 60, false, "localhost");
         }
         {
-            int[] requiredPorts = new int[]{9090, 9091};
+            int[] requiredPorts = new int[]{19090, 19091};
             backendServerInstance = new BServerInstance(balServer);
             backendServerInstance.startServer(basePath, "httptracing", null, args, requiredPorts);
+            Utils.waitForPortsToOpen(requiredPorts, 1000 * 60, false, "localhost");
         }
     }
 
@@ -128,13 +131,13 @@ public class HttpTracingBaseTest extends BaseTest {     // TODO: Move this test 
     }
 
     protected List<BMockSpan> getFinishedSpans(String serviceName, String resource) throws IOException {
-        return getFinishedSpans(9090, serviceName).stream()
+        return getFinishedSpans(19090, serviceName).stream()
                 .filter(span -> Objects.equals(span.getTags().get("resource"), resource))
                 .collect(Collectors.toList());
     }
 
     protected List<BMockSpan> getFinishedSpans(String serviceName) throws IOException {
-        return getFinishedSpans(9090, serviceName);
+        return getFinishedSpans(19090, serviceName);
     }
 
     protected List<BMockSpan> getEchoBackendFinishedSpans() throws IOException {

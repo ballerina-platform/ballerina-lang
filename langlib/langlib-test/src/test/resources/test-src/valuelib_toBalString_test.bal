@@ -206,7 +206,7 @@ function testArrayToBalString() {
     int[] arr1 = [1, 2, 3, 4, 5];
     float[] arr2 = [12, 12.34, (0.0/0.0), (1.0/0.0)];
     boolean[] arr3 = [true, false, true, true];
-    byte[] arr4 = [12, 10, 9, 8];
+    byte[] arr4 = [12, 10, 9, 8, 100, 125, 137, 128, 150, 200, 255];
     string[] arr5 = ["ABC", "XYZ", "LMN"];
     decimal[] arr6 = [12.65, 1, 2, 90.0];
     (any|error)[] arr7 = ["str", 23, 23.4, true, {"x":"AA","y":(1.0/0.0),"z":1.23}, x1, ["X", (0.0/0.0),
@@ -216,7 +216,7 @@ function testArrayToBalString() {
     assert(arr2.toBalString(), "[12.0,12.34,float:NaN,float:Infinity]");
     assert(arr2.toBalString(), "[12.0,12.34,float:NaN,float:Infinity]");
     assert(arr3.toBalString(), "[true,false,true,true]");
-    assert(arr4.toBalString(), "[12,10,9,8]");
+    assert(arr4.toBalString(), "[12,10,9,8,100,125,137,128,150,200,255]");
     assert(arr5.toBalString(), "[\"ABC\",\"XYZ\",\"LMN\"]");
     assert(arr6.toBalString(), "[12.65d,1d,2d,90.0d]");
     assert(arr7.toBalString(), "[\"str\",23,23.4,true,{\"x\":\"AA\",\"y\":float:Infinity,\"z\":1.23},345.2425341d," +

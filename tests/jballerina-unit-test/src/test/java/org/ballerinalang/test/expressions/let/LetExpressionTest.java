@@ -54,9 +54,13 @@ public class LetExpressionTest {
         BAssertUtil.validateError(negativeResult, i++, "redeclared symbol 'x'", 19, 21);
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'y'", 23, 27);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 27, 25);
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 28, 13);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 28, 39);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 29, 28);
-        BAssertUtil.validateError(negativeResult, i, "incompatible types: expected 'string', found 'int'", 30, 16);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 30, 42);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'byte', found 'int'", 41, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'string'", 46, 48);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'float'", 48, 14);
+        BAssertUtil.validateError(negativeResult, i, "too many arguments in call to 'new()'", 57, 37);
     }
 
     @Test(description = "Test cases for scenarios where let expression is not yet supported")
@@ -102,6 +106,9 @@ public class LetExpressionTest {
 //                {"testLetExpressionErrorBindingSimple"},
 //                {"testLetExpressionErrorBindingVar"},
 //                {"testLetExpressionRecordConstrainedErrorBinding"},
+                {"testAnonymousRecordWithLetExpression"},
+                {"testRecordWithLetExpression"},
+                {"testLetWithClass"}
         };
     }
 

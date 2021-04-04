@@ -44,21 +44,19 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
  */
 public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements UnionTypeSymbol {
 
-    private static final String INT_CLONEABLE = "__Cloneable";
     private static final String CLONEABLE = "Cloneable";
     private static final String CLONEABLE_TYPE = "CloneableType";
-    private static final Pattern pCloneable = Pattern.compile(INT_CLONEABLE + "([12])?");
     private static final Pattern pCloneableType = Pattern.compile(CLONEABLE_TYPE);
 
     private List<TypeSymbol> memberTypes;
     private String signature;
 
     public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BUnionType unionType) {
-        super(context, TypeDescKind.UNION, moduleID, unionType);
+        super(context, TypeDescKind.UNION, unionType);
     }
 
     public BallerinaUnionTypeSymbol(CompilerContext context, ModuleID moduleID, BFiniteType finiteType) {
-        super(context, TypeDescKind.UNION, moduleID, finiteType);
+        super(context, TypeDescKind.UNION, finiteType);
     }
 
     @Override
@@ -74,7 +72,8 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
                 }
             } else {
                 for (BLangExpression value : ((BFiniteType) this.getBType()).getValueSpace()) {
-                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID(), value, value.type));
+                    ModuleID moduleID = getModule().isPresent() ? getModule().get().id() : null;
+                    members.add(new BallerinaSingletonTypeSymbol(this.context, moduleID, value, value.type));
                 }
             }
 
@@ -107,10 +106,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         if (unionType.isCyclic && (unionType.tsymbol != null) && !unionType.tsymbol.getName().getValue().isEmpty()) {
             String typeStr;
             typeStr = unionType.tsymbol.getName().getValue();
-            if (pCloneable.matcher(typeStr).matches()) {
-                typeStr = CLONEABLE;
-            } else if (Symbols.isFlagOn(unionType.flags, Flags.TYPE_PARAM) &&
-                    pCloneableType.matcher(typeStr).matches()) {
+            if (Symbols.isFlagOn(unionType.flags, Flags.TYPE_PARAM) && pCloneableType.matcher(typeStr).matches()) {
                 typeStr = CLONEABLE;
             }
             return typeStr;

@@ -21,19 +21,21 @@ import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import org.apache.commons.lang3.tuple.Pair;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.completions.builder.CompletionItemBuilder;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Represent an insert text block having both plain text and snippet format strings.
  *
  * @since 0.982.0
  */
-public class SnippetBlock {
+public class SnippetBlock extends CompletionItemBuilder {
 
     private String label = "";
     private String detail = "";
@@ -71,30 +73,32 @@ public class SnippetBlock {
      * @return modified Completion Item
      */
     public CompletionItem build(BallerinaCompletionContext ctx) {
+        // Each time we build a new completion item to make the snippet aware of the latest sources (alias changes, etc)
         CompletionItem completionItem = new CompletionItem();
-        completionItem.setInsertText(this.snippet);
-        List<ImportDeclarationNode> currentDocImports = ctx.currentDocImports();
+        String insertText = this.snippet;
         if (imports != null) {
             List<TextEdit> importTextEdits = new ArrayList<>();
             for (Pair<String, String> pair : imports) {
-                boolean pkgAlreadyImported = currentDocImports.stream()
-                        .anyMatch(importNode -> importNode.orgName().isPresent()
-                                && importNode.orgName().get().orgName().text().equals(pair.getLeft())
-                                && importNode.prefix().isPresent()
-                                && importNode.prefix().get().prefix().text().equals(pair.getRight()));
-                if (!pkgAlreadyImported) {
+                Optional<ImportDeclarationNode> matchedImport = CommonUtil.matchingImportedModule(ctx, pair.getLeft(),
+                        pair.getRight());
+                if (matchedImport.isEmpty()) {
                     importTextEdits.addAll(CommonUtil.getAutoImportTextEdits(pair.getLeft(), pair.getRight(), ctx));
+                } else if (matchedImport.get().prefix().isPresent()) {
+                    insertText = this.snippet.replace(pair.getRight() + ":",
+                            matchedImport.get().prefix().get().prefix().text() + ":");
                 }
             }
             completionItem.setAdditionalTextEdits(importTextEdits);
         }
+        completionItem.setInsertText(insertText);
         if (!label.isEmpty()) {
             completionItem.setLabel(label);
         }
         if (!detail.isEmpty()) {
             completionItem.setDetail(detail);
         }
-        completionItem.setKind(getCompletionItemKind());
+        completionItem.setKind(this.getKind(this));
+
         return completionItem;
     }
 

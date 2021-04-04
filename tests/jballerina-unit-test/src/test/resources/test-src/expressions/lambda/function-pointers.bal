@@ -186,7 +186,7 @@ public function testVoidFunctionAsUnionReturnFunction() returns string {
 }
 
 function xyz(function() returns any|error func) {
-    var result = func();
+    any|error result = func();
 }
 
 function getName(string n) returns string {

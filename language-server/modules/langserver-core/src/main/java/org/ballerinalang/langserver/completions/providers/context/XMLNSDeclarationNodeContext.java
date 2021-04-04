@@ -47,6 +47,8 @@ public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLN
         if (node.asKeyword().isEmpty() || Objects.requireNonNull(node.asKeyword().orElse(null)).isMissing()) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_AS.get()));
         }
+        // Sorting is added to maintain consistency and to avoid missing the phase in the future changes 
+        this.sort(context, node, completionItems);
 
         return completionItems;
     }

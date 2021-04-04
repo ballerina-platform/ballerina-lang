@@ -24,11 +24,14 @@ configurations {
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-log4j12'
     testCompile.exclude group: 'org.slf4j', module: 'slf4j-simple'
     testCompile.exclude group: 'org.ops4j.pax.logging', module: 'pax-logging-api'
-    distributionBalo
+    distributionBala
     distributionBirJar
     balRt
     testRt
     testCore
+    compilerPluginJar {
+        transitive false
+    }
 }
 
 dependencies {
@@ -41,6 +44,14 @@ dependencies {
     testCompile project(':ballerina-lang')
     testRuntime project(':ballerina-runtime')
 
+    compilerPluginJar project(':project-api-test-artifact:event-logger-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-one-dependency')
+    compilerPluginJar project(':project-api-test-artifact:compiler-plugin-with-two-dependencies')
+    compilerPluginJar project(':project-api-test-artifact:string-utils-lib')
+    compilerPluginJar project(':project-api-test-artifact:diagnostic-utils-lib')
+    compilerPluginJar project(':project-api-test-artifact:function-node-analyzer-compiler-plugin')
+    compilerPluginJar project(':project-api-test-artifact:bad-sad-compiler-plugin')
+
     testRuntime project(":ballerina-lang-test")
     balRt project(':ballerina-rt')
     testRt project(':testerina:testerina-runtime')
@@ -48,8 +59,8 @@ dependencies {
 }
 
 task createTestDistributionCache(type: Copy) {
-    dependsOn configurations.distributionBalo
-    from configurations.distributionBalo
+    dependsOn configurations.distributionBala
+    from configurations.distributionBala
     into "$buildDir/repo"
 }
 
@@ -61,8 +72,14 @@ task createTestBre(type: Copy) {
     into "$buildDir/bre/lib"
 }
 
+task copyCompilerPluginJars(type: Copy) {
+    from configurations.compilerPluginJar
+    into "$buildDir/compiler-plugin-jars"
+}
+
 test {
     dependsOn ':ballerina-lang:build'
+    dependsOn copyCompilerPluginJars
     dependsOn createTestDistributionCache
     dependsOn createTestBre
 

@@ -10,7 +10,7 @@
   {
     "description": "Create new person object.",
     "code": "Person p = new Employee(5, \"John\", \"Doe\"); p.getFullName()",
-    "expr": "John Doe"
+    "expr": "\"John Doe\""
   },
   {
     "description": "Run instance method.",

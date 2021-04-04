@@ -22,9 +22,10 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-lang')
 
-    distributionBalo project(path: ':ballerina-lang:annotations', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:internal', configuration: 'distributionBalo')
-    distributionBalo project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBalo')
+    distributionBala project(path: ':ballerina-lang:annotations', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:object', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:internal', configuration: 'distributionBala')
+    distributionBala project(path: ':ballerina-lang:jballerina.java', configuration: 'distributionBala')
 
     implementation 'org.slf4j:slf4j-api'
 }

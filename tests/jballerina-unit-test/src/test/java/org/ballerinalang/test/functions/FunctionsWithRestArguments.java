@@ -54,7 +54,7 @@ public class FunctionsWithRestArguments {
                 "int d?; |})', found 'Foo'", 50, 33);
         BAssertUtil.validateError(result, i++, "incompatible types: expected '([int,int,int]|record {| int a; " +
                 "int b; int c; |})', found 'Bar'", 53, 25);
-        BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to 'getAvg'()", 56, 16);
+        BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to 'getAvg()'", 56, 16);
         BAssertUtil.validateError(result, i++, "rest argument not allowed after named arguments", 56, 35);
         BAssertUtil.validateError(result, i++, "incompatible types: expected '([int,int,int,int...]|record " +
                 "{| int a; int b; int c; |})', found 'Bar'", 59, 29);

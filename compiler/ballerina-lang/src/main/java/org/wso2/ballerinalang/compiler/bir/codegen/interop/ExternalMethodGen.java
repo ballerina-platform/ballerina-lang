@@ -221,7 +221,7 @@ public class ExternalMethodGen {
     }
 
     static String generateExternReturnType(BType bType) {
-        bType = JvmCodeGenUtil.TYPE_BUILDER.build(bType);
+        bType = JvmCodeGenUtil.UNIFIER.build(bType);
         if (bType == null || bType.tag == TypeTags.NIL || bType.tag == TypeTags.NEVER) {
             return ")V";
         }

@@ -891,7 +891,8 @@ function errorGuardHelper(any|error a1, any|error a2) returns boolean {
         error e4 = a2;
 
         map<value:Cloneable> m = <map<value:Cloneable>> e4.detail();
-        return e3.message() == reason && e4.message() == reason && m == detail;
+        return e3.message() == reason && e4.message() === reason
+            && m["code"] === detail["code"] && m["detail"] === detail["detail"];
     }
     return false;
 }
@@ -923,7 +924,7 @@ function testTypeGuardForCustomErrorPositive() returns [boolean, boolean] {
 
         Details m1 = e5.detail();
         Details m2 = e6.detail();
-        isSpecificError = e5.message() == ERR_REASON && e6.message() == ERR_REASON_TWO && m1 == d && m2 == d;
+        isSpecificError = e5.message() == ERR_REASON && e6.message() == ERR_REASON_TWO && m1.message == m2.message;
     }
 
     boolean isGenericError = a1 is error && a2 is error;
@@ -1027,6 +1028,7 @@ type Detail record {
     string message?;
     error cause?;
     int? code;
+    float f?;
 };
 
 type ErrorD error<Detail>;
@@ -1167,3 +1169,121 @@ function testTypeDescTypeTest2() returns boolean {
 
     return false;
 }
+
+function testTypeNarrowingForIntersectingUnionWithRecords() returns boolean {
+    AnydataOrObjectOpenRecord|int val = 11;
+    if val is OpenRecordWithObjectField {
+        return false;
+    } else if <int> val != 11 {
+        return false;
+    }
+
+    AnydataOrObjectOpenRecord|int val2 = {};
+    if val2 is OpenRecordWithObjectField {
+        return false;
+    } else if val2 is int {
+        return false;
+    }
+
+    AnydataOrObjectOpenRecord|int val3 = <OpenRecordWithObjectField> {code: new (10)};
+    if val3 is OpenRecordWithObjectField {
+        Class cl = val3.code;
+        if cl.val != 10 {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    OpenRecordWithObjectField val4 = {code: new (20)};
+    if val4 is ClosedRecordWithObjectAndIntFields {
+        return false;
+    }
+
+    OpenRecordWithObjectField val5 = <ClosedRecordWithObjectAndIntFields> {code: new (30), index: 0};
+    if val5 is ClosedRecordWithObjectAndIntFields {
+        if val5.code.val != 30 || val5.index != 0 {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    OpenRecordWithIntField val6 = {i: 1, "s": "hello"};
+    if val6 is record {| int i; string s; |} {
+        return false;
+    } else if val6.i != 1 || val6["s"] != "hello" {
+       return false;
+    }
+
+    record {| int i; string s; |} v = {i: 2, s: "world"};
+    OpenRecordWithIntField val7 = v;
+    if val7 is record {| int i; string s; |} {
+        if val7.i != 2 || val7.s != "world" {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    ClosedRecordWithIntField val8 = {i: 10};
+    if val8 is record {| byte i; |} {
+        return false;
+    }
+
+    int|ClosedRecordWithIntField val9 = <record {| byte i; |}> {i: 10};
+    if val9 is record {| byte i; |} {
+        if val9.i != 10 {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    byte b = 10;
+    if val9 is record {} {
+        if val9["i"] != b {
+            return false;
+        }
+    } else {
+        return false;
+    }
+
+    if val9 is record {| int...; |} {
+        if val9["i"] != b {
+            return false;
+        }
+    } else {
+        return false;
+    }
+    return true;
+}
+
+type AnydataOrObjectOpenRecord record {|
+    anydata|object {}...;
+|};
+
+type OpenRecordWithObjectField record {
+    readonly Class code = new (0);
+};
+
+readonly class Class {
+    int val;
+
+    isolated function init(int val) {
+        self.val = val;
+    }
+}
+
+type ClosedRecordWithObjectAndIntFields record {|
+    readonly Class code;
+    int index;
+|};
+
+type OpenRecordWithIntField record {
+    int i;
+};
+
+type ClosedRecordWithIntField record {|
+    int i;
+|};

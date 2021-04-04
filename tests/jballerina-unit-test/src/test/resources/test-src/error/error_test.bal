@@ -126,7 +126,8 @@ function testOneLinePanic() returns string[] {
         results[3] = error3.message();
         var detail = error3.detail();
         results[4] = <string> checkpanic detail.get("message");
-        results[5] = detail.get("statusCode").toString();
+        var statusCode = detail.get("statusCode");
+        results[5] = statusCode is error? statusCode.toString() : statusCode.toString();
     }
 
     return results;
@@ -207,7 +208,7 @@ function testUnspecifiedErrorDetailFrozenness() returns boolean {
     return err is error && err.message() == "{ballerina/lang.map}InvalidUpdate";
 }
 
-function addValueToMap(map<anydata|readonly> m, string key, anydata|readonly value) {
+function addValueToMap(map<value:Cloneable> m, string key, anydata|readonly value) {
     m[key] = value;
 }
 
@@ -352,23 +353,31 @@ function testStackOverFlow() returns ['error:CallStackElement[], string]? {
     }
 }
 
-function testErrorTypeDescriptionInferring() {
-    TrxError e = error TrxError("IAmAInferedErr");
-    error<*> err = e;
-    TrxError errSecondRef = err;
-    assertEquality(errSecondRef.detail().toString(), e.detail().toString());
+type SampleErrorData record {
+    string message?;
+    error cause?;
+    string info;
+    boolean fatal;
+};
+
+type SampleError error<SampleErrorData>;
+
+function testErrorBindingPattern() {
+    string i;
+    boolean b;
+    error(info=i,fatal=b) = error SampleError("Sample Error", info = "Some Info", fatal = false);
+    assertEquality(i, "Some Info");
+    assertEquality(b, false);
 }
 
-function testDefaultErrorTypeDescriptionInferring() {
-    error e = error("IAmAInferedDefaultErr");
-    error<*> err = e;
-    assertEquality(err.detail().toString(), e.detail().toString());
-}
+type ErrorDataWithErrorField record {
+    error 'error;
+};
 
-function testUnionErrorTypeDescriptionInferring() {
-    error|TrxError e = error("IAmAInferedUnionErr");
-    error<*> err = e;
-    assertEquality(err.detail().toString(), e.detail().toString());
+function testErrorDataWithErrorField() {
+    error newError = error("bam", message = "new error");
+    ErrorDataWithErrorField ef = {'error: newError};
+    assertEquality(ef.toString(), "{\"error\":error(\"bam\",message=\"new error\")}");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

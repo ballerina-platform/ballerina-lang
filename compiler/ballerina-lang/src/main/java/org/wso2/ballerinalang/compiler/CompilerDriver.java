@@ -142,7 +142,7 @@ public class CompilerDriver {
     }
 
     void loadLangModules(List<PackageID> pkgIdList) {
-        // This logic interested in loading lang modules from source. For others we can load from balo.
+        // This logic interested in loading lang modules from source. For others we can load from bala.
         if (!LOAD_BUILTIN_FROM_SOURCE) {
             symbolTable.langAnnotationModuleSymbol = pkgLoader.loadPackageSymbol(ANNOTATIONS, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
@@ -172,6 +172,7 @@ public class CompilerDriver {
             symbolTable.langRuntimeModuleSymbol = pkgLoader.loadPackageSymbol(RUNTIME, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
             symbolTable.loadPredeclaredModules();
+            symbolTable.updateBuiltinSubtypeOwners();
             return;
         }
 
@@ -220,6 +221,8 @@ public class CompilerDriver {
             symbolTable.langXmlModuleSymbol = pkgLoader.loadPackageSymbol(XML, null, null);
             symbolTable.langTableModuleSymbol = pkgLoader.loadPackageSymbol(TABLE, null, null);
             symbolTable.langStreamModuleSymbol = pkgLoader.loadPackageSymbol(STREAM, null, null);
+            symbolTable.updateStringSubtypeOwners();
+            symbolTable.updateXMLSubtypeOwners();
         }
 
         if (langLib.equals(TRANSACTION)) {
@@ -229,6 +232,7 @@ public class CompilerDriver {
             symbolTable.langStringModuleSymbol = pkgLoader.loadPackageSymbol(STRING, null, null);
             symbolTable.langValueModuleSymbol = pkgLoader.loadPackageSymbol(VALUE, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
+            symbolTable.updateStringSubtypeOwners();
         }
 
         if (langLib.equals(ERROR)) {
@@ -245,7 +249,7 @@ public class CompilerDriver {
     private void compilePackageSymbol(BPackageSymbol packageSymbol) {
         BLangPackage pkgNode = this.pkgCache.get(packageSymbol.pkgID);
         if (pkgNode == null) {
-            // This is a package loaded from a BALO.
+            // This is a package loaded from a BALA.
             return;
         }
 

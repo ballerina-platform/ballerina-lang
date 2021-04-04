@@ -18,6 +18,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.BindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FromClauseNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
@@ -29,12 +30,11 @@ import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Completion provider for {@link FromClauseNode} context.
@@ -42,7 +42,7 @@ import java.util.List;
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class FromClauseNodeContext extends AbstractCompletionProvider<FromClauseNode> {
+public class FromClauseNodeContext extends IntermediateClauseNodeContext<FromClauseNode> {
 
     public FromClauseNodeContext() {
         super(FromClauseNode.class);
@@ -62,6 +62,8 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
             return new ArrayList<>();
         }
 
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onTypedBindingPatternContext(context, node)) {
@@ -75,31 +77,32 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
                 return this.getCompletionItemList(QNameReferenceUtil.getTypesInModule(context, qNameRef), context);
             }
-            List<LSCompletionItem> completionItems = this.getModuleCompletionItems(context);
+            completionItems.addAll(this.getModuleCompletionItems(context));
             completionItems.addAll(this.getTypeItems(context));
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
-
-            return completionItems;
-        }
-        if (node.inKeyword().isMissing()) {
+        } else if (node.inKeyword().isMissing()) {
             /*
             Covers the following cases
             Eg:
             (1) var tesVar = stream from var item <cursor>
             (2) var tesVar = stream from var item <cursor>i
              */
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
-        }
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_IN.get()));
+        } else if (cursorAtTheEndOfClause(context, node)) {
+            completionItems.addAll(this.getKeywordCompletions(context, node));
+        } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
             /*
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
         }
+        this.sort(context, node, completionItems);
 
-        return this.expressionCompletions(context);
+        return completionItems;
     }
 
     @Override
@@ -121,7 +124,7 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
     private boolean onBindingPatternContext(BallerinaCompletionContext context, FromClauseNode node) {
         TypedBindingPatternNode typedBindingPattern = node.typedBindingPattern();
 
-        if (typedBindingPattern == null || typedBindingPattern.isMissing()) {
+        if (typedBindingPattern.isMissing()) {
             return false;
         }
 
@@ -133,5 +136,10 @@ public class FromClauseNodeContext extends AbstractCompletionProvider<FromClause
         return ((cursor > typeDescriptor.textRange().endOffset() && inKeyword.isMissing()) ||
                 (cursor > typeDescriptor.textRange().endOffset() && cursor < inKeyword.textRange().startOffset()))
                 && (bindingPattern.isMissing() || bindingPattern.textRange().endOffset() >= cursor);
+    }
+
+    @Override
+    protected Optional<Node> getLastNodeOfClause(FromClauseNode node) {
+        return Optional.of(node.expression());
     }
 }

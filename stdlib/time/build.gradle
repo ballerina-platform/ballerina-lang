@@ -24,10 +24,10 @@ configurations.testCompileClasspath {
 }
 
 dependencies {
-    // baloImplementation project(path: ':ballerina-runtime-api', configuration: 'baloImplementation')
+    // balaImplementation project(path: ':ballerina-runtime-api', configuration: 'balaImplementation')
 
 
-    baloCreat project(':lib-creator')
+    balaCreat project(':lib-creator')
     implementation project(':ballerina-lang')
     implementation project(':ballerina-runtime')
     implementation project(':ballerina-logging')

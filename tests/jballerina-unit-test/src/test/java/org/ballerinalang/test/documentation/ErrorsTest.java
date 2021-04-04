@@ -57,14 +57,16 @@ public class ErrorsTest {
                 "CacheError. But Found:" + testModule.errors.get(0).name);
         Assert.assertEquals(testModule.errors.get(1).name, "CancelledError", "The error should be " +
                 "CancelledError. But Found:" + testModule.errors.get(1).name);
-        Assert.assertEquals(testModule.errors.get(4).name, "UnKnownError", "The error should be " +
-                "UnKnownError. But Found:" + testModule.errors.get(4).name);
         Assert.assertEquals(testModule.errors.get(2).name, "Error", "The error should be " +
                 "Error. But Found:" + testModule.errors.get(2).name);
         Assert.assertEquals(testModule.errors.get(3).name, "GrpcError", "The error should be " +
                 "GrpcError. But Found:" + testModule.errors.get(3).name);
-        Assert.assertEquals(testModule.errors.get(5).name, "YErrorType", "The error should be " +
-                "YErrorType. But Found:" + testModule.errors.get(5).name);
+        Assert.assertEquals(testModule.errors.get(4).name, "LinkToGrpcError", "The error should be " +
+                "LinkToGrpcError. But Found:" + testModule.errors.get(4).name);
+        Assert.assertEquals(testModule.errors.get(5).name, "UnKnownError", "The error should be " +
+                "UnKnownError. But Found:" + testModule.errors.get(4).name);
+
+
 
         Assert.assertEquals(testModule.errors.get(2).detailType.name, "CacheError",
                 "The error detailtype of Error should be CacheError. But Found:" +
@@ -72,6 +74,13 @@ public class ErrorsTest {
         Assert.assertEquals(testModule.errors.get(2).detailType.category, "errors",
                 "The detailtype category of Error should be errors. But Found:" + testModule.errors.get(2)
                         .detailType.category);
+
+        Assert.assertEquals(testModule.errors.get(4).detailType.name, "GrpcError",
+                "The error detailtype of LinkToGrpcError should be GrpcError. But Found:" +
+                        testModule.errors.get(4).detailType.name);
+        Assert.assertEquals(testModule.errors.get(4).detailType.category, "errors",
+                "The detailtype category of LinkToGrpcError should be errors. But Found:"
+                        + testModule.errors.get(4).detailType.category);
 
         Assert.assertEquals(testModule.errors.get(3).detailType.memberTypes.get(0).name, "CancelledError",
                 "The name of first membertype, of error detailtype, in GrpcError should be CancelledError. " +
@@ -87,11 +96,30 @@ public class ErrorsTest {
                 "The category of second membertype, of error detailtype, in GrpcError should be errors. " +
                         "But Found:" + testModule.errors.get(3).detailType.memberTypes.get(1).category);
 
-        Assert.assertEquals(testModule.errors.get(5).detailType.memberTypes.get(0).name, "error",
-                "The name of first membertype, of error detailtype, in YErrorType should be error. But Found:" +
-                        testModule.errors.get(5).detailType.memberTypes.get(0).name);
-        Assert.assertEquals(testModule.errors.get(5).detailType.memberTypes.get(0).category, "builtin",
-                "The category of first membertype, of error detailtype,in YErrorType should be builtin. " +
-                        "But Found:" + testModule.errors.get(5).detailType.memberTypes.get(0).category);
     }
+
+    @Test(description = "Test type")
+    public void testType() {
+        Assert.assertEquals(testModule.types.size(), 2, "Two types expected");
+
+        Assert.assertEquals(testModule.types.get(0).name, "LinktoYError", "The type should be " +
+                "LinktoYError. But Found:" + testModule.types.get(0).name);
+        Assert.assertEquals(testModule.types.get(1).name, "YErrorType", "The type should be " +
+                "YErrorType. But Found:" + testModule.types.get(1).name);
+
+        Assert.assertEquals(testModule.types.get(0).memberTypes.get(0).name, "YErrorType",
+                "The name of first membertype, of LinktoYError should be YErrorType. But Found:" +
+                        testModule.types.get(0).memberTypes.get(0).name);
+        Assert.assertEquals(testModule.types.get(0).memberTypes.get(0).category, "types",
+                "The category of first membertype, of LinktoYError should be types. " +
+                        "But Found:" + testModule.types.get(0).memberTypes.get(0).category);
+
+        Assert.assertEquals(testModule.types.get(1).memberTypes.get(0).name, "error",
+                "The name of first membertype, of error detailtype, in YErrorType should be error. But Found:" +
+                        testModule.types.get(1).memberTypes.get(0).name);
+        Assert.assertEquals(testModule.types.get(1).memberTypes.get(0).category, "builtin",
+                "The category of first membertype, of error detailtype,in YErrorType should be builtin. " +
+                        "But Found:" + testModule.types.get(1).memberTypes.get(0).category);
+    }
+
 }

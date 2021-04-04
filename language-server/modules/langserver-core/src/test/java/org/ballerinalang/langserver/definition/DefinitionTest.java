@@ -22,7 +22,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.exception.LSStdlibCacheException;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
@@ -48,7 +47,6 @@ import java.nio.file.Paths;
 public class DefinitionTest {
     protected Path configRoot;
     protected Path sourceRoot;
-    private Path projectPath = FileUtils.RES_DIR.resolve("referencesProject");
     protected Gson gson = new Gson();
     protected JsonParser parser = new JsonParser();
     protected Endpoint serviceEndpoint;
@@ -71,28 +69,23 @@ public class DefinitionTest {
         this.compareResults(sourcePath, position, configObject, sourceRoot);
     }
 
-    @Test(description = "Test Go to definition between two files in same module", enabled = false)
-    public void testDifferentFiles() throws IOException, LSStdlibCacheException {
-        log.info("Test textDocument/definition for Two Files in same module");
-        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multifile")
-                .resolve("defMultiFile1.json").toString());
+    @Test(description = "Test goto definitions for standard libs", dataProvider = "testStdLibDataProvider")
+    public void testStdLibDefinition(String configPath, String configDir) throws IOException, LSStdlibCacheException {
+        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve(configDir)
+                .resolve(configPath).toString());
         JsonObject source = configObject.getAsJsonObject("source");
-        String dirPath = source.get("dir").getAsString().replace("/", CommonUtil.FILE_SEPARATOR);
-        Path sourcePath = projectPath.resolve(dirPath).resolve(source.get("file").getAsString());
+        Path sourcePath = sourceRoot.resolve(source.get("file").getAsString());
         Position position = gson.fromJson(configObject.get("position"), Position.class);
-        this.compareResults(sourcePath, position, configObject, projectPath);
-    }
 
-    @Test(description = "Test Go to definition between two modules", enabled = false)
-    public void testDifferentModule() throws IOException, LSStdlibCacheException {
-        log.info("Test textDocument/definition for two modules");
-        JsonObject configObject = FileUtils.fileContentAsObject(configRoot.resolve("multipkg")
-                .resolve("defMultiPkg1.json").toString());
-        JsonObject source = configObject.getAsJsonObject("source");
-        String dirPath = source.get("dir").getAsString().replace("/", CommonUtil.FILE_SEPARATOR);
-        Path sourcePath = projectPath.resolve(dirPath).resolve(source.get("file").getAsString());
-        Position position = gson.fromJson(configObject.get("position"), Position.class);
-        this.compareResults(sourcePath, position, configObject, projectPath);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+        String actualStr = TestUtil.getDefinitionResponse(sourcePath.toString(), position, serviceEndpoint);
+        TestUtil.closeDocument(serviceEndpoint, sourcePath);
+
+        JsonArray expected = configObject.getAsJsonArray("result");
+        JsonArray actual = parser.parse(actualStr).getAsJsonObject().getAsJsonObject("result").getAsJsonArray("left");
+        this.alterExpectedStdlibUri(expected);
+        this.alterActualUri(actual);
+        Assert.assertEquals(actual, expected);
     }
 
     protected void compareResults(Path sourcePath, Position position, JsonObject configObject, Path root)
@@ -118,9 +111,18 @@ public class DefinitionTest {
                 {"defProject4.json", "project"},
                 {"defProject5.json", "project"},
                 {"defProject6.json", "project"},
+                {"defProject7.json", "project"},
         };
     }
-    
+
+    @DataProvider
+    private Object[][] testStdLibDataProvider() throws IOException {
+        log.info("Test textDocument/definition for Std Lib Cases");
+        return new Object[][]{
+                {"defProject8.json", "project"},
+        };
+    }
+
     @AfterClass
     public void shutDownLanguageServer() throws IOException {
         TestUtil.shutdownLanguageServer(this.serviceEndpoint);
@@ -131,6 +133,19 @@ public class DefinitionTest {
             JsonObject item = jsonElement.getAsJsonObject();
             String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
             Path expectedPath = Paths.get(root.toUri());
+            for (String uriComponent : uriComponents) {
+                expectedPath = expectedPath.resolve(uriComponent);
+            }
+            item.remove("uri");
+            item.addProperty("uri", expectedPath.toFile().getCanonicalPath());
+        }
+    }
+
+    protected void alterExpectedStdlibUri(JsonArray expected) throws IOException, LSStdlibCacheException {
+        for (JsonElement jsonElement : expected) {
+            JsonObject item = jsonElement.getAsJsonObject();
+            String[] uriComponents = item.get("uri").toString().replace("\"", "").split("/");
+            Path expectedPath = Paths.get("build").toAbsolutePath();
             for (String uriComponent : uriComponents) {
                 expectedPath = expectedPath.resolve(uriComponent);
             }

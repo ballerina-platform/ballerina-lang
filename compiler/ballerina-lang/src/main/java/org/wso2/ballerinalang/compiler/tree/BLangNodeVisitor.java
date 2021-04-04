@@ -20,8 +20,16 @@ package org.wso2.ballerinalang.compiler.tree;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangLocalXMLNS;
 import org.wso2.ballerinalang.compiler.tree.BLangXMLNS.BLangPackageXMLNS;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangCaptureBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorCauseBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorFieldBindingPatterns;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorMessageBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangFieldBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangListBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangDoClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangFromClause;
@@ -60,6 +68,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BL
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTableAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangTupleAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess.BLangXMLAccessExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctionPointerInvocation;
@@ -391,10 +400,6 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
-    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
-        throw new AssertionError();
-    }
-
     public void visit(BLangListMatchPattern listMatchPattern) {
         throw new AssertionError();
     }
@@ -407,7 +412,19 @@ public abstract class BLangNodeVisitor {
         throw new AssertionError();
     }
 
+    public void visit(BLangMappingBindingPattern mappingBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangFieldBindingPattern fieldBindingPattern) {
+        throw new AssertionError();
+    }
+
     public void visit(BLangRestBindingPattern restBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangWildCardBindingPattern wildCardBindingPattern) {
         throw new AssertionError();
     }
 
@@ -432,6 +449,30 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangNamedArgMatchPattern namedArgMatchPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorBindingPattern errorBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorMessageBindingPattern errorMessageBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorCauseBindingPattern errorCauseBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangErrorFieldBindingPatterns errorFieldBindingPatterns) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangSimpleBindingPattern simpleBindingPattern) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangNamedArgBindingPattern namedArgBindingPattern) {
         throw new AssertionError();
     }
 
@@ -790,6 +831,10 @@ public abstract class BLangNodeVisitor {
     }
 
     public void visit(BLangObjectConstructorExpression bLangObjectConstructorExpression) {
+        throw new AssertionError();
+    }
+
+    public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
         throw new AssertionError();
     }
 

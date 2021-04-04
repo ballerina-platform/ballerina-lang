@@ -298,13 +298,12 @@ public class TypeCastExprTest {
     @Test
     public void testIncompatibleCast() {
         CompileResult res = BCompileUtil.compile("test-src/expressions/typecast/incompatible-cast-negative.bal");
-        Assert.assertEquals(res.getErrorCount(), 6);
+        Assert.assertEquals(res.getErrorCount(), 5);
         BAssertUtil.validateError(res, 0, "incompatible types: expected 'Person', found 'Student'", 24, 16);
         BAssertUtil.validateError(res, 1, "incompatible types: expected 'float', found 'int'", 33, 16);
         BAssertUtil.validateError(res, 2, "incompatible types: expected 'float', found 'int'", 33, 19);
         BAssertUtil.validateError(res, 3, "incompatible types: expected 'float', found 'int'", 33, 22);
         BAssertUtil.validateError(res, 4, "incompatible types: expected 'float', found 'int'", 37, 18);
-        BAssertUtil.validateError(res, 5, "incompatible types: 'any[]' cannot be cast to 'json'", 43, 24);
     }
 
     @Test(description = "Test casting a JSON integer to a string")
@@ -487,8 +486,8 @@ public class TypeCastExprTest {
     @Test(description = "Test casting a null stored as any to xml",
           expectedExceptions = { BLangRuntimeException.class },
           expectedExceptionsMessageRegExp = ".*incompatible types: '\\(\\)' cannot be cast to " +
-                  "'xml\\<lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
-                  "lang\\.xml:Text\\>'.*")
+                  "'xml<\\(lang\\.xml:Element" + "\\|lang\\.xml:Comment\\|lang\\.xml:ProcessingInstruction\\|" +
+                  "lang\\.xml:Text\\)>'.*")
     public void testAnyNullToXml() {
         BValue[] returns = BRunUtil.invoke(result, "testAnyNullToXml");
         Assert.assertNull(returns[0]);

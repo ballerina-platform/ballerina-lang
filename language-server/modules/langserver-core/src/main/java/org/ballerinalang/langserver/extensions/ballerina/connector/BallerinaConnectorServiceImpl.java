@@ -39,8 +39,9 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
-import io.ballerina.projects.balo.BaloProject;
+import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
@@ -51,7 +52,7 @@ import org.ballerinalang.langserver.exception.LSConnectorException;
 import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
 import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.repo.HomeBaloRepo;
+import org.wso2.ballerinalang.compiler.packaging.repo.HomeBalaRepo;
 import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
@@ -59,8 +60,10 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -68,6 +71,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 /**
@@ -80,7 +84,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     public static final String DEFAULT_CONNECTOR_FILE_KEY = "DEFAULT_CONNECTOR_FILE";
     private static final Path STD_LIB_SOURCE_ROOT = Paths.get(CommonUtil.BALLERINA_HOME)
             .resolve("repo")
-            .resolve("balo");
+            .resolve("bala");
     private String connectorConfig;
     private final ConnectorExtContext connectorExtContext;
     private final LSClientLogger clientLogger;
@@ -101,33 +105,39 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
             return CompletableFuture.supplyAsync(() -> response);
         } catch (IOException e) {
             String msg = "Operation 'ballerinaConnector/connectors' failed!";
-            this.clientLogger.logError(msg, e, null, (Position) null);
+            this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
         }
 
         return CompletableFuture.supplyAsync(BallerinaConnectorsResponse::new);
     }
 
-    private Path getBaloPath(String org, String module, String version) throws LSConnectorException {
-        Path baloPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module).
-                resolve(version.isEmpty() ?
-                        ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version).
-                resolve(String.format("%s-%s-any-%s%s", org, module, version,
-                        ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT));
-        if (!Files.exists(baloPath.toAbsolutePath())) {
+    private Path getBalaPath(String org, String module, String version) throws LSConnectorException, IOException {
+        Path balaPath;
+
+        Path connectorPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module)
+                .resolve(version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
+        String pattern = connectorPath.toFile().getAbsolutePath() + "/*.bala";
+        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
+        Stream<Path> paths = Files.find(connectorPath, 1, (path, f) -> pathMatcher.matches(path));
+        List<Path> pathList = paths.collect(Collectors.toList());
+
+        if (pathList.isEmpty()) {
             //check external modules
             PackageID packageID = new PackageID(new Name(org), new Name(module), new Name(version));
-            HomeBaloRepo homeBaloRepo = new HomeBaloRepo(new HashMap<>());
-            Patten patten = homeBaloRepo.calculate(packageID);
-            Stream<Path> s = patten.convert(new BaloConverter(), packageID);
+            HomeBalaRepo homeBalaRepo = new HomeBalaRepo(new HashMap<>());
+            Patten patten = homeBalaRepo.calculate(packageID);
+            Stream<Path> s = patten.convert(new BalaConverter(), packageID);
             Optional<Path> path = s.reduce(Path::resolve);
             if (path.isPresent() && Files.exists(path.get().toAbsolutePath())) {
-                baloPath = path.get().toAbsolutePath();
+                balaPath = path.get().toAbsolutePath();
             } else {
                 throw new LSConnectorException("No file exist in '" + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT
                         + path.get().toAbsolutePath() + "'");
             }
+        } else {
+            balaPath = pathList.get(0);
         }
-        return baloPath;
+        return balaPath;
     }
 
     @Override
@@ -140,15 +150,17 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         String error = "";
         if (st == null) {
             try {
-                Path baloPath = getBaloPath(request.getOrg(), request.getModule(), request.getVersion());
+                Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion());
 
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
-                ModuleId moduleId = baloProject.currentPackage().moduleIds().stream()
+                BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+                ModuleId moduleId = balaProject.currentPackage().moduleIds().stream()
                         .filter(modId -> modId.moduleName().equals(request.getModule())).findFirst().get();
-                Module module = baloProject.currentPackage().module(moduleId);
-                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+                Module module = balaProject.currentPackage().module(moduleId);
+
+                PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
+                SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
 
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
                 module.documentIds().forEach(documentId -> {
@@ -156,7 +168,9 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 });
 
                 Map<String, TypeDefinitionNode> jsonRecords = new HashMap<>();
+                Map<String, ClassDefinitionNode> objectTypes = new HashMap<>();
                 connectorNodeVisitor.getRecords().forEach(jsonRecords::put);
+                connectorNodeVisitor.getObjectTypes().forEach(objectTypes::put);
 
                 Gson gson = new Gson();
                 List<ClassDefinitionNode> connectorNodes = connectorNodeVisitor.getConnectors();
@@ -171,7 +185,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                             FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) child;
                             functionDefinitionNode.functionSignature().parameters().forEach(parameterNode -> {
                                 populateConnectorFunctionParamRecords(parameterNode, semanticModel, jsonRecords,
-                                        connectorRecords);
+                                        objectTypes, connectorRecords);
                             });
                         }
                     }
@@ -191,7 +205,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 String msg = "Operation 'ballerinaConnector/connector' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
                 error = e.getMessage();
-                this.clientLogger.logError(msg, e, null, (Position) null);
+                this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
             }
         }
         BallerinaConnectorResponse response = new BallerinaConnectorResponse(request.getOrg(), request.getModule(),
@@ -201,6 +215,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
     private void populateConnectorFunctionParamRecords(Node parameterNode, SemanticModel semanticModel,
                                                        Map<String, TypeDefinitionNode> jsonRecords,
+                                                       Map<String, ClassDefinitionNode> classDefinitions,
                                                        Map<String, JsonElement> connectorRecords) {
         Optional<TypeSymbol> paramType = semanticModel.type(parameterNode.lineRange());
         if (paramType.isPresent()) {
@@ -209,19 +224,19 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 if (parameterNode instanceof RequiredParameterNode) {
                     Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode);
                     if (paramSymbol.isPresent()) {
-                        parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
+                        parameterTypeName = String.format("%s:%s", paramSymbol.get().getModule().get().id(),
                                 ((RequiredParameterNode) parameterNode).typeName());
                     }
                 } else if (parameterNode instanceof DefaultableParameterNode) {
                     Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode);
                     if (paramSymbol.isPresent()) {
-                        parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
+                        parameterTypeName = String.format("%s:%s", paramSymbol.get().getModule().get().id(),
                                 ((DefaultableParameterNode) parameterNode).typeName());
                     }
                 } else if (parameterNode instanceof RestParameterNode) {
                     Optional<Symbol> paramSymbol = semanticModel.symbol(parameterNode);
                     if (paramSymbol.isPresent()) {
-                        parameterTypeName = String.format("%s:%s", paramSymbol.get().moduleID(),
+                        parameterTypeName = String.format("%s:%s", paramSymbol.get().getModule().get().id(),
                                 ((RestParameterNode) parameterNode).typeName());
                     }
 
@@ -229,7 +244,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
                 if (jsonRecords.get(parameterTypeName) != null) {
                     connectorRecords.put(parameterTypeName,
-                            DiagramUtil.getTypeDefinitionSyntaxJson(jsonRecords.get(parameterTypeName), semanticModel));
+                            DiagramUtil
+                                    .getTypeDefinitionSyntaxJson(jsonRecords.get(parameterTypeName), semanticModel));
                 }
                 Arrays.stream(paramType.get().signature().split("\\|")).forEach(type -> {
                     String refinedType = type.replace("?", "");
@@ -256,14 +272,21 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     }
                 }
             } else if (paramType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
-                if (record != null) {
+                if (jsonRecords.containsKey(paramType.get().signature())) {
+                    TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
+
                     connectorRecords.put(paramType.get().signature(),
                             DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
                     if (record.typeDescriptor() instanceof RecordTypeDescriptorNode) {
                         populateConnectorTypeDef((RecordTypeDescriptorNode) record.typeDescriptor(), semanticModel,
                                 jsonRecords, connectorRecords, record.typeName().text());
                     }
+                }
+
+                if (classDefinitions.containsKey(paramType.get().signature())) {
+                    ClassDefinitionNode classDefinition = classDefinitions.get(paramType.get().signature());
+                    connectorRecords.put(paramType.get().signature(),
+                            DiagramUtil.getClassDefinitionSyntaxJson(classDefinition, semanticModel));
                 }
             }
         }
@@ -308,13 +331,14 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         String error = "";
         if (ast == null) {
             try {
-                Path baloPath = getBaloPath(request.getOrg(), request.getModule(), request.getVersion());
+                Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion());
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                BaloProject baloProject = BaloProject.loadProject(defaultBuilder, baloPath);
-                ModuleId moduleId = baloProject.currentPackage().moduleIds().stream().findFirst().get();
-                Module module = baloProject.currentPackage().module(moduleId);
-                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+                BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+                ModuleId moduleId = balaProject.currentPackage().moduleIds().stream().findFirst().get();
+                Module module = balaProject.currentPackage().module(moduleId);
+                PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
+                SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
 
                 Map<String, JsonElement> recordDefJsonMap = new HashMap<>();
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
@@ -357,7 +381,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 String msg = "Operation 'ballerinaConnector/record' for " + cacheableKey + ":" +
                         request.getName() + " failed!";
                 error = e.getMessage();
-                this.clientLogger.logError(msg, e, null, (Position) null);
+                this.clientLogger.logError(this.connectorExtContext, msg, e, null, (Position) null);
             }
 
         }

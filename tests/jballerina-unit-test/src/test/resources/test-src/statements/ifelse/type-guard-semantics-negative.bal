@@ -363,7 +363,7 @@ type Detail record {
 };
 
 function errorReturningFunc(int? i) returns error<Detail> {
-    return ErrorD("hello", message = "hello", code = i, f = 1.0);
+    return error ErrorD("hello", message = "hello", code = i);
 }
 
 function testInvalidAccessOfOutOfScopeVar() {

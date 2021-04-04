@@ -1,3 +1,21 @@
+// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
+// WSO2 Inc. licenses this file to you under the Apache License,
+// Version 2.0 (the "License"); you may not use this file except
+// in compliance with the License.
+// You may obtain a copy of the License at
+//
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Unless required by applicable law or agreed to in writing,
+// software distributed under the License is distributed on an
+// "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+// KIND, either express or implied.  See the License for the
+// specific language governing permissions and limitations
+// under the License.
+
+import ballerina/lang.value;
+
 type A int|A[];
 
 public function testCycleTypeArray() {
@@ -91,7 +109,7 @@ public function testCyclicTypeDefInRecord() {
     E rec = { a : a};
     int result = 0;
     if (rec is record{}) {
-        result = <int> rec.a;
+        result = <int> rec["a"];
     }
     assert(result, 3);
 }
@@ -164,6 +182,41 @@ function testCyclicUserDefinedType() {
 function testCyclicUnionAgainstSubSetNegative() {
     record {} x = {};
     assert(false, x is record {| int|boolean|decimal|float|string|xml?...; |});
+}
+
+function testImmutableImportedCyclicUnionVariable() {
+    value:Cloneable & readonly x = 1;
+    assert(1, <anydata> checkpanic x);
+}
+
+type MyCyclicUnion int|MyCyclicUnion[];
+
+function testCastingToImmutableCyclicUnion() {
+    MyCyclicUnion a = [1, 2];
+    (MyCyclicUnion & readonly)|error b = trap <MyCyclicUnion & readonly> a;
+    assert(true, b is error);
+    error err = <error> b;
+    assert("{ballerina}TypeCastError", err.message());
+    assert("incompatible types: 'MyCyclicUnion[]' cannot be cast to '(MyCyclicUnion & readonly)'",
+           <string> checkpanic err.detail()["message"]);
+
+    MyCyclicUnion c = <int[] & readonly> [1, 2];
+    MyCyclicUnion & readonly d = <MyCyclicUnion & readonly> c;
+    assert(true, d is int[] & readonly);
+    assert(<int[]> [1, 2], d);
+
+    value:Cloneable e = <value:Cloneable> [1, 2];
+    (value:Cloneable & readonly)|error f = trap <value:Cloneable & readonly> e;
+    assert(true, f is error);
+    err = <error> f;
+    assert("{ballerina}TypeCastError", err.message());
+    assert("incompatible types: 'ballerina/lang.value:1.0.0:Cloneable[]' cannot be cast to '(ballerina/lang.value:1.0.0:Cloneable & readonly)'",
+           <string> checkpanic err.detail()["message"]);
+
+    value:Cloneable g = <int[] & readonly> [1, 2];
+    value:Cloneable & readonly h = <value:Cloneable & readonly> g;
+    assert(true, h is int[] & readonly);
+    assert(<int[]> [1, 2], <anydata> checkpanic h);
 }
 
 function assert(anydata expected, anydata actual) {

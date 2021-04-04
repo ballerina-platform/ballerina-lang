@@ -57,6 +57,9 @@ public class OpenRecordNegativeTest {
         validateError(result, indx++,
                       "invalid operation: type 'Person' does not support optional field access for field 'firstName'",
                       59, 26);
+        validateError(result, indx++,
+                "undefined field 'toValue' in record 'Teacher'",
+                68, 27);
         assertEquals(result.getErrorCount(), indx);
     }
 
@@ -77,24 +80,15 @@ public class OpenRecordNegativeTest {
     @Test(description = "Test function invocation on a nil-able function pointer")
     public void testNilableFuncPtrInvocation() {
         CompileResult compileResult = BCompileUtil.compile("test-src/record/negative/open_record_nil-able_fn_ptr.bal");
+        String errMsg =
+                "invalid method call expression: expected a function type, but found 'function" +
+                        " (string,string) returns (string)?'";
         int indx = 0;
 
-        validateError(compileResult, indx++,
-                      "function invocation on type 'function (string,string) returns (string)?' is not supported",
-                      28, 17);
-        validateError(compileResult, indx++, "incompatible types: expected 'string?', found 'other'", 28, 17);
-        validateError(compileResult, indx++,
-                      "function invocation on type 'function (string,string) returns (string)?' is not supported",
-                      33, 17);
-        validateError(compileResult, indx++, "incompatible types: expected 'string?', found 'other'", 33, 17);
-        validateError(compileResult, indx++,
-                      "function invocation on type 'function (string,string) returns (string)?' is not supported",
-                      47, 17);
-        validateError(compileResult, indx++, "incompatible types: expected 'string?', found 'other'", 47, 17);
-        validateError(compileResult, indx++,
-                      "function invocation on type 'function (string,string) returns (string)?' is not supported",
-                      53, 17);
-        validateError(compileResult, indx++, "incompatible types: expected 'string?', found 'other'", 53, 17);
+        validateError(compileResult, indx++, errMsg, 28, 17);
+        validateError(compileResult, indx++, errMsg, 33, 17);
+        validateError(compileResult, indx++, errMsg, 47, 17);
+        validateError(compileResult, indx++, errMsg, 53, 17);
         assertEquals(compileResult.getErrorCount(), indx);
     }
 

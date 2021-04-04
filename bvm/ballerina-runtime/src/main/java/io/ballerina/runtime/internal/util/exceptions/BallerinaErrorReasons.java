@@ -67,7 +67,8 @@ public class BallerinaErrorReasons {
     public static final String INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER = "InherentTypeViolation";
     public static final String OPERATION_NOT_SUPPORTED_IDENTIFIER = "OperationNotSupported";
     public static final String KEY_NOT_FOUND_ERROR_IDENTIFIER = "KeyNotFound";
-    public static final String INVALID_TYPE_TO_SORT = "InvalidTypeToSort";
+    public static final String INVALID_TYPE_TO_SORT = "SortOperationError";
+    public static final String UNORDERED_TYPES = "UnorderedTypesError";
 
     public static final BString INDEX_OUT_OF_RANGE_ERROR = StringUtils
             .fromString(INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER);
@@ -88,6 +89,7 @@ public class BallerinaErrorReasons {
     public static final BString VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR =
             getModulePrefixedReason(VALUE_LANG_LIB, "CyclicValueReferenceError");
     public static final BString MERGE_JSON_ERROR = getModulePrefixedReason(VALUE_LANG_LIB, "MergeJsonError");
+    public static final BString FROM_BAL_STRING_ERROR = getModulePrefixedReason(VALUE_LANG_LIB, "FromBalStringError");
     public static final BString STRING_OPERATION_ERROR = getModulePrefixedReason(STRING_LANG_LIB,
                                                                                  "StringOperationError");
     public static final BString XML_OPERATION_ERROR = getModulePrefixedReason(XML_LANG_LIB, "XMLOperationError");
@@ -105,6 +107,7 @@ public class BallerinaErrorReasons {
 
     public static final BString ASYNC_CALL_INSIDE_LOCK =
             StringUtils.fromString(BALLERINA_PREFIX.concat("AsyncCallInsideLockError"));
+    public static final BString UNORDERED_TYPES_ERROR = StringUtils.fromString(UNORDERED_TYPES);
 
     public static BString getModulePrefixedReason(String moduleName, String identifier) {
         return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)

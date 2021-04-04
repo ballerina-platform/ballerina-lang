@@ -94,6 +94,10 @@ table<Customer> key<int> intKeyConstraintTable = table key(id)[{ id: 13 , firstN
 
 table<Customer> key<string> stringKeyConstraintTable = intKeyConstraintTable;
 
+type UserCustTable table<User|Customer> key<int>;
+
+type UserInfoTable table<User> key<int> | table<Customer> key<int>;
+
 function testInvalidKeyForInferTypeTable() {
     var tab = table key(no) [{ id: 13 , name: "Sanjiva", lname: "Weerawarana" },
                                         { id: 23 , name: "James" },
@@ -130,3 +134,29 @@ function testVarTypeTableInfering() {
     var customerTable = table [];
     customerTable.put({id: 3, name: "Pope", age: 19, address: {no: 12, road: "Sea street"}});
 }
+
+function testMemberAccessWithInvalidStaticType() {
+    table<Customer> key(id) customerTable = table [{ id: 13 , firstName: "Sanjiva", lastName: "Weerawarana" },
+                                        { id: 23 , firstName: "James" , lastName: "Clark" }];
+    Customer customer = customerTable[18];
+}
+
+function testMemberAccessWithInvalidStaticType2() {
+    UserCustTable userTab = table key(id) [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
+                                                   { id: 45 , name: "James" , address: "Clark" }];
+    User user = userTab[18];
+}
+
+function testMemberAccessWithInvalidStaticType3() {
+    UserInfoTable infoTab = table key(id) [{ id: 13 , name: "Sanjiva", address: "Weerawarana" },
+                                                   { id: 45 , name: "James" , address: "Clark" }];
+    table<Customer> key(id) tab = <table<Customer> key(id)> infoTab;
+    Customer customer = tab[18];
+}
+
+type Employee record {
+    string name;
+    readonly int age;
+};
+
+type EmployeeTable table<Employee> key(name);

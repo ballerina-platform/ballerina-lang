@@ -51,7 +51,8 @@ public class SyncSendActionNodeContext extends AbstractCompletionProvider<SyncSe
 
         List<LSCompletionItem> completionItems = new ArrayList<>(this.getCompletionItemList(filteredWorkers, context));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
-
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 }

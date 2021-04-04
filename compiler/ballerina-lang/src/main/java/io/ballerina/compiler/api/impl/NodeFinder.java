@@ -195,7 +195,8 @@ class NodeFinder extends BaseVisitor {
         this.enclosingNode = null;
 
         for (TopLevelNode node : nodes) {
-            if (!PositionUtil.withinRange(this.range, node.getPosition()) || isLambdaFunction(node)) {
+            if (!PositionUtil.withinRange(this.range, node.getPosition()) || isLambdaFunction(node)
+                    || isClassForService(node)) {
                 continue;
             }
 
@@ -607,8 +608,8 @@ class NodeFinder extends BaseVisitor {
             return;
         }
 
-        lookupNodes(invocationExpr.requiredArgs);
-        lookupNodes(invocationExpr.restArgs);
+        // Looking up args expressions since requiredArgs and restArgs get set only when compilation is successful
+        lookupNodes(invocationExpr.argExprs);
         lookupNode(invocationExpr.expr);
     }
 
@@ -841,7 +842,6 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        lookupNode(tableMultiKeyExpr.expr);
         lookupNodes(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
@@ -892,11 +892,6 @@ class NodeFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangClassDefinition classDefinition) {
-        // skip the generated class def for services
-        if (classDefinition.flagSet.contains(Flag.SERVICE)) {
-            return;
-        }
-
         lookupNodes(classDefinition.annAttachments);
         lookupNodes(classDefinition.fields);
         lookupNodes(classDefinition.referencedFields);
@@ -1196,5 +1191,13 @@ class NodeFinder extends BaseVisitor {
 
         BLangFunction func = (BLangFunction) node;
         return func.flagSet.contains(Flag.LAMBDA);
+    }
+
+    private boolean isClassForService(TopLevelNode node) {
+        if (node.getKind() != NodeKind.CLASS_DEFN) {
+            return false;
+        }
+
+        return ((BLangClassDefinition) node).flagSet.contains(Flag.SERVICE);
     }
 }

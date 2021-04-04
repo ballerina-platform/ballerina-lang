@@ -31,6 +31,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.FileSystemCache;
+import io.ballerina.projects.util.ProjectConstants;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
@@ -53,7 +54,7 @@ public class TestBirAndJarCache {
 
     @Test(description = "tests writing of the BIR and Jar files")
     public void testBirAndJarCaching() throws IOException {
-        Path projectPath = RESOURCE_DIRECTORY.resolve("balowriter").resolve("projectOne");
+        Path projectPath = RESOURCE_DIRECTORY.resolve("balawriter").resolve("projectOne");
 
         // 1) Initialize the project instance
         Path cacheDirPath = null;
@@ -127,7 +128,7 @@ public class TestBirAndJarCache {
         public int jarCachedCount;
 
         public TestCompilationCache(Project project, Path cacheDirPath) {
-            super(project, cacheDirPath);
+            super(project, cacheDirPath.resolve(ProjectConstants.CACHES_DIR_NAME));
         }
 
         @Override

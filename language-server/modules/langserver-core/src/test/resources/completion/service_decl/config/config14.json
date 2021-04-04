@@ -1,0 +1,25 @@
+{
+  "position": {
+    "line": 9,
+    "character": 14
+  },
+  "source": "service_decl/source/source14.bal",
+  "items": [
+    {
+      "label": "function name . () {}",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "function ${1:name} ${2:.} (${3})${4} {\n\t${5}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "function",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "function ",
+      "insertTextFormat": "Snippet"
+    }
+  ]
+}

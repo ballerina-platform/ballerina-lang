@@ -17,9 +17,11 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.OnClauseNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -28,9 +30,10 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.providers.context.util.QueryExpressionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
-import java.util.Collections;
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,30 +53,36 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, OnClauseNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
         if (this.onSuggestEqualsKeyword(context, node)) {
-            return Collections.singletonList(new SnippetCompletionItem(context, Snippet.KW_EQUALS.get()));
-        }
-
-        /*
-         * Covers the remaining rule content,
-         * (1) on <cursor>
-         * (2) on e<cursor>
-         * (3) on expr equals <cursor>
-         * (4) on expr equals e<cursor>
-         * (5) on expr equals module:<cursor>
-         */
-        if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_EQUALS.get()));
+        } else if (nodeAtCursor.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            /*
+             * Covers the remaining rule content,
+             * (1) on <cursor>
+             * (2) on e<cursor>
+             * (3) on expr equals <cursor>
+             * (4) on expr equals e<cursor>
+             * (5) on expr equals module:<cursor>
+             */
             /*
             Covers the cases where the cursor is within the expression context
              */
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
             List<Symbol> exprEntries = QNameReferenceUtil.getExpressionContextEntries(context, qNameRef);
-            return this.getCompletionItemList(exprEntries, context);
+            completionItems.addAll(this.getCompletionItemList(exprEntries, context));
+        } else {
+            completionItems.addAll(this.expressionCompletions(context));
+            // If cursor at the end of clause, suggest other clauses
+            if (cursorAtEndOfClause(context, node)) {
+                completionItems.addAll(QueryExpressionUtil.getCommonKeywordCompletions(context));
+            }
         }
+        this.sort(context, node, completionItems);
 
-        return this.expressionCompletions(context);
+        return completionItems;
     }
 
     @Override
@@ -87,9 +96,31 @@ public class OnClauseNodeContext extends AbstractCompletionProvider<OnClauseNode
         ExpressionNode rhs = node.rhsExpression();
         Token equalsKeyword = node.equalsKeyword();
 
-        return !lhs.isMissing() && cursor > lhs.textRange().endOffset()
-                && (rhs.isMissing() || cursor < rhs.textRange().startOffset())
-                && (equalsKeyword.isMissing() || (!equalsKeyword.isMissing()
-                && cursor < equalsKeyword.textRange().startOffset()));
+        if (lhs.isMissing() || !equalsKeyword.isMissing()) {
+            return false;
+        } else if (cursor > lhs.textRange().endOffset() &&
+                (!rhs.isMissing() && cursor < rhs.textRange().startOffset())) {
+            return true;
+        } else {
+            Node nodeAtCursor = context.getNodeAtCursor();
+
+            /*
+             * Captures:
+             * (1) join var varName in expr e<cursor>
+             * (2) join var varName in expr eq<cursor> expr
+             */
+            if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+                SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
+                return lhs.textRange().endOffset() == cursor &&
+                        nameReferenceNode.textRange().endOffset() == cursor;
+            }
+        }
+
+        return false;
+    }
+
+    private boolean cursorAtEndOfClause(BallerinaCompletionContext context, OnClauseNode node) {
+        int cursor = context.getCursorPositionInTree();
+        return !node.rhsExpression().isMissing() && node.rhsExpression().textRange().endOffset() < cursor;
     }
 }

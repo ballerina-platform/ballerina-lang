@@ -66,7 +66,7 @@ public class DocsCodeLensesProvider extends AbstractCodeLensesProvider {
     @Override
     public List<CodeLens> getLenses(DocumentServiceContext context) {
         List<CodeLens> lenses = new ArrayList<>();
-        Optional<Document> document = context.workspace().document(context.filePath());
+        Optional<Document> document = context.currentDocument();
         if (document.isEmpty()) {
             return lenses;
         }

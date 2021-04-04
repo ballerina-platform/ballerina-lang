@@ -42,22 +42,22 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int', found 'float'", 29, 20);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'json', found 'xml:Text'", 40, 61);
         BAssertUtil.validateError(result, i++, "missing required parameter 'a' in call to " +
-                "'functionWithOnlyPositionalParams'()", 57, 9);
+                "'functionWithOnlyPositionalParams()'", 57, 9);
         BAssertUtil.validateError(result, i++, "missing required parameter 'b' in call to " +
-                "'functionWithOnlyPositionalParams'()", 57, 9);
+                "'functionWithOnlyPositionalParams()'", 57, 9);
         BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to " +
-                "'functionWithOnlyPositionalParams'()", 57, 9);
+                "'functionWithOnlyPositionalParams()'", 57, 9);
         BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to " +
-                "'functionWithOnlyPositionalParams'()", 58, 9);
+                "'functionWithOnlyPositionalParams()'", 58, 9);
         BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to " +
-                "'functionWithOnlyPositionalParams'()", 59, 9);
+                "'functionWithOnlyPositionalParams()'", 59, 9);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'string'", 59, 45);
         BAssertUtil.validateError(result, i++, "missing required parameter 'b' in call to " +
-                "'functionWithOnlyPositionalParams'()", 60, 9);
+                "'functionWithOnlyPositionalParams()'", 60, 9);
         BAssertUtil.validateError(result, i++, tooManyArguments + "'functionWithOnlyPositionalParams()'", 61, 9);
         BAssertUtil.validateError(result, i++, tooManyArguments + "'functionWithOnlyPositionalParams()'", 62, 56);
         BAssertUtil.validateError(result, i++, "missing required parameter 'c' in call to " +
-                "'functionWithOnlyPositionalParams'()", 63, 9);
+                "'functionWithOnlyPositionalParams()'", 63, 9);
         BAssertUtil.validateError(result, i++, "redeclared argument 'a'", 63, 45);
         BAssertUtil.validateError(result, i++, tooManyArguments + "'functionWithOnlyPositionalParams()'", 63, 62);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'string'", 68, 46);
@@ -74,9 +74,9 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "positional argument not allowed after named arguments", 89, 45);
         BAssertUtil.validateError(result, i++, "rest argument not allowed after named arguments", 90, 45);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
-                "'functionWithNoRestParam'()", 98, 5);
+                "'functionWithNoRestParam()'", 98, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
-                "'functionWithNoRestParam'()", 99, 5);
+                "'functionWithNoRestParam()'", 99, 5);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int', found 'string'", 99, 29);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int', found 'string'", 100, 29);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'string', found 'int'", 100, 39);
@@ -84,21 +84,21 @@ public class FunctionSignatureNegativeTest {
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'float', found 'boolean'", 105, 44);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'float'", 105, 51);
         BAssertUtil.validateError(result, i++, "missing required parameter 'x' in call to " +
-                "'functionWithNoRestParam'()", 106, 5);
+                "'functionWithNoRestParam()'", 106, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
-                "'functionWithNoRestParam'()", 106, 5);
+                "'functionWithNoRestParam()'", 106, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'x' in call to " +
-                "'functionWithNoRestParam'()", 107, 5);
+                "'functionWithNoRestParam()'", 107, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
-                "'functionWithNoRestParam'()", 107, 5);
+                "'functionWithNoRestParam()'", 107, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'x' in call to " +
-                "'functionWithNoRestParam'()", 108, 5);
+                "'functionWithNoRestParam()'", 108, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
-                "'functionWithNoRestParam'()", 108, 5);
+                "'functionWithNoRestParam()'", 108, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
-                "'functionWithNoRestParam'()", 114, 5);
+                "'functionWithNoRestParam()'", 114, 5);
         BAssertUtil.validateError(result, i++, "missing required parameter 'y' in call to " +
-                "'functionWithNoRestParam'()", 115, 5);
+                "'functionWithNoRestParam()'", 115, 5);
         BAssertUtil.validateError(result, i++, "too many arguments in call to 'getFloat()'", 115, 36);
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 122, 55);
         BAssertUtil.validateError(result, i++, "undefined symbol 'z'", 123, 50);

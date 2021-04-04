@@ -51,9 +51,11 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
@@ -103,21 +105,17 @@ public class BallerinaSemanticModel implements SemanticModel {
                                                          linePosition.line(), linePosition.line(),
                                                          linePosition.offset(), linePosition.offset());
 
-        List<Symbol> compiledSymbols = new ArrayList<>();
+        Set<Symbol> compiledSymbols = new HashSet<>();
         for (Map.Entry<Name, List<Scope.ScopeEntry>> entry : scopeSymbols.entrySet()) {
             Name name = entry.getKey();
             List<Scope.ScopeEntry> scopeEntries = entry.getValue();
 
             for (Scope.ScopeEntry scopeEntry : scopeEntries) {
-                BSymbol symbol = scopeEntry.symbol;
-
-                if (hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol)) {
-                    compiledSymbols.add(symbolFactory.getBCompiledSymbol(symbol, name.getValue()));
-                }
+                addToCompiledSymbols(compiledSymbols, scopeEntry, cursorPos, name);
             }
         }
 
-        return compiledSymbols;
+        return new ArrayList<>(compiledSymbols);
     }
 
     /**
@@ -165,14 +163,14 @@ public class BallerinaSemanticModel implements SemanticModel {
      */
     @Override
     public List<Location> references(Symbol symbol) {
-        Location symbolLocation = symbol.location();
+        Optional<Location> symbolLocation = symbol.getLocation();
 
         // Assumption is that the location will be null for regular type symbols
-        if (symbolLocation == null) {
-            return Collections.unmodifiableList(new ArrayList<>());
+        if (symbolLocation.isEmpty()) {
+            return Collections.emptyList();
         }
 
-        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolLocation.lineRange());
+        BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolLocation.get().lineRange());
 
         ReferenceFinder refFinder = new ReferenceFinder();
         return refFinder.findReferences(node, getInternalSymbol(symbol));
@@ -188,7 +186,7 @@ public class BallerinaSemanticModel implements SemanticModel {
         BSymbol symbolAtCursor = symbolFinder.lookup(compilationUnit, position);
 
         if (symbolAtCursor == null) {
-            return Collections.unmodifiableList(new ArrayList<>());
+            return Collections.emptyList();
         }
 
         BLangNode node = new NodeFinder().lookupEnclosingContainer(this.bLangPackage, symbolAtCursor.pos.lineRange());
@@ -211,6 +209,20 @@ public class BallerinaSemanticModel implements SemanticModel {
         }
 
         return Optional.ofNullable(typesFactory.getTypeDescriptor(node.type));
+    }
+
+    /**
+     * {@inheritDoc}
+     */
+    @Override
+    public Optional<TypeSymbol> type(Node node) {
+        Optional<Location> nodeIdentifierLocation = node.apply(new SyntaxNodeToLocationMapper());
+
+        if (nodeIdentifierLocation.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return type(node.location().lineRange());
     }
 
     /**
@@ -341,5 +353,29 @@ public class BallerinaSemanticModel implements SemanticModel {
 
         return startLine >= specifiedStartLine && startLine <= specifiedEndLine &&
                 startOffset >= specifiedStartOffset && startOffset <= specifiedEndOffset;
+    }
+
+    private void addToCompiledSymbols(Set<Symbol> compiledSymbols,
+                                      Scope.ScopeEntry scopeEntry,
+                                      Location cursorPos,
+                                      Name name) {
+        if (scopeEntry == null || scopeEntry.symbol == null) {
+            return;
+        }
+
+        BSymbol symbol = scopeEntry.symbol;
+        if ((hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol))
+                && !isServiceDeclSymbol(symbol)) {
+            Symbol compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, name.getValue());
+            if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
+                return;
+            }
+            compiledSymbols.add(compiledSymbol);
+        }
+        addToCompiledSymbols(compiledSymbols, scopeEntry.next, cursorPos, name);
+    }
+
+    private boolean isServiceDeclSymbol(BSymbol symbol) {
+        return symbol.kind == SymbolKind.SERVICE;
     }
 }

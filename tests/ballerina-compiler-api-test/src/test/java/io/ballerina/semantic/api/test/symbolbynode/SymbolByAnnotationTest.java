@@ -63,13 +63,13 @@ public class SymbolByAnnotationTest extends SymbolByNodeTest {
 
     @Override
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 4);
+        assertEquals(getAssertCount(), 6);
     }
 
     private void assertSymbol(Node node, SemanticModel model) {
         Optional<Symbol> symbol = model.symbol(node);
         assertEquals(symbol.get().kind(), ANNOTATION);
-        assertEquals(symbol.get().name(), "v1");
+        assertEquals(symbol.get().getName().get(), "v1");
         incrementAssertCount();
     }
 }

@@ -1,5 +1,5 @@
 // Override lang.int with custom import
-import ballerina/foo.bar.baz as int:;
+import foobar/foo.bar.baz as int:;
 
 // Predeclared prefix in annotation and listener decl
 @int:%
@@ -31,4 +31,17 @@ public function foo() returns map: {
         }
     }
     int:
+}
+
+public function main(transaction) {
+    // missing colon in var decl
+    transaction Info info;
+    // missing colon in expression
+    int a = transaction
+    // missing open parenthesis in transaction statement
+    transaction int a = 5 }
+    // invalid colon
+    transaction: { int a = 5; }
+    // missing identifier and var decl rhs
+    transaction:
 }

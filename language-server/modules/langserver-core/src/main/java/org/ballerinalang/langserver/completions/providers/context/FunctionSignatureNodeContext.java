@@ -51,10 +51,12 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (withinReturnTypeDescContext(context, node)) {
-            if (node.returnTypeDesc().isEmpty()) {
+            var returnTypeDesc = node.returnTypeDesc();
+            if (returnTypeDesc.isEmpty() || returnTypeDesc.get().returnsKeyword().isMissing()) {
                 /*
                 Covers the following cases.
                 (1) function test() <cursor>
+                (2) var lambda = function() r<cursor>
                 */
                 completionItems.add(new SnippetCompletionItem(context, Snippet.KW_RETURNS.get()));
             } else {
@@ -62,7 +64,7 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 Covers the following cases.
                 (1) function test() returns <cursor>
                 */
-                completionItems.addAll(CompletionUtil.route(context, node.returnTypeDesc().get()));
+                completionItems.addAll(CompletionUtil.route(context, returnTypeDesc.get()));
             }
         } else if (this.withinParameterContext(context, node)) {
             NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
@@ -91,6 +93,8 @@ public class FunctionSignatureNodeContext extends AbstractCompletionProvider<Fun
                 completionItems.addAll(this.getModuleCompletionItems(context));
             }
         }
+        this.sort(context, node, completionItems);
+        
         return completionItems;
     }
 

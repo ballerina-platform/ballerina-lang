@@ -16,8 +16,12 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ModulePartNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
@@ -27,6 +31,7 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link ModulePartNode} context.
@@ -42,6 +47,8 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, ModulePartNode node) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
+        
         if (ModulePartNodeContextUtil.onServiceTypeDescContext(context.getTokenAtCursor(), context)) {
             /*
             Covers the following cases
@@ -57,21 +64,35 @@ public class ModulePartNodeContext extends AbstractCompletionProvider<ModulePart
             (2) isolated service m<cursor>
              */
             List<Symbol> objectSymbols = ModulePartNodeContextUtil.serviceTypeDescContextSymbols(context);
-            List<LSCompletionItem> items = this.getCompletionItemList(objectSymbols, context);
-            items.addAll(this.getModuleCompletionItems(context));
-            items.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+            completionItems.addAll(this.getCompletionItemList(objectSymbols, context));
+            completionItems.addAll(this.getModuleCompletionItems(context));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ON.get()));
+        } else {
+            completionItems.addAll(this.getModulePartContextItems(context));
+        }
+        this.sort(context, node, completionItems);
 
-            return items;
+        return completionItems;
+    }
+
+    private List<LSCompletionItem> getModulePartContextItems(BallerinaCompletionContext context) {
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            Predicate<Symbol> predicate =
+                    symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
+            List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
+                    (QualifiedNameReferenceNode) nodeAtCursor, predicate);
+            return this.getCompletionItemList(types, context);
         }
 
         List<LSCompletionItem> completionItems = new ArrayList<>();
         completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
         completionItems.addAll(this.getTypeItems(context));
         completionItems.addAll(this.getModuleCompletionItems(context));
-        this.sort(context, node, completionItems);
 
         return completionItems;
     }
+
 
     @Override
     public void sort(BallerinaCompletionContext context, ModulePartNode node, List<LSCompletionItem> items,

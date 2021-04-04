@@ -18,12 +18,12 @@
   {
     "description": "An enum member can be used in the same way as a string constant.",
     "code": "string skyColor = BLUE; skyColor",
-    "expr": "BLUE"
+    "expr": "\"BLUE\""
   },
   {
     "description": "Enums can be treated as strings.",
     "code": "string concatenated = concat(QUEEN, PF); concatenated",
-    "expr": "QUEEN and Pink Floyd"
+    "expr": "\"QUEEN and Pink Floyd\""
   },
   {
     "description": "Helper function to get the enum value.",
@@ -32,16 +32,21 @@
   {
     "description": "Enum type can be used as a type.",
     "code": "Language language = getLanguage(\"e\"); language",
-    "expr": "english"
+    "expr": "\"english\""
   },
   {
     "description": "Enum value can be used as a type assigned by a string.",
     "code": "Language sinhala = \"sinhala\"; sinhala",
-    "expr": "sinhala"
+    "expr": "\"sinhala\""
   },
   {
     "description": "Enum value can be used as a type.",
     "code": "Language english = \"english\"; english",
-    "expr": "english"
+    "expr": "\"english\""
+  },
+  {
+    "description": "Enum value can be used as a type.",
+    "code": "PF pf = \"Pink Floyd\"; pf",
+    "expr": "\"Pink Floyd\""
   }
 ]

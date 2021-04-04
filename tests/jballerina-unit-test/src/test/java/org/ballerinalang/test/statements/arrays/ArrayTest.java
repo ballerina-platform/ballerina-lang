@@ -29,6 +29,7 @@ import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -242,6 +243,17 @@ public class ArrayTest {
     @Test
     public void testUpdatingJsonTupleViaArrayTypedVar() {
         BRunUtil.invokeFunction(compileResult, "testUpdatingJsonTupleViaArrayTypedVar");
+    }
+
+    @Test
+    public void testArraysWithSyntaxErrors() {
+        CompileResult compileResultNegative =
+                BCompileUtil.compile("test-src/statements/arrays/array_test_negative.bal");
+        int index = 0;
+        BAssertUtil.validateError(compileResultNegative, index++, "invalid token '*'", 18, 12);
+        BAssertUtil.validateError(compileResultNegative, index++, "invalid token '2'", 18, 12);
+        BAssertUtil.validateError(compileResultNegative, index++, "invalid token 'wed2'", 20, 12);
+        Assert.assertEquals(compileResultNegative.getErrorCount(), index);
     }
 
     @AfterClass

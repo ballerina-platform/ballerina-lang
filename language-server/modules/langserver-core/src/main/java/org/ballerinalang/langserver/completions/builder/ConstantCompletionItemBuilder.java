@@ -19,7 +19,9 @@ package org.ballerinalang.langserver.completions.builder;
 
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
 import io.ballerina.compiler.api.symbols.Documentation;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.commons.CompletionContext;
 import org.eclipse.lsp4j.CompletionItem;
 import org.eclipse.lsp4j.CompletionItemKind;
 import org.eclipse.lsp4j.MarkupContent;
@@ -42,13 +44,18 @@ public class ConstantCompletionItemBuilder {
      * @param constantSymbol constant symbol
      * @return {@link CompletionItem} generated completion item
      */
-    public static CompletionItem build(ConstantSymbol constantSymbol) {
+    public static CompletionItem build(ConstantSymbol constantSymbol, CompletionContext context) {
         CompletionItem completionItem = new CompletionItem();
-        completionItem.setLabel(constantSymbol.name());
-        completionItem.setInsertText(constantSymbol.name());
-        completionItem.setDetail(constantSymbol.typeDescriptor().signature());
+        completionItem.setLabel(constantSymbol.getName().get());
+        completionItem.setInsertText(constantSymbol.getName().get());
+        completionItem.setDetail(CommonUtil.getModifiedTypeName(context, constantSymbol.typeDescriptor()));
         completionItem.setDocumentation(getDocumentation(constantSymbol));
-        completionItem.setKind(CompletionItemKind.Variable);
+
+        if (constantSymbol.kind() == SymbolKind.ENUM_MEMBER) {
+            completionItem.setKind(CompletionItemKind.EnumMember);
+        } else {
+            completionItem.setKind(CompletionItemKind.Variable);
+        }
 
         return completionItem;
     }

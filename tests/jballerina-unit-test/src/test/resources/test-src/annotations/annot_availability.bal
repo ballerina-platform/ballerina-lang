@@ -38,13 +38,21 @@ class Bar {
     int j = 1;
 }
 
+@W
+service class Ser {
+    @Z
+    int j = 1;
+}
+
 int glob = 2;
 
-public function testStructureAnnots() returns [typedesc<record {}>, typedesc<object {}>] {
+public function testStructureAnnots() returns [typedesc<record {}>, typedesc<object {}>, typedesc<service object {}>] {
     glob = 123;
 
     Foo f = {s: "", i: 1};
     Bar b = new;
 
-    return [typeof f, typeof b];
+    var bar = new Ser();
+
+    return [typeof f, typeof b, typeof bar];
 }

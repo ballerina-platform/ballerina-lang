@@ -16,12 +16,15 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Qualifiable;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -48,6 +51,7 @@ import io.ballerina.compiler.syntax.tree.StreamTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.StreamTypeParamsNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
+import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import org.ballerinalang.docgen.Generator;
@@ -81,6 +85,8 @@ public class Type {
     @Expose
     public boolean isAnonymousUnionType;
     @Expose
+    public boolean isInclusion;
+    @Expose
     public boolean isArrayType;
     @Expose
     public boolean isNullable;
@@ -97,7 +103,7 @@ public class Type {
     @Expose
     public boolean isLambda;
     @Expose
-    public boolean isReadOnly;
+    public boolean isIsolated;
     @Expose
     public boolean isDeprecated;
     @Expose
@@ -114,7 +120,9 @@ public class Type {
     public Type returnType;
     @Expose
     public Type constraint;
+
     private static final Logger log = LoggerFactory.getLogger(BallerinaDocGenerator.class);
+    private static final String ballerinaShotVersion = BallerinaDocGenerator.getBallerinaShortVersion();
 
     private Type() {
     }
@@ -153,13 +161,16 @@ public class Type {
         } else if (node instanceof BuiltinSimpleNameReferenceNode) {
             BuiltinSimpleNameReferenceNode builtinSimpleNameReferenceNode = (BuiltinSimpleNameReferenceNode) node;
             type.name = builtinSimpleNameReferenceNode.name().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof XmlTypeDescriptorNode) {
             XmlTypeDescriptorNode xmlType = (XmlTypeDescriptorNode) node;
             type.name = xmlType.xmlKeywordToken().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof NilTypeDescriptorNode) {
             type.name = node.toString();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof ArrayTypeDescriptorNode) {
             ArrayTypeDescriptorNode arrayTypeDescriptorNode = (ArrayTypeDescriptorNode) node;
@@ -193,6 +204,7 @@ public class Type {
                     (StreamTypeParamsNode) streamNode.streamTypeParamsNode().get() : null;
             type.name = streamNode.streamKeywordToken().text();
             type.category = "stream";
+            type.version = ballerinaShotVersion;
             if (streamParams != null) {
                 type.memberTypes.add(fromNode(streamParams.leftTypeDescNode(), semanticModel));
                 if (streamParams.rightTypeDescNode().isPresent()) {
@@ -202,35 +214,42 @@ public class Type {
         } else if (node instanceof FunctionTypeDescriptorNode) {
             type.isLambda = true;
             FunctionTypeDescriptorNode functionDescNode = (FunctionTypeDescriptorNode) node;
-            FunctionSignatureNode functionSignature = functionDescNode.functionSignature();
-            List<DefaultableVariable> variables =
-                    Generator.getDefaultableVariableList(functionSignature.parameters(), Optional.empty(),
-                            semanticModel);
-            type.paramTypes.addAll(variables.stream().map((defaultableVariable) -> defaultableVariable.type)
-                    .collect(Collectors.toList()));
-            if (functionSignature.returnTypeDesc().isPresent()) {
-                ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
-                type.returnType = Type.fromNode(returnType.type(), semanticModel);
+            type.isIsolated = Generator.containsToken(functionDescNode.qualifierList(), SyntaxKind.ISOLATED_KEYWORD);
+            if (functionDescNode.functionSignature().isPresent()) {
+                FunctionSignatureNode functionSignature = functionDescNode.functionSignature().get();
+                List<DefaultableVariable> variables =
+                        Generator.getDefaultableVariableList(functionSignature.parameters(), Optional.empty(),
+                                semanticModel);
+                type.paramTypes.addAll(variables.stream().map((defaultableVariable) -> defaultableVariable.type)
+                        .collect(Collectors.toList()));
+                if (functionSignature.returnTypeDesc().isPresent()) {
+                    ReturnTypeDescriptorNode returnType = functionSignature.returnTypeDesc().get();
+                    type.returnType = Type.fromNode(returnType.type(), semanticModel);
+                }
             }
         } else if (node instanceof ParameterizedTypeDescriptorNode) {
             ParameterizedTypeDescriptorNode parameterizedNode = (ParameterizedTypeDescriptorNode) node;
             if (parameterizedNode.parameterizedType().kind().equals(SyntaxKind.MAP_KEYWORD)) {
                 type.name = "map";
                 type.category = "map";
+                type.version = ballerinaShotVersion;
                 type.constraint = fromNode(parameterizedNode.typeParameter().typeNode(), semanticModel);
             }
         } else if (node instanceof ErrorTypeDescriptorNode) {
             ErrorTypeDescriptorNode errorType = (ErrorTypeDescriptorNode) node;
             type.name = errorType.errorKeywordToken().text();
+            type.version = ballerinaShotVersion;
             type.category = "builtin";
         } else if (node instanceof ObjectTypeDescriptorNode) {
             ObjectTypeDescriptorNode objectType = (ObjectTypeDescriptorNode) node;
             type.name = objectType.toString();
-            type.category = "builtin";
+            type.category = "other";
+            type.generateUserDefinedTypeLink = false;
         } else if (node instanceof SingletonTypeDescriptorNode) {
             SingletonTypeDescriptorNode singletonTypeDesc = (SingletonTypeDescriptorNode) node;
             type.name = singletonTypeDesc.simpleContExprNode().toString();
-            type.category = "builtin";
+            type.category = "other";
+            type.generateUserDefinedTypeLink = false;
         } else if (node instanceof ParenthesisedTypeDescriptorNode) {
             ParenthesisedTypeDescriptorNode parenthesisedNode = (ParenthesisedTypeDescriptorNode) node;
             type.elementType = fromNode(parenthesisedNode.typedesc(), semanticModel);
@@ -240,19 +259,41 @@ public class Type {
             type.memberTypes.addAll(typeDescriptor.memberTypeDesc().stream().map(memberType ->
                     Type.fromNode(memberType, semanticModel)).collect(Collectors.toList()));
             type.isTuple = true;
+        } else if (node instanceof TypedescTypeDescriptorNode) {
+            TypedescTypeDescriptorNode typeDescriptor = (TypedescTypeDescriptorNode) node;
+            Type elemType = null;
+            if (typeDescriptor.typedescTypeParamsNode().isPresent()) {
+                elemType = Type.fromNode(typeDescriptor.typedescTypeParamsNode().get().typeNode(), semanticModel);
+            }
+            type.isTypeDesc = true;
+            type.version = ballerinaShotVersion;
+            type.elementType = elemType;
         } else {
+            type.name = node.toSourceCode();
+            type.generateUserDefinedTypeLink = false;
             type.category = "UNKNOWN";
         }
         return type;
     }
 
     public static void resolveSymbol(Type type, Symbol symbol) {
-        type.moduleName = symbol.moduleID().moduleName();
-        type.orgName = symbol.moduleID().orgName();
-        type.version = symbol.moduleID().version();
+        ModuleID moduleID = symbol.getModule().isPresent() ? symbol.getModule().get().id() : null;
+
+        if (moduleID != null) {
+            type.moduleName = moduleID.moduleName();
+            type.orgName = moduleID.orgName();
+            type.version = moduleID.version();
+        } else {
+            type.moduleName = "UNK_MOD";
+            type.orgName = "UNK_ORG";
+            type.version = "UNK_VER";
+        }
+
         if (symbol instanceof TypeReferenceTypeSymbol) {
             TypeReferenceTypeSymbol typeSymbol = (TypeReferenceTypeSymbol) symbol;
-            if (typeSymbol.typeDescriptor() != null) {
+            if (typeSymbol.definition().kind().equals(SymbolKind.ENUM)) {
+                type.category = "enums";
+            } else if (typeSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(typeSymbol.typeDescriptor());
             }
         } else if (symbol instanceof ConstantSymbol) {
@@ -262,6 +303,11 @@ public class Type {
             if (variableSymbol.typeDescriptor() != null) {
                 type.category = getTypeCategory(variableSymbol.typeDescriptor());
             }
+        } else if (symbol instanceof TypeDefinitionSymbol) {
+            TypeDefinitionSymbol typeDefSymbol = (TypeDefinitionSymbol) symbol;
+            if (typeDefSymbol.typeDescriptor() != null) {
+                type.category = getTypeCategory(typeDefSymbol.typeDescriptor());
+            }
         }
     }
 
@@ -270,25 +316,36 @@ public class Type {
             if (typeDescriptor.typeKind().equals(TypeDescKind.RECORD)) {
                 return "records";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.OBJECT)) {
-                return "abstractObjects";
+                return "objectTypes";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.ERROR)) {
                 return "errors";
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.UNION)) {
-                if (((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream().anyMatch(typeSymbol ->
-                        typeSymbol.typeKind().equals(TypeDescKind.ERROR))) {
+                if (((UnionTypeSymbol) typeDescriptor).memberTypeDescriptors().stream().allMatch(typeSymbol -> {
+                    if (typeSymbol.typeKind().equals((TypeDescKind.TYPE_REFERENCE))) {
+                        return getTypeCategory(typeSymbol).equals("errors");
+                    } else {
+                        return typeSymbol.typeKind().equals(TypeDescKind.ERROR);
+                    }
+                })) {
                     return "errors";
                 } else {
                     return "types";
                 }
             } else if (typeDescriptor.typeKind().equals(TypeDescKind.TYPE_REFERENCE)) {
                 return getTypeCategory(((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor());
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.DECIMAL) ||
+                    typeDescriptor.typeKind().isXMLType() ||
+                    typeDescriptor.typeKind().equals(TypeDescKind.FUNCTION)) {
+                return "types";
+            } else if (typeDescriptor.typeKind().equals(TypeDescKind.INTERSECTION)) {
+                return getIntersectionTypeCategory((IntersectionTypeSymbol) typeDescriptor);
             }
         } else if (typeDescriptor.kind().equals(SymbolKind.CLASS)) {
             Qualifiable classSymbol = (Qualifiable) typeDescriptor;
             if (classSymbol.qualifiers().contains(Qualifier.CLIENT)) {
                 return "clients";
             } else if (classSymbol.qualifiers().contains(Qualifier.LISTENER) ||
-                    typeDescriptor.name().equals("Listener")) {
+                    "Listener".equals(typeDescriptor.getName().orElse(null))) {
                 return "listeners";
             } else {
                 return "classes";
@@ -298,8 +355,19 @@ public class Type {
         return "not_found";
     }
 
+    public static String getIntersectionTypeCategory(IntersectionTypeSymbol intersectionTypeSymbol) {
+        for (TypeSymbol memberType : intersectionTypeSymbol.memberTypeDescriptors()) {
+            String category = getTypeCategory(memberType);
+            if (!category.equals("not_found")) {
+                return category;
+            }
+        }
+        return "types";
+    }
+
     public Type(String name) {
         this.name = name;
+        this.version = ballerinaShotVersion;
         this.category = "builtin";
     }
 

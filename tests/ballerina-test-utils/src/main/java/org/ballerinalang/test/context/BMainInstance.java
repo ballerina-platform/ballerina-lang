@@ -71,11 +71,11 @@ public class BMainInstance implements BMain {
     }
 
     private void configureAgentArgs() throws BallerinaTestException {
-        String jacocoArgLine = System.getProperty("jacoco.agent.argLine");
-        if (jacocoArgLine == null || jacocoArgLine.isEmpty()) {
-            log.warn("Running integration test without jacoco test coverage");
-            return;
-        }
+        // add jacoco agent
+        String jacocoArgLine = "-javaagent:" + Paths.get(balServer.getServerHome())
+                .resolve("bre").resolve("lib").resolve("jacocoagent.jar").toString() + "=destfile=" +
+                Paths.get(System.getProperty("user.dir"))
+                        .resolve("build").resolve("jacoco").resolve("test.exec");
         agentArgs = jacocoArgLine + " ";
     }
 
@@ -180,11 +180,9 @@ public class BMainInstance implements BMain {
         }
         addJavaAgents(envProperties);
 
-        runMain("build", new String[] { "--sourceroot", sourceRoot, packagePath },
-                envProperties, null, leechers, balServer.getServerHome());
-        runJar(sourceRoot, packagePath, ArrayUtils.addAll(flags, args), envProperties, clientArgs, leechers,
-               balServer.getServerHome());
-
+        runMain("build", new String[]{packagePath}, envProperties, null, leechers, sourceRoot);
+        runJar(Paths.get(sourceRoot, packagePath).toString(), packagePath, ArrayUtils.addAll(flags, args),
+                envProperties, clientArgs, leechers, sourceRoot);
     }
 
     private synchronized void addJavaAgents(Map<String, String> envProperties) throws BallerinaTestException {
@@ -214,7 +212,7 @@ public class BMainInstance implements BMain {
      * @throws BallerinaTestException if starting services failed
      */
     public void runMain(String command, String[] args, Map<String, String> envProperties, String[] clientArgs,
-                         LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
+                        LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
         String scriptName;
         if (BCompileUtil.jBallerinaTestsEnabled()) {
             scriptName = Constant.JBALLERINA_SERVER_SCRIPT_NAME;
@@ -509,7 +507,7 @@ public class BMainInstance implements BMain {
     private void runJar(String sourceRoot, String packageName, String[] args, Map<String, String> envProperties,
                         String[] clientArgs, LogLeecher[] leechers, String commandDir) throws BallerinaTestException {
         executeJarFile(Paths.get(sourceRoot, "target", "bin", packageName + ".jar").toFile().getPath(),
-                       args, envProperties, clientArgs, leechers, commandDir);
+                args, envProperties, clientArgs, leechers, commandDir);
     }
 
     /**
@@ -551,7 +549,7 @@ public class BMainInstance implements BMain {
                 runCmdSet.add(envProperties.get(JAVA_OPTS).trim());
             }
             String tempBalHome = new File("src" + File.separator + "test" + File.separator +
-                                                  "resources" + File.separator + "ballerina.home").getAbsolutePath();
+                    "resources" + File.separator + "ballerina.home").getAbsolutePath();
             runCmdSet.add("-Dballerina.home=" + tempBalHome);
             runCmdSet.addAll(Arrays.asList("-jar", jarPath));
             runCmdSet.addAll(Arrays.asList(args));

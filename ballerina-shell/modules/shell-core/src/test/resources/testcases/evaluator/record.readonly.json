@@ -57,7 +57,7 @@
   {
     "description": "Update readonly - panic.",
     "code": "anyEmployee.details = { id: 222288, country: \"Sri Lanka\" };",
-    "error": "InvokerException",
-    "stdout": "Exception occurred: error(\"{ballerina/lang.map}InherentTypeViolation\",message=\"cannot update 'readonly' field 'details' in record of type 'Employee'\")\n"
+    "stdout": "panic: {ballerina/lang.map}InherentTypeViolation {\"message\":\"cannot update 'readonly' field 'details' in record of type 'Employee'\"}\n",
+    "error": "InvokerPanicException"
   }
 ]

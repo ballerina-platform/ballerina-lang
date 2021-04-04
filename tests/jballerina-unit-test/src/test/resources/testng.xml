@@ -27,7 +27,6 @@
             <run>
                 <exclude name="brokenOnJBallerina"/>
                 <exclude name="brokenOnSpecDeviation"/>
-                <exclude name="brokenOnXMLLangLibChange"/>
                 <exclude name="brokenOnNewParser"/>
                 <exclude name="brokenOnErrorChange"/>
                 <exclude name="brokenOnClassChange"/>
@@ -40,6 +39,7 @@
             <package name="org.ballerinalang.test.imports.*"/>
 <!--            <package name="org.ballerinalang.test.parser.*"/>-->
             <package name="org.ballerinalang.test.closures.*"/>
+            <package name="org.ballerinalang.test.cli.*"/>
             <package name="org.ballerinalang.test.bir.*"/>
 
              <package name="org.ballerinalang.test.dataflow.analysis.*"/>
@@ -54,18 +54,21 @@
             <package name="org.ballerinalang.test.jvm.*"/>
             <package name="org.ballerinalang.test.types.integer"/>
             <package name="org.ballerinalang.test.types.floattype"/>
-            <package name="org.ballerinalang.test.main.function.*"/>
+<!--            <package name="org.ballerinalang.test.main.function.*"/>-->
+            <package name="org.ballerinalang.test.natives.*"/>
             <package name="org.ballerinalang.test.types.decimaltype.*"/>
             <package name="org.ballerinalang.test.types.any.*"/>
             <package name="org.ballerinalang.test.error.*"/>
             <package name="org.ballerinalang.test.enums.*"/>
             <package name="org.ballerinalang.test.types.finaltypes.*"/>
             <package name="org.ballerinalang.test.types.finite.*"/>
+            <package name="org.ballerinalang.test.types.future.*"/>
             <package name="org.ballerinalang.test.types.map.*"/>
             <package name="org.ballerinalang.test.types.string.*"/>
             <package name="org.ballerinalang.test.types.stream.*"/>
             <package name="org.ballerinalang.test.types.table.*"/>
             <package name="org.ballerinalang.test.types.errors.*"/>
+            <package name="org.ballerinalang.test.types.function.*"/>
             <package name="org.ballerinalang.test.types.var.*"/>
             <package name="org.ballerinalang.test.types.uniontypes.*"/>
             <package name="org.ballerinalang.test.types.typedesc.*"/>
@@ -98,8 +101,10 @@
             <package name="org.ballerinalang.test.types.service.*"/>
             <package name="org.ballerinalang.test.types.globalvar.*"/>
             <package name="org.ballerinalang.test.types.intersection.*"/>
+            <package name="org.ballerinalang.test.types.never.*"/>
             <package name="org.ballerinalang.test.expressions.builtinoperations.*"/>
             <package name="org.ballerinalang.test.expressions.let.*"/>
+            <package name="org.ballerinalang.test.expressions.trap.*"/>
             <package name="org.ballerinalang.test.expressions.checkpanicexpr.*"/>
             <package name="org.ballerinalang.test.expressions.builtinfunctions.*"/>
             <package name="org.ballerinalang.test.expressions.conversion.*"/>
@@ -128,7 +133,7 @@
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>
             <package name="org.ballerinalang.test.types.handle.*"/>
-            <package name="org.ballerinalang.test.balo.*"/>
+            <package name="org.ballerinalang.test.bala.*"/>
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
             <package name="org.ballerinalang.test.expressions.varref.*"/>
@@ -144,12 +149,13 @@
             <package name="org.ballerinalang.test.strand.*"/>
             <package name="org.ballerinalang.test.klass.*"/>
             <package name="org.ballerinalang.test.services.*"/>
+            <package name="org.ballerinalang.test.runtime.api.*"/>
         </packages>
 
         <classes>
             <class name="org.ballerinalang.test.parser.ResilientParserTest"/>
             <class name="org.ballerinalang.test.typedefs.DistinctTypeDefTest"/>
-            <class name="org.ballerinalang.test.balo.constant.SimpleConstantBaloNegativeTests"></class>
+            <class name="org.ballerinalang.test.bala.constant.SimpleConstantBalaNegativeTests"></class>
             <class name="org.ballerinalang.test.expressions.builtinoperations.BuiltinOperationsTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.StringFunctionInvocationExprTest"></class>
             <class name="org.ballerinalang.test.expressions.invocations.PackageInitInvocationTest"></class>
@@ -195,6 +201,8 @@
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStatementSyntaxErrorsTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.CaptureBindingPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.ListBindingPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.MappingBindingPatternTest"></class>
+            <class name="org.ballerinalang.test.statements.matchstmt.varbindingpatternmatchpattern.ErrorBindingPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtListMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtMappingMatchPatternTest"></class>
             <class name="org.ballerinalang.test.statements.matchstmt.MatchStmtTypeNarrowingTest"></class>
@@ -233,8 +241,10 @@
                     <exclude name="testAsyncNonNativeBasic11" />
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
-            <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.bala.record.OpenRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.bala.record.ClosedRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.main.function.MainFunctionsTest"></class>
+            <class name="org.ballerinalang.test.ParserTestRunner"/>
         </classes>
     </test>
 </suite>

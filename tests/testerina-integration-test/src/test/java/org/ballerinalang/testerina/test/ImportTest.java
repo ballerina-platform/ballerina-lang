@@ -42,8 +42,9 @@ public class ImportTest extends BaseTestCase {
 
     @Test()
     public void testImportTest() throws BallerinaTestException {
-        String errorOutput = balClient.runMainAndReadStdOut("test", new String[]{"predeclared-import-tests"},
+        String[] args = mergeCoverageArgs(new String[]{"predeclared-import-tests"});
+        String output = balClient.runMainAndReadStdOut("test", args,
                 new HashMap<>(), projectPath, true);
-        AssertionUtils.assertForTestFailures(errorOutput, "predeclared import test failure");
+        AssertionUtils.assertForTestFailures(output, "predeclared import test failure");
     }
 }

@@ -20,7 +20,6 @@ package io.ballerina.projects.internal.model;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.apache.commons.io.FileUtils;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
 
 import java.io.IOException;
@@ -37,7 +36,7 @@ public class Target {
     private Path outputPath = null;
     private Path cache;
     private Path jarCachePath;
-    private Path baloCachePath;
+    private Path balaCachePath;
     private Path birCachePath;
     private Path testsCachePath;
     private Path binPath;
@@ -49,7 +48,7 @@ public class Target {
 
         this.targetPath = sourceRoot.resolve(ProjectConstants.TARGET_DIR_NAME);
         this.cache = this.targetPath.resolve(ProjectConstants.CACHES_DIR_NAME);
-        this.baloCachePath = this.targetPath.resolve(ProjectConstants.TARGET_BALO_DIR_NAME);
+        this.balaCachePath = this.targetPath.resolve(ProjectConstants.TARGET_BALA_DIR_NAME);
         this.jarCachePath = this.cache.resolve(ProjectDirConstants.JAR_CACHE_DIR_NAME);
         this.birCachePath = this.cache.resolve(ProjectConstants.BIR_CACHE_DIR_NAME);
         this.testsCachePath = this.cache.resolve(ProjectConstants.TESTS_CACHE_DIR_NAME);
@@ -70,13 +69,13 @@ public class Target {
     }
 
     /**
-     * Returns the balo dir path.
+     * Returns the bala dir path.
      *
-     * @return path of the balo file
+     * @return path of the bala file
      */
-    public Path getBaloPath() throws IOException {
-        Files.createDirectories(baloCachePath);
-        return baloCachePath;
+    public Path getBalaPath() throws IOException {
+        Files.createDirectories(balaCachePath);
+        return balaCachePath;
     }
 
     /**
@@ -178,11 +177,11 @@ public class Target {
      */
     public void clean() throws IOException {
         // Remove from cache
-        FileUtils.deleteDirectory(this.cache.toFile());
-        // Remove any generated balo
-        FileUtils.deleteDirectory(this.baloCachePath.toFile());
-        FileUtils.deleteDirectory(this.binPath.toFile());
-        FileUtils.deleteDirectory(this.docPath.toFile());
-        FileUtils.deleteDirectory(this.reportPath.toFile());
+        ProjectUtils.deleteDirectory(this.cache);
+        // Remove any generated bala
+        ProjectUtils.deleteDirectory(this.balaCachePath);
+        ProjectUtils.deleteDirectory(this.binPath);
+        ProjectUtils.deleteDirectory(this.docPath);
+        ProjectUtils.deleteDirectory(this.reportPath);
     }
 }

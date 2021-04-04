@@ -68,6 +68,7 @@
             <package name="org.ballerinalang.test.types.typedesc.*"/>
             <package name="org.ballerinalang.test.types.tuples.*"/>
             <package name="org.ballerinalang.test.types.anydata.*"/>
+            <package name="org.ballerinalang.test.types.never.*"/>
             <package name="org.ballerinalang.test.statements.arrays.*"/>
             <package name="org.ballerinalang.test.statements.assign.*"/>
             <package name="org.ballerinalang.test.statements.block.*"/>
@@ -120,7 +121,7 @@
             <package name="org.ballerinalang.test.types.constant.*" />
             <package name="org.ballerinalang.test.types.bytetype.*"/>
             <package name="org.ballerinalang.test.types.handle.*"/>
-            <package name="org.ballerinalang.test.balo.*"/>
+            <package name="org.ballerinalang.test.bala.*"/>
             <package name="org.ballerinalang.test.expressions.typecast.*"/>
             <package name="org.ballerinalang.test.expressions.literals.*"/>
             <package name="org.ballerinalang.test.expressions.varref.*"/>
@@ -163,8 +164,8 @@
                     <exclude name="testAsyncNonNativeBasic11" />
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.balo.record.OpenRecordTypeReferenceTest" />
-            <class name="org.ballerinalang.test.balo.record.ClosedRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.bala.record.OpenRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.bala.record.ClosedRecordTypeReferenceTest" />
         </classes>
     </test>
 </suite>

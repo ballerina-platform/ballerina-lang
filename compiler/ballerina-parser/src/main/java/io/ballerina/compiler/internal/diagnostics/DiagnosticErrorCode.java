@@ -228,14 +228,15 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.missing.named.worker.declaration.in.fork.stmt"),
     ERROR_MISSING_KEY_EXPR_IN_MEMBER_ACCESS_EXPR("BCE0514", "error.missing.key.expr.in.member.access.expr"),
     ERROR_MISSING_ERROR_MESSAGE_BINDING_PATTERN("BCE0515", "error.missing.error.message.binding.pattern"),
-    ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED("BCE0516",
-            "error.configurable.variable.must.be.initialized"),
+    ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED_OR_REQUIRED("BCE0516",
+            "error.configurable.variable.must.be.initialized.or.required"),
     ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DEFINITION("BCE0517",
             "error.missing.resource.path.in.resource.accessor.definition"),
     ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE0518",
             "error.missing.resource.path.in.resource.accessor.declaration"),
     ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0519", "error.missing.positional.arg.in.error.constructor"),
     ERROR_MISSING_ARG_WITHIN_PARENTHESIS("BCE0520", "error.missing.arg.within.parenthesis"),
+    ERROR_MISSING_VARIABLE_NAME("BCE0521", "error.missing.variable.name"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -267,10 +268,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_INVALID_METADATA("BCE0621", "error.invalid.metadata"),
     ERROR_INVALID_QUALIFIER("BCE0622", "error.invalid.qualifier"),
     ERROR_ANNOTATIONS_ATTACHED_TO_STATEMENT("BCE0623", "error.annotations.attached.to.statement"),
-    ERROR_MORE_FIELD_MATCH_PATTERNS_AFTER_REST_FIELD("BCE0624", "error.more.field.match.patterns.after.rest.field"),
     ERROR_ACTION_AS_A_WAIT_EXPR("BCE0625", "error.action.as.a.wait.expr"),
     ERROR_INVALID_USAGE_OF_VAR("BCE0626", "error.invalid.usage.of.var"),
-    ERROR_MORE_MATCH_PATTERNS_AFTER_REST_MATCH_PATTERN("BCE0627", "error.more.match.patterns.after.rest.match.pattern"),
+    ERROR_MATCH_PATTERN_AFTER_REST_MATCH_PATTERN("BCE0627", "error.match.pattern.after.rest.match.pattern"),
     ERROR_MATCH_PATTERN_NOT_ALLOWED("BCE0628", "error.match.pattern.not.allowed"),
     ERROR_MATCH_STATEMENT_SHOULD_HAVE_ONE_OR_MORE_MATCH_CLAUSES("BCE0629",
             "error.match.statement.should.have.one.or.more.match.clauses"),
@@ -317,6 +317,12 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE664",
             "error.defaultable.parameter.cannot.be.included.record.parameter"),
     ERROR_INCOMPLETE_QUOTED_IDENTIFIER("BCE665", "error.incomplete.quoted.identifier"),
+    ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD("BCE666", "error.open.record.cannot.contain.rest.field"),
+    ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED("BCE667", "error.complex.variable.must.be.initialized"),
+    ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC("BCE668", "error.isolated.var.cannot.be.declared.as.public"),
+    ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC("BCE669", "error.variable.declared.with.var.cannot.be.public"),
+    ERROR_FIELD_BP_INSIDE_LIST_BP("BCE670", "error.field.binding.pattern.inside.list.binding.pattern"),
+    ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.invalid.expression.expected.a.call.expression")
     ;
 
     String diagnosticId;

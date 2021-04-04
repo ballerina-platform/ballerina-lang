@@ -18,6 +18,7 @@
 package io.ballerina.compiler.internal.parser;
 
 import io.ballerina.compiler.internal.diagnostics.DiagnosticErrorCode;
+import io.ballerina.compiler.internal.diagnostics.DiagnosticWarningCode;
 import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STNodeDiagnostic;
 import io.ballerina.compiler.internal.parser.tree.STNodeFactory;
@@ -81,6 +82,10 @@ public class SyntaxErrors {
         return createMissingTokenWithDiagnostics(expectedKind, getErrorCode(currentCtx));
     }
 
+    public static STToken createMissingDocTokenWithDiagnostics(SyntaxKind expectedKind) {
+        return createMissingTokenWithDiagnostics(expectedKind, getDocWarningCode(expectedKind));
+    }
+
     public static STToken createMissingTokenWithDiagnostics(SyntaxKind expectedKind,
                                                             DiagnosticCode diagnosticCode) {
         List<STNodeDiagnostic> diagnosticList = new ArrayList<>();
@@ -91,7 +96,6 @@ public class SyntaxErrors {
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
         switch (currentCtx) {
             case EXTERNAL_FUNC_BODY:
-            case BINDING_PATTERN_OR_EXPR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case FUNC_BODY_BLOCK:
@@ -104,8 +108,9 @@ public class SyntaxErrors {
             case IDENT_AFTER_OBJECT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case VAR_DECL_STMT_RHS:
-            case IMPORT_DECL_RHS:
+            case IMPORT_DECL_ORG_OR_MODULE_NAME_RHS:
             case IMPORT_SUB_VERSION:
+            case FUNC_DEF_OR_TYPE_DESC_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case SIMPLE_TYPE_DESCRIPTOR:
             case REQUIRED_PARAM:
@@ -165,6 +170,7 @@ public class SyntaxErrors {
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
+            case BINDING_PATTERN_OR_EXPR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -198,7 +204,7 @@ public class SyntaxErrors {
             case ENUM_MEMBER_RHS:
             case ENUM_MEMBER_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_TOKEN;
-            case MATCH_PATTERN_RHS:
+            case MATCH_PATTERN_LIST_MEMBER_RHS:
             case OPTIONAL_MATCH_GUARD:
                 return DiagnosticErrorCode.ERROR_MISSING_RIGHT_DOUBLE_ARROW_TOKEN;
             case XML_COMMENT_CONTENT:
@@ -238,6 +244,7 @@ public class SyntaxErrors {
             case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
                 return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
             case OPEN_BRACE:
+            case TRANSACTION_STMT_RHS_OR_TYPE_REF:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_BRACE_TOKEN;
             case OPEN_PARENTHESIS:
             case ARG_LIST_OPEN_PAREN:
@@ -250,7 +257,6 @@ public class SyntaxErrors {
             case FIELD_DESCRIPTOR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case ASTERISK:
-            case INFERRED_TYPE_DESC:
                 return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
             case CLOSED_RECORD_BODY_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_PIPE_TOKEN;
@@ -272,6 +278,8 @@ public class SyntaxErrors {
             case SLASH:
                 return DiagnosticErrorCode.ERROR_MISSING_SLASH_TOKEN;
             case COLON:
+            case VAR_REF_COLON:
+            case TYPE_REF_COLON:
                 return DiagnosticErrorCode.ERROR_MISSING_COLON_TOKEN;
             case AT:
                 return DiagnosticErrorCode.ERROR_MISSING_AT_TOKEN;
@@ -281,11 +289,13 @@ public class SyntaxErrors {
             case GT_TOKEN:
             case XML_START_OR_EMPTY_TAG_END:
             case XML_ATTRIBUTES:
+            case INFERRED_TYPEDESC_DEFAULT_END_GT:
                 return DiagnosticErrorCode.ERROR_MISSING_GT_TOKEN;
             case LT:
             case LT_TOKEN:
             case XML_START_OR_EMPTY_TAG:
             case XML_END_TAG:
+            case INFERRED_TYPEDESC_DEFAULT_START_LT:
                 return DiagnosticErrorCode.ERROR_MISSING_LT_TOKEN;
             case SYNC_SEND_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_SYNC_SEND_TOKEN;
@@ -338,8 +348,6 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_PUBLIC_KEYWORD;
             case PRIVATE_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_PRIVATE_KEYWORD;
-            case REMOTE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_REMOTE_KEYWORD;
             case ABSTRACT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_ABSTRACT_KEYWORD;
             case CLIENT_KEYWORD:
@@ -348,6 +356,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_IMPORT_KEYWORD;
             case FUNCTION_KEYWORD:
             case FUNCTION_IDENT:
+            case OPTIONAL_PEER_WORKER:
+            case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
                 return DiagnosticErrorCode.ERROR_MISSING_FUNCTION_KEYWORD;
             case CONST_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_CONST_KEYWORD;
@@ -369,7 +379,6 @@ public class SyntaxErrors {
             case RECORD_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_RECORD_KEYWORD;
             case OBJECT_KEYWORD:
-            case OBJECT_TYPE_QUALIFIER:
             case OBJECT_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_OBJECT_KEYWORD;
             case VERSION_KEYWORD:
@@ -379,8 +388,6 @@ public class SyntaxErrors {
             case ON_KEYWORD:
             case ANNOT_DECL_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_ON_KEYWORD;
-            case RESOURCE_KEYWORD:
-                return DiagnosticErrorCode.ERROR_MISSING_RESOURCE_KEYWORD;
             case FINAL_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_FINAL_KEYWORD;
             case SOURCE_KEYWORD:
@@ -445,10 +452,6 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_START_KEYWORD;
             case FLUSH_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_FLUSH_KEYWORD;
-            case DEFAULT_KEYWORD:
-            case OPTIONAL_PEER_WORKER:
-            case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
-                return DiagnosticErrorCode.ERROR_MISSING_DEFAULT_KEYWORD;
             case WAIT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_WAIT_KEYWORD;
             case DO_KEYWORD:
@@ -519,6 +522,33 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_DISTINCT_KEYWORD;
             default:
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
+        }
+    }
+
+    private static DiagnosticCode getDocWarningCode(SyntaxKind expectedKind) {
+        switch (expectedKind) {
+            case HASH_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_HASH_TOKEN;
+            case BACKTICK_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_SINGLE_BACKTICK_TOKEN;
+            case DOUBLE_BACKTICK_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_DOUBLE_BACKTICK_TOKEN;
+            case TRIPLE_BACKTICK_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_TRIPLE_BACKTICK_TOKEN;
+            case IDENTIFIER_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_IDENTIFIER_TOKEN;
+            case OPEN_PAREN_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_OPEN_PAREN_TOKEN;
+            case CLOSE_PAREN_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_CLOSE_PAREN_TOKEN;
+            case MINUS_TOKEN:
+                return DiagnosticWarningCode.WARNING_MISSING_HYPHEN_TOKEN;
+            case PARAMETER_NAME:
+                return DiagnosticWarningCode.WARNING_MISSING_PARAMETER_NAME;
+            case CODE_CONTENT:
+                return DiagnosticWarningCode.WARNING_MISSING_CODE_REFERENCE;
+            default:
+                return DiagnosticWarningCode.WARNING_SYNTAX_WARNING;
         }
     }
 

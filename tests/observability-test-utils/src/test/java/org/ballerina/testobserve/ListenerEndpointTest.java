@@ -20,6 +20,7 @@ package org.ballerina.testobserve;
 
 import org.ballerinalang.test.context.BServerInstance;
 import org.ballerinalang.test.context.BalServer;
+import org.ballerinalang.test.context.Utils;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -35,6 +36,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Collections;
+import java.util.logging.Logger;
 
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
@@ -43,14 +45,15 @@ import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
  */
 @Test(groups = "mock-listener-tests")
 public class ListenerEndpointTest {
-    private static final String OBESERVABILITY_TEST_UTILS_BALO = System.getProperty("observability.test.utils.balo");
+    private static final String OBESERVABILITY_TEST_UTILS_BALA = System.getProperty("observability.test.utils.bala");
     private static final String OBESERVABILITY_TEST_UTILS_JAR = System.getProperty("observability.test.utils.jar");
     private static final String BALLERINA_TOML_TEST_NATIVES_JAR_NAME = "observability-test-utils.jar";
 
     private static BalServer balServer;
     private static BServerInstance servicesServerInstance;
 
-    private static final String SERVICE_BASE_URL = "http://localhost:9091/testServiceOne";
+    private static final String SERVICE_BASE_URL = "http://localhost:29091/testServiceOne";
+    private static final Logger LOGGER = Logger.getLogger(ListenerEndpointTest.class.getName());
 
     @BeforeGroups(value = "mock-listener-tests", alwaysRun = true)
     private void setup() throws Exception {
@@ -66,7 +69,7 @@ public class ListenerEndpointTest {
         copyFile(testUtilsJar, Paths.get(serverHome, "bre", "lib", testUtilsJar.getFileName().toString()));
 
         // Copy caches
-        try (FileSystem fs = FileSystems.newFileSystem(Paths.get(OBESERVABILITY_TEST_UTILS_BALO),
+        try (FileSystem fs = FileSystems.newFileSystem(Paths.get(OBESERVABILITY_TEST_UTILS_BALA),
                 ListenerEndpointTest.class.getClassLoader())) {
             copyDir(fs.getPath("/"), Paths.get(serverHome, "repo"));
         }
@@ -75,11 +78,19 @@ public class ListenerEndpointTest {
         servicesServerInstance = new BServerInstance(balServer);
         String sourcesDir = new File("src" + File.separator + "test" + File.separator + "resources" + File.separator +
                 "listener_tests").getAbsolutePath();
-        servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], new int[]{9091});
+        int[] requiredPorts = {29091};
+        servicesServerInstance.startServer(sourcesDir, "listener_tests", null, new String[0], requiredPorts);
+        Utils.waitForPortsToOpen(requiredPorts, 1000 * 60, false, "localhost");
     }
 
     @AfterGroups(value = "mock-listener-tests", alwaysRun = true)
     private void cleanup() throws Exception {
+        Path ballerinaInternalLog = Paths.get(balServer.getServerHome(), "ballerina-internal.log");
+        if (Files.exists(ballerinaInternalLog)) {
+            LOGGER.severe("=== Ballerina Internal Log Start ===");
+            Files.lines(ballerinaInternalLog).forEach(LOGGER::severe);
+            LOGGER.severe("=== Ballerina Internal Log End ===");
+        }
         servicesServerInstance.removeAllLeechers();
         servicesServerInstance.shutdownServer();
         balServer.cleanup();

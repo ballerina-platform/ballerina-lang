@@ -125,4 +125,11 @@ public class LangLibIntTest {
                 {new BInteger(-1), new BValueArray(new long[]{-20, -4}), -20},
         };
     }
+
+    @Test
+    public void testChainedIntFunctions() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testChainedIntFunctions");
+        assertEquals(((BInteger) returns[0]).intValue(), 1);
+    }
+
 }

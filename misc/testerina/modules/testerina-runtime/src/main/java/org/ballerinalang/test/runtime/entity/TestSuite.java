@@ -17,10 +17,15 @@
  */
 package org.ballerinalang.test.runtime.entity;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
@@ -47,11 +52,12 @@ public class TestSuite {
 
     private Map<String, String> testUtilityFunctions = new HashMap<>();
     private List<String> beforeSuiteFunctionNames = new ArrayList<>();
-    private Map<String, AtomicBoolean> afterSuiteFunctionNames = new HashMap<>();
+    private Map<String, AtomicBoolean> afterSuiteFunctionNames = new TreeMap<>();
     private List<String> beforeEachFunctionNames = new ArrayList<>();
     private List<String> afterEachFunctionNames = new ArrayList<>();
     private List<Test> tests = new ArrayList<>();
-    private Map<String, TestGroup> groups = new HashMap<>();
+    private Map<String, TestGroup> groups = new TreeMap<>();
+    private List<String> testExecutionDependencies = new ArrayList<>();
 
     private boolean isReportRequired;
 
@@ -240,7 +246,7 @@ public class TestSuite {
      * Adds a provided @AfterGroups function to the test suite.
      *
      * @param afterGroupFunc name of the function
-     * @param groups groups to which the function belongs
+     * @param groups         groups to which the function belongs
      */
     public void addAfterGroupFunction(String afterGroupFunc, List<String> groups) {
         for (String groupName : groups) {
@@ -255,7 +261,7 @@ public class TestSuite {
      * Adds a provided @BeforeGroups function to the test suite.
      *
      * @param beforeGroupsFunc name of the function
-     * @param groups groups to which the function belongs
+     * @param groups           groups to which the function belongs
      */
     public void addBeforeGroupsFunction(String beforeGroupsFunc, List<String> groups) {
         for (String groupName : groups) {
@@ -282,5 +288,33 @@ public class TestSuite {
             testGroup.incrementTestCount();
             this.groups.put(groupName, testGroup);
         }
+    }
+
+    /**
+     * Sort all the lists in Test suite in alphabetical order.
+     */
+    public void sort() {
+        Collections.sort(beforeEachFunctionNames);
+        Collections.sort(afterEachFunctionNames);
+        Collections.sort(beforeSuiteFunctionNames);
+        Collections.sort(tests, new Comparator<Test>() {
+            @Override
+            public int compare(Test t1, Test t2) {
+                return t1.getTestName().compareTo(t2.getTestName());
+            }
+        });
+        for (TestGroup testGroup:groups.values()) {
+            testGroup.sort();
+        }
+    }
+
+    public void addTestExecutionDependencies(Collection<Path> dependencies) {
+        dependencies.forEach((path) -> {
+            this.testExecutionDependencies.add(path.toString());
+        });
+    }
+
+    public List<String> getTestExecutionDependencies() {
+        return this.testExecutionDependencies;
     }
 }

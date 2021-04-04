@@ -6,18 +6,17 @@
   {
     "description": "Field access.",
     "code": "j1.fname",
-    "expr": "Mary"
+    "expr": "\"Mary\""
   },
   {
     "description": "Chained field access.",
     "code": "j1.address.city",
-    "expr": "Colombo 03"
+    "expr": "\"Colombo 03\""
   },
   {
     "description": "Field access of non-existing field.",
     "code": "j1.age.year",
-    "error": "InvokerException",
-    "stdout": "Exception occurred: error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'age' not found in JSON mapping\")\n"
+    "expr": "error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'age' not found in JSON mapping\")"
   },
   {
     "description": "Optional field access.",

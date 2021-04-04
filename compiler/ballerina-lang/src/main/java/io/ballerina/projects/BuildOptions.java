@@ -59,6 +59,14 @@ public class BuildOptions {
         return this.compilationOptions.observabilityIncluded();
     }
 
+    public boolean listConflictedClasses() {
+        return this.compilationOptions.listConflictedClasses();
+    }
+
+    public String cloud() {
+        return this.compilationOptions.getCloud();
+    }
+
     CompilationOptions compilationOptions() {
         return compilationOptions;
     }

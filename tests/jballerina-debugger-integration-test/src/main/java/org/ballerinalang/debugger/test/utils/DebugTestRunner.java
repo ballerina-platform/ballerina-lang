@@ -40,6 +40,7 @@ import org.eclipse.lsp4j.debug.StackTraceResponse;
 import org.eclipse.lsp4j.debug.StepInArguments;
 import org.eclipse.lsp4j.debug.StepOutArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
+import org.eclipse.lsp4j.debug.ThreadsResponse;
 import org.eclipse.lsp4j.debug.Variable;
 import org.eclipse.lsp4j.debug.VariablesArguments;
 import org.eclipse.lsp4j.debug.VariablesResponse;
@@ -83,6 +84,7 @@ public class DebugTestRunner {
     private BMainInstance balClient = null;
     private Process debuggeeProcess;
     private DebugHitListener listener;
+    private DebugTerminationListener terminationListener;
     private AssertionMode assertionMode;
     private SoftAssert softAsserter;
 
@@ -351,6 +353,25 @@ public class DebugTestRunner {
     }
 
     /**
+     * Waits for debug termination within a given time.
+     *
+     * @param timeoutMillis timeout.
+     * @return boolean true if debug termination is found.
+     */
+    public boolean waitForDebugTermination(long timeoutMillis) {
+        terminationListener = new DebugTerminationListener(debugClientConnector);
+        Timer timer = new Timer(true);
+        timer.scheduleAtFixedRate(terminationListener, 0, 1000);
+        try {
+            Thread.sleep(timeoutMillis);
+        } catch (InterruptedException ignored) {
+        }
+        timer.cancel();
+
+        return terminationListener.isTerminationFound();
+    }
+
+    /**
      * Can be used to fetch variable values when a debug hit is occurred.
      *
      * @param args  debug stopped event arguments
@@ -416,21 +437,42 @@ public class DebugTestRunner {
     }
 
     /**
+     * Can be used to fetch threads when a debug hit is occurred.
+     *
+     * @return Thread array with threads information.
+     * @throws BallerinaTestException if an error occurs when fetching threads.
+     */
+    public org.eclipse.lsp4j.debug.Thread[] fetchThreads() throws BallerinaTestException {
+        if (!listener.getConnector().isConnected()) {
+            throw new BallerinaTestException("DAP Client connector is not connected");
+        }
+        org.eclipse.lsp4j.debug.Thread[] threads;
+        ThreadsResponse threadsResponse;
+
+        try {
+            threadsResponse = listener.getConnector().getRequestManager().threads();
+            threads = threadsResponse.getThreads();
+        } catch (Exception e) {
+            LOGGER.warn("Error occurred when fetching threads", e);
+            throw new BallerinaTestException("Error occurred when fetching threads", e);
+        }
+        return threads;
+    }
+
+    /**
      * Can be used to get child variables from parent variable.
      *
-     * @param childVariable child variable
+     * @param parentVariable parent variable
      * @return variable map with child variables information
      * @throws BallerinaTestException if an error occurs when fetching debug hit child variables
      */
-    public Map<String, Variable> fetchChildVariables(Variable childVariable) throws BallerinaTestException {
-        Map<String, Variable> variables = new HashMap<>();
-        VariablesArguments childVariableArgs = new VariablesArguments();
-        childVariableArgs.setVariablesReference(childVariable.getVariablesReference());
+    public Map<String, Variable> fetchChildVariables(Variable parentVariable) throws BallerinaTestException {
         try {
-            VariablesResponse childVariableResp = listener.getConnector().getRequestManager()
-                .variables(childVariableArgs);
-            Arrays.stream(childVariableResp.getVariables())
-                .forEach(variable -> variables.put(variable.getName(), variable));
+            Map<String, Variable> variables = new HashMap<>();
+            VariablesArguments childVarArgs = new VariablesArguments();
+            childVarArgs.setVariablesReference(parentVariable.getVariablesReference());
+            VariablesResponse response = listener.getConnector().getRequestManager().variables(childVarArgs);
+            Arrays.stream(response.getVariables()).forEach(variable -> variables.put(variable.getName(), variable));
             return variables;
         } catch (Exception e) {
             LOGGER.warn("Error occurred when fetching debug hit child variables", e);
