@@ -305,12 +305,15 @@ class Listener {
 
 isolated function isResourceIsolated(service object {}|typedesc val, string resourceMethodName,
      string resourcePath) returns boolean = @java:Method {
-                        'class: "org.ballerinalang.test.isolation.IsolationInferenceTest"
+                        'class: "org.ballerinalang.test.isolation.IsolationInferenceTest",
+                        paramTypes: ["java.lang.Object", "io.ballerina.runtime.api.values.BString",
+                                        "io.ballerina.runtime.api.values.BString"]
                     } external;
 
 isolated function isRemoteMethodIsolated(object {}|typedesc val, string methodName) returns boolean = @java:Method {
-                                                'class: "org.ballerinalang.test.isolation.IsolationInferenceTest"
-                                            } external;
+                                            'class: "org.ballerinalang.test.isolation.IsolationInferenceTest",
+                                             paramTypes: ["java.lang.Object", "io.ballerina.runtime.api.values.BString"]
+                                        } external;
 
 isolated function isMethodIsolated(object {}|typedesc val, string methodName) returns boolean = @java:Method {
                                             'class: "org.ballerinalang.test.isolation.IsolationInferenceTest",
