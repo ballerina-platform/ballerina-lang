@@ -683,6 +683,11 @@ public class Types {
             return false;
         }
 
+        if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source) &&
+                isNeverTypeOrStructureTypeWithARequiredNeverMember(target)) {
+            return true;
+        }
+
         if (sourceTag == TypeTags.NIL && (isNullable(target) || targetTag == TypeTags.JSON)) {
             return true;
         }
