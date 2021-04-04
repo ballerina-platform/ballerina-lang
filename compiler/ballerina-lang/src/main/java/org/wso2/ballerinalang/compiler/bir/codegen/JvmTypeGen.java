@@ -1932,13 +1932,15 @@ public class JvmTypeGen {
      * @param bType user defined type
      */
     private void loadUserDefinedType(MethodVisitor mv, BType bType) {
-        PackageID packageID = bType.tsymbol.pkgID;
+        BTypeSymbol typeSymbol = bType.tsymbol.isTypeParamResolved ? bType.tsymbol.typeParamTSymbol : bType.tsymbol;
+        BType typeToLoad = bType.tsymbol.isTypeParamResolved ? typeSymbol.type : bType;
+        PackageID packageID = typeSymbol.pkgID;
         String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
-        String fieldName = getTypeFieldName(toNameString(bType));
+        String fieldName = getTypeFieldName(toNameString(typeToLoad));
 
-        if (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX) && packageID != PackageID.DEFAULT) {
-            Integer hash = typeHashVisitor.visit(bType);
-            String shape = bType.toString();
+        if (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)) {
+            Integer hash = typeHashVisitor.visit(typeToLoad);
+            String shape = typeToLoad.toString();
             typeHashVisitor.reset();
 
             mv.visitTypeInsn(NEW, typeOwner);
