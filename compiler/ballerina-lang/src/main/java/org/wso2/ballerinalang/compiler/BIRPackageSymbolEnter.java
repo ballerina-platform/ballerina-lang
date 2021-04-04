@@ -1080,7 +1080,7 @@ public class BIRPackageSymbolEnter {
 
                         defineMarkDownDocAttachment(varSymbol, docBytes);
 
-                        BField structField = new BField(varSymbol.name, null, varSymbol);
+                        BField structField = new BField(varSymbol.name, varSymbol.pos, varSymbol);
                         recordType.fields.put(structField.name.value, structField);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
