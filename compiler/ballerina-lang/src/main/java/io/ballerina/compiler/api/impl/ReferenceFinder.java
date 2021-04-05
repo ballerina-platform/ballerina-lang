@@ -120,10 +120,11 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangFieldMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangListMatchPattern;
+import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangMappingMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangRestMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPatternMatchPattern;
-import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangWildCardMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
@@ -415,13 +416,6 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangMatch matchNode) {
-        find(matchNode.expr);
-        find(matchNode.patternClauses);
-        find(matchNode.onFailClause);
-    }
-
-    @Override
     public void visit(BLangMatchStatement matchStatementNode) {
         find(matchStatementNode.expr);
         find(matchStatementNode.matchClauses);
@@ -439,14 +433,8 @@ public class ReferenceFinder extends BaseVisitor {
     }
 
     @Override
-    public void visit(BLangWildCardMatchPattern wildCardMatchPattern) {
-        find(wildCardMatchPattern.matchExpr);
-    }
-
-    @Override
     public void visit(BLangVarBindingPatternMatchPattern varBindingPattern) {
         find(varBindingPattern.getBindingPattern());
-        find(varBindingPattern.matchExpr);
     }
 
     @Override
@@ -457,13 +445,7 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangListBindingPattern listBindingPattern) {
         find(listBindingPattern.bindingPatterns);
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
-        find(patternClauseNode.body);
-        find(patternClauseNode.variable);
-        find(patternClauseNode.matchExpr);
+        find(listBindingPattern.restBindingPattern);
     }
 
     @Override
@@ -556,9 +538,9 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangMatchClause matchClause) {
+        find(matchClause.matchPatterns);
         find(matchClause.matchGuard);
         find(matchClause.blockStmt);
-        find(matchClause.matchPatterns);
     }
 
     @Override
@@ -1082,7 +1064,6 @@ public class ReferenceFinder extends BaseVisitor {
     public void visit(BLangMatch.BLangMatchStaticBindingPatternClause bLangMatchStmtStaticBindingPatternClause) {
         find(bLangMatchStmtStaticBindingPatternClause.body);
         find(bLangMatchStmtStaticBindingPatternClause.literal);
-        find(bLangMatchStmtStaticBindingPatternClause.matchExpr);
     }
 
     @Override
@@ -1090,7 +1071,6 @@ public class ReferenceFinder extends BaseVisitor {
             BLangMatch.BLangMatchStructuredBindingPatternClause bLangMatchStmtStructuredBindingPatternClause) {
         find(bLangMatchStmtStructuredBindingPatternClause.body);
         find(bLangMatchStmtStructuredBindingPatternClause.bindingPatternVariable);
-        find(bLangMatchStmtStructuredBindingPatternClause.matchExpr);
         find(bLangMatchStmtStructuredBindingPatternClause.typeGuardExpr);
     }
 
@@ -1162,14 +1142,23 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangListMatchPattern listMatchPattern) {
-        find(listMatchPattern.matchExpr);
         find(listMatchPattern.matchPatterns);
         find(listMatchPattern.restMatchPattern);
     }
 
     @Override
+    public void visit(BLangMappingMatchPattern mappingMatchPattern) {
+        find(mappingMatchPattern.fieldMatchPatterns);
+        find(mappingMatchPattern.restMatchPattern);
+    }
+
+    @Override
+    public void visit(BLangFieldMatchPattern fieldMatchPattern) {
+        find(fieldMatchPattern.matchPattern);
+    }
+
+    @Override
     public void visit(BLangRestMatchPattern restMatchPattern) {
-        find(restMatchPattern.matchExpr);
         addIfSameSymbol(restMatchPattern.symbol, restMatchPattern.variableName.pos);
     }
 
