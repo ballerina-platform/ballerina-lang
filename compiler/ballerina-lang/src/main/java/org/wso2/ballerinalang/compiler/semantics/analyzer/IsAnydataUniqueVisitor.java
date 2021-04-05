@@ -105,10 +105,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             return isAnydata;
         }
         visited.add(type);
-
-        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
-
-        return isPureTypeUniqueVisitor.visit(type.eType);
+        return visit(type.eType);
     }
 
     @Override
@@ -147,9 +144,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             return isAnydata;
         }
         visited.add(type);
-
-        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
-        return isPureTypeUniqueVisitor.visit(type.constraint);
+        return visit(type.constraint);
     }
 
     @Override
@@ -197,14 +192,13 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
         if (type.isAnyData != null) {
             return type.isAnyData;
         }
-        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
         for (BType member : type.tupleTypes) {
-            if (!isPureTypeUniqueVisitor.visit(member)) {
+            if (!visit(member)) {
                 type.isAnyData = false;
                 return false;
             }
         }
-        type.isAnyData = (type.restType == null) || isPureTypeUniqueVisitor.visit(type.restType);
+        type.isAnyData = (type.restType == null) || visit(type.restType);
         return isAnydata;
     }
 
@@ -271,14 +265,13 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             return isAnydata;
         }
         visited.add(type);
-        IsPureTypeUniqueVisitor isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor(visited);
         for (BField field : type.fields.values()) {
-            if (!isPureTypeUniqueVisitor.visit(field.type)) {
+            if (!visit(field.type)) {
                 type.isAnyData = false;
                 return false;
             }
         }
-        type.isAnyData = type.sealed || isPureTypeUniqueVisitor.visit(type.restFieldType);
+        type.isAnyData = type.sealed || visit(type.restFieldType);
         return type.isAnyData;
     }
 
