@@ -162,7 +162,7 @@ public class TypedescriptorTest {
         FunctionTypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), TypeDescKind.FUNCTION);
 
-        List<ParameterSymbol> parameters = type.parameters();
+        List<ParameterSymbol> parameters = type.params().get();
         assertEquals(parameters.size(), 2);
         validateParam(parameters.get(0), "x", REQUIRED, INT);
 
@@ -639,7 +639,7 @@ public class TypedescriptorTest {
     @Test
     public void testFunctionTypedesc() {
         FunctionSymbol symbol = (FunctionSymbol) getSymbol(216, 13);
-        assertEquals(symbol.typeDescriptor().parameters().size(), 0);
+        assertTrue(symbol.typeDescriptor().params().isEmpty());
         assertTrue(symbol.typeDescriptor().restParam().isEmpty());
         assertTrue(symbol.typeDescriptor().returnTypeDescriptor().isEmpty());
         assertEquals(symbol.typeDescriptor().signature(), "function");

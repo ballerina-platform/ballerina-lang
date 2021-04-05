@@ -41,7 +41,7 @@ public class FunctionCallExpressionNodeContext extends BlockNodeContextProvider<
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, FunctionCallExpressionNode node)
             throws LSCompletionException {
-        if (this.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(ctx, ctx.getNodeAtCursor())) {
             QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) ctx.getNodeAtCursor();
             return this.getCompletionItemList(QNameReferenceUtil.getExpressionContextEntries(ctx, qNameRef), ctx);
         }

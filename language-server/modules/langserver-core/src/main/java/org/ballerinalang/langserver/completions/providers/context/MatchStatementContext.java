@@ -61,6 +61,6 @@ public abstract class MatchStatementContext<T extends Node> extends AbstractComp
 
     protected Predicate<Symbol> constantFilter() {
         // also, should include the enum members as well. Since currently both are same, this is fine
-        return symbol -> symbol.kind() == SymbolKind.CONSTANT;
+        return symbol -> symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER;
     }
 }

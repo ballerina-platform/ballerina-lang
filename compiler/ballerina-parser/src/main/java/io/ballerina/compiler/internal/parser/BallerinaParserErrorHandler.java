@@ -5060,7 +5060,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     protected SyntaxKind getExpectedTokenKind(ParserRuleContext ctx) {
         switch (ctx) {
             case EXTERNAL_FUNC_BODY:
-            case BINDING_PATTERN_OR_EXPR_RHS:
                 return SyntaxKind.EQUAL_TOKEN;
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case FUNC_BODY_BLOCK:
@@ -5125,6 +5124,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
+            case BINDING_PATTERN_OR_EXPR_RHS:
             case TYPE_DESCRIPTOR:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:

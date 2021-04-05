@@ -515,7 +515,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ARROW_EXPRESSION_NOT_SUPPORTED_ITERABLE_OPERATION("BCE3602", "arrow.expression.not.supported.iterable.operation"),
 
     INCOMPATIBLE_TYPE_CHECK("BCE3603", "incompatible.type.check"),
-    UNNECESSARY_CONDITION("BCE3604", "unnecessary.condition"),
 
     INVALID_USAGE_OF_CLONE("BCE3605", "clone.invocation.invalid"),
     CANNOT_ITERATE_A_CLOSED_RECORD_WITH_NO_FIELDS("BCE3606", "cannot.iterate.a.closed.record.with.no.fields"),

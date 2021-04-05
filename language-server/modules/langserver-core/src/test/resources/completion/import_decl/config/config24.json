@@ -1,132 +1,200 @@
 {
   "position": {
-    "line": 3,
-    "character": 25
+    "line": 0,
+    "character": 7
   },
-  "source": "import_decl/source/source14.bal",
+  "source": "import_decl/source/lsproject2/modules/module3/main.bal",
   "items": [
     {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRecord1",
+      "label": "ballerina/lang.object",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'object;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRecord2",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRecord2",
+      "label": "ballerina",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "B",
+      "insertText": "ballerina/",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap2",
+      "label": "ballerina/lang.boolean",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'boolean;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap3",
+      "label": "ballerina/lang.xml",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'xml;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "K",
-      "insertText": "TestObject1",
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.test;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ErrorOne",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "Q",
-      "insertText": "ErrorOne",
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.array;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ErrorTwo",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "Q",
-      "insertText": "ErrorTwo",
+      "label": "ballerina/lang.transaction",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'transaction;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "AnnotationType",
+      "label": "ballerina/jballerina.java",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/jballerina.java",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ResponseMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
-      },
-      "sortText": "I",
-      "insertText": "ResponseMessage",
+      "label": "ballerina/lang.string",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'string;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "RequestMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
-      },
-      "sortText": "I",
-      "insertText": "RequestMessage",
+      "label": "ballerina/lang.future",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'future;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestClass1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "TestClass1",
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.value;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "Listener",
+      "label": "ballerina/lang.float",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'float;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Client",
-      "kind": "Interface",
-      "detail": "Class",
-      "documentation": {
-        "left": "The HTTP client provides the capability for initiating contact with a remote HTTP service. The API it\nprovides includes functions for the standard HTTP methods, forwarding a received request and sending requests\nusing custom HTTP verbs."
-      },
-      "sortText": "K",
-      "insertText": "Client",
+      "label": "ballerina/lang.decimal",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'decimal;",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Response",
-      "kind": "Interface",
-      "detail": "Class",
-      "documentation": {
-        "left": "Represents a response.\n"
-      },
-      "sortText": "K",
-      "insertText": "Response",
+      "label": "ballerina/lang.table",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'table;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.stream",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'stream;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.error",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'error;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.typedesc",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'typedesc;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/module1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.map",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'map;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.query",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.query;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.int",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.'int;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.runtime",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "C",
+      "insertText": "ballerina/lang.runtime;",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'service",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "'service.",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'service.'client",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "A",
+      "insertText": "'service.'client",
       "insertTextFormat": "Snippet"
     }
   ]
