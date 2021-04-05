@@ -1,11 +1,11 @@
 package org.ballerinalang.datamapper.utils;
 
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 
 import java.io.Serializable;
 
-import static io.ballerina.compiler.api.symbols.TypeDescKind.*;
-
+/**
+ * Return default value for TypeDescKind.
+ */
 public class DefaultValueGenerator {
     public static Serializable generateDefaultValues(String type) {
         switch (type) {

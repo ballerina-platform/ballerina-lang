@@ -313,7 +313,8 @@ class AIDataMapperCodeActionUtil {
      */
     private static String getGeneratedRecordMapping(CodeActionContext context, String foundTypeLeft,
                                                     String foundTypeRight,
-                                                    Symbol lftTypeSymbol, Symbol rhsTypeSymbol, SyntaxTree syntaxTree, SemanticModel semanticModel)
+                                                    Symbol lftTypeSymbol, Symbol rhsTypeSymbol,
+                                                    SyntaxTree syntaxTree, SemanticModel semanticModel)
 
             throws IOException {
         JsonObject rightRecordJSON = new JsonObject();
@@ -637,8 +638,8 @@ class AIDataMapperCodeActionUtil {
 
                     for (Map.Entry<String, String> spreadField : spreadFieldResponseMap.entrySet()) {
                         String targetString = commonString + spreadField.getKey();
-                        String replaceString = "<" + spreadField.getValue() + "> " + foundTypeRight.toLowerCase() + "[\""
-                                + spreadField.getKey() + "\"]";
+                        String replaceString = "<" + spreadField.getValue() + "> " + foundTypeRight.toLowerCase() +
+                                "[\"" + spreadField.getKey() + "\"]";
                         mappingFromServer = mappingFromServer.replace(targetString, replaceString);
                     }
                 }
@@ -678,8 +679,10 @@ class AIDataMapperCodeActionUtil {
 
         //To generate the default values
         try {
-            Map<String, Object> responseMap = new Gson().fromJson(new JsonParser().parse(mappingFromServer).getAsJsonObject(), new TypeToken<HashMap<String, Object>>() {
-            }.getType());
+            Map<String, Object> responseMap = new Gson().fromJson(
+                    new JsonParser().parse(mappingFromServer).getAsJsonObject(),
+                    new TypeToken<HashMap<String, Object>>() {
+                    }.getType());
             getResponseKeys(responseMap, "");
             HashSet<String> unionKeys = new HashSet<>(responseFieldMap.keySet());
             unionKeys.addAll(leftFieldMap.keySet());
@@ -760,8 +763,8 @@ class AIDataMapperCodeActionUtil {
                             } else {
                                 insertString.append(keyValue).append(": ").append(defaultValue);
                             }
-                            mappingFromServer = mappingFromServer.substring(0, insertLocation) + insertString + ", " + mappingFromServer.substring(insertLocation);
-                            int i = 0;
+                            mappingFromServer = mappingFromServer.substring(0, insertLocation) + insertString +
+                                    ", " + mappingFromServer.substring(insertLocation);
                         } else {
                             int lastIndex = mappingFromServer.lastIndexOf("}");
                             if (defaultValue.isEmpty()) {

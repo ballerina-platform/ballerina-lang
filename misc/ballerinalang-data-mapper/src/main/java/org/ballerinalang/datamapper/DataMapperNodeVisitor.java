@@ -80,14 +80,15 @@ public class DataMapperNodeVisitor extends NodeVisitor {
                                 SyntaxKind fieldKind = field1.valueExpr().get().kind();
                                 this.restFields.put(fieldName, mapSyntaxKind(fieldKind));
                             }
-                        } else if (field.kind() == SyntaxKind.SPREAD_FIELD){
+                        } else if (field.kind() == SyntaxKind.SPREAD_FIELD) {
                             SpreadFieldNode field1 = (SpreadFieldNode) field;
                             Optional<Symbol> symbol = this.model.symbol(field1.valueExpr());
-                            if (symbol.isPresent()){
+                            if (symbol.isPresent()) {
                                 TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
                                 typeSymbol = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
-                                if(typeSymbol.typeKind() == TypeDescKind.RECORD){
-                                    Map<String, RecordFieldSymbol> fieldSymbolMap = ((RecordTypeSymbol) typeSymbol).fieldDescriptors();
+                                if (typeSymbol.typeKind() == TypeDescKind.RECORD) {
+                                    Map<String, RecordFieldSymbol> fieldSymbolMap =
+                                            ((RecordTypeSymbol) typeSymbol).fieldDescriptors();
                                     if (symbol.get().getName().isPresent()) {
                                         this.spreadFields.put(symbol.get().getName().get(), fieldSymbolMap);
                                     }
