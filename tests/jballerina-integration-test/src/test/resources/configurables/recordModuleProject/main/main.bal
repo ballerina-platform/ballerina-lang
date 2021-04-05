@@ -16,7 +16,7 @@
 
 import ballerina/test;
 import ballerina/jballerina.java;
-import main.employee;
+import main.empTable as emp;
 
 type Employee record {|
     readonly int empId;
@@ -27,23 +27,12 @@ type Employee record {|
 
 type EmployeeTable table<Employee> key(empId);
 
-configurable Employee & readonly employee = ?;
-
 configurable EmployeeTable & readonly empTable = ?;
 
 public function main() {
-    testRecordValue();
     testTableValues();
+    testImport();
     print("Tests passed");
-}
-
-function testRecordValue() {
-    test:assertEquals(employee.empId, 111);
-    test:assertEquals(employee.name, "Jane Doe");
-    test:assertEquals(employee.salary, 150000.00);
-    test:assertEquals(employee["isPermanent"], true);
-    float grossSalary = employee:calculateGrossSalary(employee.salary);
-    test:assertEquals(grossSalary, 135000.00);
 }
 
 function testTableValues() {
@@ -73,6 +62,12 @@ function testTableValues() {
     test:assertEquals(empTable.get(101), emp1);
     test:assertEquals(empTable.get(102), emp2);
     test:assertEquals(empTable.get(103), emp3);
+}
+
+function testImport() {
+    float gSalary = emp:calculateGrossSalary(100000.0);
+    test:assertEquals(gSalary, 90000.0);
+    
 }
 
 //Extern methods to verify no errors while testing
