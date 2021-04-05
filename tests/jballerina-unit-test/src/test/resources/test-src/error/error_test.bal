@@ -377,7 +377,16 @@ type ErrorDataWithErrorField record {
 function testErrorDataWithErrorField() {
     error newError = error("bam", message = "new error");
     ErrorDataWithErrorField ef = {'error: newError};
-    assertEquality(ef.toString(), "{\"error\":error(\"bam\",message=\"new error\")}");
+    assertEquality(ef.'error.message(), "bam");
+    assertEquality(ef.'error.detail()["message"], "new error");
+}
+
+function testErrorConstructorWithErrorField() {
+    error e = error("test message", 'error = error("error as a detail"), message = "new message");
+    ErrorDataWithErrorField ef = {'error: e};
+    assertEquality(ef.'error.message(), "test message");
+    error errorInCtor = <error>ef.'error.detail()["error"];
+    assertEquality(errorInCtor.message(), "error as a detail");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
@@ -394,5 +403,5 @@ function assertEquality(any|error actual, any|error expected) {
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+                message = "expected : '" + expectedValAsString + "', found : '" + actualValAsString + "'");
 }
