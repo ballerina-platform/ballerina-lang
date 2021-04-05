@@ -82,6 +82,16 @@ public class BindgenUnitTest {
         Assert.assertFalse(eSyntaxTree.hasDiagnostics());
     }
 
+    @Test(description = "Test the bindings generated for Java inner classes.")
+    public void innerClassMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
+        Path innerClassFilePath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "innerClass.bal");
+        String innerClass = Files.readString(resourceDirectory.resolve(innerClassFilePath));
+        SyntaxTree iSyntaxTree = getBindingsGenerator().generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("java.lang.Character$Subset"), getBindgenEnv()));
+        Assert.assertEquals(Formatter.format(iSyntaxTree.toSourceCode()), Formatter.format(innerClass));
+        Assert.assertFalse(iSyntaxTree.hasDiagnostics());
+    }
+
     @Test(description = "Test the bindings generated for a module level mapping.")
     public void moduleLevelMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         BindgenEnv moduleBindgenEnv = new BindgenEnv();

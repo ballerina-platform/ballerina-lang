@@ -93,7 +93,7 @@ public class JMethod extends BFunction {
         if (!returnTypeClass.equals(Void.TYPE)) {
             setReturnTypeAttributes(returnTypeClass);
         }
-        setExternalFunctionName(jClass.getName().replace(".", "_") + "_" + methodName);
+        setExternalFunctionName(jClass.getName().replace(".", "_").replace("$", "_") + "_" + methodName);
         // Set the attributes relevant to error returns.
         for (Class<?> exceptionType : m.getExceptionTypes()) {
             try {
