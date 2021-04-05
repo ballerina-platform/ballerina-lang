@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
-import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -52,6 +51,8 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
+import javax.net.ssl.HttpsURLConnection;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
@@ -363,8 +364,8 @@ public class PushUtils {
                                                   dep.toString() + ". reason: " + errorContent);
                 }
             } else if (statusCode == 500) {
-                throw createLauncherException("error: could not connect to remote repository to find module: " +
-                                              dep.toString() + ".");
+                throw createLauncherException("error: could not connect to remote repository to find module: "
+                                                      + dep.toString() + ".");
             }
             conn.disconnect();
             Authenticator.setDefault(null);
