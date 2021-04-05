@@ -370,25 +370,6 @@ function testErrorBindingPattern() {
     assertEquality(b, false);
 }
 
-type ErrorDataWithErrorField record {
-    error 'error;
-};
-
-function testErrorDataWithErrorField() {
-    error newError = error("bam", message = "new error");
-    ErrorDataWithErrorField ef = {'error: newError};
-    assertEquality(ef.'error.message(), "bam");
-    assertEquality(ef.'error.detail()["message"], "new error");
-}
-
-function testErrorConstructorWithErrorField() {
-    error e = error("test message", 'error = error("error as a detail"), message = "new message");
-    ErrorDataWithErrorField ef = {'error: e};
-    assertEquality(ef.'error.message(), "test message");
-    error errorInCtor = <error>ef.'error.detail()["error"];
-    assertEquality(errorInCtor.message(), "error as a detail");
-}
-
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {

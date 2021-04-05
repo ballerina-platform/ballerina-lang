@@ -411,16 +411,6 @@ public class ErrorTest {
         BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
     }
 
-    @Test
-    public void testErrorDataWithErrorField() {
-        BRunUtil.invoke(errorTestResult, "testErrorDataWithErrorField");
-    }
-
-    @Test
-    public void testErrorConstructorWithErrorField() {
-        BRunUtil.invoke(errorTestResult, "testErrorConstructorWithErrorField");
-    }
-
     @AfterClass
     public void cleanup() {
         errorTestResult = null;
