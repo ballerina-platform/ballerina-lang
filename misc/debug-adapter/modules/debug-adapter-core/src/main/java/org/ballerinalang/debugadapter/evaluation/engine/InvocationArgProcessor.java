@@ -49,10 +49,13 @@ public class InvocationArgProcessor {
         List<ParameterSymbol> params = new ArrayList<>();
         Map<String, ParameterSymbol> remainingParams = new HashMap<>();
 
-        for (ParameterSymbol parameterSymbol : definition.parameters()) {
-            params.add(parameterSymbol);
-            remainingParams.put(parameterSymbol.getName().get(), parameterSymbol);
+        if (definition.params().isPresent()) {
+            for (ParameterSymbol parameterSymbol : definition.params().get()) {
+                params.add(parameterSymbol);
+                remainingParams.put(parameterSymbol.getName().get(), parameterSymbol);
+            }
         }
+
         if (definition.restParam().isPresent()) {
             params.add(definition.restParam().get());
             remainingParams.put(definition.restParam().get().getName().get(), definition.restParam().get());

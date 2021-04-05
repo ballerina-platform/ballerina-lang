@@ -54,7 +54,7 @@ public class FunctionBodyBlockNodeContext extends BlockNodeContextProvider<Funct
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, FunctionBodyBlockNode node) {
         int cursor = context.getCursorPositionInTree();
-        return !node.openBraceToken().isMissing() && !node.closeBraceToken().isMissing()
+        return !node.openBraceToken().isMissing()
                 && node.closeBraceToken().textRange().startOffset() >= cursor
                 && node.openBraceToken().textRange().endOffset() <= cursor;
     }
