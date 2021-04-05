@@ -3,5 +3,5 @@ function foo() {
 }
 
 function poo() {
-    string[]| next = check channel.getNext();
+    string[]|next = check channel.getNext();
 }

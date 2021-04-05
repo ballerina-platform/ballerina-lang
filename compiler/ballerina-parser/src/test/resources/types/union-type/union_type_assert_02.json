@@ -280,13 +280,7 @@
                                   ]
                                 },
                                 {
-                                  "kind": "PIPE_TOKEN",
-                                  "trailingMinutiae": [
-                                    {
-                                      "kind": "WHITESPACE_MINUTIAE",
-                                      "value": " "
-                                    }
-                                  ]
+                                  "kind": "PIPE_TOKEN"
                                 },
                                 {
                                   "kind": "SIMPLE_NAME_REFERENCE",
