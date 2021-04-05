@@ -4016,6 +4016,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangMatchStatement matchStatement = (BLangMatchStatement) TreeBuilder.createMatchStatementNode();
         BLangExpression matchStmtExpr = createExpression(matchStatementNode.condition());
         matchStatement.setExpression(matchStmtExpr);
+        matchStatement.pos = getPosition(matchStatementNode);
 
         for (MatchClauseNode matchClauseNode : matchStatementNode.matchClauses()) {
             BLangMatchClause bLangMatchClause = (BLangMatchClause) TreeBuilder.createMatchClause();
@@ -4027,6 +4028,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 matchGuardAvailable = true;
                 BLangMatchGuard bLangMatchGuard = (BLangMatchGuard) TreeBuilder.createMatchGuard();
                 bLangMatchGuard.expr = createExpression(matchClauseNode.matchGuard().get().expression());
+                bLangMatchGuard.pos = getPosition(matchClauseNode.matchGuard().get());
                 bLangMatchClause.setMatchGuard(bLangMatchGuard);
             }
 
