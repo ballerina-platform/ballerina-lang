@@ -80,10 +80,10 @@ public class DependencyGraph<T> {
 
     public Collection<T> getDirectDependents(T node) {
         Set<T> deps = new HashSet<>();
-        for (T depNode : dependencies.keySet()) {
+        for (Map.Entry<T, Set<T>> depNode : dependencies.entrySet()) {
             if (!depNode.equals(node)) {
-                if (dependencies.get(depNode).contains(node)) {
-                    deps.add(depNode);
+                if (dependencies.get(depNode.getKey()).contains(node)) {
+                    deps.add(depNode.getKey());
                 }
             }
         }

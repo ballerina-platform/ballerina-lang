@@ -87,7 +87,8 @@ public class ReferencesUtil {
             if (references.isEmpty()) {
                 return;
             }
-            moduleLocationMap.put(project.get().currentPackage().module(moduleId), references);
+            Module module = project.get().currentPackage().module(moduleId);
+            moduleLocationMap.put(module, references);
         });
 
         return moduleLocationMap;

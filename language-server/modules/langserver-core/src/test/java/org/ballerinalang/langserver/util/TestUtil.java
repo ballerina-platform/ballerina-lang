@@ -20,6 +20,7 @@ package org.ballerinalang.langserver.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -557,7 +558,8 @@ public class TestUtil {
         if (project.isEmpty()) {
             return diagnostics;
         }
-        diagnostics.addAll(project.get().currentPackage().getCompilation().diagnosticResult().diagnostics());
+        DiagnosticResult diagnosticResult = project.get().currentPackage().getCompilation().diagnosticResult();
+        diagnostics.addAll(diagnosticResult.diagnostics());
         return diagnostics;
     }
 }
