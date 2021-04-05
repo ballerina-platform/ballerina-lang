@@ -1233,7 +1233,7 @@ public class TypeChecker extends BLangNodeVisitor {
             int index = 0;
             for (IdentifierNode identifier : fieldNameIdentifierList) {
                 BField field = types.getTableConstraintField(constraintType, ((BLangIdentifier) identifier).value);
-                if (!types.isAssignable(field.type, memberTypes.get(index))) {
+                if (field == null || !types.isAssignable(field.type, memberTypes.get(index))) {
                     dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
                             DiagnosticErrorCode.KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT,
                             fieldNameIdentifierList.toString(), memberTypes.toString());
