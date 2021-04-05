@@ -18,8 +18,11 @@
 package org.ballerina.testobserve.tracing.extension;
 
 import io.ballerina.runtime.observability.tracer.spi.TracerProvider;
-import io.opentracing.Tracer;
-import io.opentracing.mock.MockTracer;
+import io.opentelemetry.api.trace.Tracer;
+import io.opentelemetry.context.propagation.ContextPropagators;
+import io.opentelemetry.sdk.testing.exporter.InMemorySpanExporter;
+import io.opentelemetry.sdk.trace.SdkTracerProvider;
+import io.opentelemetry.sdk.trace.export.SimpleSpanProcessor;
 
 import java.io.PrintStream;
 import java.util.Collections;
@@ -31,7 +34,7 @@ import java.util.concurrent.ConcurrentHashMap;
  */
 public class BMockTracerProvider implements TracerProvider {
     private static final PrintStream out = System.out;
-    private static final Map<String, MockTracer> tracerMap = new ConcurrentHashMap<>();
+    private static final Map<String, InMemorySpanExporter> exporterMap = new ConcurrentHashMap<>();
 
     @Override
     public String getName() {
@@ -42,15 +45,23 @@ public class BMockTracerProvider implements TracerProvider {
     public void init() {    // Do Nothing
     }
 
-    public static Map<String, MockTracer> getTracerMap() {
-        return Collections.unmodifiableMap(tracerMap);
+    public static Map<String, InMemorySpanExporter> getExporterMap() {
+        return Collections.unmodifiableMap(exporterMap);
     }
 
     @Override
     public Tracer getTracer(String serviceName) {
-        MockTracer mockTracer = new MockTracer();
-        tracerMap.put(serviceName, mockTracer);
+        InMemorySpanExporter inMemorySpanExporter = InMemorySpanExporter.create();
+        exporterMap.put(serviceName, inMemorySpanExporter);
         out.println("Initialized Mock Tracer for " + serviceName);
-        return mockTracer;
+        SdkTracerProvider tracerProvider = SdkTracerProvider.builder()
+                .addSpanProcessor(SimpleSpanProcessor.create(inMemorySpanExporter))
+                .build();
+        return tracerProvider.get(serviceName);
+    }
+
+    @Override
+    public ContextPropagators getPropagators() {
+        return ContextPropagators.noop();
     }
 }

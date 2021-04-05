@@ -32,8 +32,7 @@ public function main() {
         const
 n1 = 5;
      int      a    =    factorialR  (  n1  )    ;
-printValue
-(n1 , a);
+printValue (n1, a) ;
 const int n2 = 25        ;
     int      b     =       factorialL   (   n2   )   ;
          printValue     (   n2   ,     b   )   ;

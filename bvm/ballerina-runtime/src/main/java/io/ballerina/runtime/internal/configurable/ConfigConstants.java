@@ -25,14 +25,11 @@ package io.ballerina.runtime.internal.configurable;
  */
 public class ConfigConstants {
 
-    public static final String CONFIG_FILE_NAME = "Config.toml";
-
-    public static final String CONFIG_ENV_VARIABLE = "BALCONFIGFILE";
-
-    public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
-
     public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
             "supported";
+
+    public static final String INCOMPATIBLE_TYPE_ERROR_MESSAGE = "configurable variable '%s' is expected to be " +
+            "of type '%s', but found '%s'";
 
     private ConfigConstants() {
     }

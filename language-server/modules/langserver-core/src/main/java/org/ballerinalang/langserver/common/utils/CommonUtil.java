@@ -20,9 +20,12 @@ import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TupleTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
@@ -40,8 +43,6 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -69,8 +70,6 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
-import org.wso2.ballerinalang.compiler.semantics.model.Scope;
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
@@ -89,7 +88,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -194,7 +192,7 @@ public class CommonUtil {
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
                 + pkgName + SEMI_COLON_SYMBOL_KEY
                 + CommonUtil.LINE_SEPARATOR;
-        
+
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
     }
 
@@ -210,7 +208,8 @@ public class CommonUtil {
             return "()";
         }
 
-        TypeDescKind typeKind = getRawType(bType).typeKind();
+        TypeSymbol rawType = getRawType(bType);
+        TypeDescKind typeKind = rawType.typeKind();
         switch (typeKind) {
             case FLOAT:
                 typeString = Float.toString(0);
@@ -239,7 +238,21 @@ public class CommonUtil {
                 typeString = "{}";
                 break;
             case OBJECT:
-                typeString = "new()";
+                ObjectTypeSymbol objectTypeSymbol = (ObjectTypeSymbol) rawType;
+                if (objectTypeSymbol.kind() == SymbolKind.CLASS) {
+                    ClassSymbol classSymbol = (ClassSymbol) objectTypeSymbol;
+                    if (classSymbol.initMethod().isPresent()) {
+                        List<ParameterSymbol> params = classSymbol.initMethod().get().typeDescriptor().params().get();
+                        String text = params.stream()
+                                .map(param -> getDefaultValueForType(param.typeDescriptor()))
+                                .collect(Collectors.joining(", "));
+                        typeString = "new (" + text + ")";
+                    } else {
+                        typeString = "new ()";
+                    }
+                } else {
+                    typeString = "object {}";
+                }
                 break;
             // Fixme
 //            case FINITE:
@@ -469,7 +482,7 @@ public class CommonUtil {
     /**
      * Get the completion item insert text for a BField.
      *
-     * @param bField BField to evaluate
+     * @param bField  BField to evaluate
      * @param parents Parent record field symbols
      * @return {@link String} Insert text
      */
@@ -629,7 +642,7 @@ public class CommonUtil {
     public static boolean isLangLib(ModuleID moduleID) {
         return isLangLib(moduleID.orgName(), moduleID.moduleName());
     }
-    
+
     public static boolean isLangLib(String orgName, String moduleName) {
         return orgName.equals("ballerina") && moduleName.startsWith("lang.");
     }
@@ -739,7 +752,7 @@ public class CommonUtil {
         if (!moduleID.equals(currentModuleId)) {
             boolean preDeclaredLangLib = moduleID.orgName().equals(BALLERINA_ORG_NAME) &&
                     PRE_DECLARED_LANG_LIBS.contains(moduleID.moduleName());
-            String moduleName = escapeModuleName(context, moduleID.orgName() + "/" + moduleID.moduleName());
+            String moduleName = escapeModuleName(moduleID.orgName() + "/" + moduleID.moduleName());
             String[] moduleParts = moduleName.split("/");
             String orgName = moduleParts[0];
             String alias = moduleParts[1];
@@ -759,7 +772,7 @@ public class CommonUtil {
                     pkgPrefix = importDeclarationNode.prefix().get().prefix().text() + ":";
                 }
             }
-            
+
             if (importsAcceptor != null && !preDeclaredLangLib) {
                 importsAcceptor.getAcceptor().accept(orgName, alias);
             }
@@ -767,36 +780,28 @@ public class CommonUtil {
         return pkgPrefix;
     }
 
-    public static String escapeModuleName(DocumentServiceContext context, String fullPackageNameAlias) {
-        Set<String> names = new HashSet<>();
-        Predicate<Scope.ScopeEntry> nonPkgNames = scopeEntry -> !(scopeEntry.symbol instanceof BPackageSymbol);
-        try {
-            // TODO: Fix this, need an API to fetch all reserved keywords
-//            names = CommonUtil.getAllNameEntries(context.get(DocumentServiceKeys.COMPILER_CONTEXT_KEY), nonPkgNames);
-        } catch (Exception e) {
-            // ignore
-        }
-
-        String[] moduleNameParts = fullPackageNameAlias.split("/");
-        String moduleName = moduleNameParts[0];
+    public static String escapeModuleName(String qualifiedModuleName) {
+        String[] moduleNameParts = qualifiedModuleName.split("/");
         if (moduleNameParts.length > 1) {
+            String orgName = moduleNameParts[0];
             String alias = moduleNameParts[1];
             String[] aliasParts = moduleNameParts[1].split("\\.");
+            boolean preDeclaredLangLib = BALLERINA_ORG_NAME.equals(orgName) && PRE_DECLARED_LANG_LIBS.contains(alias);
             if (aliasParts.length > 1) {
-                String aliasPart1 = aliasParts[0];
-                String aliasPart2 = aliasParts[1];
-                if (names.contains(aliasPart2)) {
-                    aliasPart2 = "'" + aliasPart2;
+                String aliasLastPart = aliasParts[aliasParts.length - 1];
+                if (CommonUtil.BALLERINA_KEYWORDS.contains(aliasLastPart) && !preDeclaredLangLib) {
+                    aliasLastPart = "'" + aliasLastPart;
                 }
-                alias = aliasPart1 + "." + aliasPart2;
+                String aliasPart = Arrays.stream(aliasParts, 0, aliasParts.length - 1).collect(Collectors.joining());
+                alias = aliasPart + "." + aliasLastPart;
             } else {
-                if (names.contains(alias)) {
+                if (CommonUtil.BALLERINA_KEYWORDS.contains(alias) && !preDeclaredLangLib) {
                     alias = "'" + alias;
                 }
             }
-            moduleName = moduleName + "/" + alias;
+            return orgName + "/" + alias;
         }
-        return moduleName;
+        return qualifiedModuleName;
     }
 
     /**
@@ -986,7 +991,7 @@ public class CommonUtil {
         return "ballerina".equals(pkg.packageOrg().value())
                 && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkg.packageName().value());
     }
-    
+
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
         Pattern pattern = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
         String typeSignature = typeSymbol.signature();
@@ -999,55 +1004,10 @@ public class CommonUtil {
             String replaceText = modulePrefix.isEmpty() ? matchedString + Names.VERSION_SEPARATOR : matchedString;
             typeSignature = typeSignature.replace(replaceText, modulePrefix);
         }
-        
+
         return typeSignature;
     }
 
-    /**
-     * Get the file uri of the symbol within the current project.
-     * This API assumes the symbol is in the same project
-     * 
-     * @param context document service context
-     * @param symbol to be located
-     * @return {@link Optional} URI is empty if the symbol is not located within the current project
-     */
-    public static Optional<String> getSymbolUriInProject(DocumentServiceContext context, Symbol symbol) {
-        Path projectRoot = context.workspace().projectRoot(context.filePath());
-        Optional<Project> project = context.workspace().project(context.filePath());
-        Optional<Location> symbolLocation = symbol.getLocation();
-        ModuleID moduleID = symbol.getModule().get().id();
-        
-        if (project.isEmpty() || symbolLocation.isEmpty() || symbol.getModule().isEmpty()) {
-            return Optional.empty();
-        }
-        
-        String uri;
-        String packageName = project.get().currentPackage().packageName().value();
-        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT && moduleID.moduleName().equals(".")) {
-            // Project is a single file project and also the symbol resides in a single file project
-            uri = projectRoot.toUri().toString();
-        } else if (!project.get().currentPackage().packageOrg().value().equals(moduleID.orgName())) {
-            // in orgname mismatch, we return empty
-            return Optional.empty();
-        } else if (packageName.equals(moduleID.moduleName())) {
-            // Symbol is within the default module
-            uri = projectRoot.resolve(symbolLocation.get().lineRange().filePath()).toUri().toString();
-        } else {
-            /*
-            The hierarchical module names have the following format. Hence replace the package name part
-            packageName.component1.component2 => module name is component1.component2
-             */
-            String moduleName = moduleID.moduleName().replace(packageName + ".", "");
-            String fileName = symbolLocation.get().lineRange().filePath();
-            uri = projectRoot.resolve(ProjectConstants.MODULES_ROOT)
-                    .resolve(moduleName)
-                    .resolve(fileName)
-                    .toUri().toString();
-        }
-        
-        return Optional.ofNullable(uri);
-    }
-    
     public static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {
         Project project = context.workspace().project(context.filePath()).orElseThrow();
         String currentProjectOrg = project.currentPackage().packageOrg().value();
@@ -1055,7 +1015,7 @@ public class CommonUtil {
         Optional<Module> currentModule = context.currentModule();
         String evalOrgName = isCurrentOrg ? "" : orgName;
         Optional<ImportDeclarationNode> matchedImport = matchingImportedModule(context, evalOrgName, modName);
-        
+
         if (currentModule.isPresent() && modName.equals(getQualifiedModuleName(currentModule.get()))) {
             // If the module name is same as the current module, then return empty
             return "";

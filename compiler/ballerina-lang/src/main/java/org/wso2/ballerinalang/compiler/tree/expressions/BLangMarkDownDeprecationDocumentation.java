@@ -54,6 +54,11 @@ public class BLangMarkDownDeprecationDocumentation extends BLangExpression
     }
 
     @Override
+    public String getDocumentation() {
+        return String.join("\n", this.deprecationDocumentationLines).replaceAll("\r", "");
+    }
+
+    @Override
     public void accept(BLangNodeVisitor visitor) {
         visitor.visit(this);
     }

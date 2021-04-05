@@ -30,11 +30,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "from ",
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "P",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -44,6 +44,52 @@
       "sortText": "O",
       "insertText": "models",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
     },
     {
       "label": "ballerina/jballerina.java",
@@ -92,29 +138,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/module1",
       "kind": "Module",
       "detail": "Module",
@@ -134,29 +157,6 @@
             }
           },
           "newText": "import ballerina/module1;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -184,11 +184,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.array",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "array",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -202,7 +202,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.array;\n"
+          "newText": "import ballerina/lang.runtime;\n"
         }
       ]
     },
@@ -479,11 +479,61 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "num",
       "kind": "Variable",
       "detail": "int",
       "sortText": "C",
       "insertText": "num",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getAge()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "A",
+      "insertText": "getAge()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getPerson()(models:Person)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `models:Person`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "getPerson()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "stringFunction()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "stringFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -505,31 +555,14 @@
       }
     },
     {
-      "label": "stringFunction()(string)",
-      "kind": "Function",
-      "detail": "Function",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
       "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
-        }
+        "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "D",
-      "insertText": "stringFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getOddNumber()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "A",
-      "insertText": "getOddNumber()",
+      "sortText": "M",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -547,21 +580,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getPerson()(models:Person)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _test/lsproject:0.1.0_  \n  \n  \n  \n  \n**Returns** `models:Person`   \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "getPerson()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "getAge()(int)",
+      "label": "getOddNumber()(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -571,7 +590,63 @@
         }
       },
       "sortText": "A",
-      "insertText": "getAge()",
+      "insertText": "getOddNumber()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "readonly",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "handle",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "never",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "byte",
       "insertTextFormat": "Snippet"
     }
   ]

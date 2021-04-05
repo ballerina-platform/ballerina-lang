@@ -25,9 +25,13 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.util.Flags;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -35,6 +39,7 @@ import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
+import static io.ballerina.compiler.api.symbols.ParameterKind.INCLUDED_RECORD;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
 import static java.util.stream.Collectors.toList;
@@ -47,9 +52,11 @@ import static java.util.stream.Collectors.toList;
 public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements FunctionTypeSymbol {
 
     private List<ParameterSymbol> requiredParams;
+    private List<ParameterSymbol> params;
     private ParameterSymbol restParam;
     private TypeSymbol returnType;
     private final BInvokableTypeSymbol typeSymbol;
+    private String signature;
 
     public BallerinaFunctionTypeSymbol(CompilerContext context, ModuleID moduleID,
                                        BInvokableTypeSymbol invokableSymbol, BType type) {
@@ -60,8 +67,13 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     @Override
     public List<ParameterSymbol> parameters() {
         if (this.requiredParams == null) {
-            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+            // Becomes null for the function typedesc.
+            if (this.typeSymbol.params == null) {
+                this.requiredParams = Collections.emptyList();
+                return this.requiredParams;
+            }
 
+            SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
             this.requiredParams = this.typeSymbol.params.stream()
                     .filter(symbol -> symbol.kind != SymbolKind.PATH_PARAMETER
                             && symbol.kind != SymbolKind.PATH_REST_PARAMETER)
@@ -73,6 +85,38 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
         }
 
         return this.requiredParams;
+    }
+
+    @Override
+    public Optional<List<ParameterSymbol>> params() {
+        if (this.params != null) {
+            return Optional.of(this.params);
+        }
+
+        if (Symbols.isFlagOn(this.typeSymbol.flags, Flags.ANY_FUNCTION)) {
+            return Optional.empty();
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        List<ParameterSymbol> params = new ArrayList<>();
+
+        for (BVarSymbol param : this.typeSymbol.params) {
+            ParameterKind paramKind;
+
+            if (Symbols.isFlagOn(param.flags, Flags.REQUIRED_PARAM)) {
+                paramKind = REQUIRED;
+            } else if (Symbols.isFlagOn(param.flags, Flags.DEFAULTABLE_PARAM)) {
+                paramKind = DEFAULTABLE;
+            } else if (Symbols.isFlagOn(param.flags, Flags.INCLUDED)) {
+                paramKind = INCLUDED_RECORD;
+            } else {
+                continue;
+            }
+
+            params.add(symbolFactory.createBallerinaParameter(param, paramKind));
+        }
+        this.params = Collections.unmodifiableList(params);
+        return Optional.of(this.params);
     }
 
     @Override
@@ -97,9 +141,18 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
 
     @Override
     public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
+        if (Symbols.isFlagOn(getBType().flags, Flags.ANY_FUNCTION)) {
+            this.signature = "function";
+            return this.signature;
+        }
+
         StringBuilder signature = new StringBuilder("function (");
         StringJoiner joiner = new StringJoiner(", ");
-        for (ParameterSymbol requiredParam : this.parameters()) {
+        for (ParameterSymbol requiredParam : this.params().get()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);
         }

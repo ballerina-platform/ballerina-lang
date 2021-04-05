@@ -51,7 +51,8 @@ public class ImportsManager {
     // Regex patterns
     private static final Pattern CLONEABLE_SIGNATURE_PATTERN =
             Pattern.compile("readonly\\|xml<[^>]*>\\|\\(Cloneable\\)\\[]\\|map<Cloneable>\\|table<map<Cloneable>>");
-    private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN = Pattern.compile("([\\w]+)/([\\w.]+):([\\d.]+):");
+    private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN =
+            Pattern.compile("([\\w]+)/([\\w.]+):([^:]+):([\\w]+)[|]?");
     // Special imports
     private static final String CLONEABLE_TYPE_DEF = "ballerina/lang.value:0:Cloneable";
     private static final String JAVA_IMPORT_SOURCE = "import ballerina/jballerina.java;";

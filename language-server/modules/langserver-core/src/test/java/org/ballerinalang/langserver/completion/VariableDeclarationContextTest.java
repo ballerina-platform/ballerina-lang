@@ -36,17 +36,7 @@ public class VariableDeclarationContextTest extends CompletionTest {
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {
-        return new Object[][]{
-                {"var_def_ctx_config1.json", getTestResourceDir()},
-                {"var_def_ctx_config2.json", getTestResourceDir()},
-                {"var_def_ctx_config3.json", getTestResourceDir()},
-                {"var_def_ctx_config4.json", getTestResourceDir()},
-                {"var_def_ctx_config5.json", getTestResourceDir()},
-                {"var_def_ctx_config6.json", getTestResourceDir()},
-                {"project_var_def_ctx_config1.json", getTestResourceDir()},
-                {"project_var_def_ctx_config2.json", getTestResourceDir()},
-                {"project_var_def_ctx_config3.json", getTestResourceDir()}
-        };
+        return this.getConfigsList();
     }
 
     @Override

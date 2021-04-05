@@ -87,6 +87,6 @@ public class FunctionDefinitionNodeContext extends AbstractCompletionProvider<Fu
             return true;
         }
         TextRange textRange = functionKeyword.textRange();
-        return textRange.endOffset() <= textPosition;
+        return textRange.endOffset() <= textPosition && textPosition < node.textRange().endOffset();
     }
 }

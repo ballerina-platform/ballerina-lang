@@ -54,7 +54,7 @@ function testFloat2() returns [int, float, float, float]{
 }
 
 function filterFloatNegative(float i) returns boolean {
-    return i >= 0;
+    return i >= 0.0;
 }
 
 string output = "";

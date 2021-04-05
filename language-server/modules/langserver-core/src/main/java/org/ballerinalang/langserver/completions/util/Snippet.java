@@ -327,6 +327,8 @@ public enum Snippet {
 
     STMT_TRANSACTION(SnippetGenerator.getTransactionStatementSnippet()),
 
+    STMT_RETRY(SnippetGenerator.getRetryStatementSnippet()),
+
     STMT_RETRY_TRANSACTION(SnippetGenerator.getRetryTransactionStatementSnippet()),
 
     STMT_TRAP(SnippetGenerator.getTrapSnippet()),
@@ -337,7 +339,9 @@ public enum Snippet {
 
     // Snippets related to various clauses such as from, where and etc
     CLAUSE_FROM(SnippetGenerator.getFromClauseSnippet()),
-    
+
+    CLAUSE_DO(SnippetGenerator.getDoClauseSnippet()),
+
     CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
     
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),

@@ -79,12 +79,14 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                 })
                 .forEach(pkgEntry -> {
                     String pkgName = pkgEntry.packageName().value();
-                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE, pkgName);
-                    String moduleName = CommonUtil.escapeModuleName(context, pkgName);
-                    CodeAction action = new CodeAction(commandTitle);
+                    String moduleName = CommonUtil.escapeModuleName(pkgName);
+                    CodeAction action = new CodeAction();
                     Position insertPos = getImportPosition(context);
                     String importText = ItemResolverConstants.IMPORT + " " + pkgEntry.packageOrg().value() + "/"
                             + moduleName + ";" + CommonUtil.LINE_SEPARATOR;
+                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
+                                                        pkgEntry.packageOrg().value() + "/" + moduleName);
+                    action.setTitle(commandTitle);
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(insertPos, insertPos), importText));
                     action.setKind(CodeActionKind.QuickFix);

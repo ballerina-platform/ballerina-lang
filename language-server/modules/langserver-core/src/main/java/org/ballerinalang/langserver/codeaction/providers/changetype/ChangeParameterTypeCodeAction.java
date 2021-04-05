@@ -22,6 +22,7 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
@@ -93,11 +94,8 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
         // TODO: Check whether the following code segment is required. Since we know the symbol is a param symbol, it
         //  follows that the var decl is within a function/method.
         // Find parent function definition
-        NonTerminalNode funcDefNode = localVarNode.parent();
-        while (funcDefNode != null && funcDefNode.kind() != SyntaxKind.FUNCTION_DEFINITION) {
-            funcDefNode = funcDefNode.parent();
-        }
-        if (funcDefNode == null) {
+        Optional<FunctionDefinitionNode> funcDefNode = CodeActionUtil.getEnclosedFunction(localVarNode);
+        if (funcDefNode.isEmpty()) {
             return Collections.emptyList();
         }
 

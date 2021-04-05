@@ -41,11 +41,11 @@ import java.util.stream.Collectors;
 public class ConcurrencyTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "05_concurrency.bal";
     private static final String BASE_PATH = "/";
-    private static final String BASE_URL = "http://localhost:9095";
+    private static final String BASE_URL = "http://localhost:19095";
 
     @DataProvider(name = "async-call-data-provider")
     public Object[][] getAsyncCallData() {
-        return new Object[][] {
+        return new Object[][]{
                 {"resourceOne", FILE_NAME + ":22:5", FILE_NAME + ":23:33", FILE_NAME + ":29:20",
                         MOCK_CLIENT_OBJECT_NAME, "calculateSum", null, null},
                 {"resourceTwo", FILE_NAME + ":33:5", FILE_NAME + ":34:33", FILE_NAME + ":40:20",
@@ -70,16 +70,17 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(resourceFunctionPosition, asyncCallPosition, callerRespondPosition)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
@@ -155,7 +156,7 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
     public Object[][] getWorkersData() {
         final String w1Position = FILE_NAME + ":103:15";
         final String w2Position = FILE_NAME + ":110:15";
-        return new Object[][] {
+        return new Object[][]{
                 {"resourceFour", FILE_NAME + ":56:5", "w1", w1Position, "w2", w2Position, FILE_NAME + ":58:20"},
                 {"resourceFive", FILE_NAME + ":62:5", "w1", w1Position, "w2", w2Position, FILE_NAME + ":64:20"},
                 {"resourceSix", FILE_NAME + ":68:5", "w1", w1Position, "w2", w2Position, FILE_NAME + ":70:20"},
@@ -166,9 +167,10 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
 
     @Test(dataProvider = "workers-data-provider")
     public void testWorkers(String resourceName, String resourceFunctionPosition,
-                                       String workerAName, String workerAPosition, String workerBName,
-                                       String workerBPosition, String callerRespondPosition) throws Exception {
-        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + resourceName, "", Collections.emptyMap());
+                            String workerAName, String workerAPosition, String workerBName,
+                            String workerBPosition, String callerRespondPosition) throws Exception {
+        HttpResponse httpResponse = HttpClientRequest.doPost(BASE_URL + "/" + resourceName, "",
+                Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
         Thread.sleep(1000);
@@ -179,16 +181,17 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(resourceFunctionPosition, workerAPosition, workerBPosition,
                         callerRespondPosition)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),

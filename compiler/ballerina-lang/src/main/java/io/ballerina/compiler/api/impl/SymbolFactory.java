@@ -152,6 +152,9 @@ public class SymbolFactory {
             if (Symbols.isFlagOn(symbol.flags, Flags.DEFAULTABLE_PARAM)) {
                 return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.DEFAULTABLE);
             }
+            if (Symbols.isFlagOn(symbol.flags, Flags.INCLUDED)) {
+                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.INCLUDED_RECORD);
+            }
             if (Symbols.isFlagOn(symbol.flags, Flags.REST_PARAM)) {
                 return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REST);
             }
@@ -315,15 +318,18 @@ public class SymbolFactory {
     }
 
     public BallerinaRecordFieldSymbol createRecordFieldSymbol(BVarSymbol symbol) {
-        return new BallerinaRecordFieldSymbol(this.context, getBField(symbol));
+        BField bField = getBField(symbol);
+        return bField != null ? new BallerinaRecordFieldSymbol(this.context, bField) : null;
     }
 
     public BallerinaObjectFieldSymbol createObjectFieldSymbol(BVarSymbol symbol) {
-        return new BallerinaObjectFieldSymbol(this.context, getBField(symbol));
+        BField bField = getBField(symbol);
+        return bField != null ? new BallerinaObjectFieldSymbol(this.context, bField) : null;
     }
 
     public BallerinaClassFieldSymbol createClassFieldSymbol(BVarSymbol symbol) {
-        return new BallerinaClassFieldSymbol(this.context, getBField(symbol));
+        BField bField = getBField(symbol);
+        return bField != null ? new BallerinaClassFieldSymbol(this.context, bField) : null;
     }
 
     public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {

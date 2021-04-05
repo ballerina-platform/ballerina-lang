@@ -27,10 +27,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "from",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "from ",
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -376,6 +376,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "is",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "is",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -404,6 +411,33 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "testFunction()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "valueA",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "valueA",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunctionWithParams(int a, int b)(int)",
       "kind": "Function",
       "detail": "Function",
@@ -421,6 +455,16 @@
       }
     },
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "valueB",
       "kind": "Variable",
       "detail": "int",
@@ -428,30 +472,52 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "valueA",
-      "kind": "Variable",
-      "detail": "int",
-      "insertText": "valueA",
+      "label": "readonly",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "readonly",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
-        }
-      },
-      "insertText": "testFunction()",
+      "label": "handle",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "handle",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "is",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "is",
+      "label": "never",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "never",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "json",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "json",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "anydata",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "anydata",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "any",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "any",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "byte",
+      "kind": "Unit",
+      "detail": "type",
+      "insertText": "byte",
       "insertTextFormat": "Snippet"
     }
   ]

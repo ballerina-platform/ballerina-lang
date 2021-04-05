@@ -38,10 +38,12 @@ import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
 
 import java.util.ArrayList;
@@ -70,9 +72,14 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(SimpleNameReferenceNode node) {
-        Symbol symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()), node.name().text());
+        Optional<Symbol> symbol = this.getSymbolByName(context.visibleSymbols(context.getCursorPosition()),
+                node.name().text());
 
-        return SymbolUtil.getTypeDescriptor(symbol);
+        if (symbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(symbol.get());
     }
 
     @Override
@@ -86,9 +93,13 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
             return Optional.empty();
         }
         String name = ((SimpleNameReferenceNode) fieldName).name().text();
-        Symbol filteredSymbol = this.getSymbolByName(this.getVisibleEntries(typeSymbol.orElseThrow()), name);
+        Optional<Symbol> filteredSymbol = this.getSymbolByName(this.getVisibleEntries(typeSymbol.orElseThrow()), name);
 
-        return SymbolUtil.getTypeDescriptor(filteredSymbol);
+        if (filteredSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
     }
 
     @Override
@@ -112,17 +123,29 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     @Override
     public Optional<TypeSymbol> transform(FunctionCallExpressionNode node) {
         NameReferenceNode nameRef = node.functionName();
-
-        if (nameRef.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+        
+        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION;
+        List<Symbol> visibleEntries;
+        String functionName;
+        if (nameRef.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nameRef;
+            visibleEntries = QNameReferenceUtil.getModuleContent(this.context, qNameRef, predicate);
+            functionName = qNameRef.identifier().text();
+        } else if (nameRef.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            functionName = ((SimpleNameReferenceNode) nameRef).name().text();
+            visibleEntries = context.visibleSymbols(context.getCursorPosition()).stream()
+                    .filter(predicate)
+                    .collect(Collectors.toList());
+        } else {
             return Optional.empty();
         }
 
-        Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION;
-        String functionName = ((SimpleNameReferenceNode) nameRef).name().text();
-        List<Symbol> visibleEntries = context.visibleSymbols(context.getCursorPosition());
+        Optional<Symbol> functionSymbol = this.getSymbolByName(visibleEntries, functionName);
+        if (functionSymbol.isEmpty() || functionSymbol.get().kind() != SymbolKind.FUNCTION) {
+            return Optional.empty();
+        }
 
-        FunctionSymbol symbol = (FunctionSymbol) this.getSymbolByName(visibleEntries, functionName, predicate);
-        return symbol.typeDescriptor().returnTypeDescriptor();
+        return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
     }
 
     @Override
@@ -160,10 +183,10 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         return typeSymbol.map(this::getVisibleEntries).orElse(Collections.emptyList());
     }
 
-    private Symbol getSymbolByName(List<Symbol> visibleSymbols, String name) {
+    private Optional<Symbol> getSymbolByName(List<Symbol> visibleSymbols, String name) {
         return visibleSymbols.stream()
                 .filter((symbol -> symbol.getName().orElse("").equals(name)))
-                .findFirst().orElseThrow();
+                .findFirst();
     }
 
     private Symbol getSymbolByName(List<Symbol> visibleSymbols, String name, @Nonnull Predicate<Symbol> predicate) {

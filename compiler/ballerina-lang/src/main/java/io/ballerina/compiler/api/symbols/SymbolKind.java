@@ -40,6 +40,7 @@ public enum SymbolKind {
     OBJECT_FIELD,
     CLASS_FIELD,
     ENUM,
+    ENUM_MEMBER,
     PARAMETER,
     PATH_PARAMETER
 }

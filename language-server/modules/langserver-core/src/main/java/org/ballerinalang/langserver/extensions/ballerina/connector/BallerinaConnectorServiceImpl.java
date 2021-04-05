@@ -39,6 +39,7 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.bala.BalaProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
@@ -157,7 +158,9 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 ModuleId moduleId = balaProject.currentPackage().moduleIds().stream()
                         .filter(modId -> modId.moduleName().equals(request.getModule())).findFirst().get();
                 Module module = balaProject.currentPackage().module(moduleId);
-                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+
+                PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
+                SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
 
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);
                 module.documentIds().forEach(documentId -> {
@@ -165,7 +168,9 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 });
 
                 Map<String, TypeDefinitionNode> jsonRecords = new HashMap<>();
+                Map<String, ClassDefinitionNode> objectTypes = new HashMap<>();
                 connectorNodeVisitor.getRecords().forEach(jsonRecords::put);
+                connectorNodeVisitor.getObjectTypes().forEach(objectTypes::put);
 
                 Gson gson = new Gson();
                 List<ClassDefinitionNode> connectorNodes = connectorNodeVisitor.getConnectors();
@@ -180,7 +185,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                             FunctionDefinitionNode functionDefinitionNode = (FunctionDefinitionNode) child;
                             functionDefinitionNode.functionSignature().parameters().forEach(parameterNode -> {
                                 populateConnectorFunctionParamRecords(parameterNode, semanticModel, jsonRecords,
-                                        connectorRecords);
+                                        objectTypes, connectorRecords);
                             });
                         }
                     }
@@ -210,6 +215,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
     private void populateConnectorFunctionParamRecords(Node parameterNode, SemanticModel semanticModel,
                                                        Map<String, TypeDefinitionNode> jsonRecords,
+                                                       Map<String, ClassDefinitionNode> classDefinitions,
                                                        Map<String, JsonElement> connectorRecords) {
         Optional<TypeSymbol> paramType = semanticModel.type(parameterNode.lineRange());
         if (paramType.isPresent()) {
@@ -238,7 +244,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
                 if (jsonRecords.get(parameterTypeName) != null) {
                     connectorRecords.put(parameterTypeName,
-                            DiagramUtil.getTypeDefinitionSyntaxJson(jsonRecords.get(parameterTypeName), semanticModel));
+                            DiagramUtil
+                                    .getTypeDefinitionSyntaxJson(jsonRecords.get(parameterTypeName), semanticModel));
                 }
                 Arrays.stream(paramType.get().signature().split("\\|")).forEach(type -> {
                     String refinedType = type.replace("?", "");
@@ -265,14 +272,21 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     }
                 }
             } else if (paramType.get().typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
-                if (record != null) {
+                if (jsonRecords.containsKey(paramType.get().signature())) {
+                    TypeDefinitionNode record = jsonRecords.get(paramType.get().signature());
+
                     connectorRecords.put(paramType.get().signature(),
                             DiagramUtil.getTypeDefinitionSyntaxJson(record, semanticModel));
                     if (record.typeDescriptor() instanceof RecordTypeDescriptorNode) {
                         populateConnectorTypeDef((RecordTypeDescriptorNode) record.typeDescriptor(), semanticModel,
                                 jsonRecords, connectorRecords, record.typeName().text());
                     }
+                }
+
+                if (classDefinitions.containsKey(paramType.get().signature())) {
+                    ClassDefinitionNode classDefinition = classDefinitions.get(paramType.get().signature());
+                    connectorRecords.put(paramType.get().signature(),
+                            DiagramUtil.getClassDefinitionSyntaxJson(classDefinition, semanticModel));
                 }
             }
         }
@@ -323,7 +337,8 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
                 ModuleId moduleId = balaProject.currentPackage().moduleIds().stream().findFirst().get();
                 Module module = balaProject.currentPackage().module(moduleId);
-                SemanticModel semanticModel = module.getCompilation().getSemanticModel();
+                PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
+                SemanticModel semanticModel = packageCompilation.getSemanticModel(moduleId);
 
                 Map<String, JsonElement> recordDefJsonMap = new HashMap<>();
                 ConnectorNodeVisitor connectorNodeVisitor = new ConnectorNodeVisitor(request.getName(), semanticModel);

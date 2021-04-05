@@ -34,13 +34,11 @@ import org.testng.annotations.Test;
  */
 public class ErrorConstructorExprTest {
 
-    private CompileResult result, negativeSemanticResult, negativeResult;
+    private CompileResult result, negativeResult;
 
     @BeforeClass
     public void setUp() {
         result = BCompileUtil.compile("test-src/expressions/errorconstructorexpr/error-constructor-expr.bal");
-        negativeSemanticResult = BCompileUtil.compile("test-src/expressions/errorconstructorexpr/error-constructor" +
-                "-expr-negative.bal");
         negativeResult = BCompileUtil.compile("test-src/expressions/errorconstructorexpr/error-constructor-expr-code" +
                 "-analysis-negative.bal");
     }
@@ -59,7 +57,6 @@ public class ErrorConstructorExprTest {
                 {"testErrorConstructorExpr4"},
                 {"testErrorConstructorExpr5"},
                 {"testErrorConstructorExpr6"},
-                {"testErrorConstructorExpr7"},
                 {"testErrorConstructorExpr8"},
                 {"testErrorConstructorExpr9"},
         };
@@ -67,6 +64,8 @@ public class ErrorConstructorExprTest {
 
     @Test
     public void testErrorConstructorExprNegative() {
+        CompileResult negativeSemanticResult = BCompileUtil.compile("test-src/expressions/" +
+                "errorconstructorexpr/error-constructor-expr-negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeSemanticResult, i++, "missing arg within parenthesis", 20, 21);
         BAssertUtil.validateError(negativeSemanticResult, i++, "incompatible types: expected 'string', found 'int'",
@@ -94,7 +93,7 @@ public class ErrorConstructorExprTest {
 
     @Test
     public void testCodeAnalysisNegative() {
-        BAssertUtil.validateError(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
+        BAssertUtil.validateHint(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
                 "'true'", 19, 37);
     }
 }

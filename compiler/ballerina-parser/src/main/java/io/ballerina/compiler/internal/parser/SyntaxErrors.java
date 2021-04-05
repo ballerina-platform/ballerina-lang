@@ -96,7 +96,6 @@ public class SyntaxErrors {
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
         switch (currentCtx) {
             case EXTERNAL_FUNC_BODY:
-            case BINDING_PATTERN_OR_EXPR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case FUNC_BODY_BLOCK:
@@ -171,6 +170,7 @@ public class SyntaxErrors {
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
+            case BINDING_PATTERN_OR_EXPR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -257,7 +257,6 @@ public class SyntaxErrors {
             case FIELD_DESCRIPTOR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case ASTERISK:
-            case INFERRED_TYPE_DESC:
                 return DiagnosticErrorCode.ERROR_MISSING_ASTERISK_TOKEN;
             case CLOSED_RECORD_BODY_END:
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_BRACE_PIPE_TOKEN;
@@ -290,11 +289,13 @@ public class SyntaxErrors {
             case GT_TOKEN:
             case XML_START_OR_EMPTY_TAG_END:
             case XML_ATTRIBUTES:
+            case INFERRED_TYPEDESC_DEFAULT_END_GT:
                 return DiagnosticErrorCode.ERROR_MISSING_GT_TOKEN;
             case LT:
             case LT_TOKEN:
             case XML_START_OR_EMPTY_TAG:
             case XML_END_TAG:
+            case INFERRED_TYPEDESC_DEFAULT_START_LT:
                 return DiagnosticErrorCode.ERROR_MISSING_LT_TOKEN;
             case SYNC_SEND_TOKEN:
                 return DiagnosticErrorCode.ERROR_MISSING_SYNC_SEND_TOKEN;

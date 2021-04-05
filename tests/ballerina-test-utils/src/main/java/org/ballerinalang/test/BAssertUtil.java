@@ -138,4 +138,25 @@ public class BAssertUtil {
         Assert.assertEquals(diag.location().lineRange().startLine().offset() + 1, expectedWarnCol,
                 "incorrect column position:");
     }
+
+
+    /**
+     * Assert a hint.
+     *
+     * @param result           Result from compilation
+     * @param hintIndex     Index of the hint in the result
+     * @param expectedHintMsg  Expected hint message
+     * @param expectedHintLine Expected line number of the hint
+     * @param expectedHintCol  Expected column number of the hint
+     */
+    public static void validateHint(CompileResult result, int hintIndex, String expectedHintMsg,
+                                       int expectedHintLine, int expectedHintCol) {
+        Diagnostic diag = result.getDiagnostics()[hintIndex];
+        Assert.assertEquals(diag.diagnosticInfo().severity(), DiagnosticSeverity.HINT, "incorrect diagnostic type");
+        Assert.assertEquals(diag.message(), expectedHintMsg, "incorrect hint message:");
+        Assert.assertEquals(diag.location().lineRange().startLine().line() + 1, expectedHintLine,
+                "incorrect line number:");
+        Assert.assertEquals(diag.location().lineRange().startLine().offset() + 1, expectedHintCol,
+                "incorrect column position:");
+    }
 }

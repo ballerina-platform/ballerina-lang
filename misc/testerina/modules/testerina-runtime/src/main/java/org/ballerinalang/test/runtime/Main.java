@@ -86,7 +86,8 @@ public class Main {
                         TestSuite testSuite = entry.getValue();
 
                         out.println("\n\t" + (moduleName.equals(testSuite.getPackageName()) ?
-                                moduleName : testSuite.getPackageName() + TesterinaConstants.DOT + moduleName));
+                                (moduleName.equals(TesterinaConstants.DOT) ? testSuite.getSourceFileName() : moduleName)
+                                : testSuite.getPackageName() + TesterinaConstants.DOT + moduleName));
 
                         testSuite.setModuleName(moduleName);
                         List<String> testExecutionDependencies = testSuite.getTestExecutionDependencies();
@@ -129,10 +130,12 @@ public class Main {
         if (!Files.exists(tmpJsonPath.getParent())) {
             Files.createDirectories(tmpJsonPath.getParent());
         }
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
-            String json = gson.toJson(moduleStatus);
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
+            try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                String json = gson.toJson(moduleStatus);
+                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            }
         }
     }
 
