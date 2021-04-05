@@ -26,4 +26,6 @@ public interface MarkDownDocumentationDeprecationAttributeNode extends Expressio
     void addDeprecationDocumentationLine(String text);
 
     void addDeprecationLine(String text);
+
+    String getDocumentation();
 }
