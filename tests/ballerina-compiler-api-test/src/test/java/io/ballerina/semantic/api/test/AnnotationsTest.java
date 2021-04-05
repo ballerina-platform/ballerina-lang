@@ -38,6 +38,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CONSTANT;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
+import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM_MEMBER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
@@ -95,7 +96,7 @@ public class AnnotationsTest {
                 {87, 22, RESOURCE_METHOD, of("v3")},
 //                {96, 11, WORKER, of("v1")} // TODO: Uncomment after fixing #27461
                 {105, 5, ENUM, of("v1", "v5")},
-                {109, 4, CONSTANT, of("v1")}
+                {109, 4, ENUM_MEMBER, of("v1")}
         };
     }
 

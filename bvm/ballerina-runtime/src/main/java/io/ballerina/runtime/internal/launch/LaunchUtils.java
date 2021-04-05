@@ -174,7 +174,6 @@ public class LaunchUtils {
     }
 
     private static String populateConfigDetails(List<Path> paths, Map<String, String> envVars) {
-        String configContent = null;
         if (envVars.containsKey(CONFIG_FILES_ENV_VARIABLE)) {
             String[] configPathList = envVars.get(CONFIG_FILES_ENV_VARIABLE).split(File.pathSeparator);
             for (String pathString : configPathList) {
@@ -188,11 +187,10 @@ public class LaunchUtils {
                 paths.add(DEFAULT_CONFIG_PATH);
             }
         }
-        return configContent;
+        return null;
     }
 
     private static String populateSecretConfigDetails(List<Path> paths, Map<String, String> envVars) {
-        String secret = null;
         if (envVars.containsKey(SECRET_FILE_ENV_VARIABLE)) {
             paths.add(Paths.get(envVars.get(SECRET_FILE_ENV_VARIABLE)));
         } else if (envVars.containsKey(SECRET_DATA_ENV_VARIABLE)) {
@@ -202,6 +200,6 @@ public class LaunchUtils {
                 paths.add(DEFAULT_SECRET_PATH);
             }
         }
-        return secret;
+        return null;
     }
 }

@@ -42,6 +42,7 @@ import java.util.StringJoiner;
 public class BallerinaMethodSymbol implements MethodSymbol {
 
     private final FunctionSymbol functionSymbol;
+    private String signature;
 
     public BallerinaMethodSymbol(FunctionSymbol functionSymbol) {
         this.functionSymbol = functionSymbol;
@@ -104,6 +105,10 @@ public class BallerinaMethodSymbol implements MethodSymbol {
 
     @Override
     public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
         StringJoiner qualifierJoiner = new StringJoiner(" ");
         this.functionSymbol.qualifiers().stream().map(Qualifier::getValue).forEach(qualifierJoiner::add);
         qualifierJoiner.add("function ");
@@ -111,7 +116,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
         StringBuilder signature = new StringBuilder(qualifierJoiner.toString());
         StringJoiner joiner = new StringJoiner(", ");
         signature.append(this.functionSymbol.getName().get()).append("(");
-        for (ParameterSymbol requiredParam : this.typeDescriptor().parameters()) {
+        for (ParameterSymbol requiredParam : this.typeDescriptor().params().get()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);
         }
@@ -121,6 +126,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
         if (returnTypeSymbol.isPresent() && returnTypeSymbol.get().typeKind() != TypeDescKind.NIL) {
             signature.append(" returns ").append(returnTypeSymbol.get().signature());
         }
-        return signature.toString();
+        this.signature = signature.toString();
+        return this.signature;
     }
 }

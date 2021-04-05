@@ -38,7 +38,6 @@ public class TomlConstants {
     public static final String SECRET_FILE_ENV_VARIABLE = "BAL_CONFIG_SECRET_FILE";
     public static final String SECRET_DATA_ENV_VARIABLE = "BAL_CONFIG_SECRET_DATA";
 
-    public static final String CONFIG_SECRET_ENV_VARIABLE = "BALSECRETFILE";
     public static final String SECRET_FILE_NAME = "secret.txt";
     public static final Path DEFAULT_CONFIG_PATH = Paths.get(RuntimeUtils.USER_DIR, CONFIG_FILE_NAME);
     public static final Path DEFAULT_SECRET_PATH = Paths.get(RuntimeUtils.USER_DIR, CONFIG_SECRET_FILE_NAME);

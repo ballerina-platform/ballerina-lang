@@ -49,7 +49,6 @@ public class ParserTestRunner {
         HashSet<String> hashSet = new HashSet<>();
         // Following should be fixed
         // TODO: categorize and create issues
-        hashSet.add("xml_template_source_24.bal");
         hashSet.add("func_def_source_08.bal");
         hashSet.add("find_node_test_1.bal");
         hashSet.add("minutiae_test_05_with_no_newlines.bal");
