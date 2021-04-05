@@ -141,6 +141,18 @@ function testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection() {
     assertEquals("other", <string> listMatchPattern7([]));
 }
 
+function listMatchPattern8(int[3] val) returns int {
+    match val {
+        [var a, var b, ...var c] => {
+            return a + b + c[0];
+        }
+    }
+}
+
+function testListMatchPatternWithClosedArray() {
+    assertEquals(6, listMatchPattern8([1, 2, 3]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

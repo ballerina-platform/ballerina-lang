@@ -218,6 +218,11 @@ public class MatchStmtListMatchPatternTest {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection");
     }
 
+    @Test
+    public void testListMatchPatternWithClosedArray() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithClosedArray");
+    }
+
     @Test(description = "invalid match patterns")
     public void testListMatchPatternNegative() {
         int i = -1;
@@ -252,6 +257,9 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 164, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 184, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 191, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 197, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 199, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 201, 9);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

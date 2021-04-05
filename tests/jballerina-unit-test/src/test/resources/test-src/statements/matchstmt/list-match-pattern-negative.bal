@@ -191,3 +191,14 @@ function testListMatchPatternNegative5() {
         [var x, var y] => {} // pattern will not be matched
     }
 }
+
+function testUnmatchedPattensForSizeMismatchWithClosedArray(int[3] val) {
+    match val {
+        [var a, _, var c, var d] => {
+        }
+        [var a, var b, var c, var d] => {
+        }
+        [var a, var b] => {
+        }
+    }
+}

@@ -179,6 +179,11 @@ public class ListBindingPatternTest {
     }
 
     @Test
+    public void testRestBindingPatternWithClosedArray() {
+        BRunUtil.invoke(restMatchPatternResult, "testRestBindingPatternWithClosedArray");
+    }
+
+    @Test
     public void testListBindingPatternNegative() {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 23, 9);
@@ -216,6 +221,9 @@ public class ListBindingPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 135, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 146, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 166, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 172, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 174, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 176, 9);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }

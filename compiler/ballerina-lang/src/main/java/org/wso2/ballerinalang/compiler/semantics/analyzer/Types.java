@@ -3775,9 +3775,21 @@ public class Types {
 
     private BType createArrayAndTupleIntersection(IntersectionContext intersectionContext,
                                                   BArrayType arrayType, BTupleType tupleType, SymbolEnv env) {
+        List<BType> tupleTypes = tupleType.tupleTypes;
+        if (arrayType.state == BArrayState.CLOSED && tupleTypes.size() != arrayType.size) {
+            if (tupleTypes.size() > arrayType.size) {
+                return symTable.semanticError;
+            }
+
+            if (tupleType.restType == null) {
+                return symTable.semanticError;
+            }
+        }
+
         List<BType> tupleMemberTypes = new ArrayList<>();
-        for (BType memberType : tupleType.tupleTypes) {
-            BType intersectionType = getTypeIntersection(intersectionContext, memberType, arrayType.eType, env);
+        BType eType = arrayType.eType;
+        for (BType memberType : tupleTypes) {
+            BType intersectionType = getTypeIntersection(intersectionContext, memberType, eType, env);
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
@@ -3785,13 +3797,10 @@ public class Types {
         }
 
         if (tupleType.restType == null) {
-            if (arrayType.size == tupleType.tupleTypes.size() || arrayType.state == BArrayState.OPEN) {
-                return new BTupleType(null, tupleMemberTypes);
-            }
-            return symTable.semanticError;
+            return new BTupleType(null, tupleMemberTypes);
         }
 
-        BType restIntersectionType = getTypeIntersection(intersectionContext, tupleType.restType, arrayType.eType, env);
+        BType restIntersectionType = getTypeIntersection(intersectionContext, tupleType.restType, eType, env);
         if (restIntersectionType == symTable.semanticError) {
             return new BTupleType(null, tupleMemberTypes);
         }
