@@ -203,7 +203,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         Node evalNode = node;
         boolean withinTransaction = false;
 
-        while (!withinTransaction && evalNode != null && evalNode.kind() != SyntaxKind.MODULE_PART) {
+        while (!withinTransaction && evalNode != null) {
             withinTransaction = evalNode.kind() == SyntaxKind.TRANSACTION_STATEMENT;
             evalNode = evalNode.parent();
         }
