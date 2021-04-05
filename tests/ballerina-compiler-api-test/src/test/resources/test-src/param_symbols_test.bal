@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function funcWithParams(string x, int y, float f = 12.34, string... rest) {
+function funcWithParams(string x, int y, float f = 12.34, *Grades grades, string... rest) {
     int sum = x + y;
 }
 
@@ -53,3 +53,9 @@ class Person {
 function foo() {
     var fn = function (Person p, anydata... misc) {};
 }
+
+type Grades record {
+    int maths;
+    int physics;
+    int chemistry;
+};

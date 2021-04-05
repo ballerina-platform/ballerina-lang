@@ -18,6 +18,9 @@ type HelloWorld service object {
     remote function sayHello() returns string;
 };
 
+@v1 {
+    foo: "annot on service"
+}
 service HelloWorld /foo/bar on new Listener() {
 
     public string greeting = "Hello World!";
@@ -25,16 +28,17 @@ service HelloWorld /foo/bar on new Listener() {
     resource function get greet/[int x]/hello/[float y]/[string... rest] () returns json => { output: self.greeting };
 
     resource function delete pets () returns record{|Error body;|} {
+        return {body:{id: 10, code: "FailedToDelete"}};
     }
 
-    remote function sayHello() return string => self.greeting;
+    remote function sayHello() returns string => self.greeting;
 
     function createError() returns @tainted error? => ();
 }
 
 public class Listener {
 
-    public function start() returns error? {
+    public function 'start() returns error? {
     }
 
     public function gracefulStop() returns error? {
@@ -54,3 +58,10 @@ type Error record {
     int id;
     string code;
 };
+
+type Annot record {
+    string foo;
+    int bar?;
+};
+
+public const annotation Annot v1 on source service;

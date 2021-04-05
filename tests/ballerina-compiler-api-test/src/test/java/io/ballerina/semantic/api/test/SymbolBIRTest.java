@@ -22,10 +22,12 @@ import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
+import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
@@ -34,7 +36,6 @@ import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.semantic.api.test.util.SemanticAPITestUtils;
-import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -57,12 +58,15 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.VARIABLE;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.RECORD;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getSymbolNames;
+import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertNull;
 import static org.testng.Assert.assertTrue;
@@ -90,6 +94,35 @@ public class SymbolBIRTest {
         srcFile = getDocumentForSingleSource(project);
     }
 
+    // Tests if the field symbols of a record type defined in testorg/testproject are accessible
+    @Test(dataProvider = "RecordFieldImports")
+    public void testRecordFieldSymbol(int line, int col, String fieldName, TypeDescKind typeKind, boolean isOptional,
+                                      boolean hasDefaultValue, String signature) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_record_field_imports_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Symbol symbol = model.symbol(srcFile, from(line, col))
+                .orElseThrow(() -> new AssertionError("Expected a symbol at: (" + line + ", " + col + ")"));
+
+        assertEquals(symbol.kind(), SymbolKind.RECORD_FIELD);
+
+        RecordFieldSymbol fieldSymbol = (RecordFieldSymbol) symbol;
+        assertEquals(fieldSymbol.getName().get(), fieldName);
+        assertEquals(fieldSymbol.typeDescriptor().typeKind(), typeKind);
+        assertEquals(fieldSymbol.isOptional(), isOptional);
+        assertEquals(fieldSymbol.hasDefaultValue(), hasDefaultValue);
+        assertEquals(fieldSymbol.signature(), signature);
+    }
+
+    @DataProvider(name = "RecordFieldImports")
+    public Object[][] getRecordFieldPos() {
+        return new Object[][]{
+                {21, 17, "name", STRING, false, false, "string name"},
+                {22, 14, "age", INT, false, false, "int age"},
+        };
+    }
+
     @Test
     public void testSymbolLookupInBIR() {
         Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_imports_test.bal");
@@ -107,7 +140,7 @@ public class SymbolBIRTest {
         List<SymbolInfo> moduleSymbols = getModuleSymbolInfo();
         List<SymbolInfo> expSymbolNames = getSymbolNames(annotationModuleSymbols, moduleLevelSymbols, moduleSymbols);
 
-        List<Symbol> symbolsInScope = model.visibleSymbols(srcFile, LinePosition.from(18, 0));
+        List<Symbol> symbolsInScope = model.visibleSymbols(srcFile, from(18, 0));
         assertList(symbolsInScope, expSymbolNames);
 
         BallerinaModule fooModule = (BallerinaModule) symbolsInScope.stream()
@@ -133,7 +166,7 @@ public class SymbolBIRTest {
 
     @Test(dataProvider = "ImportSymbolPosProvider")
     public void testImportSymbols(int line, int column, String expSymbolName) {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, column));
         symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
 
         if (symbol.isEmpty()) {
@@ -158,7 +191,7 @@ public class SymbolBIRTest {
 
     @Test
     public void testTypeInclusions() {
-        ModuleSymbol module = (ModuleSymbol) model.symbol(srcFile, LinePosition.from(16, 15)).get();
+        ModuleSymbol module = (ModuleSymbol) model.symbol(srcFile, from(16, 15)).get();
 
         Optional<ClassSymbol> dog = module.classes().stream()
                 .filter(symbol -> "Dog".equals(symbol.getName().get())).findFirst();

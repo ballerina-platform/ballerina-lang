@@ -1,9 +1,3 @@
-[main.employee]
-empId = 111
-name = "Jane Doe"
-salary = 150000.00
-isPermanent = true
-
 [[main.empTable]]
 empId = 101
 name = "Alice"

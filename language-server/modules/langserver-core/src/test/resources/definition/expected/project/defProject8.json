@@ -1,0 +1,24 @@
+{
+  "source": {
+    "file": "defObjectTypeDef1.bal"
+  },
+  "position": {
+    "line": 4,
+    "character": 17
+  },
+  "result": [
+    {
+      "range": {
+        "start": {
+          "line": 33,
+          "character": 0
+        },
+        "end": {
+          "line": 37,
+          "character": 1
+        }
+      },
+      "uri": "repo/bala/ballerina/module1/0.1.0/any/modules/module1/functions_source1.bal"
+    }
+  ]
+}
