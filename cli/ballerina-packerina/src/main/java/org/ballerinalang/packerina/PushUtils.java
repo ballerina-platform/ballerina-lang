@@ -29,12 +29,12 @@ import org.wso2.ballerinalang.compiler.util.ProjectDirs;
 import org.wso2.ballerinalang.util.RepoUtils;
 import org.wso2.ballerinalang.util.TomlParserUtils;
 
+import javax.net.ssl.HttpsURLConnection;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.net.Authenticator;
-import java.net.HttpURLConnection;
 import java.net.InetSocketAddress;
 import java.net.PasswordAuthentication;
 import java.net.URI;
@@ -43,8 +43,6 @@ import java.nio.file.Files;
 import java.nio.file.LinkOption;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.KeyManagementException;
-import java.security.NoSuchAlgorithmException;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -54,11 +52,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
 
 import static org.ballerinalang.tool.LauncherUtils.createLauncherException;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.IMPLEMENTATION_VERSION;
@@ -84,34 +77,12 @@ public class PushUtils {
     private static Settings settings;
 
     private static final PrintStream SYS_ERR = System.err;
-    private static final PrintStream SYS_OUT = System.out;
     private static List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
     private static java.net.Proxy proxy;
     
-    private static TrustManager[] trustAllCerts = new TrustManager[]{
-            new X509TrustManager() {
-                public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-                    return new java.security.cert.X509Certificate[]{};
-                }
-                public void checkClientTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-                    //No need to implement.
-                }
-                public void checkServerTrusted(java.security.cert.X509Certificate[] certs, String authType) {
-                    //No need to implement.
-                }
-            }
-    };
-    
     static {
-        try {
-            SSLContext sc = SSLContext.getInstance("SSL");
-            sc.init(null, trustAllCerts, new java.security.SecureRandom());
-            HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-            supportedPlatforms.add("any");
-            proxy = getProxy();
-        } catch (NoSuchAlgorithmException | KeyManagementException e) {
-            // ignore errors
-        }
+        supportedPlatforms.add("any");
+        proxy = getProxy();
     }
     
     /**
@@ -363,12 +334,12 @@ public class PushUtils {
         }
         
         for (String supportedPlatform : supportedPlatforms) {
-            HttpURLConnection conn;
+            HttpsURLConnection conn;
             // set proxy if exists.
             if (null == proxy) {
-                conn = (HttpURLConnection) URI.create(moduleUrl).toURL().openConnection();
+                conn = (HttpsURLConnection) URI.create(moduleUrl).toURL().openConnection();
             } else {
-                conn = (HttpURLConnection) URI.create(moduleUrl).toURL().openConnection(proxy);
+                conn = (HttpsURLConnection) URI.create(moduleUrl).toURL().openConnection(proxy);
             }
             conn.setInstanceFollowRedirects(false);
             conn.setRequestMethod("GET");
