@@ -102,8 +102,8 @@ public class QNameReferenceUtil {
                                                 QualifiedNameReferenceNode qNameRef) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
-                .filter(moduleItem -> moduleItem instanceof TypeDefinitionSymbol ||
-                        moduleItem.kind() == SymbolKind.CLASS)
+                .filter(moduleItem -> moduleItem.kind() == SymbolKind.TYPE_DEFINITION ||
+                        moduleItem.kind() == SymbolKind.CLASS || moduleItem.kind() == SymbolKind.ENUM)
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }
