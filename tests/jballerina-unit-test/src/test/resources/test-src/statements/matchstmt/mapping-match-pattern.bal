@@ -507,6 +507,32 @@ function testMappingMatchPattern23() {
     assertEquals("No match", mappingMatchPattern23({x: 3, y: 3}));
 }
 
+function testMappingMatchPattern24() {
+    map<string>|error v1 = {a: "str5", b: "str6", c: "str7"};
+    string result = "";
+    match v1 {
+        {a: "str1", b: "str2"} | {a: "str5", b: "str6", c: "str8"} => {
+            result = "Matched";
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Default", result);
+
+    any|error v2 = error("SampleError");
+    result = "Not Matched";
+    match v2 {
+        {a: "str1", b: "str2"} => {
+            result = "Matched";
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Not Matched", result);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

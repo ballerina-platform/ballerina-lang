@@ -613,6 +613,32 @@ function testListMatchPattern23() {
     assertEquals("1", listMatchPattern23([1, 2, 3, 4, 5]));
 }
 
+function testListMatchPattern24() {
+    [int, string, CONST1]|error v1 = [1, "str", CONST1];
+    string result = "";
+    match v1 {
+        [1, "str", "Ballerina1"] => {
+            result = "Matched";
+        }
+        _ => {
+           result = "Default";
+        }
+    }
+    assertEquals("Default", result);
+
+    [int, string, CONST1]|error v2 = error("SampleError");
+    result = "Not Matched";
+    match v2 {
+        [1, "str", "Ballerina"] => {
+            result = "Matched";
+        }
+        _ => {
+           result = "Default";
+        }
+    }
+    assertEquals("Not Matched", result);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
