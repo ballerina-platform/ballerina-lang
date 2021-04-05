@@ -479,18 +479,28 @@ public class BIRTypeWriter implements TypeVisitor {
             birbuf.writeInt(markdownDocAttachment.description == null ? -1
                     : addStringCPEntry(markdownDocAttachment.description));
             birbuf.writeInt(markdownDocAttachment.returnValueDescription == null ? -1
-                    : addStringCPEntry(markdownDocAttachment.returnValueDescription));
-            birbuf.writeInt(markdownDocAttachment.parameters.size());
-            for (MarkdownDocAttachment.Parameter parameter : markdownDocAttachment.parameters) {
-                birbuf.writeInt(parameter.name == null ? -1
-                        : addStringCPEntry(parameter.name));
-                birbuf.writeInt(parameter.description == null ? -1
-                        : addStringCPEntry(parameter.description));
+                                    : addStringCPEntry(markdownDocAttachment.returnValueDescription));
+            writeParamDocs(birbuf, markdownDocAttachment.parameters);
+
+            if (markdownDocAttachment.deprecatedDocumentation != null) {
+                birbuf.writeInt(addStringCPEntry(markdownDocAttachment.deprecatedDocumentation));
+            } else {
+                birbuf.writeInt(-1);
             }
+
+            writeParamDocs(birbuf, markdownDocAttachment.deprecatedParams);
         }
         int length = birbuf.nioBuffer().limit();
         buf.writeInt(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeParamDocs(ByteBuf birBuf, List<MarkdownDocAttachment.Parameter> params) {
+        birBuf.writeInt(params.size());
+        for (MarkdownDocAttachment.Parameter param : params) {
+            birBuf.writeInt(addStringCPEntry(param.name));
+            birBuf.writeInt(addStringCPEntry(param.description));
+        }
     }
 
     private void throwUnimplementedError(BType bType) {
