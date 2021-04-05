@@ -523,6 +523,24 @@ function testMappingMatchPattern24() {
     assertEquals("No match", mappingMatchPattern24({x: 3, z: 3}));
 }
 
+function mappingMatchPattern25(anydata v) returns string {
+    match v {
+        {x: _, y: _} => {
+            return "matched x and y";
+        }
+        var z => {
+            return "other";
+        }
+    }
+}
+
+function testMappingMatchPattern25() {
+    assertEquals("matched x and y", mappingMatchPattern25({x: "abc", y: 1}));
+    assertEquals("matched x and y", mappingMatchPattern25({x: "abc", y: 1, z: "hello"}));
+    assertEquals("other", mappingMatchPattern25({a: "abc", b: 1}));
+    assertEquals("other", mappingMatchPattern25(1));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
