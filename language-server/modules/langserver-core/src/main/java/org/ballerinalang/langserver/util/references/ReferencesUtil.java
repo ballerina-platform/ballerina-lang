@@ -83,6 +83,9 @@ public class ReferencesUtil {
         Symbol symbol = symbolAtCursor.get();
         project.get().currentPackage().modules().forEach(module -> {
             List<Location> references = module.getCompilation().getSemanticModel().references(symbol);
+            if (references.isEmpty()) {
+                return;
+            }
             moduleLocationMap.put(module, references);
         });
 
