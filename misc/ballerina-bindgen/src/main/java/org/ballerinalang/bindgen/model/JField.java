@@ -59,7 +59,6 @@ public class JField extends BFunction {
         super.setStatic(isStatic);
         fieldName = field.getName();
         fieldObj = new JParameter(type, jClass.getCurrentClass(), env);
-        setParameters(Collections.singletonList(fieldObj));
         setDeclaringClass(jClass.getCurrentClass());
         if (type.isPrimitive() || type.equals(String.class)) {
             isObject = false;
@@ -83,6 +82,7 @@ public class JField extends BFunction {
         if (fieldKind == BFunctionKind.FIELD_GET) {
             fieldMethodName = "get" + StringUtils.capitalize(fieldName);
         } else if (fieldKind == BFunctionKind.FIELD_SET) {
+            setParameters(Collections.singletonList(fieldObj));
             fieldMethodName = "set" + StringUtils.capitalize(fieldName);
         }
         setExternalReturnType(getBallerinaHandleType(type));
