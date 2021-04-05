@@ -809,7 +809,7 @@ public class CodeActionUtil {
     }
 
     /**
-     * Check if the provided union type contains at least one error member
+     * Check if the provided union type contains at least one error member.
      *
      * @param unionTypeSymbol Union type
      * @return true if the union type contains an error member
