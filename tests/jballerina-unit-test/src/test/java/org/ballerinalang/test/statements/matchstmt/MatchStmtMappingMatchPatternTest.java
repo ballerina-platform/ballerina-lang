@@ -205,6 +205,11 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
+    public void testMappingMatchPatternWithMapAndAnydataIntersection() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPatternWithMapAndAnydataIntersection");
+    }
+
+    @Test
     public void testMappingMatchPatternNegative() {
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);
@@ -224,6 +229,18 @@ public class MatchStmtMappingMatchPatternTest {
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 91, 9);
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 98, 9);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
+    }
+
+    @Test
+    public void testMappingMatchPatternTypeNegative() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/statements/matchstmt/mapping_match_pattern_semantic_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<error>', found 'record {| " +
+                "int...; |}'", 20, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<map<int>>', found 'map<map<" +
+                "(int|error)>>'", 21, 31);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @AfterClass

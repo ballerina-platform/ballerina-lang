@@ -184,6 +184,11 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPatternWithArrayAndAnydataIntersection() {
+        BRunUtil.invoke(result, "testListMatchPatternWithArrayAndAnydataIntersection");
+    }
+
+    @Test
     public void testRestMatchPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
     }
@@ -206,6 +211,11 @@ public class MatchStmtListMatchPatternTest {
     @Test
     public void testRestMatchPattern5() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest5");
+    }
+
+    @Test
+    public void testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection");
     }
 
     @Test(description = "invalid match patterns")
@@ -255,6 +265,10 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "same variable cannot repeat in a match pattern", 21,
                 17);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 21, 22);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'string[]', found " +
+                "'int[]'", 28, 26);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[][]', found '" +
+                "(int|error)[][]'", 29, 27);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 

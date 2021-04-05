@@ -674,6 +674,27 @@ function testListMatchPattern27() {
     assertEquals("Match Default", listMatchPattern27([13, 2, "A"]));
 }
 
+function listMatchPattern28(anydata val) returns anydata {
+    match val {
+        [var m] if m is any[] => {
+            anydata[] o = m;
+            return o;
+        }
+        _ => {
+            return "other";
+        }
+    }
+}
+
+function testListMatchPatternWithArrayAndAnydataIntersection() {
+    int[] x = [1, 2, 3];
+    assertEquals(x, listMatchPattern28(<int[][]> [x]));
+    anydata[] y = [["hello", "world"]];
+    assertEquals(["hello", "world"], listMatchPattern28(y));
+    assertEquals("other", listMatchPattern28(<anydata[]> [["hello", "world"], 1, 2]));
+    assertEquals("other", listMatchPattern28("hello"));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

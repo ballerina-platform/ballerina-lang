@@ -1,5 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
-//
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
@@ -14,19 +13,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testSimilarVariables() {
-    any v = [2, 3];
-    match v {
-        [var a, var a] => {} // same variable cannot repeat in a match pattern // redeclared symbol 'a'
-        [var a, [var a, 2]] => {} // same variable cannot repeat in a match pattern // redeclared symbol 'a'
-    }
-}
 
-function testInvalidTypes((int|error)[][] a) {
+function testInvalidTypes(map<map<int|error>> a) {
     match a {
-        [var p, ...var oth] if p is anydata => {
-            string[] m = p;
-            (int)[][] n = oth;
+        {x: var p, ...var oth} if p is anydata => {
+            map<error> m = p;
+            map<map<int>> n = oth;
         }
     }
 }
