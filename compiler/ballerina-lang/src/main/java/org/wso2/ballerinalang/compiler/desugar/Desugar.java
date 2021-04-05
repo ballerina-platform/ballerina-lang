@@ -3489,6 +3489,11 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private BLangExpression createConditionForWildCardMatchPattern(BLangWildCardMatchPattern wildCardMatchPattern) {
+        BLangExpression expr = wildCardMatchPattern.matchExpr;
+        if (!wildCardMatchPattern.isLastPattern && expr != null) {
+            return createIsAssignableExpression(wildCardMatchPattern.pos,
+                    (BVarSymbol) ((BLangSimpleVarRef) wildCardMatchPattern.matchExpr).symbol, symTable.anyType);
+        }
         return ASTBuilderUtil.createLiteral(wildCardMatchPattern.pos, symTable.booleanType,
                 wildCardMatchPattern.isLastPattern);
     }
