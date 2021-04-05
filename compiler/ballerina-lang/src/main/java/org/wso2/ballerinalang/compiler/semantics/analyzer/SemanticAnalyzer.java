@@ -2091,7 +2091,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 if (listMatchPattern.restMatchPattern != null) {
                     evaluateMatchPatternsTypeAccordingToMatchGuard(listMatchPattern.restMatchPattern, env);
-                    matchPatternType.restType = listMatchPattern.restMatchPattern.type;
+                    matchPatternType.restType = ((BArrayType) listMatchPattern.restMatchPattern.type).eType;
                 }
                 listMatchPattern.type = matchPatternType;
                 break;
@@ -2131,7 +2131,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         BRecordType recordVarType = new BRecordType(recordSymbol);
         recordVarType.fields = fields;
-        recordVarType.restFieldType = symTable.anydataType;
+        recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingMatchPattern.restMatchPattern != null) {
             BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
             restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);

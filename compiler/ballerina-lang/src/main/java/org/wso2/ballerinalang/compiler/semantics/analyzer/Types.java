@@ -3708,8 +3708,6 @@ public class Types {
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (type.tag == TypeTags.NULL_SET) {
-            return type;
         } else if (type.tag == TypeTags.MAP && lhsType.tag == TypeTags.MAP) {
             BType intersectionType = createRecordAndMapIntersection(intersectionContext,
                     type, lhsType, env);
@@ -3739,6 +3737,10 @@ public class Types {
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
+        } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.MAP) {
+            return getIntersection(intersectionContext, lhsType, env, symTable.mapAnydataType);
+        } else if (type.tag == TypeTags.MAP && lhsType.tag == TypeTags.ANYDATA) {
+            return getIntersection(intersectionContext, symTable.mapAnydataType, env, type);
         } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createAnyDataAndTupleIntersection(intersectionContext, (BTupleType) lhsType, env);
             if (intersectionType != symTable.semanticError) {
@@ -3749,20 +3751,26 @@ public class Types {
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
+        } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.ARRAY) {
+            return new BArrayType(getIntersection(intersectionContext, ((BArrayType) lhsType).eType, env,
+                                  symTable.anydataType));
+        } else if (type.tag == TypeTags.ARRAY && lhsType.tag == TypeTags.ANYDATA) {
+            return new BArrayType(getIntersection(intersectionContext, symTable.anydataType, env,
+                                  ((BArrayType) type).eType));
+        } else if (type.tag == TypeTags.NULL_SET) {
+            return type;
         }
         return null;
     }
 
     private BType createAnyDataAndRecordIntersection(IntersectionContext intersectionContext, BRecordType recordType,
                                                      SymbolEnv env) {
-        return createRecordAndMapIntersection(intersectionContext, recordType, new BMapType(TypeTags.MAP,
-                        symTable.anydataType, null), env);
+        return createRecordAndMapIntersection(intersectionContext, recordType, symTable.mapAnydataType, env);
     }
 
     private BType createAnyDataAndTupleIntersection(IntersectionContext intersectionContext, BTupleType tupleType,
                                                     SymbolEnv env) {
-        return createArrayAndTupleIntersection(intersectionContext, new BArrayType(symTable.anydataType), tupleType,
-                env);
+        return createArrayAndTupleIntersection(intersectionContext, symTable.arrayAnydataType, tupleType, env);
     }
 
     private BType createArrayAndTupleIntersection(IntersectionContext intersectionContext,
