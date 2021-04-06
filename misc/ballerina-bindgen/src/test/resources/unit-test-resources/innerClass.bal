@@ -32,18 +32,6 @@ distinct class Subset {
         return java_lang_Character_Subset_equals(self.jObj, arg0.jObj);
     }
 
-    # The function that maps to the `wait` method of `java.lang.Character$Subset`.
-    #
-    # + return - The `InterruptedException` value returning from the Java mapping.
-    function 'wait() returns InterruptedException? {
-        error|() externalObj = java_lang_Character_Subset_wait(self.jObj);
-        if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
-            return e;
-        }
-    }
-
     # The function that maps to the `getClass` method of `java.lang.Character$Subset`.
     #
     # + return - The `Class` value returning from the Java mapping.
@@ -68,6 +56,18 @@ distinct class Subset {
     # The function that maps to the `notifyAll` method of `java.lang.Character$Subset`.
     function notifyAll() {
         java_lang_Character_Subset_notifyAll(self.jObj);
+    }
+
+    # The function that maps to the `wait` method of `java.lang.Character$Subset`.
+    #
+    # + return - The `InterruptedException` value returning from the Java mapping.
+    function 'wait() returns InterruptedException? {
+        error|() externalObj = java_lang_Character_Subset_wait(self.jObj);
+        if (externalObj is error) {
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
+            message());
+            return e;
+        }
     }
 
     # The function that maps to the `wait` method of `java.lang.Character$Subset`.
@@ -104,12 +104,6 @@ function java_lang_Character_Subset_equals(handle receiver, handle arg0) returns
     paramTypes: ["java.lang.Object"]
 } external;
 
-function java_lang_Character_Subset_wait(handle receiver) returns error? = @java:Method {
-    name: "wait",
-    'class: "java.lang.Character$Subset",
-    paramTypes: []
-} external;
-
 function java_lang_Character_Subset_getClass(handle receiver) returns handle = @java:Method {
     name: "getClass",
     'class: "java.lang.Character$Subset",
@@ -130,6 +124,12 @@ function java_lang_Character_Subset_notify(handle receiver) = @java:Method {
 
 function java_lang_Character_Subset_notifyAll(handle receiver) = @java:Method {
     name: "notifyAll",
+    'class: "java.lang.Character$Subset",
+    paramTypes: []
+} external;
+
+function java_lang_Character_Subset_wait(handle receiver) returns error? = @java:Method {
+    name: "wait",
     'class: "java.lang.Character$Subset",
     paramTypes: []
 } external;

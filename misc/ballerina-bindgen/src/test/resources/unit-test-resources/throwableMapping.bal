@@ -25,31 +25,19 @@ distinct class JIOException {
         return java:toString(self.jObj) ?: "null";
     }
 
+    # The function that maps to the `addSuppressed` method of `java.io.IOException`.
+    #
+    # + arg0 - The `Throwable` value required to map with the Java method parameter.
+    function addSuppressed(Throwable arg0) {
+        java_io_IOException_addSuppressed(self.jObj, arg0.jObj);
+    }
+
     # The function that maps to the `equals` method of `java.io.IOException`.
     #
     # + arg0 - The `Object` value required to map with the Java method parameter.
     # + return - The `boolean` value returning from the Java mapping.
     function 'equals(Object arg0) returns boolean {
         return java_io_IOException_equals(self.jObj, arg0.jObj);
-    }
-
-    # The function that maps to the `wait` method of `java.io.IOException`.
-    #
-    # + return - The `InterruptedException` value returning from the Java mapping.
-    function 'wait() returns InterruptedException? {
-        error|() externalObj = java_io_IOException_wait(self.jObj);
-        if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
-            return e;
-        }
-    }
-
-    # The function that maps to the `addSuppressed` method of `java.io.IOException`.
-    #
-    # + arg0 - The `Throwable` value required to map with the Java method parameter.
-    function addSuppressed(Throwable arg0) {
-        java_io_IOException_addSuppressed(self.jObj, arg0.jObj);
     }
 
     # The function that maps to the `fillInStackTrace` method of `java.io.IOException`.
@@ -179,6 +167,18 @@ distinct class JIOException {
 
     # The function that maps to the `wait` method of `java.io.IOException`.
     #
+    # + return - The `InterruptedException` value returning from the Java mapping.
+    function 'wait() returns InterruptedException? {
+        error|() externalObj = java_io_IOException_wait(self.jObj);
+        if (externalObj is error) {
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
+            message());
+            return e;
+        }
+    }
+
+    # The function that maps to the `wait` method of `java.io.IOException`.
+    #
     # + arg0 - The `int` value required to map with the Java method parameter.
     # + return - The `InterruptedException` value returning from the Java mapping.
     function wait2(int arg0) returns InterruptedException? {
@@ -245,22 +245,16 @@ function newJIOException4(Throwable arg0) returns JIOException {
     return newObj;
 }
 
-function java_io_IOException_equals(handle receiver, handle arg0) returns boolean = @java:Method {
-    name: "equals",
-    'class: "java.io.IOException",
-    paramTypes: ["java.lang.Object"]
-} external;
-
-function java_io_IOException_wait(handle receiver) returns error? = @java:Method {
-    name: "wait",
-    'class: "java.io.IOException",
-    paramTypes: []
-} external;
-
 function java_io_IOException_addSuppressed(handle receiver, handle arg0) = @java:Method {
     name: "addSuppressed",
     'class: "java.io.IOException",
     paramTypes: ["java.lang.Throwable"]
+} external;
+
+function java_io_IOException_equals(handle receiver, handle arg0) returns boolean = @java:Method {
+    name: "equals",
+    'class: "java.io.IOException",
+    paramTypes: ["java.lang.Object"]
 } external;
 
 function java_io_IOException_fillInStackTrace(handle receiver) returns handle = @java:Method {
@@ -351,6 +345,12 @@ function java_io_IOException_setStackTrace(handle receiver, handle arg0) = @java
     name: "setStackTrace",
     'class: "java.io.IOException",
     paramTypes: ["[Ljava.lang.StackTraceElement;"]
+} external;
+
+function java_io_IOException_wait(handle receiver) returns error? = @java:Method {
+    name: "wait",
+    'class: "java.io.IOException",
+    paramTypes: []
 } external;
 
 function java_io_IOException_wait2(handle receiver, int arg0) returns error? = @java:Method {

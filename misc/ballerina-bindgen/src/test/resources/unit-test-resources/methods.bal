@@ -25,26 +25,6 @@ distinct class MethodsTestResource {
         return java:toString(self.jObj) ?: "null";
     }
 
-    # The function that maps to the `equals` method of `org.ballerinalang.bindgen.MethodsTestResource`.
-    #
-    # + arg0 - The `Object` value required to map with the Java method parameter.
-    # + return - The `boolean` value returning from the Java mapping.
-    function 'equals(Object arg0) returns boolean {
-        return org_ballerinalang_bindgen_MethodsTestResource_equals(self.jObj, arg0.jObj);
-    }
-
-    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.MethodsTestResource`.
-    #
-    # + return - The `InterruptedException` value returning from the Java mapping.
-    function 'wait() returns InterruptedException? {
-        error|() externalObj = org_ballerinalang_bindgen_MethodsTestResource_wait(self.jObj);
-        if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
-            return e;
-        }
-    }
-
     # The function that maps to the `abstractObjectParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `AbstractSet` value required to map with the Java method parameter.
@@ -63,6 +43,14 @@ distinct class MethodsTestResource {
         handle externalObj = org_ballerinalang_bindgen_MethodsTestResource_enumParam(self.jObj, arg0.jObj);
         Level newObj = new (externalObj);
         return newObj;
+    }
+
+    # The function that maps to the `equals` method of `org.ballerinalang.bindgen.MethodsTestResource`.
+    #
+    # + arg0 - The `Object` value required to map with the Java method parameter.
+    # + return - The `boolean` value returning from the Java mapping.
+    function 'equals(Object arg0) returns boolean {
+        return org_ballerinalang_bindgen_MethodsTestResource_equals(self.jObj, arg0.jObj);
     }
 
     # The function that maps to the `errorParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -567,6 +555,18 @@ distinct class MethodsTestResource {
 
     # The function that maps to the `wait` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
+    # + return - The `InterruptedException` value returning from the Java mapping.
+    function 'wait() returns InterruptedException? {
+        error|() externalObj = org_ballerinalang_bindgen_MethodsTestResource_wait(self.jObj);
+        if (externalObj is error) {
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
+            message());
+            return e;
+        }
+    }
+
+    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.MethodsTestResource`.
+    #
     # + arg0 - The `int` value required to map with the Java method parameter.
     # + return - The `InterruptedException` value returning from the Java mapping.
     function wait2(int arg0) returns InterruptedException? {
@@ -741,18 +741,6 @@ function MethodsTestResource_getTEST_FIELD() returns int {
     return org_ballerinalang_bindgen_MethodsTestResource_getTEST_FIELD();
 }
 
-function org_ballerinalang_bindgen_MethodsTestResource_equals(handle receiver, handle arg0) returns boolean = @java:Method {
-    name: "equals",
-    'class: "org.ballerinalang.bindgen.MethodsTestResource",
-    paramTypes: ["java.lang.Object"]
-} external;
-
-function org_ballerinalang_bindgen_MethodsTestResource_wait(handle receiver) returns error? = @java:Method {
-    name: "wait",
-    'class: "org.ballerinalang.bindgen.MethodsTestResource",
-    paramTypes: []
-} external;
-
 function org_ballerinalang_bindgen_MethodsTestResource_abstractObjectParam(handle receiver, handle arg0, handle arg1,
                                                                            handle arg2) = @java:Method {
     name: "abstractObjectParam",
@@ -776,6 +764,12 @@ function org_ballerinalang_bindgen_MethodsTestResource_enumStaticParam(handle ar
     name: "enumStaticParam",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["java.lang.System$Logger$Level", "[Ljava.lang.Object;"]
+} external;
+
+function org_ballerinalang_bindgen_MethodsTestResource_equals(handle receiver, handle arg0) returns boolean = @java:Method {
+    name: "equals",
+    'class: "org.ballerinalang.bindgen.MethodsTestResource",
+    paramTypes: ["java.lang.Object"]
 } external;
 
 function org_ballerinalang_bindgen_MethodsTestResource_errorParam(handle receiver, handle arg0, handle arg1) = @java:Method {
@@ -1155,6 +1149,12 @@ function org_ballerinalang_bindgen_MethodsTestResource_testMethod(handle receive
     name: "testMethod",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["int"]
+} external;
+
+function org_ballerinalang_bindgen_MethodsTestResource_wait(handle receiver) returns error? = @java:Method {
+    name: "wait",
+    'class: "org.ballerinalang.bindgen.MethodsTestResource",
+    paramTypes: []
 } external;
 
 function org_ballerinalang_bindgen_MethodsTestResource_wait2(handle receiver, int arg0) returns error? = @java:Method {
