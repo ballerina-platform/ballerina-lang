@@ -2016,6 +2016,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (matchClause.matchGuard != null) {
             typeChecker.checkExpr(matchClause.matchGuard.expr, blockEnv);
             blockEnv = typeNarrower.evaluateTruth(matchClause.matchGuard.expr, matchClause.blockStmt, blockEnv);
+
+            for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry :
+                    matchClause.matchGuard.expr.narrowedTypeInfo.entrySet()) {
+                if (entry.getValue().trueType == symTable.semanticError) {
+                    dlog.error(matchClause.pos, DiagnosticErrorCode.MATCH_STMT_UNMATCHED_PATTERN);
+                }
+            }
+
             evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchClause.matchGuard.expr, blockEnv);
         }
         analyzeStmt(matchClause.blockStmt, blockEnv);

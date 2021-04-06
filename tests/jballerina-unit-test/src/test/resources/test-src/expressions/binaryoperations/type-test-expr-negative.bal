@@ -323,3 +323,17 @@ type Quux record {|
 type ClosedRecordWithIntField record {|
     int i;
 |};
+
+function testAnydataAgainstInvalidArray() {
+    object {}[] arr1 = [];
+
+    if arr1 is anydata {
+        anydata[] p = arr1;
+    }
+
+    anydata arr2 = [];
+
+    if arr2 is object {}[] {
+        object {}[] p = arr2;
+    }
+}

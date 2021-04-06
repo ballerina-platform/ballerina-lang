@@ -3752,11 +3752,19 @@ public class Types {
                 return intersectionType;
             }
         } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.ARRAY) {
-            return new BArrayType(getIntersection(intersectionContext, ((BArrayType) lhsType).eType, env,
-                                  symTable.anydataType));
+            BType elementIntersection = getIntersection(intersectionContext, ((BArrayType) lhsType).eType, env,
+                                                        symTable.anydataType);
+            if (elementIntersection == null) {
+                return elementIntersection;
+            }
+            return new BArrayType(elementIntersection);
         } else if (type.tag == TypeTags.ARRAY && lhsType.tag == TypeTags.ANYDATA) {
-            return new BArrayType(getIntersection(intersectionContext, symTable.anydataType, env,
-                                  ((BArrayType) type).eType));
+            BType elementIntersection = getIntersection(intersectionContext, symTable.anydataType, env,
+                                                        ((BArrayType) type).eType);
+            if (elementIntersection == null) {
+                return elementIntersection;
+            }
+            return new BArrayType(elementIntersection);
         } else if (type.tag == TypeTags.NULL_SET) {
             return type;
         }
