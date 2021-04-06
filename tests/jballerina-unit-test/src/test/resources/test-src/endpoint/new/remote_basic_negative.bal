@@ -132,3 +132,17 @@ class dummy {
     }
 
 }
+
+client class Client {
+    remote function foo() {
+    }
+
+    function bar() {
+    }
+}
+
+function testRemoteMethodCallAction() {
+    Client cl = new;
+    cl.foo();
+    cl->bar();
+}
