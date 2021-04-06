@@ -28,6 +28,7 @@ import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.ballerinalang.test.BAssertUtil.validateHint;
 
 /**
  * Test error-constructor-expr.
@@ -101,7 +102,7 @@ public class ErrorConstructorExprTest {
     public void testCodeAnalysisNegative() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/expressions/errorconstructorexpr/error-constructor-expr-code-analysis-negative.bal");
-        validateError(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
+        validateHint(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
                 "'true'", 19, 37);
     }
 }
