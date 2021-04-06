@@ -67,6 +67,11 @@ public class DataMapperNodeVisitor extends NodeVisitor {
                 String rightSymbolName = variableDeclarationNode.typedBindingPattern().typeDescriptor().toString().
                         replaceAll(" ", "");
                 rightSymbolName = rightSymbolName.replaceAll("\n", "");
+                // to check if the variable if from another module
+                if(rightSymbolName.contains(":")){
+                    String[] rightSymbolNameArray = rightSymbolName.split(":");
+                    rightSymbolName = rightSymbolNameArray[rightSymbolNameArray.length - 1];
+                }
                 if (this.rhsSymbolName.equals(rightSymbolName)) {
                     MappingConstructorExpressionNode mappingConstructorExpressionNode =
                             (MappingConstructorExpressionNode) variableDeclarationNode.initializer().get();
