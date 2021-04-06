@@ -15,9 +15,19 @@
  */
 package org.ballerinalang.langserver.util.definition;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageName;
+import io.ballerina.projects.PackageOrg;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.environment.PackageCache;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
@@ -25,6 +35,8 @@ import org.eclipse.lsp4j.Location;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
+import java.nio.file.Path;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -63,10 +75,26 @@ public class DefinitionUtil {
     }
 
     private static Optional<Location> getLocation(Symbol symbol, DocumentServiceContext context) {
-        if (symbol.getLocation().isEmpty()) {
+        Optional<Project> project = context.workspace().project(context.filePath());
+        if (project.isEmpty() || symbol.getModule().isEmpty()) {
+            return Optional.empty();
+        }
+        ModuleID moduleID = symbol.getModule().get().id();
+        String orgName = moduleID.orgName();
+        String moduleName = moduleID.moduleName();
+
+        Optional<Path> filepath;
+        if (CommonUtil.isLangLib(orgName, moduleName)) {
+            filepath = getFilePathForLanglib(orgName, moduleName, project.get(), symbol);
+        } else {
+            filepath = getFilePathForDependency(orgName, moduleName, project.get(), symbol);
+        }
+
+        if (filepath.isEmpty() || symbol.getLocation().isEmpty()) {
             return Optional.empty();
         }
 
+        String uri = filepath.get().toUri().toString();
         io.ballerina.tools.diagnostics.Location symbolLocation = symbol.getLocation().get();
         LinePosition startLine = symbolLocation.lineRange().startLine();
         LinePosition endLine = symbolLocation.lineRange().endLine();
@@ -74,11 +102,56 @@ public class DefinitionUtil {
         Position end = new Position(endLine.line(), endLine.offset());
         Range range = new Range(start, end);
 
-        if (symbol.getModule().isEmpty()) {
+        return Optional.of(new Location(uri, range));
+    }
+
+    private static Optional<Path> getFilePathForDependency(String orgName, String moduleName,
+                                                           Project project, Symbol symbol) {
+        if (symbol.getLocation().isEmpty()) {
             return Optional.empty();
         }
-        Optional<String> uri = CommonUtil.getSymbolUriInProject(context, symbol);
+        Collection<ResolvedPackageDependency> dependencies =
+                project.currentPackage().getResolution().dependencyGraph().getNodes();
+        Optional<Path> filepath = Optional.empty();
+        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+        for (ResolvedPackageDependency depNode : dependencies) {
+            Package depPackage = depNode.packageInstance();
+            for (ModuleId moduleId : depPackage.moduleIds()) {
+                if (depPackage.packageOrg().value().equals(orgName) &&
+                        depPackage.module(moduleId).moduleName().toString().equals(moduleName)) {
+                    Module module = depPackage.module(moduleId);
+                    for (DocumentId docId : module.documentIds()) {
+                        if (module.document(docId).name().equals(sourceFile)) {
+                            filepath =
+                                    module.project().documentPath(docId);
+                            break;
+                        }
+                    }
+                }
+            }
+        }
 
-        return Optional.of(new Location(uri.orElseThrow(), range));
+        return filepath;
+    }
+
+    private static Optional<Path> getFilePathForLanglib(String orgName, String moduleName,
+                                                        Project project, Symbol symbol) {
+        Package langLibPackage = project.projectEnvironmentContext().environment().getService(PackageCache.class)
+                .getPackages(PackageOrg.from(orgName), PackageName.from(moduleName)).get(0);
+        String sourceFile = symbol.getLocation().get().lineRange().filePath();
+
+        Optional<Path> filepath = Optional.empty();
+        for (ModuleId moduleId : langLibPackage.moduleIds()) {
+            Module module = langLibPackage.module(moduleId);
+            for (DocumentId docId : module.documentIds()) {
+                if (module.document(docId).name().equals(sourceFile)) {
+                    filepath =
+                            module.project().documentPath(docId);
+                    break;
+                }
+            }
+        }
+
+        return filepath;
     }
 }

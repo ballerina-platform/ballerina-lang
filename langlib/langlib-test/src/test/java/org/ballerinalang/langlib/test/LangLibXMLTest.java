@@ -286,6 +286,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testGetDescendants() {
+        BRunUtil.invoke(compileResult, "testGetDescendants");
+    }
+
+    @Test
     public void testData() {
         BRunUtil.invoke(compileResult, "testData");
     }
@@ -303,6 +308,7 @@ public class LangLibXMLTest {
                 56, 8);
         validateError(negativeResult, i++, "incompatible types: expected " +
                 "'(xml:ProcessingInstruction|xml:Comment)', found 'xml:Element'", 61, 12);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 69, 13);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 

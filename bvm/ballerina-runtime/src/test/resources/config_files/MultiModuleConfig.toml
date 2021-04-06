@@ -1,0 +1,7 @@
+[test_module]
+intVar = 42
+stringVar = "abc"
+
+[test_module.util.foo]
+intVar = 24
+stringVar = "world"
