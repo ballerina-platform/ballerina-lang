@@ -17,12 +17,13 @@
  */
 package io.ballerina.runtime.internal.diagnostics;
 
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+
 import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-
-import static io.ballerina.runtime.internal.diagnostics.DiagnosticSeverity.ERROR;
-import static io.ballerina.runtime.internal.diagnostics.DiagnosticSeverity.WARNING;
 
 /**
  * A diagnostic log manages the runtime diagnostics.
@@ -31,20 +32,24 @@ import static io.ballerina.runtime.internal.diagnostics.DiagnosticSeverity.WARNI
  */
 public class DiagnosticLog {
 
-    private List<Diagnostic> diagnosticList = new LinkedList<>();
+    private List<RuntimeDiagnostic> diagnosticList = new LinkedList<>();
 
     private int errorCount = 0;
 
     private int warnCount = 0;
 
-    public void error(String message) {
+    public void error(RuntimeErrors errorCode, String errorReason, String location, Object... args) {
         errorCount += 1;
-        diagnosticList.add(new Diagnostic(ERROR, message));
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(errorCode.diagnosticId(), errorCode.messageKey(),
+                                                           DiagnosticSeverity.ERROR);
+        diagnosticList.add(new RuntimeDiagnostic(diagnosticInfo, errorReason, location, args));
     }
 
-    public void warn(String message) {
+    public void warn(RuntimeErrors errorCode, String errorReason, String location, Object... args) {
         warnCount += 1;
-        diagnosticList.add(new Diagnostic(WARNING, message));
+        DiagnosticInfo diagnosticInfo = new DiagnosticInfo(errorCode.diagnosticId(), errorCode.messageKey(),
+                                                           DiagnosticSeverity.WARNING);
+        diagnosticList.add(new RuntimeDiagnostic(diagnosticInfo, errorReason, location, args));
     }
 
     public int getErrorCount() {
@@ -55,7 +60,7 @@ public class DiagnosticLog {
         return warnCount;
     }
 
-    public List<Diagnostic> getDiagnosticList() {
+    public List<RuntimeDiagnostic> getDiagnosticList() {
         return new ArrayList<>(diagnosticList);
     }
 }
