@@ -18,7 +18,7 @@
       "kind": "Field",
       "detail": "record {| string first; string last; anydata...; |} & readonly",
       "sortText": "G",
-      "insertText": "name: {\n\tfirst: \"${1}\",\n\tlast: \"${1}\"\n}",
+      "insertText": "name: {\n\tfirst: \"${1}\",\n\tlast: \"${2}\"\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -26,7 +26,7 @@
       "kind": "Field",
       "detail": "int",
       "sortText": "G",
-      "insertText": "salary: ${1:0}",
+      "insertText": "salary: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
