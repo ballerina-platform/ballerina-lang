@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object;
+import ballerina/test;
 
 class Iterable {
     *object:Iterable;
@@ -195,4 +196,33 @@ class IterableFromIterator {
 
 function getIterableObject(_Iterator iterator) returns IterableFromIterator {
     return new IterableFromIterator(iterator);
+}
+
+class MyIterable {
+    *object:Iterable;
+    public function iterator() returns object {
+                                           public function next() returns record {| int value; |}?;
+                                       } {
+        return new MyIterator();
+    }
+}
+
+int i = 0;
+
+public class MyIterator {
+    public function next() returns record {| int value; |}? {
+        i += 1;
+        if (i < 5) {
+            return {value: i};
+        }
+        return ();
+    }
+}
+
+public function testObjectIterator() {
+    int[] expectedArr = [1, 2, 3, 4];
+    int[] integers = from var item in new MyIterable()
+                     select item;
+
+    test:assertEquals(integers, expectedArr);
 }
