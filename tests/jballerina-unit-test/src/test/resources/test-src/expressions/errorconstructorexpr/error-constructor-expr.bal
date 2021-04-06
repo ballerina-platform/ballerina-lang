@@ -119,6 +119,7 @@ function testErrorConstructorExpr9() {
 type AppError distinct error<record { int code; }>;
 type CodeError distinct error<record { int no; }>;
 type AppCodeError AppError & CodeError;
+type MyError error<record {| byte code; |}>;
 
 function testContextuallyExpectedErrorCtor() {
     AppError e = error("message", code = 2);
@@ -169,6 +170,12 @@ function testContextuallyExpectedErrorCtor() {
         }
     } else {
         panic error("Invalid state: expected `error` found + `" + (typeof r).toString() + "`");
+    }
+
+    MyError x = error MyError("error!", code = 1);
+    anydata code = x.detail().code;
+    if !(code is byte) {
+        panic error("Expected byte, found: " + (typeof code).toString());
     }
 }
 

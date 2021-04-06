@@ -42,6 +42,7 @@ public class ErrorConstructorExprTest {
     @BeforeClass
     public void setUp() {
         result = BCompileUtil.compile("test-src/expressions/errorconstructorexpr/error-constructor-expr.bal");
+        Assert.assertEquals(result.getErrorCount(), 0, result.getDiagnosticResult().diagnostics().toString());
     }
 
     @AfterClass
