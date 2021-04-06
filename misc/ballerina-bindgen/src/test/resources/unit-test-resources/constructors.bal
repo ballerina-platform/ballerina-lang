@@ -33,6 +33,18 @@ distinct class ConstructorsTestResource {
         return org_ballerinalang_bindgen_ConstructorsTestResource_equals(self.jObj, arg0.jObj);
     }
 
+    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
+    #
+    # + return - The `InterruptedException` value returning from the Java mapping.
+    function 'wait() returns InterruptedException? {
+        error|() externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_wait(self.jObj);
+        if (externalObj is error) {
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
+            message());
+            return e;
+        }
+    }
+
     # The function that maps to the `getClass` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
     #
     # + return - The `Class` value returning from the Java mapping.
@@ -57,18 +69,6 @@ distinct class ConstructorsTestResource {
     # The function that maps to the `notifyAll` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
     function notifyAll() {
         org_ballerinalang_bindgen_ConstructorsTestResource_notifyAll(self.jObj);
-    }
-
-    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
-    #
-    # + return - The `InterruptedException` value returning from the Java mapping.
-    function wait1() returns InterruptedException? {
-        error|() externalObj = org_ballerinalang_bindgen_ConstructorsTestResource_wait1(self.jObj);
-        if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
-            return e;
-        }
     }
 
     # The function that maps to the `wait` method of `org.ballerinalang.bindgen.ConstructorsTestResource`.
@@ -339,6 +339,12 @@ function org_ballerinalang_bindgen_ConstructorsTestResource_equals(handle receiv
     paramTypes: ["java.lang.Object"]
 } external;
 
+function org_ballerinalang_bindgen_ConstructorsTestResource_wait(handle receiver) returns error? = @java:Method {
+    name: "wait",
+    'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
+    paramTypes: []
+} external;
+
 function org_ballerinalang_bindgen_ConstructorsTestResource_getClass(handle receiver) returns handle = @java:Method {
     name: "getClass",
     'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
@@ -359,12 +365,6 @@ function org_ballerinalang_bindgen_ConstructorsTestResource_notify(handle receiv
 
 function org_ballerinalang_bindgen_ConstructorsTestResource_notifyAll(handle receiver) = @java:Method {
     name: "notifyAll",
-    'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
-    paramTypes: []
-} external;
-
-function org_ballerinalang_bindgen_ConstructorsTestResource_wait1(handle receiver) returns error? = @java:Method {
-    name: "wait",
     'class: "org.ballerinalang.bindgen.ConstructorsTestResource",
     paramTypes: []
 } external;

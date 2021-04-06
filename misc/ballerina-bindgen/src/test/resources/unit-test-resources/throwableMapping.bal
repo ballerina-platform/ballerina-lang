@@ -33,6 +33,18 @@ distinct class JIOException {
         return java_io_IOException_equals(self.jObj, arg0.jObj);
     }
 
+    # The function that maps to the `wait` method of `java.io.IOException`.
+    #
+    # + return - The `InterruptedException` value returning from the Java mapping.
+    function 'wait() returns InterruptedException? {
+        error|() externalObj = java_io_IOException_wait(self.jObj);
+        if (externalObj is error) {
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
+            message());
+            return e;
+        }
+    }
+
     # The function that maps to the `addSuppressed` method of `java.io.IOException`.
     #
     # + arg0 - The `Throwable` value required to map with the Java method parameter.
@@ -139,8 +151,8 @@ distinct class JIOException {
     }
 
     # The function that maps to the `printStackTrace` method of `java.io.IOException`.
-    function printStackTrace1() {
-        java_io_IOException_printStackTrace1(self.jObj);
+    function printStackTrace() {
+        java_io_IOException_printStackTrace(self.jObj);
     }
 
     # The function that maps to the `printStackTrace` method of `java.io.IOException`.
@@ -163,18 +175,6 @@ distinct class JIOException {
     # + return - The `error?` value returning from the Java mapping.
     function setStackTrace(StackTraceElement[] arg0) returns error? {
         java_io_IOException_setStackTrace(self.jObj, check jarrays:toHandle(arg0, "java.lang.StackTraceElement"));
-    }
-
-    # The function that maps to the `wait` method of `java.io.IOException`.
-    #
-    # + return - The `InterruptedException` value returning from the Java mapping.
-    function wait1() returns InterruptedException? {
-        error|() externalObj = java_io_IOException_wait1(self.jObj);
-        if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
-            return e;
-        }
     }
 
     # The function that maps to the `wait` method of `java.io.IOException`.
@@ -251,6 +251,12 @@ function java_io_IOException_equals(handle receiver, handle arg0) returns boolea
     paramTypes: ["java.lang.Object"]
 } external;
 
+function java_io_IOException_wait(handle receiver) returns error? = @java:Method {
+    name: "wait",
+    'class: "java.io.IOException",
+    paramTypes: []
+} external;
+
 function java_io_IOException_addSuppressed(handle receiver, handle arg0) = @java:Method {
     name: "addSuppressed",
     'class: "java.io.IOException",
@@ -323,7 +329,7 @@ function java_io_IOException_notifyAll(handle receiver) = @java:Method {
     paramTypes: []
 } external;
 
-function java_io_IOException_printStackTrace1(handle receiver) = @java:Method {
+function java_io_IOException_printStackTrace(handle receiver) = @java:Method {
     name: "printStackTrace",
     'class: "java.io.IOException",
     paramTypes: []
@@ -345,12 +351,6 @@ function java_io_IOException_setStackTrace(handle receiver, handle arg0) = @java
     name: "setStackTrace",
     'class: "java.io.IOException",
     paramTypes: ["[Ljava.lang.StackTraceElement;"]
-} external;
-
-function java_io_IOException_wait1(handle receiver) returns error? = @java:Method {
-    name: "wait",
-    'class: "java.io.IOException",
-    paramTypes: []
 } external;
 
 function java_io_IOException_wait2(handle receiver, int arg0) returns error? = @java:Method {

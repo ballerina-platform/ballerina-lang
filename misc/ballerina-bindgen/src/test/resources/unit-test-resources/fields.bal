@@ -33,6 +33,18 @@ distinct class FieldsTestResource {
         return org_ballerinalang_bindgen_FieldsTestResource_equals(self.jObj, arg0.jObj);
     }
 
+    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.FieldsTestResource`.
+    #
+    # + return - The `InterruptedException` value returning from the Java mapping.
+    function 'wait() returns InterruptedException? {
+        error|() externalObj = org_ballerinalang_bindgen_FieldsTestResource_wait(self.jObj);
+        if (externalObj is error) {
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
+            message());
+            return e;
+        }
+    }
+
     # The function that maps to the `getClass` method of `org.ballerinalang.bindgen.FieldsTestResource`.
     #
     # + return - The `Class` value returning from the Java mapping.
@@ -65,18 +77,6 @@ distinct class FieldsTestResource {
     # + return - The `int` value returning from the Java mapping.
     function testMethod(int arg0) returns int {
         return org_ballerinalang_bindgen_FieldsTestResource_testMethod(self.jObj, arg0);
-    }
-
-    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.FieldsTestResource`.
-    #
-    # + return - The `InterruptedException` value returning from the Java mapping.
-    function wait1() returns InterruptedException? {
-        error|() externalObj = org_ballerinalang_bindgen_FieldsTestResource_wait1(self.jObj);
-        if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
-            return e;
-        }
     }
 
     # The function that maps to the `wait` method of `org.ballerinalang.bindgen.FieldsTestResource`.
@@ -1054,6 +1054,12 @@ function org_ballerinalang_bindgen_FieldsTestResource_equals(handle receiver, ha
     paramTypes: ["java.lang.Object"]
 } external;
 
+function org_ballerinalang_bindgen_FieldsTestResource_wait(handle receiver) returns error? = @java:Method {
+    name: "wait",
+    'class: "org.ballerinalang.bindgen.FieldsTestResource",
+    paramTypes: []
+} external;
+
 function org_ballerinalang_bindgen_FieldsTestResource_getClass(handle receiver) returns handle = @java:Method {
     name: "getClass",
     'class: "org.ballerinalang.bindgen.FieldsTestResource",
@@ -1082,12 +1088,6 @@ function org_ballerinalang_bindgen_FieldsTestResource_testMethod(handle receiver
     name: "testMethod",
     'class: "org.ballerinalang.bindgen.FieldsTestResource",
     paramTypes: ["int"]
-} external;
-
-function org_ballerinalang_bindgen_FieldsTestResource_wait1(handle receiver) returns error? = @java:Method {
-    name: "wait",
-    'class: "org.ballerinalang.bindgen.FieldsTestResource",
-    paramTypes: []
 } external;
 
 function org_ballerinalang_bindgen_FieldsTestResource_wait2(handle receiver, int arg0) returns error? = @java:Method {

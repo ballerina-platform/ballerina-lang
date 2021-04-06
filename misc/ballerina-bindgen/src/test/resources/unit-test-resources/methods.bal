@@ -33,6 +33,18 @@ distinct class MethodsTestResource {
         return org_ballerinalang_bindgen_MethodsTestResource_equals(self.jObj, arg0.jObj);
     }
 
+    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.MethodsTestResource`.
+    #
+    # + return - The `InterruptedException` value returning from the Java mapping.
+    function 'wait() returns InterruptedException? {
+        error|() externalObj = org_ballerinalang_bindgen_MethodsTestResource_wait(self.jObj);
+        if (externalObj is error) {
+            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
+            message());
+            return e;
+        }
+    }
+
     # The function that maps to the `abstractObjectParam` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + arg0 - The `AbstractSet` value required to map with the Java method parameter.
@@ -126,8 +138,8 @@ distinct class MethodsTestResource {
     #
     # + arg0 - The `boolean` value required to map with the Java method parameter.
     # + return - The `boolean` value returning from the Java mapping.
-    function returnBoolean1(boolean arg0) returns boolean {
-        return org_ballerinalang_bindgen_MethodsTestResource_returnBoolean1(self.jObj, arg0);
+    function returnBoolean(boolean arg0) returns boolean {
+        return org_ballerinalang_bindgen_MethodsTestResource_returnBoolean(self.jObj, arg0);
     }
 
     # The function that maps to the `returnBoolean` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -223,8 +235,8 @@ distinct class MethodsTestResource {
     #
     # + arg0 - The `float` value required to map with the Java method parameter.
     # + return - The `float` value returning from the Java mapping.
-    function returnDouble1(float arg0) returns float {
-        return org_ballerinalang_bindgen_MethodsTestResource_returnDouble1(self.jObj, arg0);
+    function returnDouble(float arg0) returns float {
+        return org_ballerinalang_bindgen_MethodsTestResource_returnDouble(self.jObj, arg0);
     }
 
     # The function that maps to the `returnDouble` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -280,8 +292,8 @@ distinct class MethodsTestResource {
     #
     # + arg0 - The `float` value required to map with the Java method parameter.
     # + return - The `float` value returning from the Java mapping.
-    function returnFloat1(float arg0) returns float {
-        return org_ballerinalang_bindgen_MethodsTestResource_returnFloat1(self.jObj, arg0);
+    function returnFloat(float arg0) returns float {
+        return org_ballerinalang_bindgen_MethodsTestResource_returnFloat(self.jObj, arg0);
     }
 
     # The function that maps to the `returnFloat` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -316,8 +328,8 @@ distinct class MethodsTestResource {
     # The function that maps to the `returnInt` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + return - The `int` value returning from the Java mapping.
-    function returnInt1() returns int {
-        return org_ballerinalang_bindgen_MethodsTestResource_returnInt1(self.jObj);
+    function returnInt() returns int {
+        return org_ballerinalang_bindgen_MethodsTestResource_returnInt(self.jObj);
     }
 
     # The function that maps to the `returnInt` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -433,8 +445,8 @@ distinct class MethodsTestResource {
     # The function that maps to the `returnObjectThrowableError` method of `org.ballerinalang.bindgen.MethodsTestResource`.
     #
     # + return - The `File[]` or the `FileNotFoundException` value returning from the Java mapping.
-    function returnObjectThrowableError1() returns File[]|FileNotFoundException|error {
-        handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError1(self.jObj);
+    function returnObjectThrowableError() returns File[]|FileNotFoundException|error {
+        handle|error externalObj = org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError(self.jObj);
         if (externalObj is error) {
             FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message =
             externalObj.message());
@@ -551,18 +563,6 @@ distinct class MethodsTestResource {
     # + return - The `int` value returning from the Java mapping.
     function testMethod(int arg0) returns int {
         return org_ballerinalang_bindgen_MethodsTestResource_testMethod(self.jObj, arg0);
-    }
-
-    # The function that maps to the `wait` method of `org.ballerinalang.bindgen.MethodsTestResource`.
-    #
-    # + return - The `InterruptedException` value returning from the Java mapping.
-    function wait1() returns InterruptedException? {
-        error|() externalObj = org_ballerinalang_bindgen_MethodsTestResource_wait1(self.jObj);
-        if (externalObj is error) {
-            InterruptedException e = error InterruptedException(INTERRUPTEDEXCEPTION, externalObj, message = externalObj.
-            message());
-            return e;
-        }
     }
 
     # The function that maps to the `wait` method of `org.ballerinalang.bindgen.MethodsTestResource`.
@@ -747,6 +747,12 @@ function org_ballerinalang_bindgen_MethodsTestResource_equals(handle receiver, h
     paramTypes: ["java.lang.Object"]
 } external;
 
+function org_ballerinalang_bindgen_MethodsTestResource_wait(handle receiver) returns error? = @java:Method {
+    name: "wait",
+    'class: "org.ballerinalang.bindgen.MethodsTestResource",
+    paramTypes: []
+} external;
+
 function org_ballerinalang_bindgen_MethodsTestResource_abstractObjectParam(handle receiver, handle arg0, handle arg1,
                                                                            handle arg2) = @java:Method {
     name: "abstractObjectParam",
@@ -834,7 +840,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnAbstractObject(hand
     paramTypes: []
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnBoolean1(handle receiver, boolean arg0) returns boolean = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnBoolean(handle receiver, boolean arg0) returns boolean = @java:Method {
     name: "returnBoolean",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["boolean"]
@@ -898,7 +904,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnCharMultiArray(hand
     paramTypes: ["[C", "[I", "[Ljava.lang.Object;"]
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnDouble1(handle receiver, float arg0) returns float = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnDouble(handle receiver, float arg0) returns float = @java:Method {
     name: "returnDouble",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["double"]
@@ -937,7 +943,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnError(handle receiv
     paramTypes: []
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnFloat1(handle receiver, float arg0) returns float = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnFloat(handle receiver, float arg0) returns float = @java:Method {
     name: "returnFloat",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["float"]
@@ -963,7 +969,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnGenericObject(handl
     paramTypes: []
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnInt1(handle receiver) returns int = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnInt(handle receiver) returns int = @java:Method {
     name: "returnInt",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: []
@@ -1032,8 +1038,7 @@ function org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowable(han
     paramTypes: []
 } external;
 
-function org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError1(handle receiver)
-returns handle|error = @java:Method {
+function org_ballerinalang_bindgen_MethodsTestResource_returnObjectThrowableError(handle receiver) returns handle|error = @java:Method {
     name: "returnObjectThrowableError",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: []
@@ -1150,12 +1155,6 @@ function org_ballerinalang_bindgen_MethodsTestResource_testMethod(handle receive
     name: "testMethod",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["int"]
-} external;
-
-function org_ballerinalang_bindgen_MethodsTestResource_wait1(handle receiver) returns error? = @java:Method {
-    name: "wait",
-    'class: "org.ballerinalang.bindgen.MethodsTestResource",
-    paramTypes: []
 } external;
 
 function org_ballerinalang_bindgen_MethodsTestResource_wait2(handle receiver, int arg0) returns error? = @java:Method {

@@ -78,7 +78,7 @@ public class JMethod extends BFunction {
         this.parentPrefix = parentPrefix;
         method = m;
         javaMethodName = m.getName();
-        if (overloaded != 0) {
+        if (overloaded > 1) {
             methodName = m.getName() + overloaded;
         } else {
             methodName = m.getName();
