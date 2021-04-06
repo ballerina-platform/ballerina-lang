@@ -614,7 +614,7 @@ function testData() {
     assertEquals(concat.data(), "EnidBlytonhello>abc<");
 }
 
-function testXmlGetContentOverASequence() {
+function testXmlGetContentOverACommentSequence() {
     xml a = xml `<elem><!--Hello--></elem>`;
     xml c = a/*;
     xml k = c.get(0);
@@ -638,5 +638,36 @@ function testXmlGetContentOverASequence() {
         assertEquals(s, "Hello");
     } else {
         panic error("Assert failure: single item comment sequence should pass `is xml:Comment` type test");
+    }
+}
+
+function testXmlGetContentOverAProcInstructionSequence() {
+    xml a = xml `<elem><?PI val="PI Val" val2="PI VAl 2"?></elem>`;
+    xml c = a/*;
+    xml k = c.get(0);
+    string expected = "val=\"PI Val\" val2=\"PI VAl 2\"";
+    if (k is 'xml:ProcessingInstruction) {
+        string s = k.getContent();
+        assertEquals(s, expected);
+    } else {
+        panic error("Assert failure: single item processing instruction should pass " +
+            "`is xml:ProcessingInstruction` type test");
+    }
+
+    if (c is 'xml:ProcessingInstruction) {
+        string s = c.getContent();
+        assertEquals(s, expected);
+    } else {
+        panic error("Assert failure: single item processing instruction sequence should pass " +
+            "`is xml:ProcessingInstruction` type test");
+    }
+
+    xml concat = c + xml ``;
+    if (concat is 'xml:ProcessingInstruction) {
+        string s = concat.getContent();
+        assertEquals(s, expected);
+    } else {
+        panic error("Assert failure: single item processing instruction sequence should pass " +
+            "`is xml:ProcessingInstruction` type test");
     }
 }

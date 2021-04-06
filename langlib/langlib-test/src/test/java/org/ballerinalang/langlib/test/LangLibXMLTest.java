@@ -175,8 +175,13 @@ public class LangLibXMLTest {
     }
 
     @Test
-    public void xmlGetContentOverASequence() {
-        BRunUtil.invoke(compileResult, "testXmlGetContentOverASequence");
+    public void xmlGetContentOverACommentSequence() {
+        BRunUtil.invoke(compileResult, "testXmlGetContentOverACommentSequence");
+    }
+
+    @Test
+    public void xmlGetContentOverAProcessingInstructionSequence() {
+        BRunUtil.invoke(compileResult, "testXmlGetContentOverAProcInstructionSequence");
     }
 
     @Test
