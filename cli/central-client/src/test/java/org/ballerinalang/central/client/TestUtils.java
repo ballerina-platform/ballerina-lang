@@ -18,6 +18,8 @@
 
 package org.ballerinalang.central.client;
 
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -28,7 +30,6 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -100,10 +101,12 @@ public class TestUtils {
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
 
-        HttpURLConnection connection = mock(HttpURLConnection.class);
-        when(connection.getInputStream()).thenReturn(targetStream);
+        Response resp = mock(Response.class);
+        ResponseBody respBody = mock(ResponseBody.class);
+        when(respBody.byteStream()).thenReturn(targetStream);
+        when(resp.body()).thenReturn(respBody);
 
-        writeBalaFile(connection, tempBalaCache.resolve(balaName), "wso2/sf:1.1.0",
+        writeBalaFile(resp, tempBalaCache.resolve(balaName), "wso2/sf:1.1.0",
                 10000, System.out, new LogFormatter());
 
         Assert.assertTrue(tempBalaCache.resolve("package.json").toFile().exists());
@@ -139,12 +142,14 @@ public class TestUtils {
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
 
-        HttpURLConnection connection = mock(HttpURLConnection.class);
-        when(connection.getContentLengthLong()).thenReturn(Files.size(balaFile));
-        when(connection.getInputStream()).thenReturn(targetStream);
+        Response resp = mock(Response.class);
+        ResponseBody respBody = mock(ResponseBody.class);
+        when(respBody.contentLength()).thenReturn(Files.size(balaFile));
+        when(respBody.byteStream()).thenReturn(targetStream);
+        when(resp.body()).thenReturn(respBody);
 
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
-        createBalaInHomeRepo(connection, tempBalaCache.resolve("wso2").resolve("sf"),
+        createBalaInHomeRepo(resp, tempBalaCache.resolve("wso2").resolve("sf"),
                 "wso2", "sf", false, balaUrl, "", System.out, new LogFormatter());
 
         Assert.assertTrue(tempBalaCache.resolve("wso2").resolve("sf").resolve("1.3.5").toFile().exists());
@@ -159,13 +164,15 @@ public class TestUtils {
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
 
-        HttpURLConnection connection = mock(HttpURLConnection.class);
-        when(connection.getContentLengthLong()).thenReturn(Files.size(balaFile));
-        when(connection.getInputStream()).thenReturn(targetStream);
+        Response resp = mock(Response.class);
+        ResponseBody respBody = mock(ResponseBody.class);
+        when(respBody.contentLength()).thenReturn(Files.size(balaFile));
+        when(respBody.byteStream()).thenReturn(targetStream);
+        when(resp.body()).thenReturn(respBody);
 
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
         try {
-            createBalaInHomeRepo(connection,
+            createBalaInHomeRepo(resp,
                     tempBalaCache.resolve("wso2").resolve("sf"), "wso2", "sf", false,
                     balaUrl, "", System.out, new LogFormatter());
         } catch (CentralClientException e) {

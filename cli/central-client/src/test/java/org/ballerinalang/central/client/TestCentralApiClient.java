@@ -18,6 +18,8 @@
 
 package org.ballerinalang.central.client;
 
+import okhttp3.Request;
+import okhttp3.Response;
 import org.awaitility.Duration;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
@@ -38,12 +40,9 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
 import java.net.HttpURLConnection;
-import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-
-import javax.net.ssl.HttpsURLConnection;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
@@ -56,9 +55,8 @@ import static org.mockito.Mockito.when;
 /**
  * Test cases to test central api client.
  */
-public class TestCentralApiClient extends CentralAPIClient {
+public class TestCentralApiClient extends CentralAPIClientV2 {
 
-    private HttpsURLConnection connection = mock(HttpsURLConnection.class);
     private ByteArrayOutputStream console;
 
     private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/utils");
@@ -72,11 +70,6 @@ public class TestCentralApiClient extends CentralAPIClient {
 
     public TestCentralApiClient() {
         super("", null);
-    }
-
-    @Override
-    protected HttpsURLConnection createHttpsURLConnection(String a, String b, String c) {
-        return connection;
     }
 
     @BeforeClass
@@ -120,12 +113,15 @@ public class TestCentralApiClient extends CentralAPIClient {
 
         try {
             balaStream = new FileInputStream(balaFile);
-            when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_MOVED_TEMP);
-            when(connection.getHeaderField(LOCATION)).thenReturn(balaUrl);
-            when(connection.getHeaderField(CONTENT_DISPOSITION))
+            Request mockRequest = mock(Request.class);
+            Response mockResponse = mock(Response.class);
+            when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_MOVED_TEMP);
+            when(mockResponse.header(LOCATION)).thenReturn(balaUrl);
+            when(mockResponse.header(CONTENT_DISPOSITION))
                     .thenReturn("attachment; filename=sf-2020r2-any-1.3.5.bala");
-            when(connection.getContentLengthLong()).thenReturn(Files.size(balaPath));
-            when(connection.getInputStream()).thenReturn(balaStream);
+            when(mockResponse.body().contentLength()).thenReturn(Files.size(balaPath));
+            when(mockResponse.body().byteStream()).thenReturn(balaStream);
+            when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
             this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
 
@@ -148,8 +144,11 @@ public class TestCentralApiClient extends CentralAPIClient {
         String resString = "{\"message\": \"package not found: foo/sf:*_any\"}";
         InputStream resStream = new ByteArrayInputStream(resString.getBytes());
 
-        when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
-        when(connection.getErrorStream()).thenReturn(resStream);
+        Request mockRequest = mock(Request.class);
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
+        when(mockResponse.body().string()).thenReturn(resString);
+        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
         this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
     }
@@ -159,8 +158,11 @@ public class TestCentralApiClient extends CentralAPIClient {
         Path packageJsonPath = UTILS_TEST_RESOURCES.resolve("package.json");
         File packageJson = new File(String.valueOf(packageJsonPath));
 
-        when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
-        when(connection.getInputStream()).thenReturn(new FileInputStream(packageJson));
+        Request mockRequest = mock(Request.class);
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_OK);
+        when(mockResponse.body().string()).thenReturn(Files.readString(packageJson.toPath()));
+        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
         Package aPackage = this.getPackage("foo", WINERY, "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION);
         Assert.assertNotNull(aPackage);
@@ -174,8 +176,11 @@ public class TestCentralApiClient extends CentralAPIClient {
     public void testGetNonExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package not found for: bar/winery:2.0.0_any\"}";
 
-        when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
-        when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
+        Request mockRequest = mock(Request.class);
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
+        when(mockResponse.body().string()).thenReturn(resString);
+        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
         this.getPackage("bar", WINERY, "2.0.0", ANY_PLATFORM, TEST_BAL_VERSION);
     }
@@ -185,8 +190,11 @@ public class TestCentralApiClient extends CentralAPIClient {
     public void testGetPackageWithBadRequest() throws IOException, CentralClientException {
         String resString = "{\"message\": \"invalid request received. invaild/unsupported semver version: v2\"}";
 
-        when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
-        when(connection.getInputStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
+        Request mockRequest = mock(Request.class);
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
+        when(mockResponse.body().string()).thenReturn(resString);
+        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
         this.getPackage("bar", WINERY, "v2", ANY_PLATFORM, TEST_BAL_VERSION);
     }
@@ -198,17 +206,18 @@ public class TestCentralApiClient extends CentralAPIClient {
 
         setBallerinaHome();
 
-        try (FileOutputStream outputStream = new FileOutputStream(outputBala)) {
-            when(connection.getOutputStream()).thenReturn(outputStream);
-            when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
+        Request mockRequest = mock(Request.class);
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_OK);
+        when(mockResponse.body().string()).thenReturn(Files.readString(outputBala.toPath()));
+        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
-            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
-            String buildLog = readOutput();
-            given().with().pollInterval(Duration.ONE_SECOND).and()
-                    .with().pollDelay(Duration.ONE_SECOND)
-                    .await().atMost(10, SECONDS)
-                    .until(() -> buildLog.contains("foo/sf:1.3.5 pushed to central successfully"));
-        }
+        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
+        String buildLog = readOutput();
+        given().with().pollInterval(Duration.ONE_SECOND).and()
+                .with().pollDelay(Duration.ONE_SECOND)
+                .await().atMost(10, SECONDS)
+                .until(() -> buildLog.contains("foo/sf:1.3.5 pushed to central successfully"));
     }
 
     @Test(description = "Test push existing package", expectedExceptions = CentralClientException.class,
@@ -220,13 +229,13 @@ public class TestCentralApiClient extends CentralAPIClient {
 
         setBallerinaHome();
 
-        try (FileOutputStream outputStream = new FileOutputStream(outputBala)) {
-            when(connection.getOutputStream()).thenReturn(outputStream);
-            when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
-            when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
+        Request mockRequest = mock(Request.class);
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
+        when(mockResponse.body().string()).thenReturn(resString);
+        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
-            this.pushPackage(balaPath, "foo", "github", "1.8.3", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
-        }
+        this.pushPackage(balaPath, "foo", "github", "1.8.3", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
     }
 
     @Test(description = "Test push package request failure", expectedExceptions = CentralClientException.class,
@@ -239,9 +248,11 @@ public class TestCentralApiClient extends CentralAPIClient {
         setBallerinaHome();
 
         try (FileOutputStream outputStream = new FileOutputStream(outputBala)) {
-            when(connection.getOutputStream()).thenReturn(outputStream);
-            when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
-            when(connection.getURL()).thenReturn(new URL("https://api.central.ballerina.io/registry"));
+            Request mockRequest = mock(Request.class);
+            Response mockResponse = mock(Response.class);
+            when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
+            when(mockResponse.body().string()).thenReturn(Files.readString(outputBala.toPath()));
+            when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
             this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
         }
@@ -252,8 +263,11 @@ public class TestCentralApiClient extends CentralAPIClient {
         Path packageSearchJsonPath = UTILS_TEST_RESOURCES.resolve("packageSearch.json");
         File packageSearchJson = new File(String.valueOf(packageSearchJsonPath));
 
-        when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_OK);
-        when(connection.getInputStream()).thenReturn(new FileInputStream(packageSearchJson));
+        Request mockRequest = mock(Request.class);
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_OK);
+        when(mockResponse.body().string()).thenReturn(Files.readString(packageSearchJson.toPath()));
+        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
         PackageSearchResult pkgSearchResult = this.searchPackage("org=foo", ANY_PLATFORM, TEST_BAL_VERSION);
         Assert.assertNotNull(pkgSearchResult);
@@ -267,8 +281,11 @@ public class TestCentralApiClient extends CentralAPIClient {
     public void testSearchPackageWithBadRequest() throws IOException, CentralClientException {
         String resString = "{\"message\": \"invalid request received. invaild/unsupported org name: foo-org\"}";
 
-        when(connection.getResponseCode()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
-        when(connection.getErrorStream()).thenReturn(new ByteArrayInputStream(resString.getBytes()));
+        Request mockRequest = mock(Request.class);
+        Response mockResponse = mock(Response.class);
+        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
+        when(mockResponse.body().string()).thenReturn(resString);
+        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
         this.searchPackage("org=foo-org", ANY_PLATFORM, TEST_BAL_VERSION);
     }

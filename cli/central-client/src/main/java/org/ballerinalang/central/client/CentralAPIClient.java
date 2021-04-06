@@ -57,7 +57,6 @@ import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
 import static org.ballerinalang.central.client.Utils.convertToUrl;
-import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.getStatusCode;
 import static org.ballerinalang.central.client.Utils.getTotalFileSizeInKB;
@@ -327,9 +326,9 @@ public class CentralAPIClient {
 
                 conn.setRequestProperty(CONTENT_DISPOSITION, contentDisposition);
 
-                boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
-                createBalaInHomeRepo(conn, packagePathInBalaCache, org, name, isNightlyBuild, newUrl,
-                                     contentDisposition, outStream, logFormatter);
+//                boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
+//                createBalaInHomeRepo(conn, packagePathInBalaCache, org, name, isNightlyBuild, newUrl,
+//                                     contentDisposition, outStream, logFormatter);
             } else {
                 try (BufferedReader reader = new BufferedReader(
                         new InputStreamReader(conn.getErrorStream(), Charset.defaultCharset()))) {

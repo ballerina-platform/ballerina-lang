@@ -30,7 +30,7 @@ import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import org.ballerinalang.central.client.CentralAPIClient;
+import org.ballerinalang.central.client.CentralAPIClientV2;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
 import org.ballerinalang.toml.model.Settings;
@@ -140,7 +140,7 @@ public class PushCommand implements BLauncherCmd {
                 } else {
                     Settings settings = readSettings();
                     Proxy proxy = initializeProxy(settings.getProxy());
-                    CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
+                    CentralAPIClientV2 client = new CentralAPIClientV2(RepoUtils.getRemoteRepoURL(), proxy);
 
                     try {
                         pushPackage(project, client, settings);
@@ -188,13 +188,13 @@ public class PushCommand implements BLauncherCmd {
                 + " to '" + repositoryName + "' repository.");
     }
 
-    private void pushPackage(BuildProject project, CentralAPIClient client, Settings settings)
+    private void pushPackage(BuildProject project, CentralAPIClientV2 client, Settings settings)
             throws CentralClientException {
         Path balaFilePath = validateBala(project, client);
         pushBalaToRemote(balaFilePath, client, settings);
     }
 
-    private static Path validateBala(BuildProject project, CentralAPIClient client) throws CentralClientException {
+    private static Path validateBala(BuildProject project, CentralAPIClientV2 client) throws CentralClientException {
         Path packageBalaFile = validateBalaFile(project);
 
         // check if the package is already there in remote repository
@@ -308,7 +308,7 @@ public class PushCommand implements BLauncherCmd {
      *
      * @param balaPath Path to the bala file.
      */
-    private void pushBalaToRemote(Path balaPath, CentralAPIClient client, Settings settings) {
+    private void pushBalaToRemote(Path balaPath, CentralAPIClientV2 client, Settings settings) {
         Path balaFileName = balaPath.getFileName();
         if (null != balaFileName) {
             ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
@@ -353,7 +353,7 @@ public class PushCommand implements BLauncherCmd {
      * @param pkg package
      * @return is package available in the remote
      */
-    private static boolean isPackageAvailableInRemote(PackageManifest.Dependency pkg, CentralAPIClient client)
+    private static boolean isPackageAvailableInRemote(PackageManifest.Dependency pkg, CentralAPIClientV2 client)
             throws CentralClientException {
         List<String> supportedPlatforms = Arrays.stream(SUPPORTED_PLATFORMS).collect(Collectors.toList());
         supportedPlatforms.add("any");

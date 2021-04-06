@@ -25,6 +25,15 @@ import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
 import me.tongfei.progressbar.ProgressBar;
 import me.tongfei.progressbar.ProgressBarStyle;
+import okhttp3.MediaType;
+import okhttp3.RequestBody;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
+import okio.Buffer;
+import okio.BufferedSink;
+import okio.ForwardingSink;
+import okio.Okio;
+import okio.Sink;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
@@ -70,26 +79,34 @@ public class Utils {
     /**
      * Create the bala in home repo.
      *
-     * @param conn               http connection
-     * @param pkgPathInBalaCache package path in bala cache, <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>
-     * @param pkgOrg             package org
-     * @param pkgName            package name
-     * @param isNightlyBuild     is nightly build
-     * @param newUrl             new redirect url
-     * @param contentDisposition content disposition header
-     * @param outStream          Output print stream
-     * @param logFormatter       log formatter
+     * @param balaDownloadResponse  http response for downloading the bala file
+     * @param pkgPathInBalaCache    package path in bala cache, <user.home>.ballerina/bala_cache/<org-name>/<pkg-name>
+     * @param pkgOrg                package org
+     * @param pkgName               package name
+     * @param isNightlyBuild        is nightly build
+     * @param newUrl                new redirect url
+     * @param contentDisposition    content disposition header
+     * @param outStream             Output print stream
+     * @param logFormatter          log formatter
      */
-    public static void createBalaInHomeRepo(HttpURLConnection conn, Path pkgPathInBalaCache, String pkgOrg,
+    public static void createBalaInHomeRepo(Response balaDownloadResponse, Path pkgPathInBalaCache, String pkgOrg,
                                             String pkgName, boolean isNightlyBuild, String newUrl,
                                             String contentDisposition, PrintStream outStream, LogFormatter logFormatter)
             throws CentralClientException {
-        long responseContentLength = conn.getContentLengthLong();
-        if (responseContentLength <= 0) {
-            throw new CentralClientException(
-                    logFormatter.formatLog("invalid response from the server, please try again"));
+
+        long responseContentLength = 0;
+        ResponseBody downloadBody = balaDownloadResponse.body();
+        if (downloadBody != null) {
+            long contentLength = downloadBody.contentLength();
+            if (contentLength <= 0) {
+                throw new CentralClientException(
+                        logFormatter.formatLog("invalid response from the server, please try again"));
+            } else {
+                responseContentLength = contentLength;
+            }
         }
-        String resolvedURI = conn.getHeaderField(RESOLVED_REQUESTED_URI);
+
+        String resolvedURI = balaDownloadResponse.header(RESOLVED_REQUESTED_URI);
         if (resolvedURI == null || resolvedURI.equals("")) {
             resolvedURI = newUrl;
         }
@@ -114,7 +131,7 @@ public class Utils {
         }
 
         createBalaFileDirectory(balaCacheWithPkgPath, logFormatter);
-        writeBalaFile(conn, balaCacheWithPkgPath.resolve(balaFile), pkgOrg + "/" + pkgName + ":"
+        writeBalaFile(balaDownloadResponse, balaCacheWithPkgPath.resolve(balaFile), pkgOrg + "/" + pkgName + ":"
                         + validPkgVersion, responseContentLength, outStream, logFormatter);
         handleNightlyBuild(isNightlyBuild, balaCacheWithPkgPath, logFormatter);
     }
@@ -175,29 +192,35 @@ public class Utils {
     /**
      * Write bala file to the home repo.
      *
-     * @param conn             http connection
-     * @param balaPath         path of the bala file
-     * @param fullPkgName      full package name, <org-name>/<pkg-name>:<pkg-version>
-     * @param resContentLength response content length
-     * @param outStream        Output print stream
-     * @param logFormatter     log formatter
+     * @param balaDownloadResponse  http bala file download response
+     * @param balaPath              path of the bala file
+     * @param fullPkgName           full package name, <org-name>/<pkg-name>:<pkg-version>
+     * @param resContentLength      response content length
+     * @param outStream             Output print stream
+     * @param logFormatter          log formatter
      */
-    static void writeBalaFile(HttpURLConnection conn, Path balaPath, String fullPkgName, long resContentLength,
+    static void writeBalaFile(Response balaDownloadResponse, Path balaPath, String fullPkgName, long resContentLength,
             PrintStream outStream, LogFormatter logFormatter) throws CentralClientException {
-        try (InputStream inputStream = conn.getInputStream();
-                FileOutputStream outputStream = new FileOutputStream(balaPath.toString())) {
-            writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName, outStream,
-                                   logFormatter);
-        } catch (IOException e) {
+        Optional<ResponseBody> body = Optional.ofNullable(balaDownloadResponse.body());
+        if (body.isPresent()) {
+            try (InputStream inputStream = body.get().byteStream();
+                    FileOutputStream outputStream = new FileOutputStream(balaPath.toString())) {
+                writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName, outStream,
+                                       logFormatter);
+            } catch (IOException e) {
+                throw new CentralClientException(
+                        logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
+            }
+            try {
+                extractBala(balaPath, Optional.of(balaPath.getParent()).get());
+                Files.delete(balaPath);
+            } catch (IOException e) {
+                throw new CentralClientException(
+                        logFormatter.formatLog("error occurred extracting the bala file: " + e.getMessage()));
+            }
+        } else {
             throw new CentralClientException(
-                    logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
-        }
-        try {
-            extractBala(balaPath, Optional.of(balaPath.getParent()).get());
-            Files.delete(balaPath);
-        } catch (IOException e) {
-            throw new CentralClientException(
-                    logFormatter.formatLog("error occurred extracting the bala file: " + e.getMessage()));
+                    logFormatter.formatLog("error occurred extracting bytes of bala file: " + fullPkgName));
         }
     }
 
@@ -351,5 +374,63 @@ public class Utils {
                 Files.copy(path, destPath, StandardCopyOption.REPLACE_EXISTING);
             }
         }
+    }
+
+    /**
+     * Custom request body implementation that allows listening to byte writing.
+     */
+    public static class ProgressRequestWrapper extends RequestBody {
+        protected RequestBody delegate;
+        protected ProgressListener listener;
+        protected CountingSink countingSink;
+
+        public ProgressRequestWrapper(RequestBody delegate, ProgressListener listener) {
+            this.delegate = delegate;
+            this.listener = listener;
+        }
+
+        @Override
+        public MediaType contentType() {
+            return this.delegate.contentType();
+        }
+
+        @Override
+        public long contentLength() throws IOException {
+            return this.delegate.contentLength();
+        }
+
+        @Override
+        public void writeTo(BufferedSink sink) throws IOException {
+            BufferedSink bufferedSink;
+            this.countingSink = new CountingSink(sink);
+            bufferedSink = Okio.buffer(this.countingSink);
+            this.delegate.writeTo(bufferedSink);
+            bufferedSink.flush();
+        }
+
+        /**
+         * Custom byte writer.
+         */
+        protected class CountingSink extends ForwardingSink {
+            private long bytesWritten = 0;
+
+            public CountingSink(Sink delegate) {
+                super(delegate);
+            }
+
+            @Override
+            public void write(Buffer source, long byteCount) throws IOException {
+                super.write(source, byteCount);
+                this.bytesWritten += byteCount;
+                listener.onRequestProgress(bytesWritten, contentLength());
+            }
+        }
+    }
+
+    /**
+     * A listener interface that allows tracking byte writing.
+     */
+    public interface ProgressListener {
+        void onRequestProgress(long bytesWritten, long contentLength) throws IOException;
     }
 }
