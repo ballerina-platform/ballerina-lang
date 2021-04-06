@@ -18,8 +18,13 @@
 
 package org.ballerinalang.central.client;
 
+import okhttp3.Call;
+import okhttp3.MediaType;
+import okhttp3.OkHttpClient;
+import okhttp3.Protocol;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.awaitility.Duration;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
@@ -31,7 +36,6 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
-import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
@@ -46,9 +50,9 @@ import java.nio.file.Paths;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
-import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
-import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
+import static org.ballerinalang.central.client.CentralClientConstants.*;
 import static org.ballerinalang.central.client.TestUtils.cleanDirectory;
+import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
@@ -67,9 +71,11 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
     private static final String OUTPUT_BALA = "output.bala";
     private static final String WINERY = "winery";
     private static final String ACCESS_TOKEN = "273cc9f6-c333-36ab-aa2q-f08e9513ff5y";
+    private final Call remoteCall = mock(Call.class);
 
     public TestCentralApiClient() {
-        super("", null);
+        super("https://localhost:9090/registry", null);
+        this.client = mock(OkHttpClient.class);
     }
 
     @BeforeClass
@@ -142,13 +148,26 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
             expectedExceptionsMessageRegExp = "error: package not found: foo/sf.*")
     public void testPullNonExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package not found: foo/sf:*_any\"}";
-        InputStream resStream = new ByteArrayInputStream(resString.getBytes());
 
-        Request mockRequest = mock(Request.class);
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
-        when(mockResponse.body().string()).thenReturn(resString);
-        when(sendRequest(mockRequest)).thenReturn(mockResponse);
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://api.central.ballerina.io/registry/packages/foo/sf/1.3.5")
+                .addHeader(ACCEPT_ENCODING, IDENTITY)
+                .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_NOT_FOUND)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get("application/json; charset=utf-8"),
+                        resString
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
         this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
     }
@@ -157,12 +176,23 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
     public void testGetPackage() throws IOException, CentralClientException {
         Path packageJsonPath = UTILS_TEST_RESOURCES.resolve("package.json");
         File packageJson = new File(String.valueOf(packageJsonPath));
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://api.central.ballerina.io/registry/packages/foo/" + WINERY + "/1.3.5")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get("application/json; charset=utf-8"),
+                        Files.readString(packageJson.toPath())
+                ))
+                .build();
 
-        Request mockRequest = mock(Request.class);
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_OK);
-        when(mockResponse.body().string()).thenReturn(Files.readString(packageJson.toPath()));
-        when(sendRequest(mockRequest)).thenReturn(mockResponse);
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
         Package aPackage = this.getPackage("foo", WINERY, "1.3.5", ANY_PLATFORM, TEST_BAL_VERSION);
         Assert.assertNotNull(aPackage);
@@ -176,11 +206,23 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
     public void testGetNonExistingPackage() throws IOException, CentralClientException {
         String resString = "{\"message\": \"package not found for: bar/winery:2.0.0_any\"}";
 
-        Request mockRequest = mock(Request.class);
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
-        when(mockResponse.body().string()).thenReturn(resString);
-        when(sendRequest(mockRequest)).thenReturn(mockResponse);
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://api.central.ballerina.io/registry/packages/bar/" + WINERY)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_NOT_FOUND)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get("application/json; charset=utf-8"),
+                        resString
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
         this.getPackage("bar", WINERY, "2.0.0", ANY_PLATFORM, TEST_BAL_VERSION);
     }

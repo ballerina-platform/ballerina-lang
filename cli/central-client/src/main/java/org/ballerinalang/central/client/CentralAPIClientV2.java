@@ -75,14 +75,17 @@ public class CentralAPIClientV2 {
     private static final String ERR_CANNOT_PUSH = "error: failed to push the package: ";
     private static final String ERR_CANNOT_PULL_PACKAGE = "error: failed to pull the package: ";
     private static final String ERR_CANNOT_SEARCH = "error: failed to search packages: ";
-    private final Proxy proxy;
     private final String baseUrl;
     protected PrintStream outStream;
+    protected OkHttpClient client;
 
     public CentralAPIClientV2(String baseUrl, Proxy proxy) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
-        this.proxy = proxy;
+        this.client = new OkHttpClient.Builder()
+                .followRedirects(false)
+                .proxy(proxy)
+                .build();
     }
 
     /**
@@ -207,9 +210,15 @@ public class CentralAPIClientV2 {
         String packageSignature = org + "/" + name + ":" + version;
         String url = this.baseUrl + "/" + PACKAGES;
         try {
+            String fileName = org + "-" + name + "-" + version + ".bala";
+            Path fileNamePath = balaPath.getFileName();
+            if (fileNamePath != null) {
+                fileName = fileNamePath.toString();
+            }
+
             RequestBody balaFileReqBody = new MultipartBody.Builder()
                     .setType(MultipartBody.FORM)
-                    .addFormDataPart("bala-file", balaPath.getFileName().toString(),
+                    .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
                     .build();
 
@@ -291,7 +300,7 @@ public class CentralAPIClientV2 {
     public void pullPackage(String org, String name, String version, Path packagePathInBalaCache,
             String supportedPlatform, String ballerinaVersion, boolean isBuild) throws CentralClientException {
         String packageSignature =  org + "/" + name;
-        String url = PACKAGES + "/" + org + "/" + name;
+        String url = this.baseUrl + "/" + PACKAGES + "/" + org + "/" + name;
         // append version to url if available
         if (null != version && !version.isEmpty()) {
             url += "/" + version;
@@ -309,7 +318,7 @@ public class CentralAPIClientV2 {
 
             Request packagePullReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
-                    .url(this.baseUrl + "/" + url)
+                    .url(url)
                     .addHeader(ACCEPT_ENCODING, IDENTITY)
                     .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
                     .build();
@@ -423,11 +432,7 @@ public class CentralAPIClientV2 {
      * @return the http response
      */
     protected Response sendRequest(Request req) throws IOException {
-        OkHttpClient client = new OkHttpClient.Builder()
-                .followRedirects(false)
-                .proxy(this.proxy)
-                .build();
-        Call httpRequestCall = client.newCall(req);
+        Call httpRequestCall = this.client.newCall(req);
         return httpRequestCall.execute();
     }
 
