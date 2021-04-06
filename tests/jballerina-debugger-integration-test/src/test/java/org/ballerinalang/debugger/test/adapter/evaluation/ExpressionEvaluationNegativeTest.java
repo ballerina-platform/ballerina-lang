@@ -230,9 +230,12 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Override
     @Test
     public void comparisonEvaluationTest() throws BallerinaTestException {
-        // semantically incorrect expressions (multiplication between int and string)
+        // comparison between int and string
         debugTestRunner.assertEvaluationError(context, String.format("%s < %s", INT_VAR, STRING_VAR),
                 "operator '<' not defined for 'int' and 'string'.");
+        // comparison between int and float (disallowed by the latest spec)
+        debugTestRunner.assertEvaluationError(context, String.format("%s < %s", INT_VAR, FLOAT_VAR),
+                "operator '<' not defined for 'int' and 'float'.");
     }
 
     @Override

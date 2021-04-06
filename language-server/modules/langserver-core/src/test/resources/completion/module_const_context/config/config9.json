@@ -32,6 +32,20 @@
       "sortText": "B",
       "insertText": "TEST_STRING_CONST1",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "H",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
     }
   ]
 }
