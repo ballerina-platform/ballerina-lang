@@ -72,7 +72,7 @@ public class ArrayTypeDescriptorNodeContext extends AbstractCompletionProvider<A
 
     private Predicate<Symbol> constantFilter() {
         return symbol -> {
-            if (symbol.kind() != SymbolKind.CONSTANT) {
+            if (symbol.kind() != SymbolKind.CONSTANT && symbol.kind() != SymbolKind.ENUM_MEMBER) {
                 return false;
             }
 

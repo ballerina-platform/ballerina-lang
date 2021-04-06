@@ -36,6 +36,9 @@ public function foo() returns int:c {
     }
     transaction:Info info;
     int:IntType info;
+    string:lastIndexOf();
+    string:fromBytes(byteArray1);
+    int:sum(4, 5);
 }
 
 transaction:Info info2;

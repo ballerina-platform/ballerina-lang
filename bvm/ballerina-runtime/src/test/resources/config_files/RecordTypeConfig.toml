@@ -1,0 +1,12 @@
+[test_module.requiredFieldRecord]
+name = "John"
+
+[test_module.readonlyFieldRecord]
+name = "Jade"
+
+[test_module.optionalFieldRecord]
+name = "Anna"
+age = 21
+
+[test_module.optionalMissingField]
+name = "Peter"

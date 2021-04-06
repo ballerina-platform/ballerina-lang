@@ -49,7 +49,7 @@ public class TypeGuardTest {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'string' will not be matched to 'int'", 20, 27);
-        BAssertUtil.validateError(negativeResult, i++,
+        BAssertUtil.validateHint(negativeResult, i++,
                 "unnecessary condition: expression will always evaluate to 'true'", 29, 13);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'string' will not be matched to 'int'", 33, 13);
@@ -70,7 +70,7 @@ public class TypeGuardTest {
                                   "incompatible types: 'string' will not be matched to 'float'", 126, 25);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: '(Person|Student)' will not be matched to 'string'", 147, 10);
-        BAssertUtil.validateError(negativeResult, i++,
+        BAssertUtil.validateHint(negativeResult, i++,
                                   "unnecessary condition: expression will always evaluate to 'true'", 147, 25);
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: '(Person|Student)' will not be matched to 'float'", 147, 40);
@@ -83,7 +83,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 173, 15);
 
-        Assert.assertEquals(negativeResult.getErrorCount(), i);
+        Assert.assertEquals(negativeResult.getErrorCount(), 14);
     }
 
     @Test

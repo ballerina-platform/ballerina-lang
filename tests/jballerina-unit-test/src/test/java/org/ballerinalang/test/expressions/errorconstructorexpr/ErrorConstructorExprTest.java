@@ -93,7 +93,7 @@ public class ErrorConstructorExprTest {
 
     @Test
     public void testCodeAnalysisNegative() {
-        BAssertUtil.validateError(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
+        BAssertUtil.validateHint(negativeResult, 0, "unnecessary condition: expression will always evaluate to " +
                 "'true'", 19, 37);
     }
 }

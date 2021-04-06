@@ -166,6 +166,10 @@ public class ProjectPaths {
             return false;
         }
 
+        if (isBalaProjectSrcFile(filepath)) {
+            return false;
+        }
+
         return true;
     }
 

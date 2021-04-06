@@ -75,12 +75,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                 }
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Symbol> filter = symbol ->
-                    symbol.kind() == SymbolKind.TYPE_DEFINITION
-                            || symbol.kind() == SymbolKind.VARIABLE
-                            || symbol.kind() == SymbolKind.CONSTANT
-                            || symbol.kind() == SymbolKind.FUNCTION
-                            || symbol.kind() == SymbolKind.CLASS;
+            Predicate<Symbol> filter = symbol -> symbol.kind() != SymbolKind.SERVICE_DECLARATION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
@@ -137,7 +132,11 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         if (this.onSuggestFork(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
         }
+        if (this.withinTransactionStatement(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
+        }
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
@@ -198,6 +197,18 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         }
 
         return withinLoops;
+    }
+
+    private boolean withinTransactionStatement(T node) {
+        Node evalNode = node;
+        boolean withinTransaction = false;
+
+        while (!withinTransaction && evalNode != null) {
+            withinTransaction = evalNode.kind() == SyntaxKind.TRANSACTION_STATEMENT;
+            evalNode = evalNode.parent();
+        }
+
+        return withinTransaction;
     }
 
     private Optional<Node> nodeBeforeCursor(BallerinaCompletionContext context, Node node) {

@@ -89,6 +89,7 @@ public class HoverUtil {
             case CONSTANT:
             case ANNOTATION:
             case ENUM:
+            case ENUM_MEMBER:
             case VARIABLE:
                 return getDescriptionOnlyHoverObject(symbol);
             case TYPE:
@@ -279,7 +280,7 @@ public class HoverUtil {
             List<String> params = new ArrayList<>();
             params.add(header(3, ContextConstants.PARAM_TITLE) + CommonUtil.MD_LINE_SEPARATOR);
 
-            params.addAll(symbol.typeDescriptor().parameters().stream()
+            params.addAll(symbol.typeDescriptor().params().get().stream()
                     .map(param -> {
                         if (param.getName().isEmpty()) {
                             return quotedString(CommonUtil.getModifiedTypeName(ctx, param.typeDescriptor()));
