@@ -2574,7 +2574,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (transferOut) {
-            return false;
+            return isInvalidTransfer(parentExpression, transferOut, invokedOnSelf);
         }
 
         // `expression` is an argument to a function
