@@ -28,10 +28,17 @@ import java.io.File;
 public class BallerinaTestDebugPoint {
     String filePath;
     long line;
+    String condition;
 
     public BallerinaTestDebugPoint(String filePath, long line) {
         this.filePath = filePath;
         this.line = line;
+    }
+
+    public BallerinaTestDebugPoint(String filePath, long line, String condition) {
+        this.filePath = filePath;
+        this.line = line;
+        this.condition = condition;
     }
 
     public Source getSource() {
@@ -47,6 +54,7 @@ public class BallerinaTestDebugPoint {
         SourceBreakpoint breakpoint = new SourceBreakpoint();
         breakpoint.setLine(line);
         breakpoint.setColumn(0L);
+        breakpoint.setCondition(condition);
         return breakpoint;
     }
 
