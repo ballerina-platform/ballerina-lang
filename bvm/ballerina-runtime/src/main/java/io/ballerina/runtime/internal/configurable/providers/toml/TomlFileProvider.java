@@ -19,10 +19,12 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NOT_FOUND;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.EMPTY_CONFIG_FILE;
@@ -36,7 +38,8 @@ public class TomlFileProvider extends TomlProvider {
 
     private final Path configPath;
 
-    public TomlFileProvider(Path configPath) {
+    public TomlFileProvider(Module rootModule, Path configPath, Set<Module> moduleSet) {
+        super(rootModule, moduleSet);
         this.configPath = configPath;
     }
 
