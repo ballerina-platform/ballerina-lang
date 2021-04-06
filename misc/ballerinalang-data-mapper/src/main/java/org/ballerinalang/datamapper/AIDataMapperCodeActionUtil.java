@@ -27,6 +27,7 @@ import com.google.gson.reflect.TypeToken;
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
+import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.RecordFieldSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -92,12 +93,15 @@ class AIDataMapperCodeActionUtil {
     private static HashMap<String, String> restFieldMap = new HashMap<>();
     private static HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
     private static HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
+    private static ArrayList<String> LeftReadonlyFields = new ArrayList<>();
 
     private static final String SCHEMA = "schema";
     private static final String ID = "id";
     private static final String TYPE = "type";
     private static final String PROPERTIES = "properties";
     private static final String OPTIONAL = "optional";
+    private static final String READONLY = "readonly";
+    private static final String SIGNATURE = "signature";
 
 
     /**
@@ -409,7 +413,7 @@ class AIDataMapperCodeActionUtil {
                         optionKey.toString());
             } else if ((boolean) ((LinkedTreeMap) field.getValue()).get(OPTIONAL)) {
                 optionKey.append(".").append(field.getKey());
-                isOptionalMap.put(optionKey.toString(), ((LinkedTreeMap) field.getValue()).get(TYPE).toString());
+                isOptionalMap.put(optionKey.toString(), ((LinkedTreeMap) field.getValue()).get(SIGNATURE).toString());
             }
         }
     }
@@ -427,6 +431,9 @@ class AIDataMapperCodeActionUtil {
             } else {
                 fieldKey.append(field.getKey());
                 leftFieldMap.put(fieldKey.toString(), ((LinkedTreeMap) field.getValue()).get(TYPE).toString());
+                if((((LinkedTreeMap) field.getValue()).get(READONLY)).toString().contains("true")){
+                    LeftReadonlyFields.add(field.getKey());
+                }
             }
         }
     }
@@ -541,6 +548,7 @@ class AIDataMapperCodeActionUtil {
                 Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
                 fieldDetails.addProperty(TYPE, "ballerina_type");
                 fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
+                fieldDetails.addProperty(OPTIONAL, attribute.isOptional());
             } else if (attributeType.typeKind() == TypeDescKind.INTERSECTION) {
                 // To get the fields of a readonly record type
                 List<TypeSymbol> memberTypeList = ((IntersectionTypeSymbol) attribute.typeDescriptor()).
@@ -560,6 +568,30 @@ class AIDataMapperCodeActionUtil {
             } else {
                 fieldDetails.addProperty(TYPE, attributeType.typeKind().getName());
                 fieldDetails.addProperty(OPTIONAL, attribute.isOptional());
+                fieldDetails.addProperty(SIGNATURE, attributeType.signature());
+                // to check for readonly values of left schema
+                boolean readonlyCheck = false;
+                if(attribute.qualifiers().size() > 0){
+                    for(Qualifier qualifier: attribute.qualifiers()){
+                        readonlyCheck = qualifier.getValue().contains("readonly");
+                        if(readonlyCheck){
+                            TypeDescKind attributeTypeKind = attributeType.typeKind();
+                            if((attributeTypeKind == TypeDescKind.XML) | (attributeTypeKind == TypeDescKind.ARRAY) |
+                                    (attributeTypeKind == TypeDescKind.MAP)
+                                    | (attributeTypeKind == TypeDescKind.TABLE) |
+                                    (attributeTypeKind == TypeDescKind.OBJECT) |
+                                    (attributeTypeKind == TypeDescKind.TUPLE)){
+                                fieldDetails.addProperty(READONLY, true);
+                                break;
+                            } else {
+                                readonlyCheck = false;
+                            }
+                        }
+                    }
+                }
+                if(!readonlyCheck){
+                    fieldDetails.addProperty(READONLY, false);
+                }
             }
             properties.add(attribute.getName().get(), fieldDetails);
         }
@@ -675,6 +707,19 @@ class AIDataMapperCodeActionUtil {
                 }
             }
             restFieldMap.clear();
+        }
+
+        if(!LeftReadonlyFields.isEmpty()){
+            for(String readOnlyField :LeftReadonlyFields){
+                if(mappingFromServer.contains(readOnlyField + ":")) {
+                    String[] splitArray = mappingFromServer.split(readOnlyField + ":");
+                    int inputIndex = splitArray[1].indexOf(",");
+                    mappingFromServer = splitArray[0] + readOnlyField + ":" + splitArray[1].substring(0,inputIndex)
+                            + ".cloneReadOnly()" + splitArray[1].substring(inputIndex);
+                    int i = 0;
+                }
+            }
+            LeftReadonlyFields.clear();
         }
 
         //To generate the default values
