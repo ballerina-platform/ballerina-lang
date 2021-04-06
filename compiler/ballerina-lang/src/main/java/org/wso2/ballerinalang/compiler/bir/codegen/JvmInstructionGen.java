@@ -1697,10 +1697,9 @@ public class JvmInstructionGen {
         this.storeToVar(newXMLPI.lhsOp.variableDcl);
     }
 
-    void generateXMLSequenceIns(BIRNonTerminator.NewXMLSequence xmlSequenceIns) {
+    void generateNewXMLSequenceIns(BIRNonTerminator.NewXMLSequence xmlSequenceIns) {
         this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXmlSequence",
-                String.format("()L%s;", XML_SEQUENCE),
-                false);
+                String.format("()L%s;", XML_SEQUENCE), false);
         this.storeToVar(xmlSequenceIns.lhsOp.variableDcl);
     }
 
@@ -1979,7 +1978,7 @@ public class JvmInstructionGen {
                     generateNewStringXMLQNameIns((BIRNonTerminator.NewStringXMLQName) inst);
                     break;
                 case NEW_XML_SEQUENCE:
-                    generateXMLSequenceIns((BIRNonTerminator.NewXMLSequence) inst);
+                    generateNewXMLSequenceIns((BIRNonTerminator.NewXMLSequence) inst);
                     break;
                 case XML_SEQ_STORE:
                     generateXMLStoreIns((BIRNonTerminator.XMLAccess) inst);

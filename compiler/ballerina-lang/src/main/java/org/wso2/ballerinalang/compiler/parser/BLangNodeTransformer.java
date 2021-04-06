@@ -4063,7 +4063,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return matchStatement;
     }
 
-    public BLangXMLSequenceLiteral createXmlSequence(TemplateExpressionNode expressionNode) {
+    private BLangXMLSequenceLiteral createXmlSequence(TemplateExpressionNode expressionNode) {
         BLangXMLSequenceLiteral xmlSequenceLiteral = (BLangXMLSequenceLiteral)
                 TreeBuilder.createXMLSequenceLiteralNode();
         xmlSequenceLiteral.pos = getPosition(expressionNode);
@@ -4120,10 +4120,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         if (expressionNode.content().isEmpty()) {
             return createXMLEmptyLiteral(expressionNode);
         }
-        if (expressionNode.content().size() > 1) {
-            return createXmlSequence(expressionNode);
+        if (expressionNode.content().size() == 1) {
+            return createXmlSingletonItem(expressionNode.content().get(0));
         }
-        return createXmlSingletonItem(expressionNode.content().get(0));
+        return createXmlSequence(expressionNode);
     }
 
     private BLangMatchPattern transformMatchPattern(Node matchPattern) {
