@@ -643,6 +643,11 @@ function MethodsTestResource_interfaceStaticParam(Map arg0, boolean[] arg1) retu
     jarrays:toHandle(arg1, "boolean"));
 }
 
+# The function that maps to the `join` method of `org.ballerinalang.bindgen.MethodsTestResource`.
+function MethodsTestResource_join() {
+    org_ballerinalang_bindgen_MethodsTestResource_join();
+}
+
 # The function that maps to the `returnStaticAbstractObject` method of `org.ballerinalang.bindgen.MethodsTestResource`.
 #
 # + return - The `AbstractSet` value returning from the Java mapping.
@@ -814,6 +819,12 @@ function org_ballerinalang_bindgen_MethodsTestResource_interfaceStaticParam(hand
     name: "interfaceStaticParam",
     'class: "org.ballerinalang.bindgen.MethodsTestResource",
     paramTypes: ["java.util.Map", "[Z"]
+} external;
+
+function org_ballerinalang_bindgen_MethodsTestResource_join() = @java:Method {
+    name: "join",
+    'class: "org.ballerinalang.bindgen.MethodsTestResource",
+    paramTypes: []
 } external;
 
 function org_ballerinalang_bindgen_MethodsTestResource_notify(handle receiver) = @java:Method {

@@ -237,6 +237,10 @@ public class MethodsTestResource implements InterfaceTestResource {
     public static void returnStaticVoid() {
     }
 
+    // A reserved word in a static method.
+    public static void join() {
+    }
+
     public static void returnStaticOptionalError() throws Exception {
     }
 
