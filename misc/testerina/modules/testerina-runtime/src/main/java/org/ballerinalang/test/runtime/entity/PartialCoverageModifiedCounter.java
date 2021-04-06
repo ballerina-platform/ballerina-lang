@@ -30,9 +30,16 @@ public class PartialCoverageModifiedCounter implements ICounter {
     private int missed;
 
     public PartialCoverageModifiedCounter(ICounter prevCounter) {
-        this.covered = prevCounter.getCoveredCount();
-        this.missed = prevCounter.getMissedCount();
-        modifyCoverageNumbers();
+        if (prevCounter != null) {
+            // Handles partial line coverage modification for ballerina sources
+            this.covered = prevCounter.getCoveredCount();
+            this.missed = prevCounter.getMissedCount();
+            modifyCoverageNumbers();
+        } else {
+            // Handles the default Complexity counter for ballerina sources
+            this.covered = 0;
+            this.missed = 0;
+        }
     }
 
     /**
