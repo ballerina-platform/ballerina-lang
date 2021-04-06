@@ -271,10 +271,10 @@ public class RunTestsTask implements Task {
         List<SessionInfo> packageSessionInfo = new ArrayList();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
-            CoverageReport coverageReport = new CoverageReport(module);
-            coverageReport.generateReport(moduleCoverageMap, packageNativeClassCoverageList,
-                    packageBalClassCoverageList, packageSourceCoverageList, jBallerinaBackend, this.includesInCoverage,
+            CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
+                    packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
                     packageExecData, packageSessionInfo);
+            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {

@@ -26,7 +26,7 @@
       "kind": "Field",
       "detail": "int",
       "sortText": "G",
-      "insertText": "bar: ${1:0}",
+      "insertText": "bar: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {

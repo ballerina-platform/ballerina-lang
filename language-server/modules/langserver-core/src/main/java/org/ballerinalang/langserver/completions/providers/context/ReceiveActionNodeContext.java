@@ -49,7 +49,7 @@ public class ReceiveActionNodeContext extends AbstractCompletionProvider<Receive
                 .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
                 .collect(Collectors.toList());
         List<LSCompletionItem> completionItems = this.getCompletionItemList(filteredWorkers, context);
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         this.sort(context, node, completionItems);
 
         return completionItems;
