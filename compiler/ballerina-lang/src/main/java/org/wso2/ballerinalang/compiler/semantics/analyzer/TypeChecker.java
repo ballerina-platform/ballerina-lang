@@ -4599,7 +4599,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 BSymbol itrSymbol = symResolver.lookupLangLibMethod(collectionType,
                         names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
                 if (itrSymbol == this.symTable.notFoundSymbol) {
-                    return symTable.semanticError;
+                    return null;
                 }
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) itrSymbol;
                 returnType = types.getResultTypeOfNextInvocation((BObjectType) invokableSymbol.retType);
