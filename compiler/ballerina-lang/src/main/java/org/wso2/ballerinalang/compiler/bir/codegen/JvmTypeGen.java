@@ -411,7 +411,7 @@ public class JvmTypeGen {
 
     private void addImmutableType(MethodVisitor mv, BType type) {
         BIntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
-        if (immutableType == null) {
+        if (immutableType == null || !(immutableType.tsymbol.pkgID.equals(type.tsymbol.pkgID))) {
             return;
         }
 
