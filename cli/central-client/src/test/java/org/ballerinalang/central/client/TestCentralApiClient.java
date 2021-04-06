@@ -151,7 +151,7 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
 
         Request mockRequest = new Request.Builder()
                 .get()
-                .url("https://api.central.ballerina.io/registry/packages/foo/sf/1.3.5")
+                .url("https://localhost:9090/registry/packages/foo/sf/1.3.5")
                 .addHeader(ACCEPT_ENCODING, IDENTITY)
                 .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
                 .build();
@@ -178,7 +178,7 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
         File packageJson = new File(String.valueOf(packageJsonPath));
         Request mockRequest = new Request.Builder()
                 .get()
-                .url("https://api.central.ballerina.io/registry/packages/foo/" + WINERY + "/1.3.5")
+                .url("https://localhost:9090/registry/packages/foo/" + WINERY + "/1.3.5")
                 .build();
         Response mockResponse = new Response.Builder()
                 .request(mockRequest)
@@ -208,7 +208,7 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
 
         Request mockRequest = new Request.Builder()
                 .get()
-                .url("https://api.central.ballerina.io/registry/packages/bar/" + WINERY)
+                .url("https://localhost:9090/registry/packages/bar/" + WINERY + "/2.0.0")
                 .build();
         Response mockResponse = new Response.Builder()
                 .request(mockRequest)
@@ -232,11 +232,23 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
     public void testGetPackageWithBadRequest() throws IOException, CentralClientException {
         String resString = "{\"message\": \"invalid request received. invaild/unsupported semver version: v2\"}";
 
-        Request mockRequest = mock(Request.class);
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
-        when(mockResponse.body().string()).thenReturn(resString);
-        when(sendRequest(mockRequest)).thenReturn(mockResponse);
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/bar/" + WINERY + "/v2")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_BAD_REQUEST)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get("application/json; charset=utf-8"),
+                        resString
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
         this.getPackage("bar", WINERY, "v2", ANY_PLATFORM, TEST_BAL_VERSION);
     }
@@ -248,11 +260,26 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
 
         setBallerinaHome();
 
-        Request mockRequest = mock(Request.class);
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_OK);
-        when(mockResponse.body().string()).thenReturn(Files.readString(outputBala.toPath()));
-        when(sendRequest(mockRequest)).thenReturn(mockResponse);
+        Request mockRequest = new Request.Builder()
+                .post(null)
+                .url("https://localhost:9090/registry/packages")
+                .addHeader(AUTHORIZATION, "Bearer " + ACCESS_TOKEN)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_NO_CONTENT)
+                .message("")
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+//        Request mockRequest = mock(Request.class);
+//        Response mockResponse = mock(Response.class);
+//        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_OK);
+//        when(mockResponse.body().string()).thenReturn(Files.readString(outputBala.toPath()));
+//        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
         this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
         String buildLog = readOutput();
@@ -271,11 +298,30 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
 
         setBallerinaHome();
 
-        Request mockRequest = mock(Request.class);
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
-        when(mockResponse.body().string()).thenReturn(resString);
-        when(sendRequest(mockRequest)).thenReturn(mockResponse);
+        Request mockRequest = new Request.Builder()
+                .post(null)
+                .url("https://localhost:9090/registry/packages")
+                .addHeader(AUTHORIZATION, "Bearer " + ACCESS_TOKEN)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_BAD_REQUEST)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get("application/json; charset=utf-8"),
+                        resString
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+//        Request mockRequest = mock(Request.class);
+//        Response mockResponse = mock(Response.class);
+//        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
+//        when(mockResponse.body().string()).thenReturn(resString);
+//        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
         this.pushPackage(balaPath, "foo", "github", "1.8.3", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
     }
@@ -289,29 +335,56 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
 
         setBallerinaHome();
 
-        try (FileOutputStream outputStream = new FileOutputStream(outputBala)) {
-            Request mockRequest = mock(Request.class);
-            Response mockResponse = mock(Response.class);
-            when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
-            when(mockResponse.body().string()).thenReturn(Files.readString(outputBala.toPath()));
-            when(sendRequest(mockRequest)).thenReturn(mockResponse);
+        Request mockRequest = new Request.Builder()
+                .post(null)
+                .url("https://localhost:9090/registry/packages")
+                .addHeader(AUTHORIZATION, "Bearer " + ACCESS_TOKEN)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_INTERNAL_ERROR)
+                .message("")
+                .build();
 
-            this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
-        }
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+        this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
+//        try (FileOutputStream outputStream = new FileOutputStream(outputBala)) {
+//            Request mockRequest = mock(Request.class);
+//            Response mockResponse = mock(Response.class);
+//            when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
+//            when(mockResponse.body().string()).thenReturn(Files.readString(outputBala.toPath()));
+//            when(sendRequest(mockRequest)).thenReturn(mockResponse);
+//
+//
+//        }
     }
 
     @Test(description = "Test search package")
     public void testSearchPackage() throws IOException, CentralClientException {
         Path packageSearchJsonPath = UTILS_TEST_RESOURCES.resolve("packageSearch.json");
-        File packageSearchJson = new File(String.valueOf(packageSearchJsonPath));
 
-        Request mockRequest = mock(Request.class);
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_OK);
-        when(mockResponse.body().string()).thenReturn(Files.readString(packageSearchJson.toPath()));
-        when(sendRequest(mockRequest)).thenReturn(mockResponse);
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/?q=foo")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get("application/json; charset=utf-8"),
+                        Files.readString(packageSearchJsonPath)
+                ))
+                .build();
 
-        PackageSearchResult pkgSearchResult = this.searchPackage("org=foo", ANY_PLATFORM, TEST_BAL_VERSION);
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+
+        PackageSearchResult pkgSearchResult = this.searchPackage("foo", ANY_PLATFORM, TEST_BAL_VERSION);
         Assert.assertNotNull(pkgSearchResult);
         Assert.assertEquals(pkgSearchResult.getCount(), 1);
         Assert.assertFalse(pkgSearchResult.getPackages().isEmpty());
@@ -323,11 +396,23 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
     public void testSearchPackageWithBadRequest() throws IOException, CentralClientException {
         String resString = "{\"message\": \"invalid request received. invaild/unsupported org name: foo-org\"}";
 
-        Request mockRequest = mock(Request.class);
-        Response mockResponse = mock(Response.class);
-        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
-        when(mockResponse.body().string()).thenReturn(resString);
-        when(sendRequest(mockRequest)).thenReturn(mockResponse);
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/?q=org=foo-org")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_BAD_REQUEST)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get("application/json; charset=utf-8"),
+                        resString
+                ))
+                .build();
+
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
         this.searchPackage("org=foo-org", ANY_PLATFORM, TEST_BAL_VERSION);
     }

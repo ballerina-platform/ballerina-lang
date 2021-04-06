@@ -326,7 +326,6 @@ public class CentralAPIClientV2 {
             Response packagePullResponse = sendRequest(packagePullReq);
 
             // 302   - Package is found
-            // Other - Error occurred, json returned with the error message
             if (packagePullResponse.code() == HttpsURLConnection.HTTP_MOVED_TEMP) {
                 // get redirect url from "location" header field
                 Optional<String> balaUrl = Optional.ofNullable(packagePullResponse.header(LOCATION));
@@ -351,12 +350,13 @@ public class CentralAPIClientV2 {
                 }
             }
 
-            if (packagePullResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
+            if (packagePullResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
+                    packagePullResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePullResponse.body());
                 if (body.isPresent()) {
                     Error error = new Gson().fromJson(body.get().string(), Error.class);
                     if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        throw new CentralClientException(error.getMessage());
+                        throw new CentralClientException("error: " + error.getMessage());
                     }
                 }
             }
@@ -405,7 +405,8 @@ public class CentralAPIClientV2 {
                 if (searchResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
                     Error error = new Gson().fromJson(body.get().string(), Error.class);
                     if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        throw new CentralClientException(error.getMessage());
+                        throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "' reason:" +
+                                error.getMessage());
                     }
                 }
 
