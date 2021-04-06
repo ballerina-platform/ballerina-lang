@@ -133,7 +133,12 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     public Optional<TypeSymbol> returnTypeDescriptor() {
         if (returnType == null) {
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-            this.returnType = typesFactory.getTypeDescriptor(this.typeSymbol.returnType);
+            if (this.getBType().getReturnType() != null) {
+                this.returnType = typesFactory.getTypeDescriptor(this.getBType().getReturnType());
+            } else {
+                this.returnType = typesFactory.getTypeDescriptor(this.typeSymbol.returnType);
+            }
+
         }
 
         return Optional.ofNullable(this.returnType);
