@@ -18,10 +18,10 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.toml.api.Toml;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.EMPTY_CONFIG_STRING;
 
 /**
  * Toml parser that reads from text content for configurable implementation.
@@ -39,7 +39,7 @@ public class TomlContentProvider extends TomlProvider {
     @Override
     public void initialize() {
         if (configContent.isEmpty()) {
-            throw new TomlConfigException(String.format(EMPTY_CONFIG_STRING, CONFIG_DATA_ENV_VARIABLE));
+            throw new TomlConfigException(RuntimeErrors.CONFIG_TOML_EMPTY_CONTENT, CONFIG_DATA_ENV_VARIABLE);
         }
         super.tomlNode = Toml.read(configContent, CONFIG_DATA_ENV_VARIABLE).rootNode();
     }

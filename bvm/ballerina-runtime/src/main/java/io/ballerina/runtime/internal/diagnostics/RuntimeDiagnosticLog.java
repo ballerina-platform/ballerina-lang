@@ -30,7 +30,7 @@ import java.util.List;
  *
  * @since 2.0.0
  */
-public class DiagnosticLog {
+public class RuntimeDiagnosticLog {
 
     private List<RuntimeDiagnostic> diagnosticList = new LinkedList<>();
 
@@ -38,18 +38,18 @@ public class DiagnosticLog {
 
     private int warnCount = 0;
 
-    public void error(RuntimeErrors errorCode, String errorReason, String location, Object... args) {
+    public void error(RuntimeErrors errorCode, String location, Object... args) {
         errorCount += 1;
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(errorCode.diagnosticId(), errorCode.messageKey(),
                                                            DiagnosticSeverity.ERROR);
-        diagnosticList.add(new RuntimeDiagnostic(diagnosticInfo, errorReason, location, args));
+        diagnosticList.add(new RuntimeDiagnostic(diagnosticInfo, location, args));
     }
 
-    public void warn(RuntimeErrors errorCode, String errorReason, String location, Object... args) {
+    public void warn(RuntimeErrors errorCode, String location, Object... args) {
         warnCount += 1;
         DiagnosticInfo diagnosticInfo = new DiagnosticInfo(errorCode.diagnosticId(), errorCode.messageKey(),
                                                            DiagnosticSeverity.WARNING);
-        diagnosticList.add(new RuntimeDiagnostic(diagnosticInfo, errorReason, location, args));
+        diagnosticList.add(new RuntimeDiagnostic(diagnosticInfo, location, args));
     }
 
     public int getErrorCount() {

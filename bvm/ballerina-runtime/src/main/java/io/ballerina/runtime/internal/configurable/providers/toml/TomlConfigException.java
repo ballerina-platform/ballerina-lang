@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.toml.semantic.ast.TomlNode;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -32,27 +33,23 @@ import static io.ballerina.runtime.internal.configurable.providers.toml.TomlCons
  */
 public class TomlConfigException extends ConfigException {
 
-    public TomlConfigException(String message) {
-        super(message);
+    public TomlConfigException(TomlNode tomlNode, RuntimeErrors errorCode, Object... args) {
+        super(errorCode, getLineRange(tomlNode), args);
     }
 
-    public TomlConfigException(String message, TomlNode tomlNode) {
-        this(getLineRange(tomlNode) + message);
-    }
-
-    public TomlConfigException(String message, Throwable e) {
-        super(message, e);
+    public TomlConfigException(RuntimeErrors errorCode, Object... args) {
+        super(errorCode, args);
     }
 
     private static String getLineRange(TomlNode node) {
         if (node.location() == null) {
-            return "[" + CONFIG_FILE_NAME + "] ";
+            return CONFIG_FILE_NAME;
         }
         LineRange lineRange = node.location().lineRange();
         LineRange oneBasedLineRange = LineRange.from(
                 lineRange.filePath(),
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
-        return "[" + oneBasedLineRange.filePath() + ":" + oneBasedLineRange.toString() + "] ";
+        return oneBasedLineRange.filePath() + ":" + oneBasedLineRange.toString();
     }
 }

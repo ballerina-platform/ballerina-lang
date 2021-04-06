@@ -33,7 +33,7 @@ import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
-import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
@@ -63,7 +63,7 @@ public class ConfigTest {
     public void testTomlConfigProviderWithSimpleTypes(VariableKey key, Class<?> expectedJClass,
                                                       Object expectedValue, ConfigProvider... configProvider) {
         Module module = new Module("myorg", "simple_types", "1.0.0");
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {key};
         configVarMap.put(module, keys);
@@ -118,7 +118,8 @@ public class ConfigTest {
                         new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.decimalVar=876.54")},
                 // Xml value given only with cli
                 {new VariableKey(module, "xmlVar",
-                                 new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true), true),
+                                 new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true),
+                                 true),
                         BXml.class, XmlUtils.parse("<book>The Lost World</book>\n<!--I am a comment-->"),
                         new CliProvider(ROOT_MODULE, "-Cmyorg.simple_types.xmlVar=<book>The Lost World</book>\n<!--I " +
                                 "am a comment-->")},
@@ -149,7 +150,7 @@ public class ConfigTest {
                 "stringArr = [\"aa\", \"bb\", \"cc\"] booleanArr = [false, true, true, false]";
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
         supportedConfigProviders.add(new TomlContentProvider(tomlContent));
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, new DiagnosticLog(),
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, new RuntimeDiagnosticLog(),
                                                            supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
@@ -177,27 +178,27 @@ public class ConfigTest {
         configVarMap.put(module, keys);
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
         supportedConfigProviders.add(new TomlContentProvider(tomlContent));
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
                                                            supportedConfigProviders);
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: [BAL_CONFIG_DATA:(1:24,1:29)" +
-                "] configurable variable 'test_module:intVar' is expected to be of type 'int', but found 'float'");
+                "] configurable variable 'intVar' is expected to be of type 'int', but found 'float'");
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(), "error: [BAL_CONFIG_DATA:(1:55,1:57)" +
-                "] configurable variable 'test_module:stringVar' is expected to be of type 'string', but found 'int'");
+                "] configurable variable 'stringVar' is expected to be of type 'string', but found 'int'");
     }
 
     @Test
     public void testMultipleTomlProviders() {
-        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
-        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
+        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, null, true);
+        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, null, true);
         Map<Module, VariableKey[]> configVarMap =
                 Map.ofEntries(Map.entry(module, new VariableKey[]{intVar, stringVar}));
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
         supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_A.toml")));
         supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_B.toml")));
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, new DiagnosticLog(),
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, new RuntimeDiagnosticLog(),
                                                            supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
@@ -216,7 +217,7 @@ public class ConfigTest {
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
         supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_2.toml")));
         supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_1.toml")));
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog ,
                                                            supportedConfigProviders);
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
@@ -236,13 +237,13 @@ public class ConfigTest {
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
         supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_First.toml")));
         supportedConfigProviders.add(new TomlFileProvider(getConfigPath("Config_Second.toml")));
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
                                                            supportedConfigProviders);
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: value not provided for " +
-                "required configurable variable 'myOrg/test_module:stringVar'");
+                "required configurable variable 'stringVar'");
     }
 
     private Path getConfigPath(String configFileName) {

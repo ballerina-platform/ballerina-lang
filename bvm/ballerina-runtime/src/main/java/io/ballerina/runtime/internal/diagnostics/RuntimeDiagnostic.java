@@ -17,24 +17,63 @@
  */
 package io.ballerina.runtime.internal.diagnostics;
 
+import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import io.ballerina.tools.diagnostics.Location;
+
+import java.util.List;
+
 /**
  * A diagnostic represents a error, a warning or a message related to runtime .
  *
  * @since 2.0.0
  */
-public class Diagnostic {
+public class RuntimeDiagnostic extends Diagnostic {
 
-    DiagnosticSeverity severity;
+    private final DiagnosticInfo diagnosticInfo;
 
-    String message;
+    private Object[] args;
 
-    public Diagnostic(DiagnosticSeverity severity, String message) {
-        this.severity = severity;
-        this.message = message;
+    private String location;
+
+    public RuntimeDiagnostic(DiagnosticInfo diagnosticInfo, String location, Object[] args) {
+        this.diagnosticInfo = diagnosticInfo;
+        this.args = args;
+        this.location = location;
+    }
+
+    @Override
+    public Location location() {
+        return null;
+    }
+
+    @Override
+    public DiagnosticInfo diagnosticInfo() {
+        return null;
+    }
+
+    @Override
+    public String message() {
+        return BLangExceptionHelper.getErrorMessage(diagnosticInfo.messageFormat(), args);
+    }
+
+    @Override
+    public List<DiagnosticProperty<?>> properties() {
+        return null;
     }
 
     @Override
     public String toString() {
-        return severity + ": " + message;
+        String prefix = "error";
+        if (diagnosticInfo.severity().equals(DiagnosticSeverity.WARNING)) {
+            prefix = "warning";
+        }
+        if (location == null) {
+            return String.format("%s: %s", prefix, message());
+        }
+        return String.format("%s: %s\n\tat %s", prefix, message(), location);
     }
 }

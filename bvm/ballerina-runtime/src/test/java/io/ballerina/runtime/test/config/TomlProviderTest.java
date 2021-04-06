@@ -27,7 +27,7 @@ import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
-import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 import org.testng.Assert;
@@ -55,7 +55,7 @@ public class TomlProviderTest {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = new VariableKey[]{arrayKey};
         configVarMap.put(module, keys);
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
                                                            List.of(new TomlFileProvider(getConfigPath("Array_Config" +
                                                                                                            ".toml"))));
