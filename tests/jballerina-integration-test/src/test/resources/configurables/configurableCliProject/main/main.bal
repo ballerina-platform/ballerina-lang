@@ -31,6 +31,8 @@ public function main() {
     print("Tests passed");
 }
 
+
+
 function testSimpleValues() {
     test:assertEquals(42, intVar);
     test:assertEquals(3.5, floatVar);

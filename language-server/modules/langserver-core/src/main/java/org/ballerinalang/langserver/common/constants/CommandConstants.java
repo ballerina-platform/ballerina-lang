@@ -114,7 +114,7 @@ public class CommandConstants {
 
     public static final String CREATE_VAR_ADD_CHECK_TITLE = "Create variable and check error";
 
-    public static final String ADD_CHECK_TITLE = "Add check error";
+    public static final String ADD_CHECK_TITLE = "Add 'check' error";
 
     public static final String CREATE_SERVICE_RESOURCE = "Create service resource for the path '%s'";
 

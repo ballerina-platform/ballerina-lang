@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxTreeNodeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
@@ -115,6 +116,8 @@ public class TestUtil {
     private static final String PACKAGE_METADATA = "ballerinaPackage/metadata";
 
     private static final String PACKAGE_COMPONENTS = "ballerinaPackage/components";
+
+    private static final String DOCUMENT_SYNTAX_TREE_NODE = "ballerinaDocument/syntaxTreeNode";
 
     private static final Gson GSON = new Gson();
 
@@ -339,6 +342,21 @@ public class TestUtil {
         });
         packageComponentsRequest.setDocumentIdentifiers(documentIdentifiers.toArray(new TextDocumentIdentifier[0]));
         return getResponseString(serviceEndpoint.request(PACKAGE_COMPONENTS, packageComponentsRequest));
+    }
+
+    /**
+     * Returns syntaxTreeNode API response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path to evaluate
+     * @param range           Document position
+     * @return {@link String} Document syntaxTree node response
+     */
+    public static String getSyntaxTreeNodeResponse(Endpoint serviceEndpoint, String filePath, Range range) {
+        SyntaxTreeNodeRequest request = new SyntaxTreeNodeRequest();
+        request.setDocumentIdentifiers(getTextDocumentIdentifier(filePath));
+        request.setRange(range);
+        return getResponseString(serviceEndpoint.request(DOCUMENT_SYNTAX_TREE_NODE, request));
     }
 
     /**

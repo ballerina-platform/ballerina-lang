@@ -142,19 +142,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fork",
-      "kind": "Snippet",
-      "detail": "Statement",
-      "sortText": "O",
-      "insertText": "fork {\n\t${1}\n}",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "transaction",
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "O",
       "insertText": "transaction {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "retry",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "retry {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -456,19 +456,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestObject",
       "kind": "Interface",
       "detail": "Object",
       "sortText": "K",
       "insertText": "TestObject",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -595,6 +595,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "isolated service object {resource function name . () returns () ;}",
+      "sortText": "B",
+      "insertText": "self",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()(int)",
       "kind": "Function",
       "detail": "Function",
@@ -606,14 +614,6 @@
       },
       "sortText": "C",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "self",
-      "kind": "Variable",
-      "detail": "isolated service object {resource function name . () returns () ;}",
-      "sortText": "B",
-      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {

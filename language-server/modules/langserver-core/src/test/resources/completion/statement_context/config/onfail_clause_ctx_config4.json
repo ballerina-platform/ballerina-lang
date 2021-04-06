@@ -158,6 +158,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "retry",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "retry {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "retry transaction",
       "kind": "Snippet",
       "detail": "Statement",
