@@ -61,7 +61,8 @@ public class ConstantDeclarationNodeContext extends AbstractCompletionProvider<C
                 completionItems.addAll(this.getModuleCompletionItems(context));
             }
         } else if (this.onExpressionContext(context, node)) {
-            Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.CONSTANT;
+            Predicate<Symbol> predicate =
+                    symbol -> symbol.kind() == SymbolKind.CONSTANT || symbol.kind() == SymbolKind.ENUM_MEMBER;
             List<Symbol> constants;
             if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
                 QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;

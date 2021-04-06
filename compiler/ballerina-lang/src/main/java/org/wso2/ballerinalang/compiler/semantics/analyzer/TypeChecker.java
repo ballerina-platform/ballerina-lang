@@ -3278,7 +3278,7 @@ public class TypeChecker extends BLangNodeVisitor {
         if (!cIExpr.initInvocation.argExprs.isEmpty()
                 && ((BObjectTypeSymbol) objType.tsymbol).initializerFunc == null) {
             dlog.error(cIExpr.pos, DiagnosticErrorCode.TOO_MANY_ARGS_FUNC_CALL,
-                    cIExpr.initInvocation.exprSymbol);
+                    cIExpr.initInvocation.name.value);
             cIExpr.initInvocation.argExprs.forEach(expr -> checkExpr(expr, env, symTable.noType));
             resultType = symTable.semanticError;
             return false;
@@ -4691,9 +4691,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 returnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);
                 break;
             default:
-                BInvokableSymbol itrSymbol = (BInvokableSymbol) symResolver.lookupLangLibMethod(collectionType,
+                BSymbol itrSymbol = symResolver.lookupLangLibMethod(collectionType,
                         names.fromString(BLangCompilerConstants.ITERABLE_COLLECTION_ITERATOR_FUNC));
-                returnType = types.getResultTypeOfNextInvocation((BObjectType) itrSymbol.retType);
+                if (itrSymbol == this.symTable.notFoundSymbol) {
+                    return null;
+                }
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) itrSymbol;
+                returnType = types.getResultTypeOfNextInvocation((BObjectType) invokableSymbol.retType);
         }
         if (returnType != null) {
             List<BType> errorTypes = types.getAllTypes(returnType).stream()

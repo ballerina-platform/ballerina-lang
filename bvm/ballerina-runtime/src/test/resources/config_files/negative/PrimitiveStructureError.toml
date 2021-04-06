@@ -1,0 +1,3 @@
+[myOrg.test_module]
+intVar.structure = 4.25
+stringVar = false

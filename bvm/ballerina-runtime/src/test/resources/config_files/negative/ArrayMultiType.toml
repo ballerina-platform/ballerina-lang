@@ -1,0 +1,2 @@
+[myOrg.test_module]
+intArr = [11, "test", 33.34]

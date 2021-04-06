@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -3692,7 +3693,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // Check whether the condition is always true. If the variable type is assignable to target type,
         // then type check will always evaluate to true.
         if (types.isAssignable(typeTestExpr.expr.type, typeTestExpr.typeNode.type)) {
-            dlog.error(typeTestExpr.pos, DiagnosticErrorCode.UNNECESSARY_CONDITION);
+            dlog.hint(typeTestExpr.pos, DiagnosticHintCode.UNNECESSARY_CONDITION);
             return;
         }
 

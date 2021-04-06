@@ -19,6 +19,7 @@ import io.ballerina.compiler.api.symbols.Documentation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 
+import java.util.Collections;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -68,6 +69,16 @@ public class DocAttachmentInfo implements Documentation {
     @Override
     public Optional<String> returnDescription() {
         return Optional.ofNullable(returnDesc);
+    }
+
+    @Override
+    public Optional<String> deprecatedDescription() {
+        return Optional.empty();
+    }
+
+    @Override
+    public Map<String, String> deprecatedParametersMap() {
+        return Collections.emptyMap();
     }
 
     public Position getDocStartPos() {
