@@ -219,7 +219,15 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
         List<Symbol> visibleEntries = new ArrayList<>();
         TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
         switch (rawType.typeKind()) {
-            // lang.value functions shouldn't be shown for object field accesses
+            case RECORD:
+                // If the invoked for field access expression, then avoid suggesting the optional fields
+                List<RecordFieldSymbol> filteredEntries =
+                        ((RecordTypeSymbol) rawType).fieldDescriptors().values().stream()
+                                .filter(recordFieldSymbol -> this.optionalFieldAccess
+                                        || !recordFieldSymbol.isOptional())
+                                .collect(Collectors.toList());
+                visibleEntries.addAll(filteredEntries);
+                break;
             case OBJECT:
                 // add class field access test case as well
                 Optional<Package> currentPkg = context.workspace()
@@ -240,19 +248,12 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                                 currentModule.get().moduleId()))
                         .collect(Collectors.toList());
                 visibleEntries.addAll(methodSymbols);
-                break;
-            case RECORD:
-                // If the invoked for field access expression, then avoid suggesting the optional fields
-                List<RecordFieldSymbol> filteredEntries =
-                        ((RecordTypeSymbol) rawType).fieldDescriptors().values().stream()
-                                .filter(recordFieldSymbol -> this.optionalFieldAccess
-                                        || !recordFieldSymbol.isOptional())
-                                .collect(Collectors.toList());
-                visibleEntries.addAll(filteredEntries);
+                // lang.value functions shouldn't be shown for object field accesses
+                return visibleEntries;
             default:
-                visibleEntries.addAll(typeSymbol.langLibMethods());
                 break;
         }
+        visibleEntries.addAll(typeSymbol.langLibMethods());
 
         return visibleEntries;
     }
