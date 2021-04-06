@@ -86,11 +86,13 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     private LineRange getDeleteRange(LineRange lineRange) {
         if (lineRange != null) {
             for (LineRange aPosition : deleteRanges.keySet()) {
-                if (aPosition.startLine().line() <= lineRange.startLine().line() &&
-                        aPosition.endLine().line() >= lineRange.endLine().line() &&
-                        aPosition.startLine().offset() <= lineRange.startLine().offset() &&
-                        aPosition.endLine().offset() >= lineRange.endLine().offset()) {
-                    return aPosition;
+                if (aPosition.startLine().line() <= lineRange.startLine().line()
+                        && aPosition.startLine().offset() <= lineRange.startLine().offset()) {
+                    if (aPosition.endLine().line() == lineRange.endLine().line()
+                            && aPosition.endLine().offset() >= lineRange.endLine().offset()
+                            || aPosition.endLine().line() > lineRange.endLine().line()) {
+                        return aPosition;
+                    }
                 }
             }
         }
