@@ -48,7 +48,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.interop.AnnotationProc
  *
  * @since 1.2.0
  */
-public class InteropValidator {
+public class     InteropValidator {
 
     private static final CompilerContext.Key<InteropValidator> INTEROP_VALIDATE = new CompilerContext.Key<>();
     private final SymbolTable symbolTable;
