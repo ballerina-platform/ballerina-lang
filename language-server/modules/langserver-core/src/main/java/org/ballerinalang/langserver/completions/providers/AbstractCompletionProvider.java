@@ -176,7 +176,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
                                                                                     typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
-            } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
+            } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS
+                    || symbol.kind() == ENUM) {
                 // Here skip all the package symbols since the package is added separately
                 CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.getName().get());
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, typeCItem));

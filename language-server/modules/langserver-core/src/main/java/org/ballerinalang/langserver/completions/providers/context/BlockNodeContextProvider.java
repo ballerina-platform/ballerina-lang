@@ -132,6 +132,9 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         if (this.onSuggestFork(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
         }
+        if (this.withinTransactionStatement(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
+        }
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
@@ -194,6 +197,18 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         }
 
         return withinLoops;
+    }
+
+    private boolean withinTransactionStatement(T node) {
+        Node evalNode = node;
+        boolean withinTransaction = false;
+
+        while (!withinTransaction && evalNode != null) {
+            withinTransaction = evalNode.kind() == SyntaxKind.TRANSACTION_STATEMENT;
+            evalNode = evalNode.parent();
+        }
+
+        return withinTransaction;
     }
 
     private Optional<Node> nodeBeforeCursor(BallerinaCompletionContext context, Node node) {

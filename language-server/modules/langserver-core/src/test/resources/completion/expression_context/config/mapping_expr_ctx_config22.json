@@ -26,7 +26,7 @@
       "kind": "Field",
       "detail": "int",
       "sortText": "G",
-      "insertText": "rec2f2: ${1:0}",
+      "insertText": "rec2f2: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {

@@ -18,7 +18,6 @@ package org.ballerinalang.langserver.common.utils.completion;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -102,8 +101,8 @@ public class QNameReferenceUtil {
                                                 QualifiedNameReferenceNode qNameRef) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
-                .filter(moduleItem -> moduleItem instanceof TypeDefinitionSymbol ||
-                        moduleItem.kind() == SymbolKind.CLASS)
+                .filter(moduleItem -> moduleItem.kind() == SymbolKind.TYPE_DEFINITION ||
+                        moduleItem.kind() == SymbolKind.CLASS || moduleItem.kind() == SymbolKind.ENUM)
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
     }

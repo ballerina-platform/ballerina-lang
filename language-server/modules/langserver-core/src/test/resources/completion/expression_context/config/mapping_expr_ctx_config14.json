@@ -18,7 +18,7 @@
       "kind": "Field",
       "detail": "RecordName2",
       "sortText": "G",
-      "insertText": "rec1f1: {\n\trec2f1: ${1:0},\n\trec2f2: ${1:0}\n}",
+      "insertText": "rec1f1: {\n\trec2f1: ${1:0},\n\trec2f2: ${2:0}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -26,7 +26,7 @@
       "kind": "Field",
       "detail": "int",
       "sortText": "G",
-      "insertText": "rec1f2: ${1:0}",
+      "insertText": "rec1f2: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
