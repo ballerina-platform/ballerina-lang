@@ -20,9 +20,11 @@ package org.ballerinalang.central.client;
 
 import okhttp3.Call;
 import okhttp3.MediaType;
+import okhttp3.MultipartBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Protocol;
 import okhttp3.Request;
+import okhttp3.RequestBody;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.awaitility.Duration;
@@ -39,7 +41,6 @@ import org.testng.annotations.Test;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
@@ -50,7 +51,13 @@ import java.nio.file.Paths;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
-import static org.ballerinalang.central.client.CentralClientConstants.*;
+import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
+import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
+import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
+import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
+import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
+import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.TestUtils.cleanDirectory;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.mock;
@@ -119,15 +126,28 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
 
         try {
             balaStream = new FileInputStream(balaFile);
-            Request mockRequest = mock(Request.class);
-            Response mockResponse = mock(Response.class);
-            when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_MOVED_TEMP);
-            when(mockResponse.header(LOCATION)).thenReturn(balaUrl);
-            when(mockResponse.header(CONTENT_DISPOSITION))
-                    .thenReturn("attachment; filename=sf-2020r2-any-1.3.5.bala");
-            when(mockResponse.body().contentLength()).thenReturn(Files.size(balaPath));
-            when(mockResponse.body().byteStream()).thenReturn(balaStream);
-            when(sendRequest(mockRequest)).thenReturn(mockResponse);
+
+            Request mockRequest = new Request.Builder()
+                    .get()
+                    .url("https://localhost:9090/registry/packages/foo/sf/1.3.5")
+                    .addHeader(ACCEPT_ENCODING, IDENTITY)
+                    .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                    .build();
+            Response mockResponse = new Response.Builder()
+                    .request(mockRequest)
+                    .protocol(Protocol.HTTP_1_1)
+                    .code(HttpURLConnection.HTTP_MOVED_TEMP)
+                    .addHeader(LOCATION, balaUrl)
+                    .addHeader(CONTENT_DISPOSITION, "attachment; filename=sf-2020r2-any-1.3.5.bala")
+                    .message("")
+                    .body(ResponseBody.create(
+                            MediaType.get(APPLICATION_OCTET_STREAM),
+                            Files.readAllBytes(balaPath)
+                    ))
+                    .build();
+
+            when(this.remoteCall.execute()).thenReturn(mockResponse);
+            when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
             this.pullPackage("foo", "sf", "1.3.5", TMP_DIR, ANY_PLATFORM, TEST_BAL_VERSION, false);
 
@@ -253,15 +273,20 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
         this.getPackage("bar", WINERY, "v2", ANY_PLATFORM, TEST_BAL_VERSION);
     }
 
-    @Test(description = "Test push package", enabled = false)
+    @Test(description = "Test push package")
     public void testPushPackage() throws IOException, CentralClientException {
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
-        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALA)));
 
         setBallerinaHome();
 
+        RequestBody balaFileReqBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("bala-file", TEST_BALA_NAME,
+                        RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
+                .build();
+
         Request mockRequest = new Request.Builder()
-                .post(null)
+                .post(balaFileReqBody)
                 .url("https://localhost:9090/registry/packages")
                 .addHeader(AUTHORIZATION, "Bearer " + ACCESS_TOKEN)
                 .build();
@@ -274,12 +299,6 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
 
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
-
-//        Request mockRequest = mock(Request.class);
-//        Response mockResponse = mock(Response.class);
-//        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_OK);
-//        when(mockResponse.body().string()).thenReturn(Files.readString(outputBala.toPath()));
-//        when(sendRequest(mockRequest)).thenReturn(mockResponse);
 
         this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
         String buildLog = readOutput();
@@ -297,9 +316,14 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
         File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALA)));
 
         setBallerinaHome();
+        RequestBody balaFileReqBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("bala-file", TEST_BALA_NAME,
+                        RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
+                .build();
 
         Request mockRequest = new Request.Builder()
-                .post(null)
+                .post(balaFileReqBody)
                 .url("https://localhost:9090/registry/packages")
                 .addHeader(AUTHORIZATION, "Bearer " + ACCESS_TOKEN)
                 .build();
@@ -317,26 +341,24 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
         when(this.remoteCall.execute()).thenReturn(mockResponse);
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
-//        Request mockRequest = mock(Request.class);
-//        Response mockResponse = mock(Response.class);
-//        when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_BAD_REQUEST);
-//        when(mockResponse.body().string()).thenReturn(resString);
-//        when(sendRequest(mockRequest)).thenReturn(mockResponse);
-
         this.pushPackage(balaPath, "foo", "github", "1.8.3", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
     }
 
     @Test(description = "Test push package request failure", expectedExceptions = CentralClientException.class,
             expectedExceptionsMessageRegExp = "error: failed to push the package: "
-                    + "'foo/sf:1.3.5' to the remote repository 'https://api.central.ballerina.io/registry'")
+                    + "'foo/sf:1.3.5' to the remote repository 'https://localhost:9090/registry/packages'.")
     public void testPushPackageRequestFailure() throws IOException, CentralClientException {
         Path balaPath = UTILS_TEST_RESOURCES.resolve(TEST_BALA_NAME);
-        File outputBala = new File(String.valueOf(TMP_DIR.resolve(OUTPUT_BALA)));
 
         setBallerinaHome();
+        RequestBody balaFileReqBody = new MultipartBody.Builder()
+                .setType(MultipartBody.FORM)
+                .addFormDataPart("bala-file", TEST_BALA_NAME,
+                        RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
+                .build();
 
         Request mockRequest = new Request.Builder()
-                .post(null)
+                .post(balaFileReqBody)
                 .url("https://localhost:9090/registry/packages")
                 .addHeader(AUTHORIZATION, "Bearer " + ACCESS_TOKEN)
                 .build();
@@ -351,15 +373,6 @@ public class TestCentralApiClient extends CentralAPIClientV2 {
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
         this.pushPackage(balaPath, "foo", "sf", "1.3.5", ACCESS_TOKEN, ANY_PLATFORM, TEST_BAL_VERSION);
-//        try (FileOutputStream outputStream = new FileOutputStream(outputBala)) {
-//            Request mockRequest = mock(Request.class);
-//            Response mockResponse = mock(Response.class);
-//            when(mockResponse.code()).thenReturn(HttpURLConnection.HTTP_NOT_FOUND);
-//            when(mockResponse.body().string()).thenReturn(Files.readString(outputBala.toPath()));
-//            when(sendRequest(mockRequest)).thenReturn(mockResponse);
-//
-//
-//        }
     }
 
     @Test(description = "Test search package")

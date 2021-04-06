@@ -137,8 +137,7 @@ public class CentralAPIClientV2 {
                         getPackageResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
                     Error error = new Gson().fromJson(body.get().string(), Error.class);
                     if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
-                                error.getMessage());
+                        throw new CentralClientException(error.getMessage());
                     }
                 }
             }
@@ -405,8 +404,7 @@ public class CentralAPIClientV2 {
                 if (searchResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
                     Error error = new Gson().fromJson(body.get().string(), Error.class);
                     if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "' reason:" +
-                                error.getMessage());
+                        throw new CentralClientException(error.getMessage());
                     }
                 }
 
