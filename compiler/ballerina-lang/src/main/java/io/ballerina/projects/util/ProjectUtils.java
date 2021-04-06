@@ -542,7 +542,7 @@ public class ProjectUtils {
             PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
 
             // ignore lang libs & ballerina internal packages
-            if (!descriptor.isLangLibPackage() && !graphDependency.injected()) {
+            if (!descriptor.isBuiltInPackage() && !graphDependency.injected()) {
                 // write dependency, if it not already exists in `Dependencies.toml`
                 if (!isPkgManifestDependency(graphDependency, pkgManifestDependencies)) {
                     addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),

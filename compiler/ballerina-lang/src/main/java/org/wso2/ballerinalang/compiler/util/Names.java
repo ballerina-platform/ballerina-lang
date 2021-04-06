@@ -65,6 +65,7 @@ public class Names {
     public static final Name TRANSACTION = new Name("transaction");
     public static final Name OBSERVE = new Name("observe");
     public static final Name TABLE = new Name("table");
+    public static final Name TEST = new Name("test");
     public static final Name TYPEDESC = new Name("typedesc");
     public static final Name STRING = new Name("string");
     public static final Name VALUE = new Name("value");
