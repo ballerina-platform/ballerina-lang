@@ -34,6 +34,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "H",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
@@ -48,7 +62,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \n  \n"
         }
       },
       "sortText": "C",
@@ -62,7 +76,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function2  \n"
         }
       },
       "sortText": "C",
@@ -94,7 +108,7 @@
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description  \n  \n**Returns** `()`   \n  \n"
+          "value": "**Package:** _ballerina/module1:0.1.0_  \n  \nThis is function4 with input parameters\n  \n**Params**  \n- `int` param1: param1 Parameter Description   \n- `int` param2: param2 Parameter Description  \n- `string` param3: param3 Parameter Description(Defaultable)  \n- `float[]` param4: param4 Parameter Description"
         }
       },
       "sortText": "C",
