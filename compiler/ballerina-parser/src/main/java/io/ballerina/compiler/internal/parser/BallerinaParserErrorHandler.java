@@ -1010,7 +1010,10 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     break;
                 case SIMPLE_TYPE_DESCRIPTOR:
                     hasMatch = BallerinaParser.isSimpleType(nextToken.kind) ||
-                            nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN;
+                            nextToken.kind == SyntaxKind.IDENTIFIER_TOKEN ||
+                            nextToken.kind == SyntaxKind.ERROR_KEYWORD ||
+                            nextToken.kind == SyntaxKind.STREAM_KEYWORD ||
+                            nextToken.kind == SyntaxKind.TYPEDESC_KEYWORD;
                     break;
                 case OPEN_BRACE:
                     hasMatch = nextToken.kind == SyntaxKind.OPEN_BRACE_TOKEN;
