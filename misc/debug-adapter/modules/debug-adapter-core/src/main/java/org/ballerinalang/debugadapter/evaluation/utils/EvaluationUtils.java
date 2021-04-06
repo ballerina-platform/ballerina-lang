@@ -52,31 +52,42 @@ import java.util.stream.IntStream;
  */
 public class EvaluationUtils {
 
-    // Helper classes
-    public static final String B_UNARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.unary";
-    public static final String B_BINARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.binary";
-    public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
-    public static final String B_TYPE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.TypeCreator";
-    public static final String B_VALUE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.ValueCreator";
-    public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
-    public static final String B_TYPE_UTILS_CLASS = "io.ballerina.runtime.api.utils.TypeUtils";
-    public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.internal.XmlFactory";
-    public static final String B_DECIMAL_VALUE_CLASS = "io.ballerina.runtime.internal.values.DecimalValue";
-    public static final String B_XML_VALUE_CLASS = "io.ballerina.runtime.internal.values.XmlValue";
-    public static final String B_STRING_CLASS = "io.ballerina.runtime.api.values.BString";
+    // Debugger runtime helper classes
+    private static final String DEBUGGER_HELPER_PREFIX = "ballerina.debugger_helpers.1_0_0.";
+    public static final String B_UNARY_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "unary_operations";
+    public static final String B_ARITHMETIC_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "arithmetic_operations";
+    public static final String B_RELATIONAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "relational_operations";
+    public static final String B_BITWISE_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "bitwise_operations";
+    public static final String B_SHIFT_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "shift_operations";
+    public static final String B_LOGICAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "logical_operations";
+
+    // Ballerina runtime helper classes
+    private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
+    public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
+    public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
+    public static final String B_VALUE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.ValueCreator";
+    public static final String B_STRING_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.StringUtils";
+    public static final String B_TYPE_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.TypeUtils";
+    public static final String B_XML_FACTORY_CLASS = RUNTIME_HELPER_PREFIX + "internal.XmlFactory";
+    public static final String B_DECIMAL_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.DecimalValue";
+    public static final String B_XML_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.XmlValue";
+    public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
+    public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
+    public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
+    private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
+    private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
     public static final String FROM_STRING_CLASS = "org.ballerinalang.langlib.xml.FromString";
-    public static final String B_TYPE_CLASS = "io.ballerina.runtime.api.types.Type";
-    public static final String B_TYPE_ARRAY_CLASS = "io.ballerina.runtime.api.types.Type[]";
+
+    // Java runtime helper classes
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
-    private static final String B_LINK_CLASS = "io.ballerina.runtime.api.values.BLink";
-    private static final String B_ERROR_VALUE_CLASS = "io.ballerina.runtime.internal.values.ErrorValue";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     private static final String JAVA_INT_CLASS = "java.lang.Integer";
     private static final String JAVA_LONG_CLASS = "java.lang.Long";
     private static final String JAVA_FLOAT_CLASS = "java.lang.Float";
     private static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
     private static final String JAVA_LANG_CLASS = "java.lang.Class";
+
     // Helper methods
     public static final String B_ADD_METHOD = "add";
     public static final String B_SUB_METHOD = "subtract";
