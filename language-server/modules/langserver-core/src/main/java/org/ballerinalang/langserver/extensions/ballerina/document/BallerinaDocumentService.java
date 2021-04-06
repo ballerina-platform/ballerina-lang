@@ -52,4 +52,7 @@ public interface BallerinaDocumentService {
 
     @JsonRequest
     CompletableFuture<List<PublishDiagnosticsParams>> diagnostics(BallerinaProjectParams params);
+
+    @JsonRequest
+    CompletableFuture<SyntaxTreeNodeResponse> syntaxTreeNode(SyntaxTreeNodeRequest params);
 }

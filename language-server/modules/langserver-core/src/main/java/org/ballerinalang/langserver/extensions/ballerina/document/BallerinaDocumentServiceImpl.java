@@ -325,4 +325,25 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             }
         });
     }
+
+    @Override
+    public CompletableFuture<SyntaxTreeNodeResponse> syntaxTreeNode(SyntaxTreeNodeRequest params) {
+        return CompletableFuture.supplyAsync(() -> {
+            SyntaxTreeNodeResponse syntaxTreeNodeResponse = new SyntaxTreeNodeResponse();
+            try {
+                Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
+                if (filePath.isEmpty()) {
+                    return syntaxTreeNodeResponse;
+                }
+                SyntaxTree syntaxTree = this.workspaceManager.syntaxTree(filePath.get()).orElseThrow();
+                NonTerminalNode currentNode = CommonUtil.findNode(params.getRange(), syntaxTree);
+                syntaxTreeNodeResponse.setKind(currentNode.kind().name());
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaDocument/syntaxTreeNode' failed!";
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_NODE, msg, e, params.getDocumentIdentifier(),
+                        (Position) null);
+            }
+            return syntaxTreeNodeResponse;
+        });
+    }
 }
