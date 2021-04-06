@@ -34,10 +34,12 @@ public function main() {
         y = y - 1;
     }
 
-    map<string> countryCapitals = { "USA": "Washington, D.C.",
-                                    "Sri Lanka": "Colombo",
-                                    "England": "London" };
-    
+    map<string> countryCapitals = {
+        "USA": "Washington, D.C.",
+        "Sri Lanka": "Colombo",
+        "England": "London"
+    };
+
     foreach var capital in countryCapitals {
         z = z + 1;
     }
@@ -54,7 +56,7 @@ public function main() {
     x = 11;
     x = 12;
     x = 13;
-    x = 14; 
+    x = 14;
 }
 
 function getModuleEmployee() returns Employee {

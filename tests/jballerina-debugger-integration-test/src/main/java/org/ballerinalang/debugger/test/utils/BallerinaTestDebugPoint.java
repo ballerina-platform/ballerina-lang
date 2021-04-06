@@ -31,8 +31,7 @@ public class BallerinaTestDebugPoint {
     String condition;
 
     public BallerinaTestDebugPoint(String filePath, long line) {
-        this.filePath = filePath;
-        this.line = line;
+        this(filePath, line, null);
     }
 
     public BallerinaTestDebugPoint(String filePath, long line, String condition) {

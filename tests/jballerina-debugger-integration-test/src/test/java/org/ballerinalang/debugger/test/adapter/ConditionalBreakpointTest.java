@@ -30,6 +30,9 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
+/**
+ * Test class for conditional breakpoint related debug scenarios.
+ */
 public class ConditionalBreakpointTest extends BaseTestCase {
 
     DebugTestRunner debugTestRunner;
@@ -45,19 +48,22 @@ public class ConditionalBreakpointTest extends BaseTestCase {
     public void testConditionalBreakpointScenarios() throws BallerinaTestException {
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 29));
         debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 34, "y == 3"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 42, "capital == \"London\""));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 45, "x == 5"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 46, "x == 10"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 47, "x != 100"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 49, "e1 === e2"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 50, "e1 !== e3"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 51, "x > 0"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 52, "x >= 0"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 53, "y < 0"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 54, "y <= 0"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 55, "x > 0 && z > 0"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 56, "x > 0 || z > 0"));
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 57, "x is int"));
+        debugTestRunner.addBreakPoint(
+            new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 44, "capital == \"London\""));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 47, "x == 5"));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 48, "x == 10"));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 49, "x != 100"));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 51, "e1 === e2"));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 52, "e1 !== e3"));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 53, "x > 0"));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 54, "x >= 0"));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 55, "y < 0"));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 56, "y <= 0"));
+        debugTestRunner.addBreakPoint(
+            new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 57, "x > 0 && z > 0"));
+        debugTestRunner.addBreakPoint(
+            new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 58, "x > 0 || z > 0"));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 59, "x is int"));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
 
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
