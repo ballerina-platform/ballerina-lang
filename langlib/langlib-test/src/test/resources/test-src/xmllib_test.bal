@@ -500,17 +500,17 @@ function getDescendantsSimpleElement() {
     xml:Element e9 = xml `<ARTIST>Bonnie Tyler</ARTIST>`;
     xml:Text e10 = <xml:Text>xml `Bonnie Tyler`;
 
-    assert(descendantSeq.length(), 11);
-    assert(descendantSeq[0], e1);
-    assert(descendantSeq[1], e2);
-    assert(descendantSeq[2], e3);
-    assert(descendantSeq[3], e4);
-    assert(descendantSeq[4], e5);
-    assert(descendantSeq[6], e6);
-    assert(descendantSeq[7], e7);
-    assert(descendantSeq[8], e8);
-    assert(descendantSeq[9], e9);
-    assert(descendantSeq[10], e10);
+    assertEquals(descendantSeq.length(), 11);
+    assertEquals(descendantSeq[0], e1);
+    assertEquals(descendantSeq[1], e2);
+    assertEquals(descendantSeq[2], e3);
+    assertEquals(descendantSeq[3], e4);
+    assertEquals(descendantSeq[4], e5);
+    assertEquals(descendantSeq[6], e6);
+    assertEquals(descendantSeq[7], e7);
+    assertEquals(descendantSeq[8], e8);
+    assertEquals(descendantSeq[9], e9);
+    assertEquals(descendantSeq[10], e10);
 }
 
 function getDescendantsWithNS() {
@@ -519,8 +519,8 @@ function getDescendantsWithNS() {
     xml descendants = presidents.getDescendants();
 
     xml usNs = descendants.elements("{foo}US");
-    assert(usNs.length(), 1);
-    assert(usNs.toString(), "<ns:US xmlns:ns=\"foo\"><fn>Obama</fn></ns:US>");
+    assertEquals(usNs.length(), 1);
+    assertEquals(usNs.toString(), "<ns:US xmlns:ns=\"foo\"><fn>Obama</fn></ns:US>");
 
     xml:Comment e1 = xml `<!-- Comment -->`;
     xml:Element e2 = xml `<ns:US><fn>Obama</fn></ns:US>`;
@@ -530,14 +530,14 @@ function getDescendantsWithNS() {
     xml:Element e6 = xml `<fn>Trump</fn>`;
     xml:Text e7 = xml `Trump`;
 
-    assert(descendants.length(), 7);
-    assert(descendants[0], e1);
-    assert(descendants[1], e2);
-    assert(descendants[2], e3);
-    assert(descendants[3], e4);
-    assert(descendants[4], e5);
-    assert(descendants[5], e6);
-    assert(descendants[6], e7);
+    assertEquals(descendants.length(), 7);
+    assertEquals(descendants[0], e1);
+    assertEquals(descendants[1], e2);
+    assertEquals(descendants[2], e3);
+    assertEquals(descendants[3], e4);
+    assertEquals(descendants[4], e5);
+    assertEquals(descendants[5], e6);
+    assertEquals(descendants[6], e7);
 }
 
 function getDescendantsFilterNonElements() {
@@ -553,14 +553,14 @@ function getDescendantsFilterNonElements() {
     xml:Element e6 = xml `<txt>Everyday Italian</txt>`;
     xml:Text e7 = xml `Everyday Italian`;
 
-    assert(descendants.length(), 7);
-    assert(descendants[0], e1);
-    assert(descendants[1], e2);
-    assert(descendants[2], e3);
-    assert(descendants[3], e4);
-    assert(descendants[4], e5);
-    assert(descendants[5], e6);
-    assert(descendants[6], e7);
+    assertEquals(descendants.length(), 7);
+    assertEquals(descendants[0], e1);
+    assertEquals(descendants[1], e2);
+    assertEquals(descendants[2], e3);
+    assertEquals(descendants[3], e4);
+    assertEquals(descendants[4], e5);
+    assertEquals(descendants[5], e6);
+    assertEquals(descendants[6], e7);
 }
 
 function getDescendantsFromSeq() {
@@ -576,11 +576,11 @@ function getDescendantsFromSeq() {
     xml:Element e3 = xml `<d>bye</d>`;
     xml:Text e4 = xml `bye`;
 
-    assert(desecndants.length(), 4);
-    assert(desecndants[0], e1);
-    assert(desecndants[1], e2);
-    assert(desecndants[2], e3);
-    assert(desecndants[3], e4);
+    assertEquals(desecndants.length(), 4);
+    assertEquals(desecndants[0], e1);
+    assertEquals(desecndants[1], e2);
+    assertEquals(desecndants[2], e3);
+    assertEquals(desecndants[3], e4);
 }
 
 function assertEquals(anydata actual, anydata expected) {
