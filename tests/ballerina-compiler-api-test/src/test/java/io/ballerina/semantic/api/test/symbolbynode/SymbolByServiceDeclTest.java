@@ -20,6 +20,7 @@ package io.ballerina.semantic.api.test.symbolbynode;
 
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AbsResourcePathAttachPoint;
+import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.ResourceMethodSymbol;
 import io.ballerina.compiler.api.symbols.ServiceAttachPoint;
@@ -40,6 +41,7 @@ import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
+import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.testng.annotations.Test;
@@ -49,6 +51,7 @@ import java.util.Optional;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.PATH_PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RESOURCE_METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.SERVICE_DECLARATION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
@@ -142,11 +145,42 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
                     assertEquals(segments.get(1), pathParams.get(0));
                     assertEquals(segments.get(3), pathParams.get(1));
                     assertEquals(segments.get(4), resourcePath.pathRestParameter().get());
+
+                    for (Node child : functionDefinitionNode.children()) {
+                        child.accept(this);
+                    }
                 }
 
                 if (functionDefinitionNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION) {
                     assertSymbol(functionDefinitionNode, model, METHOD, functionDefinitionNode.functionName().text());
                 }
+            }
+
+            @Override
+            public void visit(ResourcePathParameterNode resourcePathParameterNode) {
+                String pathParamName = resourcePathParameterNode.paramName().text();
+                PathParameterSymbol pathParam =
+                        (PathParameterSymbol) assertSymbol(resourcePathParameterNode, model, PATH_PARAMETER,
+                                                           pathParamName);
+
+                switch (pathParamName) {
+                    case "x":
+                        assertPathParam(pathParam, pathParamName, PathSegment.Kind.PATH_PARAMETER, TypeDescKind.INT,
+                                        "[int x]");
+                        return;
+                    case "y":
+                        assertPathParam(pathParam, pathParamName, PathSegment.Kind.PATH_PARAMETER, TypeDescKind.FLOAT,
+                                        "[float y]");
+                        return;
+                    case "rest":
+                        assertPathParam(pathParam, pathParamName, PathSegment.Kind.PATH_REST_PARAMETER,
+                                        TypeDescKind.ARRAY, "[string... rest]");
+                        assertEquals(((ArrayTypeSymbol) pathParam.typeDescriptor()).memberTypeDescriptor().typeKind(),
+                                     TypeDescKind.STRING);
+                        return;
+                }
+
+                throw new AssertionError("Unexpected path param: " + pathParam.getName().get());
             }
 
             @Override
@@ -162,7 +196,7 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
 
     @Override
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 8);
+        assertEquals(getAssertCount(), 11);
     }
 
     private Symbol assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {
@@ -173,5 +207,14 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
         }
         incrementAssertCount();
         return symbol.get();
+    }
+
+    private void assertPathParam(PathParameterSymbol pathParam, String name, PathSegment.Kind kind,
+                                 TypeDescKind typeKind, String signature) {
+        assertEquals(pathParam.getName().get(), name);
+        assertEquals(pathParam.kind(), PATH_PARAMETER);
+        assertEquals(pathParam.pathSegmentKind(), kind);
+        assertEquals(pathParam.typeDescriptor().typeKind(), typeKind);
+        assertEquals(pathParam.signature(), signature);
     }
 }
