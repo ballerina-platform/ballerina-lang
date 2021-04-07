@@ -82,12 +82,16 @@ public class SearchCommand implements BLauncherCmd {
         if (argList == null || argList.isEmpty()) {
             CommandUtil.printError(this.errStream, "no keyword given", "bal search [<org>|<package>|<text>] ",
                                    false);
+            // Exit status, zero for OK, non-zero for error
+            Runtime.getRuntime().exit(1);
             return;
         }
 
         if (argList.size() > 1) {
             CommandUtil.printError(this.errStream, "too many arguments", "bal search [<org>|<package>|<text>] ",
                                    false);
+            // Exit status, zero for OK, non-zero for error
+            Runtime.getRuntime().exit(1);
             return;
         }
 
@@ -142,6 +146,8 @@ public class SearchCommand implements BLauncherCmd {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                 }
                 CommandUtil.printError(this.errStream, errorMessage, null, false);
+                // Exit status, zero for OK, non-zero for error
+                Runtime.getRuntime().exit(1);
             }
         }
     }
