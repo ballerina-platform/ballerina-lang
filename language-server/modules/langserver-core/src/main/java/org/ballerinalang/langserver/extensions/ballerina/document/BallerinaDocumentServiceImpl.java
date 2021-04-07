@@ -31,6 +31,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.diagnostic.DiagnosticsHelper;
+import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.PublishDiagnosticsParams;
 
@@ -230,6 +231,10 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
         return CompletableFuture.supplyAsync(() -> reply);
     }
 
+    /**
+     * @deprecated use {@link BallerinaPackageService} instead.
+     */
+    @Deprecated(since = "2.0.0", forRemoval = true)
     @Override
     public CompletableFuture<BallerinaProject> project(BallerinaProjectParams params) {
         return CompletableFuture.supplyAsync(() -> {
@@ -277,6 +282,27 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                                            (Position) null);
                 return Collections.emptyList();
             }
+        });
+    }
+
+    @Override
+    public CompletableFuture<SyntaxTreeNodeResponse> syntaxTreeNode(SyntaxTreeNodeRequest params) {
+        return CompletableFuture.supplyAsync(() -> {
+            SyntaxTreeNodeResponse syntaxTreeNodeResponse = new SyntaxTreeNodeResponse();
+            try {
+                Optional<Path> filePath = CommonUtil.getPathFromURI(params.getDocumentIdentifier().getUri());
+                if (filePath.isEmpty()) {
+                    return syntaxTreeNodeResponse;
+                }
+                SyntaxTree syntaxTree = this.workspaceManager.syntaxTree(filePath.get()).orElseThrow();
+                NonTerminalNode currentNode = CommonUtil.findNode(params.getRange(), syntaxTree);
+                syntaxTreeNodeResponse.setKind(currentNode.kind().name());
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaDocument/syntaxTreeNode' failed!";
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_TREE_NODE, msg, e, params.getDocumentIdentifier(),
+                        (Position) null);
+            }
+            return syntaxTreeNodeResponse;
         });
     }
 }

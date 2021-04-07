@@ -70,7 +70,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
                     .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(filteredWorkers, context));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         }
 
         return completionItems;

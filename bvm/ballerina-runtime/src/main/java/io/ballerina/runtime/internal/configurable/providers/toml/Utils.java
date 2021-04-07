@@ -96,6 +96,7 @@ public class Utils {
                     case TypeTags.XML_PI_TAG:
                     case TypeTags.XML_TAG:
                     case TypeTags.XML_TEXT_TAG:
+                    default:
                         throw new TomlConfigException(String.format(CONFIGURATION_NOT_SUPPORTED_FOR_TOML, variableName,
                                                                     effectiveType.toString()));
                 }

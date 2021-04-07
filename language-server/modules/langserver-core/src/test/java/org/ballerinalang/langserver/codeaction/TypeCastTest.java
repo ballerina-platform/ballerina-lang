@@ -41,6 +41,12 @@ public class TypeCastTest extends AbstractCodeActionTest {
         super.test(config, source);
     }
 
+    @Override
+    @Test(dataProvider = "negative-test-data-provider")
+    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
+        super.negativeTest(config, source);
+    }
+
     @DataProvider(name = "codeaction-data-provider")
     @Override
     public Object[][] dataProvider() {
@@ -51,6 +57,15 @@ public class TypeCastTest extends AbstractCodeActionTest {
                 {"typeCast4.json", "typeCast.bal"},
                 {"typeCast5.json", "typeCast.bal"},
                 {"typeCast6.json", "typeCast.bal"},
+                {"nilTypeCast.json", "typeCast.bal"},
+                {"type_cast_function_param_config1.json", "type_cast_function_param_config1.bal"},
+        };
+    }
+
+    @DataProvider(name = "negative-test-data-provider")
+    public Object[][] negativeDataProvider() {
+        return new Object[][]{
+                {"typeCastNegative1.json", "typeCast2.bal"},
         };
     }
 }

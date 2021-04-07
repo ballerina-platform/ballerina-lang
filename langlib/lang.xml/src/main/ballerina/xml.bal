@@ -123,6 +123,17 @@ public isolated function setName(Element elem, string xName) = @java:Method {
     name: "setName"
 } external;
 
+# Returns the map representing the attributes of `elem`.
+# This includes namespace attributes.
+# The keys in the map are the expanded names of the attributes.
+#
+# + x - xml element
+# + return - attributes of `x`
+public isolated function getAttributes(Element x) returns map<string> = @java:Method {
+    'class: "org.ballerinalang.langlib.xml.GetAttributes",
+    name: "getAttributes"
+} external;
+
 # Returns the children of `elem`.
 #
 # + elem - xml element
@@ -143,15 +154,37 @@ public isolated function setChildren(Element elem, xml|string children) = @java:
     name: "setChildren"
 } external;
 
-# Returns the map representing the attributes of `elem`.
-# This includes namespace attributes.
-# The keys in the map are the expanded names of the attributes.
+# Returns the descendants of `elem`.
 #
-# + x - xml element
-# + return - attributes of `x`
-public isolated function getAttributes(Element x) returns map<string> = @java:Method {
-    'class: "org.ballerinalang.langlib.xml.GetAttributes",
-    name: "getAttributes"
+# + elem - xml element
+# + return - descendants of `elem`
+# The descendants of an element are the children of the element
+# together with, for each of those children that is an element,
+# the descendants of that element, ordered so that
+# each element immediately precedes all its descendants.
+# The order of the items in the returned sequence will thus correspond
+# to the order in which the first character of the representation
+# of the item would occur in the representation of the element in XML syntax.
+public isolated function getDescendants(Element elem) returns xml = @java:Method {
+    'class: "org.ballerinalang.langlib.xml.GetDescendants",
+    name: "getDescendants"
+} external;
+
+# Returns a string with the character data of an xml value.
+# + x - the xml value
+# + return - a string consisting of all the character data of `x`
+# The character data of an xml value is as follows:
+# * the character data of a text item is a string with one character for each
+#     character information item represented by the text item;
+# * the character data of an element item is the character data of its children;
+# * the character data of a comment item is the empty string;
+# * the character data of a processing instruction item is the empty string;
+# * the character data of an empty xml sequence is the empty string;
+# * the character data of the concatenation of two xml sequences x1 and x2 is the
+#    concatenation of the character data of x1 and the character data of x2.
+public isolated function data(xml x) returns string = @java:Method {
+    'class: "org.ballerinalang.langlib.xml.Data",
+    name: "data"
 } external;
 
 # Returns the target part of the processing instruction.
@@ -163,16 +196,16 @@ public isolated function getTarget(ProcessingInstruction x) returns string = @ja
     name: "getTarget"
 } external;
 
-# Returns the content of a text or processing instruction or comment item.
+# Returns the content of a processing instruction or comment item.
 #
 # + x - xml item
 # + return - the content of `x`
-public isolated function getContent(Text|ProcessingInstruction|Comment x) returns string = @java:Method {
+public isolated function getContent(ProcessingInstruction|Comment x) returns string = @java:Method {
     'class: "org.ballerinalang.langlib.xml.GetContent",
     name: "getContent"
 } external;
 
-# Constructs an xml sequence consisting of only a new element item.
+# Creates a new xml element item.
 #
 # + name - the name of the new element
 # + children - the children of the new element
@@ -184,7 +217,7 @@ public isolated function createElement(string name, xml children = concat())
         name: "createElement"
 } external;
 
-# Constructs an xml sequence consisting of only a processing instruction item.
+# Creates a new xml processing instruction item.
 #
 # + target - the target part of the processing instruction to be constructed
 # + content - the content part of the processing instruction to be constructed
@@ -196,7 +229,7 @@ public isolated function createProcessingInstruction(string target, string conte
         name: "createProcessingInstruction"
 } external;
 
-# Constructs an xml sequence consisting of only a comment item.
+# Creates a new xml comment item.
 #
 # + content - the content of the comment to be constructed.
 # + return - an xml sequence consisting of a comment with content `content`
@@ -205,12 +238,11 @@ public isolated function createComment(string content) returns Comment = @java:M
     name: "createComment"
 } external;
 
-# Constructs an xml sequence representing zero of more parsed characters.
-#
-# + chars - the characters
+# Constructs an xml value of type Text.
+# + data - the character data of the Text item
 # + return - an xml sequence that is either empty or consists of one text item
 # The constructed sequence will be empty when the length of `chars` is zero.
-public isolated function createText(string chars) returns Text = @java:Method {
+public isolated function createText(string data) returns Text = @java:Method {
     'class: "org.ballerinalang.langlib.xml.CreateText",
     name: "createText"
 } external;

@@ -56,8 +56,6 @@ import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 
 import java.math.BigDecimal;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -70,7 +68,6 @@ import static io.ballerina.runtime.internal.configurable.ConfigConstants.INCOMPA
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONSTRAINT_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.DEFAULT_FIELD_UNSUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.DEFAULT_MODULE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.EMPTY_CONFIG_FILE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.FIELD_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.INVALID_ADDITIONAL_FIELD_IN_RECORD;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.INVALID_BYTE_RANGE;
@@ -96,11 +93,9 @@ public class TomlProvider implements ConfigProvider {
 
     TomlTableNode tomlNode;
 
-    public TomlProvider() {
-    }
-
     @Override
     public void initialize() {
+        // Implemented in extended classes
     }
 
     @Override
@@ -239,19 +234,6 @@ public class TomlProvider implements ConfigProvider {
         return tomlValue;
     }
 
-    private TomlTableNode getConfigurationData(Path configFilePath) {
-        if (!Files.exists(configFilePath)) {
-                return null;
-        }
-        ConfigToml configToml = new ConfigToml(configFilePath);
-
-        TomlTableNode tomlNode = configToml.tomlAstNode();
-        if (tomlNode.entries().isEmpty()) {
-            throw new TomlConfigException(String.format(EMPTY_CONFIG_FILE, configFilePath));
-        }
-        return tomlNode;
-    }
-
     private TomlTableNode retrieveModuleNode(TomlTableNode tomlNode, Module module, boolean hasRequired) {
         String orgName = module.getOrg();
         String moduleName = module.getName();
@@ -282,12 +264,10 @@ public class TomlProvider implements ConfigProvider {
         int subModuleIndex = moduleName.indexOf(SUBMODULE_DELIMITER);
         if (subModuleIndex == -1) {
             moduleNode = validateAndGetModuleStructure(orgNode, moduleName, fullModuleName);
-            if (moduleNode == null && hasRequired) {
-                if (!invalidRequiredModuleSet.contains(fullModuleName)) {
-                    invalidRequiredModuleSet.add(fullModuleName);
-                    throw new TomlConfigException(String.format(INVALID_MODULE_STRUCTURE, fullModuleName,
-                                                                fullModuleName), orgNode);
-                }
+            if (moduleNode == null && hasRequired && !invalidRequiredModuleSet.contains(fullModuleName)) {
+                invalidRequiredModuleSet.add(fullModuleName);
+                throw new TomlConfigException(String.format(INVALID_MODULE_STRUCTURE, fullModuleName,
+                        fullModuleName), orgNode);
             }
         } else if (subModuleIndex != moduleName.length()) {
             String parent = moduleName.substring(0, subModuleIndex);
@@ -341,10 +321,10 @@ public class TomlProvider implements ConfigProvider {
                 new ListInitialValueEntry.ExpressionEntry[arraySize];
         for (int i = 0; i < arraySize; i++) {
             String elementName = variableName + "[" + i + "]";
-            TomlNode tomlNode = arrayList.get(i);
-            if (tomlNode.kind() != getEffectiveTomlType(elementType, elementName)) {
+            TomlNode tomlValueNode = arrayList.get(i);
+            if (tomlValueNode.kind() != getEffectiveTomlType(elementType, elementName)) {
                 throw new TomlConfigException(String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, elementName, elementType ,
-                                                            getTomlTypeString(tomlNode)), tomlNode);
+                                                            getTomlTypeString(tomlValueNode)), tomlValueNode);
             }
             arrayEntries[i] = new ListInitialValueEntry.ExpressionEntry(getBalValue(variableName, elementType.getTag(),
                             arrayList.get(i)));

@@ -181,7 +181,7 @@ public class CliProvider implements ConfigProvider {
             return Optional.empty();
         }
         throw new CliConfigException(cliArg, String.format(CliConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
-                                                           key.variable, key.type));
+                key.variable, key.type));
     }
 
     @Override
