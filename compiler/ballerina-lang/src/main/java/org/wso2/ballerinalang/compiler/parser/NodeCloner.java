@@ -1369,7 +1369,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.textFragments = cloneList(source.textFragments);
         clone.quoteType = source.quoteType;
-        clone.concatExpr = clone(source.concatExpr);
     }
 
     @Override

@@ -279,6 +279,12 @@ public class ServiceSemanticAPITest {
         assertEquals(type.getName().get(), "BarListener");
     }
 
+    @Test
+    public void testServiceDeclNegative() {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(66, 34));
+        assertTrue(symbol.isEmpty());
+    }
+
     private Object[][] getExpValues() {
         return new Object[][]{
                 {null, null, null, null},

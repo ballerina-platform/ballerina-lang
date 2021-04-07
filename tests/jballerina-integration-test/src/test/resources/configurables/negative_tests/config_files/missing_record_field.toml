@@ -1,5 +1,0 @@
-[main]
-stringVar = "required"
-
-[[main.users]]
-password = "password"

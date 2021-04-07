@@ -907,9 +907,9 @@ public class Types {
             }
 
             List<BType> fieldTypes = new ArrayList<>();
-            sourceTableType.fieldNameList.forEach(field -> fieldTypes
-                    .add(getTableConstraintField(sourceTableType.constraint, field).type));
-
+            sourceTableType.fieldNameList.stream()
+                    .map(f -> getTableConstraintField(sourceTableType.constraint, f))
+                    .filter(Objects::nonNull).map(f -> f.type).forEach(fieldTypes::add);
             if (fieldTypes.size() == 1) {
                 return isAssignable(fieldTypes.get(0), targetTableType.keyTypeConstraint, unresolvedTypes);
             }
@@ -1652,7 +1652,8 @@ public class Types {
                     break;
                 }
                 varType = streamType.constraint;
-                if (streamType.error != null) {
+                List<BType> completionType = getAllTypes(streamType.error);
+                if (completionType.stream().anyMatch(type -> type.tag != TypeTags.NIL)) {
                     BType actualType = BUnionType.create(null, varType, streamType.error);
                     dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);

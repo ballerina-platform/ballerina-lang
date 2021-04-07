@@ -16,6 +16,7 @@
 package org.ballerinalang.langserver;
 
 import com.google.gson.Gson;
+import com.google.gson.JsonObject;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.langserver.command.LSCommandExecutorProvidersHolder;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -32,6 +33,8 @@ import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocum
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaDocumentServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleService;
 import org.ballerinalang.langserver.extensions.ballerina.example.BallerinaExampleServiceImpl;
+import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageService;
+import org.ballerinalang.langserver.extensions.ballerina.packages.BallerinaPackageServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolService;
 import org.ballerinalang.langserver.extensions.ballerina.symbol.BallerinaSymbolServiceImpl;
 import org.ballerinalang.langserver.extensions.ballerina.traces.BallerinaTraceService;
@@ -84,7 +87,10 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     private final BallerinaTraceService ballerinaTraceService;
     private final Listener ballerinaTraceListener;
     private final BallerinaSymbolService ballerinaSymbolService;
+    private final BallerinaPackageService ballerinaPackageService;
     private int shutdown = 1;
+
+    private static final String LS_INIT_MODE_PROPERTY = "enableLightWeightMode";
 
     public BallerinaLanguageServer() {
         this(new LanguageServerContextImpl());
@@ -100,6 +106,7 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         this.ballerinaTraceService = new BallerinaTraceServiceImpl(this);
         this.ballerinaTraceListener = new Listener(this.ballerinaTraceService);
         this.ballerinaSymbolService = new BallerinaSymbolServiceImpl();
+        this.ballerinaPackageService = new BallerinaPackageServiceImpl(workspaceManager, this.serverContext);
 
         LSAnnotationCache.getInstance(this.serverContext).initiate();
     }
@@ -110,6 +117,13 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
 
     public CompletableFuture<InitializeResult> initialize(InitializeParams params) {
         final InitializeResult res = new InitializeResult(new ServerCapabilities());
+        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
+
+        //Checks for instances in which the LS needs to be initiated in lightweight mode
+        if (isLightWeightMode(params)) {
+            return CompletableFuture.supplyAsync(() -> res);
+        }
+
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
         final List<String> commandList = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
                 .getCommandsList();
@@ -118,7 +132,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
 
         res.getCapabilities().setCompletionProvider(completionOptions);
-        res.getCapabilities().setTextDocumentSync(TextDocumentSyncKind.Full);
         res.getCapabilities().setSignatureHelpProvider(signatureHelpOptions);
         res.getCapabilities().setHoverProvider(true);
         res.getCapabilities().setDocumentSymbolProvider(false);
@@ -225,6 +238,11 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         return ballerinaSymbolService;
     }
 
+    @Override
+    public BallerinaPackageService getBallerinaPackageService() {
+        return this.ballerinaPackageService;
+    }
+
     private void startListeningFileChanges() {
         ExtendedLanguageClient languageClient = serverContext.get(ExtendedLanguageClient.class);
         List<FileSystemWatcher> watchers = new ArrayList<>();
@@ -241,5 +259,15 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         Registration registration = new Registration(UUID.randomUUID().toString(),
                                                      "workspace/didChangeWatchedFiles", opts);
         languageClient.registerCapability(new RegistrationParams(Collections.singletonList(registration)));
+    }
+
+    private Boolean isLightWeightMode(InitializeParams params) {
+        if (params.getInitializationOptions() != null) {
+            JsonObject initOptions = (JsonObject) params.getInitializationOptions();
+            if (initOptions.has(LS_INIT_MODE_PROPERTY)) {
+                return initOptions.get(LS_INIT_MODE_PROPERTY).getAsBoolean();
+            }
+        }
+        return false;
     }
 }

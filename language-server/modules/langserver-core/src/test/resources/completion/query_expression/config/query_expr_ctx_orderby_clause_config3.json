@@ -80,7 +80,7 @@
     {
       "label": "do",
       "kind": "Snippet",
-      "detail": "Statement",
+      "detail": "Snippet",
       "sortText": "O",
       "insertText": "do {\n\t${1}\n}",
       "insertTextFormat": "Snippet"

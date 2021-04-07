@@ -87,4 +87,9 @@ public class VarDeclarationTest extends AbstractStatementTest {
     public void testLocalVarDeclWithTypeRefWithAdditionalColons() {
         test("pkg:::Person p;", "var-decl-stmt/local_var_decl_assert_11.json");
     }
+
+    @Test
+    public void testLocalVarDeclWithComplexTypeMissingVarName() {
+        testFile("var-decl-stmt/local_var_decl_source_13.bal", "var-decl-stmt/local_var_decl_assert_13.json");
+    }
 }
