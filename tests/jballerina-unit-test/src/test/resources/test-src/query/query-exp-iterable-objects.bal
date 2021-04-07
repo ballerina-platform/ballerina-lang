@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/lang.'object;
-import ballerina/test;
 
 class Iterable {
     *object:Iterable;
@@ -224,5 +223,23 @@ public function testObjectIterator() {
     int[] integers = from var item in new MyIterable()
                      select item;
 
-    test:assertEquals(integers, expectedArr);
+    assertEquality(integers, expectedArr);
+}
+
+//---------------------------------------------------------------------------------------------------------
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                      message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }
