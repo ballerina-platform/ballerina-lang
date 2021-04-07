@@ -501,7 +501,7 @@ public class Generator {
                 List<DefaultableVariable> parameters = new ArrayList<>();
                 List<Variable> returnParams = new ArrayList<>();
 
-                methodSymbol.typeDescriptor().parameters().forEach(parameterSymbol -> {
+                methodSymbol.typeDescriptor().params().get().forEach(parameterSymbol -> {
                     boolean parameterDeprecated = parameterSymbol.annotations().stream()
                             .anyMatch(annotationSymbol -> annotationSymbol.getName().get().equals("deprecated"));
                     Type type = new Type(parameterSymbol.typeDescriptor().signature());

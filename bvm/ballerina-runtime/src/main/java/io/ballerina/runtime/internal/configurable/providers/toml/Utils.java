@@ -21,6 +21,7 @@ package io.ballerina.runtime.internal.configurable.providers.toml;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
@@ -99,11 +100,11 @@ public class Utils {
                     case TypeTags.XML_PI_TAG:
                     case TypeTags.XML_TAG:
                     case TypeTags.XML_TEXT_TAG:
-                        throw new TomlConfigException(CONFIG_TOML_TYPE_NOT_SUPPORTED, variableName,
-                                                      effectiveType.toString());
+                        throw new ConfigException(CONFIG_TOML_TYPE_NOT_SUPPORTED, variableName,
+                                                  effectiveType.toString());
                 }
             default:
-                throw new TomlConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, expectedType.toString());
+                throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, expectedType.toString());
         }
         return tomlType;
     }

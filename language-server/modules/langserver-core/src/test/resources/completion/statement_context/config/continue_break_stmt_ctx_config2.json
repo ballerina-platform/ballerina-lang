@@ -158,6 +158,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "retry",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "retry {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "retry transaction",
       "kind": "Snippet",
       "detail": "Statement",
@@ -618,14 +626,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "numberList",
-      "kind": "Variable",
-      "detail": "int[]",
-      "sortText": "B",
-      "insertText": "numberList",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "item",
       "kind": "Variable",
       "detail": "int",
@@ -634,11 +634,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "breakValue",
+      "label": "numberList",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "int[]",
       "sortText": "B",
-      "insertText": "breakValue",
+      "insertText": "numberList",
       "insertTextFormat": "Snippet"
     },
     {
@@ -647,6 +647,14 @@
       "detail": "int",
       "sortText": "B",
       "insertText": "counter",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "breakValue",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "breakValue",
       "insertTextFormat": "Snippet"
     },
     {

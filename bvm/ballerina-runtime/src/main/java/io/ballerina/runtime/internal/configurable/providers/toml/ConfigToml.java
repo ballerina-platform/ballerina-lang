@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlTransformer;
@@ -60,7 +61,7 @@ public class ConfigToml {
         parseToml();
         List<Diagnostic> diagnosticList = getDiagnostics();
         if (!diagnosticList.isEmpty()) {
-            throw new TomlConfigException(RuntimeErrors.CONFIG_TOML_INVALID_FILE, getErrorMessage(diagnosticList));
+            throw new ConfigException(RuntimeErrors.CONFIG_TOML_INVALID_FILE, getErrorMessage(diagnosticList));
         }
         return tomlAstNode;
     }
@@ -83,7 +84,7 @@ public class ConfigToml {
         try {
             textDocument = TextDocuments.from(Files.readString(filePath));
         } catch (IOException e) {
-            throw new TomlConfigException(CONFIG_TOML_READ_FAILED, filePath, e);
+            throw new ConfigException(CONFIG_TOML_READ_FAILED, filePath, e);
         }
         return textDocument;
     }
@@ -96,7 +97,7 @@ public class ConfigToml {
             tomlAstNode = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
         } catch (RuntimeException e) {
             // The toml parser throws runtime exceptions for some cases
-            throw new TomlConfigException(CONFIG_TOML_PARSE_FAILED, filePath, e);
+            throw new ConfigException(CONFIG_TOML_PARSE_FAILED, filePath, e);
         }
     }
 

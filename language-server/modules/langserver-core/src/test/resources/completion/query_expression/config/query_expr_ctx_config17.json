@@ -84,6 +84,14 @@
       "sortText": "P",
       "insertText": "select ",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "do",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "do {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
     }
   ]
 }

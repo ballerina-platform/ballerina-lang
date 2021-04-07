@@ -246,11 +246,7 @@ public class PushCommand implements BLauncherCmd {
         }
 
         try {
-            if (!isPackageMdIncluded(packageBalaFile)) {
-                throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME +
-                        " is missing in bala file:" + packageBalaFile);
-            }
-
+            validatePackageMdAndBalToml(packageBalaFile);
         } catch (IOException e) {
             throw new ProjectException("error while validating the bala file", e);
         }
@@ -259,17 +255,20 @@ public class PushCommand implements BLauncherCmd {
         return packageBalaFile;
     }
 
-    private static boolean isPackageMdIncluded(Path balaPath) throws IOException {
+    private static void validatePackageMdAndBalToml(Path balaPath) throws IOException {
         try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(balaPath, StandardOpenOption.READ))) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (entry.getName().equals(
                         ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME)) {
-                    return true;
+                    if (entry.getSize() == 0) {
+                        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " cannot be empty.");
+                    }
+                    return;
                 }
             }
         }
-        return false;
+        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " is missing in bala file:" + balaPath);
     }
 
     private void pushBalaToCustomRepo(Path balaFilePath) {

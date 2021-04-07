@@ -79,6 +79,7 @@ public class Flags {
     public static final long FIELD = REST_PARAM << 1;                           //  38
     public static final long ANY_FUNCTION = FIELD << 1;                         //  39
     public static final long INFER = ANY_FUNCTION << 1;                         //  40
+    public static final long ENUM_MEMBER = INFER << 1;                          //  41
 
 
     public static long asMask(Set<Flag> flagSet) {
@@ -196,6 +197,9 @@ public class Flags {
                 case ANY_FUNCTION:
                     mask |= ANY_FUNCTION;
                     break;
+                case ENUM_MEMBER:
+                    mask |= ENUM_MEMBER;
+                    break;
             }
         }
         return mask;
@@ -310,6 +314,9 @@ public class Flags {
                     break;
                 case ANY_FUNCTION:
                     flagVal = ANY_FUNCTION;
+                    break;
+                case ENUM_MEMBER:
+                    flagVal = ENUM_MEMBER;
                     break;
                 default:
                     continue;

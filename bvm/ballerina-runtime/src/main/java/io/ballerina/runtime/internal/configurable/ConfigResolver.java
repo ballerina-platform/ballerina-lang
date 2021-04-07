@@ -43,13 +43,13 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
  */
 public class ConfigResolver {
 
-    private Map<Module, VariableKey[]> configVarMap;
+    private final Map<Module, VariableKey[]> configVarMap;
 
-    private List<ConfigProvider> supportedConfigProviders;
+    private final List<ConfigProvider> supportedConfigProviders;
 
-    private List<ConfigProvider> runtimeConfigProviders;
+    private final List<ConfigProvider> runtimeConfigProviders;
 
-    private Module rootModule;
+    private final Module rootModule;
 
     private RuntimeDiagnosticLog diagnosticLog;
 
