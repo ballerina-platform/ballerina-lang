@@ -68,11 +68,11 @@ public class TomlProviderNegativeTest {
     public Object[][] getPathErrorTests() {
         return new Object[][]{
                 {"NoConfig.toml",
-                        "warning: configuration file is not found in path '" + getConfigPathForNegativeCases(
-                                "NoConfig.toml") + "'", 1},
+                        "warning: configuration file is not found in path '" +
+                                getConfigPathForNegativeCases("NoConfig.toml") + "'", 1},
                 {"Empty.toml",
-                        "warning: an empty configuration file is found in path '" + getConfigPathForNegativeCases(
-                                "Empty.toml") + "'. Please provide values " +
+                        "warning: an empty configuration file is found in path '" +
+                                getConfigPathForNegativeCases("Empty.toml") + "'. Please provide values " +
                                 "for configurable variables", 1},
                 {"InvalidConfig.toml", "warning: invalid toml file : \n" +
                         "[InvalidConfig.toml:(0:7,0:7)] missing identifier\n" +
