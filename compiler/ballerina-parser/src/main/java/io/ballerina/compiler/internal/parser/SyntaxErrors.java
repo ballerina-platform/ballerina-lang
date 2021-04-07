@@ -96,7 +96,6 @@ public class SyntaxErrors {
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
         switch (currentCtx) {
             case EXTERNAL_FUNC_BODY:
-            case BINDING_PATTERN_OR_EXPR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case FUNC_BODY_BLOCK:
@@ -171,6 +170,7 @@ public class SyntaxErrors {
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
+            case BINDING_PATTERN_OR_EXPR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:

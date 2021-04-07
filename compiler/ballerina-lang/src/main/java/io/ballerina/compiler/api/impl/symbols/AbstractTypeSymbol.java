@@ -134,7 +134,7 @@ public abstract class AbstractTypeSymbol implements TypeSymbol {
         List<FunctionSymbol> filteredFunctions = new ArrayList<>();
 
         for (FunctionSymbol function : functions) {
-            ParameterSymbol firstParam = function.typeDescriptor().parameters().get(0);
+            ParameterSymbol firstParam = function.typeDescriptor().params().get().get(0);
             BType firstParamType = ((AbstractTypeSymbol) firstParam.typeDescriptor()).getBType();
 
             if (types.isAssignable(internalType, firstParamType)) {

@@ -789,7 +789,8 @@ public class CodeActionUtil {
                     parentNode.parent().kind() == SyntaxKind.MODULE_PART) {
                 isFunctionDef = true;
             } else if (parentNode.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION &&
-                    parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION) {
+                    (parentNode.parent().kind() == SyntaxKind.CLASS_DEFINITION
+                            || parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION)) {
                 isFunctionDef = true;
             } else if (parentNode.kind() == SyntaxKind.RESOURCE_ACCESSOR_DEFINITION &&
                     parentNode.parent().kind() == SyntaxKind.SERVICE_DECLARATION) {
@@ -805,6 +806,17 @@ public class CodeActionUtil {
         }
 
         return Optional.ofNullable(functionDefNode);
+    }
+
+    /**
+     * Check if the provided union type contains at least one error member.
+     *
+     * @param unionTypeSymbol Union type
+     * @return true if the union type contains an error member
+     */
+    public static boolean hasErrorMemberType(UnionTypeSymbol unionTypeSymbol) {
+        return unionTypeSymbol.memberTypeDescriptors().stream()
+                .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
     }
 
     private static String generateIfElseText(String varName, String spaces, String padding,

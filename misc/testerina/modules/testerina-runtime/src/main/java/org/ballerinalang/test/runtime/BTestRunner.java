@@ -757,10 +757,15 @@ public class BTestRunner {
     private void writeFailedTestsToJson(List<String> failedTests, File jsonFile) {
         String errorMsg;
 
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
-            String json = gson.toJson(failedTests);
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
+            try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                String json = gson.toJson(failedTests);
+                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
+                errStream.println(errorMsg + ":" + e.getMessage());
+            }
         } catch (IOException e) {
             errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
             errStream.println(errorMsg + ":" + e.getMessage());
