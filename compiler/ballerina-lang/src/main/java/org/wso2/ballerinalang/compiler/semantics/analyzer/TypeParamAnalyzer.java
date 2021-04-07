@@ -64,6 +64,7 @@ import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -507,8 +508,9 @@ public class TypeParamAnalyzer {
                 findTypeParam(loc, expType.keyTypeConstraint, actualType.keyTypeConstraint, env, resolvedTypes, result);
             } else if (actualType.fieldNameList != null) {
                 List<BType> memberTypes = new ArrayList<>();
-                actualType.fieldNameList.forEach(field -> memberTypes
-                        .add(types.getTableConstraintField(actualType.constraint, field).type));
+                actualType.fieldNameList.stream()
+                        .map(f -> types.getTableConstraintField(actualType.constraint, f))
+                        .filter(Objects::nonNull).map(f -> f.type).forEach(memberTypes::add);
                 if (memberTypes.size() == 1) {
                     findTypeParam(loc, expType.keyTypeConstraint, memberTypes.get(0), env, resolvedTypes, result);
                 } else {
