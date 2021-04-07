@@ -32,9 +32,11 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
+import io.ballerina.compiler.syntax.tree.NameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
@@ -210,6 +212,25 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
 
         return ((FunctionSymbol) functionSymbol.get()).typeDescriptor().returnTypeDescriptor();
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(FieldAccessExpressionNode node) {
+        FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(context, false);
+        List<Symbol> visibleEntries = resolver.getVisibleEntries(node.expression());
+        NameReferenceNode nameRef = node.fieldName();
+        if (nameRef.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            return Optional.empty();
+        }
+        String fieldName = ((SimpleNameReferenceNode) nameRef).name().text();
+        Optional<Symbol> filteredSymbol = visibleEntries.stream()
+                .filter(symbol -> symbol.getName().isPresent() && symbol.getName().get().equals(fieldName))
+                .findFirst();
+        if (filteredSymbol.isEmpty()) {
+            return Optional.empty();
+        }
+        
+        return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
     }
 
     @Override

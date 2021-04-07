@@ -243,19 +243,36 @@ class BIRTestUtils {
         assertMarkdownEntry(constantPoolEntries, actualDocContent.descriptionCpIndex(), expectedDocument.description);
 
         assertMarkdownEntry(constantPoolEntries, actualDocContent.returnValueDescriptionCpIndex(),
-                expectedDocument.returnValueDescription);
+                            expectedDocument.returnValueDescription);
 
         List<MarkdownDocAttachment.Parameter> expectedParameters = expectedDocument.parameters;
         Assert.assertEquals(actualDocContent.parametersCount(), expectedParameters.size());
         ArrayList<Bir.MarkdownParameter> actualParameters = actualDocContent.parameters();
-        for (int i = 0; i < actualParameters.size(); i++) {
-            Bir.MarkdownParameter actualParameter = actualParameters.get(i);
-            MarkdownDocAttachment.Parameter expectedParameter = expectedParameters.get(i);
+
+        assertMarkdownParams(constantPoolEntries, actualParameters, expectedParameters);
+
+        assertMarkdownEntry(constantPoolEntries, actualDocContent.deprecatedDocsCpIndex(),
+                            expectedDocument.deprecatedDocumentation);
+
+        List<MarkdownDocAttachment.Parameter> expDeprecatedParams = expectedDocument.deprecatedParams;
+        ArrayList<Bir.MarkdownParameter> actualDeprecatedParams = actualDocContent.deprecatedParams();
+        Assert.assertEquals(actualDocContent.deprecatedParamsCount(), expDeprecatedParams.size());
+        Assert.assertEquals(actualDeprecatedParams.size(), actualDocContent.deprecatedParamsCount());
+
+        assertMarkdownParams(constantPoolEntries, actualDeprecatedParams, expDeprecatedParams);
+    }
+
+    private static void assertMarkdownParams(ArrayList<Bir.ConstantPoolEntry> constantPoolEntries,
+                                             ArrayList<Bir.MarkdownParameter> actualParams,
+                                             List<MarkdownDocAttachment.Parameter> expParams) {
+        for (int i = 0; i < actualParams.size(); i++) {
+            Bir.MarkdownParameter actualParameter = actualParams.get(i);
+            MarkdownDocAttachment.Parameter expectedParameter = expParams.get(i);
 
             assertMarkdownEntry(constantPoolEntries, actualParameter.nameCpIndex(), expectedParameter.name);
 
             assertMarkdownEntry(constantPoolEntries, actualParameter.descriptionCpIndex(),
-                    expectedParameter.description);
+                                expectedParameter.description);
         }
     }
 

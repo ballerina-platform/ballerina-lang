@@ -111,6 +111,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -3975,11 +3978,32 @@ public class SymbolEnter extends BLangNodeVisitor {
         MarkdownDocAttachment docAttachment = new MarkdownDocAttachment(docNode.getParameters().size());
         docAttachment.description = docNode.getDocumentation();
 
-        docNode.getParameters().forEach(p ->
-                docAttachment.parameters.add(new MarkdownDocAttachment.Parameter(p.parameterName.value,
-                        p.getParameterDocumentation())));
+        for (BLangMarkdownParameterDocumentation p : docNode.getParameters()) {
+            docAttachment.parameters.add(new MarkdownDocAttachment.Parameter(p.parameterName.value,
+                                                                             p.getParameterDocumentation()));
+        }
 
         docAttachment.returnValueDescription = docNode.getReturnParameterDocumentation();
+        BLangMarkDownDeprecationDocumentation deprecatedDocs = docNode.getDeprecationDocumentation();
+
+        if (deprecatedDocs == null) {
+            return docAttachment;
+        }
+
+        docAttachment.deprecatedDocumentation = deprecatedDocs.getDocumentation();
+
+        BLangMarkDownDeprecatedParametersDocumentation deprecatedParamsDocs =
+                docNode.getDeprecatedParametersDocumentation();
+
+        if (deprecatedParamsDocs == null) {
+            return docAttachment;
+        }
+
+        for (BLangMarkdownParameterDocumentation param : deprecatedParamsDocs.getParameters()) {
+            docAttachment.deprecatedParams.add(
+                    new MarkdownDocAttachment.Parameter(param.parameterName.value, param.getParameterDocumentation()));
+        }
+
         return docAttachment;
     }
 
