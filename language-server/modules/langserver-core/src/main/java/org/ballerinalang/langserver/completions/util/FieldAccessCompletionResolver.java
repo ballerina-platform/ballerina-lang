@@ -248,8 +248,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
                                 currentModule.get().moduleId()))
                         .collect(Collectors.toList());
                 visibleEntries.addAll(methodSymbols);
-                // lang.value functions shouldn't be shown for object field accesses
-                return visibleEntries;
+                break;
             default:
                 break;
         }

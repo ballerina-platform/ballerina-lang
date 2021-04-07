@@ -18,6 +18,7 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.ObjectFieldSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
@@ -167,6 +168,24 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
                 .append(methodJoiner.toString())
                 .append("}")
                 .toString();
+    }
+
+    /**
+     * As per the spec, {@code lang.value} functions should not be available on objects. Therefore, they are filtered
+     * here.
+     *
+     * @param functions    Functions to be filtered
+     * @param internalType Internal type
+     * @return Filtered langlib functions
+     */
+    @Override
+    protected List<FunctionSymbol> filterLangLibMethods(List<FunctionSymbol> functions, BType internalType) {
+        List<FunctionSymbol> functionSymbols = super.filterLangLibMethods(functions, internalType);
+        return functionSymbols.stream()
+                .filter(functionSymbol -> functionSymbol.getModule().isPresent())
+                .filter(functionSymbol -> !"ballerina".equals(functionSymbol.getModule().get().id().orgName()) ||
+                        !"lang.value".equals(functionSymbol.getModule().get().id().moduleName()))
+                .collect(Collectors.toList());
     }
 
     private void addIfFlagSet(List<Qualifier> quals, final long mask, final long flag, Qualifier qualifier) {
