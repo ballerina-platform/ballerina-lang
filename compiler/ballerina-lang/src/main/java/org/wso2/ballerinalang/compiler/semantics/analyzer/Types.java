@@ -645,6 +645,10 @@ public class Types {
         int sourceTag = source.tag;
         int targetTag = target.tag;
 
+        if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source) && isAssignable(target, symTable.anyType)) {
+            return true;
+        }
+
         if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
                 !isInherentlyImmutableType(target) && Symbols.isFlagOn(target.flags, Flags.READONLY) &&
                 !isInherentlyImmutableType(source) && isMutable(source)) {
