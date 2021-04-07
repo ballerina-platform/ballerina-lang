@@ -18,6 +18,9 @@
 
 package org.ballerinalang.central.client;
 
+import okhttp3.MediaType;
+import okhttp3.Protocol;
+import okhttp3.Request;
 import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
@@ -30,6 +33,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -40,11 +44,13 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
+import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
+import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 import static org.ballerinalang.central.client.Utils.writeBalaFile;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Test cases to test utilities.
@@ -100,13 +106,23 @@ public class TestUtils {
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
+    
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/wso2/sf/*")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_BAD_REQUEST)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get("application/json; charset=utf-8"),
+                        Files.readAllBytes(balaFile)
+                ))
+                .build();
 
-        Response resp = mock(Response.class);
-        ResponseBody respBody = mock(ResponseBody.class);
-        when(respBody.byteStream()).thenReturn(targetStream);
-        when(resp.body()).thenReturn(respBody);
-
-        writeBalaFile(resp, tempBalaCache.resolve(balaName), "wso2/sf:1.1.0",
+        writeBalaFile(mockResponse, tempBalaCache.resolve(balaName), "wso2/sf:1.1.0",
                 10000, System.out, new LogFormatter());
 
         Assert.assertTrue(tempBalaCache.resolve("package.json").toFile().exists());
@@ -141,15 +157,26 @@ public class TestUtils {
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
-
-        Response resp = mock(Response.class);
-        ResponseBody respBody = mock(ResponseBody.class);
-        when(respBody.contentLength()).thenReturn(Files.size(balaFile));
-        when(respBody.byteStream()).thenReturn(targetStream);
-        when(resp.body()).thenReturn(respBody);
+    
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/wso2/sf/*")
+                .addHeader(ACCEPT_ENCODING, IDENTITY)
+                .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get("application/json; charset=utf-8"),
+                        Files.readAllBytes(balaFile)
+                ))
+                .build();
 
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
-        createBalaInHomeRepo(resp, tempBalaCache.resolve("wso2").resolve("sf"),
+        createBalaInHomeRepo(mockResponse, tempBalaCache.resolve("wso2").resolve("sf"),
                 "wso2", "sf", false, balaUrl, "", System.out, new LogFormatter());
 
         Assert.assertTrue(tempBalaCache.resolve("wso2").resolve("sf").resolve("1.3.5").toFile().exists());
@@ -163,16 +190,27 @@ public class TestUtils {
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
-
-        Response resp = mock(Response.class);
-        ResponseBody respBody = mock(ResponseBody.class);
-        when(respBody.contentLength()).thenReturn(Files.size(balaFile));
-        when(respBody.byteStream()).thenReturn(targetStream);
-        when(resp.body()).thenReturn(respBody);
+    
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/wso2/sf/*")
+                .addHeader(ACCEPT_ENCODING, IDENTITY)
+                .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get("application/json; charset=utf-8"),
+                        Files.readAllBytes(balaFile)
+                ))
+                .build();
 
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
         try {
-            createBalaInHomeRepo(resp,
+            createBalaInHomeRepo(mockResponse,
                     tempBalaCache.resolve("wso2").resolve("sf"), "wso2", "sf", false,
                     balaUrl, "", System.out, new LogFormatter());
         } catch (CentralClientException e) {
