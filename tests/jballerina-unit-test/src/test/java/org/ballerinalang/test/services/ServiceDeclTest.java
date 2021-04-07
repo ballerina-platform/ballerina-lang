@@ -18,6 +18,8 @@
 
 package org.ballerinalang.test.services;
 
+import org.ballerinalang.core.model.values.BBoolean;
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
@@ -41,6 +43,13 @@ public class ServiceDeclTest {
     public void testServiceNameLiteral() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_decl_service_name_literal.bal");
         BRunUtil.invoke(compileResult, "testServiceName");
+    }
+
+    @Test
+    public void testAttachMethodParams() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/service_attach_test.bal");
+        BValue[] values = BRunUtil.invoke(compileResult, "testAttachMethodParams");
+        Assert.assertTrue(((BBoolean)values[0]).booleanValue());
     }
 
     @Test
