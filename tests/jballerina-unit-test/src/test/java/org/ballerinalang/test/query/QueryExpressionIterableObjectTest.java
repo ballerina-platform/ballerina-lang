@@ -131,7 +131,7 @@ public class QueryExpressionIterableObjectTest {
         validateError(negativeResult, index++, "invalid iterable type 'IterableObject': an iterable object must be" +
                         " a subtype of 'ballerina/lang.object:1.0.0:Iterable'", 73, 39);
         validateError(negativeResult, index++, "mismatched function signatures: expected 'public function iterator()" +
-                        " returns object { public isolated function next () returns ((record {| (any|error) value; " +
+                        " returns object { public function next () returns ((record {| (any|error) value; " +
                 "|}|error)?); }', found 'public function iterator() returns _Iterator'", 90, 9);
     }
 
