@@ -22,6 +22,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
+import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.Names;
 
@@ -46,6 +47,9 @@ public class BInvokableTypeSymbol extends BTypeSymbol {
                                 Location location,
                                 SymbolOrigin origin) {
         super(symTag, flags, Names.EMPTY, pkgID, type, owner, location, origin);
+        if (type instanceof BInvokableType) {
+            this.returnType = ((BInvokableType) type).retType;
+        }
         this.params = new ArrayList<>();
         this.paramDefaultValTypes = new HashMap<>();
     }
