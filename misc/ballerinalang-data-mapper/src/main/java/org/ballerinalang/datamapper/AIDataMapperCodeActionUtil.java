@@ -49,7 +49,6 @@ import io.ballerina.tools.text.TextDocument;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
 import org.ballerinalang.datamapper.utils.HttpClientRequest;
 import org.ballerinalang.datamapper.utils.HttpResponse;
-import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
@@ -71,7 +70,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
-import java.util.regex.Matcher;
 
 import static org.ballerinalang.datamapper.utils.DefaultValueGenerator.generateDefaultValues;
 
@@ -94,6 +92,8 @@ class AIDataMapperCodeActionUtil {
     private static HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
     private static HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
     private static ArrayList<String> LeftReadonlyFields = new ArrayList<>();
+    private static ArrayList<String> rightSpecificFieldList = new ArrayList<>();
+    private static ArrayList<String> optionalRightRecordFields = new ArrayList<>();
 
     private static final String SCHEMA = "schema";
     private static final String ID = "id";
@@ -117,12 +117,6 @@ class AIDataMapperCodeActionUtil {
                                                          CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
-        String diagnosticMessage = diagnostic.message();
-        Matcher matcher = CommandConstants.INCOMPATIBLE_TYPE_PATTERN.matcher(diagnosticMessage);
-
-//        if (!(matcher.find() && matcher.groupCount() > 1)) {
-//            return fEdits;
-//        }
 
         Optional<Document> srcFile = context.workspace().document(context.filePath());
         if (srcFile.isEmpty()) {
@@ -334,10 +328,11 @@ class AIDataMapperCodeActionUtil {
             syntaxTree.rootNode().accept(nodeVisitor);
             restFieldMap = nodeVisitor.restFields;
             spreadFieldMap = nodeVisitor.spreadFields;
+            rightSpecificFieldList = nodeVisitor.specificFieldList;
 
 
             Map<String, RecordFieldSymbol> rightSchemaFields = symbolList.get(0).fieldDescriptors();
-            JsonObject rightSchema = (JsonObject) recordToJSON(rightSchemaFields.values());
+            JsonObject rightSchema = (JsonObject) rightRecordToJSON(rightSchemaFields.values());
 
             if (!restFieldMap.isEmpty()) {
                 rightSchema = insertRestFields(rightSchema, foundTypeRight);
@@ -348,7 +343,7 @@ class AIDataMapperCodeActionUtil {
                     JsonObject spreadFieldDetails = new JsonObject();
                     spreadFieldDetails.addProperty(ID, "dummy_id");
                     spreadFieldDetails.addProperty(TYPE, "ballerina_type");
-                    spreadFieldDetails.add(PROPERTIES, recordToJSON(field.getValue().values()));
+                    spreadFieldDetails.add(PROPERTIES, rightRecordToJSON(field.getValue().values()));
                     rightSchema.add(field.getKey(), spreadFieldDetails);
                 }
             }
@@ -367,7 +362,7 @@ class AIDataMapperCodeActionUtil {
 
             // Schema 2
             Map<String, RecordFieldSymbol> leftSchemaFields = symbolList.get(1).fieldDescriptors();
-            JsonObject leftSchema = (JsonObject) recordToJSON(leftSchemaFields.values());
+            JsonObject leftSchema = (JsonObject) leftRecordToJSON(leftSchemaFields.values());
             leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
             leftRecordJSON.addProperty(ID, "dummy_id");
             leftRecordJSON.addProperty(TYPE, "object");
@@ -379,8 +374,6 @@ class AIDataMapperCodeActionUtil {
             leftFieldMap.clear();
             getLeftFields(leftSchemaMap, "");
         }
-
-
         JsonArray schemas = new JsonArray();
         schemas.add(leftRecordJSON);
         schemas.add(rightRecordJSON);
@@ -406,16 +399,26 @@ class AIDataMapperCodeActionUtil {
 
     private static void generateOptionalMap(Map<String, Object> rightSchemaMap, String foundTypeRight) {
         for (Map.Entry<String, Object> field : rightSchemaMap.entrySet()) {
-            StringBuilder optionKey = new StringBuilder(foundTypeRight.toLowerCase());
-            if (!checkForOptional(field)) {
-                optionKey.append(".").append(field.getKey());
+            StringBuilder optionalKey = new StringBuilder(foundTypeRight.toLowerCase());
+            if (!(((LinkedTreeMap) field.getValue()).containsKey(OPTIONAL))) {
+                optionalKey.append(".").append(field.getKey());
                 generateOptionalMap((Map<String, Object>) ((LinkedTreeMap) field.getValue()).get(PROPERTIES),
-                        optionKey.toString());
-            } else if ((boolean) ((LinkedTreeMap) field.getValue()).get(OPTIONAL)) {
-                optionKey.append(".").append(field.getKey());
-                isOptionalMap.put(optionKey.toString(), ((LinkedTreeMap) field.getValue()).get(SIGNATURE).toString());
+                        optionalKey.toString());
+            } else if ((boolean) ((LinkedTreeMap) field.getValue()).get(OPTIONAL) | (checkForOptionalRecordField(optionalKey.toString()) > 0)) {
+                optionalKey.append(".").append(field.getKey());
+                isOptionalMap.put(optionalKey.toString(), ((LinkedTreeMap) field.getValue()).get(SIGNATURE).toString());
             }
         }
+    }
+
+
+    private static int checkForOptionalRecordField(String optionalKey){
+        for (String recordRecordField: optionalRightRecordFields){
+            if(optionalKey.contains(recordRecordField)){
+                return optionalKey.indexOf(recordRecordField);
+            }
+        }
+        return -1;
     }
 
     private static void getLeftFields(Map<String, Object> leftSchemaMap, String fieldName) {
@@ -424,7 +427,7 @@ class AIDataMapperCodeActionUtil {
             if (!fieldName.isEmpty()) {
                 fieldKey.append(fieldName).append(".");
             }
-            if (!checkForOptional(field)) {
+            if (!(((LinkedTreeMap) field.getValue()).containsKey(READONLY))) {
                 fieldKey.append(field.getKey());
                 getLeftFields((Map<String, Object>) ((LinkedTreeMap) field.getValue()).get(PROPERTIES),
                         fieldKey.toString());
@@ -506,9 +509,9 @@ class AIDataMapperCodeActionUtil {
         }
     }
 
-    private static Boolean checkForOptional(Map.Entry<String, Object> field) {
-        return ((LinkedTreeMap) field.getValue()).containsKey(OPTIONAL);
-    }
+//    private static Boolean checkForReadonlyKey(Map.Entry<String, Object> field) {
+//        return ((LinkedTreeMap) field.getValue()).containsKey(READONLY);
+//    }
 
     /**
      * For a give array of schemas, return a mapping function.
@@ -530,15 +533,135 @@ class AIDataMapperCodeActionUtil {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
     }
-
+//    /**
+//     * Convert record type symbols to json objects.
+//     *
+//     * @param schemaFields {@link List<RecordFieldSymbol>}
+//     * @return Field symbol properties
+//     */
+//    private static JsonElement recordToJSON(Collection<RecordFieldSymbol> schemaFields) {
+//        JsonObject properties = new JsonObject();
+//        for (RecordFieldSymbol attribute : schemaFields) {
+//            JsonObject fieldDetails = new JsonObject();
+//            // check if an optional field doesn't have a value
+//            if(attribute.isOptional() && !rightSpecificFieldList.contains(attribute.getName().get())){
+//                continue;
+//            }
+//            fieldDetails.addProperty(ID, "dummy_id");
+//            TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
+//            if (attributeType.typeKind() == TypeDescKind.RECORD) {
+//                Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
+//                fieldDetails.addProperty(TYPE, "ballerina_type");
+//                fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
+//            } else if (attributeType.typeKind() == TypeDescKind.INTERSECTION) {
+//                // To get the fields of a readonly record type
+//                List<TypeSymbol> memberTypeList = ((IntersectionTypeSymbol) attribute.typeDescriptor()).
+//                        memberTypeDescriptors();
+//                for (TypeSymbol attributeTypeReference : memberTypeList) {
+//                    if (attributeTypeReference.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+//                        TypeSymbol attributeTypeRecord = ((TypeReferenceTypeSymbol) attributeTypeReference).
+//                                typeDescriptor();
+//                        if (attributeTypeRecord.typeKind() == TypeDescKind.RECORD) {
+//                            Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeTypeRecord).
+//                                    fieldDescriptors();
+//                            fieldDetails.addProperty(TYPE, "ballerina_type");
+//                            fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
+//                        }
+//                    }
+//                }
+//            } else {
+//                fieldDetails.addProperty(TYPE, attributeType.typeKind().getName());
+//                fieldDetails.addProperty(OPTIONAL, attribute.isOptional());
+//                fieldDetails.addProperty(SIGNATURE, attributeType.signature());
+//                // to check for readonly values of left schema
+//                boolean readonlyCheck = false;
+//                if(attribute.qualifiers().size() > 0){
+//                    for(Qualifier qualifier: attribute.qualifiers()){
+//                        readonlyCheck = qualifier.getValue().contains("readonly");
+//                        if(readonlyCheck){
+//                            TypeDescKind attributeTypeKind = attributeType.typeKind();
+//                            if((attributeTypeKind == TypeDescKind.XML) | (attributeTypeKind == TypeDescKind.ARRAY) |
+//                                    (attributeTypeKind == TypeDescKind.MAP)
+//                                    | (attributeTypeKind == TypeDescKind.TABLE) |
+//                                    (attributeTypeKind == TypeDescKind.OBJECT) |
+//                                    (attributeTypeKind == TypeDescKind.TUPLE)){
+//                                fieldDetails.addProperty(READONLY, true);
+//                                break;
+//                            } else {
+//                                readonlyCheck = false;
+//                            }
+//                        }
+//                    }
+//                }
+//                if(!readonlyCheck){
+//                    fieldDetails.addProperty(READONLY, false);
+//                }
+//            }
+//            properties.add(attribute.getName().get(), fieldDetails);
+//        }
+//        return properties;
+//    }
 
     /**
-     * Convert record type symbols to json objects.
+     * Convert right record type symbols to json objects.
      *
      * @param schemaFields {@link List<RecordFieldSymbol>}
      * @return Field symbol properties
      */
-    private static JsonElement recordToJSON(Collection<RecordFieldSymbol> schemaFields) {
+    private static JsonElement rightRecordToJSON(Collection<RecordFieldSymbol> schemaFields) {
+        JsonObject properties = new JsonObject();
+        for (RecordFieldSymbol attribute : schemaFields) {
+            JsonObject fieldDetails = new JsonObject();
+            // check if an optional field doesn't have a value
+            if(attribute.isOptional() && !rightSpecificFieldList.contains(attribute.getName().get())){
+                continue;
+            }
+            fieldDetails.addProperty(ID, "dummy_id");
+            TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
+            if (attributeType.typeKind() == TypeDescKind.RECORD) {
+                if (attribute.isOptional()){
+                    optionalRightRecordFields.add(attribute.getName().get());
+                }
+                Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
+                fieldDetails.addProperty(TYPE, "ballerina_type");
+                fieldDetails.add(PROPERTIES, rightRecordToJSON(recordFields.values()));
+            } else if (attributeType.typeKind() == TypeDescKind.INTERSECTION) {
+                // To get the fields of a readonly record type
+                List<TypeSymbol> memberTypeList = ((IntersectionTypeSymbol) attribute.typeDescriptor()).
+                        memberTypeDescriptors();
+                for (TypeSymbol attributeTypeReference : memberTypeList) {
+                    if (attributeTypeReference.typeKind() == TypeDescKind.TYPE_REFERENCE) {
+                        TypeSymbol attributeTypeRecord = ((TypeReferenceTypeSymbol) attributeTypeReference).
+                                typeDescriptor();
+                        if (attributeTypeRecord.typeKind() == TypeDescKind.RECORD) {
+                            if (attribute.isOptional()){
+                                optionalRightRecordFields.add(attribute.getName().get());
+                            }
+                            Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeTypeRecord).
+                                    fieldDescriptors();
+                            fieldDetails.addProperty(TYPE, "ballerina_type");
+                            fieldDetails.add(PROPERTIES, rightRecordToJSON(recordFields.values()));
+                        }
+                    }
+                }
+            } else {
+                fieldDetails.addProperty(TYPE, attributeType.typeKind().getName());
+                fieldDetails.addProperty(OPTIONAL, attribute.isOptional());
+                fieldDetails.addProperty(SIGNATURE, attributeType.signature());
+                // to check for readonly values of left schema
+            }
+            properties.add(attribute.getName().get(), fieldDetails);
+        }
+        return properties;
+    }
+
+    /**
+     * Convert left record type symbols to json objects.
+     *
+     * @param schemaFields {@link List<RecordFieldSymbol>}
+     * @return Field symbol properties
+     */
+    private static JsonElement leftRecordToJSON(Collection<RecordFieldSymbol> schemaFields) {
         JsonObject properties = new JsonObject();
         for (RecordFieldSymbol attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
@@ -547,10 +670,9 @@ class AIDataMapperCodeActionUtil {
             if (attributeType.typeKind() == TypeDescKind.RECORD) {
                 Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
                 fieldDetails.addProperty(TYPE, "ballerina_type");
-                fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
-                fieldDetails.addProperty(OPTIONAL, attribute.isOptional());
+                fieldDetails.add(PROPERTIES, leftRecordToJSON(recordFields.values()));
             } else if (attributeType.typeKind() == TypeDescKind.INTERSECTION) {
-                // To get the fields of a readonly record type
+                // To get the fields of a readonly record field type
                 List<TypeSymbol> memberTypeList = ((IntersectionTypeSymbol) attribute.typeDescriptor()).
                         memberTypeDescriptors();
                 for (TypeSymbol attributeTypeReference : memberTypeList) {
@@ -561,14 +683,12 @@ class AIDataMapperCodeActionUtil {
                             Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeTypeRecord).
                                     fieldDescriptors();
                             fieldDetails.addProperty(TYPE, "ballerina_type");
-                            fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
+                            fieldDetails.add(PROPERTIES, leftRecordToJSON(recordFields.values()));
                         }
                     }
                 }
             } else {
                 fieldDetails.addProperty(TYPE, attributeType.typeKind().getName());
-                fieldDetails.addProperty(OPTIONAL, attribute.isOptional());
-                fieldDetails.addProperty(SIGNATURE, attributeType.signature());
                 // to check for readonly values of left schema
                 boolean readonlyCheck = false;
                 if(attribute.qualifiers().size() > 0){
@@ -685,9 +805,26 @@ class AIDataMapperCodeActionUtil {
             for (Map.Entry<String, String> field : isOptionalMap.entrySet()) {
                 if (mappingFromServer.contains(field.getKey() + ",") ||
                         mappingFromServer.contains(field.getKey() + "}")) {
-                    int i = field.getKey().lastIndexOf(".");
-                    String[] splitKey = {field.getKey().substring(0, i), field.getKey().substring(i)};
-                    String replacement = splitKey[0] + "?" + splitKey[1];
+
+                    String replacement = "";
+
+                    int recordFieldIndex = checkForOptionalRecordField(field.getKey());
+                    // check if there is a record field
+                    if (recordFieldIndex > 0) {
+                        String firstPrat = field.getKey().substring(0, recordFieldIndex - 1);
+                        String[] splitKey = (field.getKey().substring(recordFieldIndex - 1)).split("\\.");
+                        replacement = firstPrat;
+                        for(String key: splitKey){
+                            if(!key.isEmpty()) {
+                                replacement = replacement + "?." + key;
+                            }
+                        }
+                    } else {
+                        // optional specific fields modification
+                        int i = field.getKey().lastIndexOf(".");
+                        String[] splitKey = {field.getKey().substring(0, i), field.getKey().substring(i)};
+                        replacement = splitKey[0] + "?" + splitKey[1];
+                    }
                     mappingFromServer = mappingFromServer.replace(field.getKey(), "<" +
                             field.getValue() + "> " + replacement);
                 }
