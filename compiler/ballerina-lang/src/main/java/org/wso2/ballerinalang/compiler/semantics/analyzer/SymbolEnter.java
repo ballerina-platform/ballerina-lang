@@ -909,6 +909,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (!isCurrentPackageModuleImport && !bPackageSymbol.exported) {
                 dlog.error(importPkgNode.pos, DiagnosticErrorCode.MODULE_NOT_FOUND,
                            bPackageSymbol.toString() + " is not exported");
+                           return;
             }
         }
 
