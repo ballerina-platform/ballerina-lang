@@ -411,6 +411,12 @@ function testTableWithNonMappingTypeWithBindingPatterns() {
     table<int> ids = from var {id} in t select id;
 }
 
+public function testInvalidInputType() {
+    int x = 1;
+    int[] w = from var a in x
+                select 1;
+}
+
 function testIncompatibleSelectType(stream<string, error> clientStream) returns error? {
     return from string num in clientStream select {a: 1};
 }

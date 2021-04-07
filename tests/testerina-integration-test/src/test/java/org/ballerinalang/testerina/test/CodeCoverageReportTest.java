@@ -102,7 +102,7 @@ public class CodeCoverageReportTest extends BaseTestCase {
         Collections.addAll(expectedPackageNames, new String[]{"testerina_report/foo/0_0_0",
                 multiModuleTestRoot, "testerina_report/foo$0046math/0_0_0", multiModuleTestRoot + "/modules/bar",
                 "testerina_report/foo$0046bar/0_0_0", "testerina_report/foo$0046bar$0046tests/0_0_0",
-                multiModuleTestRoot + "/modules/math", multiModuleTestRoot + "/modules/bar.tests"});
+                multiModuleTestRoot + "/modules/math"});
         // Validate Package names in XML File
         if (validatePackageNames(expectedPackageNames)) {
             Assert.assertTrue(true);

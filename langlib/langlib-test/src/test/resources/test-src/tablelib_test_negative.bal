@@ -176,3 +176,8 @@ function testTableMemberAccess()  {
     Person person = { name: "Gima", age: 38 };
     tab["Gima"] = person;
 }
+
+function testLangLibInvocationOnSemanticallyIncorrectTable() {
+    table<int> key(age) tab = table [1];
+    _ = tab.remove(2);
+}
