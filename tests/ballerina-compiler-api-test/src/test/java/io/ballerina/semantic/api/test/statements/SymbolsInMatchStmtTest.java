@@ -24,10 +24,11 @@ import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
-import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
@@ -37,6 +38,7 @@ import java.util.Optional;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
+import static io.ballerina.tools.text.LinePosition.from;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
@@ -59,7 +61,7 @@ public class SymbolsInMatchStmtTest {
 
     @Test(dataProvider = "SymbolPosProvider")
     public void testSymbolAtCursor(int line, int col, String name, TypeDescKind typeKind) {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
 
         assertTrue(symbol.isPresent());
         assertEquals(symbol.get().getName().get(), name);
@@ -94,7 +96,24 @@ public class SymbolsInMatchStmtTest {
                 {34, 36, "rest", TypeDescKind.MAP},
                 {36, 24, "val", TypeDescKind.ANY},
                 {38, 14, "Error", TypeDescKind.ERROR},
+        };
+    }
 
+    @Test(dataProvider = "ExprPosProvider")
+    public void testType(int sLine, int sCol, int eLine, int eCol, TypeDescKind typeKind) {
+        Optional<TypeSymbol> type = model.type(LineRange.from(srcFile.name(), from(sLine, sCol), from(eLine, eCol)));
+        assertTrue(type.isPresent());
+        assertEquals(type.get().typeKind(), typeKind);
+    }
+
+    @DataProvider(name = "ExprPosProvider")
+    public Object[][] getExprPos() {
+        return new Object[][]{
+                {20, 10, 20, 13, TypeDescKind.ANY},
+                {22, 20, 22, 23, TypeDescKind.ANY},
+                {25, 8, 25, 10, TypeDescKind.FLOAT},
+                {26, 20, 26, 23, TypeDescKind.ANY},
+                {30, 24, 30, 25, TypeDescKind.UNION},
         };
     }
 }
