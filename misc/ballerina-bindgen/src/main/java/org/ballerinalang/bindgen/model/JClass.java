@@ -71,10 +71,8 @@ public class JClass {
         modulesFlag = env.getModulesFlag();
 
         Class sClass = c.getSuperclass();
-        while (true) {
-            if (sClass == null || isPublicClass(sClass)) {
-                break;
-            }
+        // Iterate until a public super class is found.
+        while (sClass != null && !isPublicClass(sClass)) {
             sClass = sClass.getSuperclass();
         }
         if (sClass != null) {
