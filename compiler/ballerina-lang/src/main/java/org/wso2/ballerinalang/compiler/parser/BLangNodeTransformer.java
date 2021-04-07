@@ -5183,6 +5183,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 }
             }
             String originalText = text; // to log the errors
+            Location pos = getPosition(literal);
             Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
             int position = 0;
             while (matcher.find(position)) {
@@ -5192,7 +5193,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         || hexDecimalVal > Constants.MAX_UNICODE) {
                     String hexStringWithBraces = matcher.group(0);
                     int offset = originalText.indexOf(hexStringWithBraces) + 1;
-                    Location pos = getPosition(literal);
                     dlog.error(new BLangDiagnosticLocation(currentCompUnitName,
                                     pos.lineRange().startLine().line(),
                                     pos.lineRange().endLine().line(),
@@ -5205,7 +5205,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
             }
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
-                text = StringEscapeUtils.unescapeJava(text);
+                try {
+                    text = StringEscapeUtils.unescapeJava(text);
+                } catch (Exception e) {
+                    dlog.error(pos, DiagnosticErrorCode.INVALID_UNICODE, originalText);
+                }
             }
 
             typeTag = TypeTags.STRING;
