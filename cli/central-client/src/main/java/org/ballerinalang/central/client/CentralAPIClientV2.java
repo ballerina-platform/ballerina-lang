@@ -45,6 +45,7 @@ import javax.net.ssl.HttpsURLConnection;
 
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_PLATFORM;
@@ -111,7 +112,8 @@ public class CentralAPIClientV2 {
             Response getPackageResponse = sendRequest(getPackageReq);
 
             Optional<ResponseBody> body = Optional.ofNullable(getPackageResponse.body());
-            if (body.isPresent()) {
+            Optional<String> contentType = Optional.ofNullable(getPackageResponse.header("Content-Type"));
+            if (body.isPresent() && contentType.isPresent() && contentType.get().equalsIgnoreCase(APPLICATION_JSON)) {
                 // Package is found
                 if (getPackageResponse.code() == HttpsURLConnection.HTTP_OK) {
                     return new Gson().fromJson(body.get().string(), Package.class);
@@ -166,7 +168,8 @@ public class CentralAPIClientV2 {
             Response getVersionsResponse = sendRequest(getVersionsReq);
 
             Optional<ResponseBody> body = Optional.ofNullable(getVersionsResponse.body());
-            if (body.isPresent()) {
+            Optional<String> contentType = Optional.ofNullable(getVersionsResponse.header("Content-Type"));
+            if (body.isPresent() && contentType.isPresent() && contentType.get().equalsIgnoreCase(APPLICATION_JSON)) {
                 if (getVersionsResponse.code() == HttpsURLConnection.HTTP_OK) {
                     return getAsList(body.get().string());
                 }
@@ -237,7 +240,9 @@ public class CentralAPIClientV2 {
             // Invalid access token to push
             if (packagePushResponse.code() == HttpsURLConnection.HTTP_UNAUTHORIZED) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
-                if (body.isPresent() && packagePushResponse.) {
+                Optional<String> contentType = Optional.ofNullable(packagePushResponse.header("Content-Type"));
+                if (body.isPresent() && contentType.isPresent() && contentType.get()
+                        .equalsIgnoreCase(APPLICATION_JSON)) {
                     Error error = new Gson().fromJson(body.get().string(), Error.class);
                     throw new CentralClientException("unauthorized access token for organization: '" + org +
                             "'. reason: " + error.getMessage() + ". check access token set in 'Settings.toml' file.");
@@ -250,7 +255,9 @@ public class CentralAPIClientV2 {
             // When request sent is invalid
             if (packagePushResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
-                if (body.isPresent()) {
+                Optional<String> contentType = Optional.ofNullable(packagePushResponse.header("Content-Type"));
+                if (body.isPresent() && contentType.isPresent() && contentType.get()
+                        .equalsIgnoreCase(APPLICATION_JSON)) {
                     Error error = new Gson().fromJson(body.get().string(), Error.class);
                     if (error.getMessage() != null && !"".equals(error.getMessage())) {
                         // Currently this error is returned from central when token is unauthorized. This will later be
@@ -267,7 +274,9 @@ public class CentralAPIClientV2 {
             // When error occurs at remote repository
             if (packagePushResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
-                if (body.isPresent()) {
+                Optional<String> contentType = Optional.ofNullable(packagePushResponse.header("Content-Type"));
+                if (body.isPresent() && contentType.isPresent() && contentType.get()
+                        .equalsIgnoreCase(APPLICATION_JSON)) {
                     Error error = new Gson().fromJson(body.get().string(), Error.class);
                     if (error.getMessage() != null && !"".equals(error.getMessage())) {
                         throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' reason:" +
@@ -281,9 +290,6 @@ public class CentralAPIClientV2 {
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' to the remote repository '" +
                                              url + "'. reason: " + e.getMessage());
-        } catch (IllegalStateException e) {
-            throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' to the remote repository '" +
-                    url + "'.");
         }
     }
 
@@ -344,7 +350,9 @@ public class CentralAPIClientV2 {
             if (packagePullResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
                     packagePullResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePullResponse.body());
-                if (body.isPresent()) {
+                Optional<String> contentType = Optional.ofNullable(packagePullResponse.header("Content-Type"));
+                if (body.isPresent() && contentType.isPresent() && contentType.get()
+                        .equalsIgnoreCase(APPLICATION_JSON)) {
                     Error error = new Gson().fromJson(body.get().string(), Error.class);
                     if (error.getMessage() != null && !"".equals(error.getMessage())) {
                         throw new CentralClientException("error: " + error.getMessage());
@@ -355,7 +363,9 @@ public class CentralAPIClientV2 {
             // When error occurs at remote repository
             if (packagePullResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePullResponse.body());
-                if (body.isPresent()) {
+                Optional<String> contentType = Optional.ofNullable(packagePullResponse.header("Content-Type"));
+                if (body.isPresent() && contentType.isPresent() && contentType.get().
+                        equalsIgnoreCase(APPLICATION_JSON)) {
                     Error error = new Gson().fromJson(body.get().string(), Error.class);
                     if (error.getMessage() != null && !"".equals(error.getMessage())) {
                         String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
@@ -386,7 +396,8 @@ public class CentralAPIClientV2 {
             Response searchResponse = sendRequest(searchReq);
 
             Optional<ResponseBody> body = Optional.ofNullable(searchResponse.body());
-            if (body.isPresent()) {
+            Optional<String> contentType = Optional.ofNullable(searchResponse.header("Content-Type"));
+            if (body.isPresent() && contentType.isPresent() && contentType.get().equalsIgnoreCase(APPLICATION_JSON)) {
                 // If searching was successful
                 if (searchResponse.code() == HttpsURLConnection.HTTP_OK) {
                     return new Gson().fromJson(body.get().string(), PackageSearchResult.class);

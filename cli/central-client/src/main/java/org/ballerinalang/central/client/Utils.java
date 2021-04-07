@@ -402,25 +402,22 @@ public class Utils {
         @Override
         public void writeTo(BufferedSink sink) throws IOException {
             final long totalBytes = contentLength();
-            long initialMax;
             long byteConverter;
             String unitName;
     
             if (totalBytes < 1024 * 5) { // use bytes for progress bar if payload is less than 5 KB
                 byteConverter = 1;
-                initialMax = totalBytes;
                 unitName = " B";
             } else if (totalBytes < 1024 * 1024 * 5) { // use kilobytes for progress bar if payload is less than 5 MB
                 byteConverter = 1024;
-                initialMax = totalBytes / byteConverter; // convert bytes to KB
                 unitName = " KB";
             } else { // else use megabytes for progress bar.
                 byteConverter = 1024 * 1024;
-                initialMax = totalBytes / byteConverter; // convert bytes to MB
                 unitName = " MB";
             }
     
-            ProgressBar progressBar = new ProgressBar(task, initialMax, 1000, out, ProgressBarStyle.ASCII, unitName, 1);
+            ProgressBar progressBar = new ProgressBar(task, contentLength(), 1000, out, ProgressBarStyle.ASCII,
+                    unitName, byteConverter);
             
             BufferedSink progressSink = Okio.buffer(new ForwardingSink(sink) {
                 private long bytesWritten = 0L;
@@ -429,7 +426,7 @@ public class Utils {
                 public void write(Buffer source, long byteCount) throws IOException {
                     super.write(source, byteCount);
                     bytesWritten += byteCount;
-                    progressBar.stepTo(bytesWritten / byteConverter);
+                    progressBar.stepTo(bytesWritten);
                 }
             });
             this.reqBody.writeTo(progressSink);
