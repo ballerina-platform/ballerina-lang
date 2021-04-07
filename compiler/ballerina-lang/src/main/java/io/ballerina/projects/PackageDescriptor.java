@@ -72,6 +72,11 @@ public class PackageDescriptor {
         return Optional.ofNullable(repository);
     }
 
+    public boolean isLangLibPackage() {
+        return (org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX)) ||
+                (org().isBallerinaOrg() && packageName.value().equals(Names.JAVA.getValue()));
+    }
+
     public boolean isBuiltInPackage() {
         return (org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX)) ||
                 (org().value().equals(Names.BALLERINA_INTERNAL_ORG.getValue())) ||

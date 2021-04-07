@@ -123,7 +123,7 @@ public class DefaultPackageResolver implements PackageResolver {
     private Package resolveFromRepository(ResolutionRequest resolutionRequest) {
         Optional<Package> resolvedPackage;
         PackageDescriptor requestedPkgDesc = resolutionRequest.packageDescriptor();
-        if (requestedPkgDesc.isBuiltInPackage()) {
+        if (requestedPkgDesc.isLangLibPackage()) {
             return resolveLangLibPackage(resolutionRequest);
         }
 
