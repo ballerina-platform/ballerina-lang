@@ -8,7 +8,7 @@ distinct class Subset {
     *Object;
 
     # The `handle` field that stores the reference to the `java.lang.Character$Subset` object.
-    handle jObj;
+    public handle jObj;
 
     # The init function of the Ballerina class mapping the `java.lang.Character$Subset` Java class.
     #

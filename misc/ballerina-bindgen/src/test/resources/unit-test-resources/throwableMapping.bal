@@ -9,7 +9,7 @@ distinct class JIOException {
     *JException;
 
     # The `handle` field that stores the reference to the `java.io.IOException` object.
-    handle jObj;
+    public handle jObj;
 
     # The init function of the Ballerina class mapping the `java.io.IOException` Java class.
     #

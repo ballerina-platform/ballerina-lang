@@ -14,7 +14,7 @@ distinct class String {
     *java:JObject;
 
     # The `handle` field that stores the reference to the `java.lang.String` object.
-    handle jObj;
+    public handle jObj;
 
     # The init function of the Ballerina class mapping the `java.lang.String` Java class.
     #
