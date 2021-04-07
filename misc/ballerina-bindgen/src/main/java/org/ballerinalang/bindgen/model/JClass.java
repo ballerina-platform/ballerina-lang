@@ -33,6 +33,8 @@ import java.util.Set;
 
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isFinalField;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicConstructor;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicField;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicMethod;
 
@@ -69,6 +71,12 @@ public class JClass {
         modulesFlag = env.getModulesFlag();
 
         Class sClass = c.getSuperclass();
+        while (true) {
+            if (sClass == null || isPublicClass(sClass)) {
+                break;
+            }
+            sClass = sClass.getSuperclass();
+        }
         if (sClass != null) {
             env.setClassListForLooping(sClass.getName());
             String simpleClassName = getAlias(sClass, env.getAliases()).replace("$", "");
@@ -117,7 +125,9 @@ public class JClass {
         int i = 1;
         List<JConstructor> tempList = new ArrayList<>();
         for (Constructor constructor : constructors) {
-            tempList.add(new JConstructor(constructor, env, this, null));
+            if (isPublicConstructor(constructor)) {
+                tempList.add(new JConstructor(constructor, env, this, null));
+            }
         }
         tempList.sort(Comparator.comparing(JConstructor::getParamTypes));
         for (JConstructor constructor:tempList) {
@@ -160,7 +170,7 @@ public class JClass {
         for (Field field : fields) {
             // To prevent the duplication of fields resulting from super classes.
             for (JField jField : fieldList) {
-                if (jField.getFieldName().equals(field.getName())) {
+                if (jField.getFieldName().equals(field.getName()) || !isPublicField(field)) {
                     addField = false;
                 }
             }
