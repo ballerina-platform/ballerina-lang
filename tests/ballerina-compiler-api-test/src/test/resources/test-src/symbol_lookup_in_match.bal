@@ -14,24 +14,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
+const c1 = "foo";
+const c2 = 1;
+
 function func() {
     any|error v = {x1: 1, b: true};
 
     match v {
         var {x1, b: x2} => {
-            any|error a = x1;
+            any|error a =
         }
 
         [var x3, var x4] => {
-            any|error b = x4;
+            any|error b =
         }
 
         error(var x5, val = var x6) => {
-            any|error c = x5;
+            any|error c =
         }
 
-        var x7 => {
-            any|error d = x7;
+        var x7 if  => {
+            any|error d =
+        }
+
+        {} => {
+
         }
     }
 }

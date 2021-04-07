@@ -340,10 +340,12 @@ public class SymbolLookupTest {
     @DataProvider(name = "PositionProvider5")
     public Object[][] getPositionsForMatchStatement() {
         return new Object[][]{
-                {21, 26, 5, asList("a", "func", "v", "x1", "x2")},
-                {25, 26, 5, asList("b", "func", "v", "x3", "x4")},
-                {29, 26, 5, asList("c", "func", "v", "x5", "x6")},
-                {33, 26, 4, asList("d", "func", "v", "x7")}
+                {24, 26, 7, asList("a", "func", "v", "c1", "c2", "x1", "x2")},
+                {28, 26, 7, asList("b", "func", "v", "c1", "c2", "x3", "x4")},
+                {32, 26, 7, asList("c", "func", "v", "c1", "c2", "x5", "x6")},
+                {35, 18, 5, asList("func", "v", "c1", "c2", "x7")},
+                {36, 26, 6, asList("d", "func", "v", "c1", "c2", "x7")},
+                {39, 9, 4, asList("func", "v", "c1", "c2")}
         };
     }
 
