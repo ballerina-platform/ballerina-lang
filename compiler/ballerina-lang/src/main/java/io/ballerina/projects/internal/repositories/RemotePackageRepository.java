@@ -8,7 +8,7 @@ import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.central.client.CentralAPIClientV2;
+import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.toml.model.Settings;
@@ -36,10 +36,10 @@ import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_
 public class RemotePackageRepository implements PackageRepository {
 
     private FileSystemRepository fileSystemRepo;
-    private CentralAPIClientV2 client;
+    private CentralAPIClient client;
     private boolean isOffline;
 
-    private RemotePackageRepository(FileSystemRepository fileSystemRepo, CentralAPIClientV2 client) {
+    private RemotePackageRepository(FileSystemRepository fileSystemRepo, CentralAPIClient client) {
         this.fileSystemRepo = fileSystemRepo;
         this.client = client;
 
@@ -58,7 +58,7 @@ public class RemotePackageRepository implements PackageRepository {
         FileSystemRepository fileSystemRepository = new FileSystemRepository(
                 environment, cacheDirectory, ballerinaShortVersion);
         Proxy proxy = initializeProxy(settings.getProxy());
-        CentralAPIClientV2 client = new CentralAPIClientV2(repoUrl, proxy);
+        CentralAPIClient client = new CentralAPIClient(repoUrl, proxy);
 
         return new RemotePackageRepository(fileSystemRepository, client);
     }

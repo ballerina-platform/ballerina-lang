@@ -66,7 +66,7 @@ import static org.mockito.Mockito.when;
 /**
  * Test cases to test central api client.
  */
-public class TestCentralApiClient extends CentralAPIClientV2 {
+public class TestCentralApiClient extends CentralAPIClient {
 
     private ByteArrayOutputStream console;
 
