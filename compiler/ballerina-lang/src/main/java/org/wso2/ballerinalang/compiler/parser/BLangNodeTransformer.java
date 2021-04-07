@@ -225,6 +225,7 @@ import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -3252,7 +3253,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             quotedString.textFragments.add(emptyLiteral);
         } else {
             for (Node value : xmlAttributeValue.value()) {
-                quotedString.textFragments.add(createExpression(value));
+                if (value.kind() == SyntaxKind.XML_TEXT_CONTENT) {
+                    Token token = (Token) value;
+                    String normalizedValue = XmlFactory.XMLTextUnescape.unescape(token.text());
+                    quotedString.textFragments.add(createStringLiteral(normalizedValue, getPosition(value)));
+                } else {
+                    quotedString.textFragments.add(createExpression(value));
+                }
             }
         }
 

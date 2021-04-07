@@ -86,6 +86,9 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"projectCreateUndefinedFunctionWithModAlias.json", "testproject/modAlias.bal"},
                 {"projectCreateUndefinedFunctionWithModAlias2.json", "testproject/modAlias.bal"},
                 {"projectCreateUndefinedFunctionWithLangLib.json", "testproject/langlib.bal"},
+                
+                {"create_function_which_returns_record1.json", "create_function_which_returns_record1.bal"},
+                {"create_function_which_returns_record2.json", "create_function_which_returns_record2.bal"},
         };
     }
 

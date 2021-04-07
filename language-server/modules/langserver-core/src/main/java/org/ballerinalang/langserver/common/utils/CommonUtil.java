@@ -235,6 +235,16 @@ public class CommonUtil {
                 }
                 break;
             case RECORD:
+                // TODO: Here we have disregarded the formatting of the record fields. Need to consider that in future
+                RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rawType;
+                typeString = "{";
+                typeString += getMandatoryRecordFields(recordTypeSymbol).stream()
+                        .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
+                        .map(recordFieldSymbol -> recordFieldSymbol.getName().get() + ": " +
+                                getDefaultValueForType(recordFieldSymbol.typeDescriptor()))
+                        .collect(Collectors.joining(", "));
+                typeString += "}";
+                break;
             case MAP:
                 typeString = "{}";
                 break;
