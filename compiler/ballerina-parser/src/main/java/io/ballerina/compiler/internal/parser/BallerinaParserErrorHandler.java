@@ -5076,6 +5076,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VAR_DECL_STMT_RHS:
                 return SyntaxKind.SEMICOLON_TOKEN;
             case SIMPLE_TYPE_DESCRIPTOR:
+                return SyntaxKind.ANY_KEYWORD;
             case REQUIRED_PARAM:
             case VAR_DECL_STMT:
             case ASSIGNMENT_OR_VAR_DECL_STMT:

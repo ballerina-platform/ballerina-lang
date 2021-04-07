@@ -113,6 +113,7 @@ public class SyntaxErrors {
             case FUNC_DEF_OR_TYPE_DESC_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case SIMPLE_TYPE_DESCRIPTOR:
+                return DiagnosticErrorCode.ERROR_MISSING_BUILTIN_TYPE;
             case REQUIRED_PARAM:
             case VAR_DECL_STMT:
             case ASSIGNMENT_OR_VAR_DECL_STMT:

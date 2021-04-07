@@ -4824,7 +4824,10 @@ public class BallerinaParser extends AbstractParser {
             case OBJECT_KEYWORD:
                 return true;
             default:
-                return isSimpleType(tokenKind);
+                if (isPredeclaredPrefix(tokenKind)) {
+                    return true;
+                }
+                return isSimpleTypeInExpression(tokenKind);
         }
     }
 
