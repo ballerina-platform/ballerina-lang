@@ -282,8 +282,8 @@ public class TomlProvider implements ConfigProvider {
     private Object retrievePrimitiveValue(TomlNode tomlValue, String variableName, Type type, String fieldName) {
         TomlType tomlType = tomlValue.kind();
         if (tomlType != TomlType.KEY_VALUE) {
-            throw new ConfigException(CONFIG_TOML_FIELD_INCOMPATIBLE_TYPE,getLineRange(tomlValue), fieldName, variableName,
-                                                                      type, getTomlTypeString(tomlValue));
+            throw new ConfigException(CONFIG_TOML_FIELD_INCOMPATIBLE_TYPE, getLineRange(tomlValue), fieldName,
+                                      variableName, type, getTomlTypeString(tomlValue));
         }
         TomlValueNode value = ((TomlKeyValueNode) tomlValue).value();
         tomlType = value.kind();
@@ -359,7 +359,8 @@ public class TomlProvider implements ConfigProvider {
             }
             Type fieldType = field.getFieldType();
             if (!isSupportedType(fieldType)) {
-                throw new ConfigException(CONFIG_TOML_FIELD_TYPE_NOT_SUPPORTED, getLineRange(value), fieldType, variableName);
+                throw new ConfigException(CONFIG_TOML_FIELD_TYPE_NOT_SUPPORTED, getLineRange(value), fieldType,
+                                          variableName);
             }
             Object objectValue;
             switch (fieldType.getTag()) {
@@ -391,7 +392,8 @@ public class TomlProvider implements ConfigProvider {
             // remove after fixing #28966
             if (!SymbolFlags.isFlagOn(flag, SymbolFlags.OPTIONAL) && !SymbolFlags.isFlagOn(flag,
                     SymbolFlags.REQUIRED) && initialValueEntries.get(fieldName) == null) {
-                throw new ConfigException(CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED, getLineRange(tomlValue), fieldName, variableName);
+                throw new ConfigException(CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED, getLineRange(tomlValue), fieldName
+                        , variableName);
             }
         }
 

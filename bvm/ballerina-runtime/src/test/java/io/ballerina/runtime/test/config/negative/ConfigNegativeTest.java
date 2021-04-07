@@ -82,19 +82,22 @@ public class ConfigNegativeTest {
         return new Object[][]{
                 // Required but not given
                 {new String[]{}, null,
-                        new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 1, 0,
+                        new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 1
+                        , 0,
                         new String[]{
                                 "error: value not provided for required configurable variable 'intVar'"}},
                 // Invalid toml value only
                 {new String[]{}, "MismatchedTypeValues.toml",
-                        new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 1, 0,
+                        new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 1
+                        , 0,
                         new String[]{
                                 "error: [MismatchedTypeValues.toml:(3:10,3:18)] configurable variable 'intVar' " +
                                         "is expected to be of type 'int', but found 'string'"
                         }},
                 // Invalid cli value only
                 {new String[]{"-Corg.mod1.intVar=waruna"}, null,
-                        new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 1, 0,
+                        new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 1
+                        , 0,
                         new String[]{
                                 "error: [org.mod1.intVar=waruna] configurable variable 'intVar' is expected to be of " +
                                         "type 'int', but found 'waruna'"
@@ -148,8 +151,8 @@ public class ConfigNegativeTest {
                                                                               PredefinedTypes.TYPE_INT), 0, false),
                                                 null, true)}, 0, 1,
                         new String[]{
-                                "warning: [org.mod1.intArr=1234] value for configurable variable 'intArr' with type '" +
-                                        "()' is not supported as a cli arg"}},
+                                "warning: [org.mod1.intArr=1234] value for configurable variable 'intArr' with type " +
+                                        "'" + "()' is not supported as a cli arg"}},
                 // not supported both toml type and not cli type
                 {new String[]{"-Corg.mod1.intArr=1234"}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_MAP, null, true)}, 1

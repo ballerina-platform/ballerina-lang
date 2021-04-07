@@ -135,6 +135,7 @@ public class ConfigResolver {
                         diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable,
                                             effectiveType.toString());
                 }
+                break;
             default:
                 diagnosticLog.error(CONFIG_TYPE_NOT_SUPPORTED, key.location, key.variable, type.toString());
         }

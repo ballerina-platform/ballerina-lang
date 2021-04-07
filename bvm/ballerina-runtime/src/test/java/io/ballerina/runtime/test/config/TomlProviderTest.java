@@ -40,7 +40,6 @@ import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
-import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BType;
 import org.testng.Assert;
