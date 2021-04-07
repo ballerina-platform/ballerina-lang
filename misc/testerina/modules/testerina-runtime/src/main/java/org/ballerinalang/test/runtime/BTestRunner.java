@@ -38,6 +38,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
+import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -426,7 +427,7 @@ public class BTestRunner {
                 functionResult = new TesterinaResult(test.getTestName(), false, true, null);
                 tReport.addFunctionResult(packageName, functionResult);
             }
-        } catch (Throwable e) {
+        } catch (BallerinaTestException | ClassNotFoundException e) {
             // If the test function is skipped lets add it to the failed test list
             failedOrSkippedTests.add(test.getTestName());
             // report the test result
@@ -626,7 +627,12 @@ public class BTestRunner {
                 throw new BallerinaTestException(e);
             }
         } else if (e instanceof BallerinaTestException) {
-            throw (BallerinaTestException) e;
+            try {
+                message = TesterinaUtils.getPrintableStackTrace(e.getCause());
+                RuntimeUtils.silentlyLogBadSad(e.getCause());
+            } catch (ClassCastException castException) {
+                throw new BallerinaTestException(e);
+            }
         } else {
             throw new BallerinaTestException(e);
         }
