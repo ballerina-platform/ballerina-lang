@@ -1,9 +1,9 @@
 {
   "position": {
-    "line": 11,
-    "character": 12
+    "line": 4,
+    "character": 8
   },
-  "source": "expression_context/source/mapping_expr_ctx_source20.bal",
+  "source": "expression_context/source/mapping_expr_ctx_source26.bal",
   "items": [
     {
       "label": "readonly",
@@ -14,19 +14,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "rec1f1",
+      "label": "name",
       "kind": "Field",
-      "detail": "Record2",
+      "detail": "record {| string first; string last; anydata...; |} & readonly",
       "sortText": "G",
-      "insertText": "rec1f1: {\n\trec2f1: ${1:0},\n\trec2f2: ${2:0}\n}",
+      "insertText": "name: {\n\tfirst: \"${1}\",\n\tlast: \"${2}\"\n}",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "rec1f2",
+      "label": "salary",
       "kind": "Field",
       "detail": "int",
       "sortText": "G",
-      "insertText": "rec1f2: ${2:0}",
+      "insertText": "salary: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -34,7 +34,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "Q",
-      "insertText": "rec1f1: {rec2f1: 0, rec2f2: 0},\nrec1f2: 0",
+      "insertText": "name: {},\nsalary: 0",
       "insertTextFormat": "Snippet"
     }
   ]
