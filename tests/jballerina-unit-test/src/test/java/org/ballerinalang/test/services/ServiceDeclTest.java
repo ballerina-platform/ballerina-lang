@@ -48,8 +48,7 @@ public class ServiceDeclTest {
     @Test
     public void testAttachMethodParams() {
         CompileResult compileResult = BCompileUtil.compile("test-src/services/service_attach_test.bal");
-        BValue[] values = BRunUtil.invoke(compileResult, "testAttachMethodParams");
-        Assert.assertTrue(((BBoolean)values[0]).booleanValue());
+        BRunUtil.invoke(compileResult, "testAttachMethodParams");
     }
 
     @Test
