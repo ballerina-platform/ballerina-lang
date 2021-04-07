@@ -35,6 +35,8 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
+import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
@@ -218,6 +220,20 @@ class AIDataMapperCodeActionUtil {
                         newTextRange = CommonUtil.toRange(matchedNode.lineRange());
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
+                        fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
+                    } else if (foundErrorLeft && !foundErrorRight) {
+                        String checkExpression = "";
+                        Collection<ChildNodeEntry> childEntries = matchedNode.childEntries();
+                        for(ChildNodeEntry childEntry: childEntries){
+                            if(childEntry.name().equals("expression")){
+                                functionCall = childEntry.node().isPresent() ? childEntry.node().get().toString() : null;
+                            } else if (childEntry.name().equals("expression")){
+                                checkExpression = childEntry.node().isPresent() ? childEntry.node().get().toString() : null;
+                            }
+                        }
+                        symbolAtCursorName = functionCall.trim();
+                        generatedFunctionName =
+                                String.format("%s map%sTo%s(%s)", checkExpression, foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else {
                         symbolAtCursorName = functionCall.trim();
@@ -508,10 +524,6 @@ class AIDataMapperCodeActionUtil {
             }
         }
     }
-
-//    private static Boolean checkForReadonlyKey(Map.Entry<String, Object> field) {
-//        return ((LinkedTreeMap) field.getValue()).containsKey(READONLY);
-//    }
 
     /**
      * For a give array of schemas, return a mapping function.
