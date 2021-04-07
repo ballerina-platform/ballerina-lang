@@ -33,6 +33,7 @@ import okio.Buffer;
 import okio.BufferedSink;
 import okio.ForwardingSink;
 import okio.Okio;
+import okio.Sink;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
@@ -379,9 +380,9 @@ public class Utils {
      * Custom request body implementation that indicate the number of bytes written using a progress bar.
      */
     public static class ProgressRequestBody extends RequestBody {
-        protected RequestBody reqBody;
-        protected String task;
-        protected PrintStream out;
+        private final RequestBody reqBody;
+        private final String task;
+        private final PrintStream out;
     
         public ProgressRequestBody(RequestBody reqBody, String task, PrintStream out) {
             this.reqBody = reqBody;
@@ -418,20 +419,28 @@ public class Utils {
     
             ProgressBar progressBar = new ProgressBar(task, contentLength(), 1000, out, ProgressBarStyle.ASCII,
                     unitName, byteConverter);
-            
-            BufferedSink progressSink = Okio.buffer(new ForwardingSink(sink) {
-                private long bytesWritten = 0L;
-        
-                @Override
-                public void write(Buffer source, long byteCount) throws IOException {
-                    super.write(source, byteCount);
-                    bytesWritten += byteCount;
-                    progressBar.stepTo(bytesWritten);
-                }
-            });
+            CountingSink countingSink = new CountingSink(sink, progressBar);
+            BufferedSink progressSink = Okio.buffer(countingSink);
             this.reqBody.writeTo(progressSink);
             progressSink.flush();
             progressBar.close();
+        }
+    }
+    
+    private static class CountingSink extends ForwardingSink {
+        private long bytesWritten = 0;
+        private final ProgressBar progressBar;
+    
+        public CountingSink(Sink delegate, ProgressBar progressBar) {
+            super(delegate);
+            this.progressBar = progressBar;
+        }
+        
+        @Override
+        public void write(Buffer source, long byteCount) throws IOException {
+            super.write(source, byteCount);
+            this.bytesWritten += byteCount;
+            this.progressBar.stepTo(bytesWritten);
         }
     }
 
