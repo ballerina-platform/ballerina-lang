@@ -33,7 +33,6 @@ import okio.Buffer;
 import okio.BufferedSink;
 import okio.ForwardingSink;
 import okio.Okio;
-import okio.Sink;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
@@ -377,53 +376,65 @@ public class Utils {
     }
 
     /**
-     * Custom request body implementation that allows listening to byte writing.
+     * Custom request body implementation that indicate the number of bytes written using a progress bar.
      */
-    public static class ProgressRequestWrapper extends RequestBody {
-        protected RequestBody delegate;
-        protected ProgressListener listener;
-        protected CountingSink countingSink;
-
-        public ProgressRequestWrapper(RequestBody delegate, ProgressListener listener) {
-            this.delegate = delegate;
-            this.listener = listener;
+    public static class ProgressRequestBody extends RequestBody {
+        protected RequestBody reqBody;
+        protected String task;
+        protected PrintStream out;
+    
+        public ProgressRequestBody(RequestBody reqBody, String task, PrintStream out) {
+            this.reqBody = reqBody;
+            this.task = task;
+            this.out = out;
         }
-
+    
         @Override
         public MediaType contentType() {
-            return this.delegate.contentType();
+            return this.reqBody.contentType();
         }
 
         @Override
         public long contentLength() throws IOException {
-            return this.delegate.contentLength();
+            return this.reqBody.contentLength();
         }
 
         @Override
         public void writeTo(BufferedSink sink) throws IOException {
-            BufferedSink bufferedSink;
-            this.countingSink = new CountingSink(sink);
-            bufferedSink = Okio.buffer(this.countingSink);
-            this.delegate.writeTo(bufferedSink);
-            bufferedSink.flush();
-        }
-
-        /**
-         * Custom byte writer.
-         */
-        protected class CountingSink extends ForwardingSink {
-            private long bytesWritten = 0;
-
-            public CountingSink(Sink delegate) {
-                super(delegate);
+            final long totalBytes = contentLength();
+            long initialMax;
+            long byteConverter;
+            String unitName;
+    
+            if (totalBytes < 1024 * 5) { // use bytes for progress bar if payload is less than 5 KB
+                byteConverter = 1;
+                initialMax = totalBytes;
+                unitName = " B";
+            } else if (totalBytes < 1024 * 1024 * 5) { // use kilobytes for progress bar if payload is less than 5 MB
+                byteConverter = 1024;
+                initialMax = totalBytes / byteConverter; // convert bytes to KB
+                unitName = " KB";
+            } else { // else use megabytes for progress bar.
+                byteConverter = 1024 * 1024;
+                initialMax = totalBytes / byteConverter; // convert bytes to MB
+                unitName = " MB";
             }
-
-            @Override
-            public void write(Buffer source, long byteCount) throws IOException {
-                super.write(source, byteCount);
-                this.bytesWritten += byteCount;
-                listener.onRequestProgress(bytesWritten, contentLength());
-            }
+    
+            ProgressBar progressBar = new ProgressBar(task, initialMax, 1000, out, ProgressBarStyle.ASCII, unitName, 1);
+            
+            BufferedSink progressSink = Okio.buffer(new ForwardingSink(sink) {
+                private long bytesWritten = 0L;
+        
+                @Override
+                public void write(Buffer source, long byteCount) throws IOException {
+                    super.write(source, byteCount);
+                    bytesWritten += byteCount;
+                    progressBar.stepTo(bytesWritten / byteConverter);
+                }
+            });
+            this.reqBody.writeTo(progressSink);
+            progressSink.flush();
+            progressBar.close();
         }
     }
 

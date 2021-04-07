@@ -19,8 +19,6 @@
 package org.ballerinalang.central.client;
 
 import com.google.gson.Gson;
-import me.tongfei.progressbar.ProgressBar;
-import me.tongfei.progressbar.ProgressBarStyle;
 import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -38,7 +36,6 @@ import org.ballerinalang.central.client.model.PackageSearchResult;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.net.Proxy;
-import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
@@ -55,8 +52,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DI
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.CentralClientConstants.LOCATION;
 import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT;
-import static org.ballerinalang.central.client.Utils.ProgressListener;
-import static org.ballerinalang.central.client.Utils.ProgressRequestWrapper;
+import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
 
@@ -220,24 +216,16 @@ public class CentralAPIClientV2 {
                     .addFormDataPart("bala-file", fileName,
                             RequestBody.create(MediaType.parse(APPLICATION_OCTET_STREAM), balaPath.toFile()))
                     .build();
-
-            ProgressListener listener = (byteWritten, contentLength) -> {
-                try (ProgressBar progressBar = new ProgressBar(
-                        packageSignature + " [project repo -> central]", Files.size(balaPath) / 1024,
-                        1000, this.outStream, ProgressBarStyle.ASCII, " KB", 1)) {
-                    progressBar.stepBy(byteWritten);
-                }
-            };
-
-            ProgressRequestWrapper counting = new ProgressRequestWrapper(balaFileReqBody, listener);
+    
+            ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
+                    packageSignature + " [project repo -> central]", this.outStream);
 
             Request request = getNewRequest(supportedPlatform, ballerinaVersion)
-                    .post(counting)
+                    .post(balaFileReqBodyWithProgressBar)
                     .url(url)
                     .addHeader(AUTHORIZATION, "Bearer " + accessToken)
                     .build();
 
-            // TODO: Check for chunking
             Response packagePushResponse = sendRequest(request);
 
             // Successfully pushed
@@ -249,7 +237,7 @@ public class CentralAPIClientV2 {
             // Invalid access token to push
             if (packagePushResponse.code() == HttpsURLConnection.HTTP_UNAUTHORIZED) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
-                if (body.isPresent()) {
+                if (body.isPresent() && packagePushResponse.) {
                     Error error = new Gson().fromJson(body.get().string(), Error.class);
                     throw new CentralClientException("unauthorized access token for organization: '" + org +
                             "'. reason: " + error.getMessage() + ". check access token set in 'Settings.toml' file.");
@@ -292,7 +280,10 @@ public class CentralAPIClientV2 {
                     url + "'.");
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' to the remote repository '" +
-                    url + "'. reason: " + e.getMessage());
+                                             url + "'. reason: " + e.getMessage());
+        } catch (IllegalStateException e) {
+            throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' to the remote repository '" +
+                    url + "'.");
         }
     }
 
@@ -334,6 +325,7 @@ public class CentralAPIClientV2 {
                     Request downloadBalaRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                             .get()
                             .url(balaUrl.get())
+                            .header(ACCEPT_ENCODING, IDENTITY)
                             .addHeader(CONTENT_DISPOSITION, balaFileName.get())
                             .build();
 
