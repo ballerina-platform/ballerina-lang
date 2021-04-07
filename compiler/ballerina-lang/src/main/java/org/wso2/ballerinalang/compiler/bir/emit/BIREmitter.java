@@ -223,9 +223,6 @@ public class BIREmitter {
         funcString += emitSpaces(1);
         funcString += "{";
         funcString += emitLBreaks(1);
-        funcString += emitLocalVar(func.returnVariable, tabs + 1);
-        funcString += emitLBreaks(1);
-        funcString += emitArguments(func.parameters, tabs + 1);
         funcString += emitLocalVars(func.localVars, tabs + 1);
         funcString += emitLBreaks(1);
         funcString += emitBasicBlocks(func.basicBlocks, tabs + 1);
