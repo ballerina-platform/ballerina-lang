@@ -3172,7 +3172,7 @@ public class TypeChecker extends BLangNodeVisitor {
                             BLangCompilerConstants.CLOSE_FUNC);
                     if (closeFunc != null) {
                         BType closeableIteratorType = symTable.langQueryModuleSymbol.scope
-                                .lookup(Names.ABSTRACT_CLOSEABLE_ITERATOR).symbol.type;
+                                .lookup(Names.ABSTRACT_STREAM_CLOSEABLE_ITERATOR).symbol.type;
                         if (!types.isAssignable(constructType, closeableIteratorType)) {
                             dlog.error(iteratorExpr.pos,
                                        DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR,
@@ -3182,7 +3182,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         }
                     } else {
                         BType iteratorType = symTable.langQueryModuleSymbol.scope
-                                .lookup(Names.ABSTRACT_ITERATOR).symbol.type;
+                                .lookup(Names.ABSTRACT_STREAM_ITERATOR).symbol.type;
                         if (!types.isAssignable(constructType, iteratorType)) {
                             dlog.error(iteratorExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_ITERATOR,
                                     expectedNextReturnType, constructType);
