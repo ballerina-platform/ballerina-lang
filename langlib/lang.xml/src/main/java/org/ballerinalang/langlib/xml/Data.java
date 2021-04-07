@@ -1,5 +1,5 @@
 /*
- *   Copyright (c) 2019, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *   Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -17,28 +17,25 @@
  */
 package org.ballerinalang.langlib.xml;
 
-import io.ballerina.runtime.api.types.XmlNodeType;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.api.values.BXmlSequence;
-
-import java.util.List;
 
 /**
- * Test xml to be single xml text element.
+ * Return character data of an xml value as a string.
  *
- * @since 1.0
+ * @since 2.0
  */
-public class IsText {
+public class Data {
+    private static final BString empty = StringUtils.fromString("");
 
-    public static boolean isText(BXml xmlValue) {
-        if (xmlValue.getNodeType() == XmlNodeType.TEXT || xmlValue.isEmpty()) {
-            return true;
+    public static BString data(BXml xmlValue) {
+        if (xmlValue.isEmpty()
+                || IsComment.isComment(xmlValue)
+                || IsProcessingInstruction.isProcessingInstruction(xmlValue)) {
+            return empty;
         }
 
-        if (xmlValue.getNodeType() == XmlNodeType.SEQUENCE) {
-            List<BXml> childrenList = ((BXmlSequence) xmlValue).getChildrenList();
-            return (childrenList.size() == 1 && isText(childrenList.get(0)));
-        }
-        return false;
+        return StringUtils.fromString(xmlValue.getTextValue());
     }
 }

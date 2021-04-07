@@ -68,17 +68,17 @@ function testConcatWithXMLSequence() {
     'xml:Element catalogClone = catalog.clone();
 
     xml c = 'xml:concat(catalog, a, b);
-    assert(c.length(), 2);
-    assert(catalog, catalogClone);
+    assertEquals(c.length(), 2);
+    assertEquals(catalog, catalogClone);
 
     xml d = 'xml:concat();
     foreach var x in catalog/<CD> {
         d = 'xml:concat(d, x);
     }
-    assert(d.length(), 3);
+    assertEquals(d.length(), 3);
 
     xml e = 'xml:concat(c, d);
-    assert(e.length(), 5);
+    assertEquals(e.length(), 5);
 }
 
 function testIsElement() returns [boolean, boolean, boolean] {
@@ -150,11 +150,11 @@ function testGetTarget() returns string {
     return pi.getTarget();
 }
 
-function testGetContent() returns [string, string, string] {
+function testGetContent() returns [string, string] {
     'xml:Text t = <'xml:Text> xml `hello world`;
     'xml:ProcessingInstruction pi = <'xml:ProcessingInstruction> xml `<?pi-node type="cont"?>`;
     'xml:Comment comment = xml `<!-- this is a comment text -->`;
-    return [t.getContent(), pi.getContent(), comment.getContent()];
+    return [pi.getContent(), comment.getContent()];
 }
 
 function testCreateElement() returns [xml, xml, xml] {
@@ -180,11 +180,11 @@ function testCreateText() {
     'xml:Text text4 = 'xml:createText("Thisisxmltext");
     'xml:Text text5 = 'xml:createText("XML\ntext");
 
-    assert(text1.toString(), "This is xml text");
-    assert(text2.toString(), "");
-    assert(text3.toString(), "T");
-    assert(text4.toString(), "Thisisxmltext");
-    assert(text5.toString(), "XML\ntext");
+    assertEquals(text1.toString(), "This is xml text");
+    assertEquals(text2.toString(), "");
+    assertEquals(text3.toString(), "T");
+    assertEquals(text4.toString(), "Thisisxmltext");
+    assertEquals(text5.toString(), "XML\ntext");
 }
 
 function testForEach() {
@@ -192,7 +192,7 @@ function testForEach() {
     foreach var x in catalog/* {
         r = 'xml:concat(r, x);
     }
-    assert(r.length(), 7);
+    assertEquals(r.length(), 7);
 }
 
 function testSlice() returns [xml, xml, xml] {
@@ -307,13 +307,13 @@ function testChildren() {
      xml brands = xml `<Brands><!-- Comment --><Apple>IPhone</Apple><Samsung>Galaxy</Samsung><OP>OP7</OP></Brands>`;
 
      xml p = brands.children(); // equivalent to getChildren()
-     assert(p.length(), 4);
-     assert(p.toString(), "<!-- Comment --><Apple>IPhone</Apple><Samsung>Galaxy</Samsung><OP>OP7</OP>");
+     assertEquals(p.length(), 4);
+     assertEquals(p.toString(), "<!-- Comment --><Apple>IPhone</Apple><Samsung>Galaxy</Samsung><OP>OP7</OP>");
 
      xml seq = brands/*;
      xml q = seq.children();
-     assert(q.length(), 3);
-     assert(q.toString(), "IPhoneGalaxyOP7");
+     assertEquals(q.length(), 3);
+     assertEquals(q.toString(), "IPhoneGalaxyOP7");
 }
 
 function testElements() {
@@ -326,12 +326,12 @@ function testElements() {
     xml seq = presidents/*;
 
     xml y = seq.elements();
-    assert(y.length(), 3);
-    assert(y.toString(), "<US>Obama</US><US>Trump</US><RUS>Putin</RUS>");
+    assertEquals(y.length(), 3);
+    assertEquals(y.toString(), "<US>Obama</US><US>Trump</US><RUS>Putin</RUS>");
 
     xml z = seq.elements("RUS");
-    assert(z.length(), 1);
-    assert(z.toString(), "<RUS>Putin</RUS>");
+    assertEquals(z.length(), 1);
+    assertEquals(z.toString(), "<RUS>Putin</RUS>");
 }
 
 function testElementsNS() {
@@ -345,12 +345,12 @@ function testElementsNS() {
     xml seq = presidents/*;
 
     xml usNs = seq.elements("{foo}US");
-    assert(usNs.length(), 1);
-    assert(usNs.toString(), "<ns:US xmlns:ns=\"foo\">Obama</ns:US>");
+    assertEquals(usNs.length(), 1);
+    assertEquals(usNs.toString(), "<ns:US xmlns:ns=\"foo\">Obama</ns:US>");
 
     xml usNoNs = seq.elements("US");
-    assert(usNoNs.length(), 1);
-    assert(usNoNs.toString(), "<US>Trump</US>");
+    assertEquals(usNoNs.length(), 1);
+    assertEquals(usNoNs.toString(), "<US>Trump</US>");
 }
 
 function testElementChildren() {
@@ -365,20 +365,20 @@ function testElementChildren() {
     xml p = letter.elementChildren();
     xml q = letter.elementChildren("to");
 
-    assert(p.length(), 4);
-    assert(p.toString(), "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>");
-    assert(q.length(), 2);
-    assert(q.toString(), "<to>Tove</to><to>Irshad</to>");
+    assertEquals(p.length(), 4);
+    assertEquals(p.toString(), "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>");
+    assertEquals(q.length(), 2);
+    assertEquals(q.toString(), "<to>Tove</to><to>Irshad</to>");
 
     xml seq = 'xml:concat(letter, letter);
     xml y = seq.elementChildren();
     xml z = seq.elementChildren("to");
 
-    assert(y.length(), 8);
-    assert(y.toString(), "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>" +
+    assertEquals(y.length(), 8);
+    assertEquals(y.toString(), "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>" +
                          "<to>Tove</to><to>Irshad</to><from>Jani</from><body>Don't forget me this weekend!</body>");
-    assert(z.length(), 4);
-    assert(z.toString(), "<to>Tove</to><to>Irshad</to><to>Tove</to><to>Irshad</to>");
+    assertEquals(z.length(), 4);
+    assertEquals(z.toString(), "<to>Tove</to><to>Irshad</to><to>Tove</to><to>Irshad</to>");
 }
 
 function testElementChildrenNS() {
@@ -393,12 +393,12 @@ function testElementChildrenNS() {
     xml seq = 'xml:concat(letter, letter);
 
     xml toNs = seq.elementChildren("{foo}to");
-    assert(toNs.length(), 2);
-    assert(toNs.toString(), "<ns:to xmlns:ns=\"foo\">Tove</ns:to><ns:to xmlns:ns=\"foo\">Tove</ns:to>");
+    assertEquals(toNs.length(), 2);
+    assertEquals(toNs.toString(), "<ns:to xmlns:ns=\"foo\">Tove</ns:to><ns:to xmlns:ns=\"foo\">Tove</ns:to>");
 
     xml toNoNs = seq.elementChildren("to");
-    assert(toNoNs.length(), 2);
-    assert(toNoNs.toString(), "<to>Irshad</to><to>Irshad</to>");
+    assertEquals(toNoNs.length(), 2);
+    assertEquals(toNoNs.toString(), "<to>Irshad</to><to>Irshad</to>");
 }
 
 function testXMLIteratorInvocation() {
@@ -409,7 +409,7 @@ function testXMLIteratorInvocation() {
         public isolated function next() returns record {| 'xml:Comment value; |}?;
     } iter1 = seq1.iterator();
 
-    assert((iter1.next()).toString(), "{\"value\":`<!--first-->`}");
+    assertEquals((iter1.next()).toString(), "{\"value\":`<!--first-->`}");
 
     xml b = xml `<one>first</one>`;
     xml<'xml:Element> seq2 = <xml<'xml:Element>> b.concat(xml `<two>second</two>`);
@@ -418,7 +418,7 @@ function testXMLIteratorInvocation() {
             public isolated function next() returns record {| 'xml:Element value; |}?;
     } iter2 = seq2.iterator();
 
-    assert((iter2.next()).toString(), "{\"value\":`<one>first</one>`}");
+    assertEquals((iter2.next()).toString(), "{\"value\":`<one>first</one>`}");
 
     xml c = xml `bit of text1`;
     xml<'xml:Text> seq3 = <xml<'xml:Text>> c.concat(xml ` bit of text2`);
@@ -427,7 +427,7 @@ function testXMLIteratorInvocation() {
         public isolated function next() returns record {| 'xml:Text value; |}?;
     } iter3 = seq3.iterator();
 
-    assert((iter3.next()).toString(), "{\"value\":`bit of text1`}");
+    assertEquals((iter3.next()).toString(), "{\"value\":`bit of text1`}");
 
     xml d = xml `<?xml-stylesheet href="mystyle.css" type="text/css"?>`;
     xml<'xml:ProcessingInstruction> seq4 = <xml<'xml:ProcessingInstruction>> d.concat(xml `<?pi-node type="cont"?>`);
@@ -436,7 +436,7 @@ function testXMLIteratorInvocation() {
         public isolated function next() returns record {| 'xml:ProcessingInstruction value; |}?;
     } iter4 = seq4.iterator();
 
-    assert((iter4.next()).toString(), "{\"value\":`<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>`}");
+    assertEquals((iter4.next()).toString(), "{\"value\":`<?xml-stylesheet href=\"mystyle.css\" type=\"text/css\"?>`}");
 
     xml e = xml `<one>first</one>`;
     xml<'xml:Element|'xml:Text> seq5 = <xml<'xml:Element|'xml:Text>> e.concat(xml `<two>second</two>`);
@@ -445,35 +445,35 @@ function testXMLIteratorInvocation() {
         public isolated function next() returns record {| 'xml:Element|'xml:Text value; |}?;
     } iter5 = seq5.iterator();
 
-    assert((iter5.next()).toString(), "{\"value\":`<one>first</one>`}");
+    assertEquals((iter5.next()).toString(), "{\"value\":`<one>first</one>`}");
 }
 
 function testSelectingTextFromXml() {
     xml:Element authors = xml `<authors><author><name>Enid<middleName/>Blyton</name></author></authors>`;
     xml:Text authorsList = authors.text();
-    assert(authorsList.toString(), "");
+    assertEquals(authorsList.toString(), "");
 
     xml:Text helloText = xml `hello text`;
     xml:Text textValues = helloText.text();
-    assert(textValues.toString(), "hello text");
+    assertEquals(textValues.toString(), "hello text");
 
     xml:Comment comment = xml `<!-- This is a comment -->`;
     xml:Text commentText = comment.text();
-    assert(commentText.toString(), "");
+    assertEquals(commentText.toString(), "");
 
     xml:ProcessingInstruction instruction = xml `<?xml-stylesheet type="text/xsl" href="style.xsl"?>`;
     xml:Text instructionText = instruction.text();
-    assert(instructionText.toString(), "");
+    assertEquals(instructionText.toString(), "");
 
     xml<xml:Text> authorName = (authors/<author>/<name>/*).text();
-    assert(authorName.toString(),"EnidBlyton");
+    assertEquals(authorName.toString(),"EnidBlyton");
 
     var name = xml `<name>Dan<lname>Gerhard</lname><!-- This is a comment -->Brown</name>`;
     xml nameText = (name/*).text();
-    assert(nameText.toString(), "DanBrown");
+    assertEquals(nameText.toString(), "DanBrown");
 
     xml<xml:Text> textValues2 = xml:text(helloText);
-    assert(textValues2.toString(), textValues.toString());
+    assertEquals(textValues2.toString(), textValues.toString());
 }
 
 function testGetDescendants() {
@@ -500,17 +500,17 @@ function getDescendantsSimpleElement() {
     xml:Element e9 = xml `<ARTIST>Bonnie Tyler</ARTIST>`;
     xml:Text e10 = <xml:Text>xml `Bonnie Tyler`;
 
-    assert(descendantSeq.length(), 11);
-    assert(descendantSeq[0], e1);
-    assert(descendantSeq[1], e2);
-    assert(descendantSeq[2], e3);
-    assert(descendantSeq[3], e4);
-    assert(descendantSeq[4], e5);
-    assert(descendantSeq[6], e6);
-    assert(descendantSeq[7], e7);
-    assert(descendantSeq[8], e8);
-    assert(descendantSeq[9], e9);
-    assert(descendantSeq[10], e10);
+    assertEquals(descendantSeq.length(), 11);
+    assertEquals(descendantSeq[0], e1);
+    assertEquals(descendantSeq[1], e2);
+    assertEquals(descendantSeq[2], e3);
+    assertEquals(descendantSeq[3], e4);
+    assertEquals(descendantSeq[4], e5);
+    assertEquals(descendantSeq[6], e6);
+    assertEquals(descendantSeq[7], e7);
+    assertEquals(descendantSeq[8], e8);
+    assertEquals(descendantSeq[9], e9);
+    assertEquals(descendantSeq[10], e10);
 }
 
 function getDescendantsWithNS() {
@@ -519,8 +519,8 @@ function getDescendantsWithNS() {
     xml descendants = presidents.getDescendants();
 
     xml usNs = descendants.elements("{foo}US");
-    assert(usNs.length(), 1);
-    assert(usNs.toString(), "<ns:US xmlns:ns=\"foo\"><fn>Obama</fn></ns:US>");
+    assertEquals(usNs.length(), 1);
+    assertEquals(usNs.toString(), "<ns:US xmlns:ns=\"foo\"><fn>Obama</fn></ns:US>");
 
     xml:Comment e1 = xml `<!-- Comment -->`;
     xml:Element e2 = xml `<ns:US><fn>Obama</fn></ns:US>`;
@@ -530,14 +530,14 @@ function getDescendantsWithNS() {
     xml:Element e6 = xml `<fn>Trump</fn>`;
     xml:Text e7 = xml `Trump`;
 
-    assert(descendants.length(), 7);
-    assert(descendants[0], e1);
-    assert(descendants[1], e2);
-    assert(descendants[2], e3);
-    assert(descendants[3], e4);
-    assert(descendants[4], e5);
-    assert(descendants[5], e6);
-    assert(descendants[6], e7);
+    assertEquals(descendants.length(), 7);
+    assertEquals(descendants[0], e1);
+    assertEquals(descendants[1], e2);
+    assertEquals(descendants[2], e3);
+    assertEquals(descendants[3], e4);
+    assertEquals(descendants[4], e5);
+    assertEquals(descendants[5], e6);
+    assertEquals(descendants[6], e7);
 }
 
 function getDescendantsFilterNonElements() {
@@ -553,14 +553,14 @@ function getDescendantsFilterNonElements() {
     xml:Element e6 = xml `<txt>Everyday Italian</txt>`;
     xml:Text e7 = xml `Everyday Italian`;
 
-    assert(descendants.length(), 7);
-    assert(descendants[0], e1);
-    assert(descendants[1], e2);
-    assert(descendants[2], e3);
-    assert(descendants[3], e4);
-    assert(descendants[4], e5);
-    assert(descendants[5], e6);
-    assert(descendants[6], e7);
+    assertEquals(descendants.length(), 7);
+    assertEquals(descendants[0], e1);
+    assertEquals(descendants[1], e2);
+    assertEquals(descendants[2], e3);
+    assertEquals(descendants[3], e4);
+    assertEquals(descendants[4], e5);
+    assertEquals(descendants[5], e6);
+    assertEquals(descendants[6], e7);
 }
 
 function getDescendantsFromSeq() {
@@ -576,14 +576,14 @@ function getDescendantsFromSeq() {
     xml:Element e3 = xml `<d>bye</d>`;
     xml:Text e4 = xml `bye`;
 
-    assert(desecndants.length(), 4);
-    assert(desecndants[0], e1);
-    assert(desecndants[1], e2);
-    assert(desecndants[2], e3);
-    assert(desecndants[3], e4);
+    assertEquals(desecndants.length(), 4);
+    assertEquals(desecndants[0], e1);
+    assertEquals(desecndants[1], e2);
+    assertEquals(desecndants[2], e3);
+    assertEquals(desecndants[3], e4);
 }
 
-function assert(anydata actual, anydata expected) {
+function assertEquals(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;
         typedesc<anydata> actT = typeof actual;
@@ -594,5 +594,80 @@ function assert(anydata actual, anydata expected) {
     }
 }
 
+function testData() {
+    xml:Element authors = xml `<authors><author><name>Enid<middleName/>Blyton</name></author></authors>`;
+    assertEquals(authors.data(), "EnidBlyton");
 
+    xml:Text text = xml `hello&gt;abc`;
+    assertEquals(text.data(), "hello>abc");
 
+    xml:Comment cmnt = xml `<!-- this is a comment -->`;
+    assertEquals(cmnt.data(), "");
+
+    xml:ProcessingInstruction pi = xml `<?ins key=val other=val?>`;
+    assertEquals(pi.data(), "");
+
+    xml x = xml `<elem>&lt;</elem>`;
+    assertEquals((x/*).data(), "<");
+
+    xml concat = authors + text + cmnt + pi + x;
+    assertEquals(concat.data(), "EnidBlytonhello>abc<");
+}
+
+function testXmlGetContentOverACommentSequence() {
+    xml a = xml `<elem><!--Hello--></elem>`;
+    xml c = a/*;
+    xml k = c.get(0);
+    if (k is 'xml:Comment) {
+        string s = k.getContent();
+        assertEquals(s, "Hello");
+    } else {
+        panic error("Assert failure: single item comment should pass `is xml:Comment` type test");
+    }
+
+    if (c is 'xml:Comment) {
+        string s = c.getContent();
+        assertEquals(s, "Hello");
+    } else {
+        panic error("Assert failure: single item comment sequence should pass `is xml:Comment` type test");
+    }
+
+    xml concat = c + xml ``;
+    if (concat is 'xml:Comment) {
+        string s = concat.getContent();
+        assertEquals(s, "Hello");
+    } else {
+        panic error("Assert failure: single item comment sequence should pass `is xml:Comment` type test");
+    }
+}
+
+function testXmlGetContentOverAProcInstructionSequence() {
+    xml a = xml `<elem><?PI val="PI Val" val2="PI VAl 2"?></elem>`;
+    xml c = a/*;
+    xml k = c.get(0);
+    string expected = "val=\"PI Val\" val2=\"PI VAl 2\"";
+    if (k is 'xml:ProcessingInstruction) {
+        string s = k.getContent();
+        assertEquals(s, expected);
+    } else {
+        panic error("Assert failure: single item processing instruction should pass " +
+            "`is xml:ProcessingInstruction` type test");
+    }
+
+    if (c is 'xml:ProcessingInstruction) {
+        string s = c.getContent();
+        assertEquals(s, expected);
+    } else {
+        panic error("Assert failure: single item processing instruction sequence should pass " +
+            "`is xml:ProcessingInstruction` type test");
+    }
+
+    xml concat = c + xml ``;
+    if (concat is 'xml:ProcessingInstruction) {
+        string s = concat.getContent();
+        assertEquals(s, expected);
+    } else {
+        panic error("Assert failure: single item processing instruction sequence should pass " +
+            "`is xml:ProcessingInstruction` type test");
+    }
+}
