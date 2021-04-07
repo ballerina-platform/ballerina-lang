@@ -481,7 +481,7 @@ public class ProjectUtils {
      * @return proxy
      */
     public static Proxy initializeProxy(org.ballerinalang.toml.model.Proxy proxy) {
-        if (!"".equals(proxy.getHost())) {
+        if (proxy != null && !"".equals(proxy.getHost())) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
             if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
                 Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();

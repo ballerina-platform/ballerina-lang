@@ -23,7 +23,6 @@ import org.ballerinalang.toml.model.Settings;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.PrintStream;
 import java.nio.file.Path;
 
 /**
@@ -33,8 +32,6 @@ import java.nio.file.Path;
  */
 public class SettingsProcessor {
 
-    private static final PrintStream out = System.out;
-    
     /**
      * Get a {@link Settings} object by giving the path to the settings toml file.
      *
@@ -48,7 +45,7 @@ public class SettingsProcessor {
             toml = new Toml().read(settingsInputStream);
             return toml.to(Settings.class);
         } catch (IllegalStateException e) {
-            out.println("warning: invalid 'Settings.toml' file at:" + settingsPath + " due to:" + e.getMessage());
+            // Ignore 'Settings.toml' parsing errors
         }
         return new Settings();
     }
