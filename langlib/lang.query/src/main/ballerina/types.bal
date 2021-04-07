@@ -54,6 +54,10 @@ type _CloseableStreamImplementor object {
 # An abstract `_Iterable` object.
 type _Iterable object {
     *lang_object:Iterable;
+    public function iterator() returns
+        object {
+            public isolated function next() returns record {|Type value;|}|ErrorType?;
+        };
 };
 
 type _StreamFunction object {
