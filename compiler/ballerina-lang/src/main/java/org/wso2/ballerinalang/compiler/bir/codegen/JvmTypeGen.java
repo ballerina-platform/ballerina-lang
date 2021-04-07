@@ -844,7 +844,7 @@ public class JvmTypeGen {
         loadType(mv, field.type);
 
         // Load field name
-        mv.visitLdcInsn(field.name.value);
+        mv.visitLdcInsn(decodeIdentifier(field.name.value));
 
         // Load flags
         mv.visitLdcInsn(field.symbol.flags);
