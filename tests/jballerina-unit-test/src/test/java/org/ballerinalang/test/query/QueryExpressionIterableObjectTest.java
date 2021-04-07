@@ -121,6 +121,11 @@ public class QueryExpressionIterableObjectTest {
     }
 
     @Test
+    public void testObjectIterator() {
+        BRunUtil.invoke(program, "testObjectIterator");
+    }
+
+    @Test
     public void testIterableObjectQueryNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/query/query_exp_iterable_objects_negative.bal");
