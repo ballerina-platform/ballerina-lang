@@ -23,6 +23,7 @@ import org.jacoco.core.analysis.ICoverageNode;
 import org.jacoco.core.analysis.ILine;
 import org.jacoco.core.analysis.IMethodCoverage;
 
+import java.util.ArrayList;
 import java.util.Collection;
 
 /**
@@ -34,12 +35,16 @@ public class NormalizedCoverageClass implements IClassCoverage {
     private final IClassCoverage oldClassCoverage;
     private String normalizedPackageName;
     private String normalizedClassName;
+    private Collection<IMethodCoverage> updatedMethods = new ArrayList<>();
 
     public NormalizedCoverageClass(IClassCoverage oldClassCoverage, String normalizedPackageName,
                                    String normalizedClassName) {
         this.oldClassCoverage = oldClassCoverage;
         this.normalizedPackageName = normalizedPackageName;
         this.normalizedClassName = normalizedClassName;
+        for (IMethodCoverage oldMethodCoverage:oldClassCoverage.getMethods()) {
+            updatedMethods.add(new NormalizedCoverageMethod(oldMethodCoverage));
+        }
     }
 
     @Override
@@ -83,7 +88,7 @@ public class NormalizedCoverageClass implements IClassCoverage {
 
     @Override
     public Collection<IMethodCoverage> getMethods() {
-        return oldClassCoverage.getMethods();
+        return this.updatedMethods;
     }
 
     @Override
@@ -131,7 +136,8 @@ public class NormalizedCoverageClass implements IClassCoverage {
 
     @Override
     public ICounter getComplexityCounter() {
-        return oldClassCoverage.getComplexityCounter();
+        // Sets the complexity value as 0 for ballerina source class coverages.
+        return new PartialCoverageModifiedCounter(null);
     }
 
     @Override
@@ -146,6 +152,10 @@ public class NormalizedCoverageClass implements IClassCoverage {
 
     @Override
     public ICounter getCounter(CounterEntity counterEntity) {
+        if (counterEntity.equals(CounterEntity.COMPLEXITY)) {
+            // Sets the complexity value as 0 for ballerina class coverages.
+            return new PartialCoverageModifiedCounter(null);
+        }
         return oldClassCoverage.getCounter(counterEntity);
     }
 

@@ -6,6 +6,14 @@
   "source": "typedesc_context/source/union_typedesc4.bal",
   "items": [
     {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestRecord1",
       "kind": "Struct",
       "detail": "Record",
@@ -62,14 +70,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ResponseMessage",
       "kind": "Enum",
       "detail": "Union",
@@ -89,6 +89,14 @@
       },
       "sortText": "I",
       "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestEnum1",
+      "kind": "Enum",
+      "detail": "enum",
+      "sortText": "I",
+      "insertText": "TestEnum1",
       "insertTextFormat": "Snippet"
     },
     {

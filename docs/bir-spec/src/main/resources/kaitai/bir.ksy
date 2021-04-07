@@ -691,6 +691,14 @@ types:
         type: markdown_parameter
         repeat: expr
         repeat-expr: parameters_count
+      - id: deprecated_docs_cp_index
+        type: s4
+      - id: deprecated_params_count
+        type: s4
+      - id: deprecated_params
+        type: markdown_parameter
+        repeat: expr
+        repeat-expr: deprecated_params_count
   markdown_parameter:
     seq:
       - id: name_cp_index

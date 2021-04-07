@@ -38,6 +38,7 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectPaths;
@@ -820,9 +821,13 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
     private Pair<ProjectKind, Path> computeProjectKindAndProjectRoot(Path path) {
         if (ProjectPaths.isStandaloneBalFile(path)) {
             return new ImmutablePair<>(ProjectKind.SINGLE_FILE_PROJECT, path);
-        } else {
+        }
+        // Following is a temp fix to distinguish Bala and Build projects
+        Path tomlPath = ProjectPaths.packageRoot(path).resolve(ProjectConstants.BALLERINA_TOML);
+        if (Files.exists(tomlPath)) {
             return new ImmutablePair<>(ProjectKind.BUILD_PROJECT, ProjectPaths.packageRoot(path));
         }
+        return new ImmutablePair<>(ProjectKind.BALA_PROJECT, ProjectPaths.packageRoot(path));
     }
 
     private Optional<ProjectPair> projectPair(Path projectRoot) {
@@ -838,14 +843,16 @@ public class BallerinaWorkspaceManager implements WorkspaceManager {
             BuildOptions options = new BuildOptionsBuilder().offline(true).build();
             if (projectKind == ProjectKind.BUILD_PROJECT) {
                 project = BuildProject.load(projectRoot, options);
-            } else {
+            } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
                 project = SingleFileProject.load(projectRoot, options);
+            } else {
+                // Projects other than single file and build will use the ProjectLoader.
+                project = ProjectLoader.loadProject(projectRoot, options);
             }
             clientLogger.logTrace("Operation '" + operationName +
                                           "' {project: '" + projectRoot.toUri().toString() + "' kind: '" +
                                           project.kind().name().toLowerCase(Locale.getDefault()) + "'} created");
-            ProjectPair projectPair = ProjectPair.from(project);
-            return projectPair;
+            return ProjectPair.from(project);
         } catch (ProjectException e) {
             clientLogger.notifyUser("Project load failed: " + e.getMessage(), e);
             clientLogger.logError(LSContextOperation.CREATE_PROJECT, "Operation '" + operationName +
