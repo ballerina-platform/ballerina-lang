@@ -116,7 +116,7 @@ public class TestExportModules {
             Assert.fail("Compilation contains errors");
         }
         CompileResult compileResult = BCompileUtil.compile("export_modules/build_project_with_non_export_import");
-        Assert.assertEquals(compileResult.getErrorCount(), 1);
+        Assert.assertEquals(compileResult.getErrorCount(), 3);
         Assert.assertTrue(compileResult.getDiagnostics()[0].message()
                                   .contains("cannot resolve module 'foo/winery.storage:0.1.0 is not exported'"));
     }
