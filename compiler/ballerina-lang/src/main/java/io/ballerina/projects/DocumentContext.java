@@ -40,6 +40,8 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 import java.util.StringJoiner;
 
+import static io.ballerina.projects.util.ProjectConstants.MODULE_NAME_SEPARATOR;
+
 /**
  * Maintains the internal state of a {@code Document} instance.
  * <p>
@@ -160,8 +162,8 @@ class DocumentContext {
         String firstModuleNamePart = handleQuotedIdentifier(identifierTokenList.get(0).text());
 
         // Check for langLib packages
-        if (PackageOrg.BALLERINA_ORG.equals(orgName) &&
-                PackageName.LANG_LIB_PACKAGE_NAME_PREFIX.equals(firstModuleNamePart)) {
+        String langLibModulePrefix = PackageName.LANG_LIB_PACKAGE_NAME_PREFIX + MODULE_NAME_SEPARATOR;
+        if (PackageOrg.BALLERINA_ORG.equals(orgName) && langLibModulePrefix.equals(firstModuleNamePart)) {
             // This a request to load a lang lib package
             // Lang lib package names take the form lang.{identifier}
             //  e.g, lang.int, lang.boolean lang.stream
