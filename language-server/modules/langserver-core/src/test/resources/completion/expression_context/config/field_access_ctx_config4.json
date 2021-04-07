@@ -6,6 +6,20 @@
   "source": "expression_context/source/field_access_ctx_source4.bal",
   "items": [
     {
+      "label": "data()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns a string with the character data of an xml value.  \n  \n  \n**Returns** `string`   \n- a string consisting of all the character data of `x`  \nThe character data of an xml value is as follows:  \n* the character data of a text item is a string with one character for each  \ncharacter information item represented by the text item;  \n* the character data of an element item is the character data of its children;  \n* the character data of a comment item is the empty string;  \n* the character data of a processing instruction item is the empty string;  \n* the character data of an empty xml sequence is the empty string;  \n* the character data of the concatenation of two xml sequences x1 and x2 is the  \nconcatenation of the character data of x1 and the character data of x2.  \n  \n"
+        }
+      },
+      "sortText": "D",
+      "insertText": "data()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "forEach(function () func)",
       "kind": "Function",
       "detail": "Function",
