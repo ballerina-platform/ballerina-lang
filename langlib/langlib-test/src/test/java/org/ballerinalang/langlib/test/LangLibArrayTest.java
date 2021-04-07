@@ -491,13 +491,13 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid sort key function return type: '(string|int)' is not an ordered type", 184, 62);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'anydata[]', found '(Person|error)[]'" ,195, 15);
+                "incompatible types: expected 'anydata[]', found '(Person|error)[]'", 195, 15);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected 'anydata[]', found '(Person|error)[]'" ,196, 15);
+                "incompatible types: expected 'anydata[]', found '(Person|error)[]'", 196, 15);
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "incompatible types: expected 'anydata[]', found 'function[]'", 199, 15);
         BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'anydata', found " +
-                        "'function (int) returns (int)'",199, 26);
+                        "'function (int) returns (int)'", 199, 26);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 
