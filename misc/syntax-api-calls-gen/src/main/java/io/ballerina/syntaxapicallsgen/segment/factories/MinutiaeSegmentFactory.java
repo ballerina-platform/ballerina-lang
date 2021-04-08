@@ -21,7 +21,7 @@ package io.ballerina.syntaxapicallsgen.segment.factories;
 import io.ballerina.compiler.syntax.tree.Minutiae;
 import io.ballerina.compiler.syntax.tree.MinutiaeList;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.syntaxapicallsgen.QuoterException;
+import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGenException;
 import io.ballerina.syntaxapicallsgen.segment.NodeFactorySegment;
 import io.ballerina.syntaxapicallsgen.segment.Segment;
 
@@ -73,10 +73,10 @@ public class MinutiaeSegmentFactory {
         } else if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
             methodName = CREATE_EOL_METHOD_NAME;
         } else if (minutiae.kind() == SyntaxKind.INVALID_NODE_MINUTIAE) {
-            throw new QuoterException("Invalid node minutiae found with text: " + minutiae.text() + " at " +
+            throw new SyntaxApiCallsGenException("Invalid node minutiae found with text: " + minutiae.text() + " at " +
                     minutiae.lineRange());
         } else {
-            throw new QuoterException("Unexpected Minutiae found");
+            throw new SyntaxApiCallsGenException("Unexpected Minutiae found");
         }
 
         // All minutiae factory methods accept only the text

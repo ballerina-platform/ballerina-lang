@@ -20,8 +20,8 @@ package io.ballerina.syntaxapicallsgen.parser;
 
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.syntaxapicallsgen.QuoterException;
-import io.ballerina.syntaxapicallsgen.config.QuoterConfig;
+import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGenException;
+import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.TextDocument;
@@ -44,18 +44,18 @@ import java.util.concurrent.TimeoutException;
  *
  * @since 2.0.0
  */
-public abstract class QuoterParser {
+public abstract class SyntaxApiCallsGenParser {
     private static final Set<String> SILENCED_ERRORS = Set.of("BCE0517");
     private final long timeoutMs;
 
-    protected QuoterParser(long timeoutMs) {
+    protected SyntaxApiCallsGenParser(long timeoutMs) {
         this.timeoutMs = timeoutMs;
     }
 
     /**
      * Creates a parser depending on the configuration given.
      */
-    public static QuoterParser fromConfig(QuoterConfig config) {
+    public static SyntaxApiCallsGenParser fromConfig(SyntaxApiCallsGenConfig config) {
         long timeoutMs = config.parserTimeout();
         switch (config.parser()) {
             case EXPRESSION:
@@ -88,9 +88,9 @@ public abstract class QuoterParser {
      *
      * @param document Document to parse.
      * @return Created syntax tree.
-     * @throws QuoterException If tree contains errors.
+     * @throws SyntaxApiCallsGenException If tree contains errors.
      */
-    protected SyntaxTree getSyntaxTree(TextDocument document) throws QuoterException {
+    protected SyntaxTree getSyntaxTree(TextDocument document) throws SyntaxApiCallsGenException {
         ExecutorService executor = Executors.newFixedThreadPool(1);
         Future<SyntaxTree> future = executor.submit(() -> SyntaxTree.from(document));
         executor.shutdown();
@@ -99,18 +99,18 @@ public abstract class QuoterParser {
         try {
             tree = future.get(timeoutMs, TimeUnit.MILLISECONDS);
         } catch (InterruptedException e) {
-            throw new QuoterException("Parsing was interrupted.");
+            throw new SyntaxApiCallsGenException("Parsing was interrupted.");
         } catch (ExecutionException e) {
-            throw new QuoterException("Executor failure because " + e.getCause().getMessage());
+            throw new SyntaxApiCallsGenException("Executor failure because " + e.getCause().getMessage());
         } catch (TimeoutException e) {
             future.cancel(true);
-            throw new QuoterException("Parsing was timed out.");
+            throw new SyntaxApiCallsGenException("Parsing was timed out.");
         }
 
         for (Diagnostic diagnostic : tree.diagnostics()) {
             if (diagnostic.diagnosticInfo().severity() == DiagnosticSeverity.ERROR) {
                 if (!SILENCED_ERRORS.contains(diagnostic.diagnosticInfo().code())) {
-                    throw new QuoterException(highlightDiagnostic(document, diagnostic));
+                    throw new SyntaxApiCallsGenException(highlightDiagnostic(document, diagnostic));
                 }
             }
         }
@@ -133,7 +133,7 @@ public abstract class QuoterParser {
      */
     protected void assertIf(boolean condition, String message) {
         if (!condition) {
-            throw new QuoterException(message);
+            throw new SyntaxApiCallsGenException(message);
         }
     }
 }

@@ -19,7 +19,7 @@
 package io.ballerina.syntaxapicallsgen.config;
 
 import com.google.gson.Gson;
-import io.ballerina.syntaxapicallsgen.BallerinaQuoter;
+import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGen;
 
 import java.io.File;
 import java.io.IOException;
@@ -37,7 +37,7 @@ import java.util.Objects;
  *
  * @since 2.0.0
  */
-public class QuoterConfig {
+public class SyntaxApiCallsGenConfig {
     public static final String SYNTAX_TREE_DESCRIPTOR_FILE = "syntax_tree_descriptor.json";
 
     private final File templateFile;
@@ -47,7 +47,7 @@ public class QuoterConfig {
     private final boolean ignoreMinutiae;
     private final Parser parser;
 
-    private QuoterConfig(Builder builder) {
+    private SyntaxApiCallsGenConfig(Builder builder) {
         this.templateFile = builder.templateFile;
         this.formatter = builder.formatter;
         this.formatterTabStart = builder.formatterTabStart;
@@ -129,7 +129,7 @@ public class QuoterConfig {
      * @return Parsed content of the children json file.
      */
     public Map<String, List<String>> readChildNamesJson() {
-        ClassLoader classLoader = BallerinaQuoter.class.getClassLoader();
+        ClassLoader classLoader = SyntaxApiCallsGen.class.getClassLoader();
         InputStream inputStream = classLoader.getResourceAsStream(SYNTAX_TREE_DESCRIPTOR_FILE);
         Gson gson = new Gson();
         Objects.requireNonNull(inputStream, "File open failed");
@@ -141,7 +141,8 @@ public class QuoterConfig {
     /**
      * Available parsers.
      * Will activate {@link io.ballerina.syntaxapicallsgen.parser.ExpressionParser},
-     * {@link io.ballerina.syntaxapicallsgen.parser.StatementParser} or {@link io.ballerina.syntaxapicallsgen.parser.ModuleParser}.
+     * {@link io.ballerina.syntaxapicallsgen.parser.StatementParser} or
+     * {@link io.ballerina.syntaxapicallsgen.parser.ModuleParser}.
      *
      * @since 2.0.0
      */
@@ -237,10 +238,10 @@ public class QuoterConfig {
         /**
          * Build the configuration object.
          */
-        public QuoterConfig build() {
+        public SyntaxApiCallsGenConfig build() {
             this.parser = Objects.requireNonNullElse(this.parser, Parser.MODULE);
             this.formatter = Objects.requireNonNullElse(this.formatter, Formatter.DEFAULT);
-            return new QuoterConfig(this);
+            return new SyntaxApiCallsGenConfig(this);
         }
     }
 }

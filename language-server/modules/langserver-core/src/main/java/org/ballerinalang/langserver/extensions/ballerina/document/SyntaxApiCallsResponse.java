@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.extensions.ballerina.document;
  *
  * @since 2.0.0
  */
-public class BallerinaSyntaxApiQuoteResponse {
+public class SyntaxApiCallsResponse {
     private String source;
 
     private String code;

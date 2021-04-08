@@ -19,19 +19,18 @@
 package io.ballerina.syntaxapicallsgen;
 
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.syntaxapicallsgen.config.QuoterConfig;
+import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 import io.ballerina.syntaxapicallsgen.formatter.SegmentFormatter;
-import io.ballerina.syntaxapicallsgen.parser.QuoterParser;
+import io.ballerina.syntaxapicallsgen.parser.SyntaxApiCallsGenParser;
 import io.ballerina.syntaxapicallsgen.segment.Segment;
 import io.ballerina.syntaxapicallsgen.segment.factories.NodeSegmentFactory;
 
 /**
- * Ballerina Quoter programme main class.
- * CLI will run via QuoterCommandLine
+ * Ballerina Syntax Api Calls Generator programme main class.
  *
  * @since 2.0.0
  */
-public class BallerinaQuoter {
+public class SyntaxApiCallsGen {
     /**
      * Run the process with the given configurations.
      *
@@ -39,9 +38,9 @@ public class BallerinaQuoter {
      * @param config     Configuration object
      * @return Generated Java code
      */
-    public static String generate(String sourceCode, QuoterConfig config) {
+    public static String generate(String sourceCode, SyntaxApiCallsGenConfig config) {
         try {
-            QuoterParser parser = QuoterParser.fromConfig(config);
+            SyntaxApiCallsGenParser parser = SyntaxApiCallsGenParser.fromConfig(config);
             NodeSegmentFactory factory = NodeSegmentFactory.fromConfig(config);
             SegmentFormatter formatter = SegmentFormatter.getFormatter(config);
 
@@ -51,10 +50,11 @@ public class BallerinaQuoter {
             Segment segment = factory.createNodeSegment(syntaxTreeNode);
             // 3. Format using the formatter
             return formatter.format(segment);
-        } catch (QuoterException exception) {
+        } catch (SyntaxApiCallsGenException exception) {
             throw exception;
         } catch (Exception exception) {
-            throw new QuoterException("There was an Exception when parsing. Please check your code.", exception);
+            throw new SyntaxApiCallsGenException("There was an Exception when parsing. Please check your code.",
+                    exception);
         }
     }
 }

@@ -16,7 +16,7 @@
 package org.ballerinalang.langserver.extensions.document;
 
 import org.ballerinalang.langserver.extensions.LSExtensionTestUtil;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxApiQuoteResponse;
+import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.jsonrpc.Endpoint;
@@ -28,18 +28,18 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 
 /**
- * Test SyntaxApiQuote methods.
+ * Test syntaxApiCallsGen methods.
  *
  * @since 2.0.0
  */
-public class SyntaxApiQuoteTest {
-    private final Path syntaxApiQuote = FileUtils.RES_DIR.resolve("extensions")
+public class SyntaxApiCallsGenTest {
+    private final Path syntaxApiCallsDir = FileUtils.RES_DIR.resolve("extensions")
             .resolve("document")
-            .resolve("syntaxApiQuote");
-    private final Path emptyFile = syntaxApiQuote.resolve("empty.bal");
-    private final Path mainFile = syntaxApiQuote.resolve("main.bal");
-    private final Path mainFileWoMinutiaeResult = syntaxApiQuote.resolve("main.no.minutiae.txt");
-    private final Path mainFileResult = syntaxApiQuote.resolve("main.result.txt");
+            .resolve("syntaxApiCalls");
+    private final Path emptyFile = syntaxApiCallsDir.resolve("empty.bal");
+    private final Path mainFile = syntaxApiCallsDir.resolve("main.bal");
+    private final Path mainFileWoMinutiaeResult = syntaxApiCallsDir.resolve("main.no.minutiae.txt");
+    private final Path mainFileResult = syntaxApiCallsDir.resolve("main.result.txt");
     private Endpoint serviceEndpoint;
 
     @BeforeClass
@@ -50,8 +50,8 @@ public class SyntaxApiQuoteTest {
     @Test(description = "Request for an empty Ballerina file")
     public void testEmptySourceFile() throws Exception {
         TestUtil.openDocument(serviceEndpoint, emptyFile);
-        BallerinaSyntaxApiQuoteResponse response = LSExtensionTestUtil
-                .getBallerinaSyntaxApiQuote(emptyFile.toString(), false, this.serviceEndpoint);
+        SyntaxApiCallsResponse response = LSExtensionTestUtil
+                .getBallerinaSyntaxApiCalls(emptyFile.toString(), false, this.serviceEndpoint);
         Assert.assertTrue(response.isParseSuccess());
         Assert.assertEquals(response.getSource(), "");
         Assert.assertEquals(response.getCode(), "" +
@@ -66,8 +66,8 @@ public class SyntaxApiQuoteTest {
     @Test(description = "Request for a sample Ballerina file")
     public void testSampleBallerinaFile() throws Exception {
         TestUtil.openDocument(serviceEndpoint, mainFile);
-        BallerinaSyntaxApiQuoteResponse response = LSExtensionTestUtil
-                .getBallerinaSyntaxApiQuote(mainFile.toString(), false, this.serviceEndpoint);
+        SyntaxApiCallsResponse response = LSExtensionTestUtil
+                .getBallerinaSyntaxApiCalls(mainFile.toString(), false, this.serviceEndpoint);
         String mainFileContent = new String(Files.readAllBytes(mainFile));
         String mainFileResultContent = new String(Files.readAllBytes(mainFileResult));
         Assert.assertTrue(response.isParseSuccess());
@@ -79,8 +79,8 @@ public class SyntaxApiQuoteTest {
     @Test(description = "Request for a sample Ballerina file without minutiae")
     public void testSampleBallerinaFileWithoutMinutiae() throws Exception {
         TestUtil.openDocument(serviceEndpoint, mainFile);
-        BallerinaSyntaxApiQuoteResponse response = LSExtensionTestUtil
-                .getBallerinaSyntaxApiQuote(mainFile.toString(), true, this.serviceEndpoint);
+        SyntaxApiCallsResponse response = LSExtensionTestUtil
+                .getBallerinaSyntaxApiCalls(mainFile.toString(), true, this.serviceEndpoint);
         String mainFileContent = new String(Files.readAllBytes(mainFile));
         String mainFileResultContent = new String(Files.readAllBytes(mainFileWoMinutiaeResult));
         Assert.assertTrue(response.isParseSuccess());

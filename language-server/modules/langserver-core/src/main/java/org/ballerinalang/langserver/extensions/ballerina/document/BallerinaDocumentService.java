@@ -30,7 +30,7 @@ import java.util.concurrent.CompletableFuture;
 @JsonSegment("ballerinaDocument")
 public interface BallerinaDocumentService {
     @JsonRequest
-    CompletableFuture<BallerinaSyntaxApiQuoteResponse> syntaxApiQuote(BallerinaSyntaxApiQuoteRequest request);
+    CompletableFuture<SyntaxApiCallsResponse> syntaxApiCalls(SyntaxApiCallsRequest request);
 
     @JsonRequest
     CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTree(BallerinaSyntaxTreeRequest request);

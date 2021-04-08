@@ -1,4 +1,4 @@
-module io.ballerina.quoter {
+module io.ballerina.syntaxapicallsgen {
     requires java.sql;
     requires com.google.gson;
     requires io.ballerina.parser;

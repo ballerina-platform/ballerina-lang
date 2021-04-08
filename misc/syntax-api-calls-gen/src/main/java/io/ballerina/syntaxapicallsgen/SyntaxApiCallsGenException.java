@@ -23,12 +23,12 @@ package io.ballerina.syntaxapicallsgen;
  *
  * @since 2.0.0
  */
-public class QuoterException extends RuntimeException {
-    public QuoterException(String msg) {
+public class SyntaxApiCallsGenException extends RuntimeException {
+    public SyntaxApiCallsGenException(String msg) {
         super(msg);
     }
 
-    public QuoterException(String msg, Throwable cause) {
+    public SyntaxApiCallsGenException(String msg, Throwable cause) {
         super(msg, cause);
     }
 }

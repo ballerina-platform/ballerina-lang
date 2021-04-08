@@ -21,8 +21,8 @@ package io.ballerina.syntaxapicallsgen.segment.factories;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.syntaxapicallsgen.QuoterException;
-import io.ballerina.syntaxapicallsgen.config.QuoterConfig;
+import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGenException;
+import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 import io.ballerina.syntaxapicallsgen.segment.Segment;
 import io.ballerina.syntaxapicallsgen.segment.factories.cache.ChildNamesCache;
 import io.ballerina.syntaxapicallsgen.segment.factories.cache.NodeFactoryMethodCache;
@@ -47,10 +47,10 @@ public class NodeSegmentFactory {
     /**
      * Use the parameter name from the config to create a cache and the factory.
      *
-     * @param config {@link QuoterConfig} object to load configurations.
+     * @param config {@link SyntaxApiCallsGenConfig} object to load configurations.
      * @return Created factory.
      */
-    public static NodeSegmentFactory fromConfig(QuoterConfig config) {
+    public static NodeSegmentFactory fromConfig(SyntaxApiCallsGenConfig config) {
         return new NodeSegmentFactory(
                 ChildNamesCache.fromConfig(config),
                 NodeFactoryMethodCache.create(),
@@ -72,7 +72,7 @@ public class NodeSegmentFactory {
         } else if (node instanceof NonTerminalNode) {
             return nonTerminalSegmentFactory.createNonTerminalSegment((NonTerminalNode) node);
         } else {
-            throw new QuoterException("Expected non terminal or token. " +
+            throw new SyntaxApiCallsGenException("Expected non terminal or token. " +
                     "Found unexpected node type for: " + node);
         }
     }

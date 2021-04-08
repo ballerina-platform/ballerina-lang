@@ -19,7 +19,7 @@
 package io.ballerina.syntaxapicallsgen.segment.factories.cache;
 
 import io.ballerina.compiler.syntax.tree.NodeFactory;
-import io.ballerina.syntaxapicallsgen.QuoterException;
+import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGenException;
 
 import java.lang.reflect.Method;
 import java.util.HashMap;
@@ -64,6 +64,6 @@ public class NodeFactoryMethodCache {
         if (cache.containsKey(name)) {
             return cache.get(name);
         }
-        throw new QuoterException("Failed to find method " + name);
+        throw new SyntaxApiCallsGenException("Failed to find method " + name);
     }
 }

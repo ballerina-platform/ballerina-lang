@@ -19,8 +19,8 @@
 package io.ballerina.syntaxapicallsgen.test.e2e;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.syntaxapicallsgen.BallerinaQuoter;
-import io.ballerina.syntaxapicallsgen.config.QuoterConfig;
+import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGen;
+import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 import io.ballerina.syntaxapicallsgen.test.FileReaderUtils;
 import io.ballerina.syntaxapicallsgen.test.TemplateCode;
 import net.openhft.compiler.CachedCompiler;
@@ -45,9 +45,9 @@ public abstract class AbstractSegmentTest {
      * @param config Configuration to run
      * @return Output from the generated code.
      */
-    protected SyntaxTree createSegmentAndRun(String sourceCode, QuoterConfig config) {
+    protected SyntaxTree createSegmentAndRun(String sourceCode, SyntaxApiCallsGenConfig config) {
         try {
-            String javaCode = BallerinaQuoter.generate(sourceCode, config);
+            String javaCode = SyntaxApiCallsGen.generate(sourceCode, config);
             TemplateCode templateCode = AccessController.doPrivileged(new TemplatePrivilegedAction(javaCode));
             return templateCode.getNode().syntaxTree();
         } catch (Exception exception) {
@@ -64,16 +64,17 @@ public abstract class AbstractSegmentTest {
      * @param formatter    Base formatter name to use.
      * @param templateFile Template to use for dynamic class loading.
      */
-    protected void testForGeneratedCode(String sourceCode, QuoterConfig.Formatter formatter, File templateFile)
+    protected void testForGeneratedCode(String sourceCode, SyntaxApiCallsGenConfig.Formatter formatter,
+                                        File templateFile)
             throws URISyntaxException {
         sourceCode = sourceCode.trim();
-        QuoterConfig config = new QuoterConfig.Builder()
+        SyntaxApiCallsGenConfig config = new SyntaxApiCallsGenConfig.Builder()
                 .templateFile(templateFile)
                 .formatter(formatter)
                 .formatterTabStart(2)
                 .parserTimeout(10000)
                 .ignoreMinutiae(false)
-                .parser(QuoterConfig.Parser.MODULE)
+                .parser(SyntaxApiCallsGenConfig.Parser.MODULE)
                 .build();
         SyntaxTree tree = createSegmentAndRun(sourceCode, config);
         Assert.assertEquals(tree.toSourceCode().trim(), sourceCode);
@@ -89,9 +90,9 @@ public abstract class AbstractSegmentTest {
         try {
             File templateDefaultFile = FileReaderUtils.getResourceFile("template-default.java");
             File templateVariableFile = FileReaderUtils.getResourceFile("template-variable.java");
-            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.DEFAULT, templateDefaultFile);
-            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.VARIABLE, templateVariableFile);
-            testForGeneratedCode(sourceCode, QuoterConfig.Formatter.NONE, templateDefaultFile);
+            testForGeneratedCode(sourceCode, SyntaxApiCallsGenConfig.Formatter.DEFAULT, templateDefaultFile);
+            testForGeneratedCode(sourceCode, SyntaxApiCallsGenConfig.Formatter.VARIABLE, templateVariableFile);
+            testForGeneratedCode(sourceCode, SyntaxApiCallsGenConfig.Formatter.NONE, templateDefaultFile);
         } catch (URISyntaxException e) {
             throw new AssertionError(e);
         }

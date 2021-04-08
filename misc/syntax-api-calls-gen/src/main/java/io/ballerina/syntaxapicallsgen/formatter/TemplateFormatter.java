@@ -18,7 +18,7 @@
 
 package io.ballerina.syntaxapicallsgen.formatter;
 
-import io.ballerina.syntaxapicallsgen.config.QuoterConfig;
+import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 import io.ballerina.syntaxapicallsgen.segment.Segment;
 
 import java.io.IOException;
@@ -48,7 +48,7 @@ public class TemplateFormatter extends SegmentFormatter {
      * @param config Configuration object.
      * @return Created formatter.
      */
-    public static TemplateFormatter fromConfig(QuoterConfig config) throws IOException {
+    public static TemplateFormatter fromConfig(SyntaxApiCallsGenConfig config) throws IOException {
         String template = config.readTemplateFile();
         int indent = config.formatterTabStart();
         return new TemplateFormatter(SegmentFormatter.getInternalFormatter(config), template, indent);

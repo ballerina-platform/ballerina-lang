@@ -27,7 +27,7 @@ import io.ballerina.tools.text.TextDocuments;
  *
  * @since 2.0.0
  */
-public class ModuleParser extends QuoterParser {
+public class ModuleParser extends SyntaxApiCallsGenParser {
     public ModuleParser(long timeoutMs) {
         super(timeoutMs);
     }

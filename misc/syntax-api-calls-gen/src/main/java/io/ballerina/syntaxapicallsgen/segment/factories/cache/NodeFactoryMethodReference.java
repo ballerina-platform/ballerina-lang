@@ -19,7 +19,7 @@
 package io.ballerina.syntaxapicallsgen.segment.factories.cache;
 
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.syntaxapicallsgen.QuoterException;
+import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGenException;
 import io.ballerina.syntaxapicallsgen.segment.NodeFactorySegment;
 import io.ballerina.syntaxapicallsgen.segment.factories.SegmentFactory;
 
@@ -76,7 +76,8 @@ public class NodeFactoryMethodReference {
         String fullParameter = parameterGenericTypes[parameterIndex + offset].getTypeName();
         int lastDot = fullParameter.lastIndexOf(DOT_CHAR);
         if (lastDot == -1) {
-            throw new QuoterException("Attempted to extract generic type of a parameter without generic type");
+            throw new SyntaxApiCallsGenException("" +
+                    "Attempted to extract generic type of a parameter without generic type");
         }
         return fullParameter.substring(lastDot + 1, fullParameter.length() - 1);
     }

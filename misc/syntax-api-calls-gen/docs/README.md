@@ -1,4 +1,4 @@
-# Quoter Tool - Implementation
+# Syntax Api Calls Generator Tool - Implementation
 
 > This document explains the implementation of the tool in detail.
 
@@ -131,7 +131,7 @@ Following is `TemplateFormatter` with `DefaultFormatter` as the internal formatt
 ```java
 import io.ballerina.compiler.syntax.tree.*;
 
-class QuoterTest {
+class SyntaxApiCallsGenTest {
     public static void main(String[] args) {
         Node node = NodeFactory.createModulePartNode(
                 NodeFactory.createNodeList(),
@@ -150,7 +150,7 @@ class QuoterTest {
 
 ### Configuration Management
 
-To change how the internal settings work, the `QuoterConfig` class can be used.
+To change how the internal settings work, the `SyntaxApiCallsGenConfig` class can be used.
 
 ## Testing
 

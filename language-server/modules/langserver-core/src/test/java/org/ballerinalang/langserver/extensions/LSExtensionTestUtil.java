@@ -22,12 +22,12 @@ import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConn
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorResponse;
 import org.ballerinalang.langserver.extensions.ballerina.connector.BallerinaConnectorsResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.ASTModification;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxApiQuoteRequest;
-import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxApiQuoteResponse;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeByRangeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeModifyRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaSyntaxTreeResponse;
+import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsRequest;
+import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxApiCallsResponse;
 import org.ballerinalang.langserver.util.FileUtils;
 import org.ballerinalang.langserver.util.TestUtil;
 import org.eclipse.lsp4j.Range;
@@ -49,7 +49,7 @@ public class LSExtensionTestUtil {
     private static final String SYNTAX_TREE_MODIFY = "ballerinaDocument/syntaxTreeModify";
     private static final String SYNTAX_TREE_BY_RANGE = "ballerinaDocument/syntaxTreeByRange";
     private static final String SYNTAX_TREE_LOCATE = "ballerinaDocument/syntaxTreeLocate";
-    private static final String SYNTAX_API_QUOTE = "ballerinaDocument/syntaxApiQuote";
+    private static final String SYNTAX_API_QUOTE = "ballerinaDocument/syntaxApiCalls";
     private static final String GET_CONNECTORS = "ballerinaConnector/connectors";
     private static final String GET_CONNECTOR = "ballerinaConnector/connector";
     private static final Gson GSON = new Gson();
@@ -118,23 +118,23 @@ public class LSExtensionTestUtil {
         BallerinaSyntaxTreeByRangeRequest request = new BallerinaSyntaxTreeByRangeRequest(
                 TestUtil.getTextDocumentIdentifier(filePath), range);
         CompletableFuture result = serviceEndpoint.request(SYNTAX_TREE_LOCATE, request);
-        return  GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
+        return GSON.fromJson(getResult(result), BallerinaSyntaxTreeResponse.class);
     }
 
     /**
-     * Get the ballerinaDocument/syntaxApiQuote response.
+     * Get the ballerinaDocument/syntaxApiCalls response.
      *
      * @param filePath        Path of the Bal file
      * @param ignoreMinutiae  Whether to ignore minutiae in source
      * @param serviceEndpoint Service Endpoint to Language Server
      * @return {@link String}   Response as String
      */
-    public static BallerinaSyntaxApiQuoteResponse getBallerinaSyntaxApiQuote(String filePath, boolean ignoreMinutiae,
-                                                                             Endpoint serviceEndpoint) {
-        BallerinaSyntaxApiQuoteRequest request = new BallerinaSyntaxApiQuoteRequest(
+    public static SyntaxApiCallsResponse getBallerinaSyntaxApiCalls(String filePath, boolean ignoreMinutiae,
+                                                                    Endpoint serviceEndpoint) {
+        SyntaxApiCallsRequest request = new SyntaxApiCallsRequest(
                 TestUtil.getTextDocumentIdentifier(filePath), ignoreMinutiae);
         CompletableFuture<?> result = serviceEndpoint.request(SYNTAX_API_QUOTE, request);
-        return GSON.fromJson(getResult(result), BallerinaSyntaxApiQuoteResponse.class);
+        return GSON.fromJson(getResult(result), SyntaxApiCallsResponse.class);
     }
 
     private static JsonObject getResult(CompletableFuture result) {

@@ -18,7 +18,7 @@
 
 package io.ballerina.syntaxapicallsgen.formatter;
 
-import io.ballerina.syntaxapicallsgen.config.QuoterConfig;
+import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 import io.ballerina.syntaxapicallsgen.segment.Segment;
 
 import java.io.IOException;
@@ -36,7 +36,7 @@ public abstract class SegmentFormatter {
      * @param config Configuration object.
      * @return Created formatter.
      */
-    public static SegmentFormatter getFormatter(QuoterConfig config) throws IOException {
+    public static SegmentFormatter getFormatter(SyntaxApiCallsGenConfig config) throws IOException {
         if (config.useTemplate()) {
             return TemplateFormatter.fromConfig(config);
         } else {
@@ -51,7 +51,7 @@ public abstract class SegmentFormatter {
      * @param config Configuration object.
      * @return Created formatter.
      */
-    protected static SegmentFormatter getInternalFormatter(QuoterConfig config) {
+    protected static SegmentFormatter getInternalFormatter(SyntaxApiCallsGenConfig config) {
         switch (config.formatter()) {
             case NONE:
                 return new NoFormatter();

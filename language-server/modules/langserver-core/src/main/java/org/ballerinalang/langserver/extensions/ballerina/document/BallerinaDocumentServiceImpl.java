@@ -22,8 +22,8 @@ import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
-import io.ballerina.syntaxapicallsgen.BallerinaQuoter;
-import io.ballerina.syntaxapicallsgen.config.QuoterConfig;
+import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGen;
+import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 import org.ballerinalang.diagramutil.DiagramUtil;
 import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.LSContextOperation;
@@ -61,9 +61,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
     }
 
     @Override
-    public CompletableFuture<BallerinaSyntaxApiQuoteResponse> syntaxApiQuote(BallerinaSyntaxApiQuoteRequest request) {
+    public CompletableFuture<SyntaxApiCallsResponse> syntaxApiCalls(SyntaxApiCallsRequest request) {
         return CompletableFuture.supplyAsync(() -> {
-            BallerinaSyntaxApiQuoteResponse reply = new BallerinaSyntaxApiQuoteResponse();
+            SyntaxApiCallsResponse reply = new SyntaxApiCallsResponse();
             String fileUri = request.getDocumentIdentifier().getUri();
             Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
             if (filePath.isEmpty()) {
@@ -76,14 +76,14 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                     return reply;
                 }
                 // Create the config object
-                QuoterConfig quoterConfig = new QuoterConfig.Builder()
+                SyntaxApiCallsGenConfig syntaxApiCallsGenConfig = new SyntaxApiCallsGenConfig.Builder()
                         .ignoreMinutiae(request.getIgnoreMinutiae()).build();
 
                 // Get the source file content.
                 String srcContent = srcFile.get().textDocument().toString();
 
                 // Get the generated syntax API quote.
-                String javaCode = BallerinaQuoter.generate(srcContent, quoterConfig);
+                String javaCode = SyntaxApiCallsGen.generate(srcContent, syntaxApiCallsGenConfig);
 
                 // Preparing the response.
                 reply.setSource(srcFile.get().syntaxTree().toSourceCode());
@@ -91,9 +91,9 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
                 reply.setParseSuccess(reply.getCode() != null);
             } catch (Throwable e) {
                 reply.setParseSuccess(false);
-                String msg = "Operation 'ballerinaDocument/syntaxApiQuote' failed!";
-                this.clientLogger.logError(DocumentContext.DC_API_QUOTER, msg, e, request.getDocumentIdentifier(),
-                        (Position) null);
+                String msg = "Operation 'ballerinaDocument/syntaxApiCalls' failed!";
+                this.clientLogger.logError(DocumentContext.DC_SYNTAX_API_CALLS, msg, e,
+                        request.getDocumentIdentifier(), (Position) null);
             }
             return reply;
         });

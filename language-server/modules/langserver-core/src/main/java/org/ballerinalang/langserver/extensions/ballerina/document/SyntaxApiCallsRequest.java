@@ -22,20 +22,20 @@ import org.eclipse.lsp4j.TextDocumentIdentifier;
  *
  * @since 2.0.0
  */
-public class BallerinaSyntaxApiQuoteRequest {
+public class SyntaxApiCallsRequest {
 
     private TextDocumentIdentifier documentIdentifier;
     private boolean ignoreMinutiae;
 
-    public BallerinaSyntaxApiQuoteRequest() {
+    public SyntaxApiCallsRequest() {
     }
 
-    public BallerinaSyntaxApiQuoteRequest(TextDocumentIdentifier documentIdentifier) {
+    public SyntaxApiCallsRequest(TextDocumentIdentifier documentIdentifier) {
         this.documentIdentifier = documentIdentifier;
         this.ignoreMinutiae = false;
     }
 
-    public BallerinaSyntaxApiQuoteRequest(TextDocumentIdentifier documentIdentifier, boolean ignoreMinutiae) {
+    public SyntaxApiCallsRequest(TextDocumentIdentifier documentIdentifier, boolean ignoreMinutiae) {
         this.documentIdentifier = documentIdentifier;
         this.ignoreMinutiae = ignoreMinutiae;
     }

@@ -18,7 +18,7 @@
 
 package io.ballerina.syntaxapicallsgen.segment.factories.cache;
 
-import io.ballerina.syntaxapicallsgen.config.QuoterConfig;
+import io.ballerina.syntaxapicallsgen.config.SyntaxApiCallsGenConfig;
 
 import java.util.List;
 import java.util.Map;
@@ -44,7 +44,7 @@ public class ChildNamesCache {
      * @param config Configuration object with Json location.
      * @return Created cache.
      */
-    public static ChildNamesCache fromConfig(QuoterConfig config) {
+    public static ChildNamesCache fromConfig(SyntaxApiCallsGenConfig config) {
         return new ChildNamesCache(config.readChildNamesJson());
     }
 

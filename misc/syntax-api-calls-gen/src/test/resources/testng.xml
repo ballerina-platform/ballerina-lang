@@ -19,8 +19,8 @@ under the License.
 
 <!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd" >
 
-<suite name="ballerina-quoter-test-suite">
-    <test name="ballerina-quoter-test" preserve-order="true" parallel="false" enabled="true">
+<suite name="ballerina-syntaxapicallsgen-test-suite">
+    <test name="ballerina-syntaxapicallsgen-test" preserve-order="true" parallel="false" enabled="true">
         <packages>
             <package name="io.ballerina.syntaxapicallsgen.test.*"/>
         </packages>

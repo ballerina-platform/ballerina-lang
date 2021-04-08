@@ -18,7 +18,7 @@
 
 package io.ballerina.syntaxapicallsgen.formatter;
 
-import io.ballerina.syntaxapicallsgen.QuoterException;
+import io.ballerina.syntaxapicallsgen.SyntaxApiCallsGenException;
 import io.ballerina.syntaxapicallsgen.segment.NodeFactorySegment;
 import io.ballerina.syntaxapicallsgen.segment.Segment;
 import io.ballerina.syntaxapicallsgen.segment.factories.SegmentFactory;
@@ -55,7 +55,7 @@ public class VariableFormatter extends SegmentFormatter {
             variableCount = new HashMap<>();
             return MINUTIAE_LIST_DEF + processNode((NodeFactorySegment) segment);
         }
-        throw new QuoterException("Expected a valid node segment but fount parsed segment of " + segment);
+        throw new SyntaxApiCallsGenException("Expected a valid node segment but fount parsed segment of " + segment);
     }
 
     /**

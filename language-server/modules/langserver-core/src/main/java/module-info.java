@@ -37,5 +37,5 @@ module io.ballerina.language.server.core {
     requires gson;
     requires com.google.common;
     requires io.ballerina.diagram.util;
-    requires io.ballerina.quoter;
+    requires io.ballerina.syntaxapicallsgen;
 }

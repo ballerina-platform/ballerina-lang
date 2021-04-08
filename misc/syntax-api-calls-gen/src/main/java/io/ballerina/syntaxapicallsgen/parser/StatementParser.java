@@ -34,7 +34,7 @@ import io.ballerina.tools.text.TextDocuments;
  *
  * @since 2.0.0
  */
-public class StatementParser extends QuoterParser {
+public class StatementParser extends SyntaxApiCallsGenParser {
     public StatementParser(long timeoutMs) {
         super(timeoutMs);
     }
