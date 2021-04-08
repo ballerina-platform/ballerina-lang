@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
@@ -793,14 +794,13 @@ public class TypeParamAnalyzer {
                 .collect(Collectors.toList());
         BType restType = expType.restType;
         var flags = expType.flags;
+        BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
+                env.enclPkg.symbol.pkgID, expType, env.scope.owner, expType.tsymbol.pos, VIRTUAL);
+
         BInvokableType invokableType = new BInvokableType(paramTypes, restType,
-                                                          getMatchingBoundType(expType.retType, env, resolvedTypes),
-                                                          Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                                                                                            flags,
-                                                                                            env.enclPkg.symbol.pkgID,
-                                                                                            expType, env.scope.owner,
-                                                                                            expType.tsymbol.pos,
-                                                                                            VIRTUAL));
+                getMatchingBoundType(expType.retType, env, resolvedTypes), invokableTypeSymbol);
+
+        invokableTypeSymbol.returnType = invokableType.retType;
 
         if (Symbols.isFlagOn(flags, Flags.ISOLATED)) {
             invokableType.flags |= Flags.ISOLATED;
