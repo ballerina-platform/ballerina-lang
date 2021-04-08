@@ -5283,6 +5283,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.CLOSE_BRACE_TOKEN;
             case CLOSE_BRACKET:
             case MEMBER_ACCESS_KEY_EXPR_END:
+            case LIST_CONSTRUCTOR_MEMBER_END:
                 return SyntaxKind.CLOSE_BRACKET_TOKEN;
             case DOT:
                 return SyntaxKind.DOT_TOKEN;

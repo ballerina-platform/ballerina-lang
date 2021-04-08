@@ -83,6 +83,12 @@ public abstract class AbstractParserErrorHandler {
     public Solution recover(ParserRuleContext currentCtx, STToken nextToken, Object... args) {
         // Assumption: always comes here after a peek()
 
+        // TODO: Evaluate and enable early fail safe
+//        if (nextToken.isMissing()) {
+//            // Fail safe. We cannot reach error handler for a missing token.
+//            return getFailSafeSolution(currentCtx, nextToken);
+//        }
+
         if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
             SyntaxKind expectedTokenKind = getExpectedTokenKind(currentCtx);
             Solution fix = new Solution(Action.INSERT, currentCtx, expectedTokenKind, currentCtx.toString());
@@ -112,8 +118,13 @@ public abstract class AbstractParserErrorHandler {
         }
 
         // Fail safe. This means we can't find a path to recover.
+        return getFailSafeSolution(currentCtx, nextToken);
+    }
+
+    private Solution getFailSafeSolution(ParserRuleContext currentCtx, STToken nextToken) {
         Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
         sol.removedToken = consumeInvalidToken();
+        sol.isFailSafe = true;
         return sol;
     }
 
@@ -504,6 +515,7 @@ public abstract class AbstractParserErrorHandler {
         public SyntaxKind tokenKind;
         public STNode recoveredNode;
         public STToken removedToken;
+        public boolean isFailSafe = false;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
             this.action = action;
@@ -554,6 +566,6 @@ public abstract class AbstractParserErrorHandler {
      * @since 1.2.0
      */
     protected enum Action {
-        INSERT, REMOVE, KEEP;
+        INSERT, REMOVE, KEEP
     }
 }

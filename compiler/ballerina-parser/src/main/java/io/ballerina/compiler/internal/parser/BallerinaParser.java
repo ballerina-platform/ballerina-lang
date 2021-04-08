@@ -9507,13 +9507,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseListConstructorMemberEnd() {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case COMMA_TOKEN:
-                return parseComma();
+                return consume();
             case CLOSE_BRACKET_TOKEN:
                 return null;
             default:
-                recover(peek(), ParserRuleContext.LIST_CONSTRUCTOR_MEMBER_END);
+                recover(nextToken, ParserRuleContext.LIST_CONSTRUCTOR_MEMBER_END);
                 return parseListConstructorMemberEnd();
         }
     }
