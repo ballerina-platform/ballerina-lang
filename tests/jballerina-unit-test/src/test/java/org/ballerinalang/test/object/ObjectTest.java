@@ -427,8 +427,8 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "too many arguments in call to 'new()'", 18, 12);
         BAssertUtil.validateError(result, 1, "cannot infer type of the object from 'other'", 27, 19);
         BAssertUtil.validateError(result, 2, "invalid variable definition; can not infer the assignment type.", 27, 19);
-        BAssertUtil.validateError(result, 3, "too many arguments in call to 'null()'", 35, 24);
-        BAssertUtil.validateError(result, 4, "too many arguments in call to 'null()'", 39, 23);
+        BAssertUtil.validateError(result, 3, "too many arguments in call to 'new()'", 35, 24);
+        BAssertUtil.validateError(result, 4, "too many arguments in call to 'new()'", 39, 23);
     }
 
     @Test(description = "Negative test to test returning different type without type name")

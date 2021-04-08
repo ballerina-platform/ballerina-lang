@@ -67,6 +67,7 @@ import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -176,6 +177,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
         }
 
         return restParameterNode.paramName().get().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(ResourcePathParameterNode resourcePathParameterNode) {
+        return resourcePathParameterNode.paramName().apply(this);
     }
 
     @Override

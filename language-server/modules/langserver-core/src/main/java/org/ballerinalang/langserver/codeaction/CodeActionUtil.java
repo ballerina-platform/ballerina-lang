@@ -808,6 +808,17 @@ public class CodeActionUtil {
         return Optional.ofNullable(functionDefNode);
     }
 
+    /**
+     * Check if the provided union type contains at least one error member.
+     *
+     * @param unionTypeSymbol Union type
+     * @return true if the union type contains an error member
+     */
+    public static boolean hasErrorMemberType(UnionTypeSymbol unionTypeSymbol) {
+        return unionTypeSymbol.memberTypeDescriptors().stream()
+                .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
+    }
+
     private static String generateIfElseText(String varName, String spaces, String padding,
                                              List<String> memberTypes) {
         if (memberTypes.size() == 1) {
