@@ -48,6 +48,7 @@ import java.net.HttpURLConnection;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.List;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
@@ -272,6 +273,58 @@ public class TestCentralApiClient extends CentralAPIClient {
         when(this.client.newCall(any())).thenReturn(this.remoteCall);
 
         this.getPackage("bar", WINERY, "v2", ANY_PLATFORM, TEST_BAL_VERSION);
+    }
+    
+    @Test(description = "Test get package versions")
+    public void testGetPackageVersions() throws IOException, CentralClientException {
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/foo/" + WINERY)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_2)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        "[\"2.3.4\", \"1.2.3\"]"
+                ))
+                .build();
+        
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+        
+        List<String> versions = this.getPackageVersions("foo", WINERY, ANY_PLATFORM, TEST_BAL_VERSION);
+        Assert.assertEquals(versions.size(), 2);
+        Assert.assertEquals(versions.get(0), "2.3.4");
+        Assert.assertEquals(versions.get(1), "1.2.3");
+    }
+    
+    @Test(description = "Test get versions of non existing package")
+    public void testGetNonExistingPackageVersions() throws IOException, CentralClientException {
+        String resString = "{\"message\":\"package not found: ballerina/jballerina:*_any\"}";
+        
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/bar/" + WINERY)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_2)
+                .code(HttpURLConnection.HTTP_NOT_FOUND)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        resString
+                ))
+                .build();
+        
+        when(this.remoteCall.execute()).thenReturn(mockResponse);
+        when(this.client.newCall(any())).thenReturn(this.remoteCall);
+    
+        List<String> versions = this.getPackageVersions("bar", WINERY, ANY_PLATFORM, TEST_BAL_VERSION);
+        Assert.assertEquals(versions.size(), 0);
     }
 
     @Test(description = "Test push package")
