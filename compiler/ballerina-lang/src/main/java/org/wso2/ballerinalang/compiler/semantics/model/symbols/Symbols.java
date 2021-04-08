@@ -159,7 +159,9 @@ public class Symbols {
         if (type != null && type.tag == TypeTags.INVOKABLE) {
             BInvokableTypeSymbol invokableTypeSymbol =
                     createInvokableTypeSymbol(symTag, flags, pkgID, type, owner, pos, origin);
-            invokableTypeSymbol.returnType = ((BInvokableType) type).retType;
+            if (type instanceof BInvokableType) {
+                invokableTypeSymbol.returnType = ((BInvokableType) type).retType;
+            }
             return invokableTypeSymbol;
         }
         return new BTypeSymbol(symTag, flags, name, pkgID, type, owner, pos, origin);
