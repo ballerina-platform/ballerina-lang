@@ -491,6 +491,30 @@ isolated client class IsolatedClientClassWithPrivateMutableFields {
     }
 }
 
+isolated class IsolatedClassUsingSelf {
+    private int[][] arr = [[], []];
+
+    isolated function getMember(boolean bool) returns int[] {
+        lock {
+            if bool {
+                return getMember(self);
+            }
+
+            return self.getMemberInternal();
+        }
+    }
+
+    private isolated function getMemberInternal() returns int[] {
+        lock {
+            return self.arr[0].clone();
+        }
+    }
+}
+
+isolated function getMember(IsolatedClassUsingSelf foo) returns int[] {
+    return foo.getMember(false);
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

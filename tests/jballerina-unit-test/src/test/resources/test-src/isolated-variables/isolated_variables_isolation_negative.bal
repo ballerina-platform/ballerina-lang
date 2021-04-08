@@ -271,3 +271,27 @@ function getMapMemberViaFunctionCall2() returns int[] {
         return getMapMember(mp2);
     }
 }
+
+class NonIsolatedClass {
+    int[] m = [];
+
+    isolated function getMember() {
+        lock {
+            arr[0] = self.m;
+            arr.push(self.m);
+        }
+    }
+
+    isolated function getMember2() returns int[] {
+        lock {
+            arr[0] = self.getMemberInternal();
+            return getMemberUsingSelf(self);
+        }
+    }
+
+    isolated function getMemberInternal() returns int[] {
+        return self.m;
+    }
+}
+
+isolated function getMemberUsingSelf(NonIsolatedClass cl) returns int[] => cl.getMemberInternal();
