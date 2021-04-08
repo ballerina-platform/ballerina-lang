@@ -69,7 +69,6 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BTypeVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BUnionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BXMLType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.OrderedTypeVisitor;
 import org.wso2.ballerinalang.compiler.tree.BLangFunction;
 import org.wso2.ballerinalang.compiler.tree.BLangTypeDefinition;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangErrorBindingPattern;
@@ -314,7 +313,7 @@ public class Types {
             return true;
         }
         unresolvedTypes.add(pair);
-        OrderedTypeVisitor<BType, Boolean> orderedTypeVisitor = new BOrderedTypeVisitor(unresolvedTypes);
+        BTypeVisitor<BType, Boolean> orderedTypeVisitor = new BOrderedTypeVisitor(unresolvedTypes);
         return target.accept(orderedTypeVisitor, source);
     }
 
@@ -2647,7 +2646,7 @@ public class Types {
 
     };
 
-    private class BOrderedTypeVisitor implements OrderedTypeVisitor<BType, Boolean> {
+    private class BOrderedTypeVisitor implements BTypeVisitor<BType, Boolean> {
 
         Set<TypePair> unresolvedTypes;
 
@@ -2754,6 +2753,87 @@ public class Types {
 
         private boolean hasSameReadonlyFlag(BType source, BType target) {
             return Symbols.isFlagOn(target.flags, Flags.READONLY) == Symbols.isFlagOn(source.flags, Flags.READONLY);
+        }
+
+        @Override
+        public Boolean visit(BBuiltInRefType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BAnyType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BAnydataType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BMapType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BFutureType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BXMLType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BJSONType t, BType s) {
+            return false;
+        }
+
+
+        @Override
+        public Boolean visit(BObjectType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BRecordType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BStreamType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BTableType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BInvokableType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BIntersectionType tIntersectionType, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BErrorType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BTypedescType t, BType s) {
+            return false;
+        }
+
+        @Override
+        public Boolean visit(BParameterizedType t, BType s) {
+            return false;
         }
     };
 
