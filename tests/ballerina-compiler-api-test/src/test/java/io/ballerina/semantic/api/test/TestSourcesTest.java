@@ -58,7 +58,7 @@ public class TestSourcesTest {
     public void setup() {
         Project project = BCompileUtil.loadProject("test-src/test-project");
         Module baz = getModule(project, "baz");
-        model = baz.getCompilation().getSemanticModel();
+        model = project.currentPackage().getCompilation().getSemanticModel(baz.moduleId());
         DocumentId id = baz.testDocumentIds().iterator().next();
         srcFile = baz.document(id);
     }

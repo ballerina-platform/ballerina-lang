@@ -42,7 +42,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "Q",
-      "insertText": "field1: 0,\nfield2: 0,\nfield3: {}",
+      "insertText": "field1: 0,\nfield2: 0,\nfield3: {rec2f1: 0, rec2f2: 0}",
       "insertTextFormat": "Snippet"
     }
   ]

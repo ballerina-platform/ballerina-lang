@@ -99,7 +99,8 @@ public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
 
     @Override
     public ICounter getComplexityCounter() {
-        return oldSourceFile.getComplexityCounter();
+        // Sets the complexity value as 0 for ballerina source file coverages.
+        return new PartialCoverageModifiedCounter(null);
     }
 
     @Override
@@ -114,6 +115,10 @@ public class PartialCoverageModifiedSourceFile implements ISourceFileCoverage {
 
     @Override
     public ICounter getCounter(CounterEntity entity) {
+        if (entity.equals(CounterEntity.COMPLEXITY)) {
+            // Sets the complexity value as 0 for ballerina source file coverages.
+            return new PartialCoverageModifiedCounter(null);
+        }
         return oldSourceFile.getCounter(entity);
     }
 
