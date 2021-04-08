@@ -46,6 +46,7 @@ import java.util.List;
 
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
@@ -117,7 +118,7 @@ public class TestUtils {
                 .code(HttpURLConnection.HTTP_BAD_REQUEST)
                 .message("")
                 .body(ResponseBody.create(
-                        MediaType.get("application/json; charset=utf-8"),
+                        MediaType.get(APPLICATION_JSON),
                         Files.readAllBytes(balaFile)
                 ))
                 .build();
@@ -170,7 +171,7 @@ public class TestUtils {
                 .code(HttpURLConnection.HTTP_OK)
                 .message("")
                 .body(ResponseBody.create(
-                        MediaType.get("application/json; charset=utf-8"),
+                        MediaType.get(APPLICATION_JSON),
                         Files.readAllBytes(balaFile)
                 ))
                 .build();
@@ -203,7 +204,7 @@ public class TestUtils {
                 .code(HttpURLConnection.HTTP_OK)
                 .message("")
                 .body(ResponseBody.create(
-                        MediaType.get("application/json; charset=utf-8"),
+                        MediaType.get(APPLICATION_JSON),
                         Files.readAllBytes(balaFile)
                 ))
                 .build();

@@ -173,10 +173,12 @@ public class CentralAPIClient {
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                    // Package versions found
                     if (getVersionsResponse.code() == HttpsURLConnection.HTTP_OK) {
                         return getAsList(body.get().string());
                     }
     
+                    // Package is not found
                     if (getVersionsResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage().contains("package not found")) {
@@ -188,6 +190,7 @@ public class CentralAPIClient {
                         }
                     }
     
+                    // If request sent is wrong or error occurred at remote repository
                     if (getVersionsResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
                         getVersionsResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
@@ -276,6 +279,7 @@ public class CentralAPIClient {
                         }
                     }
     
+                    // When error occurred at remote repository
                     if (packagePushResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
@@ -352,6 +356,7 @@ public class CentralAPIClient {
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                    // If request sent is invalid or when package is not found
                     if (packagePullResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
                         packagePullResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
@@ -360,6 +365,7 @@ public class CentralAPIClient {
                         }
                     }
     
+                    //  When error occurred at remote repository
                     if (packagePullResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
