@@ -494,6 +494,12 @@ public class CentralAPIClient {
                 .build();
     }
 
+    /**
+     * Closes the http client.
+     *
+     * @param client the client
+     * @throws IOException when cache of the client cannot be closed
+     */
     protected void closeClient(OkHttpClient client) throws IOException {
         client.dispatcher().executorService().shutdown();
         client.connectionPool().evictAll();
