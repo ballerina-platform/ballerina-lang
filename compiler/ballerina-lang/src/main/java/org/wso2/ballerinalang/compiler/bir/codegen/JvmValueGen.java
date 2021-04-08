@@ -463,19 +463,17 @@ class JvmValueGen {
     private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                        JvmCastGen jvmCastGen) {
 
-        createObjectSetMethod(cw, fields, className, "set", "checkFieldUpdate", jvmCastGen);
+        createObjectSetMethod(cw, fields, className, "set", jvmCastGen, false);
     }
 
     private void createObjectSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                                        JvmCastGen jvmCastGen) {
 
-        createObjectSetMethod(cw, fields, className, "setOnInitialization", "checkFieldUpdateOnInitialization",
-                              jvmCastGen);
+        createObjectSetMethod(cw, fields, className, "setOnInitialization", jvmCastGen, true);
     }
 
     private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                                       String setFuncName, String checkFieldUpdateFuncName,
-                                       JvmCastGen jvmCastGen) {
+                                       String setFuncName, JvmCastGen jvmCastGen, boolean isInit) {
 
         MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, setFuncName,
                                           String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
@@ -489,12 +487,16 @@ class JvmValueGen {
         mv.visitVarInsn(ALOAD, fieldNameRegIndex);
         mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
                            true);
-        mv.visitInsn(DUP);
         fieldNameRegIndex = 3;
-        mv.visitVarInsn(ASTORE, fieldNameRegIndex);
-        mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, checkFieldUpdateFuncName,
-                           String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
+        if (isInit) {
+            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        } else {
+            mv.visitInsn(DUP);
+            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+            mv.visitVarInsn(ALOAD, valueRegIndex);
+            mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
+                               String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
+        }
 
         // sort the fields before generating switch case
         List<BField> sortedFields = new ArrayList<>(fields.values());

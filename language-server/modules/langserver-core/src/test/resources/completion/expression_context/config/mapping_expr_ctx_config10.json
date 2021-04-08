@@ -26,7 +26,7 @@
       "kind": "Field",
       "detail": "string",
       "sortText": "G",
-      "insertText": "field2: \"${1}\"",
+      "insertText": "field2: \"${2}\"",
       "insertTextFormat": "Snippet"
     },
     {
@@ -34,7 +34,7 @@
       "kind": "Field",
       "detail": "boolean",
       "sortText": "G",
-      "insertText": "field3: ${1:false}",
+      "insertText": "field3: ${3:false}",
       "insertTextFormat": "Snippet"
     },
     {

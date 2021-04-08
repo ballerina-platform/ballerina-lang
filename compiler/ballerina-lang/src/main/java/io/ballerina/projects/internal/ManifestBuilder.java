@@ -288,6 +288,7 @@ public class ManifestBuilder {
                 if (dependencyNode.entries().containsKey("repository")) {
                     String repository = getStringValueFromDependencyNode(dependencyNode, "repository");
                     dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
+                    continue;
                 }
                 dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion));
             }

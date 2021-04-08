@@ -23,14 +23,6 @@
           }
         ]
       }
-    },
-    {
-      "title": "Document all",
-      "command": {
-        "title": "Document all",
-        "command": "ADD_ALL_DOC",
-        "arguments": []
-      }
     }
   ]
 }
