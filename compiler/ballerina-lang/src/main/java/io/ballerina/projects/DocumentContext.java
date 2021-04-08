@@ -138,7 +138,7 @@ class DocumentContext {
             ModuleLoadRequest ballerinaiLoadReq =
                     new ModuleLoadRequest(PackageOrg.from(Names.BALLERINA_INTERNAL_ORG.value),
                                           packageName, ModuleName.from(packageName), null, scope,
-                                          DependencyResolutionType.INJECTED, null);
+                                          DependencyResolutionType.INJECTED);
             moduleLoadRequests.add(ballerinaiLoadReq);
         }
 
@@ -183,7 +183,7 @@ class DocumentContext {
 
         // Create the module load request
         return new ModuleLoadRequest(orgName, packageName, moduleName, null, scope,
-                                     DependencyResolutionType.SOURCE, importDcl.location());
+                                     DependencyResolutionType.SOURCE);
     }
 
     private String handleQuotedIdentifier(String identifier) {
