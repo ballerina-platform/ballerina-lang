@@ -41,7 +41,6 @@ final readonly & string[] immutableStringArray = ["hello", "world"];
 
 type IsolatedObjectType isolated object {
     int a;
-    string[] b;
 };
 
 isolated class IsolatedClassOverridingMutableFieldsInIncludedIsolatedObject {

@@ -687,8 +687,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "BCE3987", "invalid.read.only.class.inclusion.in.non.read.only.class"),
     INVALID_FIELD_IN_OBJECT_CONSTUCTOR_EXPR_WITH_READONLY_REFERENCE(
             "BCE3988", "invalid.field.in.object.constructor.expr.with.readonly.reference"),
-    MISMATCHING_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD("BCE3989", "mismatching.visibility.qualifiers.in" +
-            ".object.field"),
+    MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD(
+            "BCE3989", "mismatched.visibility.qualifiers.in.object.field"),
 
     MULTIPLE_RECEIVE_ACTION_NOT_YET_SUPPORTED("BCE3990", "multiple.receive.action.not.yet.supported"),
 
