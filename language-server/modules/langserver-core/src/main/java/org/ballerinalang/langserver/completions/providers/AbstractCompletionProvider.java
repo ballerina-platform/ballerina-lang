@@ -76,6 +76,7 @@ import java.util.stream.Collectors;
 
 import javax.annotation.Nonnull;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.ENUM;
 import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
@@ -83,6 +84,7 @@ import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.OBJECT_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.PARAMETER;
 import static io.ballerina.compiler.api.symbols.SymbolKind.RECORD_FIELD;
+import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE_DEFINITION;
 import static io.ballerina.compiler.api.symbols.SymbolKind.XMLNS;
 
 /**
@@ -174,7 +176,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 CompletionItem variableCItem = ParameterCompletionItemBuilder.build(paramSymbol.getName().get(),
                                                                                     typeName);
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, variableCItem));
-            } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS) {
+            } else if (symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS
+                    || symbol.kind() == ENUM) {
                 // Here skip all the package symbols since the package is added separately
                 CompletionItem typeCItem = TypeCompletionItemBuilder.build(symbol, symbol.getName().get());
                 completionItems.add(new SymbolCompletionItem(ctx, symbol, typeCItem));
@@ -219,8 +222,8 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         });
 
         completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
-
         completionItems.addAll(Arrays.asList(
+                new SymbolCompletionItem(context, null, TypeCompletionItemBuilder.build(null, "service")),
                 new SnippetCompletionItem(context, Snippet.KW_RECORD.get()),
                 new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()),
                 new SnippetCompletionItem(context, Snippet.DEF_RECORD_TYPE_DESC.get()),
@@ -421,16 +424,18 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         // Avoid the error symbol suggestion since it is covered by the lang.error lang-lib 
         List<Symbol> filteredList = visibleSymbols.stream()
                 .filter(symbol -> (symbol instanceof VariableSymbol || symbol.kind() == PARAMETER ||
-                        symbol.kind() == FUNCTION) && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
+                        symbol.kind() == FUNCTION || symbol.kind() == TYPE_DEFINITION || symbol.kind() == CLASS)
+                        && !symbol.getName().orElse("").equals(Names.ERROR.getValue()))
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
+        completionItems.addAll(this.getBasicAndOtherTypeCompletions(context));
         // TODO: anon function expressions, 
         return completionItems;
     }
 
     private List<LSCompletionItem> getBasicAndOtherTypeCompletions(BallerinaCompletionContext context) {
         // Types in the predeclared langlibs are handled and extracted via #getPredeclaredLangLibCompletions
-        List<String> types = Arrays.asList("readonly", "handle", "never", "json", "anydata", "any", "service", "byte");
+        List<String> types = Arrays.asList("readonly", "handle", "never", "json", "anydata", "any", "byte");
         List<LSCompletionItem> completionItems = new ArrayList<>();
         types.forEach(type -> {
             CompletionItem cItem = TypeCompletionItemBuilder.build(null, type);

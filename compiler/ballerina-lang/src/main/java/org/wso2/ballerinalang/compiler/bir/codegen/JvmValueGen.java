@@ -478,12 +478,11 @@ class JvmValueGen {
         mv.visitInsn(DUP);
         mv.visitVarInsn(ASTORE, fieldNameRegIndex);
         mv.visitVarInsn(ALOAD, valueRegIndex);
-        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
-                           String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
-
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", String.format("(L%s;L%s;)V", STRING_VALUE,
+                                                                                       OBJECT), false);
         // sort the fields before generating switch case
-        generateCasesForSetMethod(fields, className, jvmCastGen, mv, fieldNameRegIndex, valueRegIndex,
-                                  defaultCaseLabel);
+        generateCasesForObjectSetMethod(fields, className, jvmCastGen, mv, fieldNameRegIndex,
+                                        valueRegIndex, defaultCaseLabel);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
@@ -506,15 +505,15 @@ class JvmValueGen {
         mv.visitVarInsn(ASTORE, fieldNameRegIndex);
 
         // sort the fields before generating switch case
-        generateCasesForSetMethod(fields, className, jvmCastGen, mv, fieldNameRegIndex, valueRegIndex,
-                                  defaultCaseLabel);
+        generateCasesForObjectSetMethod(fields, className, jvmCastGen, mv, fieldNameRegIndex,
+                                        valueRegIndex, defaultCaseLabel);
         mv.visitMaxs(0, 0);
         mv.visitEnd();
     }
 
-    private void generateCasesForSetMethod(Map<String, BField> fields, String className, JvmCastGen jvmCastGen,
-                                           MethodVisitor mv, int fieldNameRegIndex, int valueRegIndex,
-                                           Label defaultCaseLabel) {
+    private void generateCasesForObjectSetMethod(Map<String, BField> fields, String className, JvmCastGen jvmCastGen,
+                                                 MethodVisitor mv, int fieldNameRegIndex, int valueRegIndex,
+                                                 Label defaultCaseLabel) {
         List<BField> sortedFields = new ArrayList<>(fields.values());
         sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 

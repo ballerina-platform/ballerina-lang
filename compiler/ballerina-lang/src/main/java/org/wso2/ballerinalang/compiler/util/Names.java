@@ -139,8 +139,8 @@ public class Names {
 
     // Names related to streams
     public static final Name CONSTRUCT_STREAM = new Name("construct");
-    public static final Name ABSTRACT_ITERATOR = new Name("_Iterator");
-    public static final Name ABSTRACT_CLOSEABLE_ITERATOR = new Name("_CloseableIterator");
+    public static final Name ABSTRACT_STREAM_ITERATOR = new Name("_StreamImplementor");
+    public static final Name ABSTRACT_STREAM_CLOSEABLE_ITERATOR = new Name("_CloseableStreamImplementor");
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");

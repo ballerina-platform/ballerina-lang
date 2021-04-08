@@ -300,7 +300,8 @@ public class CodeCoverageUtils {
                                                              Package packageInstance) {
         Collection<IClassCoverage> modifiedClasses = new ArrayList<>();
         for (IClassCoverage classCoverage : classesList) {
-            if (classCoverage.getSourceFileName() != null) {
+            if (classCoverage.getSourceFileName() != null &&
+                    classCoverage.getSourceFileName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
                 if (classCoverage.getSourceFileName().startsWith("tests/")) {
                     continue;
                 } else {

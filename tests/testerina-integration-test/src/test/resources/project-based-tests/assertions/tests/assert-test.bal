@@ -271,6 +271,14 @@ function testAssertTypeNotEquals() {
     test:assertNotEquals(arr1, arr2);
 }
 
+@test:Config {}
+function testAssertErrorEquals(){
+    error testError = error("test", message = "actual value is an error.");
+    // When actual value is an error, equality check should fail.
+    error? err = trap test:assertEquals(testError, 1);
+    test:assertTrue(err is error);
+}
+
 function intAdd(int a, int b) returns (int) {
     return a + b;
 }
