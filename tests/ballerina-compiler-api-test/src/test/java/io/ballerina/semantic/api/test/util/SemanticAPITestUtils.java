@@ -90,13 +90,13 @@ public class SemanticAPITestUtils {
         Project project = BCompileUtil.loadProject(projectPath);
         Package currentPackage = project.currentPackage();
         ModuleName modName = ModuleName.from(currentPackage.packageName(), moduleName);
-        return currentPackage.module(modName).getCompilation().getSemanticModel();
+        return currentPackage.getCompilation().getSemanticModel(currentPackage.module(modName).moduleId());
     }
 
     public static SemanticModel getSemanticModelOf(Project project, String moduleName) {
         Package currentPackage = project.currentPackage();
         ModuleName modName = ModuleName.from(currentPackage.packageName(), moduleName);
-        return currentPackage.module(modName).getCompilation().getSemanticModel();
+        return currentPackage.getCompilation().getSemanticModel(currentPackage.module(modName).moduleId());
     }
 
     public static void assertList(List<? extends Symbol> actualValues, List<String> expectedValues) {
