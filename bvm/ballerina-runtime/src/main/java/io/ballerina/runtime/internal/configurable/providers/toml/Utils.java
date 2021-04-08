@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
@@ -107,5 +108,9 @@ public class Utils {
 
     static boolean isPrimitiveType(int typeTag) {
         return typeTag <= TypeTags.BOOLEAN_TAG;
+    }
+
+    static String getModuleKey(Module module) {
+        return module.getOrg() + "." + module.getName();
     }
 }

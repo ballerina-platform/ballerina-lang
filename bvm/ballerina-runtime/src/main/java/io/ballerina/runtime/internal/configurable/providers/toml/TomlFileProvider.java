@@ -46,6 +46,7 @@ public class TomlFileProvider extends TomlProvider {
     @Override
     public void initialize() {
         super.tomlNode = getConfigTomlData(configPath);
+        super.initialize();
     }
 
     private TomlTableNode getConfigTomlData(Path configFilePath) {

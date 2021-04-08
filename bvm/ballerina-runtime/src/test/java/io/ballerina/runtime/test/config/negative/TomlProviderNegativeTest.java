@@ -289,6 +289,12 @@ public class TomlProviderNegativeTest {
         Module clashingModule2 = new Module("myOrg", "test_module.util.foo", "1.0.0");
         VariableKey[] clashingVariableKeys2 = getSimpleVariableKeys(clashingModule2);
 
+        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
+
+        Module clashingModule4 = new Module("test_module", "util", "1.0.0");
+        VariableKey[] clashingVariableKeys4 = getSimpleVariableKeys(clashingModule4);
+
         return new Object[][]{
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys)), "[SubModuleError1.toml:(1:1,2:21)] invalid " +
                         "module structure found for module 'test_module.util.foo'. Please provide the module name as " +
@@ -314,7 +320,38 @@ public class TomlProviderNegativeTest {
                                 ".test_module.util.foo'. Please provide the module name as '[myOrg.test_module.util" +
                                 ".foo]'",
                         "ClashingModuleError2"},
+                //TODO: Need to be passing
+                {Map.ofEntries(Map.entry(ROOT_MODULE, variableKeys), Map.entry(clashingModule3,
+                        clashingVariableKeys3)),
+                        "[ClashingOrgModuleError2.toml:(1:1,6:19)] the module name contains ambiguous part " +
+                                "'test_module' that is used in another package. Please provide the module name as " +
+                                "'[rootOrg.test_module]'",
+                        "ClashingOrgModuleError2"},
+                {Map.ofEntries(Map.entry(ROOT_MODULE, variableKeys), Map.entry(clashingModule4, clashingVariableKeys4)),
+                        "[ClashingOrgModuleError3.toml:(1:1,7:19)] the module name contains ambiguous part " +
+                                "'test_module' that is used in another package. Please provide the module name as " +
+                                "'[rootOrg.test_module]'",
+                        "ClashingOrgModuleError3"},
         };
+    }
+
+    @Test
+    public void testClashingOrgSubModules() {
+        VariableKey[] subVariableKeys = getSimpleVariableKeys(subModule);
+        Module clashingModule = new Module("test_module", "util.foo", "1.0.0");
+        VariableKey[] clashingVariableKeys = getSimpleVariableKeys(clashingModule);
+        Map<Module, VariableKey[]> variableMap =
+                Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule, clashingVariableKeys));
+        String errorMsg = "warning: invalid `Config.toml` file : \n" +
+                "[ClashingOrgModuleError1.toml:(4:0,6:18)] existing node 'foo'\n";
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog,
+                List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,
+                        getConfigPathForNegativeCases("ClashingOrgModuleError1.toml"), variableMap.keySet())));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 4);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 1);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), errorMsg);
     }
 
     private void validateTomlProviderErrors(String tomlFileName, String errorMsg,

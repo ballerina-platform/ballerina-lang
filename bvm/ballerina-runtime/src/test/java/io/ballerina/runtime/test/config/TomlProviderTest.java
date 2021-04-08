@@ -243,11 +243,20 @@ public class TomlProviderTest {
         VariableKey[] subVariableKeys = getSimpleVariableKeys(subModule);
         VariableKey[] importedVariableKeys = getSimpleVariableKeys(importedModule);
 
+        Module subModule2 = new Module("rootOrg", "test_module.mod1", "1.0.0");
+        VariableKey[] subVariableKeys2 = getSimpleVariableKeys(subModule2);
+
         Module clashingModule1 = new Module("myOrg", "test_module", "1.0.0");
         VariableKey[] clashingVariableKeys1 = getSimpleVariableKeys(clashingModule1);
 
         Module clashingModule2 = new Module("myOrg", "test_module.util.foo", "1.0.0");
         VariableKey[] clashingVariableKeys2 = getSimpleVariableKeys(clashingModule2);
+
+        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
+
+        Module clashingModule4 = new Module("test_module", "util", "1.0.0");
+        VariableKey[] clashingVariableKeys4 = getSimpleVariableKeys(clashingModule4);
 
         Set<Module> moduleSet = Set.of(ROOT_MODULE);
         return new Object[][]{
@@ -348,6 +357,55 @@ public class TomlProviderTest {
                         List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule4.toml"),
                                 Set.of(subModule, clashingModule2)))
                 },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys),
+                        Map.entry(clashingModule3, clashingVariableKeys3)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 11L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("white")),
+                                Map.entry(clashingVariableKeys3[0], 99L),
+                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("black"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule5.toml"),
+                                Set.of(subModule, clashingModule3)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                        Map.entry(clashingModule3, clashingVariableKeys3)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 56L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("green")),
+                                Map.entry(clashingVariableKeys3[0], 78L),
+                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("blue"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule6.toml"),
+                                Set.of(ROOT_MODULE, clashingModule2)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule2, clashingVariableKeys2),
+                        Map.entry(ROOT_MODULE, rootVariableKeys)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 56L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("green")),
+                                Map.entry(clashingVariableKeys2[0], 78L),
+                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("blue")),
+                                Map.entry(rootVariableKeys[0], 90L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("red"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule7.toml"),
+                                Set.of(ROOT_MODULE, subModule, clashingModule2)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                        Map.entry(clashingModule4, clashingVariableKeys4)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 100L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("aaa")),
+                                Map.entry(clashingVariableKeys4[0], 200L),
+                                Map.entry(clashingVariableKeys4[1], StringUtils.fromString("bbb"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule8.toml"),
+                                Set.of(ROOT_MODULE, clashingModule4)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(subModule2, subVariableKeys2),
+                        Map.entry(clashingModule3, clashingVariableKeys3)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 100L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("aaa")),
+                                Map.entry(clashingVariableKeys3[0], 200L),
+                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("bbb")),
+                        Map.entry(subVariableKeys2[0], 300L),
+                        Map.entry(subVariableKeys2[1], StringUtils.fromString("ccc"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule9.toml"),
+                                Set.of(subModule, subModule2, clashingModule3)))
+                },
         };
 
     }
@@ -420,6 +478,61 @@ public class TomlProviderTest {
         Assert.assertEquals(bArray1.get(1).toString(), "b");
         Assert.assertEquals(bArray2.get(0).toString(), "c");
         Assert.assertEquals(bArray2.get(1).toString(), "d");
+    }
+
+    @Test
+    public void testModuleAmbiguities() {
+        VariableKey[] rootVariableKeys = getSimpleVariableKeys(ROOT_MODULE);
+
+        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
+
+        Map<Module, VariableKey[]> variableMap = Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                Map.entry(clashingModule3, clashingVariableKeys3));
+                Map<VariableKey, Object> expectedValues = Map.ofEntries(Map.entry(rootVariableKeys[0], 56L),
+                        Map.entry(rootVariableKeys[1], StringUtils.fromString("green")),
+                        Map.entry(clashingVariableKeys3[0], 78L),
+                        Map.entry(clashingVariableKeys3[1], StringUtils.fromString("blue")));
+               List<ConfigProvider> providers =  List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
+                       "ConfigClashingModule6.toml"), Set.of(ROOT_MODULE, clashingModule3)));
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog, providers);
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
+            VariableKey key = keyEntry.getKey();
+            Object value = configValueMap.get(key);
+            Assert.assertNotNull(value, "value not found for variable : " + key.variable);
+            Assert.assertEquals(value, keyEntry.getValue());
+        }
+    }
+
+    @Test
+    public void testRootModuleAmbiguities() {
+        VariableKey[] subVariableKeys = getSimpleVariableKeys(subModule);
+
+        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
+
+        Map<Module, VariableKey[]> variableMap = Map.ofEntries(Map.entry(subModule, subVariableKeys),
+                Map.entry(clashingModule3, clashingVariableKeys3));
+        Map<VariableKey, Object> expectedValues = Map.ofEntries(Map.entry(subVariableKeys[0], 11L),
+                        Map.entry(subVariableKeys[1], StringUtils.fromString("white")),
+                        Map.entry(clashingVariableKeys3[0], 99L),
+                        Map.entry(clashingVariableKeys3[1], StringUtils.fromString("black")));
+        List<ConfigProvider> providers =
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule5.toml"),
+                Set.of(subModule, clashingModule3)));
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog, providers);
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
+            VariableKey key = keyEntry.getKey();
+            Object value = configValueMap.get(key);
+            Assert.assertNotNull(value, "value not found for variable : " + key.variable);
+            Assert.assertEquals(value, keyEntry.getValue());
+        }
     }
 
     @Test

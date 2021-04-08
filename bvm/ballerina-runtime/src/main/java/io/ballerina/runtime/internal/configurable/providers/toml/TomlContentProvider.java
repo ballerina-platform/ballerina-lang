@@ -46,6 +46,7 @@ public class TomlContentProvider extends TomlProvider {
             throw new TomlConfigException(String.format(EMPTY_CONFIG_STRING, CONFIG_DATA_ENV_VARIABLE));
         }
         super.tomlNode = Toml.read(configContent, CONFIG_DATA_ENV_VARIABLE).rootNode();
+        super.initialize();
     }
 
 }
