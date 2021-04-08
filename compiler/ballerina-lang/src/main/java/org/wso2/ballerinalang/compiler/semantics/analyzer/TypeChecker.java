@@ -6260,7 +6260,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 continue;
             }
 
-            if (!types.isUnionOfSimpleBasicTypesExceptNilType(type)) {
+            if (!types.isNonNilSimpleBasicTypeOrString(type)) {
                 dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                         BUnionType.create(null, symTable.intType, symTable.floatType,
                                 symTable.decimalType, symTable.stringType,

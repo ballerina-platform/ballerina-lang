@@ -35,7 +35,7 @@ public class StringTemplateLiteralNegativeTest {
     @Test(description = "Test string template literal with errors")
     public void testStringTemplateLiteralNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 4);
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
         //testUndefinedSymbol
         BAssertUtil.validateError(resultNegative, 0, "undefined symbol 'name'", 2, 32);
         //testIncompatibleTypes
@@ -45,6 +45,8 @@ public class StringTemplateLiteralNegativeTest {
                 "incompatible types: expected '(int|float|decimal|string|boolean)', found 'Foo'", 16, 21);
         BAssertUtil.validateError(resultNegative, 3,
                 "incompatible types: expected '(int|float|decimal|string|boolean)', found '()'", 21, 21);
+        BAssertUtil.validateError(resultNegative, 4,
+                "incompatible types: expected '(int|float|decimal|string|boolean)', found '(int[]|string[])'", 26, 21);
     }
 
     @Test(description = "Test string template literal syntax errors")

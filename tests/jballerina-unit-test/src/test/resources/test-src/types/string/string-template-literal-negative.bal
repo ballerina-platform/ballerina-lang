@@ -11,12 +11,17 @@ function stringTemplate2() returns (string) {
 
 public type Foo int|float|decimal|string|boolean|();
 
-function tringTemplate3() returns string {
+function stringTemplate3() returns string {
     Foo foo = 4;
     return string`${foo}`;
 }
 
-function tringTemplate4() returns string {
+function stringTemplate4() returns string {
     () foo = ();
     return string`${foo}`;
+}
+
+function stringTemplate5() returns string {
+    int[]|string[] x = [1, 2, 3];
+    return string`${x}`;
 }
