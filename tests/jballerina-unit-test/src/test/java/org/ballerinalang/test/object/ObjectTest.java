@@ -781,4 +781,12 @@ public class ObjectTest {
                 20, 18);
         Assert.assertEquals(result.getErrorCount(), 1);
     }
+
+    @Test(description = "Negative test to test calling lang lib functions for objects")
+    public void testLangLibFunctionInvocation() {
+        CompileResult result = BCompileUtil.compile("test-src/object/object_langlib_function_invocation_negative.bal");
+        BAssertUtil.validateError(result, 0, "undefined method 'toString' in object 'Person'",
+                8, 25);
+        Assert.assertEquals(result.getErrorCount(), 1);
+    }
 }

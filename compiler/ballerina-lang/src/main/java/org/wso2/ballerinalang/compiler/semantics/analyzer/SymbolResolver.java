@@ -651,7 +651,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             default:
                 bSymbol = symTable.notFoundSymbol;
         }
-        if (bSymbol == symTable.notFoundSymbol) {
+        if (type.tag != TypeTags.OBJECT && bSymbol == symTable.notFoundSymbol) {
             bSymbol = lookupMethodInModule(symTable.langValueModuleSymbol, name, env);
         }
 
