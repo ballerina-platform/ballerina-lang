@@ -91,17 +91,20 @@ public class PushCommand implements BLauncherCmd {
     private Path userDir;
     private PrintStream errStream;
     private PrintStream outStream;
+    private boolean exitWhenFinish;
 
     public PushCommand() {
-        userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        errStream = System.err;
-        outStream = System.out;
+        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.errStream = System.err;
+        this.outStream = System.out;
+        this.exitWhenFinish = true;
     }
 
-    public PushCommand(Path userDir, PrintStream outStream, PrintStream errStream) {
+    public PushCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.userDir = userDir;
         this.outStream = outStream;
         this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
     }
 
     @Override
@@ -109,8 +112,7 @@ public class PushCommand implements BLauncherCmd {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PUSH_COMMAND);
             outStream.println(commandUsageInfo);
-            // Exit status, zero for OK, non-zero for error
-            Runtime.getRuntime().exit(0);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -119,8 +121,7 @@ public class PushCommand implements BLauncherCmd {
             project = BuildProject.load(userDir);
         } catch (ProjectException e) {
             CommandUtil.printError(errStream, e.getMessage(), null, false);
-            // Exit status, zero for OK, non-zero for error
-            Runtime.getRuntime().exit(1);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -137,8 +138,7 @@ public class PushCommand implements BLauncherCmd {
                         String errMsg = "unsupported repository '" + repositoryName + "' found. Only '" +
                                 ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported";
                         CommandUtil.printError(this.errStream, errMsg, null, false);
-                        // Exit status, zero for OK, non-zero for error
-                        Runtime.getRuntime().exit(1);
+                        CommandUtil.exitError(this.exitWhenFinish);
                         return;
                     }
 
@@ -152,26 +152,24 @@ public class PushCommand implements BLauncherCmd {
                         pushPackage(project, client, settings);
                     } catch (ProjectException | CentralClientException e) {
                         CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                        // Exit status, zero for OK, non-zero for error
-                        Runtime.getRuntime().exit(1);
+                        CommandUtil.exitError(this.exitWhenFinish);
                         return;
                     }
                 }
             } catch (ProjectException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
-                // Exit status, zero for OK, non-zero for error
-                Runtime.getRuntime().exit(1);
+                CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
         } else {
             CommandUtil.printError(this.errStream, "too many arguments", "bal push ", false);
-            // Exit status, zero for OK, non-zero for error
-            Runtime.getRuntime().exit(1);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
-        // Exit status, zero for OK, non-zero for error
-        Runtime.getRuntime().exit(0);
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
     }
 
     @Override
