@@ -216,9 +216,11 @@ public class JvmTypeGen {
     private final IsAnydataUniqueVisitor isAnydataUniqueVisitor;
     private final JvmBStringConstantsGen stringConstantsGen;
     private final TypeHashVisitor typeHashVisitor;
+    private final PackageID packageID;
 
-    public JvmTypeGen(JvmBStringConstantsGen stringConstantsGen) {
+    public JvmTypeGen(JvmBStringConstantsGen stringConstantsGen, PackageID packageID) {
         this.stringConstantsGen = stringConstantsGen;
+        this.packageID = packageID;
         isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
         isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
         typeHashVisitor = new TypeHashVisitor();
@@ -1938,7 +1940,8 @@ public class JvmTypeGen {
         String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
         String fieldName = getTypeFieldName(toNameString(typeToLoad));
 
-        if (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)) {
+        // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
+        if (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX) && !this.packageID.equals(packageID)) {
             Integer hash = typeHashVisitor.visit(typeToLoad);
             String shape = typeToLoad.toString();
             typeHashVisitor.reset();
