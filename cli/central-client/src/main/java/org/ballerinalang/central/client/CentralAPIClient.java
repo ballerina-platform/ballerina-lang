@@ -170,37 +170,32 @@ public class CentralAPIClient {
             Response getVersionsResponse = sendRequest(getVersionsReq);
 
             Optional<ResponseBody> body = Optional.ofNullable(getVersionsResponse.body());
-            this.outStream.println("Checking Optional Body");
             if (body.isPresent()) {
-                this.outStream.println("Checking Optional ContentType");
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                if (contentType.isPresent()) {
-                    this.outStream.println("ContentType:" + contentType.get().toString());
-                    if (isApplicationJsonContentType(contentType.get().toString())) {
-                        // Package versions found
-                        if (getVersionsResponse.code() == HttpsURLConnection.HTTP_OK) {
-                            return getAsList(body.get().string());
-                        }
-        
-                        // Package is not found
-                        if (getVersionsResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
-                            Error error = new Gson().fromJson(body.get().string(), Error.class);
-                            if (error.getMessage().contains("package not found")) {
-                                // if package not found return empty list
-                                return new ArrayList<>();
-                            } else {
-                                throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature +
-                                                                 ". reason: " + error.getMessage());
-                            }
-                        }
-        
-                        // If request sent is wrong or error occurred at remote repository
-                        if (getVersionsResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
-                            getVersionsResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
-                            Error error = new Gson().fromJson(body.get().string(), Error.class);
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
+                    // Package versions found
+                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_OK) {
+                        return getAsList(body.get().string());
+                    }
+    
+                    // Package is not found
+                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage().contains("package not found")) {
+                            // if package not found return empty list
+                            return new ArrayList<>();
+                        } else {
                             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature +
                                                              ". reason: " + error.getMessage());
                         }
+                    }
+    
+                    // If request sent is wrong or error occurred at remote repository
+                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
+                        getVersionsResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature +
+                                                         ". reason: " + error.getMessage());
                     }
                 }
             }
