@@ -18,8 +18,6 @@
 
 package org.ballerinalang.test.services;
 
-import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
