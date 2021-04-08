@@ -15026,7 +15026,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfMappingBindingPattern(SyntaxKind nextTokenKind) {
-        return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN;
+        return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN || endOfModuleLevelNode(1);
     }
 
     private STNode parseErrorTypeDescOrErrorBP(STNode annots) {
