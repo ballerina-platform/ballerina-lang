@@ -47,10 +47,10 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  * @since 2.0.0
  */
 @PrepareForTest({ RepoUtils.class })
-@PowerMockIgnore("jdk.internal.reflect.*")
+@PowerMockIgnore({ "javax.net.ssl.*", "jdk.internal.reflect.*" })
 public class PushCommandTest extends BaseCommandTest {
 
-    private static final String VALID_PROJECT = "validProject";
+    private static final String VALID_PROJECT = "validApplicationProject";
     private Path testResources;
 
     @BeforeClass
@@ -212,7 +212,7 @@ public class PushCommandTest extends BaseCommandTest {
         Files.delete(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
 
         // Push
-        String expected = "Package.md cannot be empty.";
+        String expected = "package md file cannot be empty";
 
         PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse();
