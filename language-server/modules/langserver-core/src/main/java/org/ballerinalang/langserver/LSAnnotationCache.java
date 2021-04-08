@@ -20,7 +20,7 @@ import io.ballerina.compiler.api.symbols.AnnotationAttachPoint;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
-import io.ballerina.projects.Module;
+import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import org.ballerinalang.langserver.commons.DocumentServiceContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
@@ -216,8 +216,8 @@ public class LSAnnotationCache {
      * @param pkg BLang Package Symbol to load annotations
      */
     private void loadAnnotationsFromPackage(Package pkg) {
-        for (Module module : pkg.modules()) {
-            List<AnnotationSymbol> annotList = module.getCompilation().getSemanticModel().moduleSymbols().stream()
+        for (ModuleId moduleId : pkg.moduleIds()) {
+            List<AnnotationSymbol> annotList = pkg.getCompilation().getSemanticModel(moduleId).moduleSymbols().stream()
                     .filter(symbol -> symbol.kind() == io.ballerina.compiler.api.symbols.SymbolKind.ANNOTATION)
                     .map(symbol -> (AnnotationSymbol) symbol)
                     .collect(Collectors.toList());
