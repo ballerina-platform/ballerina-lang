@@ -81,10 +81,20 @@ public class TestCentralApiClient extends CentralAPIClient {
     private static final String WINERY = "winery";
     private static final String ACCESS_TOKEN = "273cc9f6-c333-36ab-aa2q-f08e9513ff5y";
     private final Call remoteCall = mock(Call.class);
+    private final OkHttpClient client = mock(OkHttpClient.class);
 
     public TestCentralApiClient() {
         super("https://localhost:9090/registry", null);
-        this.client = mock(OkHttpClient.class);
+    }
+
+    @Override
+    protected OkHttpClient getClient() {
+        return this.client;
+    }
+
+    @Override
+    protected void closeClient(OkHttpClient client) {
+        // do nothing
     }
 
     @BeforeClass

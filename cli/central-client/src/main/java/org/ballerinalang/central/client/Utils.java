@@ -96,10 +96,11 @@ public class Utils {
             throws CentralClientException {
 
         long responseContentLength = 0;
-        ResponseBody downloadBody = balaDownloadResponse.body();
-        if (downloadBody != null) {
-            long contentLength = downloadBody.contentLength();
+        Optional<ResponseBody> downloadBody = Optional.ofNullable(balaDownloadResponse.body());
+        if (downloadBody.isPresent()) {
+            long contentLength = downloadBody.get().contentLength();
             if (contentLength <= 0) {
+                downloadBody.get().close();
                 throw new CentralClientException(
                         logFormatter.formatLog("invalid response from the server, please try again"));
             } else {
@@ -122,18 +123,20 @@ public class Utils {
 
         try {
             if (Files.isDirectory(balaCacheWithPkgPath) && Files.list(balaCacheWithPkgPath).findAny().isPresent()) {
+                downloadBody.ifPresent(ResponseBody::close);
                 throw new PackageAlreadyExistsException(
                         logFormatter.formatLog("package already exists in the home repository: " +
                                 balaCacheWithPkgPath.toString()));
             }
         } catch (IOException e) {
+            downloadBody.ifPresent(ResponseBody::close);
             throw new PackageAlreadyExistsException(
                     logFormatter.formatLog("error accessing bala : " + balaCacheWithPkgPath.toString()));
         }
 
         createBalaFileDirectory(balaCacheWithPkgPath, logFormatter);
-        writeBalaFile(balaDownloadResponse, balaCacheWithPkgPath.resolve(balaFile), pkgOrg + "/" + pkgName + ":"
-                        + validPkgVersion, responseContentLength, outStream, logFormatter);
+        writeBalaFile(balaDownloadResponse, balaCacheWithPkgPath.resolve(balaFile), pkgOrg + "/" + pkgName +
+                ":" + validPkgVersion, responseContentLength, outStream, logFormatter);
         handleNightlyBuild(isNightlyBuild, balaCacheWithPkgPath, logFormatter);
     }
 
@@ -204,20 +207,24 @@ public class Utils {
             PrintStream outStream, LogFormatter logFormatter) throws CentralClientException {
         Optional<ResponseBody> body = Optional.ofNullable(balaDownloadResponse.body());
         if (body.isPresent()) {
-            try (InputStream inputStream = body.get().byteStream();
-                    FileOutputStream outputStream = new FileOutputStream(balaPath.toString())) {
-                writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName, outStream,
-                                       logFormatter);
-            } catch (IOException e) {
-                throw new CentralClientException(
-                        logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
-            }
             try {
-                extractBala(balaPath, Optional.of(balaPath.getParent()).get());
-                Files.delete(balaPath);
-            } catch (IOException e) {
-                throw new CentralClientException(
-                        logFormatter.formatLog("error occurred extracting the bala file: " + e.getMessage()));
+                try (InputStream inputStream = body.get().byteStream();
+                     FileOutputStream outputStream = new FileOutputStream(balaPath.toString())) {
+                    writeAndHandleProgress(inputStream, outputStream, resContentLength / 1024, fullPkgName,
+                            outStream, logFormatter);
+                } catch (IOException e) {
+                    throw new CentralClientException(
+                            logFormatter.formatLog("error occurred copying the bala file: " + e.getMessage()));
+                }
+                try {
+                    extractBala(balaPath, Optional.of(balaPath.getParent()).get());
+                    Files.delete(balaPath);
+                } catch (IOException e) {
+                    throw new CentralClientException(
+                            logFormatter.formatLog("error occurred extracting the bala file: " + e.getMessage()));
+                }
+            } finally {
+                body.get().close();
             }
         } else {
             throw new CentralClientException(
@@ -289,64 +296,6 @@ public class Utils {
     }
 
     /**
-     * Convert string to URL.
-     *
-     * @param url string URL
-     * @return URL
-     */
-    static URL convertToUrl(String url) throws ConnectionErrorException {
-        try {
-            return new URL(url);
-        } catch (MalformedURLException e) {
-            throw new ConnectionErrorException("malformed url:" + url, e);
-        }
-    }
-
-    /**
-     * Set request method of the http connection.
-     *
-     * @param conn   http connection
-     * @param method request method
-     */
-    static void setRequestMethod(HttpURLConnection conn, RequestMethod method) throws CentralClientException {
-        try {
-            conn.setRequestMethod(method.name());
-        } catch (ProtocolException e) {
-            throw new CentralClientException(e.getMessage());
-        }
-    }
-
-    /**
-     * Get status code of http response.
-     *
-     * @param conn http connection
-     * @return status code
-     */
-    static int getStatusCode(HttpURLConnection conn) throws ConnectionErrorException {
-        try {
-            return conn.getResponseCode();
-        } catch (IOException e) {
-            throw new ConnectionErrorException("connection to the remote repository host failed: " + e.getMessage());
-        }
-    }
-
-    /**
-     * Get total file size in kb.
-     *
-     * @param filePath path to the file
-     * @return size of the file in kb
-     */
-    static long getTotalFileSizeInKB(Path filePath) throws CentralClientException {
-        byte[] balaContent;
-        try {
-            balaContent = Files.readAllBytes(filePath);
-            return balaContent.length / 1024;
-        } catch (IOException e) {
-            throw new CentralClientException("cannot read the bala content");
-        }
-    }
-
-    /**
      * Get array like string as a list of strings. eg: `"["a", "b", "c"]"`
      *
      * @param arrayString array like string
@@ -355,7 +304,13 @@ public class Utils {
     static List<String> getAsList(String arrayString) {
         return new Gson().fromJson(arrayString, new TypeToken<List<String>>() { }.getType());
     }
-    
+
+    /**
+     * Check if content type is json.
+     *
+     * @param contentType the content type
+     * @return true if its json, else false
+     */
     static boolean isApplicationJsonContentType(String contentType) {
         return contentType.startsWith(APPLICATION_JSON);
     }
@@ -422,8 +377,8 @@ public class Utils {
                 unitName = " MB";
             }
     
-            ProgressBar progressBar = new ProgressBar(task, contentLength(), 1000, out, ProgressBarStyle.ASCII,
-                    unitName, byteConverter);
+            ProgressBar progressBar = new ProgressBar(task, contentLength(), 1000, out,
+                    ProgressBarStyle.ASCII, unitName, byteConverter);
             CountingSink countingSink = new CountingSink(sink, progressBar);
             BufferedSink progressSink = Okio.buffer(countingSink);
             this.reqBody.writeTo(progressSink);

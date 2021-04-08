@@ -19,6 +19,7 @@
 package org.ballerinalang.central.client;
 
 import com.google.gson.Gson;
+import okhttp3.Cache;
 import okhttp3.Call;
 import okhttp3.MediaType;
 import okhttp3.MultipartBody;
@@ -73,16 +74,13 @@ public class CentralAPIClient {
     private static final String ERR_CANNOT_PULL_PACKAGE = "error: failed to pull the package: ";
     private static final String ERR_CANNOT_SEARCH = "error: failed to search packages: ";
     private final String baseUrl;
+    private final Proxy proxy;
     protected PrintStream outStream;
-    protected OkHttpClient client;
 
     public CentralAPIClient(String baseUrl, Proxy proxy) {
         this.outStream = System.out;
         this.baseUrl = baseUrl;
-        this.client = new OkHttpClient.Builder()
-                .followRedirects(false)
-                .proxy(proxy)
-                .build();
+        this.proxy = proxy;
     }
 
     /**
@@ -98,6 +96,8 @@ public class CentralAPIClient {
     public Package getPackage(String orgNamePath, String packageNamePath, String version, String supportedPlatform,
             String ballerinaVersion) throws CentralClientException {
         String packageSignature = orgNamePath + "/" + packageNamePath + ":" + version;
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
         try {
             String url = this.baseUrl + "/" + PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
             // append version to url if available
@@ -109,9 +109,10 @@ public class CentralAPIClient {
                     .get()
                     .url(url)
                     .build();
-            Response getPackageResponse = sendRequest(getPackageReq);
+            Call getPackageReqCall = client.newCall(getPackageReq);
+            Response getPackageResponse = getPackageReqCall.execute();
 
-            Optional<ResponseBody> body = Optional.ofNullable(getPackageResponse.body());
+            body = Optional.ofNullable(getPackageResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
@@ -146,6 +147,13 @@ public class CentralAPIClient {
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " +
                     e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 
@@ -161,15 +169,18 @@ public class CentralAPIClient {
     public List<String> getPackageVersions(String orgNamePath, String packageNamePath, String supportedPlatform,
             String ballerinaVersion) throws CentralClientException {
         String packageSignature = orgNamePath + "/" + packageNamePath;
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
         try {
             String url = this.baseUrl + "/" + PACKAGES + "/" + orgNamePath + "/" + packageNamePath;
             Request getVersionsReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
                     .url(url)
                     .build();
-            Response getVersionsResponse = sendRequest(getVersionsReq);
+            Call getVersionsReqCall = client.newCall(getVersionsReq);
+            Response getVersionsResponse = getVersionsReqCall.execute();
 
-            Optional<ResponseBody> body = Optional.ofNullable(getVersionsResponse.body());
+            body = Optional.ofNullable(getVersionsResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
@@ -204,6 +215,13 @@ public class CentralAPIClient {
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
                     e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
     
@@ -214,6 +232,8 @@ public class CentralAPIClient {
             String supportedPlatform, String ballerinaVersion) throws CentralClientException {
         String packageSignature = org + "/" + name + ":" + version;
         String url = this.baseUrl + "/" + PACKAGES;
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
         try {
             String fileName = org + "-" + name + "-" + version + ".bala";
             Path fileNamePath = balaPath.getFileName();
@@ -230,13 +250,14 @@ public class CentralAPIClient {
             ProgressRequestBody balaFileReqBodyWithProgressBar = new ProgressRequestBody(balaFileReqBody,
                     packageSignature + " [project repo -> central]", this.outStream);
 
-            Request request = getNewRequest(supportedPlatform, ballerinaVersion)
+            Request pushRequest = getNewRequest(supportedPlatform, ballerinaVersion)
                     .post(balaFileReqBodyWithProgressBar)
                     .url(url)
                     .addHeader(AUTHORIZATION, "Bearer " + accessToken)
                     .build();
 
-            Response packagePushResponse = sendRequest(request);
+            Call pushRequestCall = client.newCall(pushRequest);
+            Response packagePushResponse = pushRequestCall.execute();
 
             // Successfully pushed
             if (packagePushResponse.code() == HttpsURLConnection.HTTP_NO_CONTENT) {
@@ -244,9 +265,9 @@ public class CentralAPIClient {
                 return;
             }
 
+            body = Optional.ofNullable(packagePushResponse.body());
             // Invalid access token to push
             if (packagePushResponse.code() == HttpsURLConnection.HTTP_UNAUTHORIZED) {
-                Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
                 if (body.isPresent()) {
                     Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                     if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
@@ -261,7 +282,6 @@ public class CentralAPIClient {
                 }
             }
     
-            Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
@@ -295,6 +315,13 @@ public class CentralAPIClient {
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' to the remote repository '" +
                                              url + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 
@@ -311,6 +338,8 @@ public class CentralAPIClient {
             packageSignature += ":*";
         }
 
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
         try {
             LogFormatter logFormatter = new LogFormatter();
             if (isBuild) {
@@ -324,7 +353,8 @@ public class CentralAPIClient {
                     .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
                     .build();
 
-            Response packagePullResponse = sendRequest(packagePullReq);
+            Call packagePullReqCall = client.newCall(packagePullReq);
+            Response packagePullResponse = packagePullReqCall.execute();
 
             // 302   - Package is found
             if (packagePullResponse.code() == HttpsURLConnection.HTTP_MOVED_TEMP) {
@@ -340,7 +370,8 @@ public class CentralAPIClient {
                             .addHeader(CONTENT_DISPOSITION, balaFileName.get())
                             .build();
 
-                    Response balaDownloadResponse = sendRequest(downloadBalaRequest);
+                    Call downloadBalaRequestCall = client.newCall(downloadBalaRequest);
+                    Response balaDownloadResponse = downloadBalaRequestCall.execute();
                     boolean isNightlyBuild = ballerinaVersion.contains("SNAPSHOT");
                     createBalaInHomeRepo(balaDownloadResponse, packagePathInBalaCache, org, name, isNightlyBuild,
                             balaUrl.get(), balaFileName.get(), outStream, logFormatter);
@@ -352,7 +383,7 @@ public class CentralAPIClient {
                 }
             }
     
-            Optional<ResponseBody> body = Optional.ofNullable(packagePullResponse.body());
+            body = Optional.ofNullable(packagePullResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
@@ -384,6 +415,13 @@ public class CentralAPIClient {
             throw new CentralClientException(errorMsg);
         } catch (IOException e) {
             throw new CentralClientException(e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 
@@ -392,15 +430,18 @@ public class CentralAPIClient {
      */
     public PackageSearchResult searchPackage(String query, String supportedPlatform, String ballerinaVersion)
             throws CentralClientException {
+        Optional<ResponseBody> body = Optional.empty();
+        OkHttpClient client = this.getClient();
         try {
             Request searchReq = getNewRequest(supportedPlatform, ballerinaVersion)
                     .get()
                     .url(this.baseUrl + "/" + PACKAGES + "/?q=" + query)
                     .build();
 
-            Response searchResponse = sendRequest(searchReq);
+            Call httpRequestCall = client.newCall(searchReq);
+            Response searchResponse = httpRequestCall.execute();
 
-            Optional<ResponseBody> body = Optional.ofNullable(searchResponse.body());
+            body = Optional.ofNullable(searchResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
                 if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
@@ -431,18 +472,35 @@ public class CentralAPIClient {
             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "'.");
         } catch (IOException e) {
             throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "'. reason: " + e.getMessage());
+        } finally {
+            body.ifPresent(ResponseBody::close);
+            try {
+                this.closeClient(client);
+            } catch (IOException e) {
+                // ignore
+            }
         }
     }
 
     /**
-     * Send http request.
+     * Gets an new http client.
      *
-     * @param req the http request to send
-     * @return the http response
+     * @return the client
      */
-    protected Response sendRequest(Request req) throws IOException {
-        Call httpRequestCall = this.client.newCall(req);
-        return httpRequestCall.execute();
+    protected OkHttpClient getClient() {
+        return new OkHttpClient.Builder()
+                .followRedirects(false)
+                .proxy(this.proxy)
+                .build();
+    }
+
+    protected void closeClient(OkHttpClient client) throws IOException {
+        client.dispatcher().executorService().shutdown();
+        client.connectionPool().evictAll();
+        Optional<Cache> clientCache = Optional.ofNullable(client.cache());
+        if (clientCache.isPresent()) {
+            clientCache.get().close();
+        }
     }
 
     /**
