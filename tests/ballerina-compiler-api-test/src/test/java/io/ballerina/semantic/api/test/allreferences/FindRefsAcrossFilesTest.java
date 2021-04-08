@@ -43,7 +43,7 @@ public class FindRefsAcrossFilesTest extends FindAllReferencesTest {
     public void setup() {
         Project project = BCompileUtil.loadProject(getTestSourcePath());
         Module baz = getModule(project, "baz");
-        model = baz.getCompilation().getSemanticModel();
+        model = project.currentPackage().getCompilation().getSemanticModel(baz.moduleId());
         srcFile = getDocument(baz);
     }
 
