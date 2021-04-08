@@ -174,7 +174,7 @@ public class VariableFactory {
             return new BXmlItemAttributeMap(context, varName, value);
         } else if (valueTypeName.contains(JVMValueType.ANON_SERVICE.getString())) {
             return new BService(context, varName, value);
-        } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString())) {
+        } else if (valueTypeName.contains(JVMValueType.MAP_VALUE.getString()) && !isRecord(value)) {
             if (isJson(value)) {
                 return new BJson(context, varName, value);
             } else {

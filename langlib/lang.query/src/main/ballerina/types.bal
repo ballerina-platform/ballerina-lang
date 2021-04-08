@@ -37,11 +37,16 @@ type ErrorType error?;
 
 # An abstract `_Iterator` object.
 type _Iterator object {
+    public function next() returns record {|Type value;|}|ErrorType?;
+};
+
+# An abstract `_StreamImplementor` object
+type _StreamImplementor object {
     public isolated function next() returns record {|Type value;|}|ErrorType?;
 };
 
-# An abstract `_CloseableIterator` object.
-type _CloseableIterator object {
+# An abstract `_CloseableStreamImplementor` object.
+type _CloseableStreamImplementor object {
     public isolated function next() returns record {|Type value;|}|ErrorType?;
     public isolated function close() returns ErrorType?;
 };

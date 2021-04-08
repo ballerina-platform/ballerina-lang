@@ -36,14 +36,16 @@ public class DocAttachmentInfo implements Documentation {
     private final String description;
     private final Map<String, String> parameters;
     private final String returnDesc;
+    private final String deprecatedDesc;
     private final Position docStart;
     private final String padding;
-    
+
     public DocAttachmentInfo(String description, LinkedHashMap<String, String> parameters, String returnDesc,
-                             Position docStart, String padding) {
+                             String deprecatedDesc, Position docStart, String padding) {
         this.description = description;
         this.parameters = parameters;
         this.returnDesc = returnDesc;
+        this.deprecatedDesc = deprecatedDesc;
         this.docStart = docStart;
         this.padding = padding;
     }
@@ -52,6 +54,7 @@ public class DocAttachmentInfo implements Documentation {
         this.description = description;
         this.parameters = new LinkedHashMap<>();
         this.returnDesc = null;
+        this.deprecatedDesc = null;
         this.docStart = docStart;
         this.padding = padding;
     }
@@ -73,7 +76,7 @@ public class DocAttachmentInfo implements Documentation {
 
     @Override
     public Optional<String> deprecatedDescription() {
-        return Optional.empty();
+        return Optional.ofNullable(deprecatedDesc);
     }
 
     @Override
@@ -92,10 +95,11 @@ public class DocAttachmentInfo implements Documentation {
         if (!this.parameters.isEmpty()) {
             parameters.forEach((key, value) -> newParamsMap.put(key, other.parameterMap().getOrDefault(key, value)));
         }
-        String returnValueDescription = (this.returnDesc != null) ?
-                other.returnDescription().orElse(this.returnDesc) : null;
+        String returnValueDescription = other.returnDescription().orElse(this.returnDesc);
+        String deprecatedDescription = other.deprecatedDescription().orElse(this.deprecatedDesc);
 
-        return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, docStart, padding);
+        return new DocAttachmentInfo(description, newParamsMap, returnValueDescription, deprecatedDescription, 
+                docStart, padding);
     }
 
     public String getDocumentationString() {
@@ -117,6 +121,11 @@ public class DocAttachmentInfo implements Documentation {
 
         if (returnDesc != null) {
             result.append(String.format("%s# + return - %s%n", padding, this.returnDesc.trim()));
+        }
+
+        if (deprecatedDesc != null) {
+            result.append(String.format("%s# # Deprecated%n", padding));
+            result.append(String.format("%s# %s%n", padding, deprecatedDesc));
         }
 
         return result.toString().trim() + CommonUtil.MD_LINE_SEPARATOR + padding;

@@ -509,3 +509,118 @@ service isolated class InvalidIsolatedServiceClassNotOverridingMutableFieldsInIn
         self.b = [];
     }
 }
+
+isolated int[] isolatedArr = [];
+
+isolated service / on new Listener() {
+    int[] x = [];
+
+    remote function foo() {
+        self.x = [2, 3];
+    }
+
+    resource function get bar() {
+        self.x = [2, 3];
+    }
+
+    function baz() {
+        self.x = [2, 3];
+    }
+
+    isolated function qux() {
+        globIntArr = [];
+    }
+
+    isolated resource function get quux() {
+        globIntArr = [];
+    }
+
+    resource function get corge() {
+        lock {
+            self.x = [2, 3];
+            isolatedArr = [];
+        }
+    }
+}
+
+service object {} ser = isolated service object {
+    int[] x = [];
+
+    remote function foo() {
+        self.x = [2, 3];
+    }
+
+    resource function get bar() {
+        self.x = [2, 3];
+    }
+
+    function baz() {
+        self.x = [2, 3];
+    }
+
+    isolated function qux() {
+        globIntArr = [];
+    }
+
+    isolated resource function get quux() {
+        globIntArr = [];
+    }
+
+    resource function get corge() {
+        lock {
+            self.x = [2, 3];
+            isolatedArr = [];
+        }
+    }
+};
+
+isolated service class ServiceClass {
+    int[] x = [];
+
+    remote function foo() {
+        self.x = [2, 3];
+    }
+
+    resource function get bar() {
+        self.x = [2, 3];
+    }
+
+    function baz() {
+        self.x = [2, 3];
+    }
+
+    isolated function qux() {
+        globIntArr = [];
+    }
+
+    isolated resource function get quux() {
+        globIntArr = [];
+    }
+
+    resource function get corge() {
+        lock {
+            self.x = [2, 3];
+            isolatedArr = [];
+        }
+    }
+
+    function quuz() {
+        lock {
+            self.x = [2, 3];
+            isolatedArr = [];
+        }
+    }
+}
+
+public class Listener {
+
+    public function 'start() returns error? {}
+
+    public function gracefulStop() returns error? {}
+
+    public function immediateStop() returns error? {}
+
+    public function detach(service object {} s) returns error? {}
+
+    public function attach(service object {} s, string[]? name = ()) returns error? {}
+}
