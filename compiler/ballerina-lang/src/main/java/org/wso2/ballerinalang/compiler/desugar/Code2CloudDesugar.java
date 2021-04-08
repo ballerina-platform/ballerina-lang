@@ -33,6 +33,8 @@ import java.util.List;
 
 /**
  * Class responsible for injecting Code2Cloud import.
+ *
+ * @since 2.0.0
  */
 public class Code2CloudDesugar {
     private static final CompilerContext.Key<Code2CloudDesugar> CODE2CLOUD_DESUGAR_KEY = new CompilerContext.Key<>();
