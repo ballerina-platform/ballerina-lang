@@ -3847,7 +3847,7 @@ public class Types {
 
     private BType getConstraint(BRecordType recordType) {
         if (recordType.sealed) {
-            return symTable.neverType;
+            return symTable.noType;
         }
 
         return recordType.restFieldType;

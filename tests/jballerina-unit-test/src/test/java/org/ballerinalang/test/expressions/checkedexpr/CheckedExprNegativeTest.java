@@ -35,7 +35,7 @@ public class CheckedExprNegativeTest {
     public void testSemanticErrors() {
         CompileResult compile = BCompileUtil.compile(
                 "test-src/expressions/checkedexpr/checked_expr_semantics_negative.bal");
-        Assert.assertEquals(compile.getErrorCount(), 5, compile.toString());
+        Assert.assertEquals(compile.getErrorCount(), 6, compile.toString());
         BAssertUtil.validateError(compile, 0, "invalid usage of the 'check' expression " +
                 "operator: no expression type is equivalent to error type", 11, 25);
         BAssertUtil.validateError(compile, 1, "'check' expression of type 'never' is not allowed", 16, 19);
@@ -43,6 +43,7 @@ public class CheckedExprNegativeTest {
         BAssertUtil.validateError(compile, 3, "incompatible types: expected '(string|error)'" +
                                               ", found '(string|int)'", 39, 25);
         BAssertUtil.validateError(compile, 4, "invalid expression, expected a call expression", 54, 5);
+        BAssertUtil.validateError(compile, 5, "'check' expression of type 'never' is not allowed", 58, 5);
     }
 
     @Test
