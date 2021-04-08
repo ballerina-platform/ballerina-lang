@@ -4622,6 +4622,19 @@ public class Types {
         return isSimpleBasicType(type.tag);
     }
 
+    public boolean isUnionOfSimpleBasicTypesExceptNilType(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+            for (BType memType : memberTypes) {
+                if (memType.tag == TypeTags.NIL || !isSimpleBasicType(memType.tag)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return type.tag != TypeTags.NIL && isSimpleBasicType(type.tag);
+    }
+
     public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType type) {
         if (isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
             return true;

@@ -4195,7 +4195,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
         List<BLangExpression> literalValues = bLangXMLTextLiteral.textFragments;
-        checkStringTemplateExprs(literalValues, false);
+        checkStringTemplateExprs(literalValues);
         BLangExpression xmlExpression = literalValues.get(0);
         if (literalValues.size() == 1 && xmlExpression.getKind() == NodeKind.LITERAL &&
                 ((String) ((BLangLiteral) xmlExpression).value).isEmpty()) {
@@ -4206,7 +4206,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
-        checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, false);
+        checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments);
 
         if (expType == symTable.noType) {
             resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlCommentType, expType);
@@ -4218,7 +4218,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr(bLangXMLProcInsLiteral.target, env, symTable.stringType);
-        checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
+        checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments);
         if (expType == symTable.noType) {
             resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
             return;
@@ -4227,7 +4227,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
-        checkStringTemplateExprs(bLangXMLQuotedString.textFragments, false);
+        checkStringTemplateExprs(bLangXMLQuotedString.textFragments);
         resultType = types.checkType(bLangXMLQuotedString, symTable.stringType, expType);
     }
 
@@ -4238,7 +4238,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        checkStringTemplateExprs(stringTemplateLiteral.exprs, false);
+        checkStringTemplateExprs(stringTemplateLiteral.exprs);
         resultType = types.checkType(stringTemplateLiteral, symTable.stringType, expType);
     }
 
@@ -6250,7 +6250,7 @@ public class TypeChecker extends BLangNodeVisitor {
         dlog.error(bLangXMLElementLiteral.pos, DiagnosticErrorCode.XML_TAGS_MISMATCH);
     }
 
-    private void checkStringTemplateExprs(List<? extends BLangExpression> exprs, boolean allowXml) {
+    private void checkStringTemplateExprs(List<? extends BLangExpression> exprs) {
         for (BLangExpression expr : exprs) {
             checkExpr(expr, env);
 
@@ -6260,17 +6260,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 continue;
             }
 
-            if (type.tag >= TypeTags.JSON) {
-                if (allowXml) {
-                    if (type.tag != TypeTags.XML) {
-                        dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                                BUnionType.create(null, symTable.intType, symTable.floatType,
-                                        symTable.decimalType, symTable.stringType,
-                                        symTable.booleanType, symTable.xmlType), type);
-                    }
-                    continue;
-                }
-
+            if (!types.isUnionOfSimpleBasicTypesExceptNilType(type)) {
                 dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                         BUnionType.create(null, symTable.intType, symTable.floatType,
                                 symTable.decimalType, symTable.stringType,

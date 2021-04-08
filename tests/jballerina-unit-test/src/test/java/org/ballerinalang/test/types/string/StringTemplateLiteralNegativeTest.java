@@ -35,15 +35,19 @@ public class StringTemplateLiteralNegativeTest {
     @Test(description = "Test string template literal with errors")
     public void testStringTemplateLiteralNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 4);
         //testUndefinedSymbol
         BAssertUtil.validateError(resultNegative, 0, "undefined symbol 'name'", 2, 32);
         //testIncompatibleTypes
         BAssertUtil.validateError(resultNegative, 1,
                 "incompatible types: expected '(int|float|decimal|string|boolean)', found 'json'", 8, 32);
+        BAssertUtil.validateError(resultNegative, 2,
+                "incompatible types: expected '(int|float|decimal|string|boolean)', found 'Foo'", 16, 21);
+        BAssertUtil.validateError(resultNegative, 3,
+                "incompatible types: expected '(int|float|decimal|string|boolean)', found '()'", 21, 21);
     }
 
-    @Test(description = "Test string template literal syntax errors", groups = { "disableOnOldParser" })
+    @Test(description = "Test string template literal syntax errors")
     public void testStringTemplateLiteralSyntaxNegativeCases() {
         resultNegative = BCompileUtil.compile("test-src/types/string/string-template-literal-syntax-negative.bal");
         Assert.assertEquals(resultNegative.getErrorCount(), 13);
@@ -60,7 +64,7 @@ public class StringTemplateLiteralNegativeTest {
         BAssertUtil.validateError(resultNegative, index++, "complex variable must be initialized", 10, 39);
         BAssertUtil.validateError(resultNegative, index++, "missing semicolon token", 10, 39);
         BAssertUtil.validateError(resultNegative, index++, "invalid token ';\n    return s;\n}\n'", 13, 1);
-        BAssertUtil.validateError(resultNegative, index++, "invalid token '`'", 13, 1);
+        BAssertUtil.validateError(resultNegative, index, "invalid token '`'", 13, 1);
     }
 
     @AfterClass
