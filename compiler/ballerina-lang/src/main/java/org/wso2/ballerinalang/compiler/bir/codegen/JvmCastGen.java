@@ -150,6 +150,9 @@ public class JvmCastGen {
             case JTypeTags.JDOUBLE:
                 generateCheckCastBToJDouble(mv, sourceType);
                 break;
+            case JTypeTags.JBOOLEAN:
+                generateCheckCastBToJBoolean(mv, sourceType);
+                break;
             case JTypeTags.JREF:
                 generateCheckCastBToJRef(mv, sourceType, targetType);
                 break;
@@ -370,6 +373,22 @@ public class JvmCastGen {
                 throw new BLangCompilerException(String.format("Casting is not supported from '%s' " +
                         "to 'java double'", sourceType));
         }
+    }
+
+    private void generateCheckCastBToJBoolean(MethodVisitor mv, BType sourceType) {
+
+        switch (sourceType.tag) {
+            case TypeTags.BOOLEAN:
+                break;
+            case TypeTags.FINITE:
+                mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BOOLEAN_METHOD, String.format("(L%s;)Z", OBJECT),
+                        false);
+                break;
+            default:
+                throw new BLangCompilerException(String.format("Casting is not supported from '%s' to 'java boolean'",
+                        sourceType));
+        }
+
     }
 
     private void generateCheckCastBToJRef(MethodVisitor mv, BType sourceType, JType targetType) {
@@ -1418,6 +1437,7 @@ public class JvmCastGen {
             case TypeTags.UNION:
             case TypeTags.JSON:
             case TypeTags.READONLY:
+            case TypeTags.INTERSECTION:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_INT_METHOD, String.format("(L%s;)J", OBJECT),
                         false);
                 break;
@@ -1439,6 +1459,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.INTERSECTION ||
                 sourceType.tag == TypeTags.READONLY) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_FLOAT_METHOD, String.format("(L%s;)D", OBJECT),
                     false);
@@ -1471,6 +1492,7 @@ public class JvmCastGen {
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
             case TypeTags.JSON:
+            case TypeTags.INTERSECTION:
             case TypeTags.READONLY:
                 mv.visitTypeInsn(CHECKCAST, B_STRING_VALUE);
                 break;
@@ -1499,6 +1521,7 @@ public class JvmCastGen {
             case TypeTags.ANYDATA:
             case TypeTags.UNION:
             case TypeTags.JSON:
+            case TypeTags.INTERSECTION:
             case TypeTags.READONLY:
                 mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_DECIMAL_METHOD,
                         String.format("(L%s;)L%s;", OBJECT, DECIMAL_VALUE), false);
@@ -1519,6 +1542,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.INTERSECTION ||
                 sourceType.tag == TypeTags.READONLY) {
             mv.visitTypeInsn(CHECKCAST, BOOLEAN_VALUE);
             mv.visitMethodInsn(INVOKEVIRTUAL, BOOLEAN_VALUE, "booleanValue", "()Z", false);
@@ -1540,6 +1564,7 @@ public class JvmCastGen {
                 sourceType.tag == TypeTags.ANYDATA ||
                 sourceType.tag == TypeTags.UNION ||
                 sourceType.tag == TypeTags.JSON ||
+                sourceType.tag == TypeTags.INTERSECTION ||
                 sourceType.tag == TypeTags.READONLY) {
             mv.visitMethodInsn(INVOKESTATIC, TYPE_CHECKER, ANY_TO_BYTE_METHOD, String.format("(L%s;)I", OBJECT), false);
         } else {

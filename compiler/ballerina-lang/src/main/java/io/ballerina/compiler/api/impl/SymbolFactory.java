@@ -18,17 +18,22 @@
  */
 package io.ballerina.compiler.api.impl;
 
+import io.ballerina.compiler.api.impl.symbols.BallerinaAbsResourcePathAttachPoint;
 import io.ballerina.compiler.api.impl.symbols.BallerinaAnnotationSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaClassSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaConstantSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaEnumSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaFunctionSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaLiteralAttachPoint;
 import io.ballerina.compiler.api.impl.symbols.BallerinaMethodSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaModule;
 import io.ballerina.compiler.api.impl.symbols.BallerinaObjectFieldSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaParameterSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaPathParameterSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaRecordFieldSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaResourceMethodSymbol;
+import io.ballerina.compiler.api.impl.symbols.BallerinaServiceDeclarationSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaTypeDefinitionSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaVariableSymbol;
 import io.ballerina.compiler.api.impl.symbols.BallerinaWorkerSymbol;
@@ -40,11 +45,13 @@ import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.PathParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.resourcepath.util.PathSegment;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAnnotationSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
@@ -55,6 +62,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BServiceSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
@@ -115,6 +124,9 @@ public class SymbolFactory {
         if (symbol instanceof BVarSymbol) {
             if (symbol.kind == SymbolKind.FUNCTION) {
                 if (Symbols.isFlagOn(symbol.flags, Flags.ATTACHED)) {
+                    if (Symbols.isFlagOn(symbol.flags, Flags.RESOURCE)) {
+                        return createResourceMethodSymbol((BInvokableSymbol) symbol);
+                    }
                     return createMethodSymbol((BInvokableSymbol) symbol);
                 }
                 return createFunctionSymbol((BInvokableSymbol) symbol, name);
@@ -133,6 +145,24 @@ public class SymbolFactory {
             }
             if (symbol.owner instanceof BObjectTypeSymbol) {
                 return createObjectFieldSymbol((BVarSymbol) symbol);
+            }
+            if (Symbols.isFlagOn(symbol.flags, Flags.REQUIRED_PARAM)) {
+                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REQUIRED);
+            }
+            if (Symbols.isFlagOn(symbol.flags, Flags.DEFAULTABLE_PARAM)) {
+                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.DEFAULTABLE);
+            }
+            if (Symbols.isFlagOn(symbol.flags, Flags.INCLUDED)) {
+                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.INCLUDED_RECORD);
+            }
+            if (Symbols.isFlagOn(symbol.flags, Flags.REST_PARAM)) {
+                return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REST);
+            }
+            if (symbol.kind == SymbolKind.PATH_PARAMETER) {
+                return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_PARAMETER);
+            }
+            if (symbol.kind == SymbolKind.PATH_REST_PARAMETER) {
+                return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_REST_PARAMETER);
             }
 
             // return the variable symbol
@@ -155,6 +185,10 @@ public class SymbolFactory {
 
             // create the typeDefs
             return createTypeDefinition((BTypeSymbol) symbol, name);
+        }
+
+        if (symbol.kind == SymbolKind.SERVICE) {
+            return createServiceDeclSymbol((BServiceSymbol) symbol);
         }
 
         if (symbol.kind == SymbolKind.XMLNS) {
@@ -236,6 +270,24 @@ public class SymbolFactory {
     }
 
     /**
+     * Given a symbol for a resource method, returns a public resource method symbol instance.
+     *
+     * @param invokableSymbol The internal symbol for the method
+     * @return The generated public symbol for the method
+     */
+    public BallerinaResourceMethodSymbol createResourceMethodSymbol(BInvokableSymbol invokableSymbol) {
+        String name = getMethodName(invokableSymbol, (BObjectTypeSymbol) invokableSymbol.owner);
+        TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(invokableSymbol.type);
+        BallerinaFunctionSymbol functionSymbol = createFunctionSymbol(invokableSymbol, name);
+
+        if (typeDescriptor.typeKind() == TypeDescKind.FUNCTION) {
+            return new BallerinaResourceMethodSymbol(functionSymbol, invokableSymbol, this.context);
+        }
+
+        throw new AssertionError("Invalid type descriptor found");
+    }
+
+    /**
      * Create a generic variable symbol.
      *
      * @param symbol {@link BVarSymbol} to convert
@@ -272,15 +324,18 @@ public class SymbolFactory {
     }
 
     public BallerinaRecordFieldSymbol createRecordFieldSymbol(BVarSymbol symbol) {
-        return new BallerinaRecordFieldSymbol(this.context, getBField(symbol));
+        BField bField = getBField(symbol);
+        return bField != null ? new BallerinaRecordFieldSymbol(this.context, bField) : null;
     }
 
     public BallerinaObjectFieldSymbol createObjectFieldSymbol(BVarSymbol symbol) {
-        return new BallerinaObjectFieldSymbol(this.context, getBField(symbol));
+        BField bField = getBField(symbol);
+        return bField != null ? new BallerinaObjectFieldSymbol(this.context, bField) : null;
     }
 
     public BallerinaClassFieldSymbol createClassFieldSymbol(BVarSymbol symbol) {
-        return new BallerinaClassFieldSymbol(this.context, getBField(symbol));
+        BField bField = getBField(symbol);
+        return bField != null ? new BallerinaClassFieldSymbol(this.context, bField) : null;
     }
 
     public BallerinaWorkerSymbol createWorkerSymbol(BVarSymbol symbol, String name) {
@@ -317,7 +372,14 @@ public class SymbolFactory {
             annotSymbols.add(createAnnotationSymbol((BAnnotationSymbol) annot));
         }
 
-        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind);
+        return new BallerinaParameterSymbol(name, typeDescriptor, qualifiers, annotSymbols, kind, symbol, this.context);
+    }
+
+    public PathParameterSymbol createPathParamSymbol(BVarSymbol symbol, PathSegment.Kind kind) {
+        if (symbol == null) {
+            return null;
+        }
+        return new BallerinaPathParameterSymbol(kind, symbol, this.context);
     }
 
     /**
@@ -387,6 +449,30 @@ public class SymbolFactory {
         }
 
         return symbolBuilder.withTypeDescriptor((ObjectTypeSymbol) type).build();
+    }
+
+    public BallerinaServiceDeclarationSymbol createServiceDeclSymbol(BServiceSymbol serviceDeclSymbol) {
+        BallerinaServiceDeclarationSymbol.ServiceDeclSymbolBuilder symbolBuilder =
+                new BallerinaServiceDeclarationSymbol.ServiceDeclSymbolBuilder(serviceDeclSymbol, this.context);
+        BClassSymbol associatedClass = serviceDeclSymbol.getAssociatedClassSymbol();
+
+        if (Symbols.isFlagOn(serviceDeclSymbol.flags, Flags.ISOLATED)) {
+            symbolBuilder.withQualifier(Qualifier.ISOLATED);
+        }
+
+        for (org.ballerinalang.model.symbols.AnnotationSymbol annot : associatedClass.getAnnotations()) {
+            symbolBuilder.withAnnotation(createAnnotationSymbol((BAnnotationSymbol) annot));
+        }
+
+        if (serviceDeclSymbol.getAbsResourcePath().isPresent()) {
+            symbolBuilder.withAttachPoint(
+                    new BallerinaAbsResourcePathAttachPoint(serviceDeclSymbol.getAbsResourcePath().get()));
+        } else if (serviceDeclSymbol.getAttachPointStringLiteral().isPresent()) {
+            symbolBuilder.withAttachPoint(
+                    new BallerinaLiteralAttachPoint(serviceDeclSymbol.getAttachPointStringLiteral().get()));
+        }
+
+        return symbolBuilder.withTypeDescriptor(typesFactory.getTypeDescriptor(serviceDeclSymbol.type)).build();
     }
 
     /**
@@ -474,6 +560,9 @@ public class SymbolFactory {
 
         for (BAttachedFunction mthd : methods) {
             if (method == mthd.symbol) {
+                if (mthd instanceof BResourceFunction) {
+                    return ((BResourceFunction) mthd).accessor.value;
+                }
                 return mthd.funcName.value;
             }
         }

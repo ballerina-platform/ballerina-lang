@@ -26,6 +26,8 @@ import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
 
 import java.util.List;
@@ -40,6 +42,7 @@ import java.util.StringJoiner;
 public class BallerinaMethodSymbol implements MethodSymbol {
 
     private final FunctionSymbol functionSymbol;
+    private String signature;
 
     public BallerinaMethodSymbol(FunctionSymbol functionSymbol) {
         this.functionSymbol = functionSymbol;
@@ -102,6 +105,10 @@ public class BallerinaMethodSymbol implements MethodSymbol {
 
     @Override
     public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
         StringJoiner qualifierJoiner = new StringJoiner(" ");
         this.functionSymbol.qualifiers().stream().map(Qualifier::getValue).forEach(qualifierJoiner::add);
         qualifierJoiner.add("function ");
@@ -109,14 +116,17 @@ public class BallerinaMethodSymbol implements MethodSymbol {
         StringBuilder signature = new StringBuilder(qualifierJoiner.toString());
         StringJoiner joiner = new StringJoiner(", ");
         signature.append(this.functionSymbol.getName().get()).append("(");
-        for (ParameterSymbol requiredParam : this.typeDescriptor().parameters()) {
+        for (ParameterSymbol requiredParam : this.typeDescriptor().params().get()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);
         }
         this.typeDescriptor().restParam().ifPresent(ballerinaParameter -> joiner.add(ballerinaParameter.signature()));
         signature.append(joiner.toString()).append(")");
-        this.typeDescriptor().returnTypeDescriptor().ifPresent(typeDescriptor -> signature.append(" returns ")
-                .append(typeDescriptor.signature()));
-        return signature.toString();
+        Optional<TypeSymbol> returnTypeSymbol = this.typeDescriptor().returnTypeDescriptor();
+        if (returnTypeSymbol.isPresent() && returnTypeSymbol.get().typeKind() != TypeDescKind.NIL) {
+            signature.append(" returns ").append(returnTypeSymbol.get().signature());
+        }
+        this.signature = signature.toString();
+        return this.signature;
     }
 }

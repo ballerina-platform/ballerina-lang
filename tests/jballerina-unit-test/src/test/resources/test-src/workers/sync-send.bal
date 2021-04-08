@@ -40,6 +40,7 @@ function multipleSyncSend() returns string {
     worker w1 {
         int a = 10;
         var result = a ->> w2;
+        error? res = result;
         foreach var i in 1 ... 5 {
             append2 = append2 + "w1";
         }
@@ -113,6 +114,7 @@ function multiWorkerSend() returns string {
     worker w1 {
         int a = 10;
         var result = a ->> w2;
+        error? res = result;
         a -> w3;
         foreach var i in 1 ... 5 {
             append3 = append3 + "w1";
@@ -204,6 +206,7 @@ function errorResult() returns error? {
         b -> w3;
         b = <- w1;
         var result = b ->> w3;
+        error? res = result;
         foreach var i in 1 ... 5 {
             append4 = append4 + "w22";
         }
@@ -269,7 +272,7 @@ function panicTest() returns error? {
         b -> w3;
         b = <- w1;
         var result = b ->> w3;
-
+        error? res = result;
         b = <- w1;
     }
 
@@ -575,11 +578,11 @@ public function testNoFailureForReceiveWithError() returns boolean {
             return error("w2 err");
         }
         string|E1|E2 v2 = <- w1;
-        return v1 == 100 && v2 == "hello";
+        return v1 === 100 && v2 === "hello";
     }
 
     record { boolean|E1|E2? w1; boolean|error? w2; } x = wait { w1, w2 };
-    return x.w1 == true && x.w2 == true;
+    return x.w1 === true && x.w2 === true;
 }
 
 public function testFailureForReceiveWithError() returns boolean {
@@ -605,11 +608,11 @@ public function testFailureForReceiveWithError() returns boolean {
             return error("w2 err");
         }
         string|E1|E2 v2 = <- w1;
-        return v1 == 100 && v2 is E2;
+        return v1 === 100 && v2 is E2;
     }
 
     record { boolean|E1|E2? w1; boolean|error? w2; } x = wait { w1, w2 };
-    return x.w1 is E2 && x.w2 == true;
+    return x.w1 is E2 && x.w2 === true;
 }
 
 function getFalse() returns boolean {
@@ -621,5 +624,5 @@ function getTrue() returns boolean {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

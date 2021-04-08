@@ -36,6 +36,7 @@ import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
+import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.JarResolver;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
@@ -47,6 +48,7 @@ import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -78,6 +80,15 @@ public class TestProcessor {
 
     private TesterinaRegistry registry = TesterinaRegistry.getInstance();
 
+    private JarResolver jarResolver;
+
+    public TestProcessor() {
+    }
+
+    public TestProcessor(JarResolver jarResolver) {
+        this.jarResolver = jarResolver;
+    }
+
     /**
      * Generate and return the testsuite for module tests.
      *
@@ -93,7 +104,7 @@ public class TestProcessor {
         if (module.project().buildOptions().skipTests()) {
             return Optional.empty();
         }
-        return Optional.of(generateTestSuite(module));
+        return Optional.of(generateTestSuite(module, this.jarResolver));
     }
 
     /**
@@ -124,7 +135,7 @@ public class TestProcessor {
      * @param module Module
      * @return TestSuite
      */
-    private TestSuite generateTestSuite(Module module) {
+    private TestSuite generateTestSuite(Module module, JarResolver jarResolver) {
         TestSuite testSuite = new TestSuite(module.descriptor().name().toString(),
                 module.descriptor().packageName().toString(),
                 module.descriptor().org().value(), module.descriptor().version().toString());
@@ -132,8 +143,18 @@ public class TestProcessor {
                 module.descriptor().name().toString(), testSuite);
         testSuite.setPackageName(module.descriptor().packageName().toString());
         testSuite.setSourceRootPath(module.project().sourceRoot().toString());
+
+        if (jarResolver != null) {
+            List<Path> jarPaths = new ArrayList<>();
+            for (JarLibrary jarLibrary : jarResolver.getJarFilePathsRequiredForTestExecution(module.moduleName())) {
+                jarPaths.add(jarLibrary.path());
+            }
+            testSuite.addTestExecutionDependencies(jarPaths);
+        }
+
         addUtilityFunctions(module, testSuite);
         processAnnotations(module, testSuite);
+        testSuite.sort();
         return testSuite;
     }
 
@@ -224,6 +245,8 @@ public class TestProcessor {
         List<FunctionSymbol> functionSymbolList = new ArrayList<>();
         List<String> functionNamesList = new ArrayList<>();
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
+            // we cannot remove the module.getCompilation() here since the semantic model is accessed
+            // after the code gen phase here. package.getCompilation() throws an IllegalStateException
             List<Symbol> symbols = module.getCompilation().getSemanticModel().visibleSymbols(
                     syntaxTreeEntry.getKey(),
                     LinePosition.from(syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().line(),

@@ -30,8 +30,18 @@ public interface FunctionTypeSymbol extends TypeSymbol {
      * Get the required parameters.
      *
      * @return {@link List} of required parameters
+     * @deprecated This method will be removed in a later release. Use `params()` instead.
      */
+    @Deprecated(forRemoval = true)
     List<ParameterSymbol> parameters();
+
+    /**
+     * For regular function types, this will return a list of the non-rest parameters. If this is the `function` type
+     * descriptor, this will return empty.
+     *
+     * @return A {@link List} of required parameters or empty
+     */
+    Optional<List<ParameterSymbol>> params();
 
     /**
      * Get the rest parameter.

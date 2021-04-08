@@ -16,6 +16,7 @@
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
+import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 
 import java.util.List;
 import java.util.Optional;
@@ -37,8 +38,6 @@ public class BClass extends Construct {
     @Expose
     public List<Function> otherMethods;
     @Expose
-    public boolean isReadOnly;
-    @Expose
     public boolean isIsolated;
 
     public BClass(String name, String description, boolean isDeprecated, List<DefaultableVariable> fields,
@@ -51,6 +50,9 @@ public class BClass extends Construct {
         this.otherMethods = getOtherMethods(methods);
         this.isReadOnly = isReadOnly;
         this.isIsolated = isIsolated;
+        if (isIsolated || isReadOnly) {
+            this.builtInVersion = BallerinaDocGenerator.getBallerinaShortVersion();
+        }
     }
 
     public Optional<Function> getInitMethod(List<Function> methods) {

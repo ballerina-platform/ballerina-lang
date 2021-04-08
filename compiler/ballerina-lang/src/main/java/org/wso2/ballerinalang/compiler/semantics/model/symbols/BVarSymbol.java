@@ -37,7 +37,7 @@ import static org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag.VAR
 public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
 
     private List<BAnnotationSymbol> annots;
-    public boolean defaultableParam = false;
+    public boolean isDefaultable = false;
 
     // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;

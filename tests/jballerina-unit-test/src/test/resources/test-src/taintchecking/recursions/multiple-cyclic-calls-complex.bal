@@ -24,7 +24,7 @@ public class Sched {
     public function sendTimerEvents() returns error? {
         function () localProcessFunc = self.processFunc;
         localProcessFunc();
-        var val = self.sendTimerEvents();
+        error? val = self.sendTimerEvents();
         return ();
     }
 }

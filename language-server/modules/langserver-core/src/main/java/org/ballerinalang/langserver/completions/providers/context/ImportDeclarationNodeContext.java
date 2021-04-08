@@ -21,7 +21,6 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
@@ -34,12 +33,9 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
-import org.ballerinalang.langserver.completions.StaticCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
-import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.CompletionItem;
-import org.eclipse.lsp4j.CompletionItemKind;
 import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
@@ -49,6 +45,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.langserver.completions.providers.context.util.ImportDeclarationContextUtil.getImportCompletion;
+import static org.ballerinalang.langserver.completions.providers.context.util.ImportDeclarationContextUtil.getLangLibModuleNameInsertText;
 import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortText;
 
 /**
@@ -58,7 +56,7 @@ import static org.ballerinalang.langserver.completions.util.SortingUtil.genSortT
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
 public class ImportDeclarationNodeContext extends AbstractCompletionProvider<ImportDeclarationNode> {
-    
+
     private static final String LANGLIB_MODULE_PREFIX = Names.BALLERINA_ORG.getValue()
             + Names.ORG_NAME_SEPARATOR.getValue() + Names.LANG.getValue() + Names.DOT.getValue();
     private static final String BALLERINA_MODULE_PREFIX = Names.BALLERINA_ORG.getValue()
@@ -224,21 +222,22 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         }
 
         Package currentPackage = currentProject.get().currentPackage();
-        PackageName packageName = currentPackage.packageName();
-        completionItems.add(getImportCompletion(ctx, packageName.value(), packageName.value() + "."));
+        String currentPackageName = this.escapeReservedKeyword(currentPackage.packageName().value());
+        
+        completionItems.add(getImportCompletion(ctx, currentPackageName, currentPackageName + "."));
         Optional<Module> currentModule = ctx.currentModule();
-        currentPackage.modules().forEach(module -> {
+        for (Module module : currentPackage.modules()) {
+            String moduleNamePart = this.escapeReservedKeyword(module.moduleName().moduleNamePart());
             String qualifiedModuleName = module.moduleName().packageName().value()
-                    + Names.DOT + module.moduleName().moduleNamePart();
+                    + Names.DOT + moduleNamePart;
             if (module.isDefaultModule()
                     || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))
                     || CommonUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
-                return;
+                continue;
             }
-
-            String label = packageName + "." + module.moduleName().moduleNamePart();
+            String label = currentPackageName + "." + moduleNamePart;
             completionItems.add(getImportCompletion(ctx, label, label));
-        });
+        }
 
         return completionItems;
     }
@@ -247,7 +246,12 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                                                             List<IdentifierToken> moduleName) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         String pkgName = context.workspace().module(context.filePath()).get().packageInstance().packageName().value();
-        List<String> modNameString = moduleName.stream().map(Token::text).collect(Collectors.toList());
+        /*
+        In cases where the names are reserved keywords, then they are escaped. When comparing we need to remove ' char.
+         */
+        List<String> modNameString = moduleName.stream()
+                .map(token -> token.text().replace("'", ""))
+                .collect(Collectors.toList());
         Optional<Project> currentProject = context.workspace().project(context.filePath());
         if (currentProject.isEmpty() || currentProject.get().kind() == ProjectKind.SINGLE_FILE_PROJECT
                 || !modNameString.get(0).equals(pkgName)) {
@@ -267,16 +271,14 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             List<String> moduleNameParts = Arrays.asList(module.moduleName().moduleNamePart().split("\\."));
             moduleName.forEach(token -> moduleNameParts.remove(token.text()));
             String label = module.moduleName().moduleNamePart();
-            String insertText = String.join(".", moduleNameParts);
+            String insertText = moduleNameParts.stream()
+                    .map(this::escapeReservedKeyword)
+                    .collect(Collectors.joining("."));
 
             completionItems.add(getImportCompletion(context, label, insertText));
         });
 
         return completionItems;
-    }
-
-    private String getLangLibModuleNameInsertText(String pkgName) {
-        return pkgName.replace(".", ".'") + ";";
     }
 
     private ArrayList<LSCompletionItem> moduleNameContextCompletions(BallerinaCompletionContext context,
@@ -305,17 +307,6 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         return completionItems;
     }
 
-    private static LSCompletionItem getImportCompletion(BallerinaCompletionContext context, String label,
-                                                        String insertText) {
-        CompletionItem item = new CompletionItem();
-        item.setLabel(label);
-        item.setInsertText(insertText);
-        item.setKind(CompletionItemKind.Module);
-        item.setDetail(ItemResolverConstants.MODULE_TYPE);
-
-        return new StaticCompletionItem(context, item, StaticCompletionItem.Kind.MODULE);
-    }
-
     private boolean onSuggestAsKeyword(BallerinaCompletionContext context, ImportDeclarationNode node) {
         SeparatedNodeList<IdentifierToken> moduleName = node.moduleName();
 
@@ -329,14 +320,23 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         int moduleNameEnd = moduleName.get(moduleName.size() - 1).textRange().endOffset();
         int cursor = context.getCursorPositionInTree();
 
-        return node.prefix().isEmpty() && cursor > moduleNameEnd;
+        /*
+        The as keyword missing check is added to satisfy the following case where the prefix exist while the
+        as keyword being empty
+        eg:
+        (1) import alpha3_packagex.mod2 <cursor>
+        (2) import alpha3_packagex.mod2 a<cursor>
+         */
+        return (node.prefix().isEmpty() || node.prefix().get().asKeyword().isMissing())
+                && cursor > moduleNameEnd;
     }
 
     private boolean onPrefixContext(BallerinaCompletionContext context, ImportDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         Optional<ImportPrefixNode> prefix = node.prefix();
 
-        return prefix.isPresent() && cursor > prefix.get().asKeyword().textRange().endOffset();
+        return prefix.isPresent() && !prefix.get().asKeyword().isMissing() &&
+                cursor > prefix.get().asKeyword().textRange().endOffset();
     }
 
     private boolean onSuggestCurrentProjectModules(BallerinaCompletionContext context, ImportDeclarationNode node,
@@ -347,7 +347,19 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         (1) import pkgname.
         (2) import pkg.m
          */
-        return module.isPresent() && (moduleNameComponents.size() >= 2 || node.moduleName().separatorSize() != 0);
+        int cursor = context.getCursorPositionInTree();
+        return !moduleNameComponents.isEmpty()
+                && module.isPresent() && (moduleNameComponents.size() >= 2 || node.moduleName().separatorSize() != 0)
+                && node.orgName().isEmpty()
+                && moduleNameComponents.get(moduleNameComponents.size() - 1).textRange().endOffset() <= cursor;
+    }
+    
+    private String escapeReservedKeyword(String value) {
+        if (CommonUtil.BALLERINA_KEYWORDS.contains(value)) {
+            return "'" + value;
+        }
+        
+        return value;
     }
 
     private enum ContextScope {

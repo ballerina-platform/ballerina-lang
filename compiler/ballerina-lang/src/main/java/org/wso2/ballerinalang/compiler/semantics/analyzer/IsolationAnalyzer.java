@@ -109,6 +109,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -314,7 +315,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             analyzeNode(function, env);
         }
 
-        for (BLangSimpleVariable globalVar : pkgNode.globalVars) {
+        for (BLangVariable globalVar : pkgNode.globalVars) {
             analyzeNode(globalVar, env);
         }
 
@@ -351,7 +352,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
 
         for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
-            if (!requiredParam.symbol.defaultableParam) {
+            if (!requiredParam.symbol.isDefaultable) {
                 continue;
             }
 
@@ -1597,6 +1598,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
+    }
+
+    @Override
     public void visit(BLangRecordTypeNode recordTypeNode) {
         SymbolEnv typeEnv = SymbolEnv.createTypeEnv(recordTypeNode, recordTypeNode.symbol.scope, env);
 
@@ -2646,7 +2651,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean isInIsolatedObjectMethod(SymbolEnv env, boolean ignoreInit) {
         BLangInvokableNode enclInvokable = env.enclInvokable;
 
-        if (enclInvokable == null || enclInvokable.getKind() != NodeKind.FUNCTION) {
+        if (enclInvokable == null ||
+                (enclInvokable.getKind() != NodeKind.FUNCTION && enclInvokable.getKind() != NodeKind.RESOURCE_FUNC)) {
             return false;
         }
 

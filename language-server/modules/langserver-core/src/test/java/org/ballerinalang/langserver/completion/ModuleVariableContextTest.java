@@ -17,15 +17,25 @@
  */
 package org.ballerinalang.langserver.completion;
 
+import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.testng.annotations.DataProvider;
+import org.testng.annotations.Test;
+
+import java.io.IOException;
 
 /**
  * Module Variable Declaration Context tests.
  *
  * @since 2.0.0
  */
-public class ModuleVariableContextTest extends CompletionTestNew {
-    
+public class ModuleVariableContextTest extends CompletionTest {
+
+    @Test(dataProvider = "completion-data-provider")
+    @Override
+    public void test(String config, String configPath) throws WorkspaceDocumentException, IOException {
+        super.test(config, configPath);
+    }
+
     @DataProvider(name = "completion-data-provider")
     @Override
     public Object[][] dataProvider() {

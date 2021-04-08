@@ -32,7 +32,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.logging.Logger;
 
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
 import static java.nio.file.StandardCopyOption.REPLACE_EXISTING;
 
 /**
@@ -46,6 +48,7 @@ public class ObservabilityBaseTest extends BaseTest {
     private static final String BALLERINA_TOML_TEST_NATIVES_JAR_NAME = "observability-test-utils.jar";
 
     protected static final String SERVER_CONNECTOR_NAME = "testobserve_listener";
+    private static final Logger LOGGER = Logger.getLogger(ObservabilityBaseTest.class.getName());
 
     protected void setupServer(String testProject, String packageName, int[] requiredPorts) throws Exception {
         final String serverHome = balServer.getServerHome();
@@ -70,7 +73,7 @@ public class ObservabilityBaseTest extends BaseTest {
         String configFile = Paths.get("src", "test", "resources", "observability", testProject,
                 "Config.toml").toFile().getAbsolutePath();
         Map<String, String> env = new HashMap<>();
-        env.put("BALCONFIGFILE", configFile);
+        env.put(CONFIG_FILES_ENV_VARIABLE, configFile);
 
         // Don't use 9898 port here. It is used in metrics test cases.
         servicesServerInstance = new BServerInstance(balServer);
@@ -78,7 +81,13 @@ public class ObservabilityBaseTest extends BaseTest {
         Utils.waitForPortsToOpen(requiredPorts, 1000 * 60, false, "localhost");
     }
 
-    protected void cleanupServer() throws BallerinaTestException {
+    protected void cleanupServer() throws BallerinaTestException, IOException {
+        Path ballerinaInternalLog = Paths.get(balServer.getServerHome(), "ballerina-internal.log");
+        if (Files.exists(ballerinaInternalLog)) {
+            LOGGER.severe("=== Ballerina Internal Log Start ===");
+            Files.lines(ballerinaInternalLog).forEach(LOGGER::severe);
+            LOGGER.severe("=== Ballerina Internal Log End ===");
+        }
         servicesServerInstance.removeAllLeechers();
         servicesServerInstance.shutdownServer();
     }

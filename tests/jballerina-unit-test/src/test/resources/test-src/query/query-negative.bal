@@ -257,7 +257,7 @@ function testReassignValueInLet() returns FullName[]{
 	    let float twiceScore = (student.score*2)
 	    do {
 	        twiceScore = 1000;
-	        if(twiceScore<50){
+	        if(twiceScore < 50.00){
 	            FullName fullname = {firstName:student.firstName,lastName:student.lastName};
 	            nameList.push(fullname);
 	        }
@@ -384,4 +384,39 @@ public function testMethodParamInQuery(int age) {
                    lastName: lastName,
                    age: age
              };
+}
+
+type TableRecord record {
+    readonly string name;
+    int id;
+};
+
+function testTableWithNonMappingType() {
+
+    table<TableRecord> key(name) t = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+
+    table<int> ids = from var x in t select x.id;
+}
+
+function testTableWithNonMappingTypeWithBindingPatterns() {
+
+    table<TableRecord> key(name) t = table [
+            {name: "Amy", id: 1234},
+            {name: "John", id: 4567}
+        ];
+
+    table<int> ids = from var {id} in t select id;
+}
+
+public function testInvalidInputType() {
+    int x = 1;
+    int[] w = from var a in x
+                select 1;
+}
+
+function testIncompatibleSelectType(stream<string, error> clientStream) returns error? {
+    return from string num in clientStream select {a: 1};
 }

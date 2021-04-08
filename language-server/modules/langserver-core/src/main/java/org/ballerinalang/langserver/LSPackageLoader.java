@@ -26,6 +26,7 @@ import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.internal.environment.BallerinaDistribution;
 import io.ballerina.projects.internal.environment.DefaultEnvironment;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -65,29 +66,35 @@ public class LSPackageLoader {
         Map<String, List<String>> pkgMap = packageRepository.getPackages();
 
         List<Package> packages = new ArrayList<>();
-        pkgMap.forEach((key, value) -> value.forEach(nameEntry -> {
-            String[] components = nameEntry.split(":");
-            if (components.length != 2 || components[0].startsWith("lang.")) {
+        pkgMap.forEach((key, value) -> {
+            if (key.equals(Names.BALLERINA_INTERNAL_ORG.getValue())) {
                 return;
             }
-            String nameComponent = components[0];
-            String version = components[1];
-            PackageOrg packageOrg = PackageOrg.from(key);
-            PackageName packageName = PackageName.from(nameComponent);
-            PackageVersion pkgVersion = PackageVersion.from(version);
-            PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
-            ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
+            value.forEach(nameEntry -> {
+                String[] components = nameEntry.split(":");
+                if (components.length != 2 || components[0].equals("lang.annotations")
+                        || components[0].equals("lang.__internal")) {
+                    return;
+                }
+                String nameComponent = components[0];
+                String version = components[1];
+                PackageOrg packageOrg = PackageOrg.from(key);
+                PackageName packageName = PackageName.from(nameComponent);
+                PackageVersion pkgVersion = PackageVersion.from(version);
+                PackageDescriptor pkdDesc = PackageDescriptor.from(packageOrg, packageName, pkgVersion);
+                ResolutionRequest request = ResolutionRequest.from(pkdDesc, PackageDependencyScope.DEFAULT);
 
-            Optional<Package> repoPackage = packageRepository.getPackage(request);
-            repoPackage.ifPresent(packages::add);
-        }));
+                Optional<Package> repoPackage = packageRepository.getPackage(request);
+                repoPackage.ifPresent(packages::add);
+            });
+        });
 
         return Collections.unmodifiableList(packages);
     }
 
     /**
      * Get the distribution repo packages.
-     * Here the distRepoPackages does not contain the langlib packages 
+     * Here the distRepoPackages does not contain the langlib packages and ballerinai packages 
      *
      * @return {@link List} of distribution repo packages
      */

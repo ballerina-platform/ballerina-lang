@@ -39,17 +39,19 @@ isolated function externAttach(service object {} s) returns error? = @java:Metho
 } external;
 
 listener Listener lsn = new();
-error err = error("An Error");
+final error err = error("An Error");
 error diff = error("A different error");
 service /hello on lsn {
     resource function get processRequest() returns error? {
         error? aDifferentError = createADifferentError();
         assertEquals(diff, aDifferentError);
-        error? anotherErr = self.createError();
-        assertEquals(err, anotherErr);
+        lock {
+            error? anotherErr = self.createError();
+            assertEquals(err, anotherErr);
+        }
     }
 
-    function createError() returns @tainted error? {
+    isolated function createError() returns @tainted error? {
         return err;
     }
 }
@@ -70,12 +72,20 @@ public function testErrorFunction() {
     }
 }
 
-function assertEquals(anydata|error expected, anydata|error actual) {
-    if expected == actual {
+isolated function assertEquals(anydata|error expected, anydata|error actual) {
+    if isEqual(actual, expected) {
         return;
     }
 
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error("expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
+    if (actual is anydata && expected is anydata) {
+        return (actual == expected);
+    } else {
+        return (actual === expected);
+    }
 }

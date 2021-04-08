@@ -26,7 +26,9 @@ import org.ballerinalang.langserver.command.executors.UpdateDocumentationExecuto
 import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.command.CommandArgument;
+import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -52,7 +54,9 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
     }
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
         String code = diagnostic.diagnosticInfo().code();
         if (!DiagnosticWarningCode.UNDOCUMENTED_PARAMETER.diagnosticId().equals(code) &&
                 !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_PARAMETER.diagnosticId().equals(code) &&
@@ -70,15 +74,22 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
                 !DiagnosticWarningCode.NO_SUCH_DOCUMENTABLE_ATTRIBUTE.diagnosticId().equals(code) &&
                 !DiagnosticWarningCode.INVALID_USE_OF_ENDPOINT_DOCUMENTATION_ATTRIBUTE.diagnosticId().equals(code) &&
                 !DiagnosticWarningCode.DUPLICATE_DOCUMENTED_ATTRIBUTE.diagnosticId().equals(code) &&
-                !DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT.diagnosticId().equals(code)) {
+                !DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT.diagnosticId().equals(code) &&
+                !DiagnosticErrorCode.DEPRECATION_DOCUMENTATION_SHOULD_BE_AVAILABLE.diagnosticId().equals(code)) {
             return Collections.emptyList();
         }
         String docUri = context.fileUri();
-        SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+        SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
         Optional<NonTerminalNode> topLevelNode = CodeActionUtil.getTopLevelNode(context.cursorPosition(), syntaxTree);
         if (topLevelNode.isEmpty()) {
             return Collections.emptyList();
         }
+
+        // TODO: #27493 Documenting services is not fully supported yet due to a limitation in semantic API
+        if (topLevelNode.get().kind() == SyntaxKind.SERVICE_DECLARATION) {
+            return Collections.emptyList();
+        }
+        
         NonTerminalNode node = topLevelNode.get();
         if (node.kind() == SyntaxKind.MARKDOWN_DOCUMENTATION) {
             // If diagnostic message positions inside docs, get parent() node

@@ -25,6 +25,7 @@ import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
 
+import java.io.File;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.FileSystems;
@@ -59,7 +60,7 @@ public class ProjectFiles {
         ModuleData defaultModule = ModuleData
                 .from(filePath, DOT, Collections.singletonList(documentData), Collections.emptyList(), null);
         return PackageData.from(filePath, defaultModule, Collections.emptyList(),
-                null, null, null, null);
+                null, null, null, null, null);
     }
 
     public static PackageData loadBuildProjectPackageData(Path packageDirPath) {
@@ -69,10 +70,11 @@ public class ProjectFiles {
         DocumentData ballerinaToml = loadDocument(packageDirPath.resolve(ProjectConstants.BALLERINA_TOML));
         DocumentData dependenciesToml = loadDocument(packageDirPath.resolve(ProjectConstants.DEPENDENCIES_TOML));
         DocumentData cloudToml = loadDocument(packageDirPath.resolve(ProjectConstants.CLOUD_TOML));
+        DocumentData compilerPluginToml = loadDocument(packageDirPath.resolve(ProjectConstants.COMPILER_PLUGIN_TOML));
         DocumentData packageMd = loadDocument(packageDirPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
 
         return PackageData.from(packageDirPath, defaultModule, otherModules,
-                ballerinaToml, dependenciesToml, cloudToml, packageMd);
+                ballerinaToml, dependenciesToml, cloudToml, compilerPluginToml, packageMd);
     }
 
     private static List<ModuleData> loadOtherModules(Path packageDirPath) {
@@ -170,7 +172,10 @@ public class ProjectFiles {
                 packageConfig.ballerinaToml().map(t -> t.content()).orElse(""));
         TomlDocument dependenciesToml = TomlDocument.from(ProjectConstants.DEPENDENCIES_TOML,
                 packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
-        ManifestBuilder manifestBuilder = ManifestBuilder.from(ballerinaToml, dependenciesToml, projectDirPath);
+        TomlDocument pluginToml = TomlDocument.from(ProjectConstants.COMPILER_PLUGIN_TOML,
+                packageConfig.dependenciesToml().map(t -> t.content()).orElse(""));
+        ManifestBuilder manifestBuilder = ManifestBuilder
+                .from(ballerinaToml, dependenciesToml, pluginToml, projectDirPath);
         BuildOptions defaultBuildOptions = manifestBuilder.buildOptions();
         if (defaultBuildOptions == null) {
             defaultBuildOptions = new BuildOptionsBuilder().build();
@@ -229,15 +234,37 @@ public class ProjectFiles {
 
     public static void validateBalaProjectPath(Path balaPath) {
         if (Files.notExists(balaPath)) {
-            throw new ProjectException("Given .bala file does not exist: " + balaPath);
+            throw new ProjectException("Given bala path does not exist: " + balaPath);
         }
 
-        if (!Files.isRegularFile(balaPath) || !ProjectFiles.BALA_EXTENSION_MATCHER.matches(balaPath)) {
-            throw new ProjectException("Invalid .bala file: " + balaPath);
+        if (!isValidBalaFile(balaPath) && !isValidBalaDir(balaPath)) {
+            throw new ProjectException("Invalid bala file: " + balaPath);
         }
 
         if (!balaPath.toFile().canRead()) {
             throw new ProjectException("insufficient privileges to bala: " + balaPath);
         }
+    }
+
+    private static boolean isValidBalaDir(Path balaPath) {
+        if (Files.notExists(balaPath.resolve(ProjectConstants.DEPENDENCY_GRAPH_JSON))) {
+            return false;
+        }
+        if (Files.notExists(balaPath.resolve(ProjectConstants.PACKAGE_JSON))) {
+            return false;
+        }
+        if (Files.notExists(balaPath.resolve(ProjectConstants.BALA_JSON))) {
+            return false;
+        }
+        Path modulesRoot = balaPath.resolve(ProjectConstants.MODULES_ROOT);
+        File[] files = modulesRoot.toFile().listFiles();
+        if (files == null) {
+            return false;
+        }
+        return Files.isDirectory(modulesRoot) && files.length >= 1;
+    }
+
+    private static boolean isValidBalaFile(Path balaPath) {
+        return Files.isRegularFile(balaPath) && ProjectFiles.BALA_EXTENSION_MATCHER.matches(balaPath);
     }
 }

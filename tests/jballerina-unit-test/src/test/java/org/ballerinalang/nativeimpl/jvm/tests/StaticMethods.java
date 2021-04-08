@@ -509,6 +509,14 @@ public class StaticMethods {
                                               a.get(StringUtils.fromString("age")) + "#" + b);
     }
 
+    public static long getDefaultValueWithBEnv(Environment env, long b) {
+        return b;
+    }
+
+    public static long getDefaultValueWithBEnvForObject(Environment env, ObjectValue a, long b) {
+        return b;
+    }
+
     private static void sleep() {
         try {
             Thread.sleep(100);
@@ -635,5 +643,19 @@ public class StaticMethods {
                 StringUtils.fromString("name"), StringUtils.fromString("aee")), ValueCreator.createKeyFieldEntry(
                 StringUtils.fromString("id"), 123L)};
         return ValueCreator.createMapValue(recordType, mapInitialValueEntries);
+    }
+
+    public static BDecimal defaultDecimalArgsAddition(BDecimal a, BDecimal b) {
+        BDecimal c = a.add(b);
+        return c;
+    }
+
+    public static Object defaultDecimalArgs(String s, BDecimal d) {
+        if (!d.booleanValue()) {
+            BDecimal a = new DecimalValue(s);
+            return a.multiply(d);
+        } else {
+            return null;
+        }
     }
 }

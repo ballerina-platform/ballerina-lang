@@ -60,14 +60,18 @@ import io.ballerina.compiler.syntax.tree.NodeTransformer;
 import io.ballerina.compiler.syntax.tree.ObjectConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.ObjectFieldNode;
 import io.ballerina.compiler.syntax.tree.OptionalFieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.QueryExpressionNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldNode;
 import io.ballerina.compiler.syntax.tree.RecordFieldWithDefaultValueNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.ResourcePathParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.TableConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.TemplateExpressionNode;
 import io.ballerina.compiler.syntax.tree.Token;
@@ -176,6 +180,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     }
 
     @Override
+    public Optional<Location> transform(ResourcePathParameterNode resourcePathParameterNode) {
+        return resourcePathParameterNode.paramName().apply(this);
+    }
+
+    @Override
     public Optional<Location> transform(FunctionCallExpressionNode functionCallExpressionNode) {
         return functionCallExpressionNode.functionName().apply(this);
     }
@@ -280,6 +289,11 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     @Override
     public Optional<Location> transform(TypeReferenceNode typeReferenceNode) {
         return typeReferenceNode.typeName().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(ServiceDeclarationNode serviceDeclarationNode) {
+        return Optional.of(serviceDeclarationNode.serviceKeyword().location());
     }
 
     @Override
@@ -454,6 +468,16 @@ public class SyntaxNodeToLocationMapper extends NodeTransformer<Optional<Locatio
     @Override
     public Optional<Location> transform(BracedExpressionNode bracedExpressionNode) {
         return bracedExpressionNode.expression().apply(this);
+    }
+
+    @Override
+    public Optional<Location> transform(PositionalArgumentNode positionalArgumentNode) {
+        return Optional.of(positionalArgumentNode.location());
+    }
+
+    @Override
+    public Optional<Location> transform(SpecificFieldNode specificFieldNode) {
+        return Optional.of(specificFieldNode.location());
     }
 
     @Override

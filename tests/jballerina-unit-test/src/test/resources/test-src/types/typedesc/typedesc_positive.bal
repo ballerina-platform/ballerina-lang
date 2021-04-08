@@ -21,7 +21,7 @@ function testRefTypes(){
 
     [typedesc<any>, typedesc<any>, typedesc<any>, typedesc<any>] tupleValue = [a, b, c, d];
 
-    assertEquality("typedesc xml<lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text>", tupleValue[0].toString());
+    assertEquality("typedesc xml<(lang.xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>", tupleValue[0].toString());
     assertEquality("typedesc json", b.toString());
     assertEquality("typedesc map", c.toString());
     assertEquality("typedesc table<Employee>", d.toString());
@@ -193,6 +193,63 @@ function testCustomErrorTypeDescWithoutConstraint() {
 
     assertEquality("typedesc FooError", te.toString());
 
+}
+
+type ImmutableIntArray int[] & readonly;
+
+function testTypeDefWithIntersectionTypeDescAsTypedesc() {
+    typedesc<anydata> a = ImmutableIntArray;
+    (int|string)[] arr = [1, 2, 3];
+    anydata|error b = arr.cloneWithType(a);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/28912
+    //assertEquality(true, (typeof b).toString());
+    //assertEquality(true, b is int[]);
+    //assertEquality(true, (<int[]> checkpanic b).isReadOnly());
+    //assertEquality(<int[]> [1, 2, 3], b);
+
+    anydata|error c = arr.fromJsonWithType(ImmutableIntArray);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/28912
+    //assertEquality(true, c is int[]);
+    //assertEquality(true, (<int[]> checkpanic c).isReadOnly());
+    //assertEquality(<int[]> [1, 2, 3], c);
+
+    typedesc<readonly> d = ImmutableIntArray;
+}
+
+type Foo "foo";
+type FooBar "foo"|"bar";
+
+function testFiniteTypeAsTypedesc() {
+    typedesc<string> a = Foo;
+    typedesc<anydata> b = FooBar;
+
+    string foo = "foo";
+    string bar = "bar";
+    string baz = "baz";
+
+    var c = foo.cloneWithType(a);
+    assertEquality(true, c is Foo);
+
+    var d = baz.cloneWithType(a);
+    assertEquality(true, d is error);
+
+    var e = bar.fromJsonWithType(FooBar);
+    assertEquality(false, e is Foo);
+    assertEquality(true, e is FooBar);
+}
+
+type FunctionTypeOne function (int i) returns string;
+type FunctionTypeTwo function () returns string;
+
+function testTypeDefWithFunctionTypeDescAsTypedesc() {
+    typedesc a = FunctionTypeOne;
+    typedesc b = FunctionTypeTwo;
+
+    any c = function () returns string => "hello";
+    typedesc d = typeof c;
+
+    assertEquality(false, a.toString() == b.toString());
+    assertEquality(true, b.toString() == d.toString());
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

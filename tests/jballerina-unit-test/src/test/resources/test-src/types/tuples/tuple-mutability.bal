@@ -125,7 +125,7 @@ function testWithTryCatch() returns int {
 
     y[0] = 5;
     y[1] = 5;
-    var result = trap nilValueAssignment(y);
+    error? result = trap nilValueAssignment(y);
     return y[1] ?: 1;
 }
 

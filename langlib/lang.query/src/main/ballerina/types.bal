@@ -21,6 +21,7 @@ import ballerina/lang.'string as lang_string;
 import ballerina/lang.'xml as lang_xml;
 import ballerina/lang.'stream as lang_stream;
 import ballerina/lang.'table as lang_table;
+import ballerina/lang.'object as lang_object;
 
 # A type parameter that is a subtype of `any|error`.
 # Has the special semantic that when used in a declaration
@@ -32,25 +33,27 @@ type Type any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type ErrorType error|never;
+type ErrorType error?;
 
 # An abstract `_Iterator` object.
 type _Iterator object {
+    public function next() returns record {|Type value;|}|ErrorType?;
+};
+
+# An abstract `_StreamImplementor` object
+type _StreamImplementor object {
     public isolated function next() returns record {|Type value;|}|ErrorType?;
 };
 
-# An abstract `_CloseableIterator` object.
-type _CloseableIterator object {
+# An abstract `_CloseableStreamImplementor` object.
+type _CloseableStreamImplementor object {
     public isolated function next() returns record {|Type value;|}|ErrorType?;
     public isolated function close() returns ErrorType?;
 };
 
 # An abstract `_Iterable` object.
 type _Iterable object {
-    public function __iterator() returns
-        object {
-            public isolated function next() returns record {|Type value;|}|ErrorType?;
-        };
+    *lang_object:Iterable;
 };
 
 type _StreamFunction object {
@@ -148,7 +151,7 @@ class _InitFunction {
         } else if (collection is table<map<Type>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
-            return collection.__iterator();
+            return collection.iterator();
         } else {
             // stream.iterator() is not resettable.
             self.resettable = false;
@@ -268,7 +271,7 @@ class _NestedFromFunction {
         } else if (collection is table<map<Type>>) {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
-            return collection.__iterator();
+            return collection.iterator();
         } else if (collection is stream <Type, ErrorType>) {
             return lang_stream:iterator(collection);
         }
@@ -708,7 +711,7 @@ class IterHelper {
 
     public isolated function next() returns record {|Type value;|}|error? {
         _StreamPipeline p = self.pipeline;
-        _Frame|error? f = p.next();
+        _Frame|ErrorType? f = p.next();
         if (f is _Frame) {
             Type v = <Type>f["$value$"];
             return internal:setNarrowType(self.outputType, {value: v});

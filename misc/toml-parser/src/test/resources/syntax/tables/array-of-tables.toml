@@ -26,3 +26,9 @@ sku = 738594937
 [[products.hello]]
 name = "Nail"
 sku = 284758393
+
+[[foo.bar]]
+name = "Alice"
+
+[foo]
+name = "Bob"

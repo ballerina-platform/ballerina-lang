@@ -14,16 +14,6 @@
     "expr": "[1,2,3,4,5,6,7,8]"
   },
   {
-    "description": "Arrays support several inbuilt functions: reverse(). ",
-    "code": "b.reverse()",
-    "expr": "[8,7,6,5,4,3,2,1]"
-  },
-  {
-    "description": "Reverse again to reset: reverse is inplace?",
-    "code": "b.reverse()",
-    "expr": "[1,2,3,4,5,6,7,8]"
-  },
-  {
     "description": "Arrays support several inbuilt functions: pop().",
     "code": "b.pop()",
     "expr": "8"
@@ -37,6 +27,11 @@
     "description": "An array can be sorted using `.sort()`.",
     "code": "int[] sortedArray = b.sort(array:DESCENDING, isolated function (int value) returns string[] { if (value < 5) {return [\"A\",value.toString()]; } else { return [\"B\",value.toString()]; } }); sortedArray",
     "expr": "[7,6,5,4,3,2,1]"
+  },
+  {
+    "description": "Arrays support several inbuilt functions: reverse(). ",
+    "code": "b.reverse()",
+    "expr": "[1,2,3,4,5,6,7]"
   },
   {
     "description": "Unless size is specified, arrays are unbound of length.",

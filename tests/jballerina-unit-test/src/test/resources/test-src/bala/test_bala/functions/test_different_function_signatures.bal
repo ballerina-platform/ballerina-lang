@@ -31,6 +31,17 @@ function getIntArray() returns int[] {
     return [1,2,3,4];
 }
 
+function total(int b) returns int {
+    return b;
+}
+
+function t = total;
+
+function testAnyFunction() returns [boolean, boolean] {
+    function fn = foo:anyFunction(t);
+    return [fn is function (int) returns int, fn is function () returns int];
+}
+
 //------------- Testing a function having required and rest parameters --------
 
 function testInvokeFuncWithoutRestParams() returns [int, float, string, int, string] {
@@ -336,7 +347,7 @@ function assertFalse(any|error actual) {
 }
 
 function assertValueEquality(anydata|error expected, anydata|error actual) {
-    if expected == actual {
+    if isEqual(expected, actual) {
         return;
     }
 
@@ -344,4 +355,12 @@ function assertValueEquality(anydata|error expected, anydata|error actual) {
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERROR_REASON,
                 message = "expected '" + expectedValAsString+ "', found '" + actualValAsString + "'");
+}
+
+isolated function isEqual(anydata|error val1, anydata|error val2) returns boolean {
+    if (val1 is anydata && val2 is anydata) {
+        return (val1 == val2);
+    } else {
+        return (val1 === val2);
+    }
 }

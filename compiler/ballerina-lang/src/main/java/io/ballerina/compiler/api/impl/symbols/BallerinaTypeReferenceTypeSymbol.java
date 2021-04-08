@@ -20,6 +20,7 @@ import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
@@ -29,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.Names;
+import org.wso2.ballerinalang.compiler.util.TypeTags;
 
 import java.util.List;
 import java.util.Optional;
@@ -46,6 +48,7 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     private Location location;
     private String signature;
     private ModuleSymbol module;
+    private Symbol definition;
     private boolean moduleEvaluated;
 
     public BallerinaTypeReferenceTypeSymbol(CompilerContext context, ModuleID moduleID, BType bType,
@@ -72,6 +75,17 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
     @Override
     public String name() {
         return this.definitionName;
+    }
+
+    @Override
+    public Symbol definition() {
+        if (this.definition != null) {
+            return this.definition;
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        this.definition = symbolFactory.getBCompiledSymbol(this.getBType().tsymbol, this.name());
+        return this.definition;
     }
 
     @Override
@@ -134,8 +148,9 @@ public class BallerinaTypeReferenceTypeSymbol extends AbstractTypeSymbol impleme
         }
 
         ModuleID moduleID = this.getModule().get().id();
-        if (moduleID == null || (moduleID.moduleName().equals("lang.annotations") &&
-                moduleID.orgName().equals("ballerina"))) {
+        if (moduleID == null ||
+                (moduleID.moduleName().equals("lang.annotations") && moduleID.orgName().equals("ballerina")) ||
+                this.getBType().tag == TypeTags.PARAMETERIZED_TYPE) {
             this.signature = this.definitionName;
         } else {
             this.signature = !this.isAnonOrg(moduleID) ? moduleID.orgName() + Names.ORG_NAME_SEPARATOR +

@@ -212,3 +212,11 @@ const NIL = ();
 type Nil NIL;
 
 type Pi PI;
+
+function testFunctionTypedesc() {
+    function f = foo;
+}
+
+function testParameterizedType1(typedesc<anydata> td) returns td = external;
+
+function testParameterizedType2(typedesc td = <>) returns error|td = external;

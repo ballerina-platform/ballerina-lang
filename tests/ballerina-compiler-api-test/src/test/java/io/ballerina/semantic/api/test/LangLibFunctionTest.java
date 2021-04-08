@@ -161,9 +161,9 @@ public class LangLibFunctionTest {
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), ARRAY);
 
-        List<String> expFunctions = List.of("length", "iterator", "enumerate", "map", "forEach", "filter", "reduce",
-                                            "slice", "remove", "removeAll", "setLength", "indexOf", "lastIndexOf",
-                                            "reverse", "sort", "pop", "push", "shift", "unshift", "toString",
+        List<String> expFunctions = List.of("length", "iterator", "enumerate", "map", "forEach", "filter",
+                                            "reduce", "slice", "remove", "removeAll", "setLength", "reverse",
+                                            "sort", "pop", "push", "shift", "unshift", "toString",
                                             "toBalString", "toStream", "ensureType");
 
         assertLangLibList(type.langLibMethods(), expFunctions);
@@ -197,7 +197,7 @@ public class LangLibFunctionTest {
         List<String> expFunctions = List.of("length", "iterator", "forEach", "map", "filter", "get", "slice", "strip",
                                             "elements", "children", "elementChildren", "clone", "cloneReadOnly",
                                             "cloneWithType", "isReadOnly", "toString", "toBalString", "toJson",
-                                            "toJsonString", "ensureType");
+                                            "toJsonString", "ensureType", "text", "data");
 
 //        List<String> additionalFuncs = List.of("getName", "setName", "getChildren", "setChildren", "getAttributes");
 

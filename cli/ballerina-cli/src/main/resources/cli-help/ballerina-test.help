@@ -2,8 +2,7 @@ NAME
        ballerina-test - Run package tests
 
 SYNOPSIS
-       bal test [<options>]
-                [<ballerina-file-path> | <ballerina-package-path>] [<config properties>]
+       bal test [<options>] [<ballerina-file-path> | <ballerina-package-path>]
 
 
 DESCRIPTION
@@ -82,14 +81,6 @@ OPTIONS
 
        --observability-included
            Package observability in the executable.
-
-CONFIG PROPERTIES
-       (--key=value)...
-           Set the Ballerina environment parameters as key/value pairs.
-           If multiple parameters need to be provided, each parameter
-           has to be prefixed with '--'. Details of the environment parameters
-           supported by the Ballerina standard library packages are specified
-           in the relevant API documentation.
 
 
 EXAMPLES

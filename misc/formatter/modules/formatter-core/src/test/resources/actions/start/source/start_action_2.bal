@@ -1,3 +1,5 @@
+function foo()
+{
 future  < int  >
 f1   =
 @  strand
@@ -5,3 +7,4 @@ f1   =
 }   start
  multiply  (  1  ,   2  )
  ;
+ }

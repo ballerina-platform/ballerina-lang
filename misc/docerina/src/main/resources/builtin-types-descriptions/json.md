@@ -1,0 +1,1 @@
+The `json` data type which represents the standard `JSON` format. It is a collection of `numbers`, `string`, `true`, `false`, `null`,  an `array` of `JSON`, or an `object` with key-value pairs where value is another `JSON`.

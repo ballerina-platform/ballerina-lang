@@ -162,7 +162,7 @@ public class TypedescriptorTest {
         FunctionTypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), TypeDescKind.FUNCTION);
 
-        List<ParameterSymbol> parameters = type.parameters();
+        List<ParameterSymbol> parameters = type.params().get();
         assertEquals(parameters.size(), 2);
         validateParam(parameters.get(0), "x", REQUIRED, INT);
 
@@ -445,7 +445,7 @@ public class TypedescriptorTest {
     @DataProvider(name = "StreamTypePosProvider")
     public Object[][] getStreamTypePos() {
         return new Object[][]{
-                {93, 19, TYPE_REFERENCE, NEVER},
+                {93, 19, TYPE_REFERENCE, NIL},
                 {94, 23, TYPE_REFERENCE, NIL},
                 {95, 45, RECORD, ERROR}
         };
@@ -634,6 +634,33 @@ public class TypedescriptorTest {
                 {211, 5, "()"},
                 {213, 5, "3.14"},
         };
+    }
+
+    @Test
+    public void testFunctionTypedesc() {
+        FunctionSymbol symbol = (FunctionSymbol) getSymbol(216, 13);
+        assertTrue(symbol.typeDescriptor().params().isEmpty());
+        assertTrue(symbol.typeDescriptor().restParam().isEmpty());
+        assertTrue(symbol.typeDescriptor().returnTypeDescriptor().isEmpty());
+        assertEquals(symbol.typeDescriptor().signature(), "function");
+    }
+
+    @Test
+    public void testParameterizedType() {
+        Symbol symbol = getSymbol(219, 9);
+        FunctionTypeSymbol type = ((FunctionSymbol) symbol).typeDescriptor();
+        TypeSymbol returnTypeSymbol = type.returnTypeDescriptor().get();
+        assertEquals(returnTypeSymbol.signature(), "td");
+
+        symbol = getSymbol(221, 9);
+        type = ((FunctionSymbol) symbol).typeDescriptor();
+        returnTypeSymbol = type.returnTypeDescriptor().get();
+        assertEquals(returnTypeSymbol.typeKind(), UNION);
+        assertEquals(returnTypeSymbol.signature(), "error|td");
+        List<TypeSymbol> members = ((UnionTypeSymbol) returnTypeSymbol).memberTypeDescriptors();
+        assertEquals(members.size(), 2);
+        assertEquals(members.get(0).typeKind(), ERROR);
+        assertEquals(members.get(1).signature(), "td");
     }
 
     private Symbol getSymbol(int line, int column) {

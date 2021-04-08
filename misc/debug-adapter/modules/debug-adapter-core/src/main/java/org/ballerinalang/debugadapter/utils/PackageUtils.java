@@ -16,7 +16,6 @@
 
 package org.ballerinalang.debugadapter.utils;
 
-import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
 import io.ballerina.projects.Document;
@@ -29,8 +28,6 @@ import io.ballerina.projects.directory.SingleFileProject;
 import org.ballerinalang.debugadapter.DebugSourceType;
 import org.ballerinalang.debugadapter.ExecutionContext;
 import org.ballerinalang.debugadapter.SuspendedContext;
-import org.ballerinalang.debugadapter.evaluation.EvaluationException;
-import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 
 import java.io.Closeable;
 import java.io.File;
@@ -39,9 +36,9 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.StringJoiner;
 
-import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 
 /**
@@ -53,48 +50,35 @@ public class PackageUtils {
     public static final String INIT_CLASS_NAME = "$_init";
     public static final String INIT_TYPE_INSTANCE_PREFIX = "$type$";
     public static final String GENERATED_VAR_PREFIX = "$";
-    private static final String MODULE_DIR_NAME = "modules";
+    static final String MODULE_DIR_NAME = "modules";
+
     private static final String SEPARATOR_REGEX = File.separatorChar == '\\' ? "\\\\" : File.separator;
 
     /**
-     * Some additional processing is required to rectify the source path, as the source name will be the
-     * relative path instead of just the file name, for the ballerina module sources.
+     * Retrieves the absolute path of the breakpoint location using JDI breakpoint hit information.
      */
-    public static Path getRectifiedSourcePath(Location location, Project project, String projectRoot)
-            throws AbsentInformationException {
-        if (project instanceof SingleFileProject) {
-            DocumentId docId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
-            Document document = project.currentPackage().getDefaultModule().document(docId);
-            if (!document.name().equals(location.sourcePath()) || !document.name().equals(location.sourceName())) {
-                return null;
-            }
-            return Paths.get(projectRoot);
-        } else if (project instanceof BuildProject) {
-            String orgName = getOrgName(project);
-            String defaultModuleName = getDefaultModuleName(project);
-            String sourcePath = location.sourcePath();
-            String sourceName = location.sourceName();
-            String[] srcPaths = getNameParts(sourcePath);
+    public static Optional<Path> getSrcPathFromBreakpointLocation(Location location, Project sourceProject) {
+        // Source resolving is processed according to the following order .
+        // 1. Checks whether debug hit location resides within the current debug source project and if so, returns
+        // the absolute path of the project file source.
+        // 2. Checks whether the debug hit location resides within a internal dependency (lang library) and if so,
+        // returns the absolute file path resolved using package cache.
+        // 3. Checks whether the debug hit location resides within a external dependency (standard library or central
+        // module) and if so, returns the dependency file path resolved using package resolution.
+        List<SourceResolver> sourceResolvers = new ArrayList<>();
+        sourceResolvers.add(new ProjectSourceResolver(sourceProject));
+        sourceResolvers.add(new LangLibSourceResolver(sourceProject));
+        sourceResolvers.add(new DependencySourceResolver(sourceProject));
 
-            if (!srcPaths[0].equals(orgName)) {
-                return null;
-            }
-
-            String modulePart = decodeIdentifier(srcPaths[1]);
-            modulePart = modulePart.replaceFirst(defaultModuleName, "");
-            if (modulePart.startsWith(".")) {
-                modulePart = modulePart.replaceFirst("\\.", "");
-            }
-
-            if (modulePart.isBlank()) {
-                // default module.
-                return Paths.get(projectRoot, sourceName);
-            } else {
-                // other modules
-                return Paths.get(projectRoot, MODULE_DIR_NAME, modulePart, sourceName);
+        for (SourceResolver sourceResolver : sourceResolvers) {
+            if (sourceResolver.isSupported(location)) {
+                Optional<Path> resolvedPath = sourceResolver.resolve(location);
+                if (resolvedPath.isPresent()) {
+                    return resolvedPath;
+                }
             }
         }
-        return null;
+        return Optional.empty();
     }
 
     /**
@@ -121,22 +105,6 @@ public class PackageUtils {
             return project.currentPackage().getDefaultModule().moduleName().toString();
         }
         return "";
-    }
-
-    /**
-     * Returns all the module class names which belong to the current module that is being debugged.
-     *
-     * @param context Suspended context
-     * @return All the module class names which belong to the current module that is being debugged.
-     */
-    public static List<String> getModuleClassNames(SuspendedContext context) throws EvaluationException {
-        try {
-            // Todo - use bala reader to derive module class names by accessing module bala files.
-            return new ArrayList<>();
-        } catch (Exception e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to retrieve source file names of the current module."));
-        }
     }
 
     public static String getFileNameFrom(Path filePath) {
@@ -217,7 +185,7 @@ public class PackageUtils {
             }
             String path = paths.get(0);
             String name = names.get(0);
-            String[] nameParts = getNameParts(name);
+            String[] nameParts = getQModuleNameParts(name);
             String srcFileName = nameParts[nameParts.length - 1];
 
             if (!path.endsWith(BAL_FILE_EXT) || (context.getSourceProject() instanceof BuildProject &&
@@ -248,16 +216,19 @@ public class PackageUtils {
         }
     }
 
-    public static String[] getNameParts(String path) {
-        String[] srcNames;
+    /**
+     * Retrieves name parts (org name, module name, file name) from the given qualified ballerina module name.
+     */
+    public static String[] getQModuleNameParts(String path) {
+        String[] moduleParts;
         if (path.contains("/")) {
-            srcNames = path.split("/");
+            moduleParts = path.split("/");
         } else if (path.contains("\\")) {
-            srcNames = path.split("\\\\");
+            moduleParts = path.split("\\\\");
         } else {
-            srcNames = new String[]{path};
+            moduleParts = new String[]{path};
         }
-        return srcNames;
+        return moduleParts;
     }
 
     private static String replaceSeparators(String path) {

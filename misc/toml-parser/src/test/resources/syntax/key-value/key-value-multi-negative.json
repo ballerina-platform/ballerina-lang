@@ -357,7 +357,7 @@
                   "children": [
                     {
                       "kind": "IDENTIFIER_LITERAL",
-                      "value": "key",
+                      "value": "key3",
                       "leadingMinutiae": [
                         {
                           "kind": "END_OF_LINE_MINUTIAE",

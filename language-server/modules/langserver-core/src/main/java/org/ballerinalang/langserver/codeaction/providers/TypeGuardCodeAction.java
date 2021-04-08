@@ -43,6 +43,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
+import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Range;
 import org.eclipse.lsp4j.TextEdit;
@@ -65,8 +66,9 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
     }
 
     @Override
-    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context) {
-        Node matchedNode = context.positionDetails().matchedNode();
+    public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
+                                                    NodeBasedPositionDetails posDetails) {
+        NonTerminalNode matchedNode = posDetails.matchedStatementNode();
         boolean isAssignment = matchedNode.kind() == SyntaxKind.ASSIGNMENT_STATEMENT;
         boolean isVarDeclr = matchedNode.kind() == SyntaxKind.LOCAL_VAR_DECL;
         // Skip, if not a var declaration or assignment
@@ -76,11 +78,16 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
 
         // Get LHS union type-symbol and type-desc-node of the variable
         Optional<Pair<UnionTypeSymbol, TypeDescriptorNode>> varTypeSymbolAndTypeDescNodePair =
-                getVarTypeSymbolAndTypeNode(matchedNode, context);
+                getVarTypeSymbolAndTypeNode(matchedNode, posDetails, context);
         if (varTypeSymbolAndTypeDescNodePair.isEmpty()) {
             return Collections.emptyList();
         }
         UnionTypeSymbol varTypeSymbol = varTypeSymbolAndTypeDescNodePair.get().getLeft();
+        boolean hasCompilationError = varTypeSymbol.memberTypeDescriptors().stream()
+                .anyMatch(s -> s.typeKind() == TypeDescKind.COMPILATION_ERROR);
+        if (hasCompilationError) {
+            return Collections.emptyList();
+        }
 
         // Get var name
         Optional<String> varName = getVariableName(matchedNode);
@@ -123,12 +130,13 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
     }
 
     protected Optional<Pair<UnionTypeSymbol, TypeDescriptorNode>> getVarTypeSymbolAndTypeNode(
-            Node matchedNode, CodeActionContext context) {
+            Node matchedNode, NodeBasedPositionDetails posDetails,
+            CodeActionContext context) {
         TypeSymbol varTypeSymbol;
         TypeDescriptorNode varTypeNode;
         switch (matchedNode.kind()) {
             case LOCAL_VAR_DECL:
-                varTypeSymbol = context.positionDetails().matchedExprType();
+                varTypeSymbol = posDetails.matchedTopLevelTypeSymbol();
                 varTypeNode = ((VariableDeclarationNode) matchedNode).typedBindingPattern().typeDescriptor();
                 break;
             case ASSIGNMENT_STATEMENT:
@@ -137,7 +145,7 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
                     return Optional.empty();
                 }
                 varTypeSymbol = optVariableSymbol.get().typeDescriptor();
-                SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).orElseThrow();
+                SyntaxTree syntaxTree = context.currentSyntaxTree().orElseThrow();
                 NonTerminalNode node = CommonUtil.findNode(optVariableSymbol.get(), syntaxTree);
                 if (node.kind() == SyntaxKind.TYPED_BINDING_PATTERN) {
                     varTypeNode = ((TypedBindingPatternNode) node).typeDescriptor();
@@ -156,8 +164,8 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
 
     private Optional<VariableSymbol> getVariableSymbol(CodeActionContext context, Node matchedNode) {
         AssignmentStatementNode assignmentStmtNode = (AssignmentStatementNode) matchedNode;
-        SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
-        Document srcFile = context.workspace().document(context.filePath()).orElseThrow();
+        SemanticModel semanticModel = context.currentSemanticModel().orElseThrow();
+        Document srcFile = context.currentDocument().orElseThrow();
         Optional<Symbol> symbol = semanticModel.symbol(srcFile,
                                                        assignmentStmtNode.varRef().lineRange().startLine());
         if (symbol.isEmpty() || symbol.get().kind() != SymbolKind.VARIABLE) {

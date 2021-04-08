@@ -16,7 +16,7 @@
 
 import ballerina/testobserve;
 
-service /testServiceThree on new testobserve:Listener(9093) {
+service /test/serviceThree on new testobserve:Listener(19093) {
     # Resource function for testing remote call which calls another remote call
     resource function post resourceOne(testobserve:Caller caller) {
         testClient->callAnotherRemoteFunction();
@@ -37,7 +37,7 @@ service /testServiceThree on new testobserve:Listener(9093) {
 
     # Resource function for testing ignored error return
     resource function post resourceFour(testobserve:Caller caller) returns error? {
-        var ret = testClient->callWithErrorReturn();
+        error? ret = testClient->callWithErrorReturn();
         checkpanic caller->respond("Invocation Successful");
     }
 

@@ -4,17 +4,25 @@
   "expected": [
     {
       "title": "Document this",
-      "command": "ADD_DOC",
-      "arguments": [
-        {
-          "argumentK": "node.line",
-          "argumentV": "24"
-        }
-      ]
-    },
-    {
-      "title": "Document all",
-      "command": "ADD_ALL_DOC"
+      "command": {
+        "title": "Document this",
+        "command": "ADD_DOC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 21,
+                "character": 4
+              },
+              "end": {
+                "line": 26,
+                "character": 5
+              }
+            }
+          }
+        ]
+      }
     }
   ]
 }
