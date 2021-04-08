@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-isolated boolean[] nameParamCheck = [false, false, false];
+isolated boolean[] nameParamCheck = [false, false, false, false];
 
 public class Listener1 {
     public isolated function 'start() returns error? { }
@@ -67,7 +67,7 @@ public class Listener3 {
 
     public isolated function attach(service object {} s, string[]? name) returns error? {
         lock {
-            nameParamCheck[2] = name is string[] && name.length() == 2;
+            nameParamCheck[2] = name is string[] && name[0] == "foo" && name[1] == "bar" && name.length() == 2;
         }
     }
 }
@@ -76,9 +76,30 @@ service /foo/bar on new Listener3() {
 
 }
 
+public class Listener4 {
+    public isolated function 'start() returns error? { }
+
+    public isolated function gracefulStop() returns error? { }
+
+    public isolated function immediateStop() returns error? { }
+
+    public isolated function detach(service object {} s) returns error? { }
+
+    public function attach(service object {} s, string[]? name) returns error? {
+            lock {
+                nameParamCheck[3] = name is string[] && name[0] == "/" && name.length() == 1;
+            }
+
+    }
+}
+
+service / on new Listener4() {
+
+}
+
 public function testAttachMethodParams() {
     lock {
-        if (nameParamCheck[0] && nameParamCheck[1] && nameParamCheck[2]) {
+        if (nameParamCheck[0] && nameParamCheck[1] && nameParamCheck[2] && nameParamCheck[3]) {
             return;
         }
     }
