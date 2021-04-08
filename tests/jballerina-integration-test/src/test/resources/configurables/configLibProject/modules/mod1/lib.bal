@@ -18,3 +18,13 @@ public type Manager record {|
     string name;
     int id;
 |} ;
+
+public type Teacher readonly & record {
+    string name = "";
+    int id = 0;
+};
+
+public type Farmer record {|
+    readonly string name = "";
+    readonly int id = 0;
+|};

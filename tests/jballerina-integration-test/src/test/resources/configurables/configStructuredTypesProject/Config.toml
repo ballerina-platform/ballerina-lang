@@ -24,6 +24,10 @@ id=105
 name="manu"
 id=101
 
+[configStructuredTypes.employee1]
+name="riyafa"
+id=999
+
 [[configStructuredTypes.employeeTable]]
 name="hinduja"
 id=102
@@ -31,6 +35,14 @@ id=102
 [[configStructuredTypes.employeeTable]]
 name="manu"
 id=100
+
+[[configStructuredTypes.employeeTable1]]
+name="waruna"
+id=2
+
+[[configStructuredTypes.employeeTable1]]
+name="manu"
+id=7
 
 [configStructuredTypes.person]
 name="gabilan"
@@ -44,6 +56,14 @@ id=102
 name="manu"
 id=100
 
+[[configStructuredTypes.personTable1]]
+name="waruna"
+id=4
+
+[[configStructuredTypes.personTable1]]
+name="gabilan"
+id=5
+
 
 [configStructuredTypes.manager]
 name="hinduja"
@@ -51,11 +71,36 @@ id=107
 
 [[configStructuredTypes.managerTable]]
 name="gabilan"
-id=1001
+id=101
 
 [[configStructuredTypes.managerTable]]
 name="riyafa"
-id=1002
+id=102
+
+[configStructuredTypes.teacher]
+name="gabilan"
+id=888
+
+[[configStructuredTypes.teacherTable]]
+name="manu"
+id=77
+
+[[configStructuredTypes.teacherTable]]
+name="riyafa"
+id=88
+
+
+[configStructuredTypes.farmer]
+name="waruna"
+id=999
+
+[[configStructuredTypes.farmerTable]]
+name="waruna"
+id=444
+
+[[configStructuredTypes.farmerTable]]
+name="hinduja"
+id=888
 
 
 [configStructuredTypes.mod2.doctor]
@@ -87,6 +132,10 @@ id=105
 name="manu"
 id=101
 
+[configStructuredTypes.mod2.employee1]
+name="waruna"
+id=404
+
 [[configStructuredTypes.mod2.employeeTable]]
 name="hinduja"
 id=102
@@ -94,6 +143,14 @@ id=102
 [[configStructuredTypes.mod2.employeeTable]]
 name="manu"
 id=100
+
+[[configStructuredTypes.mod2.employeeTable1]]
+name="gabilan"
+id=2
+
+[[configStructuredTypes.mod2.employeeTable1]]
+name="riyafa"
+id=3
 
 [configStructuredTypes.mod2.person]
 name="gabilan"
@@ -107,14 +164,47 @@ id=102
 name="manu"
 id=100
 
+
+[[configStructuredTypes.mod2.personTable1]]
+name="hinduja"
+id=7
+
+[[configStructuredTypes.mod2.personTable1]]
+name="waruna"
+id=8
+
 [configStructuredTypes.mod2.manager]
 name="hinduja"
 id=107
 
 [[configStructuredTypes.mod2.managerTable]]
 name="gabilan"
-id=1001
+id=101
 
 [[configStructuredTypes.mod2.managerTable]]
 name="riyafa"
-id=1002
+id=102
+
+[configStructuredTypes.mod2.teacher]
+name="hinduja"
+id=11
+
+[[configStructuredTypes.mod2.teacherTable]]
+name="gabilan"
+id=66
+
+[[configStructuredTypes.mod2.teacherTable]]
+name="riyafa"
+id=77
+
+[configStructuredTypes.mod2.farmer]
+name="manu"
+id=22
+
+[[configStructuredTypes.mod2.farmerTable]]
+name="riyafa"
+id=555
+
+[[configStructuredTypes.mod2.farmerTable]]
+name="hinduja"
+id=666

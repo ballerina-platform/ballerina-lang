@@ -19,12 +19,12 @@ public type Student record {
     int id = 444;
 };
 
-public type Employee  readonly & record {
+public type Employee readonly & record {
     string name = "";
     int id = 0;
 };
 
-public type Person  record {
+public type Person record {|
     readonly string name = "";
     readonly int id = 0;
-};
+|};
