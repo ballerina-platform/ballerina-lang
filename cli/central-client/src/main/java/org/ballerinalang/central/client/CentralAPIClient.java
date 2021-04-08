@@ -112,30 +112,32 @@ public class CentralAPIClient {
             Response getPackageResponse = sendRequest(getPackageReq);
 
             Optional<ResponseBody> body = Optional.ofNullable(getPackageResponse.body());
-            Optional<String> contentType = Optional.ofNullable(getPackageResponse.header("Content-Type"));
-            if (body.isPresent() && contentType.isPresent() && contentType.get().equalsIgnoreCase(APPLICATION_JSON)) {
-                // Package is found
-                if (getPackageResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().fromJson(body.get().string(), Package.class);
-                }
-
-                // Package is not found
-                if (getPackageResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    if (error.getMessage().contains("package not found for:")) {
-                        throw new NoPackageException(error.getMessage());
-                    } else {
-                        throw new CentralClientException(
-                                ERR_CANNOT_FIND_PACKAGE + packageSignature + ". reason: " + error.getMessage());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                    // Package is found
+                    if (getPackageResponse.code() == HttpsURLConnection.HTTP_OK) {
+                        return new Gson().fromJson(body.get().string(), Package.class);
                     }
-                }
-
-                // If request sent is wrong or error occurred at remote repository
-                if (getPackageResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
+    
+                    // Package is not found
+                    if (getPackageResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage().contains("package not found for:")) {
+                            throw new NoPackageException(error.getMessage());
+                        } else {
+                            throw new CentralClientException(ERR_CANNOT_FIND_PACKAGE + packageSignature +
+                                                             ". reason: " + error.getMessage());
+                        }
+                    }
+    
+                    // If request sent is wrong or error occurred at remote repository
+                    if (getPackageResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
                         getPackageResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        throw new CentralClientException(error.getMessage());
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(error.getMessage());
+                        }
                     }
                 }
             }
@@ -168,28 +170,30 @@ public class CentralAPIClient {
             Response getVersionsResponse = sendRequest(getVersionsReq);
 
             Optional<ResponseBody> body = Optional.ofNullable(getVersionsResponse.body());
-            Optional<String> contentType = Optional.ofNullable(getVersionsResponse.header("Content-Type"));
-            if (body.isPresent() && contentType.isPresent() && contentType.get().equalsIgnoreCase(APPLICATION_JSON)) {
-                if (getVersionsResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return getAsList(body.get().string());
-                }
-
-                if (getVersionsResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    if (error.getMessage().contains("package not found")) {
-                        // if package not found return empty list
-                        return new ArrayList<>();
-                    } else {
-                        throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
-                                error.getMessage());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_OK) {
+                        return getAsList(body.get().string());
                     }
-                }
-
-                if (getVersionsResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
+    
+                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage().contains("package not found")) {
+                            // if package not found return empty list
+                            return new ArrayList<>();
+                        } else {
+                            throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature +
+                                                             ". reason: " + error.getMessage());
+                        }
+                    }
+    
+                    if (getVersionsResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
                         getVersionsResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature + ". reason: " +
-                            error.getMessage());
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        throw new CentralClientException(ERR_CANNOT_FIND_VERSIONS + packageSignature +
+                                                         ". reason: " + error.getMessage());
+                    }
                 }
             }
 
@@ -240,33 +244,36 @@ public class CentralAPIClient {
             // Invalid access token to push
             if (packagePushResponse.code() == HttpsURLConnection.HTTP_UNAUTHORIZED) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
-                Optional<String> contentType = Optional.ofNullable(packagePushResponse.header("Content-Type"));
-                if (body.isPresent() && contentType.isPresent() && contentType.get()
-                        .equalsIgnoreCase(APPLICATION_JSON)) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    throw new CentralClientException("unauthorized access token for organization: '" + org +
-                            "'. reason: " + error.getMessage() + ". check access token set in 'Settings.toml' file.");
-                } else {
-                    throw new CentralClientException("unauthorized access token for organization: '" + org +
-                            "'. check access token set in 'Settings.toml' file.");
+                if (body.isPresent()) {
+                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                    if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        throw new CentralClientException("unauthorized access token for organization: '" + org +
+                                                         "'. reason: " + error.getMessage() +
+                                                         ". check access token set in 'Settings.toml' file.");
+                    } else {
+                        throw new CentralClientException("unauthorized access token for organization: '" + org +
+                                                         "'. check access token set in 'Settings.toml' file.");
+                    }
                 }
             }
 
             // When request sent is invalid
             if (packagePushResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
-                Optional<String> contentType = Optional.ofNullable(packagePushResponse.header("Content-Type"));
-                if (body.isPresent() && contentType.isPresent() && contentType.get()
-                        .equalsIgnoreCase(APPLICATION_JSON)) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        // Currently this error is returned from central when token is unauthorized. This will later be
-                        // removed with https://github.com/wso2-enterprise/ballerina-registry/issues/745
-                        if (error.getMessage().contains("subject claims missing in the user info repsonse")) {
-                            error.setMessage("unauthorized access token for organization: '" + org +
-                                    "'. check access token set in 'Settings.toml' file.");
+                if (body.isPresent()) {
+                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                    if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            // Currently this error is returned from central when token is unauthorized. This will later
+                            // be removed with https://github.com/wso2-enterprise/ballerina-registry/issues/745
+                            if (error.getMessage().contains("subject claims missing in the user info repsonse")) {
+                                error.setMessage("unauthorized access token for organization: '" + org +
+                                                 "'. check access token set in 'Settings.toml' file.");
+                            }
+                            throw new CentralClientException(error.getMessage());
                         }
-                        throw new CentralClientException(error.getMessage());
                     }
                 }
             }
@@ -274,13 +281,14 @@ public class CentralAPIClient {
             // When error occurs at remote repository
             if (packagePushResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
-                Optional<String> contentType = Optional.ofNullable(packagePushResponse.header("Content-Type"));
-                if (body.isPresent() && contentType.isPresent() && contentType.get()
-                        .equalsIgnoreCase(APPLICATION_JSON)) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' reason:" +
-                                error.getMessage());
+                if (body.isPresent()) {
+                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                    if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' reason:" +
+                                                             error.getMessage());
+                        }
                     }
                 }
             }
@@ -350,12 +358,13 @@ public class CentralAPIClient {
             if (packagePullResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
                     packagePullResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePullResponse.body());
-                Optional<String> contentType = Optional.ofNullable(packagePullResponse.header("Content-Type"));
-                if (body.isPresent() && contentType.isPresent() && contentType.get()
-                        .equalsIgnoreCase(APPLICATION_JSON)) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        throw new CentralClientException("error: " + error.getMessage());
+                if (body.isPresent()) {
+                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                    if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException("error: " + error.getMessage());
+                        }
                     }
                 }
             }
@@ -363,14 +372,15 @@ public class CentralAPIClient {
             // When error occurs at remote repository
             if (packagePullResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePullResponse.body());
-                Optional<String> contentType = Optional.ofNullable(packagePullResponse.header("Content-Type"));
-                if (body.isPresent() && contentType.isPresent() && contentType.get().
-                        equalsIgnoreCase(APPLICATION_JSON)) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
-                                "' from the remote repository '" + url + "'. reason: " + error.getMessage());
-                        throw new CentralClientException(errorMsg);
+                if (body.isPresent()) {
+                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                    if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
+                                    "' from the remote repository '" + url + "'. reason: " + error.getMessage());
+                            throw new CentralClientException(errorMsg);
+                        }
                     }
                 }
             }
@@ -396,27 +406,29 @@ public class CentralAPIClient {
             Response searchResponse = sendRequest(searchReq);
 
             Optional<ResponseBody> body = Optional.ofNullable(searchResponse.body());
-            Optional<String> contentType = Optional.ofNullable(searchResponse.header("Content-Type"));
-            if (body.isPresent() && contentType.isPresent() && contentType.get().equalsIgnoreCase(APPLICATION_JSON)) {
-                // If searching was successful
-                if (searchResponse.code() == HttpsURLConnection.HTTP_OK) {
-                    return new Gson().fromJson(body.get().string(), PackageSearchResult.class);
-                }
-
-                // If search request was sent wrongly
-                if (searchResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        throw new CentralClientException(error.getMessage());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                    // If searching was successful
+                    if (searchResponse.code() == HttpsURLConnection.HTTP_OK) {
+                        return new Gson().fromJson(body.get().string(), PackageSearchResult.class);
                     }
-                }
-
-                // If error occurred at remote repository
-                if (searchResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
-                    Error error = new Gson().fromJson(body.get().string(), Error.class);
-                    if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                        throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "' reason:" +
-                                error.getMessage());
+        
+                    // If search request was sent wrongly
+                    if (searchResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(error.getMessage());
+                        }
+                    }
+        
+                    // If error occurred at remote repository
+                    if (searchResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
+                        Error error = new Gson().fromJson(body.get().string(), Error.class);
+                        if (error.getMessage() != null && !"".equals(error.getMessage())) {
+                            throw new CentralClientException(ERR_CANNOT_SEARCH + "'" + query + "' reason:" +
+                                    error.getMessage());
+                        }
                     }
                 }
             }

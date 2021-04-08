@@ -53,6 +53,7 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static org.awaitility.Awaitility.given;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.CONTENT_DISPOSITION;
@@ -181,7 +182,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                 .code(HttpURLConnection.HTTP_NOT_FOUND)
                 .message("")
                 .body(ResponseBody.create(
-                        MediaType.get("application/json; charset=utf-8"),
+                        MediaType.get(APPLICATION_JSON),
                         resString
                 ))
                 .build();
@@ -206,7 +207,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                 .code(HttpURLConnection.HTTP_OK)
                 .message("")
                 .body(ResponseBody.create(
-                        MediaType.get("application/json; charset=utf-8"),
+                        MediaType.get(APPLICATION_JSON),
                         Files.readString(packageJson.toPath())
                 ))
                 .build();
@@ -236,7 +237,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                 .code(HttpURLConnection.HTTP_NOT_FOUND)
                 .message("")
                 .body(ResponseBody.create(
-                        MediaType.get("application/json; charset=utf-8"),
+                        MediaType.get(APPLICATION_JSON),
                         resString
                 ))
                 .build();
@@ -262,7 +263,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                 .code(HttpURLConnection.HTTP_BAD_REQUEST)
                 .message("")
                 .body(ResponseBody.create(
-                        MediaType.get("application/json; charset=utf-8"),
+                        MediaType.get(APPLICATION_JSON),
                         resString
                 ))
                 .build();
@@ -333,7 +334,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                 .code(HttpURLConnection.HTTP_BAD_REQUEST)
                 .message("")
                 .body(ResponseBody.create(
-                        MediaType.get("application/json; charset=utf-8"),
+                        MediaType.get(APPLICATION_JSON),
                         resString
                 ))
                 .build();
@@ -389,7 +390,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                 .code(HttpURLConnection.HTTP_OK)
                 .message("")
                 .body(ResponseBody.create(
-                        MediaType.get("application/json; charset=utf-8"),
+                        MediaType.get(APPLICATION_JSON),
                         Files.readString(packageSearchJsonPath)
                 ))
                 .build();
@@ -419,7 +420,7 @@ public class TestCentralApiClient extends CentralAPIClient {
                 .code(HttpURLConnection.HTTP_BAD_REQUEST)
                 .message("")
                 .body(ResponseBody.create(
-                        MediaType.get("application/json; charset=utf-8"),
+                        MediaType.get(APPLICATION_JSON),
                         resString
                 ))
                 .build();
