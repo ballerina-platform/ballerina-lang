@@ -2515,6 +2515,10 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                     BLangExpression varRef = ((BLangAssignment) parent).varRef;
 
                     if (varRef.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+                        if (invokedOnSelf) {
+                            return !isIsolatedExpression(expression, false);
+                        }
+
                         // Will be validated for that expression.
                         return false;
                     }
@@ -2573,11 +2577,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return isInvalidTransfer(parentExpression, transferOut, invokedOnSelf);
         }
 
-        if (transferOut) {
+        // `expression` is an argument to a function
+        if (transferOut && !invokedOnSelf) {
             return isInvalidTransfer(parentExpression, transferOut, invokedOnSelf);
         }
 
-        // `expression` is an argument to a function
         return !isIsolatedExpression(expression, false);
     }
 
