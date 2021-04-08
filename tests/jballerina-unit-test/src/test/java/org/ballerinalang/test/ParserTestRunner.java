@@ -50,6 +50,7 @@ public class ParserTestRunner {
         // Compiler should be able to compile any user input.
         // Therefore, when adding an item to the skip list, please create an issue.
         hashSet.add("func_def_source_08.bal");
+        hashSet.add("match_stmt_source_13.bal");
         return hashSet;
     }
 
