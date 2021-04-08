@@ -33,6 +33,8 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.syntax.tree.AnnotAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.BracedExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
@@ -93,7 +95,6 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
     public Optional<TypeSymbol> transform(FieldAccessExpressionNode node) {
         // First capture the expression and the respective symbols
         Optional<TypeSymbol> typeSymbol = node.expression().apply(this);
-//        this.getVisibleEntries(typeSymbol.orElseThrow());
 
         NameReferenceNode fieldName = node.fieldName();
         if (fieldName.kind() != SyntaxKind.SIMPLE_NAME_REFERENCE) {
@@ -172,7 +173,17 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
 
     @Override
     public Optional<TypeSymbol> transform(AnnotAccessExpressionNode node) {
-        return this.context.currentSemanticModel().orElseThrow().type(node);
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(BasicLiteralNode node) {
+        return this.context.currentSemanticModel().flatMap(semanticModel -> semanticModel.type(node));
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(BracedExpressionNode node) {
+        return node.expression().apply(this);
     }
 
     @Override

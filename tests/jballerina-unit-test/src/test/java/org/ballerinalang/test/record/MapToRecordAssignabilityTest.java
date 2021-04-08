@@ -91,6 +91,17 @@ public class MapToRecordAssignabilityTest {
         BRunUtil.invoke(compileResult, "testComplexSubtyping2");
     }
 
+    @Test
+    public void testQuotedFieldNamesWithEscapeCharacters() {
+        BRunUtil.invoke(compileResult, "testQuotedFieldNamesWithEscapeCharacters");
+    }
+
+
+    @Test
+    public void testQuotedSubFieldNamesWithEscapeCharacters() {
+        BRunUtil.invoke(compileResult, "testQuotedSubFieldNamesWithEscapeCharacters");
+    }
+
     @DataProvider(name = "FunctionList")
     public Object[][] getTestFunctions() {
         return new Object[][]{

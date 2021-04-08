@@ -1233,7 +1233,7 @@ public class TypeChecker extends BLangNodeVisitor {
             int index = 0;
             for (IdentifierNode identifier : fieldNameIdentifierList) {
                 BField field = types.getTableConstraintField(constraintType, ((BLangIdentifier) identifier).value);
-                if (!types.isAssignable(field.type, memberTypes.get(index))) {
+                if (field == null || !types.isAssignable(field.type, memberTypes.get(index))) {
                     dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
                             DiagnosticErrorCode.KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT,
                             fieldNameIdentifierList.toString(), memberTypes.toString());
@@ -3172,7 +3172,7 @@ public class TypeChecker extends BLangNodeVisitor {
                             BLangCompilerConstants.CLOSE_FUNC);
                     if (closeFunc != null) {
                         BType closeableIteratorType = symTable.langQueryModuleSymbol.scope
-                                .lookup(Names.ABSTRACT_CLOSEABLE_ITERATOR).symbol.type;
+                                .lookup(Names.ABSTRACT_STREAM_CLOSEABLE_ITERATOR).symbol.type;
                         if (!types.isAssignable(constructType, closeableIteratorType)) {
                             dlog.error(iteratorExpr.pos,
                                        DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR,
@@ -3182,7 +3182,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         }
                     } else {
                         BType iteratorType = symTable.langQueryModuleSymbol.scope
-                                .lookup(Names.ABSTRACT_ITERATOR).symbol.type;
+                                .lookup(Names.ABSTRACT_STREAM_ITERATOR).symbol.type;
                         if (!types.isAssignable(constructType, iteratorType)) {
                             dlog.error(iteratorExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_ITERATOR,
                                     expectedNextReturnType, constructType);
@@ -5365,7 +5365,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (!Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) && aInv.remoteMethodCall) {
+        if (!Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) && !aInv.async) {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_METHOD_INVOCATION_SYNTAX, actionName);
             this.resultType = symTable.semanticError;
             return;
