@@ -13,19 +13,6 @@
           "range": {
             "start": {
               "line": 17,
-              "character": 5
-            },
-            "end": {
-              "line": 17,
-              "character": 16
-            }
-          },
-          "newText": "CyclicUnionNew"
-        },
-        {
-          "range": {
-            "start": {
-              "line": 17,
               "character": 21
             },
             "end": {
@@ -33,7 +20,20 @@
               "character": 32
             }
           },
-          "newText": "CyclicUnionNew"
+          "newText": "IntegerList"
+        },
+        {
+          "range": {
+            "start": {
+              "line": 17,
+              "character": 5
+            },
+            "end": {
+              "line": 17,
+              "character": 16
+            }
+          },
+          "newText": "IntegerList"
         },
         {
           "range": {
@@ -46,7 +46,7 @@
               "character": 15
             }
           },
-          "newText": "CyclicUnionNew"
+          "newText": "IntegerList"
         }
       ]
     }
