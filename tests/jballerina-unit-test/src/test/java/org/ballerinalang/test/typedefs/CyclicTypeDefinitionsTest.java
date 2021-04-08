@@ -72,6 +72,12 @@ public class CyclicTypeDefinitionsTest {
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "C, D, C"), 5, 1);
         BAssertUtil.validateError(negativeResult, i++, String.format(INVALID_CYCLIC_MESSAGE, "D, C, D"), 6, 1);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'E', found 'string'", 8, 25);
+        BAssertUtil.validateError(negativeResult, i++, "operator '==' not defined for 'CyclicDecimal' and 'float'", 14
+                , 20);
+        BAssertUtil.validateError(negativeResult, i++, "operator '!=' not defined for 'CyclicDecimal' and 'float'", 15
+                , 12);
+        BAssertUtil.validateError(negativeResult, i++, "operator '===' not defined for 'CyclicDecimal' and 'float'", 16
+                , 12);
         Assert.assertEquals(i, negativeResult.getErrorCount());
     }
 

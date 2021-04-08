@@ -3292,6 +3292,12 @@ public class Types {
      * @return  a set containing all the retrieved member types
      */
     public Set<BType> expandAndGetMemberTypesRecursive(BType bType) {
+        HashSet<BType> visited = new HashSet<>();
+        return expandAndGetMemberTypesRecursiveHelper(bType, visited);
+    }
+
+    private Set<BType> expandAndGetMemberTypesRecursiveHelper(BType bType,
+                                                              HashSet<BType> visited) {
         Set<BType> memberTypes = new LinkedHashSet<>();
         switch (bType.tag) {
             case TypeTags.BYTE:
@@ -3307,8 +3313,11 @@ public class Types {
                 break;
             case TypeTags.UNION:
                 BUnionType unionType = (BUnionType) bType;
+                if (!visited.add(unionType)) {
+                    return memberTypes;
+                }
                 unionType.getMemberTypes().forEach(member -> {
-                    memberTypes.addAll(expandAndGetMemberTypesRecursive(member));
+                    memberTypes.addAll(expandAndGetMemberTypesRecursiveHelper(member, visited));
                 });
                 break;
             case TypeTags.ARRAY:
@@ -3321,7 +3330,7 @@ public class Types {
                 }
 
                 if (arrayElementType.tag == TypeTags.UNION) {
-                    Set<BType> elementUnionTypes = expandAndGetMemberTypesRecursive(arrayElementType);
+                    Set<BType> elementUnionTypes = expandAndGetMemberTypesRecursiveHelper(arrayElementType, visited);
                     elementUnionTypes.forEach(elementUnionType -> {
                         memberTypes.add(new BArrayType(elementUnionType));
                     });
@@ -3331,7 +3340,8 @@ public class Types {
             case TypeTags.MAP:
                 BType mapConstraintType = ((BMapType) bType).getConstraint();
                 if (mapConstraintType.tag == TypeTags.UNION) {
-                    Set<BType> constraintUnionTypes = expandAndGetMemberTypesRecursive(mapConstraintType);
+                    Set<BType> constraintUnionTypes =
+                            expandAndGetMemberTypesRecursiveHelper(mapConstraintType, visited);
                     constraintUnionTypes.forEach(constraintUnionType -> {
                         memberTypes.add(new BMapType(TypeTags.MAP, constraintUnionType, symTable.mapType.tsymbol));
                     });
