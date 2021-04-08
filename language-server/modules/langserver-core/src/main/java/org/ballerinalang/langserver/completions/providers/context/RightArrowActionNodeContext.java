@@ -28,6 +28,7 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -50,8 +51,8 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
     protected List<LSCompletionItem> getFilteredItems(BallerinaCompletionContext context, ExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        Optional<TypeSymbol> expressionType = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.type(node));
+        ContextTypeResolver resolver = new ContextTypeResolver(context);
+        Optional<TypeSymbol> expressionType = node.apply(resolver);
 
         if (expressionType.isPresent() && SymbolUtil.isClient(expressionType.get())) {
             /*
@@ -70,7 +71,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
                     .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(filteredWorkers, context));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         }
 
         return completionItems;

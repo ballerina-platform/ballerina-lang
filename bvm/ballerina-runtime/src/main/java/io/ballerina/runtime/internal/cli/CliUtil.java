@@ -85,6 +85,17 @@ public class CliUtil {
                 StringUtils.fromString("unsupported type expected with main function '" + type + "'"));
     }
 
+    static boolean isUnionWithNil(Type fieldType) {
+        if (fieldType.getTag() == TypeTags.UNION_TAG) {
+            List<Type> unionMemberTypes = ((UnionType) fieldType).getMemberTypes();
+            if (isUnionWithNil(unionMemberTypes)) {
+                return true;
+            }
+            throw getUnsupportedTypeException(fieldType);
+        }
+        return false;
+    }
+
     static boolean isUnionWithNil(List<Type> unionMemberTypes) {
         return unionMemberTypes.size() == 2 && unionMemberTypes.contains(PredefinedTypes.TYPE_NULL);
     }
@@ -118,5 +129,10 @@ public class CliUtil {
             throw ErrorCreator.createError(
                     StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, "decimal")));
         }
+    }
+
+    static boolean isSupportedType(int tag) {
+        return tag == TypeTags.STRING_TAG || tag == TypeTags.INT_TAG || tag == TypeTags.FLOAT_TAG ||
+                tag == TypeTags.DECIMAL_TAG || tag == TypeTags.BOOLEAN_TAG;
     }
 }

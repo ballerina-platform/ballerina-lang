@@ -22,11 +22,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "default",
+      "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
       "sortText": "P",
-      "insertText": "default",
+      "insertText": "function ",
       "insertTextFormat": "Snippet"
     }
   ]

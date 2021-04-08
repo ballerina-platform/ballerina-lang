@@ -381,6 +381,8 @@ public class XMLLexer extends AbstractLexer {
                 // is missing for the current element.
                 if (isStartTag) {
                     startMode(ParserMode.XML_CONTENT);
+                } else {
+                    endMode();
                 }
                 return nextToken();
             case LexerTerminals.GT:
