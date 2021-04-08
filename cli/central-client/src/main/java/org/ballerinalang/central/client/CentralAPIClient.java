@@ -257,37 +257,30 @@ public class CentralAPIClient {
                     }
                 }
             }
-
-            // When request sent is invalid
-            if (packagePushResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
-                Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
-                if (body.isPresent()) {
-                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                    if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+    
+            Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                    // When request sent is invalid
+                    if (packagePushResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             // Currently this error is returned from central when token is unauthorized. This will later
                             // be removed with https://github.com/wso2-enterprise/ballerina-registry/issues/745
                             if (error.getMessage().contains("subject claims missing in the user info repsonse")) {
-                                error.setMessage("unauthorized access token for organization: '" + org +
-                                                 "'. check access token set in 'Settings.toml' file.");
+                                error.setMessage("unauthorized access token for organization: '" + org + "'. check " +
+                                                 "access token set in 'Settings.toml' file.");
                             }
                             throw new CentralClientException(error.getMessage());
                         }
                     }
-                }
-            }
-
-            // When error occurs at remote repository
-            if (packagePushResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
-                Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
-                if (body.isPresent()) {
-                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                    if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+    
+                    if (packagePushResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                            throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature + "' reason:" +
-                                                             error.getMessage());
+                            throw new CentralClientException(ERR_CANNOT_PUSH + "'" + packageSignature +
+                                                             "' reason:" + error.getMessage());
                         }
                     }
                 }
@@ -354,36 +347,32 @@ public class CentralAPIClient {
                     throw new CentralClientException(errorMsg);
                 }
             }
-
-            if (packagePullResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
-                    packagePullResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
-                Optional<ResponseBody> body = Optional.ofNullable(packagePullResponse.body());
-                if (body.isPresent()) {
-                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                    if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+    
+            Optional<ResponseBody> body = Optional.ofNullable(packagePullResponse.body());
+            if (body.isPresent()) {
+                Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
+                if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+                    if (packagePullResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
+                        packagePullResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
                             throw new CentralClientException("error: " + error.getMessage());
                         }
                     }
-                }
-            }
-
-            // When error occurs at remote repository
-            if (packagePullResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
-                Optional<ResponseBody> body = Optional.ofNullable(packagePullResponse.body());
-                if (body.isPresent()) {
-                    Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                    if (contentType.isPresent() && contentType.get().equals(MediaType.get(APPLICATION_JSON))) {
+    
+                    if (packagePullResponse.code() == HttpsURLConnection.HTTP_INTERNAL_ERROR) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         if (error.getMessage() != null && !"".equals(error.getMessage())) {
-                            String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
-                                    "' from the remote repository '" + url + "'. reason: " + error.getMessage());
+                            String errorMsg =
+                                    logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature + "' from" +
+                                                           " the remote repository '" + url +
+                                                           "'. reason: " + error.getMessage());
                             throw new CentralClientException(errorMsg);
                         }
                     }
                 }
             }
+            
             String errorMsg = logFormatter.formatLog(ERR_CANNOT_PULL_PACKAGE + "'" + packageSignature +
                     "' from the remote repository '" + url + "'.");
             throw new CentralClientException(errorMsg);
