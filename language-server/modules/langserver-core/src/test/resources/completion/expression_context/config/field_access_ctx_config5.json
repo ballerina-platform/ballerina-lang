@@ -14,13 +14,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "reduce(function () returns any|error func, any|error initial)(any|error)",
+      "label": "reduce(function () func, any|error initial)(any|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function () returns any|error` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Returns** `any|error`   \n- result of combining the members of `m` using `func`  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nCombines the members of a map using a combining function.\nThe combining function takes the combined value so far and a member of the map,\nand returns a new combined value.\n  \n**Params**  \n- `function ()` func: combining function  \n- `any|error` initial: initial value for the first argument of combining function `func`  \n  \n**Returns** `any|error`   \n- result of combining the members of `m` using `func`  \n  \n"
         }
       },
       "sortText": "D",
@@ -50,13 +50,13 @@
       }
     },
     {
-      "label": "forEach(function () returns () func)",
+      "label": "forEach(function () func)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function to each member of a map.\nThe function `func` is applied to each member of `m`.\n  \n**Params**  \n- `function () returns ()` func: a function to apply to each member"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function to each member of a map.\nThe function `func` is applied to each member of `m`.\n  \n**Params**  \n- `function ()` func: a function to apply to each member"
         }
       },
       "sortText": "D",
@@ -114,13 +114,13 @@
       }
     },
     {
-      "label": "filter(function () returns boolean func)(map<any|error>)",
+      "label": "filter(function () func)(map<any|error>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function () returns boolean` func: a predicate to apply to each element to test whether it should be included  \n  \n**Returns** `map<any|error>`   \n- new map containing members for which `func` evaluates to true  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nSelects the members from a map for which a function returns true.\n  \n**Params**  \n- `function ()` func: a predicate to apply to each element to test whether it should be included  \n  \n**Returns** `map<any|error>`   \n- new map containing members for which `func` evaluates to true  \n  \n"
         }
       },
       "sortText": "D",
@@ -224,13 +224,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "map(function () returns any|error func)(map<any|error>)",
+      "label": "map(function () func)(map<any|error>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function each member of a map and returns a map of the result.\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function () returns any|error` func: a function to apply to each member  \n  \n**Returns** `map<any|error>`   \n- new map containing result of applying function `func` to each member  \n  \n"
+          "value": "**Package:** _ballerina/lang.map:1.1.0_  \n  \nApplies a function each member of a map and returns a map of the result.\nThe resulting map will have the same keys as the argument map.\n  \n**Params**  \n- `function ()` func: a function to apply to each member  \n  \n**Returns** `map<any|error>`   \n- new map containing result of applying function `func` to each member  \n  \n"
         }
       },
       "sortText": "D",
