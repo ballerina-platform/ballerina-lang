@@ -45,7 +45,6 @@ import javax.net.ssl.HttpsURLConnection;
 
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
 import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
-import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
 import static org.ballerinalang.central.client.CentralClientConstants.AUTHORIZATION;
 import static org.ballerinalang.central.client.CentralClientConstants.BALLERINA_PLATFORM;
@@ -56,6 +55,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.USER_AGENT
 import static org.ballerinalang.central.client.Utils.ProgressRequestBody;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
+import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
 
 /**
  * {@code CentralAPIClient} is a client for the Central API.
@@ -114,7 +114,7 @@ public class CentralAPIClient {
             Optional<ResponseBody> body = Optional.ofNullable(getPackageResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get())) {
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // Package is found
                     if (getPackageResponse.code() == HttpsURLConnection.HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), Package.class);
@@ -172,7 +172,7 @@ public class CentralAPIClient {
             Optional<ResponseBody> body = Optional.ofNullable(getVersionsResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get())) {
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // Package versions found
                     if (getVersionsResponse.code() == HttpsURLConnection.HTTP_OK) {
                         return getAsList(body.get().string());
@@ -249,7 +249,7 @@ public class CentralAPIClient {
                 Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
                 if (body.isPresent()) {
                     Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                    if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get())) {
+                    if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
                         throw new CentralClientException("unauthorized access token for organization: '" + org +
                                                          "'. reason: " + error.getMessage() +
@@ -264,7 +264,7 @@ public class CentralAPIClient {
             Optional<ResponseBody> body = Optional.ofNullable(packagePushResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get())) {
+                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // When request sent is invalid
                     if (packagePushResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST) {
                         Error error = new Gson().fromJson(body.get().string(), Error.class);
@@ -355,7 +355,7 @@ public class CentralAPIClient {
             Optional<ResponseBody> body = Optional.ofNullable(packagePullResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get())) {
+                if (contentType.isPresent() && isApplicationJsonContentType(contentType.get().toString())) {
                     // If request sent is invalid or when package is not found
                     if (packagePullResponse.code() == HttpsURLConnection.HTTP_BAD_REQUEST ||
                         packagePullResponse.code() == HttpsURLConnection.HTTP_NOT_FOUND) {
@@ -403,7 +403,7 @@ public class CentralAPIClient {
             Optional<ResponseBody> body = Optional.ofNullable(searchResponse.body());
             if (body.isPresent()) {
                 Optional<MediaType> contentType = Optional.ofNullable(body.get().contentType());
-                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get())) {
+                if (contentType.isPresent()  && isApplicationJsonContentType(contentType.get().toString())) {
                     // If searching was successful
                     if (searchResponse.code() == HttpsURLConnection.HTTP_OK) {
                         return new Gson().fromJson(body.get().string(), PackageSearchResult.class);
@@ -456,9 +456,5 @@ public class CentralAPIClient {
         return new Request.Builder()
                 .addHeader(BALLERINA_PLATFORM, supportedPlatform)
                 .addHeader(USER_AGENT, ballerinaVersion);
-    }
-    
-    private static boolean isApplicationJsonContentType(MediaType contentType) {
-        return contentType.toString().startsWith(MediaType.get(APPLICATION_JSON).toString());
     }
 }

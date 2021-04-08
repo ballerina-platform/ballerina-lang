@@ -59,6 +59,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
 import static org.ballerinalang.central.client.CentralClientConstants.RESOLVED_REQUESTED_URI;
 
 /**
@@ -353,6 +354,10 @@ public class Utils {
      */
     static List<String> getAsList(String arrayString) {
         return new Gson().fromJson(arrayString, new TypeToken<List<String>>() { }.getType());
+    }
+    
+    static boolean isApplicationJsonContentType(String contentType) {
+        return contentType.startsWith(APPLICATION_JSON);
     }
 
     private static String getPlatformFromBala(String balaName, String packageName, String version) {

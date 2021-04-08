@@ -51,6 +51,7 @@ import static org.ballerinalang.central.client.CentralClientConstants.APPLICATIO
 import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
+import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
 import static org.ballerinalang.central.client.Utils.writeBalaFile;
 
 /**
@@ -219,6 +220,13 @@ public class TestUtils {
         } finally {
             cleanBalaCache();
         }
+    }
+    
+    @Test
+    public void testJsonContentTypeChecker() {
+        Assert.assertTrue(isApplicationJsonContentType(APPLICATION_JSON));
+        Assert.assertTrue(isApplicationJsonContentType("application/json; charset=utf-8"));
+        Assert.assertFalse(isApplicationJsonContentType(APPLICATION_OCTET_STREAM));
     }
 
     private void cleanBalaCache() {
