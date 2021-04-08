@@ -203,11 +203,12 @@ public class AnnotationUtil {
                     requiredFields.addAll(CommonUtil.getMandatoryRecordFields((RecordTypeSymbol) resultType.get()));
                 }
                 List<String> insertTexts = new ArrayList<>();
-                requiredFields.forEach(field -> {
-                    String fieldInsertionText = "\t" + 
-                            getRecordFieldCompletionInsertText(field, Collections.emptyList(), 1);
+                for (int i = 0; i < requiredFields.size(); i++) {
+                    RecordFieldSymbol field = requiredFields.get(i);
+                    String fieldInsertionText = "\t" +
+                            getRecordFieldCompletionInsertText(field, Collections.emptyList(), 1, i + 1);
                     insertTexts.add(fieldInsertionText);
-                });
+                }
                 annotationStart.append(String.join("," + LINE_SEPARATOR, insertTexts));
                 if (requiredFields.isEmpty()) {
                     annotationStart.append("\t").append("${1}");
