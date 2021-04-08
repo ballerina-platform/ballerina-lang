@@ -3288,12 +3288,12 @@ public class Types {
      * @return  a set containing all the retrieved member types
      */
     public Set<BType> expandAndGetMemberTypesRecursive(BType bType) {
-        LinkedHashSet<BType> visited = new LinkedHashSet<>();
+        HashSet<BType> visited = new HashSet<>();
         return expandAndGetMemberTypesRecursiveHelper(bType, visited);
     }
 
     private Set<BType> expandAndGetMemberTypesRecursiveHelper(BType bType,
-                                                              LinkedHashSet<BType> visited) {
+                                                              HashSet<BType> visited) {
         Set<BType> memberTypes = new LinkedHashSet<>();
         switch (bType.tag) {
             case TypeTags.BYTE:
