@@ -122,9 +122,13 @@ public class TomlProviderNegativeTest {
         VariableKey stringVar = new VariableKey(subModule, "stringVar", PredefinedTypes.TYPE_STRING, true);
         Map<Module, VariableKey[]> configVarMap =
                 Map.ofEntries(Map.entry(subModule, new VariableKey[]{intVar, stringVar}));
-        String errorMsg = "[InvalidSubModuleStructure.toml:(3:12,3:14)] invalid module structure found for module " +
+        String errorMsg = "[InvalidSubModuleStructure1.toml:(3:12,3:14)] invalid module structure found for module " +
                 "'test_module.util.foo'. Please provide the module name as '[test_module.util.foo]'";
-        validateTomlProviderErrors("InvalidSubModuleStructure", errorMsg, configVarMap, 2);
+        validateTomlProviderErrors("InvalidSubModuleStructure1", errorMsg, configVarMap, 2);
+
+        errorMsg = "[InvalidSubModuleStructure2.toml:(1:1,2:23)] invalid module structure found for module " +
+                "'test_module.util.foo'. Please provide the module name as '[test_module.util.foo]'";
+        validateTomlProviderErrors("InvalidSubModuleStructure2", errorMsg, configVarMap, 2);
     }
 
     @Test(dataProvider = "array-negative-tests")

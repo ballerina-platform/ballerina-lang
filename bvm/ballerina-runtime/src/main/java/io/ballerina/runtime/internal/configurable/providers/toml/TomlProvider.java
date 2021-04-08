@@ -268,13 +268,9 @@ public class TomlProvider implements ConfigProvider {
     }
 
     private void throwInvalidImportedModuleError(Toml toml, Module module) {
-        String moduleName = module.getName();
         String moduleKey = getModuleKey(module);
         TomlNode errorNode = toml.rootNode();
-        Optional<TomlValueNode> valueNode = toml.get(moduleKey);
-        if (valueNode.isEmpty()) {
-            valueNode =  toml.get(moduleName);
-        }
+        Optional<TomlValueNode> valueNode =  toml.get(module.getName());
         if (valueNode.isPresent() && valueNode.get().kind() != TomlType.TABLE) {
             errorNode = valueNode.get();
         }
@@ -308,18 +304,23 @@ public class TomlProvider implements ConfigProvider {
         String moduleName = module.getName();
         TomlNode errorNode = toml.rootNode();
         Optional<TomlValueNode> valueNode = toml.get(moduleName);
+        List<Toml> tomlTables = toml.getTables(moduleName);
         if (valueNode.isEmpty()) {
             valueNode =  toml.get(getModuleKey(module));
         }
-        if (valueNode.isPresent() && valueNode.get().kind() != TomlType.TABLE) {
+        if (tomlTables.isEmpty()) {
+            tomlTables =  toml.getTables(getModuleKey(module));
+        }
+        if (valueNode.isPresent()) {
             errorNode = valueNode.get();
+        } else if (!tomlTables.isEmpty()) {
+            errorNode = tomlTables.get(0).rootNode();
         } else {
-            Optional<TomlValueNode> tomlValueNode = toml.get(moduleName.replaceFirst(rootModule.getName() + ".", ""));
-            errorNode = tomlValueNode.isPresent() ? tomlValueNode.get() : errorNode;
+            Optional<Toml> tomlValueNode = toml.getTable(moduleName.replaceFirst(rootModule.getName() + ".", ""));
+            errorNode = tomlValueNode.isPresent() ? tomlValueNode.get().rootNode() : errorNode;
         }
         invalidRequiredModuleSet.add(module.toString());
         throw new TomlConfigException(String.format(INVALID_MODULE_STRUCTURE, moduleName, moduleName), errorNode);
-
     }
 
     private TomlTableNode getRootModuleNode(Toml baseToml) {
@@ -335,7 +336,6 @@ public class TomlProvider implements ConfigProvider {
             if (table.isEmpty() || subModuleSet.containsAll(table.get().rootNode().entries().keySet())) {
                 return baseToml.rootNode();
             }
-
         }
         return table.map(Toml::rootNode).orElse(null);
     }
