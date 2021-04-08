@@ -36,18 +36,13 @@ import okio.Okio;
 import okio.Sink;
 import org.apache.commons.io.FileUtils;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
-import org.ballerinalang.central.client.exceptions.ConnectionErrorException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
 
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.PrintStream;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.ProtocolException;
 import java.net.URI;
-import java.net.URL;
 import java.nio.file.FileSystem;
 import java.nio.file.FileSystems;
 import java.nio.file.Files;
