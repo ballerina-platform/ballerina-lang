@@ -1,4 +1,4 @@
-# Syntax Api Calls Generator Tool - Implementation
+# Syntax API Calls Generator Tool - Implementation
 
 > This document explains the implementation of the tool in detail.
 
