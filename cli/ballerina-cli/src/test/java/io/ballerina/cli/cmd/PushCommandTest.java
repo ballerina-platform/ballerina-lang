@@ -47,7 +47,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  * @since 2.0.0
  */
 @PrepareForTest({ RepoUtils.class })
-@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.ssl.*"})
+@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.*", "com.sun.*"})
 public class PushCommandTest extends BaseCommandTest {
 
     private static final String VALID_PROJECT = "validApplicationProject";
