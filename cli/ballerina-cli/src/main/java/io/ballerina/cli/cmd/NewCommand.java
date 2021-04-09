@@ -143,7 +143,7 @@ public class NewCommand implements BLauncherCmd {
 
         try {
             Files.createDirectories(path);
-            CommandUtil.initProjectByTemplate(path, packageName, template);
+            CommandUtil.initPackageByTemplate(path, packageName, template);
         } catch (AccessDeniedException e) {
             errStream.println("error: Error occurred while creating project : " + "Insufficient Permission : " +
                     e.getMessage());

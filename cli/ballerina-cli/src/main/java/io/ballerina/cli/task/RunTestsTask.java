@@ -46,6 +46,10 @@ import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.ballerinalang.test.runtime.util.TesterinaUtils;
 import org.ballerinalang.testerina.core.TestProcessor;
 import org.ballerinalang.testerina.core.TesterinaRegistry;
+import org.jacoco.core.analysis.IClassCoverage;
+import org.jacoco.core.analysis.ISourceFileCoverage;
+import org.jacoco.core.data.ExecutionData;
+import org.jacoco.core.data.SessionInfo;
 import org.wso2.ballerinalang.util.Lists;
 
 import java.io.BufferedReader;
@@ -259,10 +263,18 @@ public class RunTestsTask implements Task {
             return;
         }
         Map<String, ModuleCoverage> moduleCoverageMap = initializeCoverageMap(project);
+        // Following lists will hold the coverage information needed for the coverage XML file generation.
+        List<ISourceFileCoverage> packageSourceCoverageList = new ArrayList();
+        List<IClassCoverage> packageNativeClassCoverageList = new ArrayList();
+        List<IClassCoverage> packageBalClassCoverageList = new ArrayList();
+        List<ExecutionData> packageExecData = new ArrayList();
+        List<SessionInfo> packageSessionInfo = new ArrayList();
         for (ModuleId moduleId : project.currentPackage().moduleIds()) {
             Module module = project.currentPackage().module(moduleId);
-            CoverageReport coverageReport = new CoverageReport(module);
-            coverageReport.generateReport(moduleCoverageMap, jBallerinaBackend, this.includesInCoverage);
+            CoverageReport coverageReport = new CoverageReport(module, moduleCoverageMap,
+                    packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList,
+                    packageExecData, packageSessionInfo);
+            coverageReport.generateReport(jBallerinaBackend, this.includesInCoverage);
         }
         // Traverse coverage map and add module wise coverage to test report
         for (Map.Entry mapElement : moduleCoverageMap.entrySet()) {
@@ -270,6 +282,9 @@ public class RunTestsTask implements Task {
             ModuleCoverage moduleCoverage = (ModuleCoverage) mapElement.getValue();
             testReport.addCoverage(moduleName, moduleCoverage);
         }
+        // Generate coverage XML report
+        CodeCoverageUtils.createXMLReport(project, packageExecData, packageNativeClassCoverageList,
+                packageBalClassCoverageList, packageSourceCoverageList, packageSessionInfo);
     }
 
     private void filterTestGroups() {
@@ -318,9 +333,11 @@ public class RunTestsTask implements Task {
         String json = gson.toJson(testReport).replaceAll("\\\\\\(", "(");
 
         File jsonFile = new File(reportDir.resolve(RESULTS_JSON_FILE).toString());
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-            out.println("\t" + jsonFile.getAbsolutePath() + "\n");
+        try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
+            try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                out.println("\t" + jsonFile.getAbsolutePath() + "\n");
+            }
         }
 
         Path reportZipPath = Paths.get(System.getProperty(BALLERINA_HOME)).resolve(BALLERINA_HOME_LIB).
@@ -329,18 +346,22 @@ public class RunTestsTask implements Task {
         if (Files.exists(reportZipPath)) {
             String content;
             try {
-                CodeCoverageUtils.unzipReportResources(new FileInputStream(reportZipPath.toFile()),
-                        reportDir.toFile());
+                try (FileInputStream fileInputStream = new FileInputStream(reportZipPath.toFile())) {
+                    CodeCoverageUtils.unzipReportResources(fileInputStream,
+                            reportDir.toFile());
+                }
                 content = Files.readString(reportDir.resolve(RESULTS_HTML_FILE));
                 content = content.replace(REPORT_DATA_PLACEHOLDER, json);
             } catch (IOException e) {
                 throw createLauncherException("error occurred while preparing test report: " + e.toString());
             }
             File htmlFile = new File(reportDir.resolve(RESULTS_HTML_FILE).toString());
-            try (Writer writer = new OutputStreamWriter(new FileOutputStream(htmlFile), StandardCharsets.UTF_8)) {
-                writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
-                out.println("\tView the test report at: " +
-                        FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
+            try (FileOutputStream fileOutputStream = new FileOutputStream(htmlFile)) {
+                try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                    writer.write(new String(content.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+                    out.println("\tView the test report at: " +
+                            FILE_PROTOCOL + Paths.get(htmlFile.getPath()).toAbsolutePath().normalize().toString());
+                }
             }
         } else {
             String reportToolsPath = "<" + BALLERINA_HOME + ">" + File.separator + BALLERINA_HOME_LIB +
@@ -458,10 +479,14 @@ public class RunTestsTask implements Task {
 
         Path jsonFilePath = Paths.get(testsCachePath.toString(), TesterinaConstants.TESTERINA_TEST_SUITE);
         File jsonFile = new File(jsonFilePath.toString());
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
-            String json = gson.toJson(testSuiteMap);
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
+            try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                String json = gson.toJson(testSuiteMap);
+                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
+            }
         } catch (IOException e) {
             throw LauncherUtils.createLauncherException("couldn't write data to test suite file : " + e.toString());
         }

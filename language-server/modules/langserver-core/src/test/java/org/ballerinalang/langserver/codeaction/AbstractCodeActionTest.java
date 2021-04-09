@@ -73,8 +73,7 @@ public abstract class AbstractCodeActionTest {
 
     @Test(dataProvider = "codeaction-data-provider")
     public void test(String config, String source) throws IOException, WorkspaceDocumentException {
-        String configJsonPath =
-                "codeaction" + File.separator + getResourceDir() + File.separator + "config" + File.separator + config;
+        String configJsonPath = getConfigJsonPath(config);
         Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
         TestUtil.openDocument(serviceEndpoint, sourcePath);
@@ -165,6 +164,54 @@ public abstract class AbstractCodeActionTest {
                                       + " in " + sourcePath);
         }
         TestUtil.closeDocument(this.serviceEndpoint, sourcePath);
+    }
+
+    /**
+     * For testing negative cases like cases where code actions should not be suggested.
+     *
+     * @param config Config file name
+     * @param source Source file name
+     */
+    public void negativeTest(String config, String source) throws IOException, WorkspaceDocumentException {
+        String configJsonPath = getConfigJsonPath(config);
+        Path sourcePath = sourcesPath.resolve(getResourceDir()).resolve("source").resolve(source);
+        JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
+        TestUtil.openDocument(serviceEndpoint, sourcePath);
+
+        // Filter diagnostics for the cursor position
+        List<io.ballerina.tools.diagnostics.Diagnostic> diagnostics
+                = TestUtil.compileAndGetDiagnostics(sourcePath, workspaceManager, serverContext);
+        List<Diagnostic> diags = new ArrayList<>(CodeActionUtil.toDiagnostics(diagnostics));
+        Position pos = new Position(configJsonObject.get("line").getAsInt(),
+                configJsonObject.get("character").getAsInt());
+        diags = diags.stream().
+                filter(diag -> CommonUtil.isWithinRange(pos, diag.getRange()))
+                .collect(Collectors.toList());
+        CodeActionContext codeActionContext = new CodeActionContext(diags);
+
+        Range range = new Range(pos, pos);
+        String res = TestUtil.getCodeActionResponse(serviceEndpoint, sourcePath.toString(), range, codeActionContext);
+        for (JsonElement element : configJsonObject.get("expected").getAsJsonArray()) {
+            JsonObject expected = element.getAsJsonObject();
+            String notExpectedTitle = expected.get("title").getAsString();
+
+            JsonObject responseJson = this.getResponseJson(res);
+            for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
+                JsonObject right = jsonElement.getAsJsonObject().get("right").getAsJsonObject();
+                if (right == null) {
+                    continue;
+                }
+
+                // Match title
+                String actualTitle = right.get("title").getAsString();
+                Assert.assertNotEquals(notExpectedTitle, actualTitle);
+            }
+        }
+    }
+
+    private String getConfigJsonPath(String configFilePath) {
+        return "codeaction" + File.separator + getResourceDir() + File.separator + "config" + File.separator +
+                configFilePath;
     }
 
     @AfterClass

@@ -89,6 +89,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIgnoreExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
@@ -1280,6 +1281,12 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInferredTypedescDefaultNode source) {
+        BLangInferredTypedescDefaultNode clone = new BLangInferredTypedescDefaultNode();
+        source.cloneRef = clone;
+    }
+
+    @Override
     public void visit(BLangTypeConversionExpr source) {
 
         BLangTypeConversionExpr clone = new BLangTypeConversionExpr();
@@ -1362,7 +1369,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.textFragments = cloneList(source.textFragments);
         clone.quoteType = source.quoteType;
-        clone.concatExpr = clone(source.concatExpr);
     }
 
     @Override

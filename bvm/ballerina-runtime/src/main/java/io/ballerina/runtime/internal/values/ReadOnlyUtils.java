@@ -296,8 +296,7 @@ public class ReadOnlyUtils {
                 } else if (!unresolvedTypes.add(type)) {
                     resultantImmutableType = origUnionType;
                 } else {
-                    resultantImmutableType = new BUnionType(readOnlyMemTypes, true, origUnionType.isCyclic,
-                            unresolvedTypes);
+                    resultantImmutableType = new BUnionType(readOnlyMemTypes, true, origUnionType.isCyclic);
                 }
                 return createAndSetImmutableIntersectionType(origUnionType, resultantImmutableType);
         }

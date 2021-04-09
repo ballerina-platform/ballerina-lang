@@ -51,7 +51,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         final String span5Position = FILE_NAME + ":32:21";
         final String span6Position = FILE_NAME + ":38:16";
         final String entryPointFunctionModule = "intg_tests/tracing_tests:0.0.1";
-        final String entryPointFunctionPosition = "01_main_function.bal:19:1";
+        final String entryPointFunctionName = "main";
         final List<BMockSpan.BMockSpanEvent> expectedCheckpoints = Arrays.asList(
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":20:5"),
                 new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":22:13"),
@@ -78,20 +78,21 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(span1Position, span2Position, span3Position, span4Position,
                         span5Position, span6Position)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), span1Position))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "main");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", entryPointFunctionName),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span1Position),
@@ -112,7 +113,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     MOCK_CLIENT_OBJECT_NAME + ":callAnotherRemoteFunction");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", entryPointFunctionName),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
@@ -132,7 +133,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithNoReturn");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", entryPointFunctionName),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", UTILS_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
@@ -152,7 +153,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":calculateSum");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", entryPointFunctionName),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span4Position),
@@ -172,7 +173,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithPanic");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", entryPointFunctionName),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span5Position),
@@ -197,7 +198,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
             Assert.assertEquals(span.getOperationName(), MOCK_CLIENT_OBJECT_NAME + ":callWithErrorReturn");
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", entryPointFunctionModule),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", entryPointFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", entryPointFunctionName),
                     new AbstractMap.SimpleEntry<>("span.kind", "client"),
                     new AbstractMap.SimpleEntry<>("src.module", DEFAULT_MODULE_ID),
                     new AbstractMap.SimpleEntry<>("src.position", span6Position),
@@ -222,26 +223,27 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         final String callerResponsePosition = "01_main_function.bal:51:24";
 
         HttpResponse httpResponse = HttpClientRequest.doPost(
-                "http://localhost:9091/" + basePath + "/" + resourceName, "15", Collections.emptyMap());
+                "http://localhost:19091/" + basePath + "/" + resourceName, "15", Collections.emptyMap());
         Assert.assertEquals(httpResponse.getResponseCode(), 200);
         Assert.assertEquals(httpResponse.getData(), "Sum of numbers: 120");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(serviceName, DEFAULT_MODULE_ID, resourceFunctionPosition);
+        List<BMockSpan> spans = this.getFinishedSpans(serviceName, DEFAULT_MODULE_ID, "/" + resourceName);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(resourceFunctionPosition, callerResponsePosition)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
@@ -252,7 +254,9 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", serviceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
                     new AbstractMap.SimpleEntry<>("src.object.name", serviceName),
                     new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
@@ -274,7 +278,7 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", callerResponsePosition),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));

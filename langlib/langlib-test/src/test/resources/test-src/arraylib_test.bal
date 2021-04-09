@@ -1113,29 +1113,6 @@ function testSort10() {
 
     assertValueEquality(sortedArr6, []);
     assertValueEquality(sortedArr6, arr3);
-
-    int[] sortedArr7 = array:sort(arr, array:ASCENDING, isolated function(int x) returns string[]|int => [x.toString(),
-    "World"]);
-    assertValueEquality(sortedArr7, sortedArr);
-
-    var addFunc4 = isolated function (int funcInt1) returns (int|string) {
-        return funcInt1;
-    };
-
-    int[] sortedArr8 = arr.sort(array:DESCENDING, addFunc4);
-    assertValueEquality(sortedArr8, sortedArr);
-}
-
-function testSortNegativeCase1() {
-    (string|int)[] arr = [23, "A", "Z", 10, "D"];
-    (string|int)[] sortedArr3 = arr.sort();
-}
-
-function testSortNegativeCase2() {
-    (string|int)[] arr = [23, "A", "Z", 10, "D"];
-    (string|int)[] sortedArr6 = arr.sort(array:DESCENDING, isolated function((string|int) val) returns string|int {
-        return val;
-    });
 }
 
 function testTupleReverse() {

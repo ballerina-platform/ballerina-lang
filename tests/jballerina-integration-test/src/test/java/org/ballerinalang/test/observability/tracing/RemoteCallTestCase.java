@@ -42,7 +42,7 @@ import java.util.stream.Collectors;
 public class RemoteCallTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "03_remote_call.bal";
     private static final String BASE_PATH = "/test/serviceThree";
-    private static final String BASE_URL = "http://localhost:9093";
+    private static final String BASE_URL = "http://localhost:19093";
 
     @Test
     public void testNestedRemoteCalls() throws Exception {
@@ -58,21 +58,22 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
         Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, resourceFunctionPosition);
+        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, "/" + resourceName);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(resourceFunctionPosition, span2Position, span3Position, span4Position)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
@@ -83,7 +84,9 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
                     new AbstractMap.SimpleEntry<>("src.object.name", BASE_PATH),
                     new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
@@ -106,7 +109,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callAnotherRemoteFunction")
             ));
@@ -126,7 +129,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithNoReturn")
             ));
@@ -146,7 +149,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", span4Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
@@ -176,21 +179,22 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
         Assert.assertEquals(httpResponse.getData(), "Test Error");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, resourceFunctionPosition);
+        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, "/" + resourceName);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(resourceFunctionPosition, remoteCallPosition)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Map<String, Object> tags = span.getTags();
 //            TODO: Remove the bellow line once #ballerina-lang/issues/28686 is fixed
@@ -206,7 +210,9 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.object.name", BASE_PATH),
                     new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("error", "true"),
                     new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
 //                    TODO: Uncomment the bellow line once #ballerina-lang/issues/28686 is fixed
@@ -232,7 +238,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", remoteCallPosition),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithErrorReturn"),
 //                    TODO: Uncomment the bellow line once #ballerina-lang/issues/28686 is fixed
@@ -255,21 +261,22 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
         Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, resourceFunctionPosition);
+        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, "/" + resourceName);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(resourceFunctionPosition, span2Position, span3Position)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
@@ -280,7 +287,9 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
                     new AbstractMap.SimpleEntry<>("src.object.name", BASE_PATH),
                     new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
@@ -305,7 +314,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithErrorReturn"),
 //                    TODO: Uncomment the bellow line once #ballerina-lang/issues/28686 is fixed
@@ -333,7 +342,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
@@ -353,21 +362,22 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
         Assert.assertEquals(httpResponse.getData(), "Successfully trapped panic: Test Error");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, resourceFunctionPosition);
+        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, "/" + resourceName);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
                 new HashSet<>(Arrays.asList(resourceFunctionPosition, span2Position, span3Position)));
-        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId() == 0).count(), 1);
+        Assert.assertEquals(spans.stream().filter(bMockSpan -> bMockSpan.getParentId().equals(ZERO_SPAN_ID))
+                .count(), 1);
 
         Optional<BMockSpan> span1 = spans.stream()
                 .filter(bMockSpan -> Objects.equals(bMockSpan.getTags().get("src.position"), resourceFunctionPosition))
                 .findFirst();
         Assert.assertTrue(span1.isPresent());
-        long traceId = span1.get().getTraceId();
+        String traceId = span1.get().getTraceId();
         span1.ifPresent(span -> {
-            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId() == traceId
-                    && mockSpan.getSpanId() == span.getParentId()));
+            Assert.assertTrue(spans.stream().noneMatch(mockSpan -> mockSpan.getTraceId().equals(traceId)
+                    && mockSpan.getSpanId().equals(span.getParentId())));
             Assert.assertEquals(span.getOperationName(), "post /" + resourceName);
             Assert.assertEquals(span.getTags(), toMap(
                     new AbstractMap.SimpleEntry<>("span.kind", "server"),
@@ -378,7 +388,9 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.object.name", BASE_PATH),
                     new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
                     new AbstractMap.SimpleEntry<>("src.resource.path", "/" + resourceName),
@@ -403,7 +415,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", span2Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("src.object.name", MOCK_CLIENT_OBJECT_NAME),
                     new AbstractMap.SimpleEntry<>("src.function.name", "callWithPanic"),
 //                    TODO: Uncomment the bellow line once #ballerina-lang/issues/28686 is fixed
@@ -430,7 +442,7 @@ public class RemoteCallTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", span3Position),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));

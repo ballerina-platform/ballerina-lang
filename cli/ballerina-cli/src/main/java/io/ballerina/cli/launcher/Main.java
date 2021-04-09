@@ -118,10 +118,6 @@ public class Main {
             cmdParser.addSubcommand(BallerinaCliCommands.HOME, homeCmd);
             homeCmd.setParentCmdParser(cmdParser);
 
-            EncryptCmd encryptCmd = new EncryptCmd();
-            cmdParser.addSubcommand(BallerinaCliCommands.ENCRYPT, encryptCmd);
-            encryptCmd.setParentCmdParser(cmdParser);
-
             cmdParser.setCommandName("bal");
             cmdParser.setPosixClusteredShortOptionsAllowed(false);
 

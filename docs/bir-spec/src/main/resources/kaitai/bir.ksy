@@ -302,6 +302,12 @@ types:
         type: s4
         repeat: expr
         repeat-expr: member_types_count
+      - id: original_member_types_count
+        type: s4
+      - id: original_member_type_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: original_member_types_count
       - id: is_enum_type
         type: u1
       - id: pkg_cp_index
@@ -685,6 +691,14 @@ types:
         type: markdown_parameter
         repeat: expr
         repeat-expr: parameters_count
+      - id: deprecated_docs_cp_index
+        type: s4
+      - id: deprecated_params_count
+        type: s4
+      - id: deprecated_params
+        type: markdown_parameter
+        repeat: expr
+        repeat-expr: deprecated_params_count
   markdown_parameter:
     seq:
       - id: name_cp_index

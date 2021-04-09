@@ -19,6 +19,7 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.DependencyGraph;
 import io.ballerina.projects.DependencyGraph.DependencyGraphBuilder;
+import io.ballerina.projects.DependencyResolutionType;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageDependencyScope;
 import io.ballerina.projects.PackageDescriptor;
@@ -76,14 +77,15 @@ public class PackageDependencyGraphBuilder {
 
     public PackageDependencyGraphBuilder addDependency(PackageDescriptor dependent,
                                                        PackageDescriptor dependency,
-                                                       PackageDependencyScope dependencyScope) {
+                                                       PackageDependencyScope dependencyScope,
+                                                       DependencyResolutionType dependencyResolvedType) {
         // Add the correct version of the dependent to the graph.
         Vertex dependentVertex = new Vertex(dependent.org(), dependent.name());
         if (!depGraph.containsKey(dependentVertex)) {
             throw new IllegalStateException("Dependent node does not exist in the graph: " + dependent);
         }
 
-        Vertex dependencyVertex = new Vertex(dependency.org(), dependency.name());
+        Vertex dependencyVertex = new Vertex(dependency.org(), dependency.name(), dependencyResolvedType);
         addNewVertex(dependencyVertex, new StaticPackageDependency(dependency, dependencyScope));
         depGraph.get(dependentVertex).add(dependencyVertex);
         return this;
@@ -159,7 +161,9 @@ public class PackageDependencyGraphBuilder {
                     directDependencyNode.name, directPkgDep.pkgDesc.version());
             if (optionalPackage.isPresent()) {
                 packageDependencyMap.put(directPkgDep.pkgDesc,
-                        new ResolvedPackageDependency(optionalPackage.get(), directPkgDep.scope));
+                                         new ResolvedPackageDependency(optionalPackage.get(),
+                                                                       directPkgDep.scope,
+                                                                       directDependencyNode.dependencyResolvedType));
             }
             // I am ignoring the direct dependency missing cases as it is handled by the SymbolEnter
         }
@@ -282,10 +286,18 @@ public class PackageDependencyGraphBuilder {
     private static class Vertex {
         private final PackageOrg org;
         private final PackageName name;
+        private final DependencyResolutionType dependencyResolvedType;
 
-        public Vertex(PackageOrg org, PackageName name) {
+        Vertex(PackageOrg org, PackageName name) {
             this.org = org;
             this.name = name;
+            this.dependencyResolvedType = DependencyResolutionType.SOURCE;
+        }
+
+        Vertex(PackageOrg org, PackageName name, DependencyResolutionType dependencyResolvedType) {
+            this.org = org;
+            this.name = name;
+            this.dependencyResolvedType = dependencyResolvedType;
         }
 
         @Override

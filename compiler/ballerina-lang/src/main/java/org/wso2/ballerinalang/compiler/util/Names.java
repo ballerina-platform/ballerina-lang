@@ -64,6 +64,7 @@ public class Names {
     public static final Name RUNTIME = new Name("runtime");
     public static final Name TRANSACTION = new Name("transaction");
     public static final Name OBSERVE = new Name("observe");
+    public static final Name CLOUD = new Name("cloud");
     public static final Name TABLE = new Name("table");
     public static final Name TYPEDESC = new Name("typedesc");
     public static final Name STRING = new Name("string");
@@ -139,8 +140,8 @@ public class Names {
 
     // Names related to streams
     public static final Name CONSTRUCT_STREAM = new Name("construct");
-    public static final Name ABSTRACT_ITERATOR = new Name("_Iterator");
-    public static final Name ABSTRACT_CLOSEABLE_ITERATOR = new Name("_CloseableIterator");
+    public static final Name ABSTRACT_STREAM_ITERATOR = new Name("_StreamImplementor");
+    public static final Name ABSTRACT_STREAM_CLOSEABLE_ITERATOR = new Name("_CloseableStreamImplementor");
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
@@ -148,7 +149,6 @@ public class Names {
     public static final Name INTERNAL_VERSION = new Name(BLangCompilerConstants.INTERNAL_VERSION);
     public static final Name ANNOTATIONS_VERSION = new Name(BLangCompilerConstants.ANNOTATIONS_VERSION);
     public static final Name ARRAY_VERSION = new Name(BLangCompilerConstants.ARRAY_VERSION);
-    public static final Name CONFIG_VERSION = new Name(BLangCompilerConstants.CONFIG_VERSION);
     public static final Name DECIMAL_VERSION = new Name(BLangCompilerConstants.DECIMAL_VERSION);
     public static final Name ERROR_VERSION = new Name(BLangCompilerConstants.ERROR_VERSION);
     public static final Name FLOAT_VERSION = new Name(BLangCompilerConstants.FLOAT_VERSION);
@@ -170,6 +170,7 @@ public class Names {
             new Name(BLangCompilerConstants.TRANSACTION_INTERNAL_VERSION);
     public static final Name OBSERVE_INTERNAL_VERSION = new Name(BLangCompilerConstants.OBSERVE_INTERNAL_VERSION);
     public static final Name OBSERVE_VERSION = new Name(BLangCompilerConstants.OBSERVE_VERSION);
+    public static final Name CODE2CLOUD_VERSION = new Name(BLangCompilerConstants.C2C_VERSION);
 
     public CompilerContext context;
 

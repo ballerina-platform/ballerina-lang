@@ -38,7 +38,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
@@ -534,7 +533,8 @@ public class BTestRunner {
         // As the init function we need to use $moduleInit to initialize all the dependent modules
         // properly.
 
-        Object response = configInit.directInvoke(new Class[]{Path.class}, new Object[]{getConfigPath(suite)});
+        Object response = configInit.directInvoke(new Class[]{String[].class, Path[].class, String.class, String.class},
+                new Object[]{new String[]{}, getConfigPaths(suite), null, null});
         if (response instanceof Throwable) {
             throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
                     response.toString(), (Throwable) response);
@@ -573,7 +573,7 @@ public class BTestRunner {
         immortalThread.start();
     }
 
-    private Path getConfigPath(TestSuite testSuite) {
+    private Path[] getConfigPaths(TestSuite testSuite) {
         String moduleName = testSuite.getModuleName();
         Path configFilePath = Paths.get(testSuite.getSourceRootPath());
         if (!moduleName.equals(testSuite.getPackageName())) {
@@ -581,9 +581,10 @@ public class BTestRunner {
         }
         configFilePath = configFilePath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
         if (!Files.exists(configFilePath)) {
-            configFilePath = Paths.get(RuntimeUtils.USER_DIR).resolve(CONFIG_FILE_NAME);
+            return new Path[] {};
+        } else {
+            return new Path[] {configFilePath};
         }
-        return configFilePath;
     }
 
     private void stopSuite(TestSuite suite, Scheduler scheduler, Class<?> initClazz, Class<?> testInitClazz,
@@ -756,10 +757,15 @@ public class BTestRunner {
     private void writeFailedTestsToJson(List<String> failedTests, File jsonFile) {
         String errorMsg;
 
-        try (Writer writer = new OutputStreamWriter(new FileOutputStream(jsonFile), StandardCharsets.UTF_8)) {
-            Gson gson = new Gson();
-            String json = gson.toJson(failedTests);
-            writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+        try (FileOutputStream fileOutputStream = new FileOutputStream(jsonFile)) {
+            try (Writer writer = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8)) {
+                Gson gson = new Gson();
+                String json = gson.toJson(failedTests);
+                writer.write(new String(json.getBytes(StandardCharsets.UTF_8), StandardCharsets.UTF_8));
+            } catch (IOException e) {
+                errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
+                errStream.println(errorMsg + ":" + e.getMessage());
+            }
         } catch (IOException e) {
             errorMsg = "Could not write to Rerun Test json. Rerunning tests will not work";
             errStream.println(errorMsg + ":" + e.getMessage());

@@ -513,17 +513,28 @@ public class BIRPackageSymbolEnter {
 
         markdownDocAttachment.description = descCPIndex >= 0 ? getStringCPEntryValue(descCPIndex) : null;
         markdownDocAttachment.returnValueDescription
-                = retDescCPIndex  >= 0 ? getStringCPEntryValue(retDescCPIndex) : null;
+                = retDescCPIndex >= 0 ? getStringCPEntryValue(retDescCPIndex) : null;
+        readAndSetParamDocumentation(dataInStream, markdownDocAttachment.parameters, paramLength);
 
-        for (int i = 0; i < paramLength; i++) {
-            int nameCPIndex = dataInStream.readInt();
-            int paramDescCPIndex = dataInStream.readInt();
+        int deprecatedDescCPIndex = dataInStream.readInt();
+        int deprecatedParamLength = dataInStream.readInt();
+        markdownDocAttachment.deprecatedDocumentation = deprecatedDescCPIndex >= 0
+                ? getStringCPEntryValue(deprecatedDescCPIndex) : null;
+        readAndSetParamDocumentation(dataInStream, markdownDocAttachment.deprecatedParams, deprecatedParamLength);
+
+        symbol.markdownDocumentation = markdownDocAttachment;
+    }
+
+    private void readAndSetParamDocumentation(DataInputStream inputStream, List<MarkdownDocAttachment.Parameter> params,
+                                              int nParams) throws IOException {
+        for (int i = 0; i < nParams; i++) {
+            int nameCPIndex = inputStream.readInt();
+            int paramDescCPIndex = inputStream.readInt();
             String name = nameCPIndex >= 0 ? getStringCPEntryValue(nameCPIndex) : null;
             String description = paramDescCPIndex >= 0 ? getStringCPEntryValue(paramDescCPIndex) : null;
             MarkdownDocAttachment.Parameter parameter = new MarkdownDocAttachment.Parameter(name, description);
-            markdownDocAttachment.parameters.add(parameter);
+            params.add(parameter);
         }
-        symbol.markdownDocumentation = markdownDocAttachment;
     }
 
     private BType readBType(DataInputStream dataInStream) throws IOException {
@@ -1080,7 +1091,7 @@ public class BIRPackageSymbolEnter {
 
                         defineMarkDownDocAttachment(varSymbol, docBytes);
 
-                        BField structField = new BField(varSymbol.name, null, varSymbol);
+                        BField structField = new BField(varSymbol.name, varSymbol.pos, varSymbol);
                         recordType.fields.put(structField.name.value, structField);
                         recordSymbol.scope.define(varSymbol.name, varSymbol);
                     }
@@ -1238,6 +1249,13 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < unionMemberCount; i++) {
                         unionType.add(readTypeFromCp());
                     }
+
+                    int unionOriginalMemberCount = inputStream.readInt();
+                    LinkedHashSet<BType> originalMemberTypes = new LinkedHashSet<>(unionOriginalMemberCount);
+                    for (int i = 0; i < unionOriginalMemberCount; i++) {
+                        originalMemberTypes.add(readTypeFromCp());
+                    }
+                    unionType.setOriginalMemberTypes(originalMemberTypes);
 
                     var poppedUnionType = compositeStack.pop();
                     assert poppedUnionType == unionType;

@@ -75,6 +75,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 /**
  * Writes bType to a Byte Buffer in binary format.
@@ -297,16 +298,21 @@ public class BIRTypeWriter implements TypeVisitor {
         } else {
             buff.writeBoolean(false);
         }
-        buff.writeInt(bUnionType.getMemberTypes().size());
-        for (BType memberType : bUnionType.getMemberTypes()) {
-            writeTypeCpIndex(memberType);
-        }
+        writeMembers(bUnionType.getMemberTypes());
+        writeMembers(bUnionType.getOriginalMemberTypes());
 
         if (tsymbol instanceof BEnumSymbol) {
             buff.writeBoolean(true);
             writeEnumSymbolInfo((BEnumSymbol) tsymbol);
         } else {
             buff.writeBoolean(false);
+        }
+    }
+
+    private void writeMembers(Set<BType> memberTypes) {
+        buff.writeInt(memberTypes.size());
+        for (BType memberType : memberTypes) {
+            writeTypeCpIndex(memberType);
         }
     }
 
@@ -332,11 +338,7 @@ public class BIRTypeWriter implements TypeVisitor {
 
     @Override
     public void visit(BIntersectionType bIntersectionType) {
-        buff.writeInt(bIntersectionType.getConstituentTypes().size());
-        for (BType constituentType : bIntersectionType.getConstituentTypes()) {
-            writeTypeCpIndex(constituentType);
-        }
-
+        writeMembers(bIntersectionType.getConstituentTypes());
         writeTypeCpIndex(bIntersectionType.effectiveType);
     }
 
@@ -477,18 +479,28 @@ public class BIRTypeWriter implements TypeVisitor {
             birbuf.writeInt(markdownDocAttachment.description == null ? -1
                     : addStringCPEntry(markdownDocAttachment.description));
             birbuf.writeInt(markdownDocAttachment.returnValueDescription == null ? -1
-                    : addStringCPEntry(markdownDocAttachment.returnValueDescription));
-            birbuf.writeInt(markdownDocAttachment.parameters.size());
-            for (MarkdownDocAttachment.Parameter parameter : markdownDocAttachment.parameters) {
-                birbuf.writeInt(parameter.name == null ? -1
-                        : addStringCPEntry(parameter.name));
-                birbuf.writeInt(parameter.description == null ? -1
-                        : addStringCPEntry(parameter.description));
+                                    : addStringCPEntry(markdownDocAttachment.returnValueDescription));
+            writeParamDocs(birbuf, markdownDocAttachment.parameters);
+
+            if (markdownDocAttachment.deprecatedDocumentation != null) {
+                birbuf.writeInt(addStringCPEntry(markdownDocAttachment.deprecatedDocumentation));
+            } else {
+                birbuf.writeInt(-1);
             }
+
+            writeParamDocs(birbuf, markdownDocAttachment.deprecatedParams);
         }
         int length = birbuf.nioBuffer().limit();
         buf.writeInt(length);
         buf.writeBytes(birbuf.nioBuffer().array(), 0, length);
+    }
+
+    private void writeParamDocs(ByteBuf birBuf, List<MarkdownDocAttachment.Parameter> params) {
+        birBuf.writeInt(params.size());
+        for (MarkdownDocAttachment.Parameter param : params) {
+            birBuf.writeInt(addStringCPEntry(param.name));
+            birBuf.writeInt(addStringCPEntry(param.description));
+        }
     }
 
     private void throwUnimplementedError(BType bType) {

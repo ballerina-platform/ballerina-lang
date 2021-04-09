@@ -30,6 +30,7 @@ import org.ballerinalang.model.tree.expressions.RecordLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLNavigationAccess;
 import org.ballerinalang.model.tree.statements.StatementNode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.Scope;
@@ -118,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
@@ -3024,13 +3026,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 dlog.warning(invocationExpr.pos, DiagnosticWarningCode.USAGE_OF_DEPRECATED_CONSTRUCT,
                              invocationExpr);
             }
-
-            if (((BInvokableSymbol) funcSymbol).getReturnType().tag == TypeTags.NEVER &&
-                    invocationExpr.parent.getKind() != NodeKind.EXPRESSION_STATEMENT) {
-                // Log an error if the function returns never and invoked invalidly.
-                dlog.error(invocationExpr.pos, DiagnosticErrorCode.INVALID_NEVER_RETURN_TYPED_FUNCTION_INVOCATION,
-                        funcSymbol);
-            }
         }
     }
 
@@ -3693,7 +3688,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         // Check whether the condition is always true. If the variable type is assignable to target type,
         // then type check will always evaluate to true.
         if (types.isAssignable(typeTestExpr.expr.type, typeTestExpr.typeNode.type)) {
-            dlog.error(typeTestExpr.pos, DiagnosticErrorCode.UNNECESSARY_CONDITION);
+            dlog.hint(typeTestExpr.pos, DiagnosticHintCode.UNNECESSARY_CONDITION);
             return;
         }
 
@@ -3732,6 +3727,11 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
+        /* Ignore */
     }
 
     // private methods

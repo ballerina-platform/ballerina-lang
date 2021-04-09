@@ -96,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
@@ -281,7 +282,6 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
      */
     public BLangPackage analyze(BLangPackage pkgNode) {
         this.uninitializedVars = new LinkedHashMap<>();
-        this.unusedErrorVarsDeclaredWithVar = new HashMap<>();
         this.globalNodeDependsOn = new LinkedHashMap<>();
         this.functionToDependency = new HashMap<>();
         this.dlog.setCurrentPackageId(pkgNode.packageID);
@@ -295,6 +295,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.DATAFLOW_ANALYZE)) {
             return;
         }
+        Map<BSymbol, Location> prevUnusedErrorVarsDeclaredWithVar = this.unusedErrorVarsDeclaredWithVar;
+        this.unusedErrorVarsDeclaredWithVar = new HashMap<>();
 
         // Rearrange the top level nodes so that global variables come on top
         List<TopLevelNode> sortedListOfNodes = new ArrayList<>(pkgNode.globalVars);
@@ -315,6 +317,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         pkgNode.globalVariableDependencies = globalVariableRefAnalyzer.getGlobalVariablesDependsOn();
         checkUnusedImports(pkgNode.imports);
         checkUnusedErrorVarsDeclaredWithVar();
+        this.unusedErrorVarsDeclaredWithVar = prevUnusedErrorVarsDeclaredWithVar;
+
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
@@ -1639,6 +1643,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangAnnotAccessExpr annotAccessExpr) {
+    }
+
+    @Override
+    public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
     }
 
     @Override
