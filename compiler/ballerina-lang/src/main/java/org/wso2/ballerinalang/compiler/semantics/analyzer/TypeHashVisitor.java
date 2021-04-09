@@ -69,7 +69,7 @@ import static java.util.Objects.hash;
 /**
  * BType hash visitor to visit and generate a hash code for a given BType.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     private Map<BType, Integer> visited;
