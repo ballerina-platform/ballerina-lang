@@ -237,33 +237,6 @@ public class PackageResolutionTests extends BaseTest {
         }
     }
 
-    @Test(description = "tests projects with pre-release versions")
-    public void testProjectWithPreReleaseVersion() {
-        // package_c --> {}
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_unstable_k_alpha");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
-        PackageCompilation compilation = buildProject.currentPackage().getCompilation();
-
-        // Check whether there are any diagnostics
-        DiagnosticResult diagnosticResult = compilation.diagnosticResult();
-        diagnosticResult.errors().forEach(OUT::println);
-        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0, "Unexpected compilation diagnostics");
-
-        // Check direct package dependencies
-        Assert.assertEquals(buildProject.currentPackage().packageDependencies().size(), 0,
-                "Unexpected number of dependencies");
-    }
-
-    @Test(description = "tests projects with pre-release versions", expectedExceptions = ProjectException.class,
-            expectedExceptionsMessageRegExp = "Two incompatible versions exist in the dependency graph: " +
-                    "samjs/package_k versions: 1.1.0-alpha, 1.1.0-beta")
-    public void testProjectWithPreReleaseVersionAsDependency() {
-        // package_c --> {}
-        Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_m_with_unstable_dep");
-        BuildProject buildProject = BuildProject.load(projectDirPath);
-        buildProject.currentPackage().getResolution();
-    }
-
     @Test(description = "tests loading a valid bala project")
     public void testBalaProjectDependencyResolution() {
         Path balaPath = getBalaPath("samjs", "package_b", "0.1.0");
