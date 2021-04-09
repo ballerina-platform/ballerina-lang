@@ -161,6 +161,27 @@ function testArrayComparison2() {
     test:assertTrue(c >= d);
 }
 
+function testArrayComparison3() {
+    float[] a = [10, 23.1, 30.1];
+    float[] b = [10, 23.1];
+    float[] c = [];
+
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertTrue(a > b);
+    test:assertTrue(a >= b);
+
+    test:assertTrue(b < a);
+    test:assertTrue(b <= a);
+    test:assertFalse(b > a);
+    test:assertFalse(b >= a);
+
+    test:assertTrue(c < a);
+    test:assertTrue(c <= a);
+    test:assertFalse(c > a);
+    test:assertFalse(c >= a);
+}
+
 function testTupleComparison1() {
     [int, decimal] a = [59215, 9945];
     [int, decimal] b = [59283, 24345];
@@ -223,6 +244,42 @@ function testTupleComparison2() {
     test:assertTrue(f >= a);
     test:assertFalse(f < a);
     test:assertFalse(f <= a);
+}
+
+function testTupleComparison3() {
+    [float, int] a = [10, 23];
+    [float, int, string...] b = [10, 23, "ABC"];
+    [float, int, string...] c = [10, 46];
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertTrue(a < c);
+    test:assertTrue(a <= c);
+    test:assertFalse(a > c);
+    test:assertFalse(a >= c);
+
+    test:assertTrue(b < c);
+    test:assertTrue(b <= c);
+    test:assertFalse(b > c);
+    test:assertFalse(b >= c);
+}
+
+function testTupleComparison4() {
+    [float, int, string] a = [10, 23];
+    [float, int, string...] b = [10, 23, "ABC"];
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
 }
 
 type Utc readonly & [int,decimal];

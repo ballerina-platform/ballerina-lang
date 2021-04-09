@@ -241,3 +241,33 @@ function checkComparisonWithUnorderedTypes14() {
     boolean x3 = a > b;
     boolean x4 = a >= b;
 }
+
+function checkComparisonWithUnorderedTypes15() {
+    [float, int, string] a = [10, 23, "ABC"];
+    [float, int, float...] b = [10, 46];
+
+    boolean x1 = a < b;
+    boolean x2 = a <= b;
+    boolean x3 = a > b;
+    boolean x4 = a >= b;
+}
+
+function checkComparisonWithUnorderedTypes16() {
+    [float, int, string, int...] a = [10, 23, "ABC"];
+    [float, int, string, float...] b = [10, 46, "ABC"];
+
+    boolean x1 = a < b;
+    boolean x2 = a <= b;
+    boolean x3 = a > b;
+    boolean x4 = a >= b;
+}
+
+function checkComparisonWithUnorderedTypes17() {
+    [float, int, string, float...] a = [10, 23, "ABC"];
+    [float, int, float...] b = [10, 46];
+
+    boolean x1 = a < b;
+    boolean x2 = a <= b;
+    boolean x3 = a > b;
+    boolean x4 = a >= b;
+}
