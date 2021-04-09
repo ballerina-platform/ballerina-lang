@@ -262,7 +262,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 if (metadata != null) {
-                    STNode moduleVarDecl = parseModuleVarDecl(metadata);
+                    STNode moduleVarDecl = createSimpleVarDeclaration(metadata);
                     moduleVarDecl = SyntaxErrors.addDiagnostic(moduleVarDecl, 
                             DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT);
                     return moduleVarDecl;
@@ -784,7 +784,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case EOF_TOKEN:
-                return parseModuleVarDecl(metadata, publicQualifier, qualifiers);
+                return createSimpleVarDeclaration(metadata, publicQualifier, qualifiers, true);
             case FUNCTION_KEYWORD:
                 // Anything starts with a function keyword could be a function definition
                 // or a module-var-decl with function type desc.
@@ -3943,6 +3943,7 @@ public class BallerinaParser extends AbstractParser {
         STNode annots = STNodeFactory.createEmptyNodeList();
         switch (nextToken.kind) {
             case CLOSE_BRACE_TOKEN:
+            case EOF_TOKEN:
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:
@@ -3993,10 +3994,9 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case CLOSE_BRACE_TOKEN:
-                // Returning null marks the end of statements
-                reportInvalidStatementAnnots(annots, qualifiers);
-                reportInvalidQualifierList(qualifiers);
-                return null;
+            case EOF_TOKEN:
+                STNode publicQualifier = STNodeFactory.createEmptyNode();
+                return createSimpleVarDeclaration(getAnnotations(annots), publicQualifier, qualifiers, false);
             case SEMICOLON_TOKEN:
                 addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseStatement(annots, qualifiers);
@@ -4126,7 +4126,7 @@ public class BallerinaParser extends AbstractParser {
                     // If the statement starts with a type, then its a var declaration.
                     // This is an optimization since if we know the next token is a type, then
                     // we can parse the var-def faster.
-                    STNode publicQualifier = STNodeFactory.createEmptyNode();
+                    publicQualifier = STNodeFactory.createEmptyNode();
                     return parseVariableDecl(getAnnotations(annots), publicQualifier, new ArrayList<>(), qualifiers,
                             false);
                 }
@@ -4365,6 +4365,67 @@ public class BallerinaParser extends AbstractParser {
         STNode varDeclQualifiersNode = STNodeFactory.createNodeList(varDeclQuals);
         return STNodeFactory.createModuleVariableDeclarationNode(metadata, publicQualifier, varDeclQualifiersNode,
                 typedBindingPattern, assign, expr, semicolon);
+    }
+
+    private STNode createSimpleVarDeclaration(STNode metadata) {
+        STNode publicQualifier = STNodeFactory.createEmptyNode();
+        return createSimpleVarDeclaration(metadata, publicQualifier, new ArrayList<>(), true);
+    }
+
+    private STNode createSimpleVarDeclaration(STNode metadata, STNode publicQualifier, List<STNode> qualifiers,
+                                              boolean isModuleVar) {
+        STNode emptyNode = STNodeFactory.createEmptyNode();
+        STNode simpleTypeDescIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+        STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER);
+        STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
+        STNode semicolon = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.SEMICOLON_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN);
+        
+        STNode captureBP = STNodeFactory.createCaptureBindingPatternNode(identifier);
+        STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(simpleNameRef, captureBP);
+        
+        if (isModuleVar) {
+            List<STNode> varDeclQuals = extractVarDeclQualifiers(qualifiers);
+            STNode varDeclQualNodeList = STNodeFactory.createNodeList(varDeclQuals);
+
+            typedBindingPattern = modifyNodeWithInvalidTokenList(qualifiers, typedBindingPattern);
+
+            return STNodeFactory.createModuleVariableDeclarationNode(metadata, publicQualifier, varDeclQualNodeList,
+                    typedBindingPattern, emptyNode, emptyNode, semicolon);
+        }
+
+        typedBindingPattern = modifyNodeWithInvalidTokenList(qualifiers, typedBindingPattern);
+
+        return STNodeFactory.createVariableDeclarationNode(metadata, emptyNode, typedBindingPattern, emptyNode,
+                emptyNode, semicolon);
+    }
+
+    private STNode createSimpleObjectField(STNode metadata, List<STNode> qualifiers, boolean isObjectTypeDesc) {
+        STNode emptyNode = STNodeFactory.createEmptyNode();
+        STNode simpleTypeDescIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+        STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER);
+        STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
+        STNode semicolon = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.SEMICOLON_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN);
+
+        List<STNode> objectFieldQualifiers = extractObjectFieldQualifiers(qualifiers, isObjectTypeDesc);
+        STNode objectFieldQualNodeList = STNodeFactory.createNodeList(objectFieldQualifiers);
+
+        simpleNameRef = modifyNodeWithInvalidTokenList(qualifiers, simpleNameRef);
+
+        return STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList, simpleNameRef,
+                identifier, emptyNode, emptyNode, semicolon);
+    }
+
+    private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {
+        for (STNode qualifier : qualifiers) {
+            node = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, qualifier);
+        }
+        return node;
     }
 
     private STNode modifyTypedBindingPatternWithIsolatedQualifier(STNode typedBindingPattern,
@@ -6115,8 +6176,7 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-                STNode objectField = parseObjectField(metadata, STNodeFactory.createEmptyNode(),
-                        qualifiers, isObjectTypeDesc);
+                STNode objectField = createSimpleObjectField(metadata, qualifiers, isObjectTypeDesc);
                 if (metadata != null) {
                     objectField = SyntaxErrors.addDiagnostic(objectField,
                             DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER);
