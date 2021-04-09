@@ -270,9 +270,75 @@ public class BTestRunner {
         // Run After suite functions
         executeAfterSuiteFunctions(suite, classLoader, scheduler, shouldSkipAfterSuite);
         // Call module stop and test stop function
-        stopSuite(suite, scheduler, initClazz, testInitClazz, hasTestablePackage);
+        stopSuite(scheduler, initClazz, testInitClazz, hasTestablePackage);
         // print module test results
         tReport.printTestSuiteSummary(packageName);
+    }
+
+    private void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz, Class<?> testInitClazz,
+                            Class<?> configClazz, boolean hasTestablePackage) {
+        TesterinaFunction init = new TesterinaFunction(initClazz, INIT_FUNCTION_NAME, initScheduler);
+        TesterinaFunction start = new TesterinaFunction(initClazz, START_FUNCTION_NAME, initScheduler);
+        TesterinaFunction configInit = new TesterinaFunction(configClazz, "$configureInit", initScheduler);
+        // As the init function we need to use $moduleInit to initialize all the dependent modules
+        // properly.
+
+        Object response = configInit.directInvoke(new Class[]{String[].class, Path[].class, String.class, String.class},
+                new Object[]{new String[]{}, getConfigPaths(suite), null, null});
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
+                    response.toString(), (Throwable) response);
+        }
+
+        init.setName("$moduleInit");
+        response = init.invoke();
+        if (response instanceof Throwable) {
+            throw new BallerinaTestException("Dependant module initialization for test suite failed due to " +
+                    response.toString(), (Throwable) response);
+        }
+        // Now we initialize the init of testable module.
+        if (hasTestablePackage) {
+            TesterinaFunction testInit =
+                    new TesterinaFunction(testInitClazz, TEST_INIT_FUNCTION_NAME, initScheduler);
+            response = testInit.invoke();
+            if (response instanceof Throwable) {
+                throw new BallerinaTestException("Test module initialization for test suite failed due to " +
+                        response.toString(), (Throwable) response);
+            }
+        }
+        // As the start function we need to use $moduleStart to start all the dependent modules
+        // properly.
+        start.setName("$moduleStart");
+        start.invoke();
+        // Invoke start function of the testable module
+        if (hasTestablePackage) {
+            TesterinaFunction testStart =
+                    new TesterinaFunction(testInitClazz, TEST_START_FUNCTION_NAME, initScheduler);
+            response = testStart.invoke();
+            if (response instanceof BError || response instanceof Throwable || response instanceof Error) {
+                throw new BallerinaTestException("Test module invocation for test suite failed due to " +
+                        response.toString(), (Throwable) response);
+            }
+        }
+        // Once the start function finish we will re start the scheduler with immortal true
+        initScheduler.setImmortal(true);
+        Thread immortalThread = new Thread(initScheduler::start, "module-start");
+        immortalThread.setDaemon(true);
+        immortalThread.start();
+    }
+
+    private Path[] getConfigPaths(TestSuite testSuite) {
+        String moduleName = testSuite.getModuleName();
+        Path configFilePath = Paths.get(testSuite.getSourceRootPath());
+        if (!moduleName.equals(testSuite.getPackageName())) {
+            configFilePath = configFilePath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
+        }
+        configFilePath = configFilePath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
+        if (!Files.exists(configFilePath)) {
+            return new Path[] {};
+        } else {
+            return new Path[] {configFilePath};
+        }
     }
 
     private void executeBeforeSuiteFunctions(TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
@@ -280,7 +346,10 @@ public class BTestRunner {
         suite.getBeforeSuiteFunctionNames().forEach(test -> {
             String errorMsg;
             try {
-                invokeTestFunction(suite, test, classLoader, scheduler);
+                Object value = invokeTestFunction(suite, test, classLoader, scheduler);
+                if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                    throw (Throwable) value;
+                }
             } catch (Throwable e) {
                 shouldSkip.set(true);
                 shouldSkipAfterSuite.set(true);
@@ -331,7 +400,10 @@ public class BTestRunner {
                     String errorMsg;
                     for (String beforeGroupFunc : suite.getGroups().get(groupName).getBeforeGroupsFunctions()) {
                         try {
-                            invokeTestFunction(suite, beforeGroupFunc, classLoader, scheduler);
+                            Object value = invokeTestFunction(suite, beforeGroupFunc, classLoader, scheduler);
+                            if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                                throw (Throwable) value;
+                            }
                         } catch (Throwable e) {
                             shouldSkip.set(true);
                             shouldSkipTest.set(true);
@@ -355,7 +427,10 @@ public class BTestRunner {
             suite.getBeforeEachFunctionNames().forEach(beforeEachTest -> {
                 String errorMsg;
                 try {
-                    invokeTestFunction(suite, beforeEachTest, classLoader, scheduler);
+                    Object value = invokeTestFunction(suite, beforeEachTest, classLoader, scheduler);
+                    if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                        throw (Throwable) value;
+                    }
                 } catch (Throwable e) {
                     shouldSkip.set(true);
                     errorMsg = String.format("\t[fail] " + beforeEachTest +
@@ -375,7 +450,10 @@ public class BTestRunner {
             String errorMsg;
             try {
                 if (test.getBeforeTestFunction() != null) {
-                    invokeTestFunction(suite, test.getBeforeTestFunction(), classLoader, scheduler);
+                    Object value = invokeTestFunction(suite, test.getBeforeTestFunction(), classLoader, scheduler);
+                    if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                        throw (Throwable) value;
+                    }
                 }
             } catch (Throwable e) {
                 shouldSkipTest.set(true);
@@ -474,7 +552,10 @@ public class BTestRunner {
         if (!shouldSkip.get() && !shouldSkipTest.get()) {
             try {
                 if (test.getAfterTestFunction() != null) {
-                    invokeTestFunction(suite, test.getAfterTestFunction(), classLoader, scheduler);
+                    Object value = invokeTestFunction(suite, test.getAfterTestFunction(), classLoader, scheduler);
+                    if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                        throw (Throwable) value;
+                    }
                 }
             } catch (Throwable e) {
                 failedAfterFuncTests.add(test.getTestName());
@@ -490,7 +571,10 @@ public class BTestRunner {
         if (!shouldSkip.get() && !shouldSkipTest.get()) {
             suite.getAfterEachFunctionNames().forEach(afterEachTest -> {
                 try {
-                    invokeTestFunction(suite, afterEachTest, classLoader, scheduler);
+                    Object value = invokeTestFunction(suite, afterEachTest, classLoader, scheduler);
+                    if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                        throw (Throwable) value;
+                    }
                 } catch (Throwable e) {
                     shouldSkip.set(true);
                     String errorMsg = String.format("\t[fail] " + afterEachTest +
@@ -513,7 +597,10 @@ public class BTestRunner {
                     String errorMsg;
                     for (String afterGroupFunc : suite.getGroups().get(groupName).getAfterGroupsFunctions()) {
                         try {
-                            invokeTestFunction(suite, afterGroupFunc, classLoader, scheduler);
+                            Object value = invokeTestFunction(suite, afterGroupFunc, classLoader, scheduler);
+                            if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                                throw (Throwable) value;
+                            }
                         } catch (Throwable e) {
                             shouldSkip.set(true);
                             shouldSkipTest.set(true);
@@ -536,7 +623,10 @@ public class BTestRunner {
             if (!shouldSkipAfterSuite.get() || alwaysRun.get()) {
                 String errorMsg;
                 try {
-                    invokeTestFunction(suite, func, classLoader, scheduler);
+                    Object value = invokeTestFunction(suite, func, classLoader, scheduler);
+                    if (value instanceof BError || value instanceof  Exception || value instanceof Error) {
+                        throw (Throwable) value;
+                    }
                 } catch (Throwable e) {
                     errorMsg = String.format("\t[fail] " + func + " [after test suite function] :\n\t    " +
                             "%s", formatErrorMessage(e));
@@ -546,69 +636,7 @@ public class BTestRunner {
         });
     }
 
-    private void startSuite(TestSuite suite, Scheduler initScheduler, Class<?> initClazz, Class<?> testInitClazz,
-                            Class<?> configClazz, boolean hasTestablePackage) {
-        TesterinaFunction init = new TesterinaFunction(initClazz, INIT_FUNCTION_NAME, initScheduler);
-        TesterinaFunction start = new TesterinaFunction(initClazz, START_FUNCTION_NAME, initScheduler);
-        TesterinaFunction configInit = new TesterinaFunction(configClazz, "$configureInit", initScheduler);
-        // As the init function we need to use $moduleInit to initialize all the dependent modules
-        // properly.
-
-        Object response = configInit.directInvoke(new Class[]{String[].class, Path[].class, String.class, String.class},
-                new Object[]{new String[]{}, getConfigPaths(suite), null, null});
-        if (response instanceof Throwable) {
-            throw new BallerinaTestException("Configurable initialization for test suite failed due to " +
-                    response.toString(), (Throwable) response);
-        }
-
-        init.setName("$moduleInit");
-        response = init.invoke();
-        if (response instanceof Throwable) {
-            throw new BallerinaTestException("Dependant module initialization for test suite failed due to " +
-                    response.toString(), (Throwable) response);
-        }
-        // Now we initialize the init of testable module.
-        if (hasTestablePackage) {
-            TesterinaFunction testInit =
-                    new TesterinaFunction(testInitClazz, TEST_INIT_FUNCTION_NAME, initScheduler);
-            response = testInit.invoke();
-            if (response instanceof Throwable) {
-                throw new BallerinaTestException("Test module initialization for test suite failed due to " +
-                        response.toString(), (Throwable) response);
-            }
-        }
-        // As the start function we need to use $moduleStart to start all the dependent modules
-        // properly.
-        start.setName("$moduleStart");
-        start.invoke();
-        // Invoke start function of the testable module
-        if (hasTestablePackage) {
-            TesterinaFunction testStart =
-                    new TesterinaFunction(testInitClazz, TEST_START_FUNCTION_NAME, initScheduler);
-            testStart.invoke();
-        }
-        // Once the start function finish we will re start the scheduler with immortal true
-        initScheduler.setImmortal(true);
-        Thread immortalThread = new Thread(initScheduler::start, "module-start");
-        immortalThread.setDaemon(true);
-        immortalThread.start();
-    }
-
-    private Path[] getConfigPaths(TestSuite testSuite) {
-        String moduleName = testSuite.getModuleName();
-        Path configFilePath = Paths.get(testSuite.getSourceRootPath());
-        if (!moduleName.equals(testSuite.getPackageName())) {
-            configFilePath = configFilePath.resolve(ProjectConstants.MODULES_ROOT).resolve(moduleName);
-        }
-        configFilePath = configFilePath.resolve(ProjectConstants.TEST_DIR_NAME).resolve(CONFIG_FILE_NAME);
-        if (!Files.exists(configFilePath)) {
-            return new Path[] {};
-        } else {
-            return new Path[] {configFilePath};
-        }
-    }
-
-    private void stopSuite(TestSuite suite, Scheduler scheduler, Class<?> initClazz, Class<?> testInitClazz,
+    private void stopSuite(Scheduler scheduler, Class<?> initClazz, Class<?> testInitClazz,
                            boolean hasTestablePackage) {
         TesterinaFunction stop = new TesterinaFunction(initClazz, STOP_FUNCTION_NAME, scheduler);
         // Invoke stop function of the testable module.
@@ -639,7 +667,6 @@ public class BTestRunner {
 
     private String formatErrorMessage(Throwable e) {
         String message;
-
         try {
             if (e instanceof BError) {
                 message = ((BError) e).getPrintableStackTrace();
@@ -653,7 +680,6 @@ public class BTestRunner {
             // If an unhandled error type is passed to format error message
             throw new BallerinaTestException(classCastException);
         }
-
         return message;
     }
 

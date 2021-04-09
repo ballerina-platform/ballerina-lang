@@ -122,7 +122,7 @@ public class TesterinaFunction {
             }
             return out.getResult();
         } catch (NoSuchMethodException e) {
-            throw new BallerinaTestException("Error while invoking function '" + funcName + "'\n" +
+            return new BallerinaTestException("Error while invoking function '" + funcName + "'\n" +
                     "If you are using data providers please check if types return from data provider " +
                     "match test function parameter types.", e);
         }

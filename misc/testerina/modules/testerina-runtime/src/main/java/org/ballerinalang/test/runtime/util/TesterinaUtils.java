@@ -92,7 +92,7 @@ public class TesterinaUtils {
                 throw new RuntimeException("there are test failures");
             }
         } catch (BallerinaTestException e) {
-            errStream.println("error: " + e);
+            errStream.println("error: " + e.getMessage());
             RuntimeUtils.silentlyLogBadSad(e);
             throw e;
         } catch (Throwable e) {
