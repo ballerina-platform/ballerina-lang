@@ -22,6 +22,7 @@ import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
+import io.ballerina.projects.internal.ModuleContextDataHolder;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -59,7 +60,7 @@ import static org.ballerinalang.model.tree.SourceKind.TEST_SOURCE;
  *
  * @since 2.0.0
  */
-class ModuleContext implements io.ballerina.projects.internal.ModuleContext {
+class ModuleContext {
     private final ModuleId moduleId;
     private final ModuleDescriptor moduleDescriptor;
     private final Collection<DocumentId> srcDocIds;
@@ -125,8 +126,7 @@ class ModuleContext implements io.ballerina.projects.internal.ModuleContext {
         return this.moduleId;
     }
 
-    @Override
-    public ModuleDescriptor descriptor() {
+    ModuleDescriptor descriptor() {
         return moduleDescriptor;
     }
 
@@ -154,9 +154,8 @@ class ModuleContext implements io.ballerina.projects.internal.ModuleContext {
         return this.project;
     }
 
-    @Override
-    public boolean isExported() {
-        List<String> exports = this.project.currentPackage().manifest().export();
+    boolean isExported() {
+        List<String> exports = this.project.currentPackage().manifest().exportedModules();
         return exports.contains(moduleDescriptor.name().toString());
     }
 
@@ -357,7 +356,8 @@ class ModuleContext implements io.ballerina.projects.internal.ModuleContext {
 
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         pkgNode.projectKind = moduleContext.project().kind();
-        pkgNode.moduleContext = moduleContext;
+        pkgNode.moduleContextDataHolder = new ModuleContextDataHolder(moduleContext.isExported(),
+                                                                      moduleContext.descriptor());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files

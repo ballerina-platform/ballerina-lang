@@ -55,9 +55,9 @@ public class TestExportModules {
             Assert.fail(e.getMessage(), e);
         }
 
-        Assert.assertEquals(balaProject.currentPackage().manifest().export().size(), 2);
-        Assert.assertEquals(balaProject.currentPackage().manifest().export().get(0), "winery");
-        Assert.assertEquals(balaProject.currentPackage().manifest().export().get(1), "winery.service");
+        Assert.assertEquals(balaProject.currentPackage().manifest().exportedModules().size(), 2);
+        Assert.assertEquals(balaProject.currentPackage().manifest().exportedModules().get(0), "winery");
+        Assert.assertEquals(balaProject.currentPackage().manifest().exportedModules().get(1), "winery.service");
     }
 
     @Test(description = "tests loading a valid bala project without export in package.json")
@@ -74,8 +74,8 @@ public class TestExportModules {
         }
 
         // Default module should exists in exported modules
-        Assert.assertEquals(balaProject.currentPackage().manifest().export().size(), 1);
-        Assert.assertEquals(balaProject.currentPackage().manifest().export().get(0), "winery");
+        Assert.assertEquals(balaProject.currentPackage().manifest().exportedModules().size(), 1);
+        Assert.assertEquals(balaProject.currentPackage().manifest().exportedModules().get(0), "winery");
     }
 
     @Test(description = "test build project with export entry in Ballerina.toml")
@@ -88,9 +88,9 @@ public class TestExportModules {
             Assert.fail("compilation failed:" + packageCompilation.diagnosticResult().errors());
         }
 
-        Assert.assertFalse(project.currentPackage().manifest().export().isEmpty());
-        Assert.assertEquals(project.currentPackage().manifest().export().get(0), "winery");
-        Assert.assertEquals(project.currentPackage().manifest().export().get(1), "winery.services");
+        Assert.assertFalse(project.currentPackage().manifest().exportedModules().isEmpty());
+        Assert.assertEquals(project.currentPackage().manifest().exportedModules().get(0), "winery");
+        Assert.assertEquals(project.currentPackage().manifest().exportedModules().get(1), "winery.services");
     }
 
     @Test(description = "test build project without export entry in Ballerina.toml")
@@ -104,8 +104,8 @@ public class TestExportModules {
         }
 
         // Default module should exists in exported modules
-        Assert.assertFalse(project.currentPackage().manifest().export().isEmpty());
-        Assert.assertEquals(project.currentPackage().manifest().export().get(0), "winery");
+        Assert.assertFalse(project.currentPackage().manifest().exportedModules().isEmpty());
+        Assert.assertEquals(project.currentPackage().manifest().exportedModules().get(0), "winery");
     }
 
     @Test(description = "test build project has non-exported module as an import")

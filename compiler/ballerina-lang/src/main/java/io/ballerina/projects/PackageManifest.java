@@ -41,7 +41,7 @@ public class PackageManifest {
     private final List<String> authors;
     private final List<String> keywords;
     private final String repository;
-    private final List<String> export;
+    private final List<String> exportedModules;
 
     // Other entries hold other key/value pairs available in the Ballerina.toml file.
     // These keys are not part of the Ballerina package specification.
@@ -62,7 +62,7 @@ public class PackageManifest {
         this.license = Collections.emptyList();
         this.authors = Collections.emptyList();
         this.keywords = Collections.emptyList();
-        this.export = Collections.emptyList();
+        this.exportedModules = Collections.emptyList();
         this.repository = "";
     }
 
@@ -75,7 +75,7 @@ public class PackageManifest {
                             List<String> license,
                             List<String> authors,
                             List<String> keywords,
-                            List<String> export,
+                            List<String> exportedModules,
                             String repository) {
         this.packageDesc = packageDesc;
         this.compilerPluginDesc = compilerPluginDesc;
@@ -86,7 +86,7 @@ public class PackageManifest {
         this.license = license;
         this.authors = authors;
         this.keywords = keywords;
-        this.export = getExport(packageDesc, export);
+        this.exportedModules = getExport(packageDesc, exportedModules);
         this.repository = repository;
     }
 
@@ -177,8 +177,8 @@ public class PackageManifest {
         return keywords;
     }
 
-    public List<String> export() {
-        return export;
+    public List<String> exportedModules() {
+        return exportedModules;
     }
 
     public String repository() {

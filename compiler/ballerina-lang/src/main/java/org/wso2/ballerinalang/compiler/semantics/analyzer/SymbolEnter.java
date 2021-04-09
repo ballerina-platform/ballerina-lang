@@ -297,9 +297,9 @@ public class SymbolEnter extends BLangNodeVisitor {
             populateLangLibInSymTable(pkgSymbol);
         }
 
-        if (pkgNode.moduleContext != null) {
-            pkgSymbol.exported = pkgNode.moduleContext.isExported();
-            pkgSymbol.descriptor = pkgNode.moduleContext.descriptor();
+        if (pkgNode.moduleContextDataHolder != null) {
+            pkgSymbol.exported = pkgNode.moduleContextDataHolder.isExported();
+            pkgSymbol.descriptor = pkgNode.moduleContextDataHolder.descriptor();
         }
 
         pkgNode.symbol = pkgSymbol;
@@ -904,11 +904,11 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         // Un-exported modules not inside current package is not allowed to import.
         BPackageSymbol bPackageSymbol = this.packageCache.getSymbol(pkgId);
-        if (bPackageSymbol != null && this.env.enclPkg.moduleContext != null) {
+        if (bPackageSymbol != null && this.env.enclPkg.moduleContextDataHolder != null) {
             boolean isCurrentPackageModuleImport =
-                    this.env.enclPkg.moduleContext.descriptor().org() == bPackageSymbol.descriptor.org()
-                            && this.env.enclPkg.moduleContext.descriptor().packageName() == bPackageSymbol.descriptor
-                            .packageName();
+                this.env.enclPkg.moduleContextDataHolder.descriptor().org() == bPackageSymbol.descriptor.org()
+                    && this.env.enclPkg.moduleContextDataHolder.descriptor().packageName() ==
+                        bPackageSymbol.descriptor.packageName();
             if (!isCurrentPackageModuleImport && !bPackageSymbol.exported) {
                 dlog.error(importPkgNode.pos, DiagnosticErrorCode.MODULE_NOT_FOUND,
                            bPackageSymbol.toString() + " is not exported");
