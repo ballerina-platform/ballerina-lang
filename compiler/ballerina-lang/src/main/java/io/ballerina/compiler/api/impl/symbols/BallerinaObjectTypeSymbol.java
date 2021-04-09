@@ -50,6 +50,9 @@ import java.util.stream.Collectors;
  */
 public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements ObjectTypeSymbol {
 
+    private static final String ORG_NAME_BALLERINA = "ballerina";
+    private static final String MODULE_NAME_LANG_VALUE = "lang.value";
+
     private List<Qualifier> qualifiers;
     private Map<String, ObjectFieldSymbol> objectFields;
     private Map<String, MethodSymbol> methods;
@@ -183,8 +186,8 @@ public class BallerinaObjectTypeSymbol extends AbstractTypeSymbol implements Obj
         List<FunctionSymbol> functionSymbols = super.filterLangLibMethods(functions, internalType);
         return functionSymbols.stream()
                 .filter(functionSymbol -> functionSymbol.getModule().isPresent())
-                .filter(functionSymbol -> !"ballerina".equals(functionSymbol.getModule().get().id().orgName()) ||
-                        !"lang.value".equals(functionSymbol.getModule().get().id().moduleName()))
+                .filter(functionSymbol -> !ORG_NAME_BALLERINA.equals(functionSymbol.getModule().get().id().orgName()) ||
+                        !MODULE_NAME_LANG_VALUE.equals(functionSymbol.getModule().get().id().moduleName()))
                 .collect(Collectors.toList());
     }
 
