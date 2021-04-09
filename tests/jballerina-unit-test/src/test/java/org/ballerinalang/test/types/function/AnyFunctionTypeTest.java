@@ -56,6 +56,9 @@ public class AnyFunctionTypeTest {
                 "cannot call function pointer of type 'function'", 45, 42);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot infer types of the arrow expression with unknown invokable type", 49, 18);
+        BAssertUtil.validateError(negativeCompileResult, i++,
+                "incompatible types: expected 'function () returns (string)', found 'function () " +
+                        "returns ((int|never))'", 53, 37);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
@@ -97,5 +100,10 @@ public class AnyFunctionTypeTest {
     @Test
     public void testRuntimeHashCodeViaFunctionEquality() {
         BRunUtil.invoke(functionTypeTestResult, "testRuntimeHashCodeViaFunctionEquality");
+    }
+
+    @Test
+    public void testFunctionWithNeverOrNeverEqualReturnType() {
+        BRunUtil.invoke(functionTypeTestResult, "testFunctionWithNeverOrNeverEqualReturnType");
     }
 }
