@@ -113,7 +113,7 @@ isolated function getStringValue(int v) returns string = @Method {
 # + value - The `JObject` instance which is to be casted
 # + castType - The `JObject` implementation type ``typedesc<JObject>`` to which the given object is casted to if assignable
 # + return - The `JObject|error`, which refers to the new `JObject` instance or an `error`
-public isolated function cast(JObject value, typedesc<JObject> T) returns T|error = @Method {
+public isolated function cast(JObject value, typedesc<JObject> T = <>) returns T|error = @Method {
     'class: "org.ballerinalang.langlib.java.Cast",
     name: "cast"
 } external;

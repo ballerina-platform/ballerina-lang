@@ -21,13 +21,13 @@ package org.ballerinalang.langlib.java;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.types.BObjectType;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.api.creators.ValueCreator.createHandleValue;
@@ -68,11 +68,10 @@ public class Cast {
             }
             Type describingBType = castType.getDescribingType();
             BString castObjClass;
-            ObjectType castObjType;
+            BObjectType castObjType;
             String castObjTypeName;
             try {
-                TypedescType describingType = (TypedescType) describingBType;
-                castObjType = (ObjectType) describingType.getConstraint();
+                castObjType = (BObjectType) describingBType;
                 castObjTypeName = castObjType.getName();
                 Field objField = castObjType.getFields().get(jObjField);
                 if (objField == null) {
@@ -84,9 +83,8 @@ public class Cast {
                         "parameter: " + e));
             }
             try {
-                BMap castObjAnnotation = (BMap) castObjType.getAnnotation(
-                        StringUtils.fromString(annotationType));
-                castObjClass = (BString) castObjAnnotation.getStringValue(StringUtils.fromString(classAttribute));
+                BMap castObjAnnotation = (BMap) castObjType.getAnnotation(StringUtils.fromString(annotationType));
+                castObjClass = castObjAnnotation.getStringValue(StringUtils.fromString(classAttribute));
             } catch (Exception e) {
                 return createError(StringUtils.fromString(moduleName + " Error while retrieving details of the `" +
                         annotationName + "` annotation from `" + castObjTypeName + "` typedesc: " + e));
