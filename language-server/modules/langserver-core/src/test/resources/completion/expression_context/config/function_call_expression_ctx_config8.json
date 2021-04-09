@@ -158,6 +158,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "retry",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "retry {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "retry transaction",
       "kind": "Snippet",
       "detail": "Statement",
@@ -587,6 +595,24 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "testFunctionWithParams2(int a, int b)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \nThis is a test function without a return type\n  \n**Params**  \n- `int` a: Parameter a Description  \n- `int` b: Parameter b Description"
+        }
+      },
+      "sortText": "C",
+      "insertText": "testFunctionWithParams2(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
+    },
+    {
       "label": "logic(json)(boolean|error)",
       "kind": "Function",
       "detail": "Function",
@@ -605,17 +631,17 @@
       }
     },
     {
-      "label": "testFunctionWithParams2(int a, int b)",
+      "label": "testFunctionWithParams1(int a, int b)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \nThis is a test function without a return type\n  \n**Params**  \n- `int` a: Parameter a Description  \n- `int` b: Parameter b Description"
+          "value": "**Package:** _._  \n  \nThis is a test function with nil return type\n  \n**Params**  \n- `int` a: Parameter a Description  \n- `int` b: Parameter b Description"
         }
       },
       "sortText": "C",
-      "insertText": "testFunctionWithParams2(${1})",
+      "insertText": "testFunctionWithParams1(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -655,24 +681,6 @@
       "sortText": "B",
       "insertText": "valueA",
       "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunctionWithParams1(int a, int b)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \nThis is a test function with nil return type\n  \n**Params**  \n- `int` a: Parameter a Description  \n- `int` b: Parameter b Description"
-        }
-      },
-      "sortText": "C",
-      "insertText": "testFunctionWithParams1(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
     },
     {
       "label": "worker",

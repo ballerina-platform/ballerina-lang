@@ -665,10 +665,11 @@ public class ReferenceFinder extends BaseVisitor {
             return;
         }
 
-        if (!varRefExpr.pkgAlias.value.isEmpty()) {
-            addIfSameSymbol(varRefExpr.symbol.owner, varRefExpr.pkgAlias.pos);
+        if (!varRefExpr.pkgAlias.value.isEmpty() && addIfSameSymbol(varRefExpr.symbol.owner, varRefExpr.pkgAlias.pos)) {
+            return;
         }
-        addIfSameSymbol(varRefExpr.symbol, varRefExpr.pos);
+
+        addIfSameSymbol(varRefExpr.symbol, varRefExpr.variableName.pos);
     }
 
     @Override
@@ -1174,13 +1175,15 @@ public class ReferenceFinder extends BaseVisitor {
 
     // Private methods
 
-    private void addIfSameSymbol(BSymbol symbol, Location location) {
+    private boolean addIfSameSymbol(BSymbol symbol, Location location) {
         if (symbol != null
                 && this.targetSymbol.name.equals(symbol.name)
                 && this.targetSymbol.pkgID.equals(symbol.pkgID)
                 && this.targetSymbol.pos.equals(symbol.pos)) {
             this.referenceLocations.add(location);
+            return true;
         }
+        return false;
     }
 
     private boolean isGeneratedClassDefForService(BLangClassDefinition clazz) {

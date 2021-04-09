@@ -21,7 +21,7 @@ import ballerina/testobserve;
 @http:ServiceConfig {
     basePath:"/mock-tracer"
 }
-service mockTracer on new http:Listener(9090) {
+service mockTracer on new http:Listener(19090) {
     @http:ResourceConfig {
         methods: ["GET"],
         path: "/spans/{serviceName}"

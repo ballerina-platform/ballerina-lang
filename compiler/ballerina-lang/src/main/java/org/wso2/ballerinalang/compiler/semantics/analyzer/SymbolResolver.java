@@ -1504,6 +1504,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             bInvokableType.tsymbol = tsymbol;
             return bInvokableType;
         }
+
         for (BLangVariable paramNode : paramVars) {
             BLangSimpleVariable param = (BLangSimpleVariable) paramNode;
             Name paramName = names.fromIdNode(param.name);
@@ -1521,30 +1522,19 @@ public class SymbolResolver extends BLangNodeVisitor {
             paramNode.type = type;
             paramTypes.add(type);
 
-            if (param.expr != null) {
-                foundDefaultableParam = true;
-            }
-
-            BVarSymbol symbol = new BVarSymbol(type.flags, paramName, env.enclPkg.symbol.pkgID, type, env.scope.owner,
+            long paramFlags = Flags.asMask(paramNode.flagSet);
+            BVarSymbol symbol = new BVarSymbol(paramFlags, paramName, env.enclPkg.symbol.pkgID, type, env.scope.owner,
                                                param.pos, SOURCE);
             param.symbol = symbol;
 
-            if (param.expr == null && foundDefaultableParam) {
+            if (param.expr != null) {
+                foundDefaultableParam = true;
+                symbol.isDefaultable = true;
+                symbol.flags |= Flags.OPTIONAL;
+            } else if (foundDefaultableParam) {
                 dlog.error(param.pos, DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
             }
 
-            if (param.flagSet.contains(Flag.PUBLIC)) {
-                symbol.flags |= Flags.PUBLIC;
-            }
-
-            if (param.flagSet.contains(Flag.TRANSACTIONAL)) {
-                symbol.flags |= Flags.TRANSACTIONAL;
-            }
-
-            if (param.expr != null) {
-                symbol.flags |= Flags.OPTIONAL;
-                symbol.isDefaultable = true;
-            }
             params.add(symbol);
         }
 
@@ -1562,7 +1552,8 @@ public class SymbolResolver extends BLangNodeVisitor {
                 return symTable.noType;
             }
             restVariable.type = restType;
-            restParam = new BVarSymbol(restType.flags, names.fromIdNode(((BLangSimpleVariable) restVariable).name),
+            restParam = new BVarSymbol(Flags.asMask(restVariable.flagSet),
+                                       names.fromIdNode(((BLangSimpleVariable) restVariable).name),
                                        env.enclPkg.symbol.pkgID, restType, env.scope.owner, restVariable.pos, SOURCE);
         }
 

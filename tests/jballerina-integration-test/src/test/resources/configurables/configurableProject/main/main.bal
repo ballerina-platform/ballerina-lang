@@ -141,7 +141,7 @@ function testTableValues() {
     test:assertEquals(3, nonKeyUsers.length());
     test:assertEquals(3, employees.length());
     test:assertEquals(3, people.length());
-    test:assertEquals(3, personInfo.length());
+    test:assertEquals(3, peopleInfo.length());
     test:assertEquals(3, empInfoTab.length());
 
     AuthInfo & readonly user1 = {

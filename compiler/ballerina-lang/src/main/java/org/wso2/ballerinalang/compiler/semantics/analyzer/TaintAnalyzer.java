@@ -1788,7 +1788,7 @@ public class TaintAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        /* ignore */
+        analyzeExprList(bLangXMLSequenceLiteral.xmlItems);
     }
 
     @Override

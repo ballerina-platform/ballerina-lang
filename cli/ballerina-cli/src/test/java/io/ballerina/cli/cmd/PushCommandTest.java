@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.ProjectFiles;
+import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -46,7 +47,7 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  * @since 2.0.0
  */
 @PrepareForTest({ RepoUtils.class })
-@PowerMockIgnore("jdk.internal.reflect.*")
+@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.ssl.*"})
 public class PushCommandTest extends BaseCommandTest {
 
     private static final String VALID_PROJECT = "validProject";
@@ -181,7 +182,6 @@ public class PushCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
-        String buildLog = readOutput(true);
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
@@ -192,17 +192,49 @@ public class PushCommandTest extends BaseCommandTest {
         new CommandLine(pushCommand).parse();
         pushCommand.execute();
 
-        buildLog = readOutput(true);
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(actual.contains(expected));
+    }
+
+    @Test
+    public void testPushWithEmptyPackageMd() throws IOException {
+        Path projectPath = this.testResources.resolve(VALID_PROJECT);
+        System.setProperty("user.dir", projectPath.toString());
+        Files.createFile(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+        // Build project
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
+
+        Files.delete(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+
+        // Push
+        String expected = "Package.md cannot be empty.";
+
+        PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream);
+        new CommandLine(pushCommand).parse();
+        pushCommand.execute();
+
+        String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(actual.contains(expected));
     }
 
     @Test
     public void testPushToAnUnsupportedRepo() throws IOException {
-        Path validBalProject = this.testResources.resolve(VALID_PROJECT);
+        Path projectPath = this.testResources.resolve("validLibraryProject");
+        // Build project
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
         String[] args = { "--repository=stdlib.local" };
-        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
+        PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream);
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
         String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository is supported";
