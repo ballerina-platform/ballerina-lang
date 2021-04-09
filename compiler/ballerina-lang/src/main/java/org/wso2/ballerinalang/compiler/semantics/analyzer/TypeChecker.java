@@ -2718,9 +2718,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         BLangUserDefinedType userProvidedTypeRef = errorConstructorExpr.errorTypeRef;
-        BLangUserDefinedType errorTypeRef = userProvidedTypeRef;
-        if (errorTypeRef != null) {
-            symResolver.resolveTypeNode(errorTypeRef, env, DiagnosticErrorCode.UNDEFINED_ERROR_TYPE_DESCRIPTOR);
+        if (userProvidedTypeRef != null) {
+            symResolver.resolveTypeNode(userProvidedTypeRef, env, DiagnosticErrorCode.UNDEFINED_ERROR_TYPE_DESCRIPTOR);
         }
         validateErrorConstructorPositionalArgs(errorConstructorExpr);
 
@@ -2729,9 +2728,7 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BType> errorDetailTypes = new ArrayList<>();
         for (BType expandedCandidate : expandedCandidates) {
             BType detailType = ((BErrorType) expandedCandidate).detailType;
-            if (types.isAssignable(detailType, symTable.detailType)) {
-                errorDetailTypes.add(detailType);
-            }
+            errorDetailTypes.add(detailType);
         }
 
         BType detailCandidate;
@@ -2742,30 +2739,28 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         BLangRecordLiteral recordLiteral = createRecordLiteralForErrorConstructor(errorConstructorExpr);
-        BType type = checkExprSilent(recordLiteral, detailCandidate, env);
+        BType inferredDetailType = checkExprSilent(recordLiteral, detailCandidate, env);
 
-        int index = errorDetailTypes.indexOf(type);
-        BType selectedCandidate = type == symTable.semanticError || index < 0
-                ? symTable.semanticError
-                : expandedCandidates.get(index);
+        int index = errorDetailTypes.indexOf(inferredDetailType);
+        BType selectedCandidate = index < 0 ? symTable.semanticError : expandedCandidates.get(index);
 
-        if (selectedCandidate != symTable.semanticError) {
-            BType detailType = ((BErrorType) selectedCandidate).detailType;
-            checkProvidedErrorDetails(errorConstructorExpr, detailType);
+        if (selectedCandidate != symTable.semanticError
+                && (userProvidedTypeRef == null || userProvidedTypeRef.type == selectedCandidate)) {
+            checkProvidedErrorDetails(errorConstructorExpr, inferredDetailType);
             resultType = types.checkType(errorConstructorExpr.pos, selectedCandidate, expType,
                     DiagnosticErrorCode.INCOMPATIBLE_TYPES);
             return;
         }
 
-        if (errorTypeRef == null && errorDetailTypes.size() > 1) {
+        if (userProvidedTypeRef == null && errorDetailTypes.size() > 1) {
             dlog.error(errorConstructorExpr.pos, DiagnosticErrorCode.CANNOT_INFER_ERROR_TYPE, expType);
         }
 
         // Error details provided does not match the contextually expected error type.
         // if type reference is not provided let's take the `ballerina/lang.error:error` as the expected type.
         BErrorType errorType;
-        if (errorTypeRef != null && errorTypeRef.type.tag == TypeTags.ERROR) {
-            errorType = (BErrorType) errorTypeRef.type;
+        if (userProvidedTypeRef != null && userProvidedTypeRef.type.tag == TypeTags.ERROR) {
+            errorType = (BErrorType) userProvidedTypeRef.type;
         } else if (expandedCandidates.size() == 1) {
             errorType = (BErrorType) expandedCandidates.get(0);
         } else {
@@ -2825,8 +2820,7 @@ public class TypeChecker extends BLangNodeVisitor {
             errorConstructorExpr.type = errorType;
         }
 
-        resultType = types.checkType(errorConstructorExpr.pos, errorConstructorExpr.type, expType,
-                DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+        resultType = errorConstructorExpr.type;
     }
 
     private void validateErrorConstructorPositionalArgs(BLangErrorConstructorExpr errorConstructorExpr) {
@@ -2878,20 +2872,27 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private List<BType> getTypeCandidatesForErrorConstructor(BLangErrorConstructorExpr errorConstructorExpr) {
-        BType candidateType;
-        if (errorConstructorExpr.errorTypeRef == null) {
+        BLangUserDefinedType errorTypeRef = errorConstructorExpr.errorTypeRef;
+        if (errorTypeRef == null) {
             // If contextually expected type for error constructor without type-ref contain errors take it.
             // Else take default error type as the contextually expected type.
-            if (types.isAssignable(expType, symTable.errorType) || expType.tag == TypeTags.UNION) {
-                candidateType = expType;
-            } else  {
-                candidateType = symTable.errorType;
+            if (expType.tag == TypeTags.ERROR) {
+                return List.of(expType);
+            } else if (types.isAssignable(expType, symTable.errorType) || expType.tag == TypeTags.UNION) {
+                return expandExpectedErrorTypes(expType);
             }
         } else {
-            candidateType = errorConstructorExpr.errorTypeRef.type;
+            // if `errorTypeRef.type == semanticError` then an error is already logged.
+            if (errorTypeRef.type.tag != TypeTags.ERROR) {
+                if (errorTypeRef.type.tag != TypeTags.SEMANTIC_ERROR) {
+                    dlog.error(errorTypeRef.pos, DiagnosticErrorCode.INVALID_ERROR_TYPE_REFERENCE, errorTypeRef);
+                }
+            } else {
+                return List.of(errorTypeRef.type);
+            }
         }
 
-        return expandExpectedErrorTypes(candidateType);
+        return List.of(symTable.errorType);
     }
 
     private List<BType> expandExpectedErrorTypes(BType candidateType) {
@@ -5316,8 +5317,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 && (funcSymbol.flags & Flags.NATIVE) != Flags.NATIVE;
     }
 
-    // todo: try to re-use recrod literal checking
-
     private List<BLangNamedArgsExpression> checkProvidedErrorDetails(BLangErrorConstructorExpr errorConstructorExpr,
                                                                      BType expectedType) {
         List<BLangNamedArgsExpression> namedArgs = new ArrayList<>();
@@ -5337,6 +5336,10 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private BType getErrorCtorNamedArgTargetType(BLangNamedArgsExpression namedArgsExpression, BType expectedType) {
+        if (expectedType == symTable.semanticError) {
+            return symTable.semanticError;
+        }
+
         if (expectedType.tag == TypeTags.MAP) {
             return ((BMapType) expectedType).constraint;
         }

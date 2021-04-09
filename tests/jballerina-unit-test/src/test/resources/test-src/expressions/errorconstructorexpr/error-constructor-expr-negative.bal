@@ -54,3 +54,11 @@ ErrorA|ErrorB u4 = error("msg", a = 22);
 readonly|ErrorA u5 = error("msg");
 readonly|ErrorA u6 = error("msg", a = "a");
 readonly|ErrorA u7 = error("msg", a = 22);
+
+type ErrorU1 MyError1|MyError2;
+type ErrorU2 MyError1|map<string>;
+type ErrorU3 map<int>|map<Blah>|map<string>;
+
+error uc1 = error ErrorU1("Hello");
+error uc2 = error ErrorU2("Hello");
+error uc3 = error ErrorU3("Hello");
