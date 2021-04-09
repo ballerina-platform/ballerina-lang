@@ -50,14 +50,9 @@ function testFunctionTypedesc1() {
 }
 
 function testFunctionWithNeverOrNeverEqualReturnType() {
-    function () returns error x1 = blowUp1;
-    function () returns string x2 = blowUp2;
+    function () returns string x2 = blowUp1;
 }
 
-function blowUp1() returns never {
-    panic error("Error!");
-}
-
-function blowUp2() returns int|never {
+function blowUp1() returns int|never {
     panic error("Error!");
 }

@@ -645,7 +645,7 @@ public class Types {
         int sourceTag = source.tag;
         int targetTag = target.tag;
 
-        if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source) && isAssignable(target, symTable.anyType)) {
+        if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source)) {
             return true;
         }
 
