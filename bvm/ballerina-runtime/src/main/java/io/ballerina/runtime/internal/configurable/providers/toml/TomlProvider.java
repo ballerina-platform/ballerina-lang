@@ -270,9 +270,13 @@ public class TomlProvider implements ConfigProvider {
     private void throwInvalidImportedModuleError(Toml toml, Module module) {
         String moduleKey = getModuleKey(module);
         TomlNode errorNode = toml.rootNode();
-        Optional<TomlValueNode> valueNode =  toml.get(module.getName());
-        if (valueNode.isPresent() && valueNode.get().kind() != TomlType.TABLE) {
+        String moduleName = module.getName();
+        Optional<TomlValueNode> valueNode =  toml.get(moduleName);
+        List<Toml> tomlTables = toml.getTables(moduleName);
+        if (valueNode.isPresent()) {
             errorNode = valueNode.get();
+        } else if (!tomlTables.isEmpty()) {
+            errorNode = tomlTables.get(0).rootNode();
         }
         invalidRequiredModuleSet.add(module.toString());
         throw new TomlConfigException(String.format(INVALID_MODULE_STRUCTURE, moduleKey, moduleKey), errorNode);

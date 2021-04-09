@@ -103,7 +103,9 @@ public class TomlProviderNegativeTest {
                         ".mod'. Please provide the module name as '[myOrg.mod]'", 2},
                 {"InvalidOrgName", "[InvalidOrgName.toml:(1:1,3:21)] invalid module structure found for module 'myOrg" +
                         ".mod'. Please provide the module name as '[myOrg.mod]'", 2},
-                {"InvalidOrgStructure", "[InvalidOrgStructure.toml:(1:1,1:11)] invalid module structure found for " +
+                {"InvalidOrgStructure1", "[InvalidOrgStructure1.toml:(1:1,1:11)] invalid module structure found for " +
+                        "module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2},
+                {"InvalidOrgStructure2", "[InvalidOrgStructure2.toml:(1:1,4:1)] invalid module structure found for " +
                         "module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2},
                 {"InvalidModuleStructure", "[InvalidModuleStructure.toml:(1:7,1:16)] invalid module structure found " +
                         "for module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2},
