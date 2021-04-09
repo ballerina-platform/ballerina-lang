@@ -72,7 +72,6 @@ import org.wso2.ballerinalang.util.Lists;
 
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 
@@ -117,9 +116,6 @@ public class SymbolTable {
     public final BType decimalType = new BType(TypeTags.DECIMAL, null, Flags.READONLY);
     public final BType stringType = new BType(TypeTags.STRING, null, Flags.READONLY);
     public final BType booleanType = new BType(TypeTags.BOOLEAN, null, Flags.READONLY);
-
-    public final BType finiteType = new BFiniteType(null, new HashSet<>());
-    public final BType unionType = BUnionType.create(null, new LinkedHashSet<>());
 
     public final BType anyType = new BAnyType(TypeTags.ANY, null);
     public final BMapType mapType = new BMapType(TypeTags.MAP, anyType, null);
@@ -574,9 +570,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.LESS_THAN, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_THAN, nilType, nilType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, unionType, unionType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, arrayType, arrayType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_THAN, tupleType, tupleType, booleanType);
 
         defineBinaryOperator(OperatorKind.LESS_EQUAL, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, byteType, byteType, booleanType);
@@ -587,8 +580,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.LESS_EQUAL, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.LESS_EQUAL, nilType, nilType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, arrayType, arrayType, booleanType);
-        defineBinaryOperator(OperatorKind.LESS_EQUAL, tupleType, tupleType, booleanType);
 
         defineBinaryOperator(OperatorKind.GREATER_THAN, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, byteType, byteType, booleanType);
@@ -599,8 +590,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_THAN, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_THAN, nilType, nilType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, arrayType, arrayType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_THAN, tupleType, tupleType, booleanType);
 
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, intType, intType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, byteType, byteType, booleanType);
@@ -611,11 +600,6 @@ public class SymbolTable {
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, stringType, stringType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.GREATER_EQUAL, nilType, nilType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, arrayType, arrayType, booleanType);
-        defineBinaryOperator(OperatorKind.GREATER_EQUAL, tupleType, tupleType, booleanType);
-
-        defineBinaryOperatorsWithFiniteType();
-        defineBinaryOperatorsWithUnionType();
 
         defineBinaryOperator(OperatorKind.AND, booleanType, booleanType, booleanType);
         defineBinaryOperator(OperatorKind.OR, booleanType, booleanType, booleanType);
@@ -633,37 +617,6 @@ public class SymbolTable {
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, byteType, byteType);
         defineUnaryOperator(OperatorKind.BITWISE_COMPLEMENT, intType, intType);
 
-    }
-
-    private void defineBinaryOperatorsWithUnionType() {
-        BType[] types = {unionType, intType, floatType, byteType, decimalType, stringType, booleanType,
-                nilType, finiteType};
-        for (BType rhsOrLhsType : types) {
-            defineBinaryOperator(OperatorKind.LESS_THAN, unionType, rhsOrLhsType, booleanType);
-            defineBinaryOperator(OperatorKind.LESS_EQUAL, unionType, rhsOrLhsType, booleanType);
-            defineBinaryOperator(OperatorKind.GREATER_THAN, unionType, rhsOrLhsType, booleanType);
-            defineBinaryOperator(OperatorKind.GREATER_EQUAL, unionType, rhsOrLhsType, booleanType);
-
-            defineBinaryOperator(OperatorKind.LESS_THAN, rhsOrLhsType, unionType, booleanType);
-            defineBinaryOperator(OperatorKind.LESS_EQUAL, rhsOrLhsType, unionType, booleanType);
-            defineBinaryOperator(OperatorKind.GREATER_THAN, rhsOrLhsType, unionType, booleanType);
-            defineBinaryOperator(OperatorKind.GREATER_EQUAL, rhsOrLhsType, unionType, booleanType);
-        }
-    }
-
-    private void defineBinaryOperatorsWithFiniteType() {
-        BType[] types = {finiteType, intType, floatType, byteType, decimalType, stringType, booleanType, nilType};
-        for (BType rhsOrLhsType : types) {
-            defineBinaryOperator(OperatorKind.LESS_THAN, finiteType, rhsOrLhsType, booleanType);
-            defineBinaryOperator(OperatorKind.LESS_EQUAL, finiteType, rhsOrLhsType, booleanType);
-            defineBinaryOperator(OperatorKind.GREATER_THAN, finiteType, rhsOrLhsType, booleanType);
-            defineBinaryOperator(OperatorKind.GREATER_EQUAL, finiteType, rhsOrLhsType, booleanType);
-
-            defineBinaryOperator(OperatorKind.LESS_THAN, rhsOrLhsType, finiteType, booleanType);
-            defineBinaryOperator(OperatorKind.LESS_EQUAL, rhsOrLhsType, finiteType, booleanType);
-            defineBinaryOperator(OperatorKind.GREATER_THAN, rhsOrLhsType, finiteType, booleanType);
-            defineBinaryOperator(OperatorKind.GREATER_EQUAL, rhsOrLhsType, finiteType, booleanType);
-        }
     }
 
     private void defineXmlStringConcatanationOperations() {

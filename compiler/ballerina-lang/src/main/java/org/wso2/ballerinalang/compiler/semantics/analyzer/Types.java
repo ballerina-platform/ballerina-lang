@@ -308,11 +308,9 @@ public class Types {
     }
 
     private boolean isSameOrderedType(BType source, BType target, Set<TypePair> unresolvedTypes) {
-        TypePair pair = new TypePair(source, target);
-        if (unresolvedTypes.contains(pair)) {
+        if (!unresolvedTypes.add(new TypePair(source, target))) {
             return true;
         }
-        unresolvedTypes.add(pair);
         BTypeVisitor<BType, Boolean> orderedTypeVisitor = new BOrderedTypeVisitor(unresolvedTypes);
         return target.accept(orderedTypeVisitor, source);
     }
