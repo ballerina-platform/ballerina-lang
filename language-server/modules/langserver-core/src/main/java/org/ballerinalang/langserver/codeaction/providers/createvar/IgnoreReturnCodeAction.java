@@ -43,6 +43,8 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
 
+    public static final String NAME = "Ignore Return Type";
+
     /**
      * {@inheritDoc}
      */
@@ -69,6 +71,11 @@ public class IgnoreReturnCodeAction extends AbstractCodeActionProvider {
             );
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private boolean hasErrorType(TypeSymbol typeSymbol) {

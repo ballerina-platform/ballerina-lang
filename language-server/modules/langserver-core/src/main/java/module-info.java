@@ -12,6 +12,7 @@ module io.ballerina.language.server.core {
     exports org.ballerinalang.langserver.exception;
     exports org.ballerinalang.langserver.extensions;
     exports org.ballerinalang.langserver.config;
+    exports org.ballerinalang.langserver.telemetry;
     requires io.ballerina.formatter.core;
     requires org.eclipse.lsp4j;
     requires io.ballerina.language.server.commons;
