@@ -46,7 +46,7 @@ type IsolatedObjectType isolated object {
 isolated class IsolatedClassOverridingMutableFieldsInIncludedIsolatedObject {
     *IsolatedObjectType;
 
-    final int a = 100;
+    final byte a = 100;
     private string[] b;
 
     function init() {
@@ -66,7 +66,7 @@ isolated class IsolatedClassOverridingMutableFieldsInIncludedIsolatedObject {
 function testIsolatedObjectOverridingMutableFieldsInIncludedIsolatedObject() {
     isolated object {} isolatedObjectOverridingMutableFieldsInIncludedIsolatedObject = isolated object IsolatedObjectType {
 
-        final int a = 100;
+        final byte a = 100;
         private string[] b = [];
 
         function accessImmutableField() returns int => self.a + 1;

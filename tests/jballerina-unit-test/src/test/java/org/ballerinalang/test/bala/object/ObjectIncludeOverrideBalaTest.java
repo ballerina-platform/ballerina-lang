@@ -61,12 +61,12 @@ public class ObjectIncludeOverrideBalaTest {
         int index = 0;
 
         validateError(negativeRes, index++, "mismatched visibility qualifiers for field 'salary' " +
-                        "in object type inclusion", 23, 5);
+                        "with object type inclusion", 23, 5);
         validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
                 "getBonus(float ratio, int months) returns float', found 'function getBonus(float ratio, " +
                 "int months) returns float'", 25, 5);
         validateError(negativeRes, index++, "mismatched visibility qualifiers for field 'salary' " +
-                "in object type inclusion", 34, 5);
+                "with object type inclusion", 34, 5);
         validateError(negativeRes, index++, "mismatched function signatures: expected 'public function " +
                 "getBonus(float ratio, int months) returns float', found 'private function " +
                 "getBonus(float ratio, int months) returns float'", 36, 5);

@@ -204,33 +204,33 @@ public class ObjectTypeReferenceTest {
                 "descriptor in a 'class' that is not 'readonly'", 135, 6);
         BAssertUtil.validateError(negativeResult, i++, "object type inclusion cannot be used with a 'readonly' type " +
                 "descriptor in an 'object' type descriptor", 141, 6);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'vals' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'vals' with " +
                 "object type inclusion", 156, 5);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'name' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'name' with " +
                 "object type inclusion", 157, 5);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'age' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'age' with " +
                 "object type inclusion", 158, 5);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'function " +
                 "foo(float ratio, int months) returns float', found 'public function " +
                 "foo(float ratio, int months) returns float'", 162, 5);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'a' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'a' with " +
                 "object type inclusion", 175, 5);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'b' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'b' with " +
                 "object type inclusion", 176, 5);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'x' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'x' with " +
                 "object type inclusion", 181, 5);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'y' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'y' with " +
                 "object type inclusion", 182, 5);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'l' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'l' with " +
                 "object type inclusion", 195, 5);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'm' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'm' with " +
                 "object type inclusion", 196, 5);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'n' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'n' with " +
                 "object type inclusion", 197, 5);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function " +
                 "foo(float ratio, int months) returns float', found 'private function foo(float ratio, int months) " +
                 "returns float'", 199, 5);
-        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'q' in " +
+        BAssertUtil.validateError(negativeResult, i++, "mismatched visibility qualifiers for field 'q' with " +
                 "object type inclusion", 210, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
