@@ -18,14 +18,14 @@
 package io.ballerina.runtime.internal.values;
 
 import io.ballerina.runtime.api.TypeTags;
-import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.IteratorUtils;
 import io.ballerina.runtime.internal.JsonGenerator;
 import io.ballerina.runtime.internal.types.BTupleType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
@@ -33,10 +33,7 @@ import java.util.ArrayList;
 import java.util.LinkedHashSet;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.ARRAY_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID;
 
 /**
  * <p>
@@ -210,8 +207,7 @@ public abstract class AbstractArrayValue implements ArrayValue {
             return;
         }
 
-        throw ErrorCreator.createError(getModulePrefixedReason(ARRAY_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                       BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+        throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.INVALID_READONLY_VALUE_UPDATE);
     }
 
     /**

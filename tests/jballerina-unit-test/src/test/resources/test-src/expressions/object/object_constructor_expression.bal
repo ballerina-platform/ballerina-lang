@@ -16,6 +16,10 @@
 
 // test object field access
 
+import ballerina/lang.'runtime as runtime;
+import ballerina/lang.'array as array;
+import ballerina/lang.'object as object_error;
+
 class MO {
     int x = 0;
 }
@@ -267,8 +271,15 @@ function testObjectConstructorExprWithReadOnlyCET() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertValueEquality("{ballerina/lang.runtime}InvalidReadonlyValueUpdate", err.message());
+    assertValueEquality("{ballerina/lang.object}InvalidReadonlyValueUpdate", err.message());
     assertValueEquality("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
+
+    if (res is runtime:InvalidUpdate) {
+        assertValueEquality("{ballerina/lang.object}InvalidReadonlyValueUpdate", res.message());
+        var detailMessage = res.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        assertValueEquality("modification not allowed on readonly value", detailMessageString);
+    }
 
     assertTrue(<any> v5 is readonly);
 }
@@ -287,8 +298,16 @@ function validateInvalidUpdateErrorForFieldA(Object ob) {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertValueEquality("{ballerina/lang.runtime}InvalidReadonlyValueUpdate", err.message());
+    assertValueEquality("{ballerina/lang.object}InvalidReadonlyValueUpdate", err.message());
     assertValueEquality("modification not allowed on readonly value", <string> checkpanic err.detail()["message"]);
+
+    assertTrue(res is object_error:InvalidReadonlyValueUpdate);
+    if (res is object_error:InvalidReadonlyValueUpdate) {
+        assertValueEquality("{ballerina/lang.object}InvalidReadonlyValueUpdate", res.message());
+        var detailMessage = res.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        assertValueEquality("modification not allowed on readonly value", detailMessageString);
+    }
 }
 
 function validateInvalidUpdateErrorForFieldB(Object ob) {
@@ -300,8 +319,15 @@ function validateInvalidUpdateErrorForFieldB(Object ob) {
     assertTrue(res1 is error);
 
     error err1 = <error> res1;
-    assertValueEquality("{ballerina/lang.array}InvalidUpdate", err1.message());
+    assertValueEquality("{ballerina/lang.array}InvalidReadonlyValueUpdate", err1.message());
     assertValueEquality("modification not allowed on readonly value", <string> checkpanic err1.detail()["message"]);
+
+    if (res1 is array:InvalidReadonlyValueUpdate) {
+        assertValueEquality("{ballerina/lang.array}InvalidReadonlyValueUpdate", res1.message());
+        var detailMessage = res1.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        assertValueEquality("modification not allowed on readonly value", detailMessageString);
+    }
 
     var fn2 = function () {
         ob.b = [];
@@ -311,7 +337,7 @@ function validateInvalidUpdateErrorForFieldB(Object ob) {
     assertTrue(res2 is error);
 
     error err2 = <error> res2;
-    assertValueEquality("{ballerina/lang.runtime}InvalidReadonlyValueUpdate", err2.message());
+    assertValueEquality("{ballerina/lang.object}InvalidReadonlyValueUpdate", err2.message());
     assertValueEquality("modification not allowed on readonly value", <string> checkpanic err2.detail()["message"]);
 }
 

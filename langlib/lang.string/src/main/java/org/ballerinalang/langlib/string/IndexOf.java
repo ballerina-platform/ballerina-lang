@@ -18,13 +18,11 @@
 
 package org.ballerinalang.langlib.string;
 
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.STRING_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 
 /**
@@ -40,9 +38,8 @@ public class IndexOf {
             throw createNullReferenceError();
         }
         if (startIndx > Integer.MAX_VALUE) {
-            throw BLangExceptionHelper.getRuntimeException(getModulePrefixedReason(STRING_LANG_LIB,
-                    INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER),
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndx);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+                    RuntimeErrorType.STRING_INDEX_TOO_LARGE, startIndx);
         }
         return bStr.indexOf(subString, (int) startIndx);
     }

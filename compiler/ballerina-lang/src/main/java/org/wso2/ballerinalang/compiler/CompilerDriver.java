@@ -153,6 +153,7 @@ public class CompilerDriver {
             symResolver.boostrapErrorType();
             symResolver.bootstrapCloneableType();
             symResolver.defineOperators();
+            symbolTable.langRuntimeModuleSymbol = pkgLoader.loadPackageSymbol(RUNTIME, null, null);
             symbolTable.langArrayModuleSymbol = pkgLoader.loadPackageSymbol(ARRAY, null, null);
             symbolTable.langDecimalModuleSymbol = pkgLoader.loadPackageSymbol(DECIMAL, null, null);
             symbolTable.langErrorModuleSymbol = pkgLoader.loadPackageSymbol(ERROR, null, null);
@@ -170,7 +171,6 @@ public class CompilerDriver {
             symbolTable.langBooleanModuleSymbol = pkgLoader.loadPackageSymbol(BOOLEAN, null, null);
             symbolTable.langQueryModuleSymbol = pkgLoader.loadPackageSymbol(QUERY, null, null);
             symbolTable.langTransactionModuleSymbol = pkgLoader.loadPackageSymbol(TRANSACTION, null, null);
-            symbolTable.langRuntimeModuleSymbol = pkgLoader.loadPackageSymbol(RUNTIME, null, null);
             symbolTable.loadPredeclaredModules();
             symbolTable.updateBuiltinSubtypeOwners();
             return;
@@ -199,9 +199,15 @@ public class CompilerDriver {
             return; // Nothing else to load.
         }
 
-        // Other lang modules requires annotation module. Hence loading it first.
+        // Other lang modules requires java module. Hence loading it first.
         symbolTable.langJavaModuleSymbol = pkgLoader.loadPackageSymbol(JAVA, null, null);
 
+        if (langLib.equals(RUNTIME)) {
+            symbolTable.langRuntimeModuleSymbol = getLangModuleFromSource(RUNTIME);
+            return;
+        }
+
+        symbolTable.langRuntimeModuleSymbol = pkgLoader.loadPackageSymbol(RUNTIME, null, null);
 
         if (langLib.equals(INTERNAL)) {
             symbolTable.langInternalModuleSymbol = getLangModuleFromSource(INTERNAL);

@@ -39,11 +39,9 @@ import io.ballerina.runtime.internal.types.BJsonType;
 import io.ballerina.runtime.internal.types.BMapType;
 import io.ballerina.runtime.internal.types.BStructureType;
 import io.ballerina.runtime.internal.types.BUnionType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
 import io.ballerina.runtime.internal.values.DecimalValue;
@@ -61,9 +59,6 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_MAP_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.MAP_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
 
 /**
  * Common utility methods used for JSON manipulation.
@@ -188,11 +183,14 @@ public class JsonUtils {
             return jsonObject.get(elementName);
         } catch (BallerinaException e) {
             if (e.getDetail() != null) {
-                throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getDetail());
+                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+                        RuntimeErrorType.JSON_GET_ERROR, e.getDetail());
             }
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, e.getMessage());
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+                    RuntimeErrorType.JSON_GET_ERROR, e.getMessage());
         } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.JSON_GET_ERROR, t.getMessage());
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+                    RuntimeErrorType.JSON_GET_ERROR, t.getMessage());
         }
     }
 
@@ -216,9 +214,8 @@ public class JsonUtils {
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable t) {
-            throw BLangExceptionHelper.getRuntimeException(
-                    getModulePrefixedReason(MAP_LANG_LIB, INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER),
-                    RuntimeErrors.JSON_SET_ERROR, t.getMessage());
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.JSON_SET_ERROR,
+                    t.getMessage());
         }
     }
 
@@ -570,8 +567,8 @@ public class JsonUtils {
      */
     private static long jsonNodeToInt(Object json) {
         if (!(json instanceof Long)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                                                           PredefinedTypes.TYPE_INT, getTypeName(json));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, PredefinedTypes.TYPE_INT, getTypeName(json));
         }
 
         return (Long) json;
@@ -591,8 +588,8 @@ public class JsonUtils {
         } else if (json instanceof DecimalValue) {
             return ((DecimalValue) json).floatValue();
         } else {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                                                           PredefinedTypes.TYPE_FLOAT, getTypeName(json));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, PredefinedTypes.TYPE_FLOAT, getTypeName(json));
         }
     }
 
@@ -613,8 +610,9 @@ public class JsonUtils {
         } else if (json instanceof DecimalValue) {
             return (DecimalValue) json;
         } else {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                                                           PredefinedTypes.TYPE_DECIMAL, getTypeName(json));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                    PredefinedTypes.TYPE_DECIMAL, getTypeName(json));
         }
 
         return new DecimalValue(decimal);
@@ -628,8 +626,9 @@ public class JsonUtils {
      */
     private static boolean jsonNodeToBoolean(Object json) {
         if (!(json instanceof Boolean)) {
-            throw BLangExceptionHelper.getRuntimeException(RuntimeErrors.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
-                                                           PredefinedTypes.TYPE_BOOLEAN, getTypeName(json));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
+                    PredefinedTypes.TYPE_BOOLEAN, getTypeName(json));
         }
         return (Boolean) json;
     }

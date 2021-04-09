@@ -132,7 +132,7 @@ public class LValueTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.runtime\\}InvalidObjectFieldValue " +
+            expectedExceptionsMessageRegExp = ".*\\{ballerina/lang.object\\}InvalidObjectFieldValue " +
                     "\\{\"message\":\"invalid value for object field 'i': expected value of type 'boolean', found " +
                     "'int'\"\\}.*")
     public void testInherentTypeViolatingUpdate2() {

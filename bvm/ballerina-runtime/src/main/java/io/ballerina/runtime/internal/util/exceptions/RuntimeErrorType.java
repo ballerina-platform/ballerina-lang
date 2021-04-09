@@ -19,7 +19,7 @@
 package io.ballerina.runtime.internal.util.exceptions;
 
 /**
- * Error codes and Error message keys to represent the runtime errors.
+ * Error types, codes and Error message keys to represent the runtime errors.
  */
 
 public enum RuntimeErrorType {
@@ -37,6 +37,9 @@ public enum RuntimeErrorType {
     INVALID_RECORD_FIELD_ADDITION("InvalidRecordFieldAddition", "invalid.record.field.addition", "RT-0018"),
     INVALID_OBJECT_FIELD_VALUE("InvalidObjectFieldValue", "invalid.object.field.value", "RT-0033"),
     INHERENT_TABLE_TYPE_VIOLATION("InherentTableTypeViolation", "type.inconsistent.with.inherent.table", "RT-0032"),
+    INCOMPATIBLE_TYPE_FOR_CASTING_JSON("IncompatibleTypeForJsonCasting", "incompatible.types.in.json", "RT-0033"),
+    JSON_SET_ERROR("JsonSetError", "json.set.error", "RT-0034"),
+    JSON_GET_ERROR("JsonGetError", "json.get.error", "RT-0035"),
 
     // IndexOutOfRangeError
     INDEX_NUMBER_TOO_LARGE("IndexNumberTooLarge", "index.number.too.large", "RT-0003"),

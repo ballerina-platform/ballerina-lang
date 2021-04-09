@@ -205,8 +205,8 @@ public class LangLibTableTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.table\\}TableKeyConstraintViolation \\{\"message\":\"a value found for key " +
-                            "'5'\"\\}.*")
+                    "error: \\{ballerina/lang.table\\}TableKeyConstraintViolation \\{\"message\":\"a value " +
+                            "found for key '5'\"\\}.*")
     public void testAddExistingMember() {
         BRunUtil.invoke(compileResult, "testAddExistingMember");
         Assert.fail();

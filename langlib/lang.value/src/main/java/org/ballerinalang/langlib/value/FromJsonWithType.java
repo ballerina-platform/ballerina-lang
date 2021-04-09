@@ -19,6 +19,7 @@ package org.ballerinalang.langlib.value;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
@@ -34,6 +35,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BTypedesc;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.XmlFactory;
@@ -41,7 +43,7 @@ import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -50,7 +52,6 @@ import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CONVERSION_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
@@ -81,15 +82,15 @@ public class FromJsonWithType {
             if (targetType.isNilable()) {
                 return null;
             }
-            throw createError(VALUE_LANG_LIB_CONVERSION_ERROR,
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CANNOT_CONVERT_NIL, targetType));
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                    RuntimeErrorType.CANNOT_CONVERT_NIL, targetType);
         }
 
         Type sourceType = TypeChecker.getType(value);
 
         if (unresolvedValues.contains(typeValuePair)) {
-            throw new BallerinaException(VALUE_LANG_LIB_CYCLIC_VALUE_REFERENCE_ERROR.getValue(),
-                    BLangExceptionHelper.getErrorMessage(RuntimeErrors.CYCLIC_VALUE_REFERENCE, sourceType).getValue());
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_VALUE_PKG_ID,
+                    RuntimeErrorType.CYCLIC_VALUE_REFERENCE, sourceType);
         }
 
         unresolvedValues.add(typeValuePair);

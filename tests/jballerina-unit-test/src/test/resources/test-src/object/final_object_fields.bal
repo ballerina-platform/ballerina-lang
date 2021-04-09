@@ -14,7 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const INVALID_UPDATE_REASON = "{ballerina/lang.runtime}InvalidFinalFieldUpdate";
+import ballerina/lang.'object as object_error;
+
+const INVALID_UPDATE = "{ballerina/lang.object}InvalidFinalFieldUpdate";
 
 function testFinalObjectFields() {
     testObjectWithSimpleFinalFields();
@@ -74,7 +76,7 @@ function testInvalidObjectSimpleFinalFieldUpdate() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INVALID_UPDATE_REASON, err.message());
+    assertEquality(INVALID_UPDATE, err.message());
     assertEquality("cannot update 'final' field 'name' in object of type 'Student'", err.detail()["message"]);
 }
 
@@ -137,9 +139,14 @@ function testInvalidUpdateOfPossiblyFinalFieldInUnion() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INVALID_UPDATE_REASON, err.message());
+    assertEquality(INVALID_UPDATE, err.message());
     assertEquality("cannot update 'final' field 'name' in object of type 'ReadonlyNamedPerson'",
                    err.detail()["message"]);
+
+    object_error:InvalidFinalFieldUpdate err2 = <object_error:InvalidFinalFieldUpdate> res;
+    assertEquality(INVALID_UPDATE, err2.message());
+    assertEquality("cannot update 'final' field 'name' in object of type 'ReadonlyNamedPerson'",
+                       err2.detail()["message"]);
 }
 
 class Employee {
@@ -186,7 +193,7 @@ function testObjectWithStructuredFinalFields() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INVALID_UPDATE_REASON, err.message());
+    assertEquality(INVALID_UPDATE, err.message());
     assertEquality("cannot update 'final' field 'details' in object of type 'Employee'", err.detail()["message"]);
 }
 
@@ -225,7 +232,7 @@ function testFinalFieldWithDefaultValue() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(INVALID_UPDATE_REASON, err.message());
+    assertEquality(INVALID_UPDATE, err.message());
     assertEquality("cannot update 'final' field 'id' in object of type 'Identifier'", err.detail()["message"]);
 }
 

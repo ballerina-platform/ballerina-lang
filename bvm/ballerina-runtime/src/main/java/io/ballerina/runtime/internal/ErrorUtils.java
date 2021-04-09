@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -119,20 +120,16 @@ public class ErrorUtils {
 
     public static BError createRuntimeError(Module module, RuntimeErrorType errorType, BError cause,
                                             BMap<BString, Object> detail) {
-        return createError(module, errorType.getErrorName(), getModulePrefixedErrorName(module, errorType),
-                cause, detail);
+        try {
+            return createError(module, errorType.getErrorName(), getModulePrefixedErrorName(module, errorType),
+                    cause, detail);
+        } catch (BError e) {
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()));
+        }
     }
 
     public static BError getRuntimeError(Module module, RuntimeErrorType errorType, Object... params) {
-        throw createRuntimeError(module, errorType, getErrorDetail(getErrorMessage(errorType, params)));
-    }
-
-
-    public static BError createNumericConversionError(Object inputValue, Type targetType) {
-        throw createError(BallerinaErrorReasons.NUMBER_CONVERSION_ERROR,
-                          BLangExceptionHelper.getErrorMessage(
-                                  RuntimeErrors.INCOMPATIBLE_SIMPLE_TYPE_CONVERT_OPERATION,
-                                  TypeChecker.getType(inputValue), inputValue, targetType));
+        return createRuntimeError(module, errorType, getErrorDetail(getErrorMessage(errorType, params)));
     }
 
     public static BError createOperationNotSupportedError(Type lhsType, Type rhsType) {

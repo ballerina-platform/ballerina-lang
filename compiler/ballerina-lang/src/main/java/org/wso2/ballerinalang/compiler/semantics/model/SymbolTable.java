@@ -386,13 +386,13 @@ public class SymbolTable {
                                                 Map.entry(Names.INT, this.langIntModuleSymbol),
                                                 Map.entry(Names.MAP, this.langMapModuleSymbol),
                                                 Map.entry(Names.OBJECT, this.langObjectModuleSymbol),
+                                                Map.entry(Names.RUNTIME, this.langRuntimeModuleSymbol),
                                                 Map.entry(Names.STREAM, this.langStreamModuleSymbol),
                                                 Map.entry(Names.STRING, this.langStringModuleSymbol),
                                                 Map.entry(Names.TABLE, this.langTableModuleSymbol),
                                                 Map.entry(Names.TRANSACTION, this.langTransactionModuleSymbol),
                                                 Map.entry(Names.TYPEDESC, this.langTypedescModuleSymbol),
-                                                Map.entry(Names.XML, this.langXmlModuleSymbol),
-                                                Map.entry(Names.RUNTIME, this.langRuntimeModuleSymbol));
+                                                Map.entry(Names.XML, this.langXmlModuleSymbol));
     }
 
     public void initializeType(BType type, String name, SymbolOrigin origin) {

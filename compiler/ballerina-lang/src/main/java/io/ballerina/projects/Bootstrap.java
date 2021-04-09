@@ -95,6 +95,13 @@ public class Bootstrap {
         // load java
         symbolTable.langJavaModuleSymbol = loadLangLibFromBala(JAVA, compilerContext);
 
+        if (langLib.equals(RUNTIME)) {
+            return;
+        }
+
+        // load runtime
+        symbolTable.langRuntimeModuleSymbol = loadLangLibFromBala(RUNTIME, compilerContext);
+
         if (langLib.equals(INTERNAL)) {
             symbolTable.langObjectModuleSymbol = loadLangLibFromBala(OBJECT, compilerContext);
             symResolver.bootstrapIterableType();

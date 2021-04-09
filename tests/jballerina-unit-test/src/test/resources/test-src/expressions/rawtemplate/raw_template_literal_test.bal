@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'object as ob;
+import ballerina/lang.'array as array;
 
 function testBasicUsage() {
     string name = "Pubudu";
@@ -262,8 +263,16 @@ function testModifyStringsField() {
     CompatibleObj rt2 = rt;
     error err = <error>trap rt2.strings.push("Invalid");
 
-    assert("{ballerina/lang.array}InvalidUpdate", err.message());
+    assert("{ballerina/lang.array}InvalidReadonlyValueUpdate", err.message());
     assert("modification not allowed on readonly value", <string> checkpanic err.detail().get("message"));
+
+    error? res = trap rt2.strings.push("Invalid");
+    if (res is array:InvalidReadonlyValueUpdate) {
+        assert("{ballerina/lang.array}InvalidReadonlyValueUpdate", res.message());
+        var detailMessage = res.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        assert("modification not allowed on readonly value", detailMessageString);
+    }
 }
 
 function testAnyInUnion() {

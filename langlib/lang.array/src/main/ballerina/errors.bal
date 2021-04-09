@@ -13,3 +13,6 @@ public type IllegalTupleInsertion distinct runtime_error:IllegalListInsertion;
 public type IllegalArraySize distinct runtime_error:InherentTypeViolation;
 public type IllegalTupleSize distinct runtime_error:InherentTypeViolation;
 public type IllegalTupleWithRestTypeSize distinct runtime_error:InherentTypeViolation;
+
+// InvalidUpdate
+public type InvalidReadonlyValueUpdate distinct runtime_error:InvalidUpdate;

@@ -46,7 +46,6 @@ import io.ballerina.runtime.internal.scheduling.Strand;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.ArrayList;
 import java.util.HashMap;

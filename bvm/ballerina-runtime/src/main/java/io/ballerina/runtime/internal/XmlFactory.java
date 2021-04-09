@@ -83,7 +83,7 @@ public class XmlFactory {
         } catch (BError e) {
             throw e;
         } catch (Throwable e) {
-            throw ErrorCreator.createError(StringUtils.fromString(("failed to parse xml: " + e.getMessage())));
+            throw ErrorCreator.createError(StringUtils.fromString("failed to parse xml: " + e.getMessage()));
         }
     }
 

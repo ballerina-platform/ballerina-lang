@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.configurable.providers.cli;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
@@ -37,7 +38,10 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.INCOMPATIBLE_TYPE_ERROR_MESSAGE;
+import static io.ballerina.runtime.internal.configurable.ConfigConstants.INVALID_INT_TO_BYTE_CONVERSION;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_ARG_REGEX;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_PREFIX;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.INVALID_BYTE_RANGE;
@@ -104,7 +108,7 @@ public class CliProvider implements ConfigProvider {
             return Optional.empty();
         }
         try {
-            return Optional.of(TypeConverter.stringToByte(cliArg.value));
+            return Optional.of(stringToByte(cliArg.value));
         } catch (NumberFormatException e) {
             throw new CliConfigException(cliArg, String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, key.variable,
                                                                key.type, cliArg.value));
@@ -230,4 +234,18 @@ public class CliProvider implements ConfigProvider {
         }
         return new CliArg(key, cliVarKeyValueMap.get(key));
     }
+
+    private static int stringToByte(String value) {
+        int byteValue = Integer.parseInt(value);
+        if (!isByteLiteral(byteValue)) {
+            throw ErrorCreator.createError(StringUtils.fromString(String
+                    .format(INVALID_INT_TO_BYTE_CONVERSION, value)));
+        }
+        return byteValue;
+    }
+
+    static boolean isByteLiteral(long longValue) {
+        return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
+    }
+
 }

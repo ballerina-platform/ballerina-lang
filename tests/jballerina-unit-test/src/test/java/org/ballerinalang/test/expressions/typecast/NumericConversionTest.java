@@ -236,8 +236,8 @@ public class NumericConversionTest {
     }
 
     @Test(dataProvider = "invalidByteValues", expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}NumberConversionError \\{\"message\":\"'int' " +
-                    "value '.*' cannot be converted to 'byte'.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}NumberConversionError " +
+                    "\\{\"message\":\"'int' value '.*' cannot be converted to 'byte'.*")
     public void testInvalidIntAsByte(int i) {
         BRunUtil.invoke(result, "testIntAsByte", new BValue[]{new BInteger(i)});
     }
@@ -314,7 +314,7 @@ public class NumericConversionTest {
 
     @Test(dataProvider = "outOfRangeDecimalAsIntTests", expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}NumberConversionError " +
-                    "\\{\"message\":\"" +"'decimal' value '.*' cannot be converted to 'int'.*")
+                    "\\{\"message\":\"'decimal' value '.*' cannot be converted to 'int'.*")
     public void testOutOfRangeDecimalAsInt(String functionName) {
         BRunUtil.invoke(result, functionName, new BValue[0]);
     }

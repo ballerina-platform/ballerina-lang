@@ -36,8 +36,8 @@ public type StringIndexOutOfRange distinct IndexOutOfRange;
 // InherentTypeViolationError
 public type InherentTypeViolation distinct error;
 public type IncompatibleType distinct InherentTypeViolation;
-public type InvalidObjectFieldValue distinct InherentTypeViolation;
 public type InherentTableTypeViolation distinct InherentTypeViolation;
+public type IncompatibleTypeForJsonCasting distinct InherentTypeViolation;
 
 // StringOperationError
 public type StringOperationError distinct error;
@@ -51,6 +51,7 @@ public type ArithmeticOperationError distinct error;
 // ConversionError
 public type ConversionError distinct error;
 public type NumberConversionError distinct ConversionError;
+public type CannotConvertNil distinct ConversionError;
 
 // KeyConstraintViolationError
 public type KeyConstraintViolation distinct error;

@@ -8,3 +8,6 @@ public type InherentTableTypeViolation distinct runtime_error:InherentTypeViolat
 
 // KeyConstraintViolationError
 public type TableKeyConstraintViolation distinct runtime_error:KeyConstraintViolation;
+
+// ConversionError
+public type CyclicValueReference distinct runtime_error:ConversionError;

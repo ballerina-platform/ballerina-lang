@@ -21,16 +21,14 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.XmlValidator;
 import io.ballerina.runtime.internal.types.BMapType;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
 import javax.xml.XMLConstants;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.XML_LANG_LIB;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.INVALID_UPDATE_ERROR_IDENTIFIER;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.getModulePrefixedReason;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INVALID_READONLY_VALUE_UPDATE;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_XML_PKG_ID;
 import static io.ballerina.runtime.internal.values.XmlItem.XMLNS_URL_PREFIX;
 
 /**
@@ -55,8 +53,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
     @Override
     public BString put(BString keyBStr, BString value) {
         if (isFrozen()) {
-            throw ErrorCreator.createError(getModulePrefixedReason(XML_LANG_LIB, INVALID_UPDATE_ERROR_IDENTIFIER),
-                                           BLangExceptionHelper.getErrorMessage(INVALID_READONLY_VALUE_UPDATE));
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_XML_PKG_ID, RuntimeErrorType.INVALID_READONLY_VALUE_UPDATE);
         }
 
         return insertValue(keyBStr, value, false);

@@ -96,6 +96,8 @@ public class RuntimeConstants {
             OBJECT_LANG_LIB, "1.0.0");
     public static final Module BALLERINA_LANG_TYPEDESC_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
             TYPEDESC_LANG_LIB, "1.0.0");
+    public static final Module BALLERINA_LANG_VALUE_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
+            VALUE_LANG_LIB, "1.0.0");
 
     // Workers
     public static final String DEFAULT_WORKER_NAME = "default";

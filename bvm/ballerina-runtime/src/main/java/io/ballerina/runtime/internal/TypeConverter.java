@@ -512,7 +512,8 @@ public class TypeConverter {
 
     public static int intToByte(long sourceVal) {
         if (!TypeChecker.isByteLiteral(sourceVal)) {
-            throw ErrorUtils.createNumericConversionError(sourceVal, PredefinedTypes.TYPE_BYTE);
+            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                    TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_BYTE);
         }
         return ((Long) sourceVal).intValue();
     }

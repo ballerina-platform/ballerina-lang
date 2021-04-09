@@ -14,8 +14,13 @@
 // specific language governing permissions and limitations
 // under the License.
 
-const OBJECT_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.runtime}InvalidReadonlyValueUpdate";
-const MAPPING_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InvalidReadonlyFieldUpdate";
+import ballerina/lang.'runtime as runtime;
+import ballerina/lang.'array as array;
+import ballerina/lang.'object as object_error;
+import ballerina/lang.'map as map_error;
+
+const OBJECT_INVALID_UPDATE = "{ballerina/lang.object}InvalidReadonlyValueUpdate";
+const MAPPING_INVALID_UPDATE = "{ballerina/lang.map}InvalidReadonlyFieldUpdate";
 
 type Details record {|
     string name;
@@ -82,10 +87,22 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(MAPPING_INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality(MAPPING_INVALID_UPDATE, err.message());
     assertEquality("cannot update 'readonly' field 'name' in record of type '(Details & readonly)'",
                    err.detail()["message"]);
+    
+    assertTrue(res is map_error:InvalidReadonlyFieldUpdate);
+    map_error:InvalidReadonlyFieldUpdate err2 = <map_error:InvalidReadonlyFieldUpdate> res;
+    assertEquality(MAPPING_INVALID_UPDATE, err2.message());
+    assertEquality("cannot update 'readonly' field 'name' in record of type '(Details & readonly)'",
+                   err2.detail()["message"]);
 
+    assertTrue(res is runtime:InvalidUpdate);
+    runtime:InvalidUpdate err3 = <runtime:InvalidUpdate> res;
+    assertEquality(MAPPING_INVALID_UPDATE, err3.message());
+    assertEquality("cannot update 'readonly' field 'name' in record of type '(Details & readonly)'",
+                   err3.detail()["message"]);
+    
     fn = function () {
         obj.dept = {name: "finance"};
     };
@@ -93,7 +110,7 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality(OBJECT_INVALID_UPDATE, err.message());
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
 
     fn = function () {
@@ -103,8 +120,14 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality(OBJECT_INVALID_UPDATE, err.message());
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+
+    assertTrue(res is object_error:InvalidReadonlyValueUpdate);
+
+    object_error:InvalidReadonlyValueUpdate err4 = <object_error:InvalidReadonlyValueUpdate> res;
+    assertEquality(OBJECT_INVALID_UPDATE, err4.message());
+    assertEquality("modification not allowed on readonly value", err4.detail()["message"]);
 }
 
 type Controller object {
@@ -217,8 +240,17 @@ function testReadOnlyServiceClass() {
     error? res = trap fn();
     assertTrue(res is error);
     error err = <error> res;
-    assertEquality("{ballerina/lang.array}InvalidUpdate", err.message());
+    assertEquality("{ballerina/lang.array}InvalidReadonlyValueUpdate", err.message());
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+
+    assertTrue(res is runtime:InvalidUpdate);
+
+    if (res is runtime:InvalidUpdate) {
+        assertEquality("{ballerina/lang.array}InvalidReadonlyValueUpdate", err.message());
+        var detailMessage = res.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        assertEquality("modification not allowed on readonly value", detailMessageString);
+    }
 
     fn = function () {
         ob.y = [1, 2];
@@ -226,8 +258,15 @@ function testReadOnlyServiceClass() {
     res = trap fn();
     assertTrue(res is error);
     err = <error> res;
-    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality(OBJECT_INVALID_UPDATE, err.message());
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+
+    if (res is array:InvalidReadonlyValueUpdate) {
+            assertEquality(OBJECT_INVALID_UPDATE, err.message());
+            var detailMessage = res.detail()["message"];
+            string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+            assertEquality("modification not allowed on readonly value", detailMessageString);
+        }
 }
 
 public class Foo {

@@ -168,23 +168,23 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\"" +
-                    ":\"modification not allowed on readonly value\".*",
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidReadonlyValueUpdate " +
+                    "\\{\"message\":\"modification not allowed on readonly value\".*",
             dataProvider = "frozenBasicTypeArrayModificationFunctions")
     public void testFrozenBasicTypeArrayModification(String frozenBasicTypeArrayModificationFunction) {
         BRunUtil.invoke(result, frozenBasicTypeArrayModificationFunction, new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
-                    "\"modification not allowed on readonly value.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidReadonlyValueUpdate " +
+                    "\\{\"message\":\"modification not allowed on readonly value.*")
     public void testFrozenDecimalArrayModification() {
         BRunUtil.invoke(result, "testFrozenDecimalArrayModification", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":\"" +
-                    "modification not allowed on readonly value\"}.*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidReadonlyValueUpdate " +
+                    "\\{\"message\":\"modification not allowed on readonly value\"}.*")
     public void testFrozenJsonArrayModification() {
         BRunUtil.invoke(result, "testFrozenJsonArrayModification", new BValue[0]);
     }
@@ -289,15 +289,15 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
-                    "\"modification not allowed on readonly value\".*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidReadonlyValueUpdate " +
+                    "\\{\"message\":\"modification not allowed on readonly value\".*")
     public void testFrozenAnyArrayAddition() {
         BRunUtil.invoke(result, "testFrozenAnyArrayAddition", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
-                    "\"modification not allowed on readonly value\".*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidReadonlyValueUpdate " +
+                    "\\{\"message\":\"modification not allowed on readonly value\".*")
     public void testFrozenAnyArrayUpdate() {
         BRunUtil.invoke(result, "testFrozenAnyArrayUpdate", new BValue[0]);
     }
@@ -312,8 +312,8 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidUpdate \\{\"message\":" +
-                    "\"modification not allowed on readonly value\".*")
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.array}InvalidReadonlyValueUpdate " +
+                    "\\{\"message\":\"modification not allowed on readonly value\".*")
     public void testFrozenTupleUpdate() {
         BRunUtil.invoke(result, "testFrozenTupleUpdate", new BValue[0]);
     }

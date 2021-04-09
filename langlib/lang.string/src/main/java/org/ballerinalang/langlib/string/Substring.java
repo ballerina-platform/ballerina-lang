@@ -19,10 +19,7 @@ package org.ballerinalang.langlib.string;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.ErrorUtils;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import static org.ballerinalang.langlib.string.utils.StringUtils.createNullReferenceError;
 
@@ -45,12 +42,12 @@ public class Substring {
             throw createNullReferenceError();
         }
         if (startIndex != (int) startIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, startIndex);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+                    RuntimeErrorType.STRING_INDEX_TOO_LARGE, startIndex);
         }
         if (endIndex != (int) endIndex) {
-            throw BLangExceptionHelper.getRuntimeException(BallerinaErrorReasons.STRING_OPERATION_ERROR,
-                    RuntimeErrors.INDEX_NUMBER_TOO_LARGE, endIndex);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+                    RuntimeErrorType.STRING_INDEX_TOO_LARGE, endIndex);
         }
 
         if (startIndex < 0 || endIndex > value.length()) {

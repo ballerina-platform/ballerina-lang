@@ -15,9 +15,10 @@
 // under the License.
 
 import testorg/readonly_objects as ro;
+import ballerina/lang.'map as map_error;
 
-const OBJECT_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.runtime}InvalidReadonlyValueUpdate";
-const MAPPING_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InvalidReadonlyFieldUpdate";
+const OBJECT_INHERENT_TYPE_VIOLATION = "{ballerina/lang.object}InvalidReadonlyValueUpdate";
+const MAPPING_INHERENT_TYPE_VIOLATION = "{ballerina/lang.map}InvalidReadonlyFieldUpdate";
 
 function testReadonlyObjects() {
     testBasicReadOnlyObject();
@@ -66,9 +67,15 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     error err = <error> res;
-    assertEquality(MAPPING_INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality(MAPPING_INHERENT_TYPE_VIOLATION, err.message());
     assertEquality("cannot update 'readonly' field 'name' in record of type 'readonly_objects:(testorg/readonly_objects:1.0.0:Details & readonly)'",
                    err.detail()["message"]);
+
+    assertTrue(res is map_error:InvalidReadonlyFieldUpdate);
+    map_error:InvalidReadonlyFieldUpdate err2 = <map_error:InvalidReadonlyFieldUpdate> res;
+    assertEquality(MAPPING_INHERENT_TYPE_VIOLATION, err2.message());
+    assertEquality("cannot update 'readonly' field 'name' in record of type 'readonly_objects:(testorg/readonly_objects:1.0.0:Details & readonly)'",
+                   err2.detail()["message"]);
 
     fn = function () {
         obj.dept = {name: "finance"};
@@ -77,7 +84,7 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION, err.message());
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
 
     fn = function () {
@@ -87,7 +94,7 @@ function testInvalidReadOnlyObjectUpdateAtRuntime() {
     assertTrue(res is error);
 
     err = <error> res;
-    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
+    assertEquality(OBJECT_INHERENT_TYPE_VIOLATION, err.message());
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
 }
 

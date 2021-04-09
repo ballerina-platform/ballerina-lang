@@ -31,6 +31,8 @@ public class ConfigConstants {
     public static final String INCOMPATIBLE_TYPE_ERROR_MESSAGE = "configurable variable '%s' is expected to be " +
             "of type '%s', but found '%s'";
 
+    public static final String INVALID_INT_TO_BYTE_CONVERSION = "int value '%s' cannot be converted to byte";
+
     private ConfigConstants() {
     }
 }

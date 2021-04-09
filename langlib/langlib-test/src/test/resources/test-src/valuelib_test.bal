@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'value as value;
+import ballerina/lang.'runtime as runtime;
 
 type Address record {
     string country;
@@ -1066,8 +1067,17 @@ function testFromJsonWithTypeWithNullValuesNegative() {
     PostGradStudent|error val = jVal.fromJsonWithType(PostGradStudent);
     assert(val is error, true);
     if (val is error) {
-        assert(val.message(), "{ballerina/lang.value}ConversionError");
+        assert(val.message(), "{ballerina/lang.runtime}CannotConvertNil");
         assert(<string> checkpanic val.detail()["message"], "cannot convert '()' to type 'PostGradStudent'");
+    }
+
+    PostGradStudent|error val2 = jVal.fromJsonWithType(PostGradStudent);
+    assert(val2 is runtime:ConversionError, true);
+    if (val2 is runtime:ConversionError) {
+        assert(val2.message(), "{ballerina/lang.runtime}CannotConvertNil");
+        var detailMessage = val2.detail()["message"];
+        string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+        assert(detailMessageString, "cannot convert '()' to type 'PostGradStudent'");
     }
 }
 

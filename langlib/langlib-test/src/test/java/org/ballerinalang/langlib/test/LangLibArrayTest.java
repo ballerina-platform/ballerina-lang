@@ -333,8 +333,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina/lang.array}IllegalTupleWithRestTypeSize \\{\"message\":\"cannot change the length"
-                            + " of a tuple with '2' mandatory member\\(s\\) to '0'\"}.*")
+                    "error: \\{ballerina/lang.array}IllegalTupleWithRestTypeSize \\{\"message\":\"cannot change " +
+                            "the length of a tuple with '2' mandatory member\\(s\\) to '0'\"}.*")
     public void testTupleRemoveAllForTupleWithRestMemberType() {
         BRunUtil.invoke(compileResult, "testTupleRemoveAllForTupleWithRestMemberType");
         Assert.fail();
@@ -360,8 +360,8 @@ public class LangLibArrayTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
           expectedExceptionsMessageRegExp =
-                  "error: \\{ballerina/lang.array}IllegalTupleWithRestTypeSize \\{\"message\":\"cannot change the length " +
-                          "of a tuple with '2' mandatory member\\(s\\) to '1'\"}.*")
+                  "error: \\{ballerina/lang.array}IllegalTupleWithRestTypeSize \\{\"message\":\"cannot " +
+                          "change the length of a tuple with '2' mandatory member\\(s\\) to '1'\"}.*")
     public void testTupleSetLengthIllegal() {
         BRunUtil.invoke(compileResult, "testTupleSetLengthIllegal");
         Assert.fail();
