@@ -100,16 +100,19 @@ public class BindgenCommand implements BLauncherCmd {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
             outStream.println(commandUsageInfo);
+            exitWithCode(0);
             return;
         }
 
         if (classNames == null) {
             setOutError("One or more class names should be specified to generate the Ballerina bindings.");
+            exitWithCode(1);
             return;
         }
 
         if (this.outputPath != null && modulesFlag) {
             setOutError("Output path cannot be provided with the modules flag.");
+            exitWithCode(1);
             return;
         }
 
@@ -124,6 +127,7 @@ public class BindgenCommand implements BLauncherCmd {
         } else if (modulesFlag) {
             if (ProjectDirs.findProjectRoot(targetOutputPath) == null) {
                 setOutError("Ballerina project not detected to generate Java package to Ballerina module mappings.");
+                exitWithCode(1);
                 return;
             }
             bindingsGenerator.setModulesFlag(modulesFlag);
@@ -159,6 +163,7 @@ public class BindgenCommand implements BLauncherCmd {
             String[] mvnDependency = this.mavenDependency.split(splitColonRegex);
             if (mvnDependency.length != 3) {
                 setOutError("Error in the maven dependency provided.");
+                exitWithCode(1);
                 return;
             }
             bindingsGenerator.setMvnGroupId(mvnDependency[0]);
@@ -169,8 +174,10 @@ public class BindgenCommand implements BLauncherCmd {
         bindingsGenerator.setClassNames(this.classNames);
         try {
             bindingsGenerator.generateJavaBindings();
+            exitWithCode(0);
         } catch (BindgenException e) {
             outError.println("\nError while generating Ballerina bindings:\n" + e.getMessage());
+            exitWithCode(1);
         }
     }
 
@@ -178,6 +185,10 @@ public class BindgenCommand implements BLauncherCmd {
         outError.println("\n" + errorValue + "\n");
         outStream.println(BINDGEN_CMD);
         outStream.println("\nUse 'bal bindgen --help' for more information on the command.");
+    }
+
+    public void exitWithCode(int exit) {
+        Runtime.getRuntime().exit(exit);
     }
 
     @Override
