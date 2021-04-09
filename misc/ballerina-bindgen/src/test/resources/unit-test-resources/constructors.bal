@@ -9,7 +9,7 @@ distinct class ConstructorsTestResource {
     *Object;
 
     # The `handle` field that stores the reference to the `org.ballerinalang.bindgen.ConstructorsTestResource` object.
-    handle jObj;
+    public handle jObj;
 
     # The init function of the Ballerina class mapping the `org.ballerinalang.bindgen.ConstructorsTestResource` Java class.
     #

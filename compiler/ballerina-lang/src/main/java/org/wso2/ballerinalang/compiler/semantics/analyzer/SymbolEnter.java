@@ -111,6 +111,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -695,6 +698,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BField field : ((BStructureType) effectiveIncludedType).fields.values()) {
                 if (fieldNames.containsKey(field.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(field.name.value);
+                    if ((existingVariable.flagSet.contains(Flag.PUBLIC) !=
+                            Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC)) ||
+                            (existingVariable.flagSet.contains(Flag.PRIVATE) !=
+                                    Symbols.isFlagOn(field.symbol.flags, Flags.PRIVATE))) {
+                        dlog.error(existingVariable.pos,
+                                DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
+                                existingVariable.name.value);
+                    }
                     if (types.isAssignable(existingVariable.type, field.type)) {
                         continue;
                     }
@@ -3975,11 +3986,32 @@ public class SymbolEnter extends BLangNodeVisitor {
         MarkdownDocAttachment docAttachment = new MarkdownDocAttachment(docNode.getParameters().size());
         docAttachment.description = docNode.getDocumentation();
 
-        docNode.getParameters().forEach(p ->
-                docAttachment.parameters.add(new MarkdownDocAttachment.Parameter(p.parameterName.value,
-                        p.getParameterDocumentation())));
+        for (BLangMarkdownParameterDocumentation p : docNode.getParameters()) {
+            docAttachment.parameters.add(new MarkdownDocAttachment.Parameter(p.parameterName.value,
+                                                                             p.getParameterDocumentation()));
+        }
 
         docAttachment.returnValueDescription = docNode.getReturnParameterDocumentation();
+        BLangMarkDownDeprecationDocumentation deprecatedDocs = docNode.getDeprecationDocumentation();
+
+        if (deprecatedDocs == null) {
+            return docAttachment;
+        }
+
+        docAttachment.deprecatedDocumentation = deprecatedDocs.getDocumentation();
+
+        BLangMarkDownDeprecatedParametersDocumentation deprecatedParamsDocs =
+                docNode.getDeprecatedParametersDocumentation();
+
+        if (deprecatedParamsDocs == null) {
+            return docAttachment;
+        }
+
+        for (BLangMarkdownParameterDocumentation param : deprecatedParamsDocs.getParameters()) {
+            docAttachment.deprecatedParams.add(
+                    new MarkdownDocAttachment.Parameter(param.parameterName.value, param.getParameterDocumentation()));
+        }
+
         return docAttachment;
     }
 
@@ -4055,6 +4087,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return ((BStructureType) referredType).fields.values().stream().filter(f -> {
                 if (fieldNames.containsKey(f.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
+                    if (existingVariable.flagSet.contains(Flag.PUBLIC) !=
+                            Symbols.isFlagOn(f.symbol.flags, Flags.PUBLIC)) {
+                        dlog.error(existingVariable.pos,
+                                DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
+                                existingVariable.name.value);
+                    }
                     return !types.isAssignable(existingVariable.type, f.type);
                 }
                 return true;

@@ -146,9 +146,13 @@ public class IsolationAnalysisTest {
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 101, 22);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 105, 25);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 124, 17);
+        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
+                      128, 9);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 129, 28);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 133, 17);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 139, 17);
+        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
+                      143, 9);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 144, 28);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 148, 17);
         validateError(result, i++, INVALID_MUTABLE_STORAGE_ACCESS_ERROR, 155, 20);

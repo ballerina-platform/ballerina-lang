@@ -26,7 +26,7 @@
       "kind": "Field",
       "detail": "int",
       "sortText": "G",
-      "insertText": "field2: ${1:0}",
+      "insertText": "field2: ${2:0}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -34,7 +34,7 @@
       "kind": "Field",
       "detail": "Record2",
       "sortText": "G",
-      "insertText": "field3: {\n\trec2f1: ${1:0},\n\trec2f2: ${1:0}\n}",
+      "insertText": "field3: {\n\trec2f1: ${1:0},\n\trec2f2: ${2:0}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -42,7 +42,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "Q",
-      "insertText": "field1: 0,\nfield2: 0,\nfield3: {}",
+      "insertText": "field1: 0,\nfield2: 0,\nfield3: {rec2f1: 0, rec2f2: 0}",
       "insertTextFormat": "Snippet"
     }
   ]

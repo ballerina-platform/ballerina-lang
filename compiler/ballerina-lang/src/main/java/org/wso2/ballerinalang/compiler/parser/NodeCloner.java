@@ -1369,7 +1369,6 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.textFragments = cloneList(source.textFragments);
         clone.quoteType = source.quoteType;
-        clone.concatExpr = clone(source.concatExpr);
     }
 
     @Override
@@ -1961,8 +1960,10 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        // Ignore
+    public void visit(BLangXMLSequenceLiteral source) {
+        BLangXMLSequenceLiteral clone = new BLangXMLSequenceLiteral();
+        source.cloneRef = clone;
+        clone.xmlItems = cloneList(source.xmlItems);
     }
 
     @Override
