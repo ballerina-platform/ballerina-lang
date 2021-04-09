@@ -476,6 +476,15 @@ function testSelectingTextFromXml() {
     assertEquals(textValues2.toString(), textValues.toString());
 }
 
+function testXmlFilter() {
+    xml x1 = xml `<authors><name>Enid Blyton</name></authors>`;
+    xml x5 = x1.filter(function (xml x2) returns boolean {
+        xml elements = (x2/*).elements();
+        return (elements/*).toString() == "Enid Blyton";
+        });
+    assert(x5.toString(), "<authors><name>Enid Blyton</name></authors>");
+}
+
 function testGetDescendants() {
     getDescendantsSimpleElement();
     getDescendantsWithNS();
