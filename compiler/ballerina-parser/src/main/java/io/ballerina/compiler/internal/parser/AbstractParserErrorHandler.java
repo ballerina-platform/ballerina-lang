@@ -83,12 +83,6 @@ public abstract class AbstractParserErrorHandler {
     public Solution recover(ParserRuleContext currentCtx, STToken nextToken, Object... args) {
         // Assumption: always comes here after a peek()
 
-        // TODO: Evaluate and enable early fail safe
-//        if (nextToken.isMissing()) {
-//            // Fail safe. We cannot reach error handler for a missing token.
-//            return getFailSafeSolution(currentCtx, nextToken);
-//        }
-
         if (nextToken.kind == SyntaxKind.EOF_TOKEN) {
             SyntaxKind expectedTokenKind = getExpectedTokenKind(currentCtx);
             Solution fix = new Solution(Action.INSERT, currentCtx, expectedTokenKind, currentCtx.toString());

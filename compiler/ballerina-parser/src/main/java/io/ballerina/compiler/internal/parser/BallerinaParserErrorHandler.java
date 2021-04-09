@@ -4208,15 +4208,14 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                     endContext();
                     return ParserRuleContext.TOP_LEVEL_NODE;
                 }
-                assert parentCtx == ParserRuleContext.OBJECT_CONSTRUCTOR;
-                endContext();
+                endContext(); // end object-constructor
                 return ParserRuleContext.EXPRESSION_RHS;
             case OBJECT_MEMBER_DESCRIPTOR:
                 endContext();
                 // fall through
             case RECORD_TYPE_DESCRIPTOR:
             case OBJECT_TYPE_DESCRIPTOR:
-                endContext(); // end record/object type def
+                endContext(); // end record/object-type-desc
                 return ParserRuleContext.TYPEDESC_RHS;
             case BLOCK_STMT:
             case AMBIGUOUS_STMT:
