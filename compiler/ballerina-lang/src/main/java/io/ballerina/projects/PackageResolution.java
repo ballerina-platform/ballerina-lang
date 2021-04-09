@@ -185,6 +185,13 @@ public class PackageResolution {
                 allModuleLoadRequests.add(observeModuleLoadReq);
             }
         }
+        if ("k8s".equals(compilationOptions.getCloud()) || "docker".equals(compilationOptions.getCloud())) {
+            PackageName packageName = PackageName.from(Names.CLOUD.getValue());
+            ModuleLoadRequest observeModuleLoadReq = new ModuleLoadRequest(
+                    PackageOrg.from(Names.BALLERINA_ORG.value), packageName, ModuleName.from(packageName),
+                    null, PackageDependencyScope.DEFAULT, DependencyResolutionType.INJECTED);
+            allModuleLoadRequests.add(observeModuleLoadReq);
+        }
 
         return allModuleLoadRequests;
     }
