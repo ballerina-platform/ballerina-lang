@@ -112,13 +112,13 @@ public abstract class AbstractParserErrorHandler {
         }
 
         // Fail safe. This means we can't find a path to recover.
+        assert itterCount == ITTER_LIMIT : "fail safe reached";
         return getFailSafeSolution(currentCtx, nextToken);
     }
 
     private Solution getFailSafeSolution(ParserRuleContext currentCtx, STToken nextToken) {
         Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
         sol.removedToken = consumeInvalidToken();
-        sol.isFailSafe = true;
         return sol;
     }
 
@@ -509,7 +509,6 @@ public abstract class AbstractParserErrorHandler {
         public SyntaxKind tokenKind;
         public STNode recoveredNode;
         public STToken removedToken;
-        public boolean isFailSafe = false;
 
         public Solution(Action action, ParserRuleContext ctx, SyntaxKind tokenKind, String tokenText) {
             this.action = action;
