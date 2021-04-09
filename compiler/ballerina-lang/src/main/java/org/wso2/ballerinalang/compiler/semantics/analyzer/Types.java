@@ -2666,17 +2666,16 @@ public class Types {
 
         @Override
         public Boolean visit(BArrayType target, BType source) {
-            if (target.tag != TypeTags.ARRAY || source.tag != TypeTags.ARRAY) {
+            if (source.tag != TypeTags.ARRAY) {
                 return false;
             }
 
             BArrayType rhsArrayType = (BArrayType) source;
-            boolean hasSameTypeElements = isSameOrderedType(target.eType, rhsArrayType.eType, unresolvedTypes);
+            boolean hasSameOrderedTypeElements = isSameOrderedType(target.eType, rhsArrayType.eType, unresolvedTypes);
             if (target.state == BArrayState.OPEN) {
-                return (rhsArrayType.state == BArrayState.OPEN) && hasSameTypeElements;
+                return (rhsArrayType.state == BArrayState.OPEN) && hasSameOrderedTypeElements;
             }
-
-            return checkSealedArraySizeEquality(rhsArrayType, target) && hasSameTypeElements;
+            return hasSameOrderedTypeElements;
         }
 
         @Override
@@ -2684,31 +2683,52 @@ public class Types {
             if (source.tag != TypeTags.TUPLE || !hasSameReadonlyFlag(source, target)) {
                 return false;
             }
-            BTupleType rhsTupleType = (BTupleType) source;
-            if (rhsTupleType.tupleTypes.size() != target.tupleTypes.size()) {
-                return false;
-            }
 
-            BType sourceRestType = rhsTupleType.restType;
+            BTupleType sourceT = (BTupleType) source;
+
+            BType sourceRestType = sourceT.restType;
             BType targetRestType = target.restType;
-            if ((sourceRestType == null || targetRestType == null) && sourceRestType != targetRestType) {
-                return false;
-            }
 
-            for (int i = 0; i < rhsTupleType.tupleTypes.size(); i++) {
-                if (target.getTupleTypes().get(i) == symTable.noType) {
-                    continue;
-                }
-                if (!isSameOrderedType(rhsTupleType.getTupleTypes().get(i), target.tupleTypes.get(i),
+            int sourceTupleCount = target.tupleTypes.size();
+            int targetTupleCount = sourceT.tupleTypes.size();
+
+            int len = Math.min(sourceT.tupleTypes.size(), target.tupleTypes.size());
+            for (int i = 0; i < len; i++) {
+                if (!isSameOrderedType(sourceT.getTupleTypes().get(i), target.tupleTypes.get(i),
                         this.unresolvedTypes)) {
                     return false;
                 }
             }
 
-            if (sourceRestType == null || targetRestType == symTable.noType) {
+            if (sourceTupleCount == targetTupleCount) {
+                if (sourceRestType == null || targetRestType == null) {
+                    return true;
+                }
+                return isSameOrderedType(sourceRestType, targetRestType, this.unresolvedTypes);
+            }
+            if (sourceTupleCount > targetTupleCount) {
+                return checkSameOrderedTypeInTuples(target, sourceTupleCount, targetTupleCount, sourceRestType,
+                        targetRestType);
+            }
+            return checkSameOrderedTypeInTuples(sourceT, targetTupleCount, sourceTupleCount, targetRestType,
+                    sourceRestType);
+        }
+
+        private boolean checkSameOrderedTypeInTuples(BTupleType target, int sourceTupleCount,
+                                                     int targetTupleCount,
+                                                     BType sourceRestType, BType targetRestType) {
+            if (sourceRestType == null) {
                 return true;
             }
-
+            for (int i = targetTupleCount; i < sourceTupleCount; i++) {
+                if (!isSameOrderedType(target.getTupleTypes().get(i), sourceRestType,
+                        this.unresolvedTypes)) {
+                    return false;
+                }
+            }
+            if (targetRestType == null) {
+                return true;
+            }
             return isSameOrderedType(sourceRestType, targetRestType, this.unresolvedTypes);
         }
 
@@ -2736,13 +2756,25 @@ public class Types {
                 return false;
             }
 
-            boolean notSameType = sourceTypes
-                    .stream()
-                    .map(sT -> targetTypes
-                            .stream()
-                            .anyMatch(it -> isSameOrderedType(it, sT, this.unresolvedTypes)))
-                    .anyMatch(foundSameType -> !foundSameType);
-            return !notSameType;
+            return checkSameOrderedTypesInUnionMembers(sourceTypes, targetTypes);
+        }
+
+        private boolean checkSameOrderedTypesInUnionMembers(LinkedHashSet<BType> sourceTypes,
+                                                            LinkedHashSet<BType> targetTypes) {
+
+            for (BType sourceT : sourceTypes) {
+                boolean foundSameOrderedType = false;
+                for (BType targetT : targetTypes) {
+                    if (isSameOrderedType(targetT, sourceT, this.unresolvedTypes)) {
+                        foundSameOrderedType = true;
+                        break;
+                    }
+                }
+                if (!foundSameOrderedType) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         @Override
