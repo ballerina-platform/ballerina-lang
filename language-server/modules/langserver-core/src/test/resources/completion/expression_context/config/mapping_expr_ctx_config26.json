@@ -34,7 +34,7 @@
       "kind": "Property",
       "detail": "none",
       "sortText": "Q",
-      "insertText": "name: {},\nsalary: 0",
+      "insertText": "name: {first: \"\", last: \"\"},\nsalary: 0",
       "insertTextFormat": "Snippet"
     }
   ]

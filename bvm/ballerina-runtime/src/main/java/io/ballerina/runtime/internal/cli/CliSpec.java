@@ -18,8 +18,6 @@
 
 package io.ballerina.runtime.internal.cli;
 
-import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.TypeCreator;
@@ -27,12 +25,13 @@ import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 
@@ -44,81 +43,92 @@ import java.util.List;
 public class CliSpec {
     private final Option option;
     private final Operand[] operands;
-    private Object[] mainArgs;
+    private final List<Object> mainArgs;
     private final String[] args;
 
-    public CliSpec(Option option, Operand[] operands, String[] args) {
-        //Todo: refactor code and write tests
+    public CliSpec(Option option, Operand[] operands, String... args) {
         this.option = option;
         this.operands = operands;
         this.args = args;
+        mainArgs = new ArrayList<>();
     }
 
     public Object[] getMainArgs() {
+        // First argument is for the strand
+        mainArgs.add(null);
         if (option != null) {
             BMap<BString, Object> record = option.parseRecord(args);
-            int size = (operands.length + 1) * 2 + 1;
-            mainArgs = new Object[size];
             processOperands(option.getOperandArgs());
-            mainArgs[size - 2] = record;
-            mainArgs[size - 1] = true;
+            mainArgs.add(record);
+            mainArgs.add(true);
         } else {
-            mainArgs = new Object[operands.length * 2 + 1];
-            // Todo: create an empty option and call option.getOperandArgs()
-            Module module = new Module("$anon", ".", "0.0.0");
-            RecordType type = TypeCreator.createRecordType("dummy", module, 1, new HashMap<>(), null, true, 6);
+            RecordType type = TypeCreator.createRecordType("dummy", null, 1, new HashMap<>(), null, true, 6);
             Option dummyOption = new Option(type, ValueCreator.createMapValue(type));
             dummyOption.parseRecord(args);
             processOperands(dummyOption.getOperandArgs());
         }
-        return mainArgs;
+        return mainArgs.toArray();
     }
 
-    private Object[] processOperands(List<String> operandArgs) {
+    private void processOperands(List<String> operandArgs) {
         int opIndex = 0;
-        int mainIndex = 0;
         Object bValue;
         int argIndex = 0;
         while (argIndex < operandArgs.size() && opIndex < operands.length) {
             Operand curOperand = operands[opIndex++];
             Type typeOp = curOperand.type;
             if (typeOp.getTag() == TypeTags.ARRAY_TAG) {
-                BArray bArray = ValueCreator.createArrayValue((ArrayType) typeOp, -1);
-                Type elementType = ((ArrayType) typeOp).getElementType();
+                ArrayType arrayType = (ArrayType) typeOp;
+                BArray bArray = ValueCreator.createArrayValue(arrayType, -1);
+                Type elementType = arrayType.getElementType();
                 int elementCount = getElementCount(elementType, operands, opIndex);
                 while (argIndex < operandArgs.size() - elementCount) {
-                    // todo: catch error when int[] followed string
-                    bArray.append(CliUtil.getBValue(elementType, operandArgs.get(argIndex++)));
+                    try {
+                        bArray.append(CliUtil.getBValue(elementType, operandArgs.get(argIndex++)));
+                    } catch (BError error) {
+                        argIndex--;
+                        break;
+                    }
                 }
                 bValue = bArray;
             } else {
                 bValue = CliUtil.getBValueWithUnionValue(curOperand.type, operandArgs.get(argIndex++));
             }
-            mainArgs[++mainIndex] = bValue;
-            mainArgs[++mainIndex] = true;
+            mainArgs.add(bValue);
+            mainArgs.add(true);
         }
         if (argIndex < operandArgs.size()) {
             throw ErrorCreator.createError(StringUtils.fromString("all operand arguments are not matched"));
         }
+        handleMainParametersAtTheEnd(opIndex);
+    }
+
+    private void handleMainParametersAtTheEnd(int opIndex) {
         while (opIndex < operands.length) {
             Operand operand = operands[opIndex++];
             Type opType = operand.type;
             if (operand.hasDefaultable) {
-                mainArgs[++mainIndex] = getDefaultBValue(opType);
-                mainArgs[++mainIndex] = false;
-                continue;
-            }
-            if (opType.getTag() != TypeTags.UNION_TAG) {
-                throw ErrorCreator.createError(
-                        StringUtils.fromString("missing operand arguments for type '" + opType + "'"));
-            }
-            List<Type> unionMemberTypes = ((UnionType) opType).getMemberTypes();
-            if (unionMemberTypes.size() != 2 || !unionMemberTypes.contains(PredefinedTypes.TYPE_NULL)) {
+                mainArgs.add(getDefaultBValue(opType));
+                mainArgs.add(false);
+            } else if (isSupportedArrayType(opType)) {
+                mainArgs.add(ValueCreator.createArrayValue((ArrayType) opType, -1));
+                mainArgs.add(true);
+            } else if ((CliUtil.isUnionWithNil(opType))) {
+                mainArgs.add(null);
+                mainArgs.add(true);
+            } else {
                 throw ErrorCreator.createError(
                         StringUtils.fromString("missing operand arguments for type '" + opType + "'"));
             }
         }
-        return mainArgs;
+    }
+
+    private boolean isSupportedArrayType(Type opType) {
+        if (opType.getTag() == TypeTags.ARRAY_TAG) {
+            Type elementType = ((ArrayType) opType).getElementType();
+            return CliUtil.isSupportedType(elementType.getTag());
+        }
+        return false;
     }
 
     private static Object getDefaultBValue(Type type) {
@@ -137,7 +147,6 @@ public class CliSpec {
 
     private int getElementCount(Type elementType, Operand[] operands, int opIndex) {
         int count = 0;
-        // todo: handle for defaultable int c = 2
         while (opIndex < operands.length && elementType == operands[opIndex++].type) {
             count++;
         }

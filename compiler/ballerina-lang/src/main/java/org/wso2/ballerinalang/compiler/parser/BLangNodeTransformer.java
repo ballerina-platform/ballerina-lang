@@ -225,6 +225,7 @@ import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
+import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
@@ -3253,7 +3254,13 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             quotedString.textFragments.add(emptyLiteral);
         } else {
             for (Node value : xmlAttributeValue.value()) {
-                quotedString.textFragments.add(createExpression(value));
+                if (value.kind() == SyntaxKind.XML_TEXT_CONTENT) {
+                    Token token = (Token) value;
+                    String normalizedValue = XmlFactory.XMLTextUnescape.unescape(token.text());
+                    quotedString.textFragments.add(createStringLiteral(normalizedValue, getPosition(value)));
+                } else {
+                    quotedString.textFragments.add(createExpression(value));
+                }
             }
         }
 
@@ -3745,10 +3752,12 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     @Override
     public BLangNode transform(ServiceDeclarationNode serviceDeclarationNode) {
         Location pos = getPositionWithoutMetadata(serviceDeclarationNode);
-        BLangClassDefinition annonClassDef = transformObjectCtorExpressionBody(serviceDeclarationNode.members());
-        annonClassDef.isServiceDecl = true;
-        annonClassDef.pos = pos;
-        annonClassDef.flagSet.add(SERVICE);
+        BLangClassDefinition anonClassDef = transformObjectCtorExpressionBody(serviceDeclarationNode.members());
+        anonClassDef.isServiceDecl = true;
+        anonClassDef.pos = pos;
+        anonClassDef.flagSet.add(SERVICE);
+
+        setClassQualifiers(serviceDeclarationNode.qualifiers(), anonClassDef);
 
         List<IdentifierNode> absResourcePathPath = new ArrayList<>();
         NodeList<Node> pathList = serviceDeclarationNode.absoluteResourcePath();
@@ -3770,23 +3779,23 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         // Generate a name for the anonymous class
         String genName = anonymousModelHelper.getNextAnonymousTypeKey(packageID);
         IdentifierNode anonTypeGenName = createIdentifier(pos, genName);
-        annonClassDef.setName(anonTypeGenName);
-        annonClassDef.flagSet.add(Flag.PUBLIC);
+        anonClassDef.setName(anonTypeGenName);
+        anonClassDef.flagSet.add(Flag.PUBLIC);
 
         Optional<TypeDescriptorNode> typeReference = serviceDeclarationNode.typeDescriptor();
         typeReference.ifPresent(typeReferenceNode -> {
             BLangType typeNode = createTypeNode(typeReferenceNode);
-            annonClassDef.typeRefs.add(typeNode);
+            anonClassDef.typeRefs.add(typeNode);
         });
 
-        annonClassDef.annAttachments = applyAll(getAnnotations(serviceDeclarationNode.metadata()));
-        annonClassDef.markdownDocumentationAttachment =
+        anonClassDef.annAttachments = applyAll(getAnnotations(serviceDeclarationNode.metadata()));
+        anonClassDef.markdownDocumentationAttachment =
                 createMarkdownDocumentationAttachment(getDocumentationString(serviceDeclarationNode.metadata()));
 
-        addToTop(annonClassDef);
+        addToTop(anonClassDef);
 
         BLangIdentifier identifier = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, annonClassDef.name);
+        BLangUserDefinedType userDefinedType = createUserDefinedType(pos, identifier, anonClassDef.name);
 
         BLangTypeInit initNode = (BLangTypeInit) TreeBuilder.createInitNode();
         initNode.pos = pos;
@@ -3803,7 +3812,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         initNode.argsExpr.addAll(invocationNode.argExprs);
         initNode.initInvocation = invocationNode;
 
-        BLangSimpleVariable serviceVariable = createServiceVariable(pos, annonClassDef, initNode);
+        BLangSimpleVariable serviceVariable = createServiceVariable(pos, anonClassDef, initNode);
 
         List<BLangExpression> exprs = new ArrayList<>();
         for (var exp : serviceDeclarationNode.expressions()) {
@@ -3813,10 +3822,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         BLangService service = (BLangService) TreeBuilder.createServiceNode();
         service.serviceVariable = serviceVariable;
         service.attachedExprs = exprs;
-        service.serviceClass = annonClassDef;
+        service.serviceClass = anonClassDef;
         service.absoluteResourcePath = absResourcePathPath;
         service.serviceNameLiteral = serviceNameLiteral;
-        service.annAttachments = annonClassDef.annAttachments;
+        service.annAttachments = anonClassDef.annAttachments;
         service.pos = pos;
         service.name = createIdentifier(pos, anonymousModelHelper.getNextAnonymousServiceVarKey(packageID));
         return service;
@@ -3857,29 +3866,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             }
         });
 
-        for (Token qualifier : classDefinitionNode.classTypeQualifiers()) {
-            SyntaxKind kind = qualifier.kind();
-
-            switch (kind) {
-                case DISTINCT_KEYWORD:
-                    blangClass.flagSet.add(Flag.DISTINCT);
-                    break;
-                case CLIENT_KEYWORD:
-                    blangClass.flagSet.add(Flag.CLIENT);
-                    break;
-                case READONLY_KEYWORD:
-                    blangClass.flagSet.add(Flag.READONLY);
-                    break;
-                case SERVICE_KEYWORD:
-                    blangClass.flagSet.add(Flag.SERVICE);
-                    break;
-                case ISOLATED_KEYWORD:
-                    blangClass.flagSet.add(Flag.ISOLATED);
-                    break;
-                default:
-                    throw new RuntimeException("Syntax kind is not supported: " + kind);
-            }
-        }
+        setClassQualifiers(classDefinitionNode.classTypeQualifiers(), blangClass);
 
         NodeList<Node> members = classDefinitionNode.members();
         for (Node node : members) {
@@ -4050,7 +4037,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             matchStatement.setOnFailClause(
                     (org.ballerinalang.model.clauses.OnFailClauseNode) (onFailClauseNode.apply(this)));
         });
-
+        matchStatement.pos = getPosition(matchStatementNode);
         return matchStatement;
     }
 
@@ -5177,6 +5164,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 }
             }
             String originalText = text; // to log the errors
+            Location pos = getPosition(literal);
             Matcher matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
             int position = 0;
             while (matcher.find(position)) {
@@ -5186,7 +5174,6 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                         || hexDecimalVal > Constants.MAX_UNICODE) {
                     String hexStringWithBraces = matcher.group(0);
                     int offset = originalText.indexOf(hexStringWithBraces) + 1;
-                    Location pos = getPosition(literal);
                     dlog.error(new BLangDiagnosticLocation(currentCompUnitName,
                                     pos.lineRange().startLine().line(),
                                     pos.lineRange().endLine().line(),
@@ -5199,7 +5186,11 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 matcher = IdentifierUtils.UNICODE_PATTERN.matcher(text);
             }
             if (type != SyntaxKind.TEMPLATE_STRING && type != SyntaxKind.XML_TEXT_CONTENT) {
-                text = StringEscapeUtils.unescapeJava(text);
+                try {
+                    text = StringEscapeUtils.unescapeJava(text);
+                } catch (Exception e) {
+                    dlog.error(pos, DiagnosticErrorCode.INVALID_UNICODE, originalText);
+                }
             }
 
             typeTag = TypeTags.STRING;
@@ -6071,5 +6062,31 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                                                           upTo.lineRange().endLine().offset());
 
         return trimmedLocation;
+    }
+
+    private void setClassQualifiers(NodeList<Token> qualifiers, BLangClassDefinition blangClass) {
+        for (Token qualifier : qualifiers) {
+            SyntaxKind kind = qualifier.kind();
+
+            switch (kind) {
+                case DISTINCT_KEYWORD:
+                    blangClass.flagSet.add(Flag.DISTINCT);
+                    break;
+                case CLIENT_KEYWORD:
+                    blangClass.flagSet.add(Flag.CLIENT);
+                    break;
+                case READONLY_KEYWORD:
+                    blangClass.flagSet.add(Flag.READONLY);
+                    break;
+                case SERVICE_KEYWORD:
+                    blangClass.flagSet.add(Flag.SERVICE);
+                    break;
+                case ISOLATED_KEYWORD:
+                    blangClass.flagSet.add(Flag.ISOLATED);
+                    break;
+                default:
+                    throw new RuntimeException("Syntax kind is not supported: " + kind);
+            }
+        }
     }
 }

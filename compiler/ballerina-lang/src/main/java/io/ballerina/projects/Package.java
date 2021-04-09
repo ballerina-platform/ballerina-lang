@@ -10,6 +10,7 @@ import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -227,7 +228,7 @@ public class Package {
         private PackageManifest packageManifest;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
-        private final DependencyGraph<PackageDescriptor> pkgDescDependencyGraph;
+        private final DependencyGraph<PackageDescriptor> pkgDependencyGraph;
         private CompilationOptions compilationOptions;
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
@@ -240,7 +241,7 @@ public class Package {
             this.packageManifest = oldPackage.manifest();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
-            this.pkgDescDependencyGraph = oldPackage.packageContext().dependencyGraph();
+            this.pkgDependencyGraph = oldPackage.packageContext().dependencyGraph();
             this.compilationOptions = oldPackage.compilationOptions();
             this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
             this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
@@ -249,9 +250,10 @@ public class Package {
             this.packageMdContext = oldPackage.packageContext.packageMdContext().orElse(null);
         }
 
-        Modifier updateModule(ModuleContext newModuleContext) {
-            this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
-            resetDependantModules(newModuleContext.moduleId());
+        Modifier updateModules(Set<ModuleContext> newModuleContexts) {
+            for (ModuleContext newModuleContext : newModuleContexts) {
+                this.moduleContextMap.put(newModuleContext.moduleId(), newModuleContext);
+            }
             return this;
         }
 
@@ -404,7 +406,7 @@ public class Package {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.ballerinaTomlContext, this.dependenciesTomlContext, this.cloudTomlContext,
                     this.compilerPluginTomlContext, this.packageMdContext,  this.compilationOptions,
-                    this.moduleContextMap, this.pkgDescDependencyGraph);
+                    this.moduleContextMap, this.pkgDependencyGraph);
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
             return this.project.currentPackage();
         }
@@ -420,30 +422,6 @@ public class Package {
         Modifier updatePackageMd(MdDocumentContext packageMd) {
             this.packageMdContext = packageMd;
             return this;
-        }
-
-        private void resetDependantModules(ModuleId updatedModuleId) {
-            List<ModuleId> dependantList = new ArrayList<>();
-            for (Map.Entry<ModuleId, ModuleContext> moduleContextEntry : this.moduleContextMap.entrySet()) {
-                if (moduleContextEntry.getKey() != updatedModuleId) {
-                    Collection<ModuleDependency> dependencies = moduleContextEntry.getValue().dependencies();
-                    if (dependencies == null) {
-                        continue;
-                    }
-                    for (ModuleDependency moduleDependency : dependencies) {
-                        if (moduleDependency.moduleId().equals(updatedModuleId)) {
-                            ModuleId key = moduleContextEntry.getKey();
-                            dependantList.add(key);
-                        }
-                    }
-                }
-            }
-            for (ModuleId moduleId : dependantList) {
-                Module oldModule = this.project.currentPackage().module(moduleId);
-                // recursively reset transitively dependant modules as well
-                Module module = oldModule.modify().apply();
-                this.moduleContextMap.put(module.moduleId(), module.moduleContext());
-            }
         }
     }
 }
