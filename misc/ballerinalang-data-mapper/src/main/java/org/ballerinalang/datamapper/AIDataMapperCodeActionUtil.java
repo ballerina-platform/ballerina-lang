@@ -36,10 +36,12 @@ import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.syntax.tree.ChildNodeEntry;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
+import io.ballerina.compiler.syntax.tree.TypeCastExpressionNode;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -48,6 +50,7 @@ import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.datamapper.config.ClientExtendedConfigImpl;
 import org.ballerinalang.datamapper.utils.HttpClientRequest;
 import org.ballerinalang.datamapper.utils.HttpResponse;
@@ -134,11 +137,12 @@ class AIDataMapperCodeActionUtil {
                         (leftSymbolType != TypeDescKind.UNION))) {
             return fEdits;
         } else {
-            Symbol lftTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
-            Symbol rhsTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
 
-            String foundTypeLeft = lftTypeSymbol.getName().orElse("");
-            String foundTypeRight = rhsTypeSymbol.getName().orElse("");
+            Symbol lftTypeSymbol;
+            Symbol rhsTypeSymbol;
+
+            String foundTypeLeft;
+            String foundTypeRight;
 
             // Get the semantic model
             SemanticModel semanticModel = context.workspace().semanticModel(context.filePath()).orElseThrow();
@@ -148,8 +152,37 @@ class AIDataMapperCodeActionUtil {
             Range newTextRange = CommonUtil.toRange(diagnostic.location().lineRange());
             LinePosition linePosition = diagnostic.location().lineRange().startLine();
 
+            SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).get();
+
             // get the symbol at cursor type
-            Symbol symbolAtCursor = semanticModel.symbol(srcFile.get(), linePosition).get();
+            Symbol symbolAtCursor;
+            Optional<Symbol> symbolFromModel = semanticModel.symbol(srcFile.get(), linePosition);
+            if (symbolFromModel.isPresent()){
+                symbolAtCursor = symbolFromModel.get();
+                lftTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
+                rhsTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
+
+                foundTypeLeft = lftTypeSymbol.getName().orElse("");
+                foundTypeRight = rhsTypeSymbol.getName().orElse("");
+            } else {
+                // to get the symbol when type casting is done
+                Optional<Node> nodeAtCursor = findExpressionInTypeCastNode(newTextRange, syntaxTree);
+                if (nodeAtCursor.isPresent()){
+                    symbolFromModel = semanticModel.symbol(nodeAtCursor.get());
+                    if (symbolFromModel.isPresent()){
+                        symbolAtCursor = symbolFromModel.get();
+                        lftTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
+                        rhsTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
+
+                        foundTypeLeft = lftTypeSymbol.getName().orElse("");
+                        foundTypeRight = rhsTypeSymbol.getName().orElse("");
+                    } else {
+                        return fEdits;
+                    }
+                } else {
+                    return fEdits;
+                }
+            }
             String symbolAtCursorName = symbolAtCursor.getName().orElse("");
             String symbolAtCursorType = "";
             // Check if function return a record type in multi-module project
@@ -202,6 +235,10 @@ class AIDataMapperCodeActionUtil {
                         if (matchedNode.parent().kind() == SyntaxKind.CHECK_EXPRESSION) {
                             matchedNode = matchedNode.parent();
                         }
+                    } else if(positionDetails.matchedNode().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
+                        if (((TypeCastExpressionNode) positionDetails.matchedNode()).expression().kind() == SyntaxKind.FUNCTION_CALL) {
+                            matchedNode = ((TypeCastExpressionNode) positionDetails.matchedNode()).expression();
+                        }
                     }
 
                     if (matchedNode == null) {
@@ -253,7 +290,7 @@ class AIDataMapperCodeActionUtil {
                 return fEdits;
             } else {
                 // Get the last line of the file
-                SyntaxTree syntaxTree = context.workspace().syntaxTree(context.filePath()).get();
+                syntaxTree = context.workspace().syntaxTree(context.filePath()).get();
                 TextDocument fileContentTextDocument = syntaxTree.textDocument();
                 int numberOfLinesInFile = fileContentTextDocument.toString().split("\n").length;
                 Position startPosOfLastLine = new Position(numberOfLinesInFile + 2, 0);
@@ -297,6 +334,19 @@ class AIDataMapperCodeActionUtil {
                 return fEdits;
             }
         }
+    }
+
+    public static Optional<Node> findExpressionInTypeCastNode(Range range, SyntaxTree syntaxTree) {
+        TextDocument textDocument = syntaxTree.textDocument();
+        Position rangeStart = range.getStart();
+        Position rangeEnd = range.getEnd();
+        int start = textDocument.textPositionFrom(LinePosition.from(rangeStart.getLine(), rangeStart.getCharacter()));
+        int end = textDocument.textPositionFrom(LinePosition.from(rangeEnd.getLine(), rangeEnd.getCharacter()));
+        NonTerminalNode nonTerminalNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
+        if(nonTerminalNode.kind() == SyntaxKind.TYPE_CAST_EXPRESSION){
+            return Optional.of(((TypeCastExpressionNode) nonTerminalNode).expression());
+        }
+        return Optional.empty();
     }
 
     /**
@@ -893,6 +943,8 @@ class AIDataMapperCodeActionUtil {
 
         leftFieldMap.clear();
         responseFieldMap.clear();
+        optionalRightRecordFields.clear();
+        rightSpecificFieldList.clear();
 
         if (leftModule != null) {
             leftType = leftModule + ":" + foundTypeLeft;
