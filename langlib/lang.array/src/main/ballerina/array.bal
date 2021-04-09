@@ -33,7 +33,7 @@ type Type1 any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type PureType anydata|error;
+type AnydataType anydata;
 
 # Returns the number of members of an array.
 #
@@ -166,7 +166,7 @@ public isolated function setLength((any|error)[] arr, int length) returns () = @
 # + val - member to search for
 # + startIndex - index to start the search from
 # + return - index of the member if found, else `()`
-public isolated function indexOf(PureType[] arr, PureType val, int startIndex = 0) returns int? = @java:Method {
+public isolated function indexOf(AnydataType[] arr, AnydataType val, int startIndex = 0) returns int? = @java:Method {
     'class: "org.ballerinalang.langlib.array.IndexOf",
     name: "indexOf"
 } external;
@@ -179,7 +179,7 @@ public isolated function indexOf(PureType[] arr, PureType val, int startIndex = 
 # + val - member to search for
 # + startIndex - index to start searching backwards from
 # + return - index of the member if found, else `()`
-public isolated function lastIndexOf(PureType[] arr, PureType val, int startIndex = arr.length() - 1) returns int? = @java:Method {
+public isolated function lastIndexOf(AnydataType[] arr, AnydataType val, int startIndex = arr.length() - 1) returns int? = @java:Method {
     'class: "org.ballerinalang.langlib.array.LastIndexOf",
     name: "lastIndexOf"
 } external;

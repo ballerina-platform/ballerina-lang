@@ -82,7 +82,7 @@ public class DocumentationGenerator {
     public static Optional<Range> getDocsRange(NonTerminalNode node) {
         for (Node next : node.children()) {
             if (next.kind() == SyntaxKind.METADATA && ((MetadataNode) next).documentationString().isPresent()) {
-                return Optional.of(CommonUtil.toRange(next.lineRange()));
+                return Optional.of(CommonUtil.toRange(((MetadataNode) next).documentationString().get().lineRange()));
             }
         }
         return Optional.empty();
@@ -233,7 +233,7 @@ public class DocumentationGenerator {
             default:
                 break;
         }
-        return new DocAttachmentInfo(desc, parameters, null, docStart, getPadding(typeDefNode, syntaxTree));
+        return new DocAttachmentInfo(desc, parameters, null, null, docStart, getPadding(typeDefNode, syntaxTree));
     }
 
     /**
@@ -261,7 +261,7 @@ public class DocumentationGenerator {
                 }
             }
         });
-        return new DocAttachmentInfo(desc, parameters, null, docStart, getPadding(classDefNode, syntaxTree));
+        return new DocAttachmentInfo(desc, parameters, null, null, docStart, getPadding(classDefNode, syntaxTree));
     }
 
 
@@ -294,8 +294,13 @@ public class DocumentationGenerator {
             paramName.ifPresent(token -> parameters.put(token.text(), "Parameter Description"));
         });
         String returnDesc = signatureNode.returnTypeDesc().isPresent() ? "Return Value Description" : null;
-        //TODO: Handle deprecated documentation blocks, currently Documentation interface does not support it
-        return new DocAttachmentInfo(desc, parameters, returnDesc, docStart,
+
+        String deprecatedDesc = null;
+        if (hasDeprecated) {
+            deprecatedDesc = "Deprecated Description";
+        }
+        //TODO: Handle deprecated parameters
+        return new DocAttachmentInfo(desc, parameters, returnDesc, deprecatedDesc, docStart,
                                      getPadding(signatureNode.parent(), syntaxTree));
     }
 

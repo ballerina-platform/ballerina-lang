@@ -81,11 +81,13 @@ public class ReferencesUtil {
         }
         
         Symbol symbol = symbolAtCursor.get();
-        project.get().currentPackage().modules().forEach(module -> {
-            List<Location> references = module.getCompilation().getSemanticModel().references(symbol);
+        project.get().currentPackage().moduleIds().forEach(moduleId -> {
+            List<Location> references = project.get().currentPackage()
+                    .getCompilation().getSemanticModel(moduleId).references(symbol);
             if (references.isEmpty()) {
                 return;
             }
+            Module module = project.get().currentPackage().module(moduleId);
             moduleLocationMap.put(module, references);
         });
 

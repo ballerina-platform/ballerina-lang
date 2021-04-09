@@ -1233,7 +1233,7 @@ public class TypeChecker extends BLangNodeVisitor {
             int index = 0;
             for (IdentifierNode identifier : fieldNameIdentifierList) {
                 BField field = types.getTableConstraintField(constraintType, ((BLangIdentifier) identifier).value);
-                if (!types.isAssignable(field.type, memberTypes.get(index))) {
+                if (field == null || !types.isAssignable(field.type, memberTypes.get(index))) {
                     dlog.error(tableConstructorExpr.tableKeySpecifier.pos,
                             DiagnosticErrorCode.KEY_SPECIFIER_MISMATCH_WITH_KEY_CONSTRAINT,
                             fieldNameIdentifierList.toString(), memberTypes.toString());
@@ -3172,7 +3172,7 @@ public class TypeChecker extends BLangNodeVisitor {
                             BLangCompilerConstants.CLOSE_FUNC);
                     if (closeFunc != null) {
                         BType closeableIteratorType = symTable.langQueryModuleSymbol.scope
-                                .lookup(Names.ABSTRACT_CLOSEABLE_ITERATOR).symbol.type;
+                                .lookup(Names.ABSTRACT_STREAM_CLOSEABLE_ITERATOR).symbol.type;
                         if (!types.isAssignable(constructType, closeableIteratorType)) {
                             dlog.error(iteratorExpr.pos,
                                        DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_CLOSEABLE_ITERATOR,
@@ -3182,7 +3182,7 @@ public class TypeChecker extends BLangNodeVisitor {
                         }
                     } else {
                         BType iteratorType = symTable.langQueryModuleSymbol.scope
-                                .lookup(Names.ABSTRACT_ITERATOR).symbol.type;
+                                .lookup(Names.ABSTRACT_STREAM_ITERATOR).symbol.type;
                         if (!types.isAssignable(constructType, iteratorType)) {
                             dlog.error(iteratorExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_ITERATOR,
                                     expectedNextReturnType, constructType);
@@ -4195,7 +4195,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
         List<BLangExpression> literalValues = bLangXMLTextLiteral.textFragments;
-        checkStringTemplateExprs(literalValues, false);
+        checkStringTemplateExprs(literalValues);
         BLangExpression xmlExpression = literalValues.get(0);
         if (literalValues.size() == 1 && xmlExpression.getKind() == NodeKind.LITERAL &&
                 ((String) ((BLangLiteral) xmlExpression).value).isEmpty()) {
@@ -4206,7 +4206,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLCommentLiteral bLangXMLCommentLiteral) {
-        checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments, false);
+        checkStringTemplateExprs(bLangXMLCommentLiteral.textFragments);
 
         if (expType == symTable.noType) {
             resultType = types.checkType(bLangXMLCommentLiteral, symTable.xmlCommentType, expType);
@@ -4218,7 +4218,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     public void visit(BLangXMLProcInsLiteral bLangXMLProcInsLiteral) {
         checkExpr(bLangXMLProcInsLiteral.target, env, symTable.stringType);
-        checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments, false);
+        checkStringTemplateExprs(bLangXMLProcInsLiteral.dataFragments);
         if (expType == symTable.noType) {
             resultType = types.checkType(bLangXMLProcInsLiteral, symTable.xmlPIType, expType);
             return;
@@ -4227,7 +4227,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangXMLQuotedString bLangXMLQuotedString) {
-        checkStringTemplateExprs(bLangXMLQuotedString.textFragments, false);
+        checkStringTemplateExprs(bLangXMLQuotedString.textFragments);
         resultType = types.checkType(bLangXMLQuotedString, symTable.stringType, expType);
     }
 
@@ -4238,7 +4238,7 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangStringTemplateLiteral stringTemplateLiteral) {
-        checkStringTemplateExprs(stringTemplateLiteral.exprs, false);
+        checkStringTemplateExprs(stringTemplateLiteral.exprs);
         resultType = types.checkType(stringTemplateLiteral, symTable.stringType, expType);
     }
 
@@ -5365,7 +5365,7 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        if (!Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) && aInv.remoteMethodCall) {
+        if (!Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) && !aInv.async) {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_METHOD_INVOCATION_SYNTAX, actionName);
             this.resultType = symTable.semanticError;
             return;
@@ -6250,7 +6250,7 @@ public class TypeChecker extends BLangNodeVisitor {
         dlog.error(bLangXMLElementLiteral.pos, DiagnosticErrorCode.XML_TAGS_MISMATCH);
     }
 
-    private void checkStringTemplateExprs(List<? extends BLangExpression> exprs, boolean allowXml) {
+    private void checkStringTemplateExprs(List<? extends BLangExpression> exprs) {
         for (BLangExpression expr : exprs) {
             checkExpr(expr, env);
 
@@ -6260,17 +6260,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 continue;
             }
 
-            if (type.tag >= TypeTags.JSON) {
-                if (allowXml) {
-                    if (type.tag != TypeTags.XML) {
-                        dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
-                                BUnionType.create(null, symTable.intType, symTable.floatType,
-                                        symTable.decimalType, symTable.stringType,
-                                        symTable.booleanType, symTable.xmlType), type);
-                    }
-                    continue;
-                }
-
+            if (!types.isNonNilSimpleBasicTypeOrString(type)) {
                 dlog.error(expr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                         BUnionType.create(null, symTable.intType, symTable.floatType,
                                 symTable.decimalType, symTable.stringType,
