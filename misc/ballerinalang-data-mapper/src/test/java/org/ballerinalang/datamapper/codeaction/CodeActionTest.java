@@ -357,7 +357,7 @@ public class CodeActionTest {
                 codeActionFoundOnlyOnce, "Cannot find expected Code Action for: " + title);
     }
 
-    public void stopServer(){
+    public void stopServer() {
         try {
             server.stop();
         } catch (Exception e) {
