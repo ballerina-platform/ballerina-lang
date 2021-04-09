@@ -860,7 +860,12 @@ public class TypeParamAnalyzer {
     private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         expType.getMemberTypes()
-                .forEach(type -> members.add(getMatchingBoundType(type, env, resolvedTypes)));
+                .forEach(type -> {
+                    final BType boundType = getMatchingBoundType(type, env, resolvedTypes);
+                    if (boundType != symTable.noType) {
+                        members.add(boundType);
+                    }
+                });
         return BUnionType.create(null, members);
     }
 
