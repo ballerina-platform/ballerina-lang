@@ -96,7 +96,7 @@ public class ModuleXMLNamespaceDeclarationNodeContext extends
         ExpressionNode namespaceuri = node.namespaceuri();
         Optional<Token> asKeyword = node.asKeyword();
 
-        return !namespaceuri.isMissing() && cursor >= namespaceuri.textRange().endOffset() + 1
+        return !namespaceuri.isMissing() && cursor > namespaceuri.textRange().endOffset()
                 && (asKeyword.isEmpty() || asKeyword.get().isMissing());
     }
 }
