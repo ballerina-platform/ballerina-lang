@@ -112,7 +112,8 @@ public abstract class AbstractParserErrorHandler {
         }
 
         // Fail safe. This means we can't find a path to recover.
-        assert itterCount == ITTER_LIMIT : "fail safe reached";
+        // TODO: enable assert
+        // assert itterCount == ITTER_LIMIT : "fail safe reached";
         return getFailSafeSolution(currentCtx, nextToken);
     }
 
