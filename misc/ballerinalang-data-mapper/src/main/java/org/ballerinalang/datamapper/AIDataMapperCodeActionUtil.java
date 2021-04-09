@@ -96,7 +96,7 @@ class AIDataMapperCodeActionUtil {
     private static HashMap<String, String> restFieldMap = new HashMap<>();
     private static HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
     private static HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
-    private static ArrayList<String> LeftReadonlyFields = new ArrayList<>();
+    private static ArrayList<String> leftReadOnlyFields = new ArrayList<>();
     private static ArrayList<String> rightSpecificFieldList = new ArrayList<>();
     private static ArrayList<String> optionalRightRecordFields = new ArrayList<>();
 
@@ -157,7 +157,7 @@ class AIDataMapperCodeActionUtil {
             // get the symbol at cursor type
             Symbol symbolAtCursor;
             Optional<Symbol> symbolFromModel = semanticModel.symbol(srcFile.get(), linePosition);
-            if (symbolFromModel.isPresent()){
+            if (symbolFromModel.isPresent()) {
                 symbolAtCursor = symbolFromModel.get();
                 lftTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
                 rhsTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
@@ -167,9 +167,9 @@ class AIDataMapperCodeActionUtil {
             } else {
                 // to get the symbol when type casting is done
                 Optional<Node> nodeAtCursor = findExpressionInTypeCastNode(newTextRange, syntaxTree);
-                if (nodeAtCursor.isPresent()){
+                if (nodeAtCursor.isPresent()) {
                     symbolFromModel = semanticModel.symbol(nodeAtCursor.get());
-                    if (symbolFromModel.isPresent()){
+                    if (symbolFromModel.isPresent()) {
                         symbolAtCursor = symbolFromModel.get();
                         lftTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
                         rhsTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
@@ -235,8 +235,9 @@ class AIDataMapperCodeActionUtil {
                         if (matchedNode.parent().kind() == SyntaxKind.CHECK_EXPRESSION) {
                             matchedNode = matchedNode.parent();
                         }
-                    } else if(positionDetails.matchedNode().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
-                        if (((TypeCastExpressionNode) positionDetails.matchedNode()).expression().kind() == SyntaxKind.FUNCTION_CALL) {
+                    } else if (positionDetails.matchedNode().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
+                        if (((TypeCastExpressionNode) positionDetails.matchedNode()).expression().kind() ==
+                                SyntaxKind.FUNCTION_CALL) {
                             matchedNode = ((TypeCastExpressionNode) positionDetails.matchedNode()).expression();
                         }
                     }
@@ -261,16 +262,18 @@ class AIDataMapperCodeActionUtil {
                     } else if (foundErrorLeft && !foundErrorRight) {
                         String checkExpression = "";
                         Collection<ChildNodeEntry> childEntries = matchedNode.childEntries();
-                        for(ChildNodeEntry childEntry: childEntries){
-                            if(childEntry.name().equals("expression")){
-                                functionCall = childEntry.node().isPresent() ? childEntry.node().get().toString() : null;
-                            } else if (childEntry.name().equals("expression")){
-                                checkExpression = childEntry.node().isPresent() ? childEntry.node().get().toString() : null;
+                        for (ChildNodeEntry childEntry : childEntries) {
+                            if (childEntry.name().equals("expression")) {
+                                functionCall = childEntry.node().isPresent() ?
+                                        childEntry.node().get().toString() : null;
+                            } else if (childEntry.name().equals("expression")) {
+                                checkExpression = childEntry.node().isPresent() ?
+                                        childEntry.node().get().toString() : null;
                             }
                         }
                         symbolAtCursorName = functionCall.trim();
-                        generatedFunctionName =
-                                String.format("%s map%sTo%s(%s)", checkExpression, foundTypeRight, foundTypeLeft, symbolAtCursorName);
+                        generatedFunctionName = String.format("%s map%sTo%s(%s)", checkExpression,
+                                foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else {
                         symbolAtCursorName = functionCall.trim();
@@ -342,8 +345,9 @@ class AIDataMapperCodeActionUtil {
         Position rangeEnd = range.getEnd();
         int start = textDocument.textPositionFrom(LinePosition.from(rangeStart.getLine(), rangeStart.getCharacter()));
         int end = textDocument.textPositionFrom(LinePosition.from(rangeEnd.getLine(), rangeEnd.getCharacter()));
-        NonTerminalNode nonTerminalNode = ((ModulePartNode) syntaxTree.rootNode()).findNode(TextRange.from(start, end - start), true);
-        if(nonTerminalNode.kind() == SyntaxKind.TYPE_CAST_EXPRESSION){
+        NonTerminalNode nonTerminalNode = ((ModulePartNode) syntaxTree.rootNode()).
+                findNode(TextRange.from(start, end - start), true);
+        if (nonTerminalNode.kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
             return Optional.of(((TypeCastExpressionNode) nonTerminalNode).expression());
         }
         return Optional.empty();
@@ -470,7 +474,8 @@ class AIDataMapperCodeActionUtil {
                 optionalKey.append(".").append(field.getKey());
                 generateOptionalMap((Map<String, Object>) ((LinkedTreeMap) field.getValue()).get(PROPERTIES),
                         optionalKey.toString());
-            } else if ((boolean) ((LinkedTreeMap) field.getValue()).get(OPTIONAL) | (checkForOptionalRecordField(optionalKey.toString()) > 0)) {
+            } else if ((boolean) ((LinkedTreeMap) field.getValue()).get(OPTIONAL) |
+                    (checkForOptionalRecordField(optionalKey.toString()) > 0)) {
                 optionalKey.append(".").append(field.getKey());
                 isOptionalMap.put(optionalKey.toString(), ((LinkedTreeMap) field.getValue()).get(SIGNATURE).toString());
             }
@@ -478,9 +483,9 @@ class AIDataMapperCodeActionUtil {
     }
 
 
-    private static int checkForOptionalRecordField(String optionalKey){
-        for (String recordRecordField: optionalRightRecordFields){
-            if(optionalKey.contains(recordRecordField)){
+    private static int checkForOptionalRecordField(String optionalKey) {
+        for (String recordRecordField : optionalRightRecordFields) {
+            if (optionalKey.contains(recordRecordField)) {
                 return optionalKey.indexOf(recordRecordField);
             }
         }
@@ -500,8 +505,8 @@ class AIDataMapperCodeActionUtil {
             } else {
                 fieldKey.append(field.getKey());
                 leftFieldMap.put(fieldKey.toString(), ((LinkedTreeMap) field.getValue()).get(TYPE).toString());
-                if((((LinkedTreeMap) field.getValue()).get(READONLY)).toString().contains("true")){
-                    LeftReadonlyFields.add(field.getKey());
+                if ((((LinkedTreeMap) field.getValue()).get(READONLY)).toString().contains("true")) {
+                    leftReadOnlyFields.add(field.getKey());
                 }
             }
         }
@@ -595,74 +600,6 @@ class AIDataMapperCodeActionUtil {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
         }
     }
-//    /**
-//     * Convert record type symbols to json objects.
-//     *
-//     * @param schemaFields {@link List<RecordFieldSymbol>}
-//     * @return Field symbol properties
-//     */
-//    private static JsonElement recordToJSON(Collection<RecordFieldSymbol> schemaFields) {
-//        JsonObject properties = new JsonObject();
-//        for (RecordFieldSymbol attribute : schemaFields) {
-//            JsonObject fieldDetails = new JsonObject();
-//            // check if an optional field doesn't have a value
-//            if(attribute.isOptional() && !rightSpecificFieldList.contains(attribute.getName().get())){
-//                continue;
-//            }
-//            fieldDetails.addProperty(ID, "dummy_id");
-//            TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
-//            if (attributeType.typeKind() == TypeDescKind.RECORD) {
-//                Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
-//                fieldDetails.addProperty(TYPE, "ballerina_type");
-//                fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
-//            } else if (attributeType.typeKind() == TypeDescKind.INTERSECTION) {
-//                // To get the fields of a readonly record type
-//                List<TypeSymbol> memberTypeList = ((IntersectionTypeSymbol) attribute.typeDescriptor()).
-//                        memberTypeDescriptors();
-//                for (TypeSymbol attributeTypeReference : memberTypeList) {
-//                    if (attributeTypeReference.typeKind() == TypeDescKind.TYPE_REFERENCE) {
-//                        TypeSymbol attributeTypeRecord = ((TypeReferenceTypeSymbol) attributeTypeReference).
-//                                typeDescriptor();
-//                        if (attributeTypeRecord.typeKind() == TypeDescKind.RECORD) {
-//                            Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeTypeRecord).
-//                                    fieldDescriptors();
-//                            fieldDetails.addProperty(TYPE, "ballerina_type");
-//                            fieldDetails.add(PROPERTIES, recordToJSON(recordFields.values()));
-//                        }
-//                    }
-//                }
-//            } else {
-//                fieldDetails.addProperty(TYPE, attributeType.typeKind().getName());
-//                fieldDetails.addProperty(OPTIONAL, attribute.isOptional());
-//                fieldDetails.addProperty(SIGNATURE, attributeType.signature());
-//                // to check for readonly values of left schema
-//                boolean readonlyCheck = false;
-//                if(attribute.qualifiers().size() > 0){
-//                    for(Qualifier qualifier: attribute.qualifiers()){
-//                        readonlyCheck = qualifier.getValue().contains("readonly");
-//                        if(readonlyCheck){
-//                            TypeDescKind attributeTypeKind = attributeType.typeKind();
-//                            if((attributeTypeKind == TypeDescKind.XML) | (attributeTypeKind == TypeDescKind.ARRAY) |
-//                                    (attributeTypeKind == TypeDescKind.MAP)
-//                                    | (attributeTypeKind == TypeDescKind.TABLE) |
-//                                    (attributeTypeKind == TypeDescKind.OBJECT) |
-//                                    (attributeTypeKind == TypeDescKind.TUPLE)){
-//                                fieldDetails.addProperty(READONLY, true);
-//                                break;
-//                            } else {
-//                                readonlyCheck = false;
-//                            }
-//                        }
-//                    }
-//                }
-//                if(!readonlyCheck){
-//                    fieldDetails.addProperty(READONLY, false);
-//                }
-//            }
-//            properties.add(attribute.getName().get(), fieldDetails);
-//        }
-//        return properties;
-//    }
 
     /**
      * Convert right record type symbols to json objects.
@@ -675,13 +612,13 @@ class AIDataMapperCodeActionUtil {
         for (RecordFieldSymbol attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
             // check if an optional field doesn't have a value
-            if(attribute.isOptional() && !rightSpecificFieldList.contains(attribute.getName().get())){
+            if (attribute.isOptional() && !rightSpecificFieldList.contains(attribute.getName().get())) {
                 continue;
             }
             fieldDetails.addProperty(ID, "dummy_id");
             TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
             if (attributeType.typeKind() == TypeDescKind.RECORD) {
-                if (attribute.isOptional()){
+                if (attribute.isOptional()) {
                     optionalRightRecordFields.add(attribute.getName().get());
                 }
                 Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
@@ -696,7 +633,7 @@ class AIDataMapperCodeActionUtil {
                         TypeSymbol attributeTypeRecord = ((TypeReferenceTypeSymbol) attributeTypeReference).
                                 typeDescriptor();
                         if (attributeTypeRecord.typeKind() == TypeDescKind.RECORD) {
-                            if (attribute.isOptional()){
+                            if (attribute.isOptional()) {
                                 optionalRightRecordFields.add(attribute.getName().get());
                             }
                             Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeTypeRecord).
@@ -753,16 +690,16 @@ class AIDataMapperCodeActionUtil {
                 fieldDetails.addProperty(TYPE, attributeType.typeKind().getName());
                 // to check for readonly values of left schema
                 boolean readonlyCheck = false;
-                if(attribute.qualifiers().size() > 0){
-                    for(Qualifier qualifier: attribute.qualifiers()){
+                if (attribute.qualifiers().size() > 0) {
+                    for (Qualifier qualifier : attribute.qualifiers()) {
                         readonlyCheck = qualifier.getValue().contains("readonly");
-                        if(readonlyCheck){
+                        if (readonlyCheck) {
                             TypeDescKind attributeTypeKind = attributeType.typeKind();
-                            if((attributeTypeKind == TypeDescKind.XML) | (attributeTypeKind == TypeDescKind.ARRAY) |
+                            if ((attributeTypeKind == TypeDescKind.XML) | (attributeTypeKind == TypeDescKind.ARRAY) |
                                     (attributeTypeKind == TypeDescKind.MAP)
                                     | (attributeTypeKind == TypeDescKind.TABLE) |
                                     (attributeTypeKind == TypeDescKind.OBJECT) |
-                                    (attributeTypeKind == TypeDescKind.TUPLE)){
+                                    (attributeTypeKind == TypeDescKind.TUPLE)) {
                                 fieldDetails.addProperty(READONLY, true);
                                 break;
                             } else {
@@ -771,7 +708,7 @@ class AIDataMapperCodeActionUtil {
                         }
                     }
                 }
-                if(!readonlyCheck){
+                if (!readonlyCheck) {
                     fieldDetails.addProperty(READONLY, false);
                 }
             }
@@ -876,8 +813,8 @@ class AIDataMapperCodeActionUtil {
                         String firstPrat = field.getKey().substring(0, recordFieldIndex - 1);
                         String[] splitKey = (field.getKey().substring(recordFieldIndex - 1)).split("\\.");
                         replacement = firstPrat;
-                        for(String key: splitKey){
-                            if(!key.isEmpty()) {
+                        for (String key : splitKey) {
+                            if (!key.isEmpty()) {
                                 replacement = replacement + "?." + key;
                             }
                         }
@@ -908,17 +845,17 @@ class AIDataMapperCodeActionUtil {
             restFieldMap.clear();
         }
 
-        if(!LeftReadonlyFields.isEmpty()){
-            for(String readOnlyField :LeftReadonlyFields){
-                if(mappingFromServer.contains(readOnlyField + ":")) {
+        if (!leftReadOnlyFields.isEmpty()) {
+            for (String readOnlyField : leftReadOnlyFields) {
+                if (mappingFromServer.contains(readOnlyField + ":")) {
                     String[] splitArray = mappingFromServer.split(readOnlyField + ":");
                     int inputIndex = splitArray[1].indexOf(",");
-                    mappingFromServer = splitArray[0] + readOnlyField + ":" + splitArray[1].substring(0,inputIndex)
+                    mappingFromServer = splitArray[0] + readOnlyField + ":" + splitArray[1].substring(0, inputIndex)
                             + ".cloneReadOnly()" + splitArray[1].substring(inputIndex);
                     int i = 0;
                 }
             }
-            LeftReadonlyFields.clear();
+            leftReadOnlyFields.clear();
         }
 
         //To generate the default values

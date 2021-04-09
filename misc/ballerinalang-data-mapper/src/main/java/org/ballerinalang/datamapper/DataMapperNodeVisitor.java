@@ -40,8 +40,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static org.ballerinalang.datamapper.utils.SyntaxKindMapper.mapSyntaxKind;
-
 /**
  * Visitor to extract Record Type Structure information.
  */
@@ -71,7 +69,7 @@ public class DataMapperNodeVisitor extends NodeVisitor {
                         replaceAll(" ", "");
                 rightSymbolName = rightSymbolName.replaceAll("\n", "");
                 // to check if the variable if from another module
-                if(rightSymbolName.contains(":")){
+                if (rightSymbolName.contains(":")) {
                     String[] rightSymbolNameArray = rightSymbolName.split(":");
                     rightSymbolName = rightSymbolNameArray[rightSymbolNameArray.length - 1];
                 }
@@ -86,7 +84,14 @@ public class DataMapperNodeVisitor extends NodeVisitor {
                             if (field1.valueExpr().isPresent() && fieldName.contains("\"")) {
                                 fieldName = fieldName.replaceAll("\"", "");
                                 SyntaxKind fieldKind = field1.valueExpr().get().kind();
-                                this.restFields.put(fieldName, mapSyntaxKind(fieldKind));
+                                Optional<Symbol> symbol = this.model.symbol(variableDeclarationNode);
+                                if (symbol.isPresent()) {
+                                    TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
+                                    typeSymbol = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
+                                    String restFieldType = ((RecordTypeSymbol) typeSymbol).restTypeDescriptor().get().
+                                            typeKind().getName();
+                                    this.restFields.put(fieldName, restFieldType);
+                                }
                             } else {
                                 specificFieldList.add(field1.fieldName().toString().replaceAll(" ", ""));
                             }
