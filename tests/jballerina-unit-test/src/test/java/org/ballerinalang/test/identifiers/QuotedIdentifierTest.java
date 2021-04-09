@@ -29,12 +29,12 @@ public class QuotedIdentifierTest {
 
     @BeforeClass
     public void setup() {
-        errorTestCompileResult = BCompileUtil.compile("test-src/identifiers/filed_named_as_error.bal");
+        errorTestCompileResult = BCompileUtil.compile("test-src/identifiers/field_named_as_error.bal");
     }
 
     @Test
-    public void testErrorBindingPattern() {
-        BRunUtil.invoke(errorTestCompileResult, "testErrorBindingPattern");
+    public void testErrorConstructorWithErrorField() {
+        BRunUtil.invoke(errorTestCompileResult, "testErrorConstructorWithErrorField");
     }
 
     @Test
