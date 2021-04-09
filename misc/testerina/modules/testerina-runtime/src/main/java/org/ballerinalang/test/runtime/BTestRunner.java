@@ -405,19 +405,15 @@ public class BTestRunner {
                     valueSets = invokeTestFunction(suite, test.getDataProvider(), classLoader, scheduler);
                 }
                 if (valueSets == null) {
-                    invokeTestFunction(suite, test.getTestName(), classLoader, scheduler);
-                    // report the test result
-                    functionResult = new TesterinaResult(test.getTestName(), true, shouldSkip
-                            .get(), null);
-                    tReport.addFunctionResult(packageName, functionResult);
+                    valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler);
+                    computeFunctionResult(test, packageName, shouldSkip, failedOrSkippedTests, valueSets);
                 } else {
                     Class<?>[] argTypes = extractArgumentTypes(valueSets);
                     List<Object[]> argList = extractArguments(valueSets);
                     for (Object[] arg : argList) {
-                        invokeTestFunction(suite, test.getTestName(), classLoader, scheduler, argTypes, arg);
-                        TesterinaResult result = new TesterinaResult(test.getTestName(), true,
-                                                                     shouldSkip.get(), null);
-                        tReport.addFunctionResult(packageName, result);
+                        valueSets = invokeTestFunction(suite, test.getTestName(), classLoader, scheduler, argTypes,
+                                arg);
+                        computeFunctionResult(test, packageName, shouldSkip, failedOrSkippedTests, valueSets);
                     }
                 }
             } else {
@@ -446,6 +442,30 @@ public class BTestRunner {
             writeFailedTestsToJson(failedOrSkippedTests, jsonFile);
         }
 
+    }
+
+    private void computeFunctionResult(Test test, String packageName, AtomicBoolean shouldSkip,
+                                       List<String> failedOrSkippedTests, Object valueSets) {
+        TesterinaResult functionResult;
+        if (valueSets instanceof BError) {
+            failedOrSkippedTests.add(test.getTestName());
+            functionResult = new TesterinaResult(test.getTestName(), false, shouldSkip.get(),
+                    formatErrorMessage((BError) valueSets));
+            tReport.addFunctionResult(packageName, functionResult);
+        } else if (valueSets instanceof Exception) {
+            failedOrSkippedTests.add(test.getTestName());
+            functionResult = new TesterinaResult(test.getTestName(), false, shouldSkip.get(),
+                    formatErrorMessage((Exception) valueSets));
+            tReport.addFunctionResult(packageName, functionResult);
+        } else if (valueSets instanceof Error) {
+            failedOrSkippedTests.add(test.getTestName());
+            functionResult = new TesterinaResult(test.getTestName(), false, shouldSkip.get(),
+                    formatErrorMessage((Error) valueSets));
+            tReport.addFunctionResult(packageName, functionResult);
+        } else {
+            functionResult = new TesterinaResult(test.getTestName(), true, shouldSkip.get(), null);
+            tReport.addFunctionResult(packageName, functionResult);
+        }
     }
 
     private void executeAfterFunction(Test test, TestSuite suite, ClassLoader classLoader, Scheduler scheduler,
@@ -610,32 +630,30 @@ public class BTestRunner {
         return testerinaFunction.invoke();
     }
 
-    public void invokeTestFunction(TestSuite suite, String functionName, ClassLoader classLoader,
+    public Object invokeTestFunction(TestSuite suite, String functionName, ClassLoader classLoader,
                                    Scheduler scheduler, Class<?>[] types, Object[] args) throws ClassNotFoundException {
         Class<?> functionClass = classLoader.loadClass(suite.getTestUtilityFunctions().get(functionName));
         TesterinaFunction testerinaFunction = new TesterinaFunction(functionClass, functionName, scheduler);
-        testerinaFunction.invoke(types, args);
+        return testerinaFunction.invoke(types, args);
     }
 
     private String formatErrorMessage(Throwable e) {
         String message;
-        if (e.getCause() instanceof BError) {
-            try {
-                message = ((BError) e.getCause()).getPrintableStackTrace();
-            } catch (ClassCastException castException) {
-                // throw the exception to top
+
+        try {
+            if (e instanceof BError) {
+                message = ((BError) e).getPrintableStackTrace();
+            } else if (e instanceof Exception | e instanceof Error) {
+                RuntimeUtils.silentlyLogBadSad(e);
+                message = TesterinaUtils.getPrintableStackTrace(e);
+            } else {
                 throw new BallerinaTestException(e);
             }
-        } else if (e instanceof BallerinaTestException) {
-            try {
-                message = TesterinaUtils.getPrintableStackTrace(e.getCause());
-                RuntimeUtils.silentlyLogBadSad(e.getCause());
-            } catch (ClassCastException castException) {
-                throw new BallerinaTestException(e);
-            }
-        } else {
-            throw new BallerinaTestException(e);
+        } catch (ClassCastException classCastException) {
+            // If an unhandled error type is passed to format error message
+            throw new BallerinaTestException(classCastException);
         }
+
         return message;
     }
 

@@ -92,7 +92,7 @@ public class TesterinaUtils {
                 throw new RuntimeException("there are test failures");
             }
         } catch (BallerinaTestException e) {
-            errStream.println("Runtime error: " + e);
+            errStream.println("error: " + e);
             RuntimeUtils.silentlyLogBadSad(e);
             throw e;
         } catch (Throwable e) {
@@ -296,6 +296,7 @@ public class TesterinaUtils {
         for (int i = 1; i < stackTrace.length; i++) {
             printStackElement(sb, stackTrace[i], "\n\t   ");
         }
+        sb.append("\n\nCheck ballerina-internal log for more details");
         return sb.toString();
 
     }

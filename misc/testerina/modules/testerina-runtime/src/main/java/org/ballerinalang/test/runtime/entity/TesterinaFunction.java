@@ -19,7 +19,6 @@ package org.ballerinalang.test.runtime.entity;
 
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
-import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BFuture;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
@@ -118,12 +117,6 @@ public class TesterinaFunction {
             scheduler.start();
             final Throwable t = out.getPanic();
             final Object result = out.getResult();
-            if (result instanceof BError) {
-                throw new BallerinaTestException((BError) result);
-            }
-            if (result instanceof Exception) {
-                throw new BallerinaTestException((Exception) result);
-            }
             if (t != null) {
                 throw new BallerinaTestException("Error while invoking function '" + funcName + "'", t.getMessage());
             }
