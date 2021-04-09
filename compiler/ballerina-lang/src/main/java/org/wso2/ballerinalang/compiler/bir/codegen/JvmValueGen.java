@@ -461,19 +461,7 @@ class JvmValueGen {
     private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
                                        JvmCastGen jvmCastGen) {
 
-        createObjectSetMethod(cw, fields, className, "set", jvmCastGen, false);
-    }
-
-    private void createObjectSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                                                       JvmCastGen jvmCastGen) {
-
-        createObjectSetMethod(cw, fields, className, "setOnInitialization", jvmCastGen, true);
-    }
-
-    private void createObjectSetMethod(ClassWriter cw, Map<String, BField> fields, String className,
-                                       String setFuncName, JvmCastGen jvmCastGen, boolean isInit) {
-
-        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, setFuncName,
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "set",
                                           String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
         mv.visitCode();
         int fieldNameRegIndex = 1;
@@ -486,17 +474,46 @@ class JvmValueGen {
         mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
                            true);
         fieldNameRegIndex = 3;
-        if (isInit) {
-            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
-        } else {
-            mv.visitInsn(DUP);
-            mv.visitVarInsn(ASTORE, fieldNameRegIndex);
-            mv.visitVarInsn(ALOAD, valueRegIndex);
-            mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate",
-                               String.format("(L%s;L%s;)V", STRING_VALUE, OBJECT), false);
-        }
+
+        mv.visitInsn(DUP);
+        mv.visitVarInsn(ASTORE, fieldNameRegIndex);
+        mv.visitVarInsn(ALOAD, valueRegIndex);
+        mv.visitMethodInsn(INVOKEVIRTUAL, className, "checkFieldUpdate", String.format("(L%s;L%s;)V", STRING_VALUE,
+                                                                                       OBJECT), false);
+        // sort the fields before generating switch case
+        generateCasesForObjectSetMethod(fields, className, jvmCastGen, mv, fieldNameRegIndex,
+                                        valueRegIndex, defaultCaseLabel);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void createObjectSetOnInitializationMethod(ClassWriter cw, Map<String, BField> fields, String className,
+                                                       JvmCastGen jvmCastGen) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, "setOnInitialization",
+                                          String.format("(L%s;L%s;)V", B_STRING_VALUE, OBJECT), null, null);
+        mv.visitCode();
+        int fieldNameRegIndex = 1;
+        int valueRegIndex = 2;
+        Label defaultCaseLabel = new Label();
+
+        // code gen type checking for inserted value
+        mv.visitVarInsn(ALOAD, 0);
+        mv.visitVarInsn(ALOAD, fieldNameRegIndex);
+        mv.visitMethodInsn(INVOKEINTERFACE, B_STRING_VALUE, GET_VALUE_METHOD, String.format("()L%s;", STRING_VALUE),
+                           true);
+        fieldNameRegIndex = 3;
+        mv.visitVarInsn(ASTORE, fieldNameRegIndex);
 
         // sort the fields before generating switch case
+        generateCasesForObjectSetMethod(fields, className, jvmCastGen, mv, fieldNameRegIndex,
+                                        valueRegIndex, defaultCaseLabel);
+        mv.visitMaxs(0, 0);
+        mv.visitEnd();
+    }
+
+    private void generateCasesForObjectSetMethod(Map<String, BField> fields, String className, JvmCastGen jvmCastGen,
+                                                 MethodVisitor mv, int fieldNameRegIndex, int valueRegIndex,
+                                                 Label defaultCaseLabel) {
         List<BField> sortedFields = new ArrayList<>(fields.values());
         sortedFields.sort(FIELD_NAME_HASH_COMPARATOR);
 
@@ -519,8 +536,6 @@ class JvmValueGen {
         }
 
         createDefaultCase(mv, defaultCaseLabel, fieldNameRegIndex, "No such field: ");
-        mv.visitMaxs(0, 0);
-        mv.visitEnd();
     }
 
     private byte[] createRecordTypeDescClass(BRecordType recordType, String className,
