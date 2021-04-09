@@ -147,14 +147,15 @@ public class TestBuildProject {
         PackageCompilation packageCompilation = project.currentPackage().getCompilation();
         Assert.assertEquals(packageCompilation.diagnosticResult().diagnosticCount(), 1);
         Assert.assertEquals(packageCompilation.diagnosticResult().diagnostics().stream().findFirst().get().toString(),
-                "ERROR [Ballerina.toml:(3:0,3:43)] could not locate dependency path './libs/ballerina-io-1.0.0-java.txt'");
+                "ERROR [Ballerina.toml:(3:0,3:43)] " +
+                        "could not locate dependency path './libs/ballerina-io-1.0.0-java.txt'");
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
         Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnosticCount(), 1);
 
-        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, Paths.get("myproject.jar"));
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, Paths.get("test.jar"));
         Assert.assertFalse(emitResult.successful());
 
-        emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, Paths.get(System.getProperty("user.dir")));
+        emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, projectPath);
         Assert.assertFalse(emitResult.successful());
     }
 
