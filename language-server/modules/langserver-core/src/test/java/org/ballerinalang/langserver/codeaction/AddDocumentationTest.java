@@ -46,10 +46,11 @@ public class AddDocumentationTest extends AbstractCodeActionTest {
         return new Object[][]{
                 {"singleDocGeneration.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration1.json", "singleDocGeneration.bal"},
-                {"singleDocGeneration2.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration3.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration4.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration5.json", "singleDocGeneration.bal"},
+                // Non top level node doc suggestions
+                {"singleDocGeneration2.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration6.json", "singleDocGeneration.bal"},
                 {"singleDocGeneration7.json", "singleDocGeneration.bal"},
         };

@@ -1377,7 +1377,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getRollbackStatementSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ROLLBACK_KEYWORD, "rollback;", ItemResolverConstants.KEYWORD_TYPE,
+        return new SnippetBlock(ItemResolverConstants.ROLLBACK_KEYWORD, "rollback", ItemResolverConstants.KEYWORD_TYPE,
                 Kind.KEYWORD);
     }
 
