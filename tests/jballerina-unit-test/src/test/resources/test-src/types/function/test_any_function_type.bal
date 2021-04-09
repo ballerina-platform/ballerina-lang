@@ -205,6 +205,14 @@ function testCastingToFunctionWithAnyFunctionReturnType() {
                   <string> checkpanic e.detail()["message"]);
 }
 
+//---------------Test runtime 'hashCode' via 'function' equality------------
+
+function testRuntimeHashCodeViaFunctionEquality() {
+    function[] arr = [testCastingToFunctionWithAnyFunctionReturnType];
+    function[] & readonly immutableArr = arr.cloneReadOnly();
+    assertEquality(arr[0], immutableArr[0]);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any expected, any actual) {
