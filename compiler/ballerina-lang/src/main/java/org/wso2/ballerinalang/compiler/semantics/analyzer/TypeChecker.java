@@ -172,6 +172,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
@@ -4194,6 +4195,100 @@ public class TypeChecker extends BLangNodeVisitor {
         return (attrName.prefix.value.isEmpty()
                     && attrName.localname.value.equals(XMLConstants.XMLNS_ATTRIBUTE))
                 || attrName.prefix.value.equals(XMLConstants.XMLNS_ATTRIBUTE);
+    }
+
+    public BType getXMLTypeFromLiteralKind(BLangExpression childXMLExpressions) {
+        if (childXMLExpressions.getKind() == NodeKind.XML_ELEMENT_LITERAL) {
+            return symTable.xmlElementType;
+        }
+        if (childXMLExpressions.getKind() == NodeKind.XML_TEXT_LITERAL) {
+            return symTable.xmlTextType;
+        }
+        if (childXMLExpressions.getKind() == NodeKind.XML_PI_LITERAL) {
+            return symTable.xmlPIType;
+        }
+        return symTable.xmlCommentType;
+    }
+
+    public void muteErrorLog() {
+        this.nonErrorLoggingCheck = true;
+        this.dlog.mute();
+    }
+
+    public void unMuteErrorLog(boolean prevNonErrorLoggingCheck, int errorCount) {
+        this.nonErrorLoggingCheck = prevNonErrorLoggingCheck;
+        this.dlog.setErrorCount(errorCount);
+        if (!prevNonErrorLoggingCheck) {
+            this.dlog.unmute();
+        }
+    }
+
+    public BType getXMLSequenceType(BType xmlSubType) {
+        switch (xmlSubType.tag) {
+            case TypeTags.XML_ELEMENT:
+                return new BXMLType(symTable.xmlElementType,  null);
+            case TypeTags.XML_COMMENT:
+                return new BXMLType(symTable.xmlCommentType,  null);
+            case TypeTags.XML_PI:
+                return new BXMLType(symTable.xmlPIType,  null);
+            default:
+                // Since 'xml:Text is same as xml<'xml:Text>
+                return symTable.xmlTextType;
+        }
+    }
+
+    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
+        if (expType.tag != TypeTags.XML && expType.tag != TypeTags.UNION && expType.tag != TypeTags.XML_TEXT
+        && expType != symTable.noType) {
+            dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
+                    "XML Sequence");
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        List<BType> xmlTypesInSequence = new ArrayList<>();
+        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
+        int errorCount = this.dlog.errorCount();
+        muteErrorLog();
+
+        for (BLangExpression expressionItem : bLangXMLSequenceLiteral.xmlItems) {
+            resultType = checkExpr(expressionItem, env, expType);
+            if (resultType == symTable.semanticError) {
+                unMuteErrorLog(prevNonErrorLoggingCheck, errorCount);
+                dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
+                        getXMLTypeFromLiteralKind(expressionItem));
+                return;
+            }
+            if (!xmlTypesInSequence.contains(resultType)) {
+                xmlTypesInSequence.add(resultType);
+            }
+        }
+        unMuteErrorLog(prevNonErrorLoggingCheck, errorCount);
+
+        // Set type according to items in xml sequence and expected type
+        if (expType.tag == TypeTags.XML || expType == symTable.noType) {
+            if (xmlTypesInSequence.size() == 1) {
+                resultType = getXMLSequenceType(xmlTypesInSequence.get(0));
+                return;
+            }
+            resultType = symTable.xmlType;
+            return;
+        }
+        // Since 'xml:Text is same as xml<'xml:Text>
+        if (expType.tag == TypeTags.XML_TEXT) {
+            resultType = symTable.xmlTextType;
+            return;
+        }
+        // Disallow unions with 'xml:T (singleton) items
+         for (BType item : ((BUnionType) expType).getMemberTypes()) {
+             if (item.tag != TypeTags.XML_TEXT && item.tag != TypeTags.XML) {
+                 dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
+                         expType, symTable.xmlType);
+                 resultType = symTable.semanticError;
+                 return;
+             }
+         }
+        resultType = symTable.xmlType;
     }
 
     public void visit(BLangXMLTextLiteral bLangXMLTextLiteral) {
