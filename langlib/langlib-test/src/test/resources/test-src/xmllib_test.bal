@@ -482,7 +482,7 @@ function testXmlFilter() {
         xml elements = (x2/*).elements();
         return (elements/*).toString() == "Enid Blyton";
         });
-    assert(x5.toString(), "<authors><name>Enid Blyton</name></authors>");
+    assertEquals(x5.toString(), "<authors><name>Enid Blyton</name></authors>");
 }
 
 function testGetDescendants() {
