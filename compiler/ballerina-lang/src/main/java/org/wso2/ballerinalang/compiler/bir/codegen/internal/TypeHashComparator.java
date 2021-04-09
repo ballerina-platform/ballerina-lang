@@ -25,7 +25,7 @@ import java.util.Comparator;
 /**
  * BType hash comparator to sort BIRTypeDefinitions according its type hash code.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class TypeHashComparator implements Comparator<BIRTypeDefinition> {
 
