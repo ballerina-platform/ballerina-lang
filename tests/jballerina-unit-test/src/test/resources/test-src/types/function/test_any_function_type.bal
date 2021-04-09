@@ -205,37 +205,12 @@ function testCastingToFunctionWithAnyFunctionReturnType() {
                   <string> checkpanic e.detail()["message"]);
 }
 
-function testFunctionWithNeverOrNeverEqualReturnType() {
-    function () returns int|never x1 = blowUp1;
-    function () returns int x2 = blowUp1;
-    function () returns int? x3 = blowUp1;
-    function () returns never x4 = blowUp1;
+//---------------Test runtime 'hashCode' via 'function' equality------------
 
-    function () returns int|never y1 = blowUp2;
-    function () returns int y2 = blowUp2;
-    function () returns int? y3 = blowUp2;
-    function () returns never y4 = blowUp2;
-
-    function () returns string|never z1 = blowUp3;
-    function () returns string|record {| never x; |} z2 = blowUp3;
-
-    function () returns int a1 = blowUp4;
-}
-
-function blowUp1() returns never {
-    panic error("Error!");
-}
-
-function blowUp2() returns record {| never x; |} {
-    panic error("Error!");
-}
-
-function blowUp3() returns string {
-    panic error("Error!");
-}
-
-function blowUp4() returns int|never {
-    panic error("Error!");
+function testRuntimeHashCodeViaFunctionEquality() {
+    function[] arr = [testCastingToFunctionWithAnyFunctionReturnType];
+    function[] & readonly immutableArr = arr.cloneReadOnly();
+    assertEquality(arr[0], immutableArr[0]);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
