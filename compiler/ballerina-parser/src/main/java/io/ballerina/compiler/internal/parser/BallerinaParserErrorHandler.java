@@ -155,9 +155,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     // Give object the higher priority over records, since record body is a subset of object body.
     // Array, optional and union type descriptors are not added to the list since they are left recursive.
     private static final ParserRuleContext[] TYPE_DESCRIPTORS = {
-            // SIMPLE_NAME_REFERENCE_IN_TYPE_DESC is already included in TYPE_REFERENCE.
+            // SIMPLE_TYPE_DESC_IDENTIFIER is already included in TYPE_REFERENCE.
             // But added separately, in order to give "ERROR_MISSING_TYPE_DESC" diagnostic.
-            ParserRuleContext.SIMPLE_NAME_REFERENCE_IN_TYPE_DESC,
+            ParserRuleContext.SIMPLE_TYPE_DESC_IDENTIFIER,
             ParserRuleContext.TYPE_REFERENCE, ParserRuleContext.SIMPLE_TYPE_DESCRIPTOR,
             ParserRuleContext.OBJECT_TYPE_DESCRIPTOR, ParserRuleContext.RECORD_TYPE_DESCRIPTOR,
             ParserRuleContext.PARAMETERIZED_TYPE, ParserRuleContext.TUPLE_TYPE_DESC_START,
@@ -983,7 +983,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case IMPORT_MODULE_NAME:
                 case MAPPING_FIELD_NAME:
                 case QUALIFIED_IDENTIFIER_START_IDENTIFIER:
-                case SIMPLE_NAME_REF_IDENTIFIER:
+                case SIMPLE_TYPE_DESC_IDENTIFIER:
                 case IDENTIFIER:
                 case ANNOTATION_TAG:
                 case NAMESPACE_PREFIX:
@@ -1276,7 +1276,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 case VARIABLE_REF:
                 case TYPE_REFERENCE_IN_TYPE_INCLUSION:
                 case TYPE_REFERENCE:
-                case SIMPLE_NAME_REFERENCE_IN_TYPE_DESC:
                 case ANNOT_REFERENCE:
                 case FIELD_ACCESS_IDENTIFIER:
 
@@ -2876,8 +2875,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ANNOT_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
                 return ParserRuleContext.QUALIFIED_IDENTIFIER_START_IDENTIFIER;
-            case SIMPLE_NAME_REFERENCE_IN_TYPE_DESC:
-                return ParserRuleContext.SIMPLE_NAME_REF_IDENTIFIER;
             case QUALIFIED_IDENTIFIER_START_IDENTIFIER:
             case XML_ATOMIC_NAME_IDENTIFIER:
                 nextToken = this.tokenReader.peek(nextLookahead);
@@ -2886,7 +2883,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 }
                 // Else this is a simple identifier. Hence fall through.
             case IDENTIFIER:
-            case SIMPLE_NAME_REF_IDENTIFIER:
+            case SIMPLE_TYPE_DESC_IDENTIFIER:
                 return getNextRuleForIdentifier();
             case QUALIFIED_IDENTIFIER_PREDECLARED_PREFIX:
                 return ParserRuleContext.COLON;
@@ -3656,7 +3653,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case VARIABLE_REF:
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
             case TYPE_REFERENCE:
-            case SIMPLE_NAME_REFERENCE_IN_TYPE_DESC:
             case ANNOT_REFERENCE:
             case FIELD_ACCESS_IDENTIFIER:
             case MAPPING_CONSTRUCTOR:
@@ -4837,9 +4833,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_REFERENCE:
                 endContext();
                 return getNextRuleForTypeReference();
-            case SIMPLE_NAME_REFERENCE_IN_TYPE_DESC:
-                endContext();
-                return ParserRuleContext.TYPEDESC_RHS;
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
                 endContext();
                 if (isInTypeDescContext()) {
@@ -5136,8 +5129,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case TYPE_NAME:
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
             case TYPE_REFERENCE:
-            case SIMPLE_NAME_REFERENCE_IN_TYPE_DESC:
-            case SIMPLE_NAME_REF_IDENTIFIER:
+            case SIMPLE_TYPE_DESC_IDENTIFIER:
             case FIELD_ACCESS_IDENTIFIER:
             case FUNC_NAME:
             case CLASS_NAME:

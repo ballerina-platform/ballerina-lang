@@ -125,8 +125,7 @@ public class SyntaxErrors {
             case TYPE_DESCRIPTOR:
             case OPTIONAL_TYPE_DESCRIPTOR:
             case ARRAY_TYPE_DESCRIPTOR:
-            case SIMPLE_NAME_REFERENCE_IN_TYPE_DESC:
-            case SIMPLE_NAME_REF_IDENTIFIER:
+            case SIMPLE_TYPE_DESC_IDENTIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
             case TYPE_NAME:
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:

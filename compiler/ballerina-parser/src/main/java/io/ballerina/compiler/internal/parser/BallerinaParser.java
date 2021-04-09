@@ -9244,6 +9244,15 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Check if the token kind is a type descriptor in terminal expression.
+     * <p>
+     * simple-type-in-expr :=
+     * boolean | int | byte | float | decimal | string | handle | json | anydata | any | never
+     *
+     * @param nodeKind token kind to check
+     * @return <code>true</code> for simple type token in expression. <code>false</code> otherwise.
+     */
     private boolean isSimpleTypeInExpression(SyntaxKind nodeKind) {
         switch (nodeKind) {
             case VAR_KEYWORD:
