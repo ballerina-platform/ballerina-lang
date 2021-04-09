@@ -93,4 +93,9 @@ public class AnyFunctionTypeTest {
     public void testCastingToFunctionWithAnyFunctionReturnType() {
         BRunUtil.invoke(functionTypeTestResult, "testCastingToFunctionWithAnyFunctionReturnType");
     }
+
+    @Test
+    public void testRuntimeHashCodeViaFunctionEquality() {
+        BRunUtil.invoke(functionTypeTestResult, "testRuntimeHashCodeViaFunctionEquality");
+    }
 }

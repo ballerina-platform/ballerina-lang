@@ -484,8 +484,6 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                     dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
                 }
 
-                // If the parameter is public or non-public function parameter,
-                // the parameter should be documented.
                 if (documentableNode.getKind() == NodeKind.FUNCTION) {
                     dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
                 }

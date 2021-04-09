@@ -40,6 +40,7 @@ public class UpdateDocumentationTest extends AbstractCodeActionTest {
                 {"updateDocumentationConfig1.json", "updateDocumentation1.bal"},
                 {"updateDocumentationConfig2.json", "updateDocumentation2.bal"},
                 {"updateDocumentationConfig3.json", "updateDocumentation3.bal"},
+                {"updateDocCodeActionWithDeprecatedConfig1.json", "updateDocCodeActionWithDeprecated1.bal"},
         };
     }
 

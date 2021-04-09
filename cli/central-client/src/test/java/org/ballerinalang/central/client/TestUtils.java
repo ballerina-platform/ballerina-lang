@@ -18,6 +18,11 @@
 
 package org.ballerinalang.central.client;
 
+import okhttp3.MediaType;
+import okhttp3.Protocol;
+import okhttp3.Request;
+import okhttp3.Response;
+import okhttp3.ResponseBody;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
@@ -39,11 +44,15 @@ import java.util.Comparator;
 import java.util.Iterator;
 import java.util.List;
 
+import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT;
+import static org.ballerinalang.central.client.CentralClientConstants.ACCEPT_ENCODING;
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_JSON;
+import static org.ballerinalang.central.client.CentralClientConstants.APPLICATION_OCTET_STREAM;
+import static org.ballerinalang.central.client.CentralClientConstants.IDENTITY;
 import static org.ballerinalang.central.client.Utils.createBalaInHomeRepo;
 import static org.ballerinalang.central.client.Utils.getAsList;
+import static org.ballerinalang.central.client.Utils.isApplicationJsonContentType;
 import static org.ballerinalang.central.client.Utils.writeBalaFile;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
 
 /**
  * Test cases to test utilities.
@@ -99,11 +108,23 @@ public class TestUtils {
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
+    
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/wso2/sf/*")
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_BAD_REQUEST)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        Files.readAllBytes(balaFile)
+                ))
+                .build();
 
-        HttpURLConnection connection = mock(HttpURLConnection.class);
-        when(connection.getInputStream()).thenReturn(targetStream);
-
-        writeBalaFile(connection, tempBalaCache.resolve(balaName), "wso2/sf:1.1.0",
+        writeBalaFile(mockResponse, tempBalaCache.resolve(balaName), "wso2/sf:1.1.0",
                 10000, System.out, new LogFormatter());
 
         Assert.assertTrue(tempBalaCache.resolve("package.json").toFile().exists());
@@ -138,13 +159,26 @@ public class TestUtils {
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
-
-        HttpURLConnection connection = mock(HttpURLConnection.class);
-        when(connection.getContentLengthLong()).thenReturn(Files.size(balaFile));
-        when(connection.getInputStream()).thenReturn(targetStream);
+    
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/wso2/sf/*")
+                .addHeader(ACCEPT_ENCODING, IDENTITY)
+                .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        Files.readAllBytes(balaFile)
+                ))
+                .build();
 
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
-        createBalaInHomeRepo(connection, tempBalaCache.resolve("wso2").resolve("sf"),
+        createBalaInHomeRepo(mockResponse, tempBalaCache.resolve("wso2").resolve("sf"),
                 "wso2", "sf", false, balaUrl, "", System.out, new LogFormatter());
 
         Assert.assertTrue(tempBalaCache.resolve("wso2").resolve("sf").resolve("1.3.5").toFile().exists());
@@ -158,14 +192,27 @@ public class TestUtils {
         Path balaFile = UTILS_TEST_RESOURCES.resolve(balaName);
         File initialFile = new File(String.valueOf(balaFile));
         InputStream targetStream = new FileInputStream(initialFile);
-
-        HttpURLConnection connection = mock(HttpURLConnection.class);
-        when(connection.getContentLengthLong()).thenReturn(Files.size(balaFile));
-        when(connection.getInputStream()).thenReturn(targetStream);
+    
+        Request mockRequest = new Request.Builder()
+                .get()
+                .url("https://localhost:9090/registry/packages/wso2/sf/*")
+                .addHeader(ACCEPT_ENCODING, IDENTITY)
+                .addHeader(ACCEPT, APPLICATION_OCTET_STREAM)
+                .build();
+        Response mockResponse = new Response.Builder()
+                .request(mockRequest)
+                .protocol(Protocol.HTTP_1_1)
+                .code(HttpURLConnection.HTTP_OK)
+                .message("")
+                .body(ResponseBody.create(
+                        MediaType.get(APPLICATION_JSON),
+                        Files.readAllBytes(balaFile)
+                ))
+                .build();
 
         final String balaUrl = "https://fileserver.dev-central.ballerina.io/2.0/wso2/sf/1.3.5/sf-2020r2-any-1.3.5.bala";
         try {
-            createBalaInHomeRepo(connection,
+            createBalaInHomeRepo(mockResponse,
                     tempBalaCache.resolve("wso2").resolve("sf"), "wso2", "sf", false,
                     balaUrl, "", System.out, new LogFormatter());
         } catch (CentralClientException e) {
@@ -173,6 +220,13 @@ public class TestUtils {
         } finally {
             cleanBalaCache();
         }
+    }
+    
+    @Test
+    public void testJsonContentTypeChecker() {
+        Assert.assertTrue(isApplicationJsonContentType(APPLICATION_JSON));
+        Assert.assertTrue(isApplicationJsonContentType("application/json; charset=utf-8"));
+        Assert.assertFalse(isApplicationJsonContentType(APPLICATION_OCTET_STREAM));
     }
 
     private void cleanBalaCache() {
