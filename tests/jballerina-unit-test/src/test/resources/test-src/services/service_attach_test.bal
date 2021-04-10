@@ -87,7 +87,7 @@ public class Listener4 {
 
     public function attach(service object {} s, string[]? name) returns error? {
             lock {
-                nameParamCheck[3] = name is string[] && name[0] == "/" && name.length() == 1;
+                nameParamCheck[3] = name is string[] && name.length() == 0;
             }
 
     }
