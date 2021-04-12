@@ -19,7 +19,7 @@ public class ManagingDirector {
     *Employee3;
 
     int shares = 2000;
-    float salary;
+    public float salary;
 
     public function init(int age, string name) {
         self.age = age;

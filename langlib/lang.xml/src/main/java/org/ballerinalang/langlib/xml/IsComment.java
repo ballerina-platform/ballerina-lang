@@ -19,22 +19,26 @@ package org.ballerinalang.langlib.xml;
 
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.api.values.BXmlSequence;
+
+import java.util.List;
 
 /**
  * Test xml to be single xml comment.
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "isComment",
-//        args = {@Argument(name = "bxml", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.BOOLEAN)},
-//        isPublic = true
-//)
 public class IsComment {
 
     public static boolean isComment(BXml xmlValue) {
-        return xmlValue.getNodeType() == XmlNodeType.COMMENT;
+        if (xmlValue.getNodeType() == XmlNodeType.COMMENT) {
+            return true;
+        }
+
+        if (xmlValue.getNodeType() == XmlNodeType.SEQUENCE) {
+            List<BXml> childrenList = ((BXmlSequence) xmlValue).getChildrenList();
+            return childrenList.size() == 1 && isComment(childrenList.get(0));
+        }
+        return false;
     }
 }

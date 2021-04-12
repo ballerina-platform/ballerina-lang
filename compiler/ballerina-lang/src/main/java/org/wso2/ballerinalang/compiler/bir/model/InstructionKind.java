@@ -62,7 +62,7 @@ public enum InstructionKind {
     NEW_XML_TEXT((byte) 39),
     NEW_XML_COMMENT((byte) 40),
     NEW_XML_PI((byte) 41),
-    NEW_XML_SEQ((byte) 42),
+    NEW_XML_SEQUENCE((byte) 42),
     NEW_XML_QNAME((byte) 43),
     NEW_STRING_XML_QNAME((byte) 44),
     XML_SEQ_STORE((byte) 45),

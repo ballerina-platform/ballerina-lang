@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction getManufacturer() returns Manufacturer {\n    \n    return {};\n}\n"
+                                "newText": "\n\nfunction getManufacturer() returns Manufacturer {\n    \n    return {name: \"\"};\n}\n"
                             }
                         ]
                     }

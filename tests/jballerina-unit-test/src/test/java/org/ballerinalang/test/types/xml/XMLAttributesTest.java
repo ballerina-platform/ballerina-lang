@@ -262,6 +262,11 @@ public class XMLAttributesTest {
     }
 
     @Test
+    public void testCharacterReferencesInXmlAttributeValue() {
+        BRunUtil.invoke(xmlAttrProgFile, "testCharacterReferencesInXmlAttributeValue");
+    }
+
+    @Test
     public void testPrintAttribMap() {
         PrintStream original = System.out;
         ByteArrayOutputStream outContent = new ByteArrayOutputStream();

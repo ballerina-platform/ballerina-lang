@@ -1356,6 +1356,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
+        for (BLangExpression expr : xmlSequenceLiteral.xmlItems) {
+            analyzeNode(expr, env);
+        }
+    }
+
+    @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
         for (BLangExpression expr : xmlTextLiteral.textFragments) {
             analyzeNode(expr, env);
@@ -2651,7 +2658,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private boolean isInIsolatedObjectMethod(SymbolEnv env, boolean ignoreInit) {
         BLangInvokableNode enclInvokable = env.enclInvokable;
 
-        if (enclInvokable == null || enclInvokable.getKind() != NodeKind.FUNCTION) {
+        if (enclInvokable == null ||
+                (enclInvokable.getKind() != NodeKind.FUNCTION && enclInvokable.getKind() != NodeKind.RESOURCE_FUNC)) {
             return false;
         }
 

@@ -917,9 +917,11 @@ function testFromJsonWithTypeAmbiguousTargetType() {
     assert(p is error, true);
 }
 
+type XmlType xml;
+
 function testFromJsonWithTypeXML() {
     string s1 = "<test>name</test>";
-    xml|error xe = s1.fromJsonWithType(xml);
+    xml|error xe = s1.fromJsonWithType(XmlType);
     assert(xe is xml, true);
 
     xml x = checkpanic xe;
@@ -1226,7 +1228,7 @@ function testToJsonWithXML() {
                     <writer>Writer</writer>
                   </movie>`;
     json j = x1.toJson();
-    xml x2 = checkpanic j.fromJsonWithType(xml);
+    xml x2 = checkpanic j.fromJsonWithType(XmlType);
     assert(<xml> x2, x1);
 
     map<anydata> m2 = {a: 1, b: x1};

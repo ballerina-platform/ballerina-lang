@@ -118,6 +118,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementFilter;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorMatchPattern;
@@ -835,6 +836,12 @@ public class ConstantPropagation extends BLangNodeVisitor {
     @Override
     public void visit(BLangXMLElementLiteral xmlElementLiteral) {
         result = xmlElementLiteral;
+    }
+
+    @Override
+    public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
+        rewrite(xmlSequenceLiteral.xmlItems);
+        result = xmlSequenceLiteral;
     }
 
     @Override
