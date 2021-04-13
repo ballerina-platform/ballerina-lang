@@ -25,9 +25,16 @@ import com.sun.jdi.connect.IllegalConnectorArgumentsException;
 import com.sun.jdi.request.ClassPrepareRequest;
 import com.sun.jdi.request.EventRequestManager;
 import com.sun.jdi.request.StepRequest;
+import io.ballerina.projects.BuildOptions;
+import io.ballerina.projects.BuildOptionsBuilder;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.ProjectKind;
+import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectPaths;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.config.ClientAttachConfigHolder;
 import org.ballerinalang.debugadapter.config.ClientConfigHolder;
@@ -95,7 +102,10 @@ import org.slf4j.LoggerFactory;
 
 import java.io.BufferedReader;
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
@@ -223,7 +233,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             startListeningToProgramOutput();
             return CompletableFuture.completedFuture(null);
         } catch (Exception e) {
-            sendOutput("Failed to launch the ballerina program due to: " + e.toString(), STDERR);
+            sendOutput("Failed to launch the ballerina program due to: " + e, STDERR);
             return CompletableFuture.completedFuture(null);
         }
     }
@@ -745,10 +755,43 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         }).filter(Objects::nonNull).toArray(Variable[]::new);
     }
 
-    private void loadProjectInfo(String sourcePath) throws ClientConfigurationException {
-        project = ProjectLoader.loadProject(Paths.get(sourcePath));
-        context.setSourceProject(project);
-        projectRoot = project.sourceRoot().toAbsolutePath().toString();
+    /**
+     * Loads the target ballerina source project instance using the Project API, from the file path of the open/active
+     * editor instance in the client(plugin) side.
+     *
+     * @param filePath file path of the open/active editor instance in the plugin side.
+     */
+    private void loadProjectInfo(String filePath) {
+        Map.Entry<ProjectKind, Path> projectKindAndProjectRootPair = computeProjectKindAndRoot(Paths.get(filePath));
+        ProjectKind projectKind = projectKindAndProjectRootPair.getKey();
+        Path projectRoot = projectKindAndProjectRootPair.getValue();
+        try {
+            BuildOptions options = new BuildOptionsBuilder().offline(true).build();
+            if (projectKind == ProjectKind.BUILD_PROJECT) {
+                this.project = BuildProject.load(projectRoot, options);
+            } else if (projectKind == ProjectKind.SINGLE_FILE_PROJECT) {
+                this.project = SingleFileProject.load(projectRoot, options);
+            } else {
+                this.project = ProjectLoader.loadProject(projectRoot, options);
+            }
+            this.projectRoot = projectRoot.toAbsolutePath().toString();
+            this.context.setSourceProject(project);
+        } catch (ProjectException e) {
+            sendOutput("Failed to load the Ballerina source project/file due to: " + e.getMessage(), STDERR);
+            throw e;
+        }
+    }
+
+    private static Map.Entry<ProjectKind, Path> computeProjectKindAndRoot(Path path) {
+        if (ProjectPaths.isStandaloneBalFile(path)) {
+            return new AbstractMap.SimpleEntry<>(ProjectKind.SINGLE_FILE_PROJECT, path);
+        }
+        // Following is a temp fix to distinguish Bala and Build projects.
+        Path tomlPath = ProjectPaths.packageRoot(path).resolve(ProjectConstants.BALLERINA_TOML);
+        if (Files.exists(tomlPath)) {
+            return new AbstractMap.SimpleEntry<>(ProjectKind.BUILD_PROJECT, ProjectPaths.packageRoot(path));
+        }
+        return new AbstractMap.SimpleEntry<>(ProjectKind.BALA_PROJECT, ProjectPaths.packageRoot(path));
     }
 
     /**
