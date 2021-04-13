@@ -20,12 +20,13 @@ class EmployeeObj {
 
 }
 
+type XmlType xml;
 
 function stampJSONToXML() returns xml|error {
 
     json jsonValue = { name: "Raja", age: 25, salary: 20000 };
 
-    xml|error xmlValue = jsonValue.cloneWithType(xml);
+    xml|error xmlValue = jsonValue.cloneWithType(XmlType);
     return xmlValue;
 }
 

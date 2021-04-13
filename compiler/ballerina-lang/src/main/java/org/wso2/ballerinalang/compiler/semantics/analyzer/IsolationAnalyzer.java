@@ -1356,6 +1356,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
+        for (BLangExpression expr : xmlSequenceLiteral.xmlItems) {
+            analyzeNode(expr, env);
+        }
+    }
+
+    @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
         for (BLangExpression expr : xmlTextLiteral.textFragments) {
             analyzeNode(expr, env);

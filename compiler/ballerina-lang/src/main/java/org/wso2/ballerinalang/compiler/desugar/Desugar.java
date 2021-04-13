@@ -212,6 +212,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
@@ -6762,6 +6763,14 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         result = xmlElementLiteral;
+    }
+
+    @Override
+    public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
+        for (BLangExpression xmlItem : xmlSequenceLiteral.xmlItems) {
+            rewriteExpr(xmlItem);
+        }
+        result = xmlSequenceLiteral;
     }
 
     @Override

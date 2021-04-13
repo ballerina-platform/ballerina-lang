@@ -99,6 +99,8 @@ class InstructionEmitter {
                 return emitInsMove((BIRNonTerminator.Move) ins, tabs);
             case NEW_XML_ELEMENT:
                 return emitInsNewXMLElement((BIRNonTerminator.NewXMLElement) ins, tabs);
+            case NEW_XML_SEQUENCE:
+                return emitInsNewXMLSequence((BIRNonTerminator.NewXMLSequence) ins, tabs);
             case NEW_XML_QNAME:
                 return emitInsNewXMLQName((BIRNonTerminator.NewXMLQName) ins, tabs);
             case NEW_STRING_XML_QNAME:
@@ -350,6 +352,11 @@ class InstructionEmitter {
     }
 
     private static String emitInsNewXMLElement(BIRNonTerminator.NewXMLElement ins, int tabs) {
+        // TODO fill this
+        return "";
+    }
+
+    private static String emitInsNewXMLSequence(BIRNonTerminator.NewXMLSequence ins, int tabs) {
         // TODO fill this
         return "";
     }
