@@ -228,6 +228,8 @@ public class IsolatedObjectTest {
                 "'lock' statement", 609, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
                 "'lock' statement", 610, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 632, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 639, 13);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

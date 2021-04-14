@@ -624,3 +624,18 @@ public class Listener {
 
     public function attach(service object {} s, string[]? name = ()) returns error? {}
 }
+
+isolated int[] x = [];
+
+function testInvalidCopyInWithNonObjectSelf1(int[] 'self) {
+    lock {
+        x = 'self;
+    }
+}
+
+function testInvalidCopyInWithNonObjectSelf2() {
+    lock {
+        int[] 'self = [];
+        x = 'self;
+    }
+}

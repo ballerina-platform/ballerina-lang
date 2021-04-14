@@ -1085,11 +1085,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
 
             if (parent == null && varRefExpr.lhsVar) {
-                if (!Names.SELF.value.equals(varRefExpr.variableName.value) && isInvalidCopyIn(varRefExpr, env)) {
+                if (!isObjectSelfExpr(varRefExpr) && isInvalidCopyIn(varRefExpr, env)) {
                     exprInfo.nonCaptureBindingPatternVarRefsOnLhs.add(varRefExpr);
                 }
-            } else if ((!varRefExpr.lhsVar || (parent != null && parent.getKind() != NodeKind.ASSIGNMENT))  &&
-                    !Names.SELF.value.equals(varRefExpr.variableName.value) &&
+            } else if ((!varRefExpr.lhsVar || parent.getKind() != NodeKind.ASSIGNMENT) &&
+                    !isObjectSelfExpr(varRefExpr) &&
                     !isIsolated(varRefExpr.symbol.flags) &&
                     isInvalidCopyIn(varRefExpr, env)) {
                 exprInfo.copyInVarRefs.add(varRefExpr);
@@ -2200,7 +2200,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return false;
         }
 
-        if (!Names.SELF.value.equals(((BLangSimpleVarRef) expr).variableName.value)) {
+        if (!isObjectSelfExpr((BLangSimpleVarRef) expr)) {
             return false;
         }
 
@@ -2505,7 +2505,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isInvalidTransfer(BLangSimpleVarRef expression, boolean transferOut) {
-        return isInvalidTransfer(expression, transferOut, Names.SELF.value.equals(expression.variableName.value));
+        return isInvalidTransfer(expression, transferOut, isObjectSelfExpr(expression));
     }
 
     private boolean isInvalidTransfer(BLangExpression expression, boolean transferOut, boolean invokedOnSelf) {
@@ -2594,7 +2594,25 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     private boolean isSelfReference(BLangExpression expression) {
         return expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                     Names.SELF.value.equals(((BLangSimpleVarRef) expression).variableName.value);
+                isObjectSelfExpr((BLangSimpleVarRef) expression);
+    }
+
+    private boolean isObjectSelfExpr(BLangSimpleVarRef varRefExpr) {
+        if (!Names.SELF.value.equals(varRefExpr.variableName.value)) {
+            return false;
+        }
+
+        BSymbol symbol = varRefExpr.symbol;
+        if (symbol == null) {
+            return false;
+        }
+
+        BSymbol owner = symbol.owner;
+        if (owner == null || ((owner.tag & SymTag.INVOKABLE) != SymTag.INVOKABLE)) {
+            return false;
+        }
+
+        return symbol == ((BInvokableSymbol) owner).receiverSymbol;
     }
 
     private boolean hasRefDefinedOutsideLock(BLangExpression variableReference) {
@@ -2711,7 +2729,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isSelfVarInIsolatedObject(BLangSimpleVarRef varRefExpr) {
-        return isInIsolatedObjectMethod(env, true) && Names.SELF.value.equals(varRefExpr.variableName.value);
+        return isInIsolatedObjectMethod(env, true) && isObjectSelfExpr(varRefExpr);
     }
 
     private boolean isIsolatedModuleVariableSymbol(BSymbol symbol) {
