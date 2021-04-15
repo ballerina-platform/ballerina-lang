@@ -41,11 +41,19 @@ class PositionUtil {
         int cursorLine = cursorPos.line();
         int cursorColumn = cursorPos.offset();
 
-        return (startLine < cursorLine && endLine > cursorLine)
-                || (startLine < cursorLine && endLine == cursorLine && endColumn > cursorColumn)
-                || (startLine == cursorLine && endLine > cursorLine)
-                || (startLine == endLine && startLine == cursorLine
-                && startColumn <= cursorColumn && endColumn > cursorColumn);
+        if (cursorLine < startLine || cursorLine > endLine) {
+            return false;
+        }
+
+        if (cursorLine == startLine && cursorColumn < startColumn) {
+            return false;
+        }
+
+        if (cursorLine == endLine && cursorColumn >= endColumn) {
+            return false;
+        }
+
+        return true;
     }
 
     static boolean withinRange(LineRange specifiedRange, Location nodePosition) {
