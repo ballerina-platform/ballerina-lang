@@ -59,8 +59,8 @@ public class GenDocsForBalaTest {
         String apiDocsJsonAsString = Files.readString(
                 this.docsPath.resolve("foo").resolve("sf").resolve("1.3.5")
                         .resolve(BallerinaDocGenerator.API_DOCS_JSON));
-        Assert.assertTrue(apiDocsJsonAsString.contains("# Salesforce Package\\nConnecto Salesforce easily\\n"),
-                "Package.md content is missing");
+        Assert.assertTrue(apiDocsJsonAsString.contains("# Salesforce Module\\nConnecto Salesforce easily\\n"),
+                "Module.md content is missing");
         
 
         Assert.assertTrue(apiDocsJsonAsString.contains("baz"), "baz function is missing");
