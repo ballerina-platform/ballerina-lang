@@ -29,7 +29,6 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.ballerinalang.test.bala.BalaCreator;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -39,23 +38,23 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import static org.testng.Assert.assertEquals;
 
 /**
- * Test cases for type referencing in closed records.
+ * Test cases for type referencing in open records.
  *
  * @since 0.985.0
  */
-public class ClosedRecordTypeReferenceTest {
+public class OpenRecordTypeInclusionTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
-        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
-        compileResult = BCompileUtil.compile("test-src/record/closed_record_type_reference.bal");
+        BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project_records");
+        compileResult = BCompileUtil.compile("test-src/record/open_record_type_inclusion.bal");
     }
 
     @Test(description = "Negative tests" , groups = {"disableOnOldParser"})
     public void negativeTests() {
-        CompileResult negative = BCompileUtil.compile("test-src/record/closed_record_type_reference_negative.bal");
+        CompileResult negative = BCompileUtil.compile("test-src/record/open_record_type_inclusion_negative.bal");
         int index = 0;
         BAssertUtil.validateError(negative, index++, "incompatible types: 'PersonObj' is not a record", 28, 6);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'IntOrFloat' is not a record", 35, 6);
@@ -71,19 +70,13 @@ public class ClosedRecordTypeReferenceTest {
         BAssertUtil.validateError(negative, index++, "redeclared symbol 'name'", 72, 6);
         BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 76, 6);
         BAssertUtil.validateError(negative, index++, "unknown type 'Data'", 81, 6);
-        BAssertUtil.validateError(negative, index++, "cannot use type inclusion with more than one open record with " +
-                "different rest descriptor types", 99, 20);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'float'", 135, 60);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'string', found 'error'", 136, 50);
-        BAssertUtil.validateError(negative, index++, "incompatible types: expected 'anydata', found 'error'", 137, 50);
-        BAssertUtil.validateError(negative, index++, "cannot use type inclusion with more than one open record with " +
-                "different rest descriptor types", 158, 10);
-        BAssertUtil.validateError(negative, index++, "invalid cyclic type reference in '[PersonOne, PersonOne]'", 163,
+        BAssertUtil.validateError(negative, index++, "invalid cyclic type reference in '[PersonOne, PersonOne]'", 84,
                 1);
         BAssertUtil.validateError(negative, index++, "invalid cyclic type reference in '[PersonTwo, Employee, " +
-                        "PersonTwo]'", 168, 1);
+                "PersonTwo]'", 89, 1);
         BAssertUtil.validateError(negative, index++, "invalid cyclic type reference in '[Employee, PersonTwo, " +
-                "Employee]'", 173, 1);
+                "Employee]'", 94, 1);
+        BAssertUtil.validateError(negative, index++, "redeclared symbol 'body'", 105, 6);
         assertEquals(negative.getErrorCount(), index);
     }
 
@@ -182,14 +175,13 @@ public class ClosedRecordTypeReferenceTest {
         assertEquals(manager.get("dept").stringValue(), "");
     }
 
-    @Test
-    public void testRestTypeOverriding() {
-        BRunUtil.invoke(compileResult, "testRestTypeOverriding");
+    @Test()
+    public void testCreatingRecordWithOverriddenFields() {
+        BRunUtil.invoke(compileResult, "testCreatingRecordWithOverriddenFields");
     }
 
     @AfterClass
     public void tearDown() {
-        BalaCreator.clearPackageFromRepository("test-src/bala/test_projects/test_project", "testorg", "foo");
         compileResult = null;
     }
 }
