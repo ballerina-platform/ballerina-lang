@@ -86,7 +86,8 @@ public class BindingPatternTest {
     @Test
     public void testWildcardBindingPattern() {
         Optional<Symbol> symbol = model.symbol(srcFile, from(22, 4));
-//        assertTrue(symbol.isEmpty());
+        // TODO: Change if needed once https://github.com/ballerina-platform/ballerina-lang/issues/30000 is addressed
+        assertTrue(symbol.isPresent());
 
         Optional<TypeSymbol> type = model.type(LineRange.from(srcFile.name(), from(22, 4), from(22, 5)));
         assertTrue(type.isPresent());
