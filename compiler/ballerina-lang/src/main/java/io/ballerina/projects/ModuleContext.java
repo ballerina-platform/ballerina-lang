@@ -22,6 +22,7 @@ import io.ballerina.projects.environment.ModuleLoadRequest;
 import io.ballerina.projects.environment.PackageResolver;
 import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.CompilerPhaseRunner;
+import io.ballerina.projects.internal.ModuleContextDataHolder;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
@@ -151,6 +152,11 @@ class ModuleContext {
 
     Project project() {
         return this.project;
+    }
+
+    boolean isExported() {
+        List<String> exports = this.project.currentPackage().manifest().exportedModules();
+        return exports.contains(moduleDescriptor.name().toString());
     }
 
     boolean isDefaultModule() {
@@ -350,6 +356,8 @@ class ModuleContext {
 
         BLangPackage pkgNode = (BLangPackage) TreeBuilder.createPackageNode();
         pkgNode.projectKind = moduleContext.project().kind();
+        pkgNode.moduleContextDataHolder = new ModuleContextDataHolder(moduleContext.isExported(),
+                                                                      moduleContext.descriptor());
         packageCache.put(moduleCompilationId, pkgNode);
 
         // Parse source files
@@ -434,6 +442,8 @@ class ModuleContext {
         PackageID moduleCompilationId = moduleContext.descriptor().moduleCompilationId();
         moduleContext.bPackageSymbol = birPackageSymbolEnter.definePackage(
                 moduleCompilationId, null, moduleContext.birBytes);
+        moduleContext.bPackageSymbol.exported = moduleContext.isExported();
+        moduleContext.bPackageSymbol.descriptor = moduleContext.descriptor();
         packageCache.putSymbol(moduleCompilationId, moduleContext.bPackageSymbol);
     }
 
