@@ -69,8 +69,8 @@ public class TomlConstants {
     public static final String EMPTY_CONFIG_STRING = "environment variable `%s` contains an empty string. Please " +
             "provide values for configurable variables";
     public static final String VALUE_NOT_PROVIDED = "value not provided for required configurable variable '%s'";
-    public static final String CONTAINS_MODULE_AMBIGUITY = "the module name contains ambiguous part '%s' that is used" +
-            " in another package. Please provide the module name as '[%s]'";
+    public static final String CONTAINS_MODULE_AMBIGUITY = "the module name '%s' clashes with an imported " +
+            "organization name. Please provide the module name as '[%s]'";
 
     private TomlConstants() {
     }

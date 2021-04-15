@@ -291,8 +291,13 @@ public class TomlProvider implements ConfigProvider {
             if (table.isPresent()) {
                 return table.get().rootNode();
             }
-            throw new TomlConfigException(String.format(CONTAINS_MODULE_AMBIGUITY, moduleName, moduleKey),
+            if (!invalidRequiredModuleSet.contains(module.toString())) {
+                invalidRequiredModuleSet.add(module.toString());
+                throw new TomlConfigException(String.format(CONTAINS_MODULE_AMBIGUITY, moduleName, moduleKey),
                         baseToml.rootNode());
+            } else {
+                return null;
+            }
         }
         table = baseToml.getTable(moduleName);
         if (table.isEmpty()) {

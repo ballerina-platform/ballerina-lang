@@ -326,17 +326,15 @@ public class TomlProviderNegativeTest {
                                 ".test_module.util.foo'. Please provide the module name as '[myOrg.test_module.util" +
                                 ".foo]'",
                         "ClashingModuleError2"},
-                //TODO: Need to be passing
+                //TODO: Should be removed after fixing #29989
                 {Map.ofEntries(Map.entry(ROOT_MODULE, variableKeys), Map.entry(clashingModule3,
                         clashingVariableKeys3)),
-                        "[ClashingOrgModuleError2.toml:(1:1,6:19)] the module name contains ambiguous part " +
-                                "'test_module' that is used in another package. Please provide the module name as " +
-                                "'[rootOrg.test_module]'",
+                        "[ClashingOrgModuleError2.toml:(1:1,6:19)] the module name 'test_module' clashes with an " +
+                                "imported organization name. Please provide the module name as '[rootOrg.test_module]'",
                         "ClashingOrgModuleError2"},
                 {Map.ofEntries(Map.entry(ROOT_MODULE, variableKeys), Map.entry(clashingModule4, clashingVariableKeys4)),
-                        "[ClashingOrgModuleError3.toml:(1:1,7:19)] the module name contains ambiguous part " +
-                                "'test_module' that is used in another package. Please provide the module name as " +
-                                "'[rootOrg.test_module]'",
+                        "[ClashingOrgModuleError3.toml:(1:1,7:19)] the module name 'test_module' clashes with an " +
+                                "imported organization name. Please provide the module name as '[rootOrg.test_module]'",
                         "ClashingOrgModuleError3"},
         };
     }
