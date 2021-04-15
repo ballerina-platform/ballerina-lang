@@ -96,7 +96,7 @@ function stampObjectsToJSON() returns json|error {
 
 function stampObjectsToXML() returns xml|error {
     PersonObj p = new PersonObj();
-    xml|error xmlValue = p.cloneWithType(xml);
+    xml|error xmlValue = p.cloneWithType(XmlType);
 
     return xmlValue;
 }
@@ -178,3 +178,4 @@ function stampTupleToObject() returns EmployeeObj|error {
 type AnyMap map<any>;
 type IntString [int, string];
 type AnyArray any[];
+type XmlType xml;

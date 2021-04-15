@@ -378,6 +378,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
@@ -2665,13 +2666,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         refType.typeKind = TypeKind.TYPEDESC;
+        refType.pos = getPosition(typedescTypeDescriptorNode);
 
         Optional<TypeParameterNode> node = typedescTypeDescriptorNode.typedescTypeParamsNode();
         if (node.isPresent()) {
             BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
             constrainedType.type = refType;
             constrainedType.constraint = createTypeNode(node.get().typeNode());
-            constrainedType.pos = getPosition(typedescTypeDescriptorNode);
+            constrainedType.pos = refType.pos;
             return constrainedType;
         }
 
@@ -3281,17 +3283,27 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return createExpression(xmlTextNode.content());
     }
 
-    private BLangNode createXMLLiteral(TemplateExpressionNode expressionNode) {
+    private BLangNode createXMLEmptyLiteral(TemplateExpressionNode expressionNode) {
         BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
-        if (expressionNode.content().isEmpty()) {
-            xmlTextLiteral.pos = getPosition(expressionNode);
-            xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
-            return xmlTextLiteral;
-        }
-        xmlTextLiteral.pos = getPosition(expressionNode.content().get(0));
-        for (Node node : expressionNode.content()) {
+        xmlTextLiteral.pos = getPosition(expressionNode);
+        xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
+        return xmlTextLiteral;
+    }
+
+    private BLangNode createXMLTextLiteral(List<Node> expressionNode) {
+        BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
+        xmlTextLiteral.pos = getPosition(expressionNode.get(0));
+        for (Node node : expressionNode) {
             xmlTextLiteral.textFragments.add(createExpression(node));
         }
+        xmlTextLiteral.textFragments.add(createEmptyStringLiteral(xmlTextLiteral.pos));
+        return xmlTextLiteral;
+    }
+
+    private BLangNode createXMLTextLiteral(Node expressionNode) {
+        BLangXMLTextLiteral xmlTextLiteral = (BLangXMLTextLiteral) TreeBuilder.createXMLTextLiteralNode();
+        xmlTextLiteral.pos = getPosition(expressionNode);
+        xmlTextLiteral.textFragments.add(createExpression(expressionNode));
         return xmlTextLiteral;
     }
 
@@ -4040,22 +4052,67 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
         return matchStatement;
     }
 
-    public BLangNode createXmlTemplateLiteral(TemplateExpressionNode expressionNode) {
-        SyntaxKind contentKind;
-        if (expressionNode.content().isEmpty()) {
-            contentKind = SyntaxKind.XML_TEXT;
-        } else {
-            contentKind = expressionNode.content().get(0).kind();
+    private BLangXMLSequenceLiteral createXmlSequence(TemplateExpressionNode expressionNode) {
+        BLangXMLSequenceLiteral xmlSequenceLiteral = (BLangXMLSequenceLiteral)
+                TreeBuilder.createXMLSequenceLiteralNode();
+        xmlSequenceLiteral.pos = getPosition(expressionNode);
+
+        Node lastNode = null;
+        List<Node> adjacentTextNodes = new ArrayList<>();
+        int xmlContentSize = expressionNode.content().size();
+
+        for (int index = 0; index < xmlContentSize; index++) {
+            Node childItem = expressionNode.content().get(index);
+            if (childItem.kind() == SyntaxKind.XML_TEXT || childItem.kind() == SyntaxKind.INTERPOLATION) {
+                adjacentTextNodes.add(childItem);
+                lastNode = childItem;
+                if (index != xmlContentSize - 1) {
+                    continue;
+                }
+            }
+            // Handle previous node if it was of xml:Text or interpolation type
+            if (lastNode != null && (lastNode.kind() == SyntaxKind.XML_TEXT ||
+                    lastNode.kind() == SyntaxKind.INTERPOLATION)) {
+                if (adjacentTextNodes.size() > 1) {
+                    // Adjacent XML Text Literals (contains interpolated items and xml:Text items) should be
+                    // concatenated together
+                    xmlSequenceLiteral.xmlItems.add((BLangExpression) createXMLTextLiteral(adjacentTextNodes));
+                } else {
+                    xmlSequenceLiteral.xmlItems.add(createXmlSingletonItem(lastNode));
+                }
+                adjacentTextNodes.clear();
+                // Identify if sequence ends with xml:Text type or interpolation type
+                if (lastNode.kind() == childItem.kind()) {
+                    continue;
+                }
+            }
+            // Handle current node that is not of xml:Text type or interpolation type
+            xmlSequenceLiteral.xmlItems.add(createXmlSingletonItem(childItem));
+            lastNode = childItem;
         }
-        switch (contentKind) {
+        return xmlSequenceLiteral;
+    }
+
+    public BLangExpression createXmlSingletonItem(Node xmlTypeNode) {
+        switch (xmlTypeNode.kind()) {
             case XML_COMMENT:
             case XML_PI:
             case XML_ELEMENT:
             case XML_EMPTY_ELEMENT:
-                return createExpression(expressionNode.content().get(0));
+                return createExpression(xmlTypeNode);
             default:
-                return createXMLLiteral(expressionNode);
+                return (BLangExpression) createXMLTextLiteral(xmlTypeNode);
         }
+    }
+
+    public BLangNode createXmlTemplateLiteral(TemplateExpressionNode expressionNode) {
+        if (expressionNode.content().isEmpty()) {
+            return createXMLEmptyLiteral(expressionNode);
+        }
+        if (expressionNode.content().size() == 1) {
+            return createXmlSingletonItem(expressionNode.content().get(0));
+        }
+        return createXmlSequence(expressionNode);
     }
 
     private BLangMatchPattern transformMatchPattern(Node matchPattern) {
