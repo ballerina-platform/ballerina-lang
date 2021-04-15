@@ -9,12 +9,14 @@ function testBasicTypes() returns [typedesc<any>, typedesc<any>, typedesc<any>, 
 
 type mapOfAny map<any>;
 
+type XmlType xml;
+
 type Employee record {
     string name;
 };
 
 function testRefTypes(){
-    typedesc<xml> a = xml;
+    typedesc<xml> a = XmlType;
     typedesc<json> b = json;
     typedesc<map<any>> c = mapOfAny;
     typedesc<table<Employee>> d = tableOfEmployee;
@@ -135,7 +137,7 @@ function testBasicTypesWithoutTypedescConstraint() {
 
 function testRefTypesWithoutTypedescConstraint() {
     typedesc a = json;
-    typedesc b = xml;
+    typedesc b = XmlType;
 
     assertEquality("typedesc json", a.toString());
 }

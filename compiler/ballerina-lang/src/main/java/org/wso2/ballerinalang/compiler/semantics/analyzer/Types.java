@@ -1019,7 +1019,8 @@ public class Types {
             BXMLType source = (BXMLType) sourceType;
             if (targetTag == TypeTags.XML_TEXT) {
                 if (source.constraint != null) {
-                    return source.constraint.tag == TypeTags.NEVER;
+                    return source.constraint.tag == TypeTags.NEVER ||
+                            source.constraint.tag == TypeTags.XML_TEXT;
                 }
                 return false;
             }
@@ -4635,6 +4636,19 @@ public class Types {
             return true;
         }
         return isSimpleBasicType(type.tag);
+    }
+
+    public boolean isNonNilSimpleBasicTypeOrString(BType type) {
+        if (type.tag == TypeTags.UNION) {
+            Set<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+            for (BType memType : memberTypes) {
+                if (memType.tag == TypeTags.NIL || !isSimpleBasicType(memType.tag)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+        return type.tag != TypeTags.NIL && isSimpleBasicType(type.tag);
     }
 
     public boolean isSubTypeOfReadOnlyOrIsolatedObjectUnion(BType type) {

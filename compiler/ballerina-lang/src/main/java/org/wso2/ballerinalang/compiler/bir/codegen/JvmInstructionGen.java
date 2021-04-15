@@ -164,6 +164,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.TYPE_CHEC
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.VALUE_COMPARISON_UTILS;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_FACTORY;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_QNAME;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_SEQUENCE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmTypeGen.getTypeDesc;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
@@ -1696,6 +1697,12 @@ public class JvmInstructionGen {
         this.storeToVar(newXMLPI.lhsOp.variableDcl);
     }
 
+    void generateNewXMLSequenceIns(BIRNonTerminator.NewXMLSequence xmlSequenceIns) {
+        this.mv.visitMethodInsn(INVOKESTATIC, XML_FACTORY, "createXmlSequence",
+                String.format("()L%s;", XML_SEQUENCE), false);
+        this.storeToVar(xmlSequenceIns.lhsOp.variableDcl);
+    }
+
     void generateXMLStoreIns(BIRNonTerminator.XMLAccess xmlStoreIns) {
 
         this.loadVar(xmlStoreIns.lhsOp.variableDcl);
@@ -1969,6 +1976,9 @@ public class JvmInstructionGen {
                     break;
                 case NEW_STRING_XML_QNAME:
                     generateNewStringXMLQNameIns((BIRNonTerminator.NewStringXMLQName) inst);
+                    break;
+                case NEW_XML_SEQUENCE:
+                    generateNewXMLSequenceIns((BIRNonTerminator.NewXMLSequence) inst);
                     break;
                 case XML_SEQ_STORE:
                     generateXMLStoreIns((BIRNonTerminator.XMLAccess) inst);

@@ -74,4 +74,5 @@ module io.ballerina.lang {
     exports io.ballerina.projects.plugins;
     exports io.ballerina.projects.internal.model; // TODO Remove this exports
     exports io.ballerina.projects.internal.environment; // TODO Remove these exports
+    exports io.ballerina.projects.internal to org.wso2.ballerinalang.compiler.semantics.model.symbols;
 }
