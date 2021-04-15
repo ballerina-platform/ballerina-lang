@@ -27,8 +27,6 @@ import java.util.StringJoiner;
  */
 public class LSErrorTelemetryEvent extends LSTelemetryEvent {
 
-    private static final String TYPE = "LSErrorTelemetryEvent";
-
     private final String message;
     private final String errorMessage;
     private final String errorStackTrace;
@@ -76,7 +74,7 @@ public class LSErrorTelemetryEvent extends LSTelemetryEvent {
         }
         Throwable cause = error.getCause();
         if (cause != null) {
-            errorStackTrace.add("Caused By:").add(getStackTrace(cause));
+            errorStackTrace.add("Caused By: ").add(getStackTrace(cause));
         }
         return errorStackTrace.toString();
     }
