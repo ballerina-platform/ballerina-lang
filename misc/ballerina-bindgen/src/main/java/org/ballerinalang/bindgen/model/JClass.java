@@ -31,6 +31,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_PREFIX;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isFinalField;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
@@ -95,10 +96,10 @@ public class JClass {
 
     private String getExceptionName(Class exception, String name) {
         try {
-            // Append the prefix "J" in front of bindings generated for Java exceptions.
+            // Append the exception class prefix in front of bindings generated for Java exceptions.
             if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
                     .isAssignableFrom(exception)) {
-                String shortClassName = "J" + name;
+                String shortClassName = EXCEPTION_CLASS_PREFIX + name;
                 env.setAlias(shortClassName, exception.getName());
                 return shortClassName;
             }

@@ -128,6 +128,12 @@ public class BindgenEnv {
         return aliases.get(alias);
     }
 
+    /**
+     * Set an alias name for a fully qualified class name.
+     *
+     * @param alias the alias name
+     * @param className the fully qualified class name
+     */
     public void setAlias(String alias, String className) {
         this.aliases.put(alias, className);
     }

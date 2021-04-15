@@ -62,10 +62,10 @@ public class BindgenFileGenerator {
         setClassNameAlias();
         if (!env.isDirectJavaClass()) {
             // Generate Ballerina empty class bindings for dependent Java classes.
-            return generateFromTemplate(jEmptyClassTemplatePath, null);
+            return generateFromTemplate(jEmptyClassTemplatePath);
         } else {
             // Generate Ballerina class bindings for Java classes.
-            syntaxTree = generateFromTemplate(jClassTemplatePath, null);
+            syntaxTree = generateFromTemplate(jClassTemplatePath);
             return generateSyntaxTree();
         }
     }
@@ -79,6 +79,10 @@ public class BindgenFileGenerator {
         }
     }
 
+    private SyntaxTree generateFromTemplate(Path filePath) throws BindgenException {
+        return generateFromTemplate(filePath, env.getAlias(currentClass.getName()));
+    }
+
     private SyntaxTree generateFromTemplate(Path filePath, String alias) throws BindgenException {
         String content = readTemplateFile(filePath);
         return replacePlaceholders(content, alias);
@@ -86,9 +90,6 @@ public class BindgenFileGenerator {
 
 
     private SyntaxTree replacePlaceholders(String content, String alias) {
-        if (alias == null) {
-            alias = env.getAlias(currentClass.getName());
-        }
         String modifiedContent = content.replace("FULL_CLASS_NAME", currentClass.getName())
                 .replace("CLASS_TYPE", currentClass.isInterface() ? "interface" : "class")
                 .replace("SIMPLE_CLASS_NAME_CAPS", alias.toUpperCase(Locale.getDefault()))

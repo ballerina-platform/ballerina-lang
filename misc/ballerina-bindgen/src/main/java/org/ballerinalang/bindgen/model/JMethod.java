@@ -30,6 +30,7 @@ import java.util.Set;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_BRACKETS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_PREFIX;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
@@ -204,10 +205,10 @@ public class JMethod extends BFunction {
 
     private String getExceptionName(Class exception, String name) {
         try {
-            // Append the prefix "J" in front of bindings generated for Java exceptions.
+            // Append the exception class prefix in front of bindings generated for Java exceptions.
             if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
                     .isAssignableFrom(exception)) {
-                return "J" + name;
+                return EXCEPTION_CLASS_PREFIX + name;
             }
         } catch (ClassNotFoundException ignore) {
             // Silently ignore if the exception class cannot be found.
