@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
@@ -52,6 +53,7 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
+import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 
 /**
  * Test cases for toml configuration related implementations.
@@ -262,6 +264,70 @@ public class TomlProviderTest {
 
     }
 
+    @Test()
+    public void testMultiDimensionalArray() {
+        ArrayType arrayElementType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, true);
+        BType elementType = new BIntersectionType(module, new Type[]{arrayElementType, PredefinedTypes.TYPE_READONLY},
+                                                  arrayElementType, 0, true);
+        ArrayType arrayType = TypeCreator.createArrayType(elementType, true);
+        VariableKey intArr = new VariableKey(module, "complexArr", new BIntersectionType(module, new Type[]{arrayType
+                , PredefinedTypes.TYPE_READONLY}, arrayType, 0, true), true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{intArr}));
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        List<ConfigProvider> providers = List.of(new TomlFileProvider(getConfigPath("MultiDimentionalArray.toml")));
+        ConfigResolver configResolver = new ConfigResolver(module, configVarMap, diagnosticLog, providers);
+        Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Object bValue = variableKeyObjectMap.get(intArr);
+        Assert.assertTrue(bValue instanceof BArray);
+        BArray bArray = (BArray) bValue;
+        Assert.assertTrue(bArray.get(0) instanceof BArray);
+        Assert.assertTrue(bArray.get(1) instanceof BArray);
+        BArray bArray1 = (BArray) bArray.get(0);
+        BArray bArray2 = (BArray) bArray.get(1);
+        Assert.assertEquals(bArray1.get(0), 55L);
+        Assert.assertEquals(bArray1.get(1), 66L);
+        Assert.assertEquals(bArray2.get(0), 11L);
+        Assert.assertEquals(bArray2.get(1), 22L);
+        Assert.assertEquals(bArray2.get(2), 33L);
+    }
+
+    @Test()
+    public void testComplexTableValue() {
+        ArrayType arrayElementType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, true);
+        BType elementType = new BIntersectionType(module, new Type[]{arrayElementType, PredefinedTypes.TYPE_READONLY},
+                                                  arrayElementType, 0, true);
+        ArrayType arrayType = TypeCreator.createArrayType(elementType, true);
+        Field intArr = TypeCreator.createField(arrayType, "array", SymbolFlags.REQUIRED);
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("array", intArr));
+        RecordType type = TypeCreator.createRecordType("Person", module, SymbolFlags.READONLY, fields, null, true, 6);
+        TableType tableType = TypeCreator.createTableType(type, new String[]{"name"}, true);
+        IntersectionType intersectionType = new BIntersectionType(module, new Type[]{tableType,
+                PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
+
+        VariableKey tableVar = new VariableKey(module, "tableVar", intersectionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{tableVar}));
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        List<ConfigProvider> providers = List.of(new TomlFileProvider(getConfigPath("ComplexTableType.toml")));
+        ConfigResolver configResolver = new ConfigResolver(module, configVarMap, diagnosticLog, providers);
+        Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
+        Object bValue = variableKeyObjectMap.get(tableVar);
+        Assert.assertTrue(bValue instanceof BTable);
+        BTable<BString, Object> bTable = (BTable) bValue;
+        BMap bmap = (BMap) bTable.get("abc");
+        Assert.assertEquals(((BString) bmap.get(StringUtils.fromString("name"))).getValue(), "abc");
+        Assert.assertTrue(bmap.get(StringUtils.fromString("array")) instanceof BArray);
+        BArray bArray = (BArray) bmap.get(StringUtils.fromString("array"));
+        BArray bArray1 = (BArray) bArray.get(0);
+        BArray bArray2 = (BArray) bArray.get(1);
+        Assert.assertEquals(bArray1.get(0).toString(), "a");
+        Assert.assertEquals(bArray1.get(1).toString(), "b");
+        Assert.assertEquals(bArray2.get(0).toString(), "c");
+        Assert.assertEquals(bArray2.get(1).toString(), "d");
+    }
+
     @Test
     public void testTomlProviderWithString() {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
@@ -295,42 +361,6 @@ public class TomlProviderTest {
                 new String[]{"aa", "bb", "cc"});
         Assert.assertEquals(((BArray) configValueMap.get(keys[3])).getBooleanArray(),
                 new boolean[]{false, true, true, false});
-    }
-
-    @Test
-    public void testTomlProviderWithStringNegative() {
-        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
-        VariableKey[] keys = getSimpleVariableKeys(module);
-        String tomlContent = "[test_module] intVar = 42.22 floatVar = 3 stringVar = 11";
-        configVarMap.put(module, keys);
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                List.of(new TomlContentProvider(tomlContent)));
-        configResolver.resolveConfigs();
-        Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: [BAL_CONFIG_DATA:(1:24,1:29)" +
-                "] configurable variable 'test_module:intVar' is expected to be of type 'int', but found 'float'");
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(), "error: [BAL_CONFIG_DATA:(1:55,1:57)" +
-                "] configurable variable 'test_module:stringVar' is expected to be of type 'string', but found 'int'");
-    }
-
-    @Test
-    public void testMultipleTomlProvidersNegative() {
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, getSimpleVariableKeys(module)));
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                List.of(new TomlFileProvider(getConfigPath("Config_First.toml")),
-                        new TomlFileProvider(getConfigPath("Config_Second.toml"))));
-        configResolver.resolveConfigs();
-        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: value not provided for " +
-                "required configurable variable 'myOrg/test_module:stringVar'");
-    }
-
-    private VariableKey[] getSimpleVariableKeys(Module module) {
-        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
-        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
-        return new VariableKey[]{intVar, stringVar};
     }
 
 }

@@ -29,18 +29,28 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
+import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
+import io.ballerina.runtime.internal.types.BType;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 
 /**
@@ -48,6 +58,7 @@ import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
  */
 public class TomlProviderNegativeTest {
 
+    private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1.0.0");
     private final Module module = new Module("myOrg", "test_module", "1.0.0");
     private final Module subModule = new Module("myOrg", "test_module.util.foo", "1.0.0");
 
@@ -142,37 +153,6 @@ public class TomlProviderNegativeTest {
                 {"ArrayMultiType", "[ArrayMultiType.toml:(2:15,2:21)] configurable variable " +
                         "'test_module:intArr[1]' is expected to be of type 'int', but found 'string'"},
         };
-    }
-
-    @Test()
-    public void testInvalidComplexArray() {
-        ArrayType arrayType =  TypeCreator.createArrayType(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), true);
-        VariableKey intArr = new VariableKey(module, "complexArr",
-                new BIntersectionType(module, new Type[]{arrayType, PredefinedTypes.TYPE_READONLY}, arrayType, 0, true),
-                true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{intArr}));
-        String errorMsg =  "[InvalidComplexArray.toml:(2:14,2:38)] configurable variable 'test_module:complexArr' " +
-                "with type 'int[][] & readonly' is not supported";
-        validateTomlProviderErrors("InvalidComplexArray", errorMsg, configVarMap, 1);
-    }
-
-    @Test()
-    public void testInvalidTableField() {
-        ArrayType arrayType =  TypeCreator.createArrayType(TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), true);
-
-        Field intArr = TypeCreator.createField(arrayType, "invalidField", SymbolFlags.REQUIRED);
-        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
-        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("invalidField", intArr));
-        RecordType type = TypeCreator.createRecordType("Person", module, SymbolFlags.READONLY, fields, null, true, 6);
-        TableType tableType = TypeCreator.createTableType(type, new String[]{"name"}, true);
-        IntersectionType intersectionType = new BIntersectionType(module, new Type[]{tableType,
-                PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
-
-        VariableKey tableVar = new VariableKey(module, "tableVar", intersectionType, true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{tableVar}));
-        String errorMsg = "[InvalidTableField.toml:(3:1,3:40)] field type 'int[][] & readonly' in configurable " +
-                "variable 'test_module:tableVar' is not supported";
-        validateTomlProviderErrors("InvalidTableField", errorMsg, configVarMap, 1);
     }
 
     @Test(dataProvider = "record-negative-tests")
@@ -282,6 +262,42 @@ public class TomlProviderNegativeTest {
         Assert.assertEquals(diagnosticLog.getErrorCount(), errorCount);
         Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: " + errorMsg);
+    }
+
+    @Test
+    public void testTomlProviderWithStringNegative() {
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = getSimpleVariableKeys(module);
+        String tomlContent = "[test_module] intVar = 42.22 floatVar = 3 stringVar = 11";
+        configVarMap.put(module, keys);
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+                                                           List.of(new TomlContentProvider(tomlContent)));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: [BAL_CONFIG_DATA:(1:24,1:29)" +
+                "] configurable variable 'test_module:intVar' is expected to be of type 'int', but found 'float'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(), "error: [BAL_CONFIG_DATA:(1:55,1:57)" +
+                "] configurable variable 'test_module:stringVar' is expected to be of type 'string', but found 'int'");
+    }
+
+    @Test
+    public void testMultipleTomlProvidersNegative() {
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, getSimpleVariableKeys(module)));
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+                                                           List.of(new TomlFileProvider(getConfigPath("Config_First.toml")),
+                                                                   new TomlFileProvider(getConfigPath("Config_Second.toml"))));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: value not provided for " +
+                "required configurable variable 'myOrg/test_module:stringVar'");
+    }
+
+    private VariableKey[] getSimpleVariableKeys(Module module) {
+        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
+        return new VariableKey[]{intVar, stringVar};
     }
 
 }
