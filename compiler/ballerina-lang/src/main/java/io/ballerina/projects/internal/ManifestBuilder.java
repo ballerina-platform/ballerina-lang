@@ -84,7 +84,7 @@ public class ManifestBuilder {
     private static final String AUTHORS = "authors";
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
-    private static final String EXPORTED = "exported";
+    private static final String EXPORT = "export";
 
     private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml, TomlDocument compilerPluginToml,
             Path projectPath) {
@@ -159,7 +159,7 @@ public class ManifestBuilder {
                 license = getStringArrayFromPackageNode(pkgNode, LICENSE);
                 authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
-                exported = getStringArrayFromPackageNode(pkgNode, EXPORTED);
+                exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
                 repository = getStringValueFromPackageNode(pkgNode, REPOSITORY, "");
             }
         }
