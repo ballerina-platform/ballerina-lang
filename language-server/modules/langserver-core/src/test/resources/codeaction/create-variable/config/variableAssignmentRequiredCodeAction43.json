@@ -1,5 +1,5 @@
 {
-  "line": 2,
+  "line": 3,
   "character": 4,
   "expected": [
     {
@@ -8,15 +8,15 @@
         {
           "range": {
             "start": {
-              "line": 2,
+              "line": 3,
               "character": 4
             },
             "end": {
-              "line": 2,
+              "line": 3,
               "character": 4
             }
           },
-          "newText": "object {public isolated function next() returns record {| int value; |}? ;} iterator = "
+          "newText": "record {| int value; |}? next = "
         }
       ]
     }
