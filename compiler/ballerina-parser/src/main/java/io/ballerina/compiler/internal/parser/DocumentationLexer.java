@@ -574,6 +574,10 @@ public class DocumentationLexer extends AbstractLexer {
 
     private STToken readDocInternalToken() {
         reader.mark();
+        if (reader.isEOF()) {
+            return getDocSyntaxToken(SyntaxKind.EOF_TOKEN);
+        }
+
         int nextChar = peek();
         if (nextChar == LexerTerminals.BACKTICK) {
             reader.advance();
