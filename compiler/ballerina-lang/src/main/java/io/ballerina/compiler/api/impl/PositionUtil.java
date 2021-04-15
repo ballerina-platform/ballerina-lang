@@ -41,18 +41,21 @@ class PositionUtil {
         int cursorLine = cursorPos.line();
         int cursorColumn = cursorPos.offset();
 
-        if (cursorLine < startLine || cursorLine > endLine) {
+        // Eliminates the cases where the cursor falls outside of a block
+        // 1) The line the cursor is at is outside of either the starting line or the ending line of the block
+        // 2) If the cursor is at the same line as the starting line, see if the starting column is ahead of the
+        // cursor's column.
+        // 3) If the cursor is at the same line as the ending line, see if the ending column is before the cursor's
+        // column. If the cursor's column is the same as the ending column, it is still considered as outside of the
+        // block.
+        if ((cursorLine < startLine || cursorLine > endLine)
+                || cursorLine == startLine && cursorColumn < startColumn
+                || cursorLine == endLine && cursorColumn >= endColumn) {
             return false;
         }
 
-        if (cursorLine == startLine && cursorColumn < startColumn) {
-            return false;
-        }
-
-        if (cursorLine == endLine && cursorColumn >= endColumn) {
-            return false;
-        }
-
+        // 4) The above scenarios are the only cases where the cursor can be outside the block. Any other location is
+        // within the block.
         return true;
     }
 
