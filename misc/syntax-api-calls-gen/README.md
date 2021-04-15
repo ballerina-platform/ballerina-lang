@@ -7,7 +7,7 @@ useful for anyone who uses the Ballerina syntax API to create source code elemen
 
 ## Generating child names JSON
 
-This project primarily relies on [`syntax_tree_descriptor.json`](src/main/resources/syntax_tree_descriptor.json) file to
+This project primarily relies on [`api_gen_syntax_tree_descriptor.json`](src/main/resources/api_gen_syntax_tree_descriptor.json) file to
 get the names of the children of each node type. If the Syntax API is changed, this file should be updated. Simply copy
 and put this file
 from [`treegen source`](../../compiler/ballerina-treegen/src/main/resources/syntax_tree_descriptor.json).

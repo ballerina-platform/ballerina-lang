@@ -38,7 +38,7 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class SyntaxApiCallsGenConfig {
-    public static final String SYNTAX_TREE_DESCRIPTOR_FILE = "syntax_tree_descriptor.json";
+    public static final String SYNTAX_TREE_DESCRIPTOR_FILE = "api_gen_syntax_tree_descriptor.json";
 
     private final File templateFile;
     private final Formatter formatter;

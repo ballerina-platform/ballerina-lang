@@ -25,7 +25,7 @@ import java.util.Map;
 
 /**
  * Describes the syntax tree format that is expected.
- * This inputs directly from syntax_tree_descriptor file.
+ * This inputs directly from api_gen_syntax_tree_descriptor file.
  *
  * @since 2.0.0
  */
