@@ -1559,11 +1559,11 @@ public class SymbolEnter extends BLangNodeVisitor {
     private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {
         BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
         unionType.isCyclic = true;
-        var typeDefName = names.fromIdNode(typeDef.name);
+        Name typeDefName = names.fromIdNode(typeDef.name);
 
         BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
                 typeDefName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
-                typeDef.pos, SOURCE);
+                typeDef.name.pos, SOURCE);
 
         typeDef.symbol = typeDefSymbol;
         unionType.tsymbol = typeDefSymbol;
