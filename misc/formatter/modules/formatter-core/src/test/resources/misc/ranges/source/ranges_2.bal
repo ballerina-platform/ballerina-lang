@@ -29,7 +29,7 @@ public       function            factorialL        (    int      x   )
                ;
             }
        int           fact         =    1    ;
-    for    var     i      in       1
+    foreach    var     i      in       1
          ...  x       {
         fact   =    fact     *
            i   ;
@@ -44,11 +44,11 @@ function     printValue  (    int      x
 }
 
 public function main() {
-        const
+        int
             n1       =    5       ;
      int      a    =    factorialR  (  n1  )    ;
     printValue(n1, a);
-            const
+            final
         int
              n2
       =

@@ -212,6 +212,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
@@ -365,6 +366,7 @@ public class Desugar extends BLangNodeVisitor {
     private QueryDesugar queryDesugar;
     private TransactionDesugar transactionDesugar;
     private ObservabilityDesugar observabilityDesugar;
+    private Code2CloudDesugar code2CloudDesugar;
     private AnnotationDesugar annotationDesugar;
     private Types types;
     private Names names;
@@ -433,6 +435,7 @@ public class Desugar extends BLangNodeVisitor {
         this.queryDesugar = QueryDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.observabilityDesugar = ObservabilityDesugar.getInstance(context);
+        this.code2CloudDesugar = Code2CloudDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
@@ -735,6 +738,8 @@ public class Desugar extends BLangNodeVisitor {
         }
         observabilityDesugar.addObserveInternalModuleImport(pkgNode);
         observabilityDesugar.addObserveModuleImport(pkgNode);
+
+        code2CloudDesugar.addCode2CloudModuleImport(pkgNode);
 
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.
@@ -6758,6 +6763,14 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         result = xmlElementLiteral;
+    }
+
+    @Override
+    public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
+        for (BLangExpression xmlItem : xmlSequenceLiteral.xmlItems) {
+            rewriteExpr(xmlItem);
+        }
+        result = xmlSequenceLiteral;
     }
 
     @Override

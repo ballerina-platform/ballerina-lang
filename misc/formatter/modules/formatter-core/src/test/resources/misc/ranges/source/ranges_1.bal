@@ -34,7 +34,7 @@ public         class         StringList         {
 
     public            function           init    (      )     {
               StringListNode             node       =      new         StringListNode  (
-                               )
+                               )      ;
              }
       }
 

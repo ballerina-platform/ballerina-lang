@@ -44,6 +44,12 @@ public class ServiceDeclTest {
     }
 
     @Test
+    public void testAttachMethodParams() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/services/service_attach_test.bal");
+        BRunUtil.invoke(compileResult, "testAttachMethodParams");
+    }
+
+    @Test
     public void testServiceDeclAndListenerAttachmentsNegative() {
         CompileResult result = BCompileUtil.compile("test-src/services/service_decl_negative.bal");
         int i = 0;
