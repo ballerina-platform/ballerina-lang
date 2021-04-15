@@ -360,6 +360,7 @@ public class CodeActionTest {
     public void stopServer() {
         try {
             server.stop();
+            Thread.sleep(30000);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
