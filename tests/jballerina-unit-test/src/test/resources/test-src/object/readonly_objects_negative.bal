@@ -75,3 +75,32 @@ service readonly class InvalidReadOnlyServiceClass {
 
     }
 }
+public class Foo {
+    int i = 0;
+
+    public isolated function func() {
+
+    }
+}
+
+public readonly class Bar {
+    int i = 1;
+
+    function func() {
+
+    }
+}
+
+public readonly class Baz {
+    int i = 2;
+
+    public function func() {
+
+    }
+}
+
+Foo & readonly readonlyFoo1 = new Bar();
+
+function testReadOnlyClassIntersectionWithMismatchedQualifiers() {
+    Foo & readonly readonlyFoo1 = new Baz();
+}
