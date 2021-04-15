@@ -309,7 +309,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), visit(type.detailType));
+        Integer hash = hash(baseHash(type), type.typeIdSet, visit(type.detailType));
         return addToVisited(type, hash);
     }
 
@@ -463,7 +463,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         final int initFunctionHash = getFunctionHash(((BObjectTypeSymbol) type.tsymbol).initializerFunc);
         List<Integer> attachedFunctionsHashes = getFunctionsHashes(((BObjectTypeSymbol) type.tsymbol).attachedFuncs);
         Integer hash = hash(baseHash(type), fieldsHashes, typeInclHashes, initFunctionHash,
-                attachedFunctionsHashes, type.typeIdSet.hashCode());
+                attachedFunctionsHashes, type.typeIdSet);
         return addToVisited(type, hash);
     }
 
