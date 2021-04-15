@@ -1960,8 +1960,10 @@ public class NodeCloner extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        // Ignore
+    public void visit(BLangXMLSequenceLiteral source) {
+        BLangXMLSequenceLiteral clone = new BLangXMLSequenceLiteral();
+        source.cloneRef = clone;
+        clone.xmlItems = cloneList(source.xmlItems);
     }
 
     @Override

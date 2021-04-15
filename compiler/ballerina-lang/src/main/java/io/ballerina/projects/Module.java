@@ -19,10 +19,12 @@ package io.ballerina.projects;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.Spliterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
@@ -264,16 +266,54 @@ public class Module {
 
         private Module createNewModule(Map<DocumentId, DocumentContext> srcDocContextMap, Map<DocumentId,
                 DocumentContext> testDocContextMap) {
+            Set<ModuleContext> moduleContextSet = new HashSet<>();
             ModuleContext newModuleContext = new ModuleContext(this.project,
                     this.moduleId, this.moduleDescriptor, this.isDefaultModule, srcDocContextMap,
                     testDocContextMap, this.moduleMdContext, this.dependencies);
-            Package newPackage = this.packageInstance.modify().updateModule(newModuleContext).apply();
+            moduleContextSet.add(newModuleContext);
+
+            // add dependant modules including transitives
+            Collection<ModuleId> dependants = getAllDependants(this.moduleId);
+            for (ModuleId dependantId : dependants) {
+                if (dependantId.equals(this.moduleId)) {
+                    continue;
+                }
+                Modifier module = this.packageInstance.module(dependantId).modify();
+                moduleContextSet.add(new ModuleContext(this.project,
+                        dependantId, module.moduleDescriptor, module.isDefaultModule, module.srcDocContextMap,
+                        module.testDocContextMap, module.moduleMdContext, module.dependencies));
+            }
+
+            Package newPackage = this.packageInstance.modify().updateModules(moduleContextSet).apply();
             return newPackage.module(this.moduleId);
         }
 
         Modifier updateModuleMd(MdDocumentContext moduleMd) {
             this.moduleMdContext = moduleMd;
             return this;
+        }
+
+        private Collection<ModuleId> getAllDependants(ModuleId updatedModuleId) {
+            packageInstance.getResolution(); // this will build the dependency graph if it is not built yet
+            return getAllDependants(updatedModuleId, new HashSet<>(), new HashSet<>());
+        }
+
+        private Collection<ModuleId> getAllDependants(
+                ModuleId updatedModuleId, HashSet<ModuleId> visited, HashSet<ModuleId> dependants) {
+            if (!visited.contains(updatedModuleId)) {
+                visited.add(updatedModuleId);
+                Collection<ModuleId> directDependents = this.project.currentPackage()
+                        .moduleDependencyGraph().getDirectDependents(updatedModuleId);
+                if (directDependents.size() > 0) {
+                    dependants.addAll(directDependents);
+                    for (ModuleId directDependent : directDependents) {
+                        getAllDependants(directDependent, visited, dependants);
+                    }
+
+                }
+            }
+
+            return dependants;
         }
     }
 }

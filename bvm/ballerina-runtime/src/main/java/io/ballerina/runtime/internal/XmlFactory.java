@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
@@ -282,6 +283,49 @@ public class XmlFactory {
         return createXMLElement(startTagName,
                                 defaultNsUriVal == null ? XMLConstants.NULL_NS_URI : defaultNsUriVal.getValue(),
                                 readonly);
+    }
+
+    /**
+     * Create an empty xml sequence.
+     *
+     * @return xml sequence
+     */
+    public static XmlSequence createXmlSequence() {
+        return new XmlSequence();
+    }
+
+    /**
+     * Create a {@code XMLSequence} from a {@link org.apache.axiom.om.OMNode} object.
+     *
+     * @param sequence xml sequence array
+     * @return xml sequence
+     */
+    public static XmlSequence createXmlSequence(BArray sequence) {
+        List<BXml> children = new ArrayList<>();
+        for (Object value : sequence.getValues()) {
+            children.add((BXml) value);
+        }
+        return new XmlSequence(children);
+    }
+
+    /**
+     * Create a {@code XMLSequence} from a {@link org.apache.axiom.om.OMNode} object.
+     *
+     * @param sequence xml sequence array
+     * @return xml sequence
+     */
+    public static XmlSequence createXmlSequence(List<BXml> sequence) {
+        return new XmlSequence(sequence);
+    }
+
+    /**
+     * Create a {@code XMLSequence} from a {@link org.apache.axiom.om.OMNode} object.
+     *
+     * @param child xml content
+     * @return xml sequence
+     */
+    public static XmlSequence createXmlSequence(BXml child) {
+        return new XmlSequence(child);
     }
 
     /**

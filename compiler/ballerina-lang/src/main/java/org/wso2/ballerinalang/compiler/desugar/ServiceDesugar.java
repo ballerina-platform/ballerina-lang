@@ -43,6 +43,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangCheckedExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangStatementExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
@@ -76,6 +77,7 @@ public class ServiceDesugar {
     private static final String GRACEFUL_STOP = "gracefulStop";
     private static final String ATTACH_METHOD = "attach";
     private static final String LISTENER = "$LISTENER";
+    private static final String ROOT_RESOURCE_PATH = "/";
 
     private final SymbolTable symTable;
     private final SymbolResolver symResolver;
@@ -205,14 +207,23 @@ public class ServiceDesugar {
             args.add(ASTBuilderUtil.createVariableRef(pos, service.serviceVariable.symbol));
 
             if (service.getServiceNameLiteral() == null) {
-                BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
-                        ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
-                for (IdentifierNode path : service.getAbsolutePath()) {
-                    var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType,
-                            path.getValue());
-                    arrayLiteral.exprs.add(literal);
+                if (service.getAbsolutePath().isEmpty()) {
+                    BLangLiteral nilLiteral = ASTBuilderUtil.createLiteral(service.getPosition(),
+                            symTable.nilType, null);
+                    args.add(nilLiteral);
+                } else {
+                    BLangListConstructorExpr.BLangArrayLiteral arrayLiteral =
+                            ASTBuilderUtil.createEmptyArrayLiteral(service.getPosition(), symTable.arrayStringType);
+                    List<IdentifierNode> pathNodes = service.getAbsolutePath();
+                    if (!(pathNodes.size() == 1 && pathNodes.get(0).getValue().trim().equals(ROOT_RESOURCE_PATH))) {
+                        for (IdentifierNode path : pathNodes) {
+                            var literal = ASTBuilderUtil.createLiteral(path.getPosition(), symTable.stringType,
+                                    path.getValue());
+                            arrayLiteral.exprs.add(literal);
+                        }
+                    }
+                    args.add(arrayLiteral);
                 }
-                args.add(arrayLiteral);
             } else {
                 args.add((BLangExpression) service.getServiceNameLiteral());
             }
