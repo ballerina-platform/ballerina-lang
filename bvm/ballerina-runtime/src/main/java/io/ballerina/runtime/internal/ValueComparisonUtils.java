@@ -19,8 +19,10 @@
 package io.ballerina.runtime.internal;
 
 import io.ballerina.runtime.api.TypeTags;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.TupleValueImpl;
 
@@ -193,7 +195,8 @@ public class ValueComparisonUtils {
                 return 0;
             }
             if (inRelationalExpr) {
-                throw ErrorUtils.createUnorderedTypesError(TYPE_NULL, rhsValue);
+                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.UNORDERED_TYPES_IN_COMPARISON, TYPE_NULL, rhsValue);
             }
             if (isAscending) {
                 return 1;
@@ -202,7 +205,8 @@ public class ValueComparisonUtils {
         }
         if (rhsValue == null) {
             if (inRelationalExpr) {
-                throw ErrorUtils.createUnorderedTypesError(lhsValue, TYPE_NULL);
+                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.UNORDERED_TYPES_IN_COMPARISON, lhsValue, TYPE_NULL);
             }
             if (isAscending) {
                 return -1;
@@ -239,7 +243,8 @@ public class ValueComparisonUtils {
             }
         }
 
-        throw ErrorUtils.createOperationNotSupportedError(TypeChecker.getType(lhsValue),
+        throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                RuntimeErrorType.UNSUPPORTED_COMPARISON_OPERATION, TypeChecker.getType(lhsValue),
                 TypeChecker.getType(rhsValue));
     }
 
@@ -271,7 +276,8 @@ public class ValueComparisonUtils {
         // CompareA(x, y) and CompareD(x, y).
         if (Double.isNaN(lhsValue)) {
             if (inRelationalExpr) {
-                throw ErrorUtils.createUnorderedTypesError(lhsValue, rhsValue);
+                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue);
             }
             if (Double.isNaN(rhsValue)) {
                 return 0;
@@ -283,7 +289,8 @@ public class ValueComparisonUtils {
         }
         if (Double.isNaN(rhsValue)) {
             if (inRelationalExpr) {
-                throw ErrorUtils.createUnorderedTypesError(lhsValue, rhsValue);
+                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                        RuntimeErrorType.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue);
             }
             if (isAscending) {
                 return -1;

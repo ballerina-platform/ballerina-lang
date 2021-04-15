@@ -62,10 +62,21 @@ public type IllegalListInsertion distinct error;
 // KeyNotFoundError
 public type KeyNotFound distinct error;
 
-// InvalidUpdate
+// InvalidUpdateError
 public type InvalidUpdate distinct error;
 public type InvalidReadonlyValueUpdate distinct InvalidUpdate;
 public type InvalidFinalFieldUpdate distinct InvalidUpdate;
 
-// JSONOperationError
+// OperationNotSupportedError
+public type OperationNotSupported distinct error;
+public type UnsupportedComparisonOperation distinct OperationNotSupported;
+
+// UnorderedTypesError
+public type UnorderedTypes distinct error;
+
+// IteratorMutabilityError
+public type IteratorMutabilityError distinct error;
+
+// JsonOperationError
 public type JSONOperationError distinct error;
+public type JSONConversionError distinct JSONOperationError;

@@ -16,6 +16,7 @@
 
 import ballerina/lang.'value as value;
 import ballerina/lang.'runtime as runtime;
+import ballerina/lang.'typedesc;
 
 type Address record {
     string country;
@@ -275,7 +276,7 @@ function testNonNilNonMappingJsonMerge() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE] === "Cannot merge JSON values of types 'float' and 'json[]'";
+        mj.detail()[MESSAGE] === "cannot merge JSON values of types 'float' and 'json[]'";
 }
 
 function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
@@ -284,7 +285,7 @@ function testMappingJsonAndNonMappingJsonMerge1() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE] === "Cannot merge JSON values of types 'map<json>' and 'string'";
+        mj.detail()[MESSAGE] === "cannot merge JSON values of types 'map<json>' and 'string'";
 }
 
 function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
@@ -293,7 +294,7 @@ function testMappingJsonAndNonMappingJsonMerge2() returns boolean {
 
     json|error mj = j1.mergeJson(j2);
     return mj is error && mj.message() == MERGE_JSON_ERROR_REASON &&
-        mj.detail()[MESSAGE] === "Cannot merge JSON values of types 'map<json>' and 'json[]'";
+        mj.detail()[MESSAGE] === "cannot merge JSON values of types 'map<json>' and 'json[]'";
 }
 
 function testMappingJsonNoIntersectionMergeSuccess() returns boolean {
@@ -327,7 +328,7 @@ function testMappingJsonWithIntersectionMergeFailure1() returns boolean {
     error err = <error> mj;
     error cause = <error> err.detail()["cause"];
     return cause.message() == MERGE_JSON_ERROR_REASON &&
-            cause.detail()[MESSAGE] === "Cannot merge JSON values of types 'string' and 'int'" &&
+            cause.detail()[MESSAGE] === "cannot merge JSON values of types 'string' and 'int'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
@@ -348,7 +349,7 @@ function testMappingJsonWithIntersectionMergeFailure2() returns boolean {
     error err = <error> mj;
     error cause = <error> err.detail()["cause"];
     return cause.message() == MERGE_JSON_ERROR_REASON &&
-            cause.detail()[MESSAGE] === "Cannot merge JSON values of types 'map<json>' and 'boolean'" &&
+            cause.detail()[MESSAGE] === "cannot merge JSON values of types 'map<json>' and 'boolean'" &&
             j1 == j1Clone && j2 == j2Clone;
 }
 
@@ -389,7 +390,7 @@ function testMergeJsonFailureForValuesWithIntersectingCyclicRefererences() retur
         return false;
     } else {
         error? cause = <error?>result.detail()["cause"]; // incompatible types: '(anydata|readonly)' cannot be cast to 'error?'
-        if (cause is () || cause.detail()["message"] !== "Cannot merge JSON values with cyclic references") {
+        if (cause is () || cause.detail()["message"] !== "cannot merge JSON values with cyclic references") {
             return false;
         }
     }
@@ -581,7 +582,14 @@ function testCloneWithTypeAmbiguousTargetType() {
     error bbe = <error> bb;
     var message = bbe.detail()["message"];
     string messageString = message is error? message.toString(): message.toString();
-    assert(bbe.message(), "{ballerina/lang.typedesc}ConversionError");
+    assert(bbe.message(), "{ballerina/lang.typedesc}IncompatibleConvertOperation");
+    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
+
+    assert(bb is 'typedesc:IncompatibleConvertOperation, true);
+    'typedesc:IncompatibleConvertOperation err = <'typedesc:IncompatibleConvertOperation> bb;
+    message = err.detail()["message"];
+    messageString = message is error? message.toString(): message.toString();
+    assert(err.message(), "{ballerina/lang.typedesc}IncompatibleConvertOperation");
     assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
 }
 
@@ -744,8 +752,14 @@ function testCloneWithTypeWithInferredArgument() {
    err = <error>j;
    message = err.detail()["message"];
    messageString = message is error ? message.toString() : message.toString();
-   assert(err.message(), "{ballerina/lang.typedesc}ConversionError");
+   assert(err.message(), "{ballerina/lang.typedesc}IncompatibleConvertOperation");
    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
+
+   'typedesc:IncompatibleConvertOperation err2 = <'typedesc:IncompatibleConvertOperation> j;
+    message = err2.detail()["message"];
+    messageString = message is error ? message.toString() : message.toString();
+    assert(err2.message(), "{ballerina/lang.typedesc}IncompatibleConvertOperation");
+    assert(messageString, "'Foo' value cannot be converted to '(Bar|Baz)': ambiguous target type");
 
    anydata k = ();
    string|error? l = k.cloneWithType();

@@ -41,7 +41,7 @@ function assert(boolean|error expected, boolean|error actual) {
 isolated function isEqual(anydata|error actual, anydata|error expected) returns boolean {
     if (actual is anydata && expected is anydata) {
         return (actual == expected);
-    } if (actual is error && expected is error) {
+    } if (actual is 'boolean:BooleanParsingError && expected is 'boolean:BooleanParsingError) {
         var actualMessage = actual.detail()["message"];
         var expectedMessage = expected.detail()["message"];
         if (actualMessage is anydata && expectedMessage is anydata) {

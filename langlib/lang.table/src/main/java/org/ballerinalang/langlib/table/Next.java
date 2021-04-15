@@ -18,22 +18,21 @@
 
 package org.ballerinalang.langlib.table;
 
-import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BIterator;
 import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
+import io.ballerina.runtime.internal.ErrorUtils;
 import io.ballerina.runtime.internal.TypeChecker;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.ITERATOR_MUTABILITY_ERROR;
 
 /**
  * Native implementation of lang.table.TableIterator:next().
@@ -42,8 +41,6 @@ import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReason
  */
 public class Next {
 
-    private static final BString MUTATED_TABLE_ERROR_DETAIL =  StringUtils.fromString("Table was mutated after the " +
-                                                                                               "iterator was created");
     //TODO: refactor hard coded values
     public static Object next(BObject t) {
         BIterator tableIterator = (BIterator) t.getNativeData("&iterator&");
@@ -75,7 +72,8 @@ public class Next {
         if (initialSize < table.size() ||
                 // Key-less situation, mutation can occur only by calling add() or removeAll()
                 (initialSize > 0 && table.size() == 0)) {
-            throw ErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TABLE_PKG_ID,
+                    RuntimeErrorType.TABLE_ITERATOR_MUTABILITY_ERROR);
         }
 
         if (keys.isEmpty()) {
@@ -97,7 +95,8 @@ public class Next {
         }
 
         if (!TypeChecker.isEqual(currentKeyArray, keys)) {
-            throw ErrorCreator.createError(ITERATOR_MUTABILITY_ERROR, MUTATED_TABLE_ERROR_DETAIL);
+            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TABLE_PKG_ID,
+                    RuntimeErrorType.TABLE_ITERATOR_MUTABILITY_ERROR);
         }
 
         keys.shift();

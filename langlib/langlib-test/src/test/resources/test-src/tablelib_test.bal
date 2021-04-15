@@ -14,6 +14,9 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.runtime;
+import ballerina/lang.'table;
+
 type Person record {
   readonly string name;
   int age;
@@ -142,6 +145,30 @@ function testAddNewRecordAfterIteratorCreation() {
     Person p = { name: "Lasini", age: 25 };
     tab.put(p);
     var value = itr.next();
+}
+
+function testTableMutationAfterIteratorCreated() {
+    table<Employee> key(name) tab = table [
+        { name: "John", department: "IT"},
+        { name: "Kamal", department: "Marketing"},
+        { name: "Joe", department: "Instrumentation and Support"}
+    ];
+
+    var itr = tab.iterator();
+    Employee p = { name: "Daniel", department: "IT"};
+    tab.put(p);
+    var value = trap itr.next();
+    error err = <error> value;
+
+    assertEquals(true, err is runtime:IteratorMutabilityError);
+
+    assertEquals(true, err is 'table:TableIteratorMutabilityError);
+    if (err is 'table:TableIteratorMutabilityError) {
+        assertEquals("{ballerina/lang.table}TableIteratorMutabilityError", err.message());
+        var message = err.detail()["message"];
+        string detailMessage = message is error? message.toString() : message.toString();
+        assertEquals("table has been mutated after the iterator created", detailMessage);
+    }
 }
 
 function testRemoveAlreadyReturnedRecordFromIterator() returns boolean {
@@ -574,6 +601,8 @@ function testPutWithKeylessTableAfterIteratorCreation() {
     var value = itr.next();
 }
 
+
+
 function testAddWithKeylessTableAfterIteratorCreation() {
     CustomerKeyLessTable custTbl = table [
       { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
@@ -584,6 +613,30 @@ function testAddWithKeylessTableAfterIteratorCreation() {
     Customer customer = { id: 3, firstName: "Jane", lastName: "Eyre"};
     custTbl.add(customer);
     var value = itr.next();
+}
+
+function testMutateWithKeylessTableAfterIteratorCreation() {
+    CustomerKeyLessTable custTbl = table [
+        { id: 1, firstName: "Sanjiva", lastName: "Weerawarana" },
+        { id: 2, firstName: "James", lastName: "Clark" }
+    ];
+
+    var itr = custTbl.iterator();
+    Customer customer = { id: 3, firstName: "Jane", lastName: "Eyre"};
+    custTbl.add(customer);
+    var value = trap itr.next();
+
+    error err = <error> value;
+
+    assertEquals(true, err is runtime:IteratorMutabilityError);
+
+    assertEquals(true, err is 'table:TableIteratorMutabilityError);
+    if (err is 'table:TableIteratorMutabilityError) {
+        assertEquals("{ballerina/lang.table}TableIteratorMutabilityError", err.message());
+        var message = err.detail()["message"];
+        string detailMessage = message is error? message.toString() : message.toString();
+        assertEquals("table has been mutated after the iterator created", detailMessage);
+    }
 }
 
 function testRemoveAllReturnedRecordsFromIteratorKeylessTbl() {

@@ -21,15 +21,12 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
@@ -130,16 +127,6 @@ public class ErrorUtils {
 
     public static BError getRuntimeError(Module module, RuntimeErrorType errorType, Object... params) {
         return createRuntimeError(module, errorType, getErrorDetail(getErrorMessage(errorType, params)));
-    }
-
-    public static BError createOperationNotSupportedError(Type lhsType, Type rhsType) {
-        throw createError(BallerinaErrorReasons.OPERATION_NOT_SUPPORTED_ERROR, BLangExceptionHelper.getErrorMessage(
-                RuntimeErrors.UNSUPPORTED_COMPARISON_OPERATION, lhsType, rhsType));
-    }
-
-    public static BError createUnorderedTypesError(Object lhsValue, Object rhsValue) {
-        throw createError(BallerinaErrorReasons.UNORDERED_TYPES_ERROR, BLangExceptionHelper.getErrorMessage(
-                RuntimeErrors.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue));
     }
 
     public static BString getErrorMessage(RuntimeErrorType runtimeErrors, Object... params) {

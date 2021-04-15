@@ -59,6 +59,7 @@ import java.util.stream.Collectors;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_MAP_PKG_ID;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_LANG_VALUE_PKG_ID;
 
 /**
  * Common utility methods used for JSON manipulation.
@@ -432,16 +433,14 @@ public class JsonUtils {
         Type j2Type = TypeChecker.getType(j2);
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
-            return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                            StringUtils.fromString("Cannot merge JSON values of types '" +
-                                                                            j1Type + "' and '" + j2Type + "'"));
+            return ErrorUtils.getRuntimeError(BALLERINA_LANG_VALUE_PKG_ID,
+                    RuntimeErrorType.MERGE_JSON_ERROR, j1Type, j2Type);
         }
 
         ObjectPair currentPair = new ObjectPair(j1, j2);
         if (visitedPairs.contains(currentPair)) {
-            return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                            StringUtils
-                                                     .fromString("Cannot merge JSON values with cyclic references"));
+            return ErrorUtils.getRuntimeError(BALLERINA_LANG_VALUE_PKG_ID,
+                    RuntimeErrorType.MERGE_JSON_WITH_CYCLIC_REFERENCE);
         }
         visitedPairs.add(currentPair);
 
@@ -486,9 +485,8 @@ public class JsonUtils {
             Type j2Type = TypeChecker.getType(j2);
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
-                return ErrorCreator.createError(BallerinaErrorReasons.MERGE_JSON_ERROR,
-                                                StringUtils.fromString("Cannot merge JSON values of types '" +
-                                                                                j1Type + "' and '" + j2Type + "'"));
+                return ErrorUtils.getRuntimeError(BALLERINA_LANG_VALUE_PKG_ID,
+                        RuntimeErrorType.MERGE_JSON_ERROR, j1Type, j2Type);
             }
         }
 

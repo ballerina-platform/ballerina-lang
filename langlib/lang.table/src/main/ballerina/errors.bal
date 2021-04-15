@@ -11,3 +11,6 @@ public type TableKeyConstraintViolation distinct runtime_error:KeyConstraintViol
 
 // ConversionError
 public type CyclicValueReference distinct runtime_error:ConversionError;
+
+// IteratorMutabilityError
+public type TableIteratorMutabilityError distinct runtime_error:IteratorMutabilityError;

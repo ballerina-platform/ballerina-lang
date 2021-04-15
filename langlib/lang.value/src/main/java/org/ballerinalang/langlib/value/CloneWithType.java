@@ -43,7 +43,6 @@ import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.scheduling.Scheduler;
 import io.ballerina.runtime.internal.scheduling.Strand;
-import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 
@@ -53,8 +52,6 @@ import java.util.List;
 import java.util.Map;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
-import static io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons.CONSTRUCT_FROM_CONVERSION_ERROR;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.INCOMPATIBLE_CONVERT_OPERATION;
 
 /**
  * Extern function lang.values:cloneWithType.
@@ -293,11 +290,14 @@ public class CloneWithType {
                 RuntimeErrorType.INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType);
     }
 
-    private static BError createConversionError(Object inputValue, Type targetType, String detailMessage) {
-        return createError(CONSTRUCT_FROM_CONVERSION_ERROR,
-                           BLangExceptionHelper.getErrorMessage(INCOMPATIBLE_CONVERT_OPERATION,
-                                                                TypeChecker.getType(inputValue), targetType)
-                                   .concat(StringUtils.fromString(": ".concat(detailMessage))));
+    private static BError createConversionError(Object inputValue, Type targetType, String message) {
+        BString detailMessage = ErrorUtils.getErrorMessage(RuntimeErrorType.INCOMPATIBLE_CONVERT_OPERATION,
+                TypeChecker.getType(inputValue), targetType).concat(StringUtils.fromString(": ".concat(message)));
+        return createError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+                RuntimeErrorType.INCOMPATIBLE_CONVERT_OPERATION.getErrorName(),
+                ErrorUtils.getModulePrefixedErrorName(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+                        RuntimeErrorType.INCOMPATIBLE_CONVERT_OPERATION), null,
+                ErrorUtils.getErrorDetail(detailMessage));
     }
 
 }

@@ -13,4 +13,3 @@ public type JsonGetError distinct runtime_error:InherentTypeViolation;
 
 // InvalidUpdate
 public type InvalidReadonlyFieldUpdate distinct runtime_error:InvalidUpdate;
-
