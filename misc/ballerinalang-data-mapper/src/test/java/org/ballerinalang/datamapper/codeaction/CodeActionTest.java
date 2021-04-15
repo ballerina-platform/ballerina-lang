@@ -323,6 +323,8 @@ public class CodeActionTest {
 
     public void checkAssertion(String config, String source) throws Exception {
 
+        JsonArray editTemp = null;
+
         // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -345,22 +347,26 @@ public class CodeActionTest {
             JsonArray edit = editText.getAsJsonObject().get("documentChanges")
                     .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
             boolean editsMatched = expectedResponse.get("edits").getAsJsonArray().equals(edit);
+            editTemp = edit;
             if (right.getAsJsonObject().get("title").getAsString().equals(title) && editsMatched) {
                 codeActionFound = true;
                 numberOfDataMappingCodeAction = numberOfDataMappingCodeAction + 1;
             }
+            log.error("expected response : " , expectedResponse.get("edits").getAsJsonArray());
+            log.error("actual response : " , edit);
         }
         if (codeActionFound && numberOfDataMappingCodeAction == 1) {
             codeActionFoundOnlyOnce = true;
         }
         Assert.assertTrue(
-                codeActionFoundOnlyOnce, "Cannot find expected Code Action for: " + title);
+                codeActionFoundOnlyOnce, "Cannot find expected Code Action for: " + title +
+                        "\n expected response : " + expectedResponse.get("edits").getAsJsonArray() +
+                        "\n actual response : " + editTemp);
     }
 
     public void stopServer() {
         try {
             server.stop();
-            Thread.sleep(30000);
         } catch (Exception e) {
             log.error(e.getMessage());
         }
