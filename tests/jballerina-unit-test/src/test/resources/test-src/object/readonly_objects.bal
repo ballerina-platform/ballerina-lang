@@ -17,14 +17,6 @@
 const OBJECT_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.object}InherentTypeViolation";
 const MAPPING_INHERENT_TYPE_VIOLATION_REASON = "{ballerina/lang.map}InherentTypeViolation";
 
-function testReadonlyObjects() {
-    testBasicReadOnlyObject();
-    testInvalidReadOnlyObjectUpdateAtRuntime();
-    testReadOnlyObjectsForImmutableIntersections1();
-    testReadOnlyObjectsForImmutableIntersections2();
-    testReadOnlyServiceClass();
-}
-
 type Details record {|
     string name;
     int yob;
@@ -236,6 +228,81 @@ function testReadOnlyServiceClass() {
     err = <error> res;
     assertEquality(OBJECT_INHERENT_TYPE_VIOLATION_REASON, err.message());
     assertEquality("modification not allowed on readonly value", err.detail()["message"]);
+}
+
+public class Foo {
+    int i = 0;
+
+    public isolated function func() {
+
+    }
+}
+
+public readonly class Bar {
+    int i = 1;
+
+    function func() {
+
+    }
+}
+
+public readonly class Baz {
+    int i = 2;
+
+    public function func() {
+
+    }
+}
+
+Bar bar = new Bar();
+
+function testReadOnlyClassIntersectionWithMismatchedQualifiersRuntimeNegative() {
+    Baz baz = new;
+    assertFalse(<any> bar is Foo & readonly);
+    assertFalse(<any> baz is Foo & readonly);
+}
+
+public readonly class Qux {
+    int bits;
+
+    isolated function init(int bits) {
+        self.bits = bits;
+    }
+
+    public isolated function isEmpty() returns boolean {
+        return self.bits == 0;
+    }
+}
+
+readonly class Quux {
+    Qux t;
+
+    function init(Qux t) {
+        self.t = t;
+    }
+
+    function getQuxBits() returns int {
+        return getBits(self.t);
+    }
+}
+
+public readonly class Corge {
+    int bits = 9876;
+
+    public isolated function isEmpty() returns boolean => false;
+}
+
+isolated function getBits(Qux t) returns int {
+    return t.bits;
+}
+
+public function testReadOnlyClassIntersectionWithValidQualifiers() {
+    Quux quux = new (new (1234));
+    assertEquality(1234, quux.getQuxBits());
+
+    Qux & readonly qux = new Corge();
+    assertEquality(9876, getBits(qux));
+    assertEquality(9876, getBits(new Corge()));
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";
