@@ -230,6 +230,7 @@ public class XMLAccessTest {
     @Test
     public void testXMLAccessWithIndex() {
         BRunUtil.invoke(result, "testXMLAccessWithIndex");
+        BRunUtil.invoke(result, "testXMLSequenceAccessWithIndex");
     }
 
     @Test
