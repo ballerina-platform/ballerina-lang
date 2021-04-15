@@ -109,16 +109,15 @@ public class TesterinaFunction {
                 } catch (InvocationTargetException e) {
                     return e.getTargetException();
                 } catch (IllegalAccessException e) {
-                    throw new BallerinaTestException("Error while invoking function '" + funcName + "'", e);
+                    return new BallerinaTestException("Error while invoking function '" + funcName + "'", e);
                 }
             };
             final BFuture out = scheduler.schedule(params, func, null, null, null, PredefinedTypes.TYPE_ANY,
                                                    null, null);
             scheduler.start();
             final Throwable t = out.getPanic();
-            final Object result = out.getResult();
             if (t != null) {
-                throw new BallerinaTestException("Error while invoking function '" + funcName + "'", t.getMessage());
+                return new BallerinaTestException("Error while invoking function '" + funcName + "'", t.getMessage());
             }
             return out.getResult();
         } catch (NoSuchMethodException e) {

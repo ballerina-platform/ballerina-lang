@@ -18,7 +18,6 @@
 package org.ballerinalang.test.runtime.util;
 
 import io.ballerina.runtime.api.utils.IdentifierUtils;
-import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.test.runtime.BTestRunner;
 import org.ballerinalang.test.runtime.entity.Test;
 import org.ballerinalang.test.runtime.entity.TestSuite;
@@ -93,7 +92,6 @@ public class TesterinaUtils {
             }
         } catch (BallerinaTestException e) {
             errStream.println("error: " + e.getMessage());
-            RuntimeUtils.silentlyLogBadSad(e);
             throw e;
         } catch (Throwable e) {
             throw new RuntimeException("test execution failed due to runtime exception");
@@ -298,7 +296,6 @@ public class TesterinaUtils {
         }
         sb.append("\n\nCheck ballerina-internal log for more details");
         return sb.toString();
-
     }
 
     private static void printStackElement(StringBuilder sb, StackTraceElement stackTraceElement, String tab) {
