@@ -373,6 +373,14 @@ function testValidNeverReturnFuncAssignment() {
     assertEquality("Bad Sad!!", err.message());
 }
 
+function testValidNeverReturnFuncAssignment2() {
+    function () returns never x = bar;
+}
+
+function bar() returns record {| never x; |} {
+    panic error("error!");
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

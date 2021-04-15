@@ -552,6 +552,10 @@ public class TypeChecker {
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
+        if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(sourceType)) {
+            return true;
+        }
+
         // First check whether both types are the same.
         if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
             return true;
@@ -651,6 +655,10 @@ public class TypeChecker {
                                       List<TypePair> unresolvedTypes) {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
+
+        if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(sourceType)) {
+            return true;
+        }
 
         // If the source type is neither a record type nor an object type, check `is` type by looking only at the types.
         // Else, since records and objects may have `readonly` or `final` fields, need to use the value also.
@@ -1916,6 +1924,33 @@ public class TypeChecker {
         return expType == actualType;
     }
 
+    private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
+        switch (type.getTag()) {
+            case TypeTags.NEVER_TAG:
+                return true;
+            case TypeTags.RECORD_TYPE_TAG:
+                for (Field field : ((BRecordType) type).getFields().values()) {
+                    // skip check for fields with self referencing type and not required fields.
+                    if (!isSameType(type, field.getFieldType()) && !SymbolFlags.isFlagOn(field.getFlags(),
+                            SymbolFlags.REQUIRED) &&
+                            checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(field.getFieldType())) {
+                        return true;
+                    }
+                }
+                return false;
+            case TypeTags.TUPLE_TAG:
+                BTupleType tupleType = (BTupleType) type;
+                List<Type> tupleTypes = tupleType.getTupleTypes();
+                for (Type mem : tupleTypes) {
+                    if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(mem)) {
+                        return true;
+                    }
+                }
+                return false;
+            default:
+                return false;
+        }
+    }
 
     /**
      * Check whether a given value confirms to a given type. First it checks if the type of the value, and

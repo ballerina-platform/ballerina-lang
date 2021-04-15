@@ -645,6 +645,10 @@ public class Types {
         int sourceTag = source.tag;
         int targetTag = target.tag;
 
+        if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source)) {
+            return true;
+        }
+
         if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
                 !isInherentlyImmutableType(target) && Symbols.isFlagOn(target.flags, Flags.READONLY) &&
                 !isInherentlyImmutableType(source) && isMutable(source)) {
@@ -681,11 +685,6 @@ public class Types {
             return isErrorTypeAssignable((BErrorType) source, (BErrorType) target, unresolvedTypes);
         } else if (sourceTag == TypeTags.ERROR && targetTag == TypeTags.ANY) {
             return false;
-        }
-
-        if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source) &&
-                isNeverTypeOrStructureTypeWithARequiredNeverMember(target)) {
-            return true;
         }
 
         if (sourceTag == TypeTags.NIL && (isNullable(target) || targetTag == TypeTags.JSON)) {
