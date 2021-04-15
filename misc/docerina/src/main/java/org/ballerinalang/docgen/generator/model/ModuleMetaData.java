@@ -13,26 +13,24 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
 /**
- * Represents ballerina builtin types.
+ * Represents Module Metadata.
  *
  * @since 2.0.0
  */
-public class BuiltInType {
+public class ModuleMetaData {
     @Expose
-    public String name = "";
+    public String id = "";
+    @Expose
+    public String summary;
     @Expose
     public String description;
     @Expose
-    public DocPackageMetadata langlib;
-
-    public BuiltInType(String name, String description) {
-        this.name = name;
-        this.description = description;
-    }
+    public String orgName;
+    @Expose
+    public String version;
 }
