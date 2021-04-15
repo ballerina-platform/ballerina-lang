@@ -18,9 +18,11 @@
 
 //----------------------------Map Stamp Negative Test Cases-------------------------------------------------------------
 
+type XmlType xml;
+
 function stampMapToXML() returns xml|error {
     map<anydata> m = { "firstName": "mohan", "lastName": "raj" };
-    xml|error xmlValue = m.cloneWithType(xml);
+    xml|error xmlValue = m.cloneWithType(XmlType);
 
     return xmlValue;
 }

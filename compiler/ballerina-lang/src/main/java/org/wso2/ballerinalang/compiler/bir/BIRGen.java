@@ -151,6 +151,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
@@ -2176,6 +2177,22 @@ public class BIRGen extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
+        BIRVariableDcl tempVarDcl = new BIRVariableDcl(xmlSequenceLiteral.type, this.env.nextLocalVarId(names),
+                VarScope.FUNCTION, VarKind.TEMP);
+
+        this.env.enclFunc.localVars.add(tempVarDcl);
+        BIROperand toVarRef = new BIROperand(tempVarDcl);
+
+        BIRNonTerminator.NewXMLSequence newXMLSequence =
+                new BIRNonTerminator.NewXMLSequence(xmlSequenceLiteral.pos, toVarRef);
+
+        setScopeAndEmit(newXMLSequence);
+        populateXMLSequence(xmlSequenceLiteral, toVarRef);
+        this.env.targetOperand = toVarRef;
+    }
+
+    @Override
     public void visit(BLangXMLTextLiteral xmlTextLiteral) {
         BIRVariableDcl tempVarDcl = new BIRVariableDcl(xmlTextLiteral.type, this.env.nextLocalVarId(names),
                 VarScope.FUNCTION, VarKind.TEMP);
@@ -2718,6 +2735,15 @@ public class BIRGen extends BLangNodeVisitor {
         BIROperand fromVarRef = new BIROperand(varDecl);
         setScopeAndEmit(new Move(pos, fromVarRef, nsURIVarRef));
         return nsURIVarRef;
+    }
+
+    private void populateXMLSequence(BLangXMLSequenceLiteral xmlSequenceLiteral, BIROperand toVarRef) {
+        for (BLangExpression xmlItem : xmlSequenceLiteral.xmlItems) {
+            xmlItem.accept(this);
+            BIROperand childOp = this.env.targetOperand;
+            setScopeAndEmit(
+                    new BIRNonTerminator.XMLAccess(xmlItem.pos, InstructionKind.XML_SEQ_STORE, toVarRef, childOp));
+        }
     }
 
     private void populateXML(BLangXMLElementLiteral xmlElementLiteral, BIROperand toVarRef) {
