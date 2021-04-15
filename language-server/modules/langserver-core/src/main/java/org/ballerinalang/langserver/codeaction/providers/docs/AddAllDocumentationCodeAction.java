@@ -55,6 +55,11 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
+        // We don't show 'Document All' for nodes other than top level nodes
+        if (posDetails.matchedStatementNode() != posDetails.matchedTopLevelNode()) {
+            return Collections.emptyList();
+        }
+
         String docUri = context.fileUri();
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));

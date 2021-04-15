@@ -15,24 +15,28 @@
  * specific language governing permissions and limitations
  * under the License.
  */
-package io.ballerina.cli.cmd.model;
+package io.ballerinalang.compiler.parser.test.syntax.misc;
 
-import java.util.List;
+import org.testng.annotations.Test;
 
 /**
- * Command Object.
+ * Test parsing typed binding patterns.
  *
  * @since 2.0.0
  */
-public class CommandCompletions {
-    private String command;
-    private List<String> subCommands;
+public class TypesAsExprTest extends AbstractMiscTest {
 
-    public String getCommand() {
-        return command;
+    // Valid syntax
+
+    @Test
+    public void testBuiltinTypesInExpr() {
+        testFile("types-as-expr/types_as_expr_source_01.bal", "types-as-expr/types_as_expr_assert_01.json");
     }
 
-    public List<String> getSubCommands() {
-        return subCommands;
+    // Recovery tests
+
+    @Test
+    public void testBuiltinTypesInExprNegative() {
+        testFile("types-as-expr/types_as_expr_source_02.bal", "types-as-expr/types_as_expr_assert_02.json");
     }
 }

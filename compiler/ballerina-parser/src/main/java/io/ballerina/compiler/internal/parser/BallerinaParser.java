@@ -2602,7 +2602,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode createBuiltinSimpleNameReference(STNode token) {
-        SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
+        SyntaxKind typeKind = getBuiltinTypeSyntaxKind(token.kind);
         return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
     }
 
@@ -4698,7 +4698,7 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTION_KEYWORD:
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
             default:
-                if (isSimpleType(nextToken.kind)) {
+                if (isSimpleTypeInExpression(nextToken.kind)) {
                     return parseSimpleTypeDescriptor();
                 }
 
@@ -4824,7 +4824,10 @@ public class BallerinaParser extends AbstractParser {
             case OBJECT_KEYWORD:
                 return true;
             default:
-                return isSimpleType(tokenKind);
+                if (isPredeclaredPrefix(tokenKind)) {
+                    return true;
+                }
+                return isSimpleTypeInExpression(tokenKind);
         }
     }
 
@@ -9223,6 +9226,7 @@ public class BallerinaParser extends AbstractParser {
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
             case ERROR_KEYWORD: // error type desc
+            case XML_KEYWORD: // xml type desc
             case STREAM_KEYWORD: // stream type desc
             case TABLE_KEYWORD: // table type
             case FUNCTION_KEYWORD:
@@ -9240,6 +9244,25 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Check if the token kind is a type descriptor in terminal expression.
+     * <p>
+     * simple-type-in-expr :=
+     * boolean | int | byte | float | decimal | string | handle | json | anydata | any | never
+     *
+     * @param nodeKind token kind to check
+     * @return <code>true</code> for simple type token in expression. <code>false</code> otherwise.
+     */
+    private boolean isSimpleTypeInExpression(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case VAR_KEYWORD:
+            case READONLY_KEYWORD:
+                return false;
+            default:
+                return isSimpleType(nodeKind);
+        }
+    }
+
     static boolean isSimpleType(SyntaxKind nodeKind) {
         switch (nodeKind) {
             case INT_KEYWORD:
@@ -9248,18 +9271,13 @@ public class BallerinaParser extends AbstractParser {
             case BOOLEAN_KEYWORD:
             case STRING_KEYWORD:
             case BYTE_KEYWORD:
-            case XML_KEYWORD:
             case JSON_KEYWORD:
             case HANDLE_KEYWORD:
             case ANY_KEYWORD:
             case ANYDATA_KEYWORD:
             case NEVER_KEYWORD:
             case VAR_KEYWORD:
-            case ERROR_KEYWORD: // This is for the recovery. <code>error a;</code> scenario recovered here.
-            case STREAM_KEYWORD: // This is for recovery logic. <code>stream a;</code> scenario recovered here.
-            case TYPEDESC_KEYWORD: // This is for recovery logic. <code>typedesc a;</code> scenario recovered here.
             case READONLY_KEYWORD:
-            case DISTINCT_KEYWORD:
                 return true;
             default:
                 return false;
@@ -9292,7 +9310,7 @@ public class BallerinaParser extends AbstractParser {
        return isPredeclaredPrefix(nodeKind) && getNextNextToken().kind == SyntaxKind.COLON_TOKEN;
     }
 
-    private SyntaxKind getTypeSyntaxKind(SyntaxKind typeKeyword) {
+    private SyntaxKind getBuiltinTypeSyntaxKind(SyntaxKind typeKeyword) {
         switch (typeKeyword) {
             case INT_KEYWORD:
                 return SyntaxKind.INT_TYPE_DESC;
@@ -9306,8 +9324,6 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.STRING_TYPE_DESC;
             case BYTE_KEYWORD:
                 return SyntaxKind.BYTE_TYPE_DESC;
-            case XML_KEYWORD:
-                return SyntaxKind.XML_TYPE_DESC;
             case JSON_KEYWORD:
                 return SyntaxKind.JSON_TYPE_DESC;
             case HANDLE_KEYWORD:
@@ -9316,15 +9332,14 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.ANY_TYPE_DESC;
             case ANYDATA_KEYWORD:
                 return SyntaxKind.ANYDATA_TYPE_DESC;
-            case READONLY_KEYWORD:
-                return SyntaxKind.READONLY_TYPE_DESC;
             case NEVER_KEYWORD:
                 return SyntaxKind.NEVER_TYPE_DESC;
             case VAR_KEYWORD:
                 return SyntaxKind.VAR_TYPE_DESC;
-            case ERROR_KEYWORD:
-                return SyntaxKind.ERROR_TYPE_DESC;
+            case READONLY_KEYWORD:
+                return SyntaxKind.READONLY_TYPE_DESC;
             default:
+                assert false : typeKeyword + " is not a built-in type";
                 return SyntaxKind.TYPE_REFERENCE;
         }
     }
@@ -9501,13 +9516,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseListConstructorMemberEnd() {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case COMMA_TOKEN:
-                return parseComma();
+                return consume();
             case CLOSE_BRACKET_TOKEN:
                 return null;
             default:
-                recover(peek(), ParserRuleContext.LIST_CONSTRUCTOR_MEMBER_END);
+                recover(nextToken, ParserRuleContext.LIST_CONSTRUCTOR_MEMBER_END);
                 return parseListConstructorMemberEnd();
         }
     }
@@ -15122,7 +15138,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfMappingBindingPattern(SyntaxKind nextTokenKind) {
-        return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN;
+        return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN || endOfModuleLevelNode(1);
     }
 
     private STNode parseErrorTypeDescOrErrorBP(STNode annots) {
@@ -15680,8 +15696,8 @@ public class BallerinaParser extends AbstractParser {
             case PIPE_TOKEN:
             case BITWISE_AND_TOKEN:
                 // "T[a] | R.." or "T[a] & R.."
-                return parseComplexTypeDescInTypedBindingPattern(typeDescOrExpr, openBracket, member, closeBracket,
-                        context, isTypedBindingPattern);
+                return parseComplexTypeDescInTypedBPOrExprRhs(typeDescOrExpr, openBracket, member, closeBracket,
+                        isTypedBindingPattern);
             case IN_KEYWORD:
                 // "in" keyword is only valid for for-each stmt.
                 if (context != ParserRuleContext.FOREACH_STMT && context != ParserRuleContext.FROM_CLAUSE) {
@@ -15796,16 +15812,14 @@ public class BallerinaParser extends AbstractParser {
      * @param openBracket    Open bracket
      * @param member         Member
      * @param closeBracket   Close bracket
-     * @param context        COntext in which the typed binding pattern occurs
      * @return Parsed node
      */
-    private STNode parseComplexTypeDescInTypedBindingPattern(STNode typeDescOrExpr, STNode openBracket, STNode member,
-                                                             STNode closeBracket, ParserRuleContext context,
-                                                             boolean isTypedBindingPattern) {
+    private STNode parseComplexTypeDescInTypedBPOrExprRhs(STNode typeDescOrExpr, STNode openBracket, STNode member,
+                                                             STNode closeBracket, boolean isTypedBindingPattern) {
         STNode pipeOrAndToken = parseUnionOrIntersectionToken();
         STNode typedBindingPatternOrExpr = parseTypedBindingPatternOrExpr(false);
 
-        if (isTypedBindingPattern || typedBindingPatternOrExpr.kind == SyntaxKind.TYPED_BINDING_PATTERN) {
+        if (typedBindingPatternOrExpr.kind == SyntaxKind.TYPED_BINDING_PATTERN) {
             // Treat T[a] as an array-type-desc. But we dont know what R is.
             // R could be R[b] or R[b, c]
             STNode lhsTypeDesc = getTypeDescFromExpr(typeDescOrExpr);
@@ -15820,14 +15834,22 @@ public class BallerinaParser extends AbstractParser {
             }
 
             return STNodeFactory.createTypedBindingPatternNode(newTypeDesc, rhsTypedBindingPattern.bindingPattern);
-        } else {
-            STNode keyExpr = getExpression(member);
-            STNode containerExpr = getExpression(typeDescOrExpr);
-            STNode lhsExpr =
-                    STNodeFactory.createIndexedExpressionNode(containerExpr, openBracket, keyExpr, closeBracket);
-            return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, lhsExpr, pipeOrAndToken,
-                    typedBindingPatternOrExpr);
         }
+
+        if (isTypedBindingPattern) {
+            // If we reach here typedBindingPatternOrExpr is parsed as expression
+            STNode lhsTypeDesc = getTypeDescFromExpr(typeDescOrExpr);
+            lhsTypeDesc = getArrayTypeDesc(openBracket, member, closeBracket, lhsTypeDesc);
+            return createCaptureBPWithMissingVarName(lhsTypeDesc, pipeOrAndToken, typedBindingPatternOrExpr);
+        }
+
+        STNode keyExpr = getExpression(member);
+        STNode containerExpr = getExpression(typeDescOrExpr);
+        STNode lhsExpr =
+                STNodeFactory.createIndexedExpressionNode(containerExpr, openBracket, keyExpr, closeBracket);
+        return STNodeFactory.createBinaryExpressionNode(SyntaxKind.BINARY_EXPRESSION, lhsExpr, pipeOrAndToken,
+                typedBindingPatternOrExpr);
+
     }
 
     private STNode getArrayTypeDesc(STNode openBracket, STNode member, STNode closeBracket, STNode lhsTypeDesc) {

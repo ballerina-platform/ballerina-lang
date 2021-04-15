@@ -698,6 +698,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BField field : ((BStructureType) effectiveIncludedType).fields.values()) {
                 if (fieldNames.containsKey(field.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(field.name.value);
+                    if ((existingVariable.flagSet.contains(Flag.PUBLIC) !=
+                            Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC)) ||
+                            (existingVariable.flagSet.contains(Flag.PRIVATE) !=
+                                    Symbols.isFlagOn(field.symbol.flags, Flags.PRIVATE))) {
+                        dlog.error(existingVariable.pos,
+                                DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
+                                existingVariable.name.value);
+                    }
                     if (types.isAssignable(existingVariable.type, field.type)) {
                         continue;
                     }
@@ -4086,6 +4094,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return ((BStructureType) referredType).fields.values().stream().filter(f -> {
                 if (fieldNames.containsKey(f.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
+                    if (existingVariable.flagSet.contains(Flag.PUBLIC) !=
+                            Symbols.isFlagOn(f.symbol.flags, Flags.PUBLIC)) {
+                        dlog.error(existingVariable.pos,
+                                DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
+                                existingVariable.name.value);
+                    }
                     return !types.isAssignable(existingVariable.type, f.type);
                 }
                 return true;
