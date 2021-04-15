@@ -527,7 +527,8 @@ public class JvmTypeGen {
         // filter anon types and sorts them before generating switch case.
         Set<BIRTypeDefinition> typeDefSet = new TreeSet<>(TYPE_HASH_COMPARATOR);
         for (BIRTypeDefinition t : typeDefinitions) {
-            if (t.internalName.value.contains(BLangAnonymousModelHelper.ANON_PREFIX)) {
+            if (t.internalName.value.contains(BLangAnonymousModelHelper.ANON_PREFIX)
+                    || Symbols.isFlagOn(t.type.flags, Flags.ANONYMOUS)) {
                 typeDefSet.add(t);
             }
         }
@@ -1941,7 +1942,9 @@ public class JvmTypeGen {
         String fieldName = getTypeFieldName(toNameString(typeToLoad));
 
         // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
-        if (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX) && !this.packageID.equals(packageID)) {
+        if (!this.packageID.equals(packageID) &&
+                (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)
+                        || Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS))) {
             Integer hash = typeHashVisitor.visit(typeToLoad);
             String shape = typeToLoad.toString();
             typeHashVisitor.reset();
