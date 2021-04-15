@@ -352,8 +352,6 @@ public class CodeActionTest {
                 codeActionFound = true;
                 numberOfDataMappingCodeAction = numberOfDataMappingCodeAction + 1;
             }
-            log.error("expected response : " , expectedResponse.get("edits").getAsJsonArray());
-            log.error("actual response : " , edit);
         }
         if (codeActionFound && numberOfDataMappingCodeAction == 1) {
             codeActionFoundOnlyOnce = true;
