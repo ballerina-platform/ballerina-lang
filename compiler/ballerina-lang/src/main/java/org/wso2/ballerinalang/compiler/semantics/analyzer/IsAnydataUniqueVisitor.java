@@ -271,7 +271,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
                 return false;
             }
         }
-        type.isAnyData = type.sealed || visit(type.restFieldType);
+        type.isAnyData = type.sealed || (type.restFieldType != null && visit(type.restFieldType));
         return type.isAnyData;
     }
 
