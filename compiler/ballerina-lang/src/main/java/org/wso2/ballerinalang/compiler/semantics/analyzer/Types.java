@@ -2661,7 +2661,7 @@ public class Types {
             if (source.tag == TypeTags.FINITE) {
                 return checkValueSpaceHasSameType(((BFiniteType) source), target);
             }
-            return false;
+            return isSameOrderedType(target, source, this.unresolvedTypes);
         }
 
         @Override
@@ -2689,10 +2689,10 @@ public class Types {
             BType sourceRestType = sourceT.restType;
             BType targetRestType = target.restType;
 
-            int sourceTupleCount = target.tupleTypes.size();
-            int targetTupleCount = sourceT.tupleTypes.size();
+            int sourceTupleCount = sourceT.tupleTypes.size();
+            int targetTupleCount = target.tupleTypes.size();
 
-            int len = Math.min(sourceT.tupleTypes.size(), target.tupleTypes.size());
+            int len = Math.min(sourceTupleCount, targetTupleCount);
             for (int i = 0; i < len; i++) {
                 if (!isSameOrderedType(sourceT.getTupleTypes().get(i), target.tupleTypes.get(i),
                         this.unresolvedTypes)) {
@@ -2707,26 +2707,25 @@ public class Types {
                 return isSameOrderedType(sourceRestType, targetRestType, this.unresolvedTypes);
             }
             if (sourceTupleCount > targetTupleCount) {
-                return checkSameOrderedTypeInTuples(target, sourceTupleCount, targetTupleCount, sourceRestType,
+                return checkSameOrderedTypeInTuples(sourceT, sourceTupleCount, targetTupleCount, sourceRestType,
                         targetRestType);
             }
-            return checkSameOrderedTypeInTuples(sourceT, targetTupleCount, sourceTupleCount, targetRestType,
+            return checkSameOrderedTypeInTuples(target, targetTupleCount, sourceTupleCount, targetRestType,
                     sourceRestType);
         }
 
-        private boolean checkSameOrderedTypeInTuples(BTupleType target, int sourceTupleCount,
+        private boolean checkSameOrderedTypeInTuples(BTupleType source, int sourceTupleCount,
                                                      int targetTupleCount,
                                                      BType sourceRestType, BType targetRestType) {
-            if (sourceRestType == null) {
+            if (targetRestType == null) {
                 return true;
             }
             for (int i = targetTupleCount; i < sourceTupleCount; i++) {
-                if (!isSameOrderedType(target.getTupleTypes().get(i), sourceRestType,
-                        this.unresolvedTypes)) {
+                if (!isSameOrderedType(source.getTupleTypes().get(i), targetRestType, this.unresolvedTypes)) {
                     return false;
                 }
             }
-            if (targetRestType == null) {
+            if (sourceRestType == null) {
                 return true;
             }
             return isSameOrderedType(sourceRestType, targetRestType, this.unresolvedTypes);
