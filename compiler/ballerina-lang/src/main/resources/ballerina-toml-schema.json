@@ -51,7 +51,7 @@
         "repository": {
           "type": "string"
         },
-        "exported": {
+        "export": {
           "type": "array",
           "items": {
             "type": "string"
