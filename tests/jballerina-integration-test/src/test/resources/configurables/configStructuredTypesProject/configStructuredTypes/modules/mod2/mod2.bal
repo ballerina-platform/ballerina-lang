@@ -28,7 +28,7 @@ configurable configLib:Manager & readonly manager = ?;
 configurable configLib:Teacher & readonly teacher = ?;
 configurable configLib:Farmer farmer = ?;
 configurable mod1:Student & readonly student = ?;
-configurable mod1:Person person = ?;
+configurable mod1:Officer officer = ?;
 configurable mod1:Employee employee = ?;
 
 configurable table<Doctor> & readonly doctorTable = ?;
@@ -36,12 +36,17 @@ configurable table<configLib:Manager> & readonly managerTable = ?;
 configurable table<configLib:Teacher> & readonly teacherTable = ?;
 configurable table<configLib:Farmer> & readonly farmerTable = ?;
 configurable table<mod1:Student> & readonly studentTable = ?;
-configurable table<mod1:Person> & readonly personTable = ?;
+configurable table<mod1:Officer> & readonly officerTable = ?;
 configurable table<mod1:Employee> & readonly employeeTable = ?;
 
 configurable mod1:Employee & readonly employee1 = ?;
-configurable table<mod1:Person & readonly> & readonly personTable1 = ?;
+configurable table<mod1:Officer & readonly> & readonly officerTable1 = ?;
 configurable table<mod1:Employee & readonly> & readonly employeeTable1 = ?;
+
+// Complex records
+configurable mod1:Person person = ?;
+configurable table<mod1:Person> & readonly personTable = ?;
+configurable mod1:Person[] & readonly personArray = ?;
 
 public function testRecords() {
     test:assertEquals(doctor.name, "waruna");
@@ -52,14 +57,18 @@ public function testRecords() {
     test:assertEquals(employee.id, 101);
     test:assertEquals(employee1.name, "waruna");
     test:assertEquals(employee1.id, 404);
-    test:assertEquals(person.name, "gabilan");
-    test:assertEquals(person.id, 101);
+    test:assertEquals(officer.name, "gabilan");
+    test:assertEquals(officer.id, 101);
     test:assertEquals(manager.name, "hinduja");
     test:assertEquals(manager.id, 107);
     test:assertEquals(teacher.name, "hinduja");
     test:assertEquals(teacher.id, 11);
     test:assertEquals(farmer.name, "manu");
     test:assertEquals(farmer.id, 22);
+    test:assertEquals(person.name, "hinduja");
+    test:assertEquals(person.id, 100);
+    test:assertEquals(person.address.city, "Kandy");
+    test:assertEquals(person.address.country.name, "Sri Lanka");
 }
 
 public function testTables() {
@@ -67,9 +76,18 @@ public function testTables() {
     test:assertEquals(studentTable.toString(), "[{\"name\":\"manu\",\"id\":100},{\"name\":\"riyafa\",\"id\":105}]");
     test:assertEquals(employeeTable.toString(), "[{\"name\":\"hinduja\",\"id\":102},{\"name\":\"manu\",\"id\":100}]");
     test:assertEquals(employeeTable1.toString(), "[{\"name\":\"gabilan\",\"id\":2},{\"name\":\"riyafa\",\"id\":3}]");
-    test:assertEquals(personTable.toString(), "[{\"name\":\"hinduja\",\"id\":102},{\"name\":\"manu\",\"id\":100}]");
-    test:assertEquals(personTable1.toString(), "[{\"name\":\"hinduja\",\"id\":7},{\"name\":\"waruna\",\"id\":8}]");
+    test:assertEquals(officerTable.toString(), "[{\"name\":\"hinduja\",\"id\":102},{\"name\":\"manu\",\"id\":100}]");
+    test:assertEquals(officerTable1.toString(), "[{\"name\":\"hinduja\",\"id\":7},{\"name\":\"waruna\",\"id\":8}]");
     test:assertEquals(managerTable.toString(), "[{\"name\":\"gabilan\",\"id\":101},{\"name\":\"riyafa\",\"id\":102}]");
     test:assertEquals(teacherTable.toString(), "[{\"name\":\"gabilan\",\"id\":66},{\"name\":\"riyafa\",\"id\":77}]");
     test:assertEquals(farmerTable.toString(), "[{\"name\":\"riyafa\",\"id\":555},{\"name\":\"hinduja\",\"id\":666}]");
+    test:assertEquals(personTable.toString(), "[{\"name\":\"gabilan\",\"id\":133," +
+        "\"address\":{\"country\":{\"name\":\"Germany\"},\"city\":\"Berlin\"}},{\"name\":\"riyafa\"," +
+        "\"id\":144,\"address\":{\"country\":{\"name\":\"Spain\"},\"city\":\"Madrid\"}}]");
+}
+
+public function testArrays() {
+    test:assertEquals(personArray.toString(), "[{\"address\":{\"country\":{\"name\":\"UAE\"},\"city\":\"Abu Dhabi\"}," +
+        "\"name\":\"waruna\",\"id\":111},{\"address\":{\"country\":{\"name\":\"India\"},\"city\":\"Mumbai\"}," +
+        "\"name\":\"manu\",\"id\":122}]");
 }
