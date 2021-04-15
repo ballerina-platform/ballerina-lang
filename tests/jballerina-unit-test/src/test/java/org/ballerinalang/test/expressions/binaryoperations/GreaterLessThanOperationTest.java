@@ -308,6 +308,8 @@ public class GreaterLessThanOperationTest {
                 "testUnionComparison3",
                 "testUnionComparison4",
                 "testUnionComparison5",
+                "testUnionComparison6",
+                "testUnionComparison7",
                 "testUnorderedTypeComparison1",
                 "testUnorderedTypeComparison2",
                 "testUnorderedTypeComparison3",

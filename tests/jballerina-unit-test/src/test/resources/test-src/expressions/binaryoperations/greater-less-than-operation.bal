@@ -459,6 +459,43 @@ function testUnionComparison5() {
     test:assertFalse(c >= a);
 }
 
+function testUnionComparison6() {
+    int|(int|int|int) a = 1;
+    int b = 2;
+    int|int:Signed32|int:Signed16 c = 4;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertTrue(b < c);
+    test:assertTrue(b <= c);
+    test:assertFalse(b > c);
+    test:assertFalse(b >= c);
+}
+
+function testUnionComparison7() {
+    TwoFloats a = 50.6;
+    float b = 2.0;
+    TwoFloats|OneOrTwo c = 1.0;
+
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertTrue(a > b);
+    test:assertTrue(a >= b);
+
+    test:assertFalse(b < c);
+    test:assertFalse(b <= c);
+    test:assertTrue(b > c);
+    test:assertTrue(b >= c);
+
+    test:assertFalse(a < c);
+    test:assertFalse(a <= c);
+    test:assertTrue(a > c);
+    test:assertTrue(a >= c);
+}
+
 function testUnorderedTypeComparison1() {
     [int, string?] a = [59215, "ABC"];
     [int, string?] b = [59215, ()];
