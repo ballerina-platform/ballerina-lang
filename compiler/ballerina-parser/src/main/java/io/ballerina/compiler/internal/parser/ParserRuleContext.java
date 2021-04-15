@@ -77,6 +77,7 @@ public enum ParserRuleContext {
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
     TYPE_REFERENCE("type-reference"),
     TYPE_REFERENCE_IN_TYPE_INCLUSION("type-reference-in-type-inclusion"),
+    SIMPLE_TYPE_DESC_IDENTIFIER("simple-type-desc-identifier"),
     ARG_LIST_OPEN_PAREN("("),
     ARG_LIST("arguments"),
     ARG_START("argument-start"),
@@ -513,8 +514,8 @@ public enum ParserRuleContext {
     ELVIS("?:"),
 
     // Other terminals
-    FUNC_NAME("function-name"),
-    VARIABLE_NAME("variable"),
+    FUNC_NAME("func-name"),
+    VARIABLE_NAME("variable-name"),
     SIMPLE_TYPE_DESCRIPTOR("simple-type-desc"),
     BINARY_OPERATOR("binary-operator"),
     TYPE_NAME("type-name"),

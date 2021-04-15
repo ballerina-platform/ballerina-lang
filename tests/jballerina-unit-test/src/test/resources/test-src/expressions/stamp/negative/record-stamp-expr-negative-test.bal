@@ -41,13 +41,13 @@ type Teacher record {
     string school;
 };
 
-
+type XmlType xml;
 
 function stampRecordToXML() returns xml|error {
 
     Employee employeeRecord = { name: "Raja", age: 25, salary: 20000 };
 
-    xml|error xmlValue = employeeRecord.cloneWithType(xml);
+    xml|error xmlValue = employeeRecord.cloneWithType(XmlType);
     return xmlValue;
 }
 
