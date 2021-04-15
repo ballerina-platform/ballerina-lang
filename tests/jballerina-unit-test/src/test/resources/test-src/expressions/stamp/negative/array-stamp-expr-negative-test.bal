@@ -36,10 +36,12 @@ function stampAnyArrayToRecord() returns Employee|error {
     return employee;
 }
 
+type XmlType xml;
+
 function stampAnyArrayToXML() returns xml|error {
 
     anydata[] anyArray = ["Mohan", "Single", "LK2014"];
-    xml|error xmlValue = anyArray.cloneWithType(xml);
+    xml|error xmlValue = anyArray.cloneWithType(XmlType);
 
     return xmlValue;
 }
