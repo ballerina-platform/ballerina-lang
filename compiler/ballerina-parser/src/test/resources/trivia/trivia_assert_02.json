@@ -86,62 +86,37 @@
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "UNION_TYPE_DESC",
+                              "kind": "INT_TYPE_DESC",
                               "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "SIMPLE_NAME_REFERENCE",
-                                  "children": [
-                                    {
-                                      "kind": "IDENTIFIER_TOKEN",
-                                      "value": " ",
-                                      "leadingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": "    "
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "PIPE_TOKEN",
-                                  "isMissing": true,
+                                  "kind": "INT_KEYWORD",
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_MISSING_PIPE_TOKEN"
-                                  ]
-                                },
-                                {
-                                  "kind": "INT_TYPE_DESC",
-                                  "hasDiagnostics": true,
-                                  "children": [
+                                    "ERROR_INVALID_TOKEN"
+                                  ],
+                                  "leadingMinutiae": [
                                     {
-                                      "kind": "INT_KEYWORD",
-                                      "hasDiagnostics": true,
-                                      "diagnostics": [
-                                        "ERROR_INVALID_TOKEN"
-                                      ],
-                                      "leadingMinutiae": [
-                                        {
-                                          "kind": "INVALID_NODE_MINUTIAE",
-                                          "invalidNode": {
-                                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                                            "children": [
-                                              {
-                                                "kind": "INVALID_TOKEN",
-                                                "value": ""
-                                              }
-                                            ]
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": "    "
+                                    },
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "INVALID_TOKEN",
+                                            "value": "😃 "
                                           }
-                                        }
-                                      ],
-                                      "trailingMinutiae": [
-                                        {
-                                          "kind": "WHITESPACE_MINUTIAE",
-                                          "value": " "
-                                        }
-                                      ]
+                                        ]
+                                      }
+                                    }
+                                  ],
+                                  "trailingMinutiae": [
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
                                     }
                                   ]
                                 }

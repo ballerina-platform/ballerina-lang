@@ -5870,7 +5870,6 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case IDENTIFIER_TOKEN:
                 // Identifier can means two things: either its a named-arg, or just an expression.
-                // TODO: Handle package-qualified var-refs (i.e: qualified-identifier).
                 arg = parseNamedOrPositionalArg();
                 break;
             default:
@@ -8240,8 +8239,6 @@ public class BallerinaParser extends AbstractParser {
      * @return Call statement node
      */
     private STNode parseCallStatement(STNode expression) {
-        // TODO Validate the expression.
-        // This is not a must because this expression is validated in the semantic analyzer.
         STNode semicolon = parseSemicolon();
         endContext();
         if (expression.kind == SyntaxKind.CHECK_EXPRESSION) {
@@ -17234,9 +17231,6 @@ public class BallerinaParser extends AbstractParser {
                 if (isWildcardBP(identifier)) {
                     return getWildcardBindingPattern(identifier);
                 }
-
-                // TODO: handle function-binding-pattern
-                // we don't know which one
                 return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, identifier, false, false);
             case OPEN_BRACE_TOKEN:
                 return parseMappingBindingPatterOrMappingConstructor();
