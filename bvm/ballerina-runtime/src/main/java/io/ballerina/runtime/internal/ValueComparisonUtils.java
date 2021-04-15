@@ -100,6 +100,219 @@ public class ValueComparisonUtils {
     }
 
     /**
+     Methods to compare left hand side int type value and right hand side int type value.
+     ex:
+     int|(int|int|int) i = 1;
+     int j = 2;
+     boolean t = i < j; or boolean t = j < i;
+    */
+    public static boolean compareValueLessThan(Object lhsValue, long rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) < 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueLessThanOrEqual(Object lhsValue, long rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) <= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThan(Object lhsValue, long rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) > 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThanOrEqual(Object lhsValue, long rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) >= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueLessThan(long lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) < 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueLessThanOrEqual(long lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) <= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThan(long lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) > 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThanOrEqual(long lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) >= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    /**
+    Methods to compare left hand side byte type value and right hand side byte type value.
+    ex:
+    byte|(byte|byte|byte) i = 1;
+    byte j = 2;
+    boolean t = i < j; or boolean t = j < i;
+    */
+    public static boolean compareValueLessThan(Object lhsValue, byte rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) < 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueLessThanOrEqual(Object lhsValue, byte rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) <= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThan(Object lhsValue, byte rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) > 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThanOrEqual(Object lhsValue, byte rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) >= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueLessThan(byte lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) < 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueLessThanOrEqual(byte lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) <= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThan(byte lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) > 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThanOrEqual(byte lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) >= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    /**
+     Methods to compare left hand side float type value and right hand side float type value.
+     ex:
+     float|(float|float|float) i = 1.0;
+     float j = 2.0;
+     boolean t = i < j; or boolean t = j < i;
+     */
+    public static boolean compareValueLessThan(Object lhsValue, double rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) < 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueLessThanOrEqual(Object lhsValue, double rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) <= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThan(Object lhsValue, double rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) > 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThanOrEqual(Object lhsValue, double rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) >= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueLessThan(double lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) < 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueLessThanOrEqual(double lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) <= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThan(double lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) > 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    public static boolean compareValueGreaterThanOrEqual(double lhsValue, Object rhsValue) {
+        try {
+            return compareValues(lhsValue, rhsValue) >= 0;
+        } catch (BError error) {
+            return false;
+        }
+    }
+
+    /**
      * Check if left hand side float value is less than right hand side float value.
      *
      * @param lhsValue The value on the left hand side

@@ -676,8 +676,9 @@ public class JvmInstructionGen {
             return;
         } else {
             String compareFuncName = this.getCompareFuncName(opcode);
+            String opParams = getOperationParams(lhsOpType, rhsOpType);
             this.mv.visitMethodInsn(INVOKESTATIC, VALUE_COMPARISON_UTILS, compareFuncName,
-                    String.format("(L%s;L%s;)Z", OBJECT, OBJECT), false);
+                    String.format("(" + opParams + ")Z", OBJECT, OBJECT), false);
             this.storeToVar(binaryIns.lhsOp.variableDcl);
             return;
         }
@@ -705,6 +706,29 @@ public class JvmInstructionGen {
             default:
                 throw new BLangCompilerException(String.format("Opcode: '%s' is not a comparison opcode.", opcode));
         }
+    }
+
+    private String getOperationParams(BType lhsOpType, BType rhsOpType) {
+        String lhsOpTypeString = "L%s;";
+        String rhsOpSTypeString = "L%s;";
+
+        if (TypeTags.isIntegerTypeTag(lhsOpType.tag)) {
+            lhsOpTypeString = "J";
+        } else if (lhsOpType.tag == TypeTags.BYTE) {
+            lhsOpTypeString = "B";
+        } else if (lhsOpType.tag == TypeTags.FLOAT) {
+            lhsOpTypeString = "D";
+        }
+
+        if (TypeTags.isIntegerTypeTag(rhsOpType.tag)) {
+            rhsOpSTypeString = "J";
+        } else if (rhsOpType.tag == TypeTags.BYTE) {
+            rhsOpSTypeString = "B";
+        } else if (rhsOpType.tag == TypeTags.FLOAT) {
+            rhsOpSTypeString = "D";
+        }
+
+        return lhsOpTypeString + rhsOpSTypeString;
     }
 
     private void generateEqualIns(BIRNonTerminator.BinaryOp binaryIns) {
