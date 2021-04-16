@@ -392,7 +392,9 @@ public class BallerinaDocGenerator {
         for (io.ballerina.projects.ModuleId moduleId : project.currentPackage().moduleIds()) {
             io.ballerina.projects.Module module = project.currentPackage().module(moduleId);
             String moduleName;
-            String moduleMdText = module.moduleMd().map(d -> d.content()).orElse("");
+            // Temporarily append package.md to module.md
+            String moduleMdText = project.currentPackage().packageMd().map(d -> d.content()).orElse("");
+            moduleMdText += module.moduleMd().map(d -> d.content()).orElse("");
             Path modulePath;
             if (module.isDefaultModule()) {
                 moduleName = module.moduleName().packageName().toString();
