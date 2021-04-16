@@ -74,128 +74,128 @@ public class CodeActionTest {
         server.start();
     }
 
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-1")
-    public void testDataMapperCodeAction_1(String config, String source) throws Exception {
-        checkAssertion(config, source);
-    }
-
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-2")
-    public void testDataMapperCodeAction_2(String config, String source) throws Exception {
-
-        stopServer();
-
-        String responseData = "{\"answer\":{\"city\":\"applicant.applying_student.city\"}}";
-
-        // Set the Handler.
-        server.setHandler(new DataMapperServiceHandler(responseData));
-        server.start();
-
-        checkAssertion(config, source);
-    }
-
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-3")
-    public void testDataMapperCodeAction_3(String config, String source) throws Exception {
-
-        stopServer();
-
-        String responseData = "{\"answer\":{\"country\":\"home.birth_country\",\"lane\":" +
-                "\"home.lane\"}}";
-
-        // Set the Handler.
-        server.setHandler(new DataMapperServiceHandler(responseData));
-        server.start();
-
-        checkAssertion(config, source);
-    }
-
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-4")
-    public void testDataMapperCodeAction_4(String config, String source) throws Exception {
-
-        stopServer();
-
-        String responseData = "{\"answer\":{\"ID\":\"supplier.supplier_details.id\",\"email\":\"supplier.email\"," +
-                "\"user\":{\"age\":\"supplier.supplier_details.age\",\"id\":\"supplier.id\",\"name\":\"" +
-                "supplier.supplier_details.name\"}}}";
-
-        // Set the Handler.
-        server.setHandler(new DataMapperServiceHandler(responseData));
-        server.start();
-
-        checkAssertion(config, source);
-    }
-
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-5")
-    public void testDataMapperCodeAction_5(String config, String source) throws Exception {
-
-        stopServer();
-
-        String responseData = "{\"answer\":{\"history\":\"mark.history\",\"maths\":\"mark.maths\",\"physics\":\"" +
-                "mark.physics\"}}";
-        // Set the Handler.
-        server.setHandler(new DataMapperServiceHandler(responseData));
-        server.start();
-
-        checkAssertion(config, source);
-    }
-
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-6")
-    public void testDataMapperCodeAction_6(String config, String source) throws Exception {
-
-        stopServer();
-
-        String responseData = "{\"answer\":{\"address\":\"student.address\",\"age\":\"student.age\",\"name\":\"" +
-                "student.name\"}}";
-
-        // Set the Handler.
-        server.setHandler(new DataMapperServiceHandler(responseData));
-        server.start();
-
-        checkAssertion(config, source);
-    }
-
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-7")
-    public void testDataMapperCodeAction_7(String config, String source) throws Exception {
-
-        stopServer();
-
-        String responseData = "{\"answer\":{\"address\":\"student.address\",\"age\":\"student.age\"," +
-                "\"contact_person\":\"student.contact_person\",\"name\":\"student.name\"}}";
-
-        // Set the Handler.
-        server.setHandler(new DataMapperServiceHandler(responseData));
-        server.start();
-
-        checkAssertion(config, source);
-    }
-
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-8")
-    public void testDataMapperCodeAction_8(String config, String source) throws Exception {
-
-        stopServer();
-
-        String responseData = "{\"answer\":{\"address\":\"student.contact.address\",\"number\":\"" +
-                "student.contact.number\"}}";
-
-        // Set the Handler.
-        server.setHandler(new DataMapperServiceHandler(responseData));
-        server.start();
-
-        checkAssertion(config, source);
-    }
-
-    @Test(dataProvider = "codeAction-data-mapper-data-provider-9")
-    public void testDataMapperCodeAction_9(String config, String source) throws Exception {
-
-        stopServer();
-
-        String responseData = "{\"answer\":{\"age\":\"student.age\",\"name\":\"student.name\"}}";
-
-        // Set the Handler.
-        server.setHandler(new DataMapperServiceHandler(responseData));
-        server.start();
-
-        checkAssertion(config, source);
-    }
+//    @Test(dataProvider = "codeAction-data-mapper-data-provider-1")
+//    public void testDataMapperCodeAction_1(String config, String source) throws Exception {
+//        checkAssertion(config, source);
+//    }
+//
+//    @Test(dataProvider = "codeAction-data-mapper-data-provider-2")
+//    public void testDataMapperCodeAction_2(String config, String source) throws Exception {
+//
+//        stopServer();
+//
+//        String responseData = "{\"answer\":{\"city\":\"applicant.applying_student.city\"}}";
+//
+//        // Set the Handler.
+//        server.setHandler(new DataMapperServiceHandler(responseData));
+//        server.start();
+//
+//        checkAssertion(config, source);
+//    }
+//
+//    @Test(dataProvider = "codeAction-data-mapper-data-provider-3")
+//    public void testDataMapperCodeAction_3(String config, String source) throws Exception {
+//
+//        stopServer();
+//
+//        String responseData = "{\"answer\":{\"country\":\"home.birth_country\",\"lane\":" +
+//                "\"home.lane\"}}";
+//
+//        // Set the Handler.
+//        server.setHandler(new DataMapperServiceHandler(responseData));
+//        server.start();
+//
+//        checkAssertion(config, source);
+//    }
+//
+//    @Test(dataProvider = "codeAction-data-mapper-data-provider-4")
+//    public void testDataMapperCodeAction_4(String config, String source) throws Exception {
+//
+//        stopServer();
+//
+//        String responseData = "{\"answer\":{\"ID\":\"supplier.supplier_details.id\",\"email\":\"supplier.email\"," +
+//                "\"user\":{\"age\":\"supplier.supplier_details.age\",\"id\":\"supplier.id\",\"name\":\"" +
+//                "supplier.supplier_details.name\"}}}";
+//
+//        // Set the Handler.
+//        server.setHandler(new DataMapperServiceHandler(responseData));
+//        server.start();
+//
+//        checkAssertion(config, source);
+//    }
+//
+//    @Test(dataProvider = "codeAction-data-mapper-data-provider-5")
+//    public void testDataMapperCodeAction_5(String config, String source) throws Exception {
+//
+//        stopServer();
+//
+//        String responseData = "{\"answer\":{\"history\":\"mark.history\",\"maths\":\"mark.maths\",\"physics\":\"" +
+//                "mark.physics\"}}";
+//        // Set the Handler.
+//        server.setHandler(new DataMapperServiceHandler(responseData));
+//        server.start();
+//
+//        checkAssertion(config, source);
+//    }
+//
+//    @Test(dataProvider = "codeAction-data-mapper-data-provider-6")
+//    public void testDataMapperCodeAction_6(String config, String source) throws Exception {
+//
+//        stopServer();
+//
+//        String responseData = "{\"answer\":{\"address\":\"student.address\",\"age\":\"student.age\",\"name\":\"" +
+//                "student.name\"}}";
+//
+//        // Set the Handler.
+//        server.setHandler(new DataMapperServiceHandler(responseData));
+//        server.start();
+//
+//        checkAssertion(config, source);
+//    }
+//
+//    @Test(dataProvider = "codeAction-data-mapper-data-provider-7")
+//    public void testDataMapperCodeAction_7(String config, String source) throws Exception {
+//
+//        stopServer();
+//
+//        String responseData = "{\"answer\":{\"address\":\"student.address\",\"age\":\"student.age\"," +
+//                "\"contact_person\":\"student.contact_person\",\"name\":\"student.name\"}}";
+//
+//        // Set the Handler.
+//        server.setHandler(new DataMapperServiceHandler(responseData));
+//        server.start();
+//
+//        checkAssertion(config, source);
+//    }
+//
+//    @Test(dataProvider = "codeAction-data-mapper-data-provider-8")
+//    public void testDataMapperCodeAction_8(String config, String source) throws Exception {
+//
+//        stopServer();
+//
+//        String responseData = "{\"answer\":{\"address\":\"student.contact.address\",\"number\":\"" +
+//                "student.contact.number\"}}";
+//
+//        // Set the Handler.
+//        server.setHandler(new DataMapperServiceHandler(responseData));
+//        server.start();
+//
+//        checkAssertion(config, source);
+//    }
+//
+//    @Test(dataProvider = "codeAction-data-mapper-data-provider-9")
+//    public void testDataMapperCodeAction_9(String config, String source) throws Exception {
+//
+//        stopServer();
+//
+//        String responseData = "{\"answer\":{\"age\":\"student.age\",\"name\":\"student.name\"}}";
+//
+//        // Set the Handler.
+//        server.setHandler(new DataMapperServiceHandler(responseData));
+//        server.start();
+//
+//        checkAssertion(config, source);
+//    }
 
     @Test(dataProvider = "codeAction-data-mapper-data-provider-10")
     public void testDataMapperCodeAction_10(String config, String source) throws Exception {
@@ -323,8 +323,6 @@ public class CodeActionTest {
 
     public void checkAssertion(String config, String source) throws Exception {
 
-        JsonArray editTemp = null;
-
         // Read expected results
         String configJsonPath = "codeaction" + File.separator + config;
         JsonObject configJsonObject = FileUtils.fileContentAsObject(configJsonPath);
@@ -347,7 +345,6 @@ public class CodeActionTest {
             JsonArray edit = editText.getAsJsonObject().get("documentChanges")
                     .getAsJsonArray().get(0).getAsJsonObject().get("edits").getAsJsonArray();
             boolean editsMatched = expectedResponse.get("edits").getAsJsonArray().equals(edit);
-            editTemp = edit;
             if (right.getAsJsonObject().get("title").getAsString().equals(title) && editsMatched) {
                 codeActionFound = true;
                 numberOfDataMappingCodeAction = numberOfDataMappingCodeAction + 1;
@@ -359,7 +356,7 @@ public class CodeActionTest {
         Assert.assertTrue(
                 codeActionFoundOnlyOnce, "Cannot find expected Code Action for: " + title +
                         "\n expected response : " + expectedResponse.get("edits").getAsJsonArray() +
-                        "\n actual response : " + editTemp);
+                        "\n actual response : " + responseJson);
     }
 
     public void stopServer() {
