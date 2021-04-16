@@ -29,10 +29,13 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
+import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SpecificFieldNode;
 import io.ballerina.compiler.syntax.tree.SpreadFieldNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 
 import java.util.ArrayList;
@@ -63,51 +66,56 @@ public class DataMapperNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(VariableDeclarationNode variableDeclarationNode) {
-        if (variableDeclarationNode.initializer().isPresent()) {
-            if (variableDeclarationNode.initializer().get().kind() == SyntaxKind.MAPPING_CONSTRUCTOR) {
-                String rightSymbolName = variableDeclarationNode.typedBindingPattern().typeDescriptor().toString().
-                        replaceAll(" ", "");
-                rightSymbolName = rightSymbolName.replaceAll("\n", "");
-                // to check if the variable if from another module
-                if (rightSymbolName.contains(":")) {
-                    String[] rightSymbolNameArray = rightSymbolName.split(":");
-                    rightSymbolName = rightSymbolNameArray[rightSymbolNameArray.length - 1];
-                }
-                if (this.rhsSymbolName.equals(rightSymbolName)) {
-                    MappingConstructorExpressionNode mappingConstructorExpressionNode =
-                            (MappingConstructorExpressionNode) variableDeclarationNode.initializer().get();
-                    SeparatedNodeList<MappingFieldNode> fields = mappingConstructorExpressionNode.fields();
-                    for (MappingFieldNode field : fields) {
-                        if (field.kind() == SyntaxKind.SPECIFIC_FIELD) {
-                            SpecificFieldNode field1 = (SpecificFieldNode) field;
-                            String fieldName = field1.fieldName().toString().replaceAll(" ", "");
-                            if (field1.valueExpr().isPresent() && fieldName.contains("\"")) {
-                                fieldName = fieldName.replaceAll("\"", "");
-                                SyntaxKind fieldKind = field1.valueExpr().get().kind();
-                                Optional<Symbol> symbol = this.model.symbol(variableDeclarationNode);
-                                if (symbol.isPresent()) {
-                                    TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
-                                    typeSymbol = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
-                                    String restFieldType = ((RecordTypeSymbol) typeSymbol).restTypeDescriptor().get().
-                                            typeKind().getName();
-                                    this.restFields.put(fieldName, restFieldType);
-                                }
-                            } else {
-                                specificFieldList.add(field1.fieldName().toString().replaceAll(" ", ""));
-                            }
-                        } else if (field.kind() == SyntaxKind.SPREAD_FIELD) {
-                            SpreadFieldNode field1 = (SpreadFieldNode) field;
-                            Optional<Symbol> symbol = this.model.symbol(field1.valueExpr());
-                            if (symbol.isPresent()) {
-                                TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
-                                typeSymbol = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
-                                if (typeSymbol.typeKind() == TypeDescKind.RECORD) {
-                                    Map<String, RecordFieldSymbol> fieldSymbolMap =
-                                            ((RecordTypeSymbol) typeSymbol).fieldDescriptors();
-                                    if (symbol.get().getName().isPresent()) {
-                                        this.spreadFields.put(symbol.get().getName().get(), fieldSymbolMap);
-                                    }
-                                }
+        if (!(variableDeclarationNode.initializer().isPresent())) {
+            return;
+        }
+        if (!(variableDeclarationNode.initializer().get().kind() == SyntaxKind.MAPPING_CONSTRUCTOR)) {
+            return;
+        }
+        String rightSymbolName = "";
+        TypeDescriptorNode typeDescriptorNode = variableDeclarationNode.typedBindingPattern().typeDescriptor();
+        if (typeDescriptorNode.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
+            rightSymbolName = ((SimpleNameReferenceNode) typeDescriptorNode).name().text();
+        } else if (typeDescriptorNode.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            rightSymbolName = ((QualifiedNameReferenceNode) typeDescriptorNode).identifier().text();
+        }
+
+        if (rightSymbolName.isEmpty()) {
+            return;
+        }
+
+        if (this.rhsSymbolName.equals(rightSymbolName)) {
+            MappingConstructorExpressionNode mappingConstructorExpressionNode =
+                    (MappingConstructorExpressionNode) variableDeclarationNode.initializer().get();
+            SeparatedNodeList<MappingFieldNode> fields = mappingConstructorExpressionNode.fields();
+            for (MappingFieldNode field : fields) {
+                if (field.kind() == SyntaxKind.SPECIFIC_FIELD) {
+                    SpecificFieldNode field1 = (SpecificFieldNode) field;
+                    String fieldName = field1.fieldName().toString().replaceAll(" ", "");
+                    if (field1.valueExpr().isPresent() && fieldName.contains("\"")) {
+                        fieldName = fieldName.replaceAll("\"", "");
+                        Optional<Symbol> symbol = this.model.symbol(variableDeclarationNode);
+                        if (symbol.isPresent()) {
+                            TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
+                            typeSymbol = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
+                            String restFieldType = ((RecordTypeSymbol) typeSymbol).restTypeDescriptor().get().
+                                    typeKind().getName();
+                            this.restFields.put(fieldName, restFieldType);
+                        }
+                    } else {
+                        specificFieldList.add(field1.fieldName().toString().replaceAll(" ", ""));
+                    }
+                } else if (field.kind() == SyntaxKind.SPREAD_FIELD) {
+                    SpreadFieldNode field1 = (SpreadFieldNode) field;
+                    Optional<Symbol> symbol = this.model.symbol(field1.valueExpr());
+                    if (symbol.isPresent()) {
+                        TypeSymbol typeSymbol = ((VariableSymbol) symbol.get()).typeDescriptor();
+                        typeSymbol = ((TypeReferenceTypeSymbol) typeSymbol).typeDescriptor();
+                        if (typeSymbol.typeKind() == TypeDescKind.RECORD) {
+                            Map<String, RecordFieldSymbol> fieldSymbolMap =
+                                    ((RecordTypeSymbol) typeSymbol).fieldDescriptors();
+                            if (symbol.get().getName().isPresent()) {
+                                this.spreadFields.put(symbol.get().getName().get(), fieldSymbolMap);
                             }
                         }
                     }
