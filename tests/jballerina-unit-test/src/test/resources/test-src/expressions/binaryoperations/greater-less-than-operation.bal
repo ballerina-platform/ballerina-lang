@@ -496,6 +496,66 @@ function testUnionComparison7() {
     test:assertTrue(a >= c);
 }
 
+function testUnionComparison8() {
+    string|string:Char a = "A";
+    string b = "B";
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
+function testUnionComparison9() {
+    int|int:Signed16 a = 5;
+    byte b = 12;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
+function testUnionComparison10() {
+    decimal|(decimal|decimal) a = 5;
+    decimal b = 12;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
+function testUnionComparison11() {
+    float|(float|float) a = 5.0;
+    float b = 12.0;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
 function testUnorderedTypeComparison1() {
     [int, string?] a = [59215, "ABC"];
     [int, string?] b = [59215, ()];
