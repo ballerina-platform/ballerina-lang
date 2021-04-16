@@ -50,6 +50,7 @@ public class BallerinaTomlTests {
 
     @Test
     public void testValidBallerinaToml() throws IOException {
+
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("valid-ballerina.toml"),
                                                              BAL_TOML_REPO.resolve("dependencies-valid.toml"));
         Assert.assertFalse(packageManifest.diagnostics().hasErrors());
@@ -73,8 +74,9 @@ public class BallerinaTomlTests {
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
         for (Map<String, Object> library : platformDependencies) {
-            Assert.assertTrue(library.get("path").equals("/user/sameera/libs/toml4j.jar")
-                                      || library.get("path").equals("path/to/swagger.jar"));
+            Assert.assertTrue(library.get("path").equals(
+                    System.getProperty("user.dir") + "/src/test/resources/dummy-jars/toml4j.txt")
+                                      || library.get("path").equals("../dummy-jars/swagger.txt"));
             Assert.assertTrue(library.get("artifactId").equals("toml4j")
                                       || library.get("artifactId").equals("swagger"));
             Assert.assertEquals(library.get("version"), "0.7.2");
@@ -128,22 +130,19 @@ public class BallerinaTomlTests {
 
         PackageManifest.Platform platform = packageManifest.platform("java11");
         List<Map<String, Object>> platformDependencies = platform.dependencies();
-        Assert.assertEquals(platformDependencies.size(), 3);
+        Assert.assertEquals(platformDependencies.size(), 2);
         for (Map<String, Object> library : platformDependencies) {
-            if (library.get("path").equals("./libs/ballerina-io-1.2.0-java.txt")) {
+            if (library.get("path").equals("../dummy-jars/swagger.txt")) {
                 Assert.assertEquals(library.get("scope"), "testOnly");
-                Assert.assertEquals(library.get("artifactId"), "ldap");
-                Assert.assertEquals(library.get("version"), "1.0.0");
-                Assert.assertEquals(library.get("groupId"), "ballerina");
+                Assert.assertEquals(library.get("artifactId"), "swagger");
+                Assert.assertEquals(library.get("version"), "0.7.2");
+                Assert.assertEquals(library.get("groupId"), "swagger.io");
             } else {
                 Assert.assertNull(library.get("scope"));
-                Assert.assertTrue(library.get("path").equals("/user/sameera/libs/toml4j.jar") || library.get("path")
-                        .equals("path/to/swagger.jar"));
-                Assert.assertTrue(
-                        library.get("artifactId").equals("toml4j") || library.get("artifactId").equals("swagger"));
+                Assert.assertEquals(library.get("path"), "../dummy-jars/toml4j.txt");
+                Assert.assertEquals(library.get("artifactId"), "toml4j");
                 Assert.assertEquals(library.get("version"), "0.7.2");
-                Assert.assertTrue(library.get("groupId").equals("com.moandjiezana.toml") || library.get("groupId")
-                        .equals("swagger.io"));
+                Assert.assertEquals(library.get("groupId"), "com.moandjiezana.toml");
             }
         }
     }
@@ -240,17 +239,19 @@ public class BallerinaTomlTests {
         PackageManifest packageManifest = getPackageManifest(BAL_TOML_REPO.resolve("invalid-entries.toml"));
         DiagnosticResult diagnostics = packageManifest.diagnostics();
         Assert.assertTrue(diagnostics.hasErrors());
-        Assert.assertEquals(diagnostics.errors().size(), 4);
+        Assert.assertEquals(diagnostics.errors().size(), 5);
 
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Assert.assertEquals(iterator.next().message(),
-                            "incompatible type for key 'license': expected 'ARRAY', found 'STRING'");
+                "incompatible type for key 'license': expected 'ARRAY', found 'STRING'");
         Assert.assertEquals(iterator.next().message(),
-                            "incompatible type for key 'repository': expected 'STRING', found 'BOOLEAN'");
+                "incompatible type for key 'repository': expected 'STRING', found 'BOOLEAN'");
         Assert.assertEquals(iterator.next().message(),
-                            "incompatible type for key 'observabilityIncluded': expected 'BOOLEAN', found 'ARRAY'");
+                "could not locate dependency path 'path/to/swagger.txt'");
         Assert.assertEquals(iterator.next().message(),
-                            "incompatible type for key 'offline': expected 'BOOLEAN', found 'STRING'");
+                "incompatible type for key 'observabilityIncluded': expected 'BOOLEAN', found 'ARRAY'");
+        Assert.assertEquals(iterator.next().message(),
+                "incompatible type for key 'offline': expected 'BOOLEAN', found 'STRING'");
     }
 
     @Test
@@ -308,6 +309,7 @@ public class BallerinaTomlTests {
 
     private PackageManifest getPackageManifest(Path ballerinaTomlPath, Path dependenciesTomlPath) throws IOException {
         String ballerinaTomlContent = Files.readString(ballerinaTomlPath);
+        ballerinaTomlContent = ballerinaTomlContent.replace("<USER_DIR>", System.getProperty("user.dir"));
         String dependenciesTomlContent = Files.readString(dependenciesTomlPath);
 
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, ballerinaTomlContent);
