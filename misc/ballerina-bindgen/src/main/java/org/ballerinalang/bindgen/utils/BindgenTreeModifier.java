@@ -65,7 +65,7 @@ public class BindgenTreeModifier {
                 ImportDeclarationNode packageImport = BindgenNodeFactory
                         .createImportDeclarationNode(null,
                                 packageName.replace(".", ""),
-                                new LinkedList<>(Collections.singletonList(env.getPackageName() + "."
+                                new LinkedList<>(Collections.singletonList(escapeName(env.getPackageName()) + "."
                                         + processModuleName(packageName))));
                 imports = imports.add(packageImport);
             }
@@ -349,5 +349,13 @@ public class BindgenTreeModifier {
             }
         }
         return String.join(".", moduleName);
+    }
+
+    private String escapeName(String name) {
+        List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
+        if (reservedWords.contains(name)) {
+            name = "'" + name;
+        }
+        return name;
     }
 }

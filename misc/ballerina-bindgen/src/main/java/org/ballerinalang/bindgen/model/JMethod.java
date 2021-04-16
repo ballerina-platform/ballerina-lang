@@ -30,6 +30,7 @@ import java.util.Set;
 
 import static org.ballerinalang.bindgen.utils.BindgenConstants.ARRAY_BRACKETS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_PREFIX;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.JAVA_STRING_ARRAY;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
@@ -61,6 +62,7 @@ public class JMethod extends BFunction {
     private Class parentClass;
     private Method method;
     private String methodName;
+    private String unescapedMethodName;
     private String returnType;
     private String exceptionName;
     private String returnTypeJava;
@@ -78,7 +80,7 @@ public class JMethod extends BFunction {
         this.parentPrefix = parentPrefix;
         method = m;
         javaMethodName = m.getName();
-        if (overloaded != 0) {
+        if (overloaded > 1) {
             methodName = m.getName() + overloaded;
         } else {
             methodName = m.getName();
@@ -93,7 +95,7 @@ public class JMethod extends BFunction {
         if (!returnTypeClass.equals(Void.TYPE)) {
             setReturnTypeAttributes(returnTypeClass);
         }
-        setExternalFunctionName(jClass.getName().replace(".", "_") + "_" + methodName);
+        setExternalFunctionName(jClass.getName().replace(".", "_").replace("$", "_") + "_" + methodName);
         // Set the attributes relevant to error returns.
         for (Class<?> exceptionType : m.getExceptionTypes()) {
             try {
@@ -121,10 +123,6 @@ public class JMethod extends BFunction {
         // Set the attributes required to identify different parameters.
         setParameters(m.getParameters());
 
-        List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
-        if (reservedWords.contains(methodName)) {
-            methodName = "'" + methodName;
-        }
         if (objectReturn && !env.getAllJavaClasses().contains(returnTypeClass.getName())) {
             if (isArrayReturn) {
                 env.setClassListForLooping(returnTypeClass.getComponentType().getName());
@@ -133,10 +131,19 @@ public class JMethod extends BFunction {
             }
         }
 
+        unescapedMethodName = methodName;
         if (isStatic) {
             super.setFunctionName(getAlias(jClass, env.getAliases()) + "_" + methodName);
         } else {
+            List<String> reservedWords = Arrays.asList(BALLERINA_RESERVED_WORDS);
+            if (reservedWords.contains(methodName)) {
+                methodName = "'" + methodName;
+            }
             super.setFunctionName(methodName);
+        }
+
+        if (exceptionName == null && returnType == null && javaArraysModule) {
+            setErrorType("error?");
         }
     }
 
@@ -198,10 +205,10 @@ public class JMethod extends BFunction {
 
     private String getExceptionName(Class exception, String name) {
         try {
-            // Append the prefix "J" in front of bindings generated for Java exceptions.
+            // Append the exception class prefix in front of bindings generated for Java exceptions.
             if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
                     .isAssignableFrom(exception)) {
-                return "J" + name;
+                return EXCEPTION_CLASS_PREFIX + name;
             }
         } catch (ClassNotFoundException ignore) {
             // Silently ignore if the exception class cannot be found.
@@ -253,7 +260,7 @@ public class JMethod extends BFunction {
     }
 
     public String getMethodName() {
-        return methodName;
+        return unescapedMethodName;
     }
 
     public List<JParameter> getParameters() {
@@ -293,7 +300,7 @@ public class JMethod extends BFunction {
     }
 
     public String getBalFunctionName() {
-        return parentPrefix + "_" + methodName;
+        return parentPrefix + "_" + unescapedMethodName;
     }
 
     public String getFunctionReturnType() {

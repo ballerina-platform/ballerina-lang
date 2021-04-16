@@ -30,6 +30,7 @@ import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentConfig;
 import io.ballerina.projects.DocumentId;
+import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Module;
@@ -124,6 +125,38 @@ public class TestBuildProject {
         Assert.assertEquals(noOfSrcDocuments, 4);
         Assert.assertEquals(noOfTestDocuments, 3);
 
+    }
+
+    @Test (description = "tests loading a build project containing invalid platformdependency paths")
+    public void testBuildProjectWithInvalidDependencyPaths() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("myproject_invalidDependencyPath");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        // 2) Load the package
+        Package currentPackage = project.currentPackage();
+        // 3) Load the default module
+        Module defaultModule = currentPackage.getDefaultModule();
+        Assert.assertEquals(defaultModule.documentIds().size(), 1);
+
+        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        Assert.assertEquals(packageCompilation.diagnosticResult().diagnosticCount(), 1);
+        Assert.assertEquals(packageCompilation.diagnosticResult().diagnostics().stream().findFirst().get().toString(),
+                "ERROR [Ballerina.toml:(3:0,3:43)] " +
+                        "could not locate dependency path './libs/ballerina-io-1.0.0-java.txt'");
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_11);
+        Assert.assertEquals(jBallerinaBackend.diagnosticResult().diagnosticCount(), 1);
+
+        EmitResult emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, Paths.get("test.jar"));
+        Assert.assertFalse(emitResult.successful());
+
+        emitResult = jBallerinaBackend.emit(JBallerinaBackend.OutputType.BALA, projectPath);
+        Assert.assertFalse(emitResult.successful());
     }
 
     @Test (description = "tests loading a build project with no read permission")
