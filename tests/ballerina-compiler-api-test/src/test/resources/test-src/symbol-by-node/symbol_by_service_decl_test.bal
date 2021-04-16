@@ -21,7 +21,13 @@ type HelloWorld service object {
 @v1 {
     foo: "annot on service"
 }
-service HelloWorld /foo/bar on new Listener() {
+service HelloWorld /foo/bar on new Listener({
+                                                host: "pop.example.com",
+                                                username: "abc@example.com",
+                                                password: "pass123",
+                                                pollingInterval: 2,
+                                                port: 995
+                                            }) {
 
     public string greeting = "Hello World!";
 
@@ -37,6 +43,9 @@ service HelloWorld /foo/bar on new Listener() {
 }
 
 public class Listener {
+
+    public function init(PopListenerConfiguration config) {
+    }
 
     public function 'start() returns error? {
     }
@@ -65,3 +74,11 @@ type Annot record {
 };
 
 public const annotation Annot v1 on source service;
+
+public type PopListenerConfiguration record {|
+    string host;
+    string username;
+    string password;
+    decimal pollingInterval = 60;
+    int port = 995;
+|};

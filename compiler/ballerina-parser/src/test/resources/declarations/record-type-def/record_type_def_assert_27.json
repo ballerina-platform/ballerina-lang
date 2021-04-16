@@ -63,7 +63,7 @@
                       "kind": "RECORD_FIELD",
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD"
+                        "ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD"
                       ],
                       "children": [
                         {
@@ -206,7 +206,7 @@
                   "kind": "OPEN_BRACE_TOKEN",
                   "hasDiagnostics": true,
                   "diagnostics": [
-                    "ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD"
+                    "ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD"
                   ],
                   "trailingMinutiae": [
                     {
@@ -336,7 +336,7 @@
                       "kind": "RECORD_FIELD",
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD"
+                        "ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD"
                       ],
                       "children": [
                         {
