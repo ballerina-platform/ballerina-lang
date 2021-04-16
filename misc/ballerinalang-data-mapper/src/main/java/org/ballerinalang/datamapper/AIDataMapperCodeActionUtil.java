@@ -66,7 +66,6 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -391,7 +390,7 @@ class AIDataMapperCodeActionUtil {
         JsonObject leftRecordJSON = new JsonObject();
 
         List<RecordTypeSymbol> symbolList = checkMappingCapability(lftTypeSymbol, rhsTypeSymbol);
-        if (!symbolList.contains(null)) {
+        if (symbolList.size() == 2) {
             // Schema 1
 
             // To get the rest field details
@@ -884,6 +883,7 @@ class AIDataMapperCodeActionUtil {
         responseFieldMap.clear();
         optionalRightRecordFields.clear();
         rightSpecificFieldList.clear();
+        isOptionalMap.clear();
 
         if (leftModule != null) {
             leftType = leftModule + ":" + foundTypeLeft;
@@ -909,25 +909,30 @@ class AIDataMapperCodeActionUtil {
      * @return - Type casted symbol list
      */
     private static List<RecordTypeSymbol> checkMappingCapability(Symbol lftTypeSymbol, Symbol rhsTypeSymbol) {
+
+        ArrayList<RecordTypeSymbol> symbolArrayList = new ArrayList<>();
         // rhs Schema
-        RecordTypeSymbol rightSymbol = null;
+        RecordTypeSymbol rightSymbol;
         if (rhsTypeSymbol.getName().isEmpty()) {
             rightSymbol = (RecordTypeSymbol) rhsTypeSymbol;
+            symbolArrayList.add(rightSymbol);
         } else {
             TypeSymbol rhsSymbol = ((TypeReferenceTypeSymbol) rhsTypeSymbol).typeDescriptor();
             if ("RECORD".equals(rhsSymbol.typeKind().name())) {
                 rightSymbol = (RecordTypeSymbol) rhsSymbol;
+                symbolArrayList.add(rightSymbol);
             }
         }
 
         // lfs Schema
         TypeSymbol lftSymbol = ((TypeReferenceTypeSymbol) lftTypeSymbol).typeDescriptor();
-        RecordTypeSymbol leftSymbol = null;
+        RecordTypeSymbol leftSymbol;
         if ("RECORD".equals(lftSymbol.typeKind().name())) {
             leftSymbol = (RecordTypeSymbol) lftSymbol;
+            symbolArrayList.add(leftSymbol);
         }
 
-        return Arrays.asList(rightSymbol, leftSymbol);
+        return symbolArrayList;
     }
 
     private static String generateResponseWithDefaultValues(String key, String defaultValue, String mappingFromServer) {
