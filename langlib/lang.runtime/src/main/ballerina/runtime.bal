@@ -18,6 +18,9 @@ import ballerina/jballerina.java;
 import ballerina/lang.'array as lang_array;
 import ballerina/lang.'value as lang_value;
 
+// Maximum thread pool size configuration
+final configurable int poolSize = 0;
+
 # A listener that is dynamically registered with a module.
 public type DynamicListener object {
     public function 'start() returns error?;
