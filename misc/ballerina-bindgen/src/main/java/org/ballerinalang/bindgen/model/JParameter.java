@@ -26,6 +26,7 @@ import java.util.List;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_RESERVED_WORDS;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING;
 import static org.ballerinalang.bindgen.utils.BindgenConstants.BALLERINA_STRING_ARRAY;
+import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_PREFIX;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaHandleType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getBallerinaParamType;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getPrimitiveArrayType;
@@ -62,11 +63,11 @@ public class JParameter {
         shortTypeName = getBallerinaParamType(parameterClass, env.getAliases());
         modulesFlag = env.getModulesFlag();
 
-        // Append the prefix "J" in front of bindings generated for Java exceptions.
+        // Append the exception class prefix in front of bindings generated for Java exceptions.
         try {
             if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
                     .isAssignableFrom(parameterClass)) {
-                shortTypeName = "J" + shortTypeName;
+                shortTypeName = EXCEPTION_CLASS_PREFIX + shortTypeName;
             }
         } catch (ClassNotFoundException ignore) {
             // Silently ignore this assignment if the class is not found.

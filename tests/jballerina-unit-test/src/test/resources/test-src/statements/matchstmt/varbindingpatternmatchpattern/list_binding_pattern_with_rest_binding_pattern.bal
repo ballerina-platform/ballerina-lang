@@ -100,6 +100,18 @@ function testListBindingPatternWithRest6() {
     assertEquals(3, listBindingPattern6([1, [2, 3, 4]]));
 }
 
+function listBindingPattern7(int[3] val) returns int {
+    match val {
+        var [a, b, ...c] => {
+            return a + b + c[0];
+        }
+    }
+}
+
+function testRestBindingPatternWithClosedArray() {
+    assertEquals(6, listBindingPattern7([1, 2, 3]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
