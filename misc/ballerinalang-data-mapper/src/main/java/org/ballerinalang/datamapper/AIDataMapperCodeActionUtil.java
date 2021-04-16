@@ -243,8 +243,6 @@ class AIDataMapperCodeActionUtil {
 
                     if (matchedNode == null) {
                         return fEdits;
-//                        throw new IllegalStateException("Unexpected node at cursor:" +
-//                                positionDetails.matchedNode().kind());
                     }
 
                     String functionCall = matchedNode.toString();
@@ -284,7 +282,6 @@ class AIDataMapperCodeActionUtil {
                     break;
                 default:
                     return fEdits;
-//                    throw new IllegalStateException("Unexpected value: " + symbolAtCursorType);
             }
 
             // Insert function declaration at the bottom of the file
