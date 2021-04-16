@@ -165,9 +165,9 @@ public class ExpressionEvaluationNegativeTest extends ExpressionEvaluationBaseTe
     @Test
     public void typeCastEvaluationTest() throws BallerinaTestException {
         debugTestRunner.assertEvaluationError(context, String.format("<boolean>%s", ANYDATA_VAR),
-                "{ballerina}TypeCastError");
+                "{ballerina/lang.runtime}TypeCastError");
         debugTestRunner.assertEvaluationError(context, String.format("<boolean|string>%s", ANY_VAR),
-                "{ballerina}TypeCastError");
+                "{ballerina/lang.runtime}TypeCastError");
     }
 
     @Override

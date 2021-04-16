@@ -155,13 +155,14 @@ public class ErrorUtils {
             return createError(module, errorType.getErrorName(), getModulePrefixedErrorName(module, errorType),
                     cause, detail);
         } catch (BError e) {
+            // This should never happen unless ErrorCreator itself has a bug
             throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()));
         }
     }
 
-    public static BString getErrorMessage(RuntimeErrorType errorType, Object... params) {
-        return StringUtils.fromString(MessageFormat
-                .format(messageBundle.getString(errorType.getErrorMsgKey()), params));
+    private static BString getErrorMessage(RuntimeErrorType errorType, Object... params) {
+        String pattern = messageBundle.getString(errorType.getErrorMsgKey());
+        return StringUtils.fromString(MessageFormat.format(pattern, params));
     }
 
     private static BMap<BString, Object> getErrorDetail(BString errMessage) {
@@ -172,12 +173,8 @@ public class ErrorUtils {
     }
 
     public static BString getModulePrefixedErrorName(Module module, RuntimeErrorType errorType) {
-        return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(module.getName())
-                .concat(CLOSING_CURLY_BRACE).concat(errorType.getErrorName()));
+        String prefix = BALLERINA_ORG_PREFIX.concat(module.getName()).concat(CLOSING_CURLY_BRACE);
+        return StringUtils.fromString(prefix.concat(errorType.getErrorName()));
     }
 
-    public static BString getModulePrefixedErrorName(String moduleName, RuntimeErrorType errorType) {
-        return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)
-                .concat(CLOSING_CURLY_BRACE).concat(errorType.getErrorName()));
-    }
 }
