@@ -148,6 +148,24 @@ public class TomlProviderNegativeTest {
         };
     }
 
+    @Test()
+    public void testInvalidTableField() {
+        MapType mapType =  TypeCreator.createMapType(PredefinedTypes.TYPE_STRING, true);
+        Field intArr = TypeCreator.createField(mapType, "invalidMap", SymbolFlags.REQUIRED);
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("invalidField", intArr));
+        RecordType type = TypeCreator.createRecordType("Person", module, SymbolFlags.READONLY, fields, null, true, 6);
+        TableType tableType = TypeCreator.createTableType(type, new String[]{"name"}, true);
+        IntersectionType intersectionType = new BIntersectionType(module, new Type[]{tableType,
+                PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
+
+        VariableKey tableVar = new VariableKey(module, "tableVar", intersectionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{tableVar}));
+        String errorMsg = "[InvalidTableField.toml:(3:1,3:27)] additional field 'invalidMap' provided for " +
+                "configurable variable 'test_module:tableVar' of record 'test_module:Person' is not supported";
+        validateTomlProviderErrors("InvalidTableField", errorMsg, configVarMap, 1);
+    }
+
     @Test(dataProvider = "record-negative-tests")
     public void testRecordNegativeConfig(String tomlFileName, String errorMsg) {
         Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
