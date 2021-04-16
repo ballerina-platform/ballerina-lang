@@ -38,13 +38,12 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MAX_VALUE;
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BBYTE_MIN_VALUE;
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.INCOMPATIBLE_TYPE_ERROR_MESSAGE;
 import static io.ballerina.runtime.internal.configurable.ConfigConstants.INVALID_INT_TO_BYTE_CONVERSION;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_ARG_REGEX;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_PREFIX;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.INVALID_BYTE_RANGE;
+import static io.ballerina.runtime.internal.util.RuntimeUtils.isByteLiteral;
 
 /**
  * This class implements @{@link ConfigProvider} tp provide values for configurable variables through cli args.
@@ -242,10 +241,6 @@ public class CliProvider implements ConfigProvider {
                     .format(INVALID_INT_TO_BYTE_CONVERSION, value)));
         }
         return byteValue;
-    }
-
-    static boolean isByteLiteral(long longValue) {
-        return (longValue >= BBYTE_MIN_VALUE && longValue <= BBYTE_MAX_VALUE);
     }
 
 }
