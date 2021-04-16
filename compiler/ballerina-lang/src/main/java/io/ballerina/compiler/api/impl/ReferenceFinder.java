@@ -313,6 +313,13 @@ public class ReferenceFinder extends BaseVisitor {
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         find(annAttachmentNode.expr);
+
+        if (!annAttachmentNode.pkgAlias.value.isEmpty()
+                && annAttachmentNode.annotationSymbol != null
+                && addIfSameSymbol(annAttachmentNode.annotationSymbol.owner, annAttachmentNode.pkgAlias.pos)) {
+            return;
+        }
+
         addIfSameSymbol(annAttachmentNode.annotationSymbol, annAttachmentNode.annotationName.pos);
     }
 
