@@ -262,7 +262,10 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 if (metadata != null) {
-                    addInvalidNodeToNextToken(metadata, DiagnosticErrorCode.ERROR_INVALID_METADATA);
+                    STNode moduleVarDecl = createMissingSimpleVarDecl(metadata);
+                    moduleVarDecl = SyntaxErrors.addDiagnostic(moduleVarDecl, 
+                            DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT);
+                    return moduleVarDecl;
                 }
                 return null;
             case PUBLIC_KEYWORD:
@@ -781,10 +784,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case EOF_TOKEN:
-                reportInvalidMetaData(metadata);
-                reportInvalidQualifier(publicQualifier);
-                reportInvalidQualifierList(qualifiers);
-                return null;
+                return createMissingSimpleVarDecl(metadata, publicQualifier, qualifiers, true);
             case FUNCTION_KEYWORD:
                 // Anything starts with a function keyword could be a function definition
                 // or a module-var-decl with function type desc.
@@ -3475,10 +3475,10 @@ public class BallerinaParser extends AbstractParser {
             if (field.kind == SyntaxKind.RECORD_REST_TYPE && bodyStartDelimiter.kind == SyntaxKind.OPEN_BRACE_TOKEN) {
                 if (recordFields.size() == 0) {
                     bodyStartDelimiter = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(bodyStartDelimiter, field,
-                            DiagnosticErrorCode.ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD);
+                            DiagnosticErrorCode.ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD);
                 } else {
                     updateLastNodeInListWithInvalidNode(recordFields, field,
-                            DiagnosticErrorCode.ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD);
+                            DiagnosticErrorCode.ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD);
                 }
                 continue;
             } else if (field.kind == SyntaxKind.RECORD_REST_TYPE) {
@@ -3943,6 +3943,7 @@ public class BallerinaParser extends AbstractParser {
         STNode annots = STNodeFactory.createEmptyNodeList();
         switch (nextToken.kind) {
             case CLOSE_BRACE_TOKEN:
+            case EOF_TOKEN:
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:
@@ -3997,10 +3998,9 @@ public class BallerinaParser extends AbstractParser {
         
         switch (nextToken.kind) {
             case CLOSE_BRACE_TOKEN:
-                // Returning null marks the end of statements
-                reportInvalidStatementAnnots(annots, qualifiers);
-                reportInvalidQualifierList(qualifiers);
-                return null;
+            case EOF_TOKEN:
+                STNode publicQualifier = STNodeFactory.createEmptyNode();
+                return createMissingSimpleVarDecl(getAnnotations(annots), publicQualifier, qualifiers, false);
             case SEMICOLON_TOKEN:
                 addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseStatement(annots, qualifiers);
@@ -4129,7 +4129,7 @@ public class BallerinaParser extends AbstractParser {
                     // If the statement starts with a type, then its a var declaration.
                     // This is an optimization since if we know the next token is a type, then
                     // we can parse the var-def faster.
-                    STNode publicQualifier = STNodeFactory.createEmptyNode();
+                    publicQualifier = STNodeFactory.createEmptyNode();
                     return parseVariableDecl(getAnnotations(annots), publicQualifier, new ArrayList<>(), qualifiers,
                             false);
                 }
@@ -4368,6 +4368,67 @@ public class BallerinaParser extends AbstractParser {
         STNode varDeclQualifiersNode = STNodeFactory.createNodeList(varDeclQuals);
         return STNodeFactory.createModuleVariableDeclarationNode(metadata, publicQualifier, varDeclQualifiersNode,
                 typedBindingPattern, assign, expr, semicolon);
+    }
+
+    private STNode createMissingSimpleVarDecl(STNode metadata) {
+        STNode publicQualifier = STNodeFactory.createEmptyNode();
+        return createMissingSimpleVarDecl(metadata, publicQualifier, new ArrayList<>(), true);
+    }
+
+    private STNode createMissingSimpleVarDecl(STNode metadata, STNode publicQualifier, List<STNode> qualifiers,
+                                              boolean isModuleVar) {
+        STNode emptyNode = STNodeFactory.createEmptyNode();
+        STNode simpleTypeDescIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+        STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_VARIABLE_NAME);
+        STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
+        STNode semicolon = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.SEMICOLON_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN);
+        
+        STNode captureBP = STNodeFactory.createCaptureBindingPatternNode(identifier);
+        STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(simpleNameRef, captureBP);
+        
+        if (isModuleVar) {
+            List<STNode> varDeclQuals = extractVarDeclQualifiers(qualifiers);
+            STNode varDeclQualNodeList = STNodeFactory.createNodeList(varDeclQuals);
+
+            typedBindingPattern = modifyNodeWithInvalidTokenList(qualifiers, typedBindingPattern);
+
+            return STNodeFactory.createModuleVariableDeclarationNode(metadata, publicQualifier, varDeclQualNodeList,
+                    typedBindingPattern, emptyNode, emptyNode, semicolon);
+        }
+
+        typedBindingPattern = modifyNodeWithInvalidTokenList(qualifiers, typedBindingPattern);
+
+        return STNodeFactory.createVariableDeclarationNode(metadata, emptyNode, typedBindingPattern, emptyNode,
+                emptyNode, semicolon);
+    }
+
+    private STNode createMissingSimpleObjectField(STNode metadata, List<STNode> qualifiers, boolean isObjectTypeDesc) {
+        STNode emptyNode = STNodeFactory.createEmptyNode();
+        STNode simpleTypeDescIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+        STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_FIELD_NAME);
+        STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
+        STNode semicolon = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.SEMICOLON_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN);
+
+        List<STNode> objectFieldQualifiers = extractObjectFieldQualifiers(qualifiers, isObjectTypeDesc);
+        STNode objectFieldQualNodeList = STNodeFactory.createNodeList(objectFieldQualifiers);
+
+        simpleNameRef = modifyNodeWithInvalidTokenList(qualifiers, simpleNameRef);
+
+        return STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList, simpleNameRef,
+                identifier, emptyNode, emptyNode, semicolon);
+    }
+
+    private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {
+        for (STNode qualifier : qualifiers) {
+            node = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, qualifier);
+        }
+        return node;
     }
 
     private STNode modifyTypedBindingPatternWithIsolatedQualifier(STNode typedBindingPattern,
@@ -6110,9 +6171,12 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-                reportInvalidMetaData(metadata);
-                reportInvalidQualifierList(qualifiers);
-                return null;
+                STNode objectField = createMissingSimpleObjectField(metadata, qualifiers, isObjectTypeDesc);
+                if (metadata != null) {
+                    objectField = SyntaxErrors.addDiagnostic(objectField,
+                            DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER);
+                }
+                return objectField;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);

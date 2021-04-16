@@ -89,8 +89,8 @@ public class ConfigurableTest extends BaseTest {
                               new LogLeecher[]{testLog}, testFileLocation + "/testProject");
         testLog.waitForText(5000);
 
-        String errorMsg = "[Config.toml:(3:14,3:28)] configurable variable 'configPkg:invalidArr' with type " +
-                "'(int[] & readonly)[] & readonly' is not supported";
+        String errorMsg = "error: configurable variable 'configPkg:invalidMap' with type 'map<(anydata & readonly)> &" +
+                " readonly' is not supported";
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, testFileLocation + "/testErrorProject");
@@ -184,6 +184,20 @@ public class ConfigurableTest extends BaseTest {
     @Test
     public void testRecordValueWithModuleClash() throws BallerinaTestException {
         executeBalCommand("/recordModuleProject", "main", null);
+    }
+
+    @Test
+    public void testConfigurableRecordsAndRecordTables() throws BallerinaTestException {
+        LogLeecher buildLeecher = new LogLeecher("target/bala/testOrg-configLib-any-0.1.0.bala");
+        LogLeecher pushLeecher = new LogLeecher("Successfully pushed target/bala/testOrg-configLib-any-0.1.0.bala to " +
+                                                        "'local' repository.", ERROR);
+        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+                              testFileLocation + "/configLibProject");
+        buildLeecher.waitForText(5000);
+        bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
+                              testFileLocation + "/configLibProject");
+        pushLeecher.waitForText(5000);
+        executeBalCommand("/configStructuredTypesProject", "configStructuredTypes", null);
     }
 
     /** Negative test cases. */

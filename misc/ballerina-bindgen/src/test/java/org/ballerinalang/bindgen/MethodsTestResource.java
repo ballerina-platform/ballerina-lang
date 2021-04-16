@@ -31,7 +31,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class MethodsTestResource {
+public class MethodsTestResource extends RestrictedTestResource implements InterfaceTestResource {
 
     // Different instance method combinations
 
@@ -237,6 +237,10 @@ public class MethodsTestResource {
     public static void returnStaticVoid() {
     }
 
+    // A reserved word in a static method.
+    public static void join() {
+    }
+
     public static void returnStaticOptionalError() throws Exception {
     }
 
@@ -280,5 +284,10 @@ public class MethodsTestResource {
 
     public static File[] returnStaticObjectThrowableError1() throws FileNotFoundException {
         return new File[2];
+    }
+
+    @Override
+    public int testMethod(int x) {
+        return 0;
     }
 }

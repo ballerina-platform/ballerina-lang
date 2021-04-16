@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.functions;
 
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
@@ -34,7 +33,6 @@ import org.testng.annotations.Test;
 public class FunctionsAndNilTest {
 
     private CompileResult result;
-    private static final String ERROR_MESSAGE_FIELD = "message";
 
     @BeforeClass
     public void setup() {
@@ -57,34 +55,20 @@ public class FunctionsAndNilTest {
     public void funcReturnNilOrError() {
         BValue[] params = new BValue[1];
         params[0] = new BInteger(10);
-        BValue[] returns = BRunUtil.invoke(result, "funcReturnNilOrError", params);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNull(returns[0]);
+        BRunUtil.invoke(result, "funcReturnNilOrError", params);
 
         params[0] = new BInteger(30);
-        returns = BRunUtil.invoke(result, "funcReturnNilOrError", params);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].getClass(), BError.class);
-        BError errorValue = (BError) returns[0];
-        Assert.assertEquals("dummy error message", errorValue.getReason());
+        BRunUtil.invoke(result, "funcReturnNilOrError", params);
     }
 
     @Test(description = "Test functions that returns nil type")
     public void funcReturnOptionallyError() {
         BValue[] params = new BValue[1];
         params[0] = new BInteger(10);
-        BValue[] returns = BRunUtil.invoke(result, "funcReturnOptionallyError", params);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNull(returns[0]);
+        BRunUtil.invoke(result, "funcReturnOptionallyError", params);
 
         params[0] = new BInteger(30);
-        returns = BRunUtil.invoke(result, "funcReturnOptionallyError", params);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertNotNull(returns[0]);
-        Assert.assertEquals(returns[0].getClass(), BError.class);
-        BError errorValue = (BError) returns[0];
-        Assert.assertEquals("dummy error message", errorValue.getReason());
+        BRunUtil.invoke(result, "funcReturnOptionallyError", params);
     }
 
     @Test(description = "Test functions that returns nil type")

@@ -27,14 +27,6 @@ public distinct class FileInputStream {
         return java:toString(self.jObj) ?: "null";
     }
 
-    # The function that maps to the `equals` method of `java.io.FileInputStream`.
-    #
-    # + arg0 - The `javalang:Object` value required to map with the Java method parameter.
-    # + return - The `boolean` value returning from the Java mapping.
-    public function 'equals(javalang:Object arg0) returns boolean {
-        return java_io_FileInputStream_equals(self.jObj, arg0.jObj);
-    }
-
     # The function that maps to the `available` method of `java.io.FileInputStream`.
     #
     # + return - The `int` or the `IOException` value returning from the Java mapping.
@@ -57,6 +49,14 @@ public distinct class FileInputStream {
             IOException e = error IOException(IOEXCEPTION, externalObj, message = externalObj.message());
             return e;
         }
+    }
+
+    # The function that maps to the `equals` method of `java.io.FileInputStream`.
+    #
+    # + arg0 - The `javalang:Object` value required to map with the Java method parameter.
+    # + return - The `boolean` value returning from the Java mapping.
+    public function 'equals(javalang:Object arg0) returns boolean {
+        return java_io_FileInputStream_equals(self.jObj, arg0.jObj);
     }
 
     # The function that maps to the `getChannel` method of `java.io.FileInputStream`.
@@ -125,8 +125,8 @@ public distinct class FileInputStream {
     # The function that maps to the `read` method of `java.io.FileInputStream`.
     #
     # + return - The `int` or the `IOException` value returning from the Java mapping.
-    public function read1() returns int|IOException {
-        int|error externalObj = java_io_FileInputStream_read1(self.jObj);
+    public function read() returns int|IOException {
+        int|error externalObj = java_io_FileInputStream_read(self.jObj);
         if (externalObj is error) {
             IOException e = error IOException(IOEXCEPTION, externalObj, message = externalObj.message());
             return e;
@@ -185,9 +185,9 @@ public distinct class FileInputStream {
     # + arg1 - The `int` value required to map with the Java method parameter.
     # + arg2 - The `int` value required to map with the Java method parameter.
     # + return - The `int` or the `IOException` value returning from the Java mapping.
-    public function readNBytes1(byte[] arg0, int arg1, int arg2) returns int|IOException|error {
-        int|error externalObj = java_io_FileInputStream_readNBytes1(self.jObj, check jarrays:toHandle(arg0, "byte"),
-        arg1, arg2);
+    public function readNBytes(byte[] arg0, int arg1, int arg2) returns int|IOException|error {
+        int|error externalObj = java_io_FileInputStream_readNBytes(self.jObj, check jarrays:toHandle(arg0, "byte"), arg1,
+        arg2);
         if (externalObj is error) {
             IOException e = error IOException(IOEXCEPTION, externalObj, message = externalObj.message());
             return e;
@@ -252,8 +252,8 @@ public distinct class FileInputStream {
     # The function that maps to the `wait` method of `java.io.FileInputStream`.
     #
     # + return - The `javalang:InterruptedException` value returning from the Java mapping.
-    public function wait1() returns javalang:InterruptedException? {
-        error|() externalObj = java_io_FileInputStream_wait1(self.jObj);
+    public function 'wait() returns javalang:InterruptedException? {
+        error|() externalObj = java_io_FileInputStream_wait(self.jObj);
         if (externalObj is error) {
             javalang:InterruptedException e = error javalang:InterruptedException(javalang:INTERRUPTEDEXCEPTION,
             externalObj, message = externalObj.message());
@@ -340,12 +340,6 @@ public function FileInputStream_nullInputStream() returns InputStream {
     return newObj;
 }
 
-function java_io_FileInputStream_equals(handle receiver, handle arg0) returns boolean = @java:Method {
-    name: "equals",
-    'class: "java.io.FileInputStream",
-    paramTypes: ["java.lang.Object"]
-} external;
-
 function java_io_FileInputStream_available(handle receiver) returns int|error = @java:Method {
     name: "available",
     'class: "java.io.FileInputStream",
@@ -356,6 +350,12 @@ function java_io_FileInputStream_close(handle receiver) returns error? = @java:M
     name: "close",
     'class: "java.io.FileInputStream",
     paramTypes: []
+} external;
+
+function java_io_FileInputStream_equals(handle receiver, handle arg0) returns boolean = @java:Method {
+    name: "equals",
+    'class: "java.io.FileInputStream",
+    paramTypes: ["java.lang.Object"]
 } external;
 
 function java_io_FileInputStream_getChannel(handle receiver) returns handle = @java:Method {
@@ -412,7 +412,7 @@ function java_io_FileInputStream_nullInputStream() returns handle = @java:Method
     paramTypes: []
 } external;
 
-function java_io_FileInputStream_read1(handle receiver) returns int|error = @java:Method {
+function java_io_FileInputStream_read(handle receiver) returns int|error = @java:Method {
     name: "read",
     'class: "java.io.FileInputStream",
     paramTypes: []
@@ -436,7 +436,7 @@ function java_io_FileInputStream_readAllBytes(handle receiver) returns handle|er
     paramTypes: []
 } external;
 
-function java_io_FileInputStream_readNBytes1(handle receiver, handle arg0, int arg1, int arg2) returns int|error = @java:Method {
+function java_io_FileInputStream_readNBytes(handle receiver, handle arg0, int arg1, int arg2) returns int|error = @java:Method {
     name: "readNBytes",
     'class: "java.io.FileInputStream",
     paramTypes: ["[B", "int", "int"]
@@ -466,7 +466,7 @@ function java_io_FileInputStream_transferTo(handle receiver, handle arg0) return
     paramTypes: ["java.io.OutputStream"]
 } external;
 
-function java_io_FileInputStream_wait1(handle receiver) returns error? = @java:Method {
+function java_io_FileInputStream_wait(handle receiver) returns error? = @java:Method {
     name: "wait",
     'class: "java.io.FileInputStream",
     paramTypes: []
