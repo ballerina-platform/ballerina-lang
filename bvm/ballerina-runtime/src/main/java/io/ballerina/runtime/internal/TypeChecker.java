@@ -1753,14 +1753,6 @@ public class TypeChecker {
             }
         }
 
-        if (targetType.retType == null) {
-            targetType.retType = TYPE_NEVER;
-        }
-
-        if (source.retType == null) {
-            source.retType = TYPE_NEVER;
-        }
-
         return checkIsType(source.retType, targetType.retType, new ArrayList<>());
     }
 

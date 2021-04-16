@@ -133,11 +133,6 @@ public class BFunctionType extends BAnnotatableType implements FunctionType {
         if (!Arrays.equals(paramTypes, that.paramTypes)) {
             return false;
         }
-
-        if (retType == null) {
-            retType = PredefinedTypes.TYPE_NEVER;
-        }
-
         return retType.equals(that.retType);
     }
 
