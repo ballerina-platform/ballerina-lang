@@ -173,11 +173,13 @@ type PersonTable table<Person>;
 
 type IntArray int[];
 
+type XmlType xml;
+
 function testComplexTypes() {
     json j = echo(<json>{"name": "John Doe"}, json);
     assert(<json>{"name": "John Doe"}, j);
 
-    xml x = echo(xml `<hello>xml content</hello>`, xml);
+    xml x = echo(xml `<hello>xml content</hello>`, XmlType);
     assert(xml `<hello>xml content</hello>`, x);
 
     int[] ar = echo(<IntArray>[20, 30, 40], IntArray);
