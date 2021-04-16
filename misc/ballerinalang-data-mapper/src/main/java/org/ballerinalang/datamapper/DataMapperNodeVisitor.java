@@ -26,6 +26,8 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.BasicLiteralNode;
+import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
 import io.ballerina.compiler.syntax.tree.MappingFieldNode;
 import io.ballerina.compiler.syntax.tree.NodeVisitor;
@@ -66,10 +68,10 @@ public class DataMapperNodeVisitor extends NodeVisitor {
 
     @Override
     public void visit(VariableDeclarationNode variableDeclarationNode) {
-        if (!(variableDeclarationNode.initializer().isPresent())) {
+        if (variableDeclarationNode.initializer().isEmpty()) {
             return;
         }
-        if (!(variableDeclarationNode.initializer().get().kind() == SyntaxKind.MAPPING_CONSTRUCTOR)) {
+        if (variableDeclarationNode.initializer().get().kind() != SyntaxKind.MAPPING_CONSTRUCTOR) {
             return;
         }
         String rightSymbolName = "";
@@ -90,9 +92,9 @@ public class DataMapperNodeVisitor extends NodeVisitor {
             SeparatedNodeList<MappingFieldNode> fields = mappingConstructorExpressionNode.fields();
             for (MappingFieldNode field : fields) {
                 if (field.kind() == SyntaxKind.SPECIFIC_FIELD) {
-                    SpecificFieldNode field1 = (SpecificFieldNode) field;
-                    String fieldName = field1.fieldName().toString().replaceAll(" ", "");
-                    if (field1.valueExpr().isPresent() && fieldName.contains("\"")) {
+                    SpecificFieldNode specificFieldNode = (SpecificFieldNode) field;
+                    if (specificFieldNode.fieldName().kind() == SyntaxKind.STRING_LITERAL) {
+                        String fieldName = ((BasicLiteralNode) specificFieldNode.fieldName()).literalToken().text();
                         fieldName = fieldName.replaceAll("\"", "");
                         Optional<Symbol> symbol = this.model.symbol(variableDeclarationNode);
                         if (symbol.isPresent()) {
@@ -102,8 +104,9 @@ public class DataMapperNodeVisitor extends NodeVisitor {
                                     typeKind().getName();
                             this.restFields.put(fieldName, restFieldType);
                         }
-                    } else {
-                        specificFieldList.add(field1.fieldName().toString().replaceAll(" ", ""));
+                    } else if (specificFieldNode.fieldName().kind() == SyntaxKind.IDENTIFIER_TOKEN) {
+                        String fieldName = ((IdentifierToken) specificFieldNode.fieldName()).text();
+                        specificFieldList.add(fieldName);
                     }
                 } else if (field.kind() == SyntaxKind.SPREAD_FIELD) {
                     SpreadFieldNode field1 = (SpreadFieldNode) field;
