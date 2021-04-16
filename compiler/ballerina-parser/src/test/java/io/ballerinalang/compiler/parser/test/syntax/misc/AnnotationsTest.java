@@ -72,4 +72,9 @@ public class AnnotationsTest extends AbstractMiscTest {
     public void testAdditionalTokensBeforeParamAnnot() {
         testFile("annotations/annotations_source_09.bal", "annotations/annotations_assert_09.json");
     }
+
+    @Test
+    public void testAnnotAttachmentAtEOF() {
+        testFile("annotations/annotations_source_10.bal", "annotations/annotations_assert_10.json");
+    }
 }
