@@ -4,52 +4,7 @@
   "children": [
     {
       "kind": "LIST",
-      "children": [
-        {
-          "kind": "IMPORT_DECLARATION",
-          "children": [
-            {
-              "kind": "IMPORT_KEYWORD",
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                }
-              ]
-            },
-            {
-              "kind": "IMPORT_ORG_NAME",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "foobar"
-                },
-                {
-                  "kind": "SLASH_TOKEN"
-                }
-              ]
-            },
-            {
-              "kind": "LIST",
-              "children": [
-                {
-                  "kind": "IDENTIFIER_TOKEN",
-                  "value": "baz"
-                }
-              ]
-            },
-            {
-              "kind": "SEMICOLON_TOKEN",
-              "trailingMinutiae": [
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
-              ]
-            }
-          ]
-        }
-      ]
+      "children": []
     },
     {
       "kind": "LIST",
@@ -58,23 +13,47 @@
         {
           "kind": "MODULE_VAR_DECL",
           "hasDiagnostics": true,
+          "diagnostics": [
+            "ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT"
+          ],
           "children": [
             {
-              "kind": "PUBLIC_KEYWORD",
-              "leadingMinutiae": [
+              "kind": "METADATA",
+              "children": [
                 {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
-                }
-              ],
-              "trailingMinutiae": [
-                {
-                  "kind": "WHITESPACE_MINUTIAE",
-                  "value": " "
-                },
-                {
-                  "kind": "END_OF_LINE_MINUTIAE",
-                  "value": "\n"
+                  "kind": "LIST",
+                  "children": [
+                    {
+                      "kind": "ANNOTATION",
+                      "children": [
+                        {
+                          "kind": "AT_TOKEN"
+                        },
+                        {
+                          "kind": "QUALIFIED_NAME_REFERENCE",
+                          "children": [
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "test"
+                            },
+                            {
+                              "kind": "COLON_TOKEN"
+                            },
+                            {
+                              "kind": "IDENTIFIER_TOKEN",
+                              "value": "config",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "END_OF_LINE_MINUTIAE",
+                                  "value": "\n"
+                                }
+                              ]
+                            }
+                          ]
+                        }
+                      ]
+                    }
+                  ]
                 }
               ]
             },
@@ -129,7 +108,25 @@
       ]
     },
     {
-      "kind": "EOF_TOKEN"
+      "kind": "EOF_TOKEN",
+      "leadingMinutiae": [
+        {
+          "kind": "WHITESPACE_MINUTIAE",
+          "value": " "
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        },
+        {
+          "kind": "COMMENT_MINUTIAE",
+          "value": "// Intentionally, left with EOF token"
+        },
+        {
+          "kind": "END_OF_LINE_MINUTIAE",
+          "value": "\n"
+        }
+      ]
     }
   ]
 }
