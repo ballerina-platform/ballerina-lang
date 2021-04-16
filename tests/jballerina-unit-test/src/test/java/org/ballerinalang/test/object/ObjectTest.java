@@ -788,7 +788,8 @@ public class ObjectTest {
         Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "undefined method 'toString' in object 'Person'",
                 10, 25);
-        BAssertUtil.validateError(result, 1, "no implementation found for the method 'returnString' of class 'FrameImpl'",
+        BAssertUtil.validateError(result, 1, "no implementation found for the method 'returnString' " +
+                        "of class 'FrameImpl'",
                 31, 1);
     }
 }
