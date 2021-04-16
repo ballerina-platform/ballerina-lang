@@ -45,6 +45,7 @@ public enum LSContextOperation implements LSOperation {
     WS_WF_CHANGED("workspace/didChangeWatchedFiles"),
     DOC_SERVICE_AST("ballerinaDocument/ast"),
     DOC_DIAGNOSTICS("ballerinaDocument/diagnostics"),
+    DOC_TYPE("ballerinaSymbol/type"),
     LS_INIT("langserver/init"),
     SOURCE_PRUNER("sourcePruner"),
     TEST_GEN("testGeneration"),

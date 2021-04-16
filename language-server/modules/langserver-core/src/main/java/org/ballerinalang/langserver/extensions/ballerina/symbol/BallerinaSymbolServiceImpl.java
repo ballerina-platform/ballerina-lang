@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.langserver.LSClientLogger;
+import org.ballerinalang.langserver.LSContextOperation;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
@@ -100,7 +101,7 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
                 return expressionTypeResponse;
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaSymbol/type' failed!";
-                this.clientLogger.logError(msg, e, request.getDocumentIdentifier(),
+                this.clientLogger.logError(LSContextOperation.DOC_TYPE ,msg, e, request.getDocumentIdentifier(),
                         (Position) null);
                 return expressionTypeResponse;
             }
