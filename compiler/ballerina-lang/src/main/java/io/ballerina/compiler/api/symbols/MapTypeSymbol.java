@@ -19,7 +19,7 @@ package io.ballerina.compiler.api.symbols;
 import java.util.Optional;
 
 /**
- * Represents an array type descriptor.
+ * Represents a map type descriptor.
  *
  * @since 2.0.0
  */
