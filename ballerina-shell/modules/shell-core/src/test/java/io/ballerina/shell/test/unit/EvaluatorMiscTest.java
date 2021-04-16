@@ -92,7 +92,7 @@ public class EvaluatorMiscTest {
                         "('a) int 'a = 1",
                         "('k) string? 'k = ()",
                         "('t) string 't = \"Hello\"",
-                        "('f) function () returns int 'f = function function () returns (int)",
+                        "('f) function () returns int 'f = function isolated function () returns (int)",
                         "('i) int 'i = 23",
                         "('b) string 'b = \"World\""
                 )

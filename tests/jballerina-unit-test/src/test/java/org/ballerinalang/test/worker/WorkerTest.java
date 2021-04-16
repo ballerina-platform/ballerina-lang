@@ -16,7 +16,6 @@
  */
 package org.ballerinalang.test.worker;
 
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
@@ -81,33 +80,22 @@ public class WorkerTest {
 
    @Test
     public void receiveWithTrap() {
-        BValue[] returns = BRunUtil.invoke(result, "receiveWithTrap", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BError ret = (BError) returns[0];
-        Assert.assertEquals(ret.getReason(), "err");
+        BRunUtil.invoke(result, "receiveWithTrap", new BValue[0]);
     }
 
     @Test()
     public void syncSendReceiveWithTrap() {
-        BValue[] returns = BRunUtil.invoke(result, "syncSendReceiveWithTrap");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(((BError) returns[0]).getReason(), "sync send err");
+        BRunUtil.invoke(result, "syncSendReceiveWithTrap");
     }
 
     @Test
     public void receiveWithCheck() {
-        BValue[] returns = BRunUtil.invoke(result, "receiveWithCheck", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BError ret = (BError) returns[0];
-        Assert.assertEquals(ret.getReason(), "err");
+        BRunUtil.invoke(result, "receiveWithCheck", new BValue[0]);
     }
 
     @Test
     public void syncSendReceiveWithCheck() {
-        BValue[] returns = BRunUtil.invoke(result, "syncSendReceiveWithCheck", new BValue[0]);
-        Assert.assertEquals(returns.length, 1);
-        BError ret = (BError) returns[0];
-        Assert.assertEquals(ret.getReason(), "sync send err");
+        BRunUtil.invoke(result, "syncSendReceiveWithCheck", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -234,30 +222,22 @@ public class WorkerTest {
 
     @Test
     public void receiveWithCheckAndTrap() {
-        BValue[] returns = BRunUtil.invoke(result, "receiveWithCheckAndTrap");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("error: err from panic", ((BError) returns[0]).getReason());
+        BRunUtil.invoke(result, "receiveWithCheckAndTrap");
     }
 
     @Test()
     public void receiveWithTrapForDefault() {
-        BValue[] returns = BRunUtil.invoke(result, "receiveWithTrapForDefault");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("error: err from panic", ((BError) returns[0]).getReason());
+        BRunUtil.invoke(result, "receiveWithTrapForDefault");
     }
 
     @Test
     public void receiveWithCheckForDefault() {
-        BValue[] returns = BRunUtil.invoke(result, "receiveWithCheckForDefault");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("err from panic", ((BError) returns[0]).getReason());
+        BRunUtil.invoke(result, "receiveWithCheckForDefault");
     }
 
     @Test
     public void receiveDefaultWithCheckAndTrap() {
-        BValue[] returns = BRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals("error: err from panic", ((BError) returns[0]).getReason());
+        BRunUtil.invoke(result, "receiveDefaultWithCheckAndTrap");
     }
 
     @Test(groups = "brokenOnJBallerina")

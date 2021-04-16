@@ -1361,7 +1361,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         BType definedType;
         if (typeDefinition.hasCyclicReference) {
-            definedType = getCyclicDefinedType(typeDefinition);
+            definedType = getCyclicDefinedType(typeDefinition, env);
         } else {
             definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
         }
@@ -1478,8 +1478,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         definedType.flags |= typeDefSymbol.flags;
 
         typeDefinition.symbol = typeDefSymbol;
-
-        if (!typeDefinition.hasCyclicReference) {
+        if (typeDefinition.hasCyclicReference) {
+            // Workaround for https://github.com/ballerina-platform/ballerina-lang/issues/29742
+            typeDefinition.type.tsymbol = typeDefSymbol;
+        } else {
             boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
             if (isLanglibModule) {
                 handleLangLibTypes(typeDefinition);
@@ -1573,18 +1575,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         return definedObjType;
     }
 
-    private BType getCyclicDefinedType(BLangTypeDefinition typeDef) {
+    private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {
         BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
         unionType.isCyclic = true;
+        Name typeDefName = names.fromIdNode(typeDef.name);
 
-        var typeDefName = names.fromIdNode(typeDef.name);
-
-        BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
+        BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
                 typeDefName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
-                typeDef.pos, SOURCE);
-        typeDef.symbol = typeDefSymbol;
+                typeDef.name.pos, SOURCE);
 
+        typeDef.symbol = typeDefSymbol;
         unionType.tsymbol = typeDefSymbol;
+
         // We define the unionType in the main scope here
         if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
             typeDefSymbol.origin = BUILTIN;
@@ -1592,12 +1594,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             defineSymbol(typeDef.name.pos, typeDefSymbol);
         }
+
+        // resolvedUnionWrapper is not the union we need. Resolver tries to create a union for us but only manages to
+        // resolve members as they are defined as user defined types. Since we define the symbol user defined types
+        // gets resolved. We also expect becaue we are calling this API we dont have to call
+        // `markParameterizedType(unionType, memberTypes);` again for resolved members
         BType resolvedUnionWrapper = symResolver.resolveTypeNode(typeDef.typeNode, env);
         // Transform all members from union wrapper to defined union type
         if (resolvedUnionWrapper.tag == TypeTags.UNION) {
             BUnionType definedUnionType = (BUnionType) resolvedUnionWrapper;
-            unionType.tsymbol = definedUnionType.tsymbol;
-            unionType.tsymbol.name = names.fromIdNode(typeDef.name);
+            definedUnionType.tsymbol = typeDefSymbol;
             unionType.flags |= typeDefSymbol.flags;
             for (BType member : definedUnionType.getMemberTypes()) {
                 unionType.add(member);
@@ -1606,6 +1612,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDef.typeNode.type = unionType;
         typeDef.typeNode.type.tsymbol.type = unionType;
         typeDef.symbol.type = unionType;
+        typeDef.type = unionType;
         return unionType;
     }
 
