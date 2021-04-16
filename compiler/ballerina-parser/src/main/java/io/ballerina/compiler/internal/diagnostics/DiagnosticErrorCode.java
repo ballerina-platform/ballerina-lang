@@ -319,7 +319,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.defaultable.parameter.cannot.be.included.record.parameter"),
     ERROR_INCOMPLETE_QUOTED_IDENTIFIER("BCE665", "error.incomplete.quoted.identifier"),
     ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD("BCE666",
-            "error.inclusive.record.type.descriptor.cannot.contain.rest.field"),
+            "error.inclusive.record.type.cannot.contain.rest.field"),
     ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED("BCE667", "error.complex.variable.must.be.initialized"),
     ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC("BCE668", "error.isolated.var.cannot.be.declared.as.public"),
     ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC("BCE669", "error.variable.declared.with.var.cannot.be.public"),
