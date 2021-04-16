@@ -116,35 +116,17 @@ public class QueryExprWithQueryConstructTypeTest {
 
     @Test(description = "Test query expr with table having duplicate keys")
     public void testTableWithDuplicatesAndOnConflictReturnTable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testTableWithDuplicatesAndOnConflictReturnTable");
-        Assert.assertNotNull(returnValues);
-
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-
-        BError expectedError = (BError) returnValues[0];
-        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {\"message\":\"cannot insert.\"}");
+        BRunUtil.invoke(result, "testTableWithDuplicatesAndOnConflictReturnTable");
     }
 
     @Test(description = "Test query expr with table having duplicate keys")
     public void testQueryExprWithOtherClausesReturnTable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithOtherClausesReturnTable");
-        Assert.assertNotNull(returnValues);
-
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-
-        BError expectedError = (BError) returnValues[0];
-        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {\"message\":\"cannot insert.\"}");
+        BRunUtil.invoke(result, "testQueryExprWithOtherClausesReturnTable");
     }
 
     @Test(description = "Test query expr with table having duplicate keys")
     public void testQueryExprWithJoinClauseReturnTable() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryExprWithJoinClauseReturnTable");
-        Assert.assertNotNull(returnValues);
-
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-
-        BError expectedError = (BError) returnValues[0];
-        Assert.assertEquals(expectedError.stringValue(), "Key Conflict {\"message\":\"cannot insert.\"}");
+        BRunUtil.invoke(result, "testQueryExprWithJoinClauseReturnTable");
     }
 
     @Test(description = "Test query expr with table having no duplicates and on conflict clause")

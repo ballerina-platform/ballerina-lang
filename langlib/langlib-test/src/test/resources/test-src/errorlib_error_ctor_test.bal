@@ -14,17 +14,34 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testErrorCause() returns [error?, error?, error?] {
+function testErrorCause() {
     error cause = error("This is the cause");
     error e = error("This is a wrapper", cause);
     error f = error("This wrap the wrapper", e);
-    error fCause = <error> f.cause();
-    return [cause.cause(), e.cause(), fCause.cause()];
+
+    error? fCause = <error> f.cause();
+    error? eCause = e.cause();
+    error? causeCause = cause.cause();
+
+    if (fCause !== e) {
+        panic error("Assertion failure: expected error cause of `f` to be ref equal to `e`");
+    }
+
+    if (eCause !== cause) {
+        panic error("Assertion failure: expected error cause of `e` to be ref equal to `cause`");
+    }
+
+    if !(causeCause is ()) {
+        panic error("Assertion failure: expected error cause of `cause` to be `()`");
+    }
 }
 
-function testErrorDestructureWithCause() returns error? {
+function testErrorDestructureWithCause() {
     error cause = error("This is the cause");
     error e = error("This is a wrapper", cause);
-    //var error(message, dCause) = e;
-    return e;
+    var error(message, dCause) = e;
+
+    if (dCause !== cause) {
+        panic error("Assertion failure: expected destructured error cause of `e` to be ref equal to `cause`");
+    }
 }

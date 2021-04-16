@@ -127,13 +127,15 @@ function foo2(int a = getInt() + 5 + getInt(), string b = "def" + getString(), f
 }
 
 // Test 5
-function testDefaultValueWithError() returns [error, error, error] {
+function testDefaultValueWithError() {
     GLB = 0;
     error e1 = foo3();
     GLB = 1;
     error e2 = foo3();
     error e3 = foo3(a = 2);
-    return [e1, e2, e3];
+    assertEquality(e1.message(), "Generated Error");
+    assertEquality(e2.message(), "Not Error 100");
+    assertEquality(e3.message(), "Not Error 2");
 }
 
 function foo3(int|error a = getIntOrError(GLB)) returns error {
