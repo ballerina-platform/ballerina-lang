@@ -24,7 +24,6 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BLink;
 import io.ballerina.runtime.api.values.BString;
@@ -45,7 +44,6 @@ import io.ballerina.runtime.internal.values.TupleValueImpl;
 import io.ballerina.runtime.internal.values.XmlSequence;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -53,7 +51,6 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ANYDATA;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ERROR;
 
 /**
  * Common utility methods used for Ballerina expression syntax manipulation.
@@ -61,7 +58,6 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_ERROR;
  * @since 2.0.0
  */
 public class BalStringUtils {
-    private static final UnionType bUnionType = new BUnionType(Arrays.asList(TYPE_ANYDATA, TYPE_ERROR));
     private static boolean hasCycles = false;
 
     /**
@@ -72,7 +68,7 @@ public class BalStringUtils {
      */
     public static Object parseArrayExpressionStringValue(String exprValue, BLink parent) {
         List<String> list = getElements(exprValue);
-        ArrayValueImpl arr = new ArrayValueImpl(new BArrayType(bUnionType));
+        ArrayValueImpl arr = new ArrayValueImpl(new BArrayType(TYPE_ANYDATA));
         if (list.size() == 0) {
             return arr;
         }
@@ -155,7 +151,7 @@ public class BalStringUtils {
      */
     public static Object parseMapExpressionStringValue(String exprValue, BLink parent) {
         List<String> list = getElements(exprValue);
-        MapValueImpl eleMap = new MapValueImpl(new BMapType(bUnionType));
+        MapValueImpl eleMap = new MapValueImpl(new BMapType(TYPE_ANYDATA));
         if (list.size() == 0) {
             return eleMap;
         }

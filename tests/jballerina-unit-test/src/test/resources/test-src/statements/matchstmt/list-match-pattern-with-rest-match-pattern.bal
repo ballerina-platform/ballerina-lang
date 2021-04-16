@@ -99,6 +99,60 @@ function testListMatchPatternWithRest5() {
     assertEquals("No match", listMatchPattern5([1, true, "s", 3]));
 }
 
+function listMatchPattern6(anydata a) returns anydata {
+    match a {
+        [var p, ...var oth] if p is any[] => {
+            anydata[] m = p;
+            return m;
+        }
+        _ => {
+            return "other";
+        }
+    }
+}
+
+function listMatchPattern7((int|error)[][] a) returns [int[], (int|error)[][]]|string {
+    match a {
+        [var p, ...var oth] if p is anydata => {
+            int[] m = p;
+            (int|error)[][] n = oth;
+            return [m, n];
+        }
+        _ => {
+            return "other";
+        }
+    }
+}
+
+function testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection() {
+    int[] m1 = [1, 2];
+    anydata[] m2 = [m1, "hello"];
+    assertEquals(m1, listMatchPattern6(m2));
+    anydata[] m3 = [1, "foo"];
+    assertEquals("other", listMatchPattern6(m3));
+    assertEquals("other", listMatchPattern6("foo"));
+
+    (int|error)[] m4 = [1, error("error!")];
+    [int[], (int|error)[][]] res = <[int[], (int|error)[][]]> listMatchPattern7([m1, m4]);
+    assertEquals(m1, res[0]);
+    assertEquals(true, m4 === res[1][0]);
+    assertEquals(1, res[1].length());
+    assertEquals("other", <string> listMatchPattern7([[error("error!")]]));
+    assertEquals("other", <string> listMatchPattern7([]));
+}
+
+function listMatchPattern8(int[3] val) returns int {
+    match val {
+        [var a, var b, ...var c] => {
+            return a + b + c[0];
+        }
+    }
+}
+
+function testListMatchPatternWithClosedArray() {
+    assertEquals(6, listMatchPattern8([1, 2, 3]));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
