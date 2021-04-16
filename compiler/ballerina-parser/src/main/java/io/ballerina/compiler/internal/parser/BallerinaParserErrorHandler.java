@@ -5174,6 +5174,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
             case BINDING_PATTERN_OR_EXPR_RHS:
+            case TYPE_DESCRIPTOR:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -5192,7 +5193,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case CLASS_MEMBER_WITHOUT_METADATA:
             case OBJECT_MEMBER_WITHOUT_METADATA:
             case RECORD_FIELD_WITHOUT_METADATA:
-            case TYPE_DESCRIPTOR:
                 return SyntaxKind.TYPE_DESC;
             case ARRAY_LENGTH:
                 return SyntaxKind.DECIMAL_INTEGER_LITERAL_TOKEN;

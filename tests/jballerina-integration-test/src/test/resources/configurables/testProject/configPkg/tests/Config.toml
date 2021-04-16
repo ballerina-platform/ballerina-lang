@@ -7,4 +7,5 @@ testInt = 24
 testFloat = 77.2
 testString = "configurable variable test"
 testBoolean = true
+array = [[11],[22,33]]
 

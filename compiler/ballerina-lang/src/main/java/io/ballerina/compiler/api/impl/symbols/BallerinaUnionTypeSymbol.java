@@ -102,7 +102,7 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
     }
 
     private String getSignatureForUnion(BType type) {
-        BUnionType unionType = (BUnionType) this.getBType();
+        BUnionType unionType = (BUnionType) type;
         if (unionType.isCyclic && (unionType.tsymbol != null) && !unionType.tsymbol.getName().getValue().isEmpty()) {
             String typeStr;
             typeStr = unionType.tsymbol.getName().getValue();

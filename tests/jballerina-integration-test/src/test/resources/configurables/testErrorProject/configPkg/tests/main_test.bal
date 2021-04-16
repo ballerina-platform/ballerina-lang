@@ -16,9 +16,9 @@
 
 import ballerina/test;
  
-configurable int[][] & readonly invalidArr = ?;
+configurable map<anydata> & readonly invalidMap = ?;
 
 @test:Config {}
  function testVariable() {
-    test:assertEquals(invalidArr, [[11],[22,33]]);
+    test:assertEquals(invalidMap["name"], "waruna");
  }
