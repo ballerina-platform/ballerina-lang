@@ -435,6 +435,20 @@ public class BIRTypeWriter implements TypeVisitor {
         }
 
         writeTypeInclusions(bObjectType.typeInclusions);
+
+        if (bObjectType.mutableType != null) {
+            buff.writeByte(1);
+            writeTypeCpIndex(bObjectType.mutableType);
+        } else {
+            buff.writeByte(0);
+        }
+
+        if (bObjectType.immutableType != null) {
+            buff.writeByte(1);
+            writeTypeCpIndex(bObjectType.immutableType);
+        } else {
+            buff.writeByte(0);
+        }
     }
 
     private void writeAttachFunction(BAttachedFunction attachedFunc) {
