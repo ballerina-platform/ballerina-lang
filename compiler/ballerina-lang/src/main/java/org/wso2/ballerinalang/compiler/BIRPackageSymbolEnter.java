@@ -133,7 +133,6 @@ public class BIRPackageSymbolEnter {
 
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
-    private List<BTypeSymbol> interSectionTypes;
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
 
@@ -240,7 +239,7 @@ public class BIRPackageSymbolEnter {
 
         // Define typeDescRef definitions.
         this.structureTypes = new ArrayList<>();
-        this.interSectionTypes = new ArrayList<>();
+
         defineSymbols(dataInStream, rethrow(this::defineTypeDef));
 
         // Define package level variables.
@@ -257,14 +256,14 @@ public class BIRPackageSymbolEnter {
         // Define service declarations
         defineSymbols(dataInStream, rethrow(this::defineServiceDeclarations));
 
-        this.typeReader = null;
+        populateReferencedFunctions();
 
-        populateReferenceFunctions();
+        this.typeReader = null;
 
         return this.env.pkgSymbol;
     }
 
-    private void populateReferenceFunctions () {
+    private void populateReferencedFunctions() {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
             if (structureTypeSymbol instanceof BObjectTypeSymbol) {
                 BObjectType objectType = (BObjectType) structureTypeSymbol.type;
@@ -289,16 +288,6 @@ public class BIRPackageSymbolEnter {
                         structureTypeSymbol.attachedFuncs.add(function);
                         ((BObjectTypeSymbol) structureTypeSymbol).referencedFunctions.add(function);
                     }
-                }
-            }
-        }
-        for (BTypeSymbol intersectionType : this.interSectionTypes) {
-            BType effectiveType = ((BIntersectionType) intersectionType.type).effectiveType;
-            if (effectiveType.tag == TypeTags.OBJECT) {
-                BObjectType immutableObjectType = (BObjectType) effectiveType.tsymbol.type;
-                BObjectType mutableObjectType = immutableObjectType.mutableType;
-                if (immutableObjectType != null && mutableObjectType != null) {
-                    defineImmutableFunction(immutableObjectType, mutableObjectType);
                 }
             }
         }
@@ -510,8 +499,6 @@ public class BIRPackageSymbolEnter {
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
             this.structureTypes.add((BStructureTypeSymbol) symbol);
-        } else if (type.tag == TypeTags.INTERSECTION) {
-            this.interSectionTypes.add(symbol);
         }
 
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
@@ -1500,20 +1487,34 @@ public class BIRPackageSymbolEnter {
                     }
                     int funcCount = inputStream.readInt();
                     for (int i = 0; i < funcCount; i++) {
-                        ignoreAttachedFunc();
+                        //populate intersection type object functions
+                        if (isImmutable(objectSymbol.flags) && Symbols.isFlagOn(flags, Flags.ANONYMOUS)) {
+                            String attachedFuncName = getStringCPEntryValue(inputStream);
+                            var attachedFuncFlags = inputStream.readLong();
+                            if (Symbols.isFlagOn(attachedFuncFlags, Flags.INTERFACE) &&
+                                    Symbols.isFlagOn(attachedFuncFlags, Flags.ATTACHED)) {
+                                BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
+                                Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
+                                        objectSymbol.name.value, attachedFuncName));
+                                BInvokableSymbol attachedFuncSymbol =
+                                        Symbols.createFunctionSymbol(attachedFuncFlags,
+                                                funcName, env.pkgSymbol.pkgID, attachedFuncType,
+                                                env.pkgSymbol, false, symTable.builtinPos,
+                                                COMPILED_SOURCE);
+                                attachedFuncSymbol.retType = attachedFuncType.retType;
+                                BAttachedFunction attachedFunction = new BAttachedFunction(funcName, attachedFuncSymbol,
+                                        attachedFuncType, symTable.builtinPos);
+
+                                objectSymbol.referencedFunctions.add(attachedFunction);
+                                objectSymbol.attachedFuncs.add(attachedFunction);
+                                objectSymbol.scope.define(funcName, attachedFuncSymbol);
+                            }
+                        } else {
+                            ignoreAttachedFunc();
+                        }
                     }
 
                     objectType.typeInclusions = readTypeInclusions();
-
-                    boolean mutable = inputStream.readByte() == 1;
-                    if (mutable) {
-                        objectType.mutableType = (BObjectType) readTypeFromCp();
-                    }
-                    boolean immutable = inputStream.readByte() == 1;
-                    if (immutable) {
-                        objectType.immutableType = (BIntersectionType) readTypeFromCp();
-                    }
-
                     objectType.typeIdSet = readTypeIdSet(inputStream);
 
                     Object poppedObjType = compositeStack.pop();
@@ -1711,10 +1712,5 @@ public class BIRPackageSymbolEnter {
     private BType getEffectiveImmutableType(BType type, PackageID pkgID, BSymbol owner) {
         return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
                 pkgID, owner, symTable, null, names);
-    }
-
-    private void defineImmutableFunction(BObjectType immutableObjectType, BObjectType mutableObjectType) {
-        ImmutableTypeCloner.defineObjectFunctions((BObjectTypeSymbol) immutableObjectType.tsymbol,
-                (BObjectTypeSymbol) mutableObjectType.tsymbol, names, symTable);
     }
 }

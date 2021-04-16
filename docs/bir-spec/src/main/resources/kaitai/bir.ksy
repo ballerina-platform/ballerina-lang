@@ -264,16 +264,6 @@ types:
         type: s4
         repeat: expr
         repeat-expr: type_inclusions_count
-      - id: is_mutable
-        type: s1
-      - id: mutable_type
-        type: s4
-        if: is_mutable == 1
-      - id: is_immutable
-        type: s1
-      - id: immutable_type
-        type: s4
-        if: is_immutable == 1
       - id: type_ids
         type: type_id
   object_field:
