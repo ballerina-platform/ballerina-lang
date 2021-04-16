@@ -93,7 +93,7 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
                         }
                     }
                     if (symbol.isPresent()) {
-                        expressionTypeResponse.setTypes(getAllUnionTypes(symbol.get()));
+                        expressionTypeResponse.setTypes(getType(symbol.get()));
                         return expressionTypeResponse;
                     }
                 }
@@ -107,7 +107,7 @@ public class BallerinaSymbolServiceImpl implements BallerinaSymbolService {
         });
     }
 
-    private List<String> getAllUnionTypes(Symbol symbol) {
+    private List<String> getType(Symbol symbol) {
         List<String> allTypes = new ArrayList<>();
         if (symbol.kind() == SymbolKind.VARIABLE) {
             VariableSymbol variableSymbol = (VariableSymbol) symbol;
