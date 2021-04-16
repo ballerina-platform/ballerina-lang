@@ -103,24 +103,14 @@ public class StampInbuiltFunctionNegativeTest {
                 "incompatible types: expected 'anydata', found 'PersonObj'", 99, 46);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                 "incompatible types: expected 'anydata', found 'PersonObj'", 106, 51);
-//        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-//                "incompatible types: expected 'anydata', found 'PersonObj'", 99, 26);
-//        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-//                "incompatible types: expected 'anydata', found 'PersonObj'", 106, 31);
-//        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-//                "incompatible types: expected 'anydata', found 'PersonObj'", 106, 31);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                 "incompatible types: expected 'typedesc<anydata>', found 'typedesc<map>'", 106, 54);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                 "incompatible types: expected 'anydata', found 'PersonObj'", 113, 48);
-//        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-//                "incompatible types: expected 'anydata', found 'PersonObj'", 113, 28);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                 "incompatible types: expected 'typedesc<anydata>', found 'typedesc<any[]>'", 113, 51);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                 "incompatible types: expected 'anydata', found 'PersonObj'", 120, 58);
-//        BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
-//                "incompatible types: expected 'anydata', found 'PersonObj'", 120, 38);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,
                                   "incompatible types: expected 'anydata', found 'PersonObj'", 127, 28);
         BAssertUtil.validateError(objectNegativeTestCompileResult, index++,

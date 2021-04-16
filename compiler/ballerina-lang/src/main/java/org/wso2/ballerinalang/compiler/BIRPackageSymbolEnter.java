@@ -1500,9 +1500,6 @@ public class BIRPackageSymbolEnter {
                     }
                     int funcCount = inputStream.readInt();
                     for (int i = 0; i < funcCount; i++) {
-                        if(objectType.immutableType != null) {
-
-                        }
                         ignoreAttachedFunc();
                     }
 
