@@ -133,6 +133,7 @@ public class BIRPackageSymbolEnter {
 
     private BIRPackageSymbolEnv env;
     private List<BStructureTypeSymbol> structureTypes; // TODO find a better way
+    private List<BTypeSymbol> interSectionTypes;
     private BStructureTypeSymbol currentStructure = null;
     private LinkedList<Object> compositeStack = new LinkedList<>();
 
@@ -239,6 +240,7 @@ public class BIRPackageSymbolEnter {
 
         // Define typeDescRef definitions.
         this.structureTypes = new ArrayList<>();
+        this.interSectionTypes = new ArrayList<>();
         defineSymbols(dataInStream, rethrow(this::defineTypeDef));
 
         // Define package level variables.
@@ -256,8 +258,144 @@ public class BIRPackageSymbolEnter {
         defineSymbols(dataInStream, rethrow(this::defineServiceDeclarations));
 
         this.typeReader = null;
+
+        populateReferenceFunctions();
+
         return this.env.pkgSymbol;
     }
+
+    private void populateReferenceFunctions () {
+        for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
+            if (structureTypeSymbol instanceof BObjectTypeSymbol) {
+                BObjectType objectType = (BObjectType) structureTypeSymbol.type;
+                for (BType typeRef : objectType.typeInclusions) {
+                    if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
+                        continue;
+                    }
+
+                    List<BAttachedFunction> functions = ((BObjectTypeSymbol) typeRef.tsymbol).attachedFuncs;
+                    for (BAttachedFunction function : functions) {
+                        String referencedFuncName = function.funcName.value;
+                        Name funcName = names.fromString(
+                                Symbols.getAttachedFuncSymbolName(structureTypeSymbol.name.value, referencedFuncName));
+                        Scope.ScopeEntry matchingObjFuncSym = this.env.pkgSymbol.scope.lookup(funcName);
+                        if (matchingObjFuncSym != null) {
+                            continue;
+                        }
+                        if (Symbols.isPrivate(function.symbol)) {
+                            // we should not copy private functions.
+                            continue;
+                        }
+                        ((BObjectTypeSymbol) structureTypeSymbol).attachedFuncs.add(function);
+                        ((BObjectTypeSymbol) structureTypeSymbol).referencedFunctions.add(function);
+                    }
+                }
+            }
+        }
+        for (BTypeSymbol intersectionType : this.interSectionTypes) {
+            BType effectiveType = ((BIntersectionType) intersectionType.type).effectiveType;
+            if (effectiveType.tag == TypeTags.OBJECT) {
+                BObjectType immutableObjectType = (BObjectType) effectiveType.tsymbol.type;
+                BObjectType mutableObjectType = immutableObjectType.mutableType;
+                if (immutableObjectType != null && mutableObjectType != null) {
+                    defineImmutableFunction(immutableObjectType, mutableObjectType);
+                }
+            }
+        }
+//        for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
+//            if (structureTypeSymbol != null) {
+//                BType attachedType = structureTypeSymbol.type;
+//                if (attachedType.tag == TypeTags.OBJECT || attachedType.tag == TypeTags.RECORD) {
+//                    if (structureTypeSymbol instanceof BObjectTypeSymbol) {
+//                        for (BType include : ((BObjectType) structureTypeSymbol.type).typeInclusions) {
+//                            if (include instanceof BObjectType) {
+//                                ((BObjectTypeSymbol) structureTypeSymbol).attachedFuncs =
+//                                        ((BObjectTypeSymbol) ((BObjectType) include).tsymbol).attachedFuncs;
+//                            }
+//                        }
+//                    }
+//                }
+//            }
+//        }
+    }
+
+    private void defineRefFunc(BAttachedFunction referencedFunc) {
+        if (Symbols.isPrivate(referencedFunc.symbol)) {
+            // we should not copy private functions.
+            return;
+        }
+
+    }
+
+//    private void defineReferencedFunction(Location location, Set<Flag> flagSet, SymbolEnv objEnv,
+//                                          BLangType typeRef, BAttachedFunction referencedFunc,
+//                                          Set<String> includedFunctionNames, BTypeSymbol typeDefSymbol,
+//                                          List<BLangFunction> declaredFunctions, boolean isInternal) {
+//        String referencedFuncName = referencedFunc.funcName.value;
+//        Name funcName = names.fromString(
+//                Symbols.getAttachedFuncSymbolName(typeDefSymbol.name.value, referencedFuncName));
+//        BSymbol matchingObjFuncSym = symResolver.lookupSymbolInMainSpace(objEnv, funcName);
+//
+//        if (matchingObjFuncSym != symTable.notFoundSymbol) {
+//            if (!includedFunctionNames.add(referencedFuncName)) {
+//                dlog.error(typeRef.pos, DiagnosticErrorCode.REDECLARED_SYMBOL, referencedFuncName);
+//                return;
+//            }
+//
+//            if (!hasSameFunctionSignature((BInvokableSymbol) matchingObjFuncSym, referencedFunc.symbol)) {
+//                BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
+//                Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
+//                dlog.error(methodPos, DiagnosticErrorCode.REFERRED_FUNCTION_SIGNATURE_MISMATCH,
+//                        getCompleteFunctionSignature(referencedFunc.symbol),
+//                        getCompleteFunctionSignature((BInvokableSymbol) matchingObjFuncSym));
+//            }
+//
+//            if (Symbols.isFunctionDeclaration(matchingObjFuncSym) && Symbols.isFunctionDeclaration(
+//                    referencedFunc.symbol) && !types.isAssignable(matchingObjFuncSym.type, referencedFunc.type)) {
+//                BLangFunction matchingFunc = findFunctionBySymbol(declaredFunctions, matchingObjFuncSym);
+//                Location methodPos = matchingFunc != null ? matchingFunc.pos : typeRef.pos;
+//                dlog.error(methodPos, DiagnosticErrorCode.REDECLARED_FUNCTION_FROM_TYPE_REFERENCE,
+//                        referencedFunc.funcName, typeRef);
+//            }
+//            return;
+//        }
+//
+//        if (Symbols.isPrivate(referencedFunc.symbol)) {
+//            // we should not copy private functions.
+//            return;
+//        }
+//
+//        // If not, define the function symbol within the object.
+//        // Take a copy of the symbol, with the new name, and the package ID same as the object type.
+//        BInvokableSymbol funcSymbol = ASTBuilderUtil.duplicateFunctionDeclarationSymbol(referencedFunc.symbol,
+//                typeDefSymbol, funcName, typeDefSymbol.pkgID, typeRef.pos, getOrigin(funcName));
+//        defineSymbol(typeRef.pos, funcSymbol, objEnv);
+//
+//        // Create and define the parameters and receiver. This should be done after defining the function symbol.
+//        SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(null, funcSymbol.scope, objEnv);
+//        funcSymbol.params.forEach(param -> defineSymbol(typeRef.pos, param, funcEnv));
+//        if (funcSymbol.restParam != null) {
+//            defineSymbol(typeRef.pos, funcSymbol.restParam, funcEnv);
+//        }
+//        funcSymbol.receiverSymbol =
+//                defineVarSymbol(location, flagSet, typeDefSymbol.type, Names.SELF, funcEnv, isInternal);
+//
+//        // Cache the function symbol.
+//        BAttachedFunction attachedFunc;
+//        if (referencedFunc instanceof BResourceFunction) {
+//            BResourceFunction resourceFunction = (BResourceFunction) referencedFunc;
+//            attachedFunc = new BResourceFunction(referencedFunc.funcName,
+//                    funcSymbol, (BInvokableType) funcSymbol.type, resourceFunction.resourcePath,
+//                    resourceFunction.accessor, resourceFunction.pathParams, resourceFunction.restPathParam,
+//                    referencedFunc.pos);
+//        } else {
+//            attachedFunc = new BAttachedFunction(referencedFunc.funcName, funcSymbol, (BInvokableType) funcSymbol.type,
+//                    referencedFunc.pos);
+//        }
+//
+//        ((BObjectTypeSymbol) typeDefSymbol).attachedFuncs.add(attachedFunc);
+//        ((BObjectTypeSymbol) typeDefSymbol).referencedFunctions.add(attachedFunc);
+//    }
 
     private void readTypeDefBodies(DataInputStream dataInStream) throws IOException {
         dataInStream.readInt(); // ignore the size
@@ -465,6 +603,8 @@ public class BIRPackageSymbolEnter {
 
         if (type.tag == TypeTags.RECORD || type.tag == TypeTags.OBJECT) {
             this.structureTypes.add((BStructureTypeSymbol) symbol);
+        } else if (type.tag == TypeTags.INTERSECTION) {
+            this.interSectionTypes.add(symbol);
         }
 
         this.env.pkgSymbol.scope.define(symbol.name, symbol);
@@ -1664,5 +1804,10 @@ public class BIRPackageSymbolEnter {
     private BType getEffectiveImmutableType(BType type, PackageID pkgID, BSymbol owner) {
         return ImmutableTypeCloner.getEffectiveImmutableType(null, types, (SelectivelyImmutableReferenceType) type,
                 pkgID, owner, symTable, null, names);
+    }
+
+    private void defineImmutableFunction(BObjectType immutableObjectType, BObjectType mutableObjectType) {
+        ImmutableTypeCloner.defineObjectFunctions((BObjectTypeSymbol) immutableObjectType.tsymbol,
+                (BObjectTypeSymbol) mutableObjectType.tsymbol, names, symTable);
     }
 }
