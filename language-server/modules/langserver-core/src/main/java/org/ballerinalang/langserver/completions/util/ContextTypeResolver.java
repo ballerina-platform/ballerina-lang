@@ -157,7 +157,10 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
     @Override
     public Optional<TypeSymbol> transform(IndexedExpressionNode node) {
         Optional<TypeSymbol> containerType = this.visit(node.containerExpression());
-        return containerType.flatMap(this::getRawContextType);
+        if (containerType.isEmpty()) {
+            return Optional.empty();
+        }
+        return Optional.of(this.getRawContextType(containerType.get()));
     }
 
     @Override
@@ -167,7 +170,7 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         if (typeSymbol.isEmpty()) {
             return Optional.empty();
         }
-        return this.getRawContextType(typeSymbol.get());
+        return Optional.of(this.getRawContextType(typeSymbol.get()));
     }
 
     @Override
@@ -269,17 +272,17 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
                 .findFirst();
     }
 
-    private Optional<TypeSymbol> getRawContextType(TypeSymbol typeSymbol) {
+    private TypeSymbol getRawContextType(TypeSymbol typeSymbol) {
         TypeSymbol rawType = CommonUtil.getRawType(typeSymbol);
         switch (rawType.typeKind()) {
             case MAP:
-                return ((MapTypeSymbol) rawType).typeParameter();
+                return ((MapTypeSymbol) rawType).typeParam();
             case ARRAY:
-                return Optional.of(((ArrayTypeSymbol) rawType).memberTypeDescriptor());
+                return ((ArrayTypeSymbol) rawType).memberTypeDescriptor();
             case TABLE:
-                return Optional.of(((TableTypeSymbol) rawType).rowTypeParameter());
+                return ((TableTypeSymbol) rawType).rowTypeParameter();
             default:
-                return Optional.of(rawType);
+                return rawType;
         }
     }
 }
