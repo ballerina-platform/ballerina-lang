@@ -24,7 +24,7 @@ package io.ballerina.runtime.internal.util.exceptions;
 
 public enum RuntimeErrorType {
     ARRAY_INDEX_OUT_OF_RANGE("ArrayIndexOutOfRange", "array.index.out.of.range", "RT-0001"),
-    TYPE_CAST_ERROR("TypeCastError", "incompatible.types.cannot.cast", "RUNTIME_0035");
+    TYPE_CAST_ERROR("TypeCastError", "incompatible.types.cannot.cast", "RT-0002");
 
     private String errorName;
     private String errorMsgKey;
