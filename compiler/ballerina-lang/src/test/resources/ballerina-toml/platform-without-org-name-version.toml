@@ -5,13 +5,7 @@ keywords= ["toml", "ballerina"]
 repository= "https://github.com/ballerina-platform/ballerina-lang"
 
 [[platform.java11.dependency]]
-path = "/user/sameera/libs/toml4j.jar"
-artifactId = "toml4j"
-version = "0.7.2"
-groupId = "com.moandjiezana.toml"
-
-[[platform.java11.dependency]]
-path = "path/to/swagger.jar"
+path = "../dummy-jars/swagger.txt"
 artifactId = "swagger"
 version = "0.7.2"
 groupId = "swagger.io"
