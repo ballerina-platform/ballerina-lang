@@ -138,7 +138,7 @@ public class BindgenMvnResolver {
                         }
                     }
                 }
-                fileWriter.write("\n");
+                fileWriter.write("\n\n");
                 if (parent != null) {
                     fileWriter.write("# transitive dependency of " + parent + "\n");
                 }
@@ -149,7 +149,7 @@ public class BindgenMvnResolver {
                 }
                 fileWriter.write("groupId = \"" + groupId + "\"\n");
                 fileWriter.write("artifactId = \"" + artifactId + "\"\n");
-                fileWriter.write("version = \"" + version + "\"\n");
+                fileWriter.write("version = \"" + version + "\"");
             }
         } catch (IOException io) {
             throw new BindgenException("Error while updating the Ballerina.toml file.", io);
