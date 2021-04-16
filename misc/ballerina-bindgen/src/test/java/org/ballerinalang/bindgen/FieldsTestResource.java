@@ -31,7 +31,7 @@ import java.util.Set;
  *
  * @since 2.0.0
  */
-public class FieldsTestResource {
+public class FieldsTestResource implements InterfaceTestResource {
 
     // Instance primitive fields
     public byte getInstanceByte = 10;
@@ -119,4 +119,9 @@ public class FieldsTestResource {
     private static short getStaticPrivateField = 2;
     protected static Path getStaticProtectedField = Paths.get("/test.txt");
     static int getStaticDefaultField = 3;
+
+    @Override
+    public int testMethod(int x) {
+        return 0;
+    }
 }

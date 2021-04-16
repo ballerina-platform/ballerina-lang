@@ -4018,14 +4018,12 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     public void visit(BLangTypedescExpr accessExpr) {
-        if (accessExpr.typeNode == null) {
-            return;
+        if (accessExpr.resolvedType == null) {
+            accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
         }
 
-        accessExpr.resolvedType = symResolver.resolveTypeNode(accessExpr.typeNode, env);
         int resolveTypeTag = accessExpr.resolvedType.tag;
         final BType actualType;
-
         if (resolveTypeTag != TypeTags.TYPEDESC && resolveTypeTag != TypeTags.NONE) {
             actualType = new BTypedescType(accessExpr.resolvedType, null);
         } else {
@@ -5049,21 +5047,21 @@ public class TypeChecker extends BLangNodeVisitor {
 
         if (exprWithCheckingKeyword.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR &&
                 operatorType.equals("check") && types.isUnionOfSimpleBasicTypes(expType)) {
-            ArrayList<BLangExpression> argExprs = new ArrayList<>();
-            BType typedescType = new BTypedescType(expType, null);
-            BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
-            typedescExpr.resolvedType = expType;
-            typedescExpr.type = typedescType;
-            argExprs.add(typedescExpr);
-            BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
-                    argExprs, exprWithCheckingKeyword, checkedExpr.pos);
-            BInvokableSymbol invokableSymbol = (BInvokableSymbol) symResolver.
-                    lookupLangLibMethod(typeOfExprWithCheckingKeyword, names.fromString(invocation.name.value));
-            BInvokableType bInvokableType = (BInvokableType) invokableSymbol.type;
-            bInvokableType.retType = typeOfExprWithCheckingKeyword;
-            invocation.symbol = invokableSymbol;
-            invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
-            checkedExpr.expr = invocation;
+            BType varRefType = getTypeOfExprInFieldAccess(((BLangFieldBasedAccess) exprWithCheckingKeyword).expr);
+            if (types.isLax(varRefType)) {
+                ArrayList<BLangExpression> argExprs = new ArrayList<>();
+                BType typedescType = new BTypedescType(expType, null);
+                BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
+                typedescExpr.resolvedType = expType;
+                typedescExpr.type = typedescType;
+                argExprs.add(typedescExpr);
+                BLangInvocation invocation = ASTBuilderUtil.createLangLibInvocationNode(FUNCTION_NAME_ENSURE_TYPE,
+                                                                    argExprs, exprWithCheckingKeyword, checkedExpr.pos);
+                invocation.symbol = symResolver.lookupLangLibMethod(typeOfExprWithCheckingKeyword,
+                                                                    names.fromString(invocation.name.value));
+                invocation.pkgAlias = (BLangIdentifier) TreeBuilder.createIdentifierNode();
+                checkedExpr.expr = invocation;
+            }
         }
 
         BType exprType = checkExpr(checkedExpr.expr, env, typeOfExprWithCheckingKeyword);
@@ -5132,6 +5130,11 @@ public class TypeChecker extends BLangNodeVisitor {
             actualType = nonErrorTypes.get(0);
         } else {
             actualType = BUnionType.create(null, new LinkedHashSet<>(nonErrorTypes));
+        }
+
+        if (actualType.tag == TypeTags.NEVER) {
+            dlog.error(checkedExpr.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_WITH_CHECKED_EXPR,
+                    operatorType);
         }
 
         resultType = types.checkType(checkedExpr, actualType, expType);

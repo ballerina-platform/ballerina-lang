@@ -166,3 +166,14 @@ function testUnreachablePattern5() {
         [1, 2] => {} // unreachable pattern
      }
 }
+
+function testUnmatchedPattensForSizeMismatchWithClosedArray(int[3] val) {
+    match val {
+        var [a, _, c, d] => {
+        }
+        var [a, b, c, d] => {
+        }
+        var [a, b] => {
+        }
+    }
+}

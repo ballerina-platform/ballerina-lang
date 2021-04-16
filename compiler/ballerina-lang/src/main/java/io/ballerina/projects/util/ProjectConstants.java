@@ -86,6 +86,7 @@ public class ProjectConstants {
     public static final String DOT = ".";
     public static final String DEFAULT_VERSION = "0.0.0";
     public static final String INTERNAL_VERSION = "0.1.0";
+    public static final String MODULE_NAME_SEPARATOR = DOT;
 
     // Constants related to file system repo
     public static final String REPO_BALA_DIR_NAME = TARGET_BALA_DIR_NAME;

@@ -66,6 +66,8 @@ public class LangLibValueTest {
                 "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 30, 23);
         validateError(negativeResult, index++, "incompatible type for parameter 't' with inferred typedesc value: " +
                 "expected 'typedesc<anydata>', found 'typedesc<MyClass>'", 31, 23);
+        validateError(negativeResult, index++, "invalid usage of the 'check' expression operator: " +
+                "no expression type is equivalent to error type", 40, 21);
         assertEquals(negativeResult.getErrorCount(), index);
     }
 

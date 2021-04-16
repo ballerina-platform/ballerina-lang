@@ -235,9 +235,4 @@ public class CheckedExpressionOperatorTest {
                 "test-src/expressions/checkedexpr/checked_expr_within_resource.bal");
         Assert.assertEquals(compile.getErrorCount(), 0);
     }
-
-    @Test
-    public void testCallExprWithCheck() {
-        BRunUtil.invoke(result, "testCallExprWithCheck");
-    }
 }

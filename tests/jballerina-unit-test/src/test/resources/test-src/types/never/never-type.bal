@@ -350,6 +350,50 @@ function testNeverWithServiceObjFunc() {
     };
 }
 
+function testNeverSubtyping() {
+    ()|error x1 = trap foo();
+    assertEquality(true, x1 is error);
+    if (x1 is error) {
+        assertEquality("Bad Sad!!", x1.message());
+    }
+
+    int|error x2 = trap blowUp1();
+    assertEquality(true, x2 is error);
+    if (x2 is error) {
+        assertEquality("Bad Sad!!", x2.message());
+    }
+
+    int|error x3 = trap blowUp2();
+    assertEquality(true, x3 is error);
+    if (x3 is error) {
+        assertEquality("Bad Sad!!", x3.message());
+    }
+
+    error? x4 = trap blowUp2();
+    assertEquality(true, x4 is error);
+    if (x4 is error) {
+        assertEquality("Bad Sad!!", x4.message());
+    }
+
+    int|error x5 = trap blowUp3();
+    assertEquality(true, x5 is error);
+    if (x5 is error) {
+        assertEquality("Bad Sad!!", x5.message());
+    }
+}
+
+function blowUp1() returns int {
+    panic error("Bad Sad!!");
+}
+
+function blowUp2() returns never {
+    panic error("Bad Sad!!");
+}
+
+function blowUp3() returns int|never {
+    panic error("Bad Sad!!");
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
