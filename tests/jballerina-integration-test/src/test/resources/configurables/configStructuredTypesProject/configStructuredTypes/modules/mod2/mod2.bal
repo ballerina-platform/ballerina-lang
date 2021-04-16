@@ -47,6 +47,8 @@ configurable table<mod1:Employee & readonly> & readonly employeeTable1 = ?;
 configurable mod1:Person person = ?;
 configurable table<mod1:Person> & readonly personTable = ?;
 configurable mod1:Person[] & readonly personArray = ?;
+configurable (mod1:Person & readonly)[] & readonly personArray1 = ?;
+configurable mod1:PersonArray[] & readonly personArray2 = ?;
 
 public function testRecords() {
     test:assertEquals(doctor.name, "waruna");
@@ -90,4 +92,10 @@ public function testArrays() {
     test:assertEquals(personArray.toString(), "[{\"address\":{\"country\":{\"name\":\"UAE\"},\"city\":\"Abu Dhabi\"}," +
         "\"name\":\"waruna\",\"id\":111},{\"address\":{\"country\":{\"name\":\"India\"},\"city\":\"Mumbai\"}," +
         "\"name\":\"manu\",\"id\":122}]");
+    test:assertEquals(personArray1.toString(), "[{\"address\":{\"country\":{\"name\":\"USA\"},\"city\":\"New York\"}," +
+        "\"name\":\"manu\",\"id\":800},{\"address\":{\"country\":{\"name\":\"UK\"},\"city\":\"London\"}," +
+        "\"name\":\"hinduja\",\"id\":801}]");
+    test:assertEquals(personArray2.toString(), "[{\"address\":{\"country\":{\"name\":\"USA\"},\"city\":\"New York\"}," +
+        "\"name\":\"riyafa\",\"id\":1000},{\"address\":{\"country\":{\"name\":\"UK\"},\"city\":\"London\"}," +
+        "\"name\":\"waruna\",\"id\":1001}]");
 }

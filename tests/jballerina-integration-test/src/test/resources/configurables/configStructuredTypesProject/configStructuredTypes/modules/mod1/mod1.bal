@@ -45,3 +45,5 @@ public type County  record {
     string name;
 };
 
+public type PersonArray Person;
+
