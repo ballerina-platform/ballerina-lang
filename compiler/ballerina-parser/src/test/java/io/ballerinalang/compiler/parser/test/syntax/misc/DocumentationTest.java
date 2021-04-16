@@ -138,4 +138,9 @@ public class DocumentationTest extends AbstractMiscTest {
     public void testCodeBlockNegative() {
         testFile("documentation/doc_source_22.bal", "documentation/doc_assert_22.json");
     }
+
+    @Test
+    public void testDocumentationEOF() {
+        testFile("documentation/doc_source_26.bal", "documentation/doc_assert_26.json");
+    }
 }
