@@ -98,6 +98,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_16;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_32;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_8;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
+import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NEVER;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
@@ -552,12 +553,12 @@ public class TypeChecker {
 
     @Deprecated
     public static boolean checkIsType(Type sourceType, Type targetType, List<TypePair> unresolvedTypes) {
-        if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(sourceType)) {
+        // First check whether both types are the same.
+        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
             return true;
         }
 
-        // First check whether both types are the same.
-        if (sourceType == targetType || (sourceType.getTag() == targetType.getTag() && sourceType.equals(targetType))) {
+        if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(sourceType)) {
             return true;
         }
 
@@ -1752,6 +1753,14 @@ public class TypeChecker {
             }
         }
 
+        if (targetType.retType == null) {
+            targetType.retType = TYPE_NEVER;
+        }
+
+        if (source.retType == null) {
+            source.retType = TYPE_NEVER;
+        }
+
         return checkIsType(source.retType, targetType.retType, new ArrayList<>());
     }
 
@@ -1931,8 +1940,8 @@ public class TypeChecker {
             case TypeTags.RECORD_TYPE_TAG:
                 for (Field field : ((BRecordType) type).getFields().values()) {
                     // skip check for fields with self referencing type and not required fields.
-                    if (!isSameType(type, field.getFieldType()) && !SymbolFlags.isFlagOn(field.getFlags(),
-                            SymbolFlags.REQUIRED) &&
+                    if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED) &&
+                            !isSameType(type, field.getFieldType()) &&
                             checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(field.getFieldType())) {
                         return true;
                     }
