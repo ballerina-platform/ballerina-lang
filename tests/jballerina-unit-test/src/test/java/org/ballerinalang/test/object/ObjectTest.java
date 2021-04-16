@@ -785,8 +785,10 @@ public class ObjectTest {
     @Test(description = "Negative test to test calling lang lib functions for objects")
     public void testLangLibFunctionInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_langlib_function_invocation_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 2);
         BAssertUtil.validateError(result, 0, "undefined method 'toString' in object 'Person'",
-                8, 25);
-        Assert.assertEquals(result.getErrorCount(), 1);
+                10, 25);
+        BAssertUtil.validateError(result, 1, "no implementation found for the method 'returnString' of class 'FrameImpl'",
+                31, 1);
     }
 }
