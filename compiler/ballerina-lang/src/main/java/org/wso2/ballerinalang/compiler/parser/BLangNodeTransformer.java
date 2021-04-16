@@ -1878,9 +1878,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(UnaryExpressionNode unaryExprNode) {
         Location pos = getPosition(unaryExprNode);
         SyntaxKind expressionKind = unaryExprNode.expression().kind();
-        if (expressionKind == SyntaxKind.NUMERIC_LITERAL) {
-            BLangNumericLiteral numericLiteral = (BLangNumericLiteral) createSimpleLiteral(unaryExprNode);
-            return numericLiteral;
+        SyntaxKind unaryOperatorKind = unaryExprNode.unaryOperator().kind();
+        if (expressionKind == SyntaxKind.NUMERIC_LITERAL &&
+                         (unaryOperatorKind == SyntaxKind.MINUS_TOKEN || unaryOperatorKind == SyntaxKind.PLUS_TOKEN)) {
+            return createSimpleLiteral(unaryExprNode);
         }
         OperatorKind operator = OperatorKind.valueFrom(unaryExprNode.unaryOperator().text());
         BLangExpression expr = createExpression(unaryExprNode.expression());
