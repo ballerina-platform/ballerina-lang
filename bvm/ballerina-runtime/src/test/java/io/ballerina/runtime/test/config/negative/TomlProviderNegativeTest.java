@@ -46,7 +46,6 @@ import java.util.Set;
 
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
-import static io.ballerina.runtime.test.TestUtils.getSimpleVariableKeys;
 
 /**
  * Test cases specific for configuration provided via TOML files/content.

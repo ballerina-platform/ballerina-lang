@@ -517,8 +517,8 @@ public class TomlProviderTest {
         Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
         Object bValue = variableKeyObjectMap.get(tableVar);
         Assert.assertTrue(bValue instanceof BTable);
-        BTable<BString, Object> bTable = (BTable) bValue;
-        BMap bmap = (BMap) bTable.get("abc");
+        BTable<?, ?> bTable = (BTable<?, ?>) bValue;
+        BMap<?, ?>  bmap = (BMap<?, ?> ) bTable.get("abc");
         Assert.assertEquals(((BString) bmap.get(StringUtils.fromString("name"))).getValue(), "abc");
         Assert.assertTrue(bmap.get(StringUtils.fromString("array")) instanceof BArray);
         BArray bArray = (BArray) bmap.get(StringUtils.fromString("array"));
