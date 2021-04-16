@@ -266,7 +266,7 @@ public class FunctionPointersTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError " +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError " +
                     "\\{\"message\":\"incompatible types: " +
                     "'isolated function \\(Student\\) returns \\(int\\)' cannot be cast to 'function \\(Person\\)" +
                     " returns \\(int\\)'.*")

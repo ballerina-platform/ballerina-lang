@@ -62,8 +62,8 @@ public class TupleMutabilityTest {
     @Test(description = "Check if correct type is saved in covariant tuple with record type ",
             expectedExceptions = {BLangRuntimeException.class},
             expectedExceptionsMessageRegExp =
-                    "error: \\{ballerina\\}TypeCastError \\{\"message\":\"incompatible types: 'Employee' cannot be " +
-                            "cast to 'Intern'.*")
+                    "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":\"incompatible types: " +
+                            "'Employee' cannot be cast to 'Intern'.*")
     public void testInvalidCast() {
         BRunUtil.invoke(compileResult, "testInvalidCast");
     }

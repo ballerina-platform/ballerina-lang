@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/lang.'runtime;
 
 type Person record {
     readonly string name;
@@ -68,8 +69,14 @@ function testRuntimeCastError() {
     map<anydata>|error m1 = trap query("foo");
 
     error err = <error>m1;
-    assert("{ballerina}TypeCastError", err.message());
+    assert("{ballerina/lang.runtime}TypeCastError", err.message());
     assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", <string> checkpanic err.detail()["message"]);
+
+    'runtime:TypeCastError err2 = <'runtime:TypeCastError> m1;
+    assert("{ballerina/lang.runtime}TypeCastError", err2.message());
+    var detailMessage = err2.detail()["message"];
+    string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+    assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", detailMessageString);
 }
 
 function testTupleTypes() {
@@ -134,7 +141,7 @@ function testCastingForInvalidValues() {
     error? y = trap fn();
     assert(true, y is error);
     error err = <error> y;
-    assert("{ballerina}TypeCastError", err.message());
+    assert("{ballerina/lang.runtime}TypeCastError", err.message());
     assert("incompatible types: 'Person' cannot be cast to 'int'", <string> checkpanic err.detail()["message"]);
 }
 
@@ -243,7 +250,7 @@ function testFunctionAssignment() {
     var v = trap <int>fn(string);
 
     error err = <error>v;
-    assert("{ballerina}TypeCastError", err.message());
+    assert("{ballerina/lang.runtime}TypeCastError", err.message());
     assert("incompatible types: 'string' cannot be cast to 'int'", <string> checkpanic err.detail()["message"]);
 }
 

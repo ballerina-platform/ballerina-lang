@@ -1,4 +1,5 @@
 import ballerina/jballerina.java;
+import ballerina/lang.runtime;
 
 function testUnionTypeBasics1() returns [int|float|string, int|string] {
     int|float|string aaa = 12330;
@@ -224,9 +225,13 @@ function testCastToImmutableUnion() {
     (MyUnion & readonly)|error y = trap <MyUnion & readonly> x;
     assertEquality(true, y is error);
     error err = <error> y;
-    assertEquality("{ballerina}TypeCastError", err.message());
-    assertEquality("incompatible types: 'int[]' cannot be cast to '(MyUnion & readonly)'",
-                   <string> checkpanic err.detail()["message"]);
+    assertEquality("{ballerina/lang.runtime}TypeCastError", err.message());
+    assertEquality("incompatible types: 'int[]' cannot be cast to '(MyUnion & readonly)'", err.detail()["message"]);
+
+    assertEquality(true, y is runtime:TypeCastError);
+    runtime:TypeCastError err2 = <runtime:TypeCastError> y;
+    assertEquality("{ballerina/lang.runtime}TypeCastError", err2.message());
+    assertEquality("incompatible types: 'int[]' cannot be cast to '(MyUnion & readonly)'", err2.detail()["message"]);
 }
 
 function assertEquality(any|error expected, any|error actual) {

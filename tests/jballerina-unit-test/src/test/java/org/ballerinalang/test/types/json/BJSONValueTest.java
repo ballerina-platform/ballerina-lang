@@ -454,28 +454,28 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: '\\(\\)' cannot be cast to 'int'.*")
     public void testNullJsonToInt() {
         BRunUtil.invoke(compileResult, "testNullJsonToInt");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: '\\(\\)' cannot be cast to 'float'.*")
     public void testNullJsonToFloat() {
         BRunUtil.invoke(compileResult, "testNullJsonToFloat");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: '\\(\\)' cannot be cast to 'string'.*")
     public void testNullJsonToString() {
         BRunUtil.invoke(compileResult, "testNullJsonToString");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: '\\(\\)' cannot be cast to 'boolean'.*")
     public void testNullJsonToBoolean() {
         BRunUtil.invoke(compileResult, "testNullJsonToBoolean");
@@ -489,14 +489,14 @@ public class BJSONValueTest {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: '\\(\\)' cannot be cast to 'int\\[\\]'.*")
     public void testNullJsonToArray() {
         BRunUtil.invoke(compileResult, "testNullJsonToArray");
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina\\}TypeCastError \\{\"message\":\"" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":\"" +
                     "incompatible types: 'json\\[\\]' cannot be cast to 'map<json>\\[\\]'.*")
     public void testMapJsonToJsonArray() {
         BRunUtil.invoke(compileResult, "testMapJsonToJsonArray");

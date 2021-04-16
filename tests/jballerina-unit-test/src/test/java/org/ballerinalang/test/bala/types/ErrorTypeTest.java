@@ -101,8 +101,8 @@ public class ErrorTypeTest {
         Assert.assertNotNull(returns[0]);
         Assert.assertTrue(returns[0] instanceof BError);
         Assert.assertEquals(returns[0].stringValue(),
-                "{ballerina}TypeCastError {\"message\":\"incompatible types: 'OurProccessingError' cannot be cast to " +
-                        "'errors:OrderProcessingError'\"}");
+                "{ballerina/lang.runtime}TypeCastError {message:\"incompatible types: 'OurProccessingError' " +
+                        "cannot be cast to 'errors:OrderProcessingError'\"}");
     }
 
     @Test

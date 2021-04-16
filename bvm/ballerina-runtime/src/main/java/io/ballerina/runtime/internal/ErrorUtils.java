@@ -17,7 +17,11 @@
  */
 package io.ballerina.runtime.internal;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
@@ -25,10 +29,15 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
 import io.ballerina.runtime.internal.values.MappingInitialValueEntry;
+
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.ResourceBundle;
 
 import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 
@@ -40,9 +49,13 @@ import static io.ballerina.runtime.api.creators.ErrorCreator.createError;
 
 public class ErrorUtils {
 
+    private static final String BALLERINA_ORG_PREFIX = "{ballerina/";
+    private static final String CLOSING_CURLY_BRACE = "}";
+    private static final String RECORD_TYPE_NAME = "Detail";
     private static final BString ERROR_MESSAGE_FIELD = StringUtils.fromString("message");
     private static final BString ERROR_CAUSE_FIELD = StringUtils.fromString("cause");
-    private static final BString NULL_REF_EXCEPTION = StringUtils.fromString("NullReferenceException");
+
+    private static ResourceBundle messageBundle = ResourceBundle.getBundle("MessagesBundle", Locale.getDefault());
 
     /**
      * Create balleria error using java exception for interop.
@@ -100,10 +113,8 @@ public class ErrorUtils {
     }
 
     public static BError createTypeCastError(Object sourceVal, Type targetType) {
-        throw createError(BallerinaErrorReasons.TYPE_CAST_ERROR,
-                          BLangExceptionHelper.getErrorMessage(RuntimeErrors.TYPE_CAST_ERROR,
-                                                               TypeChecker.getType(sourceVal), targetType));
-
+        throw createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
+                TypeChecker.getType(sourceVal), targetType);
     }
 
     public static BError createBToJTypeCastError(Object sourceVal, String targetType) {
@@ -132,5 +143,41 @@ public class ErrorUtils {
     public static BError createUnorderedTypesError(Object lhsValue, Object rhsValue) {
         throw createError(BallerinaErrorReasons.UNORDERED_TYPES_ERROR, BLangExceptionHelper.getErrorMessage(
                 RuntimeErrors.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue));
+    }
+
+    public static BError createRuntimeError(Module module, RuntimeErrorType errorType, Object... params) {
+        return createRuntimeError(module, errorType, getErrorDetail(getErrorMessage(errorType, params)), null);
+    }
+
+    public static BError createRuntimeError(Module module, RuntimeErrorType errorType,
+                                            BMap<BString, Object> detail, BError cause) {
+        try {
+            return createError(module, errorType.getErrorName(), getModulePrefixedErrorName(module, errorType),
+                    cause, detail);
+        } catch (BError e) {
+            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()));
+        }
+    }
+
+    public static BString getErrorMessage(RuntimeErrorType runtimeErrors, Object... params) {
+        return StringUtils.fromString(MessageFormat
+                .format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params));
+    }
+
+    public static BMap<BString, Object> getErrorDetail(BString errMessage) {
+        BMap<BString, Object> errDetail = ValueCreator.createRecordValue(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                RECORD_TYPE_NAME);
+        errDetail.put(ERROR_MESSAGE_FIELD, errMessage);
+        return errDetail;
+    }
+
+    public static BString getModulePrefixedErrorName(Module module, RuntimeErrorType errorType) {
+        return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(module.getName())
+                .concat(CLOSING_CURLY_BRACE).concat(errorType.getErrorName()));
+    }
+
+    public static BString getModulePrefixedErrorName(String moduleName, RuntimeErrorType errorType) {
+        return StringUtils.fromString(BALLERINA_ORG_PREFIX.concat(moduleName)
+                .concat(CLOSING_CURLY_BRACE).concat(errorType.getErrorName()));
     }
 }

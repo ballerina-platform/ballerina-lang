@@ -29,13 +29,14 @@ import org.testng.annotations.Test;
  */
 public class BAnyTypeInvalidCastError {
 
+    CompileResult resultNegative = BCompileUtil.compile("test-src/types/any/any-type-cast-negative.bal");
+
     @Test
     public void testInvalidAnyCasting() {
-        CompileResult resultNegative = BCompileUtil.compile("test-src/types/any/any-type-cast-negative.bal");
 
         Assert.assertEquals(resultNegative.getErrorCount(), 0);
         BValue[] returns = BRunUtil.invoke(resultNegative, "invalidCastingError", new BValue[]{});
-        Assert.assertEquals(returns[0].stringValue(), "{ballerina}TypeCastError {\"message\":\"incompatible types:" +
-                " 'string' cannot be cast to 'float'\"}");
+        Assert.assertEquals(returns[0].stringValue(), "{ballerina/lang.runtime}TypeCastError " +
+                "{message:\"incompatible types: 'string' cannot be cast to 'float'\"}");
     }
 }
