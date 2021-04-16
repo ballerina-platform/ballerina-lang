@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.util;
 
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.exceptions.TomlException;
 import org.ballerinalang.toml.model.Manifest;
 import org.ballerinalang.toml.model.Settings;
@@ -42,7 +43,7 @@ public class TomlParserUtils {
         Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.SETTINGS_FILE_NAME);
         try {
             return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);
-        } catch (IOException e) {
+        } catch (IOException | SettingsTomlException e) {
             return new Settings();
         }
     }

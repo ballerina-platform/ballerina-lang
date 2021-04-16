@@ -18,11 +18,13 @@
 package org.ballerinalang.toml.parser;
 
 import com.moandjiezana.toml.Toml;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.model.Settings;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 
 /**
@@ -32,21 +34,24 @@ import java.nio.file.Path;
  */
 public class SettingsProcessor {
 
+    private static final PrintStream out = System.out;
+
     /**
      * Get a {@link Settings} object by giving the path to the settings toml file.
      *
      * @param settingsPath Path of the Settings.toml file.
      * @return The settings object.
-     * @throws IOException Exception if the file cannot be found
+     * @throws IOException           Exception if the file cannot be found
+     * @throws SettingsTomlException Exception if the Settings.toml parsing failed
      */
-    public static Settings parseTomlContentFromFile(Path settingsPath) throws IOException {
+    public static Settings parseTomlContentFromFile(Path settingsPath) throws IOException, SettingsTomlException {
         Toml toml;
         try (InputStream settingsInputStream = new FileInputStream(settingsPath.toFile())) {
             toml = new Toml().read(settingsInputStream);
             return toml.to(Settings.class);
         } catch (IllegalStateException e) {
-            // Ignore 'Settings.toml' parsing errors
+            throw new SettingsTomlException(
+                    "invalid 'Settings.toml' file at:" + settingsPath + " due to:" + e.getMessage());
         }
-        return new Settings();
     }
 }
