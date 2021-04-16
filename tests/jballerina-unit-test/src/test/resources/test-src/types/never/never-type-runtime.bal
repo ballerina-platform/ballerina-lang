@@ -49,32 +49,32 @@ function func2() returns record {| never x; |} {
 }
 
 function test1() {
-    boolean b = func1 is function () returns record {| never x; |};
+    boolean b = <any> func1 is function () returns record {| never x; |};
     panic error("Error value is:" + string `${b}`);
 }
 
 function test2() {
-    boolean b = func1 is function () returns never;
+    boolean b = <any> func1 is function () returns never;
     panic error("Error value is:" + string `${b}`);
 }
 
 function test3() {
-    boolean b = func1 is function () returns int;
+    boolean b = <any> func1 is function () returns int;
     panic error("Error value is:" + string `${b}`);
 }
 
 function test4() {
-    boolean b = func2 is function () returns never;
+    boolean b = <any> func2 is function () returns never;
     panic error("Error value is:" + string `${b}`);
 }
 
 function test5() {
-    boolean b = func2 is function () returns [never];
+    boolean b = <any> func2 is function () returns [never];
     panic error("Error value is:" + string `${b}`);
 }
 
 function test6() {
-    boolean b = func2 is function () returns string;
+    boolean b = <any> func2 is function () returns string;
     panic error("Error value is:" + string `${b}`);
 }
 
