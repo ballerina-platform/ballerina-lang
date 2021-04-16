@@ -197,20 +197,20 @@ public class CodeActionTest {
         checkAssertion(config, source);
     }
 
-//    @Test(dataProvider = "codeAction-data-mapper-data-provider-10")
-//    public void testDataMapperCodeAction_10(String config, String source) throws Exception {
-//
-//        stopServer();
-//
-//        String responseData = "{\"answer\":{\"chemistry\":\"student.age\",\"maths\":\"student.grades.maths\"," +
-//                "\"physics\":\"student.grades.physics\"}}";
-//
-//        // Set the Handler.
-//        server.setHandler(new DataMapperServiceHandler(responseData));
-//        server.start();
-//
-//        checkAssertion(config, source);
-//    }
+    @Test(dataProvider = "codeAction-data-mapper-data-provider-10")
+    public void testDataMapperCodeAction_10(String config, String source) throws Exception {
+
+        stopServer();
+
+        String responseData = "{\"answer\":{\"chemistry\":\"student.age\",\"maths\":\"student.grades.maths\"," +
+                "\"physics\":\"student.grades.physics\"}}";
+
+        // Set the Handler.
+        server.setHandler(new DataMapperServiceHandler(responseData));
+        server.start();
+
+        checkAssertion(config, source);
+    }
 
     @DataProvider(name = "codeAction-data-mapper-data-provider-1")
     public Object[][] codeActionDataMapperDataProvider_1() {
