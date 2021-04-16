@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/lang.value;
 const ASSERTION_ERR_REASON = "AssertionError";
 
 //initialize final variables
@@ -253,7 +253,7 @@ function testToStringStructFieldsWithIL() {
     '\ \/\:\@\[\`\{\~\u{2324}_ƮέŞŢ_Connector testConnector = new("MyParam1", "MyParam2", 5);
     assertEquality("{\"1st_name\":\"Jack\",\"Ȧɢέ_ /:@[`{~⌤\":50}", person.toString());
     assertEquality("{\" /:@[`{~⌤_First_name\":\"John\",\"Ȧɢέ\":\"25\"}", personMap.toString());
-    assertEquality("object  /:@[`{~⌤_ƮέŞŢ_Connector", testConnector.toString());
+    assertEquality("object  /:@[`{~⌤_ƮέŞŢ_Connector", value:toString(testConnector));
 }
 
 public type 'Department_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ record {

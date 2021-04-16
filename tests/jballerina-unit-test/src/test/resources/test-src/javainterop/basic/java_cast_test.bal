@@ -1,4 +1,5 @@
 import ballerina/jballerina.java;
+import ballerina/lang.value;
 
 type String1Typedesc typedesc<String1>;
 type String2Typedesc typedesc<String2>;
@@ -20,7 +21,7 @@ public function testJavaCastFunction() returns string|error {
 public function testIncorrectJavaCast() returns string|error {
     String1 strValue = newString1("cast this object");
     ArrayList1 castedValue = <ArrayList1>check java:cast(strValue, ArrayList1Typedesc);
-    return castedValue.toString();
+    return value:toString(castedValue);
 }
 
 // Typedesc is an object without a handle argument for initialization.
