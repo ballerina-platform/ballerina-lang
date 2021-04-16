@@ -672,11 +672,13 @@ public class BTestRunner {
                 RuntimeUtils.silentlyLogBadSad(e);
                 return TesterinaUtils.getPrintableStackTrace(e);
             } else {
-                throw new BallerinaTestException(e);
+                RuntimeUtils.silentlyLogBadSad(e);
+                return TesterinaUtils.getPrintableStackTrace(e);
             }
         } catch (ClassCastException classCastException) {
             // If an unhandled error type is passed to format error message
-            throw new BallerinaTestException(classCastException);
+            RuntimeUtils.silentlyLogBadSad(e);
+            return TesterinaUtils.getPrintableStackTrace(e);
         }
     }
 
