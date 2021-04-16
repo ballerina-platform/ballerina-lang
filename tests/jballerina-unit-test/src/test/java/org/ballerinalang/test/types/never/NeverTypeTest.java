@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.types.never;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;

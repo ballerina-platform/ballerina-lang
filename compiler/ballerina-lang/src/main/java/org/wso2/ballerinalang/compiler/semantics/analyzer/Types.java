@@ -3893,7 +3893,7 @@ public class Types {
 
     private BType getConstraint(BRecordType recordType) {
         if (recordType.sealed) {
-            return symTable.noType;
+            return symTable.neverType;
         }
 
         return recordType.restFieldType;
@@ -4053,6 +4053,10 @@ public class Types {
         }
 
         BType fieldType = getTypeIntersection(intersectionContext, origField.type, constraint, env);
+        if (fieldType.tag == TypeTags.NEVER && !Symbols.isOptional(origField.symbol)) {
+            return symTable.semanticError;
+        }
+
         if (fieldType != symTable.semanticError) {
             return fieldType;
         }
