@@ -3882,9 +3882,11 @@ public class TypeChecker extends BLangNodeVisitor {
                                 binaryExpr);
                     }
 
-                    if (opSymbol == symTable.notFoundSymbol || (isBinaryComparisonOperator(binaryExpr.opKind) &&
-                            !(types.isOrderedType(lhsType, false) && types.isOrderedType(rhsType, false) &&
-                                    types.isSameOrderedType(lhsType, rhsType)))) {
+                    if (opSymbol == symTable.notFoundSymbol) {
+                        opSymbol = symResolver.getBinaryComparisonOpForTypeSets(binaryExpr.opKind, lhsType, rhsType);
+                    }
+
+                    if (opSymbol == symTable.notFoundSymbol) {
                         dlog.error(binaryExpr.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES, binaryExpr.opKind,
                                 lhsType, rhsType);
                     } else {
