@@ -1299,6 +1299,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 recursivelySetFinalFlag(tupleVariable);
                 break;
             case RECORD_VARIABLE:
+                if (rhsType.tag == TypeTags.ANYDATA || rhsType.tag == TypeTags.ANY) {
+                    dlog.error(variable.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, rhsType);
+                    return;
+                }
                 BLangRecordVariable recordVariable = (BLangRecordVariable) variable;
                 recordVariable.type = rhsType;
                 this.symbolEnter.validateRecordVariable(recordVariable, blockEnv);
