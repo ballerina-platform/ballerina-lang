@@ -198,59 +198,70 @@ public class BallerinaDocGenerator {
 
     private static void writeAPIDocs(ModuleLibrary moduleLib, Path output, boolean isMerge, boolean excludeUI) {
         if (moduleLib.modules.size() == 0) {
+            log.error("No modules found to create docs.");
             return;
         }
         if (!isMerge && excludeUI) {
+            // Doc gen for a bala.
+            // Creates jsons for each modules
             for (Module module : moduleLib.modules) {
                 ModuleLibrary tempLib = new ModuleLibrary();
                 tempLib.modules.add(module);
                 Path outputPath = output.resolve(module.orgName).resolve(module.id).resolve(module.version);
                 genApiDocsJson(tempLib, outputPath, true);
+                copyResources(module.resources, outputPath);
+            }
+            return;
+        } else if (!isMerge) {
+            // Doc generation via doc command
+            output = output.resolve(moduleLib.modules.get(0).orgName).resolve(moduleLib.modules.get(0).id)
+                    .resolve(moduleLib.modules.get(0).version);
+        }
+        genApiDocsJson(moduleLib, output, false);
+        for (Module module: moduleLib.modules) {
+            copyResources(module.resources, output);
+        }
+        copyDocerinaUI(output);
+    }
+
+    private static void copyDocerinaUI(Path output) {
+        File source = Path.of(System.getProperty("ballerina.home"), "lib", "tools", "doc-ui").toFile();
+        File dest;
+        if (source.exists()) {
+            dest = output.toFile();
+            try {
+                FileUtils.copyDirectory(source, dest);
+            } catch (IOException e) {
+                log.error("Failed to copy the doc ui.", e);
             }
         } else {
-            genApiDocsJson(moduleLib, output, excludeUI);
-        }
-
-        for (Module docModule: moduleLib.modules) {
-            if (!docModule.resources.isEmpty()) {
-                File resourcesDirFile = output.resolve("resources").toFile();
-                if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: copying project resources ");
-                }
-                for (Path resourcePath : docModule.resources) {
-                    try {
-                        FileUtils.copyFileToDirectory(resourcePath.toFile(), resourcesDirFile);
-                    } catch (IOException e) {
-                        log.error(String.format("docerina: failed to copy [resource] %s into [resources directory] "
-                                        + "%s. Cause: %s", resourcePath.toString(), resourcesDirFile.toString(),
-                                e.getMessage()), e);
-                    }
-                }
-                if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: successfully copied project resources into " + resourcesDirFile);
-                }
+            dest = output.resolve("index.html").toFile();
+            try {
+                FileUtils.copyInputStreamToFile(BallerinaDocGenerator.class
+                        .getResourceAsStream("/doc-ui/index.html"), dest);
+            } catch (IOException e) {
+                log.error("Failed to copy the doc ui.", e);
             }
         }
-        // Copy docerina ui
-        if (!excludeUI) {
-            File source = Path.of(System.getProperty("ballerina.home"), "lib", "tools", "doc-ui").toFile();
-            File dest;
-            if (source.exists()) {
-                dest = output.toFile();
+    }
+
+    private static void copyResources(List<Path> resources, Path output) {
+        if (!resources.isEmpty()) {
+            File resourcesDirFile = output.resolve("resources").toFile();
+            if (BallerinaDocUtils.isDebugEnabled()) {
+                out.println("docerina: copying project resources ");
+            }
+            for (Path resourcePath : resources) {
                 try {
-                    FileUtils.copyDirectory(source, dest);
+                    FileUtils.copyFileToDirectory(resourcePath.toFile(), resourcesDirFile);
                 } catch (IOException e) {
-                    log.error("Failed to copy the doc ui.", e);
+                    log.error(String.format("docerina: failed to copy [resource] %s into [resources directory] "
+                                    + "%s. Cause: %s", resourcePath.toString(), resourcesDirFile.toString(),
+                            e.getMessage()), e);
                 }
-            } else {
-                dest = output.resolve("index.html").toFile();
-                try {
-                    FileUtils.copyInputStreamToFile(BallerinaDocGenerator.class
-                            .getResourceAsStream("/doc-ui/index.html"), dest);
-                    //BallerinaDocUtils.unzipResources(, dest);
-                } catch (IOException e) {
-                    log.error("Failed to copy the doc ui.", e);
-                }
+            }
+            if (BallerinaDocUtils.isDebugEnabled()) {
+                out.println("docerina: successfully copied project resources into " + resourcesDirFile);
             }
         }
     }

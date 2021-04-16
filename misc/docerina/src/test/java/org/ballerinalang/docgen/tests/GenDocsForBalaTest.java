@@ -56,14 +56,17 @@ public class GenDocsForBalaTest {
     
         BallerinaDocGenerator.generateAPIDocs(balaProject, this.docsPath.toString(), true);
     
-        String apiDocsJsonAsString = Files.readString(
+        String sfModuleApiDocsJsonAsString = Files.readString(
                 this.docsPath.resolve("foo").resolve("sf").resolve("1.3.5")
                         .resolve(BallerinaDocGenerator.API_DOCS_JSON));
-        Assert.assertTrue(apiDocsJsonAsString.contains("# Salesforce Module\\nConnecto Salesforce easily\\n"),
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("## Module Overview\\n\\nModule.md content."),
                 "Module.md content is missing");
-        
+        Assert.assertTrue(sfModuleApiDocsJsonAsString.contains("Block"), "Block type is missing");
 
-        Assert.assertTrue(apiDocsJsonAsString.contains("baz"), "baz function is missing");
+        String sfWorldModuleApiDocsJsonAsString = Files.readString(
+                this.docsPath.resolve("foo").resolve("sf.world").resolve("1.3.5")
+                        .resolve(BallerinaDocGenerator.API_DOCS_JSON));
+        Assert.assertTrue(sfWorldModuleApiDocsJsonAsString.contains("PersonZ"), "PersonZ class is missing");
     }
     
     @AfterMethod
