@@ -297,6 +297,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             populateLangLibInSymTable(pkgSymbol);
         }
 
+        if (pkgNode.moduleContextDataHolder != null) {
+            pkgSymbol.exported = pkgNode.moduleContextDataHolder.isExported();
+            pkgSymbol.descriptor = pkgNode.moduleContextDataHolder.descriptor();
+        }
+
         pkgNode.symbol = pkgSymbol;
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
@@ -698,6 +703,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BField field : ((BStructureType) effectiveIncludedType).fields.values()) {
                 if (fieldNames.containsKey(field.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(field.name.value);
+                    if ((existingVariable.flagSet.contains(Flag.PUBLIC) !=
+                            Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC)) ||
+                            (existingVariable.flagSet.contains(Flag.PRIVATE) !=
+                                    Symbols.isFlagOn(field.symbol.flags, Flags.PRIVATE))) {
+                        dlog.error(existingVariable.pos,
+                                DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
+                                existingVariable.name.value);
+                    }
                     if (types.isAssignable(existingVariable.type, field.type)) {
                         continue;
                     }
@@ -896,6 +909,20 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         PackageID pkgId = new PackageID(orgName, nameComps, version);
+
+        // Un-exported modules not inside current package is not allowed to import.
+        BPackageSymbol bPackageSymbol = this.packageCache.getSymbol(pkgId);
+        if (bPackageSymbol != null && this.env.enclPkg.moduleContextDataHolder != null) {
+            boolean isCurrentPackageModuleImport =
+                this.env.enclPkg.moduleContextDataHolder.descriptor().org() == bPackageSymbol.descriptor.org()
+                    && this.env.enclPkg.moduleContextDataHolder.descriptor().packageName() ==
+                        bPackageSymbol.descriptor.packageName();
+            if (!isCurrentPackageModuleImport && !bPackageSymbol.exported) {
+                dlog.error(importPkgNode.pos, DiagnosticErrorCode.MODULE_NOT_FOUND,
+                           bPackageSymbol.toString() + " is not exported");
+                           return;
+            }
+        }
 
         // Built-in Annotation module is not allowed to import.
         if (pkgId.equals(PackageID.ANNOTATIONS) || pkgId.equals(PackageID.INTERNAL) || pkgId.equals(PackageID.QUERY)) {
@@ -4079,6 +4106,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return ((BStructureType) referredType).fields.values().stream().filter(f -> {
                 if (fieldNames.containsKey(f.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
+                    if (existingVariable.flagSet.contains(Flag.PUBLIC) !=
+                            Symbols.isFlagOn(f.symbol.flags, Flags.PUBLIC)) {
+                        dlog.error(existingVariable.pos,
+                                DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
+                                existingVariable.name.value);
+                    }
                     return !types.isAssignable(existingVariable.type, f.type);
                 }
                 return true;

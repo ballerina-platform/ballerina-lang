@@ -820,6 +820,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     types.isAssignable(lhsType, symTable.decimalType) ||
                     types.isAssignable(lhsType, symTable.xmlType) ||
                     types.isAssignable(lhsType, symTable.arrayType) ||
+                    types.isAssignable(lhsType, symTable.mapAnydataType) ||
                     types.isAssignable(lhsType, symTable.tableType))) {
                 // TODO: remove this check once runtime support all configurable types
                 dlog.error(varNode.typeNode.pos,
@@ -2016,6 +2017,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (matchClause.matchGuard != null) {
             typeChecker.checkExpr(matchClause.matchGuard.expr, blockEnv);
             blockEnv = typeNarrower.evaluateTruth(matchClause.matchGuard.expr, matchClause.blockStmt, blockEnv);
+
+            for (Map.Entry<BVarSymbol, BType.NarrowedTypes> entry :
+                    matchClause.matchGuard.expr.narrowedTypeInfo.entrySet()) {
+                if (entry.getValue().trueType == symTable.semanticError) {
+                    dlog.error(matchClause.pos, DiagnosticErrorCode.MATCH_STMT_UNMATCHED_PATTERN);
+                }
+            }
+
             evaluatePatternsTypeAccordingToMatchGuard(matchClause, matchClause.matchGuard.expr, blockEnv);
         }
         analyzeStmt(matchClause.blockStmt, blockEnv);
@@ -2091,7 +2100,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
                 if (listMatchPattern.restMatchPattern != null) {
                     evaluateMatchPatternsTypeAccordingToMatchGuard(listMatchPattern.restMatchPattern, env);
-                    matchPatternType.restType = listMatchPattern.restMatchPattern.type;
+                    matchPatternType.restType = ((BArrayType) listMatchPattern.restMatchPattern.type).eType;
                 }
                 listMatchPattern.type = matchPatternType;
                 break;
@@ -2131,7 +2140,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         BRecordType recordVarType = new BRecordType(recordSymbol);
         recordVarType.fields = fields;
-        recordVarType.restFieldType = symTable.anydataType;
+        recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingMatchPattern.restMatchPattern != null) {
             BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
             restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
@@ -2271,7 +2280,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangWildCardBindingPattern wildCardBindingPattern = (BLangWildCardBindingPattern) bindingPattern;
                 wildCardBindingPattern.type = patternType;
                 analyzeNode(wildCardBindingPattern, env);
-                varBindingPattern.matchesAll = types.isAssignable(wildCardBindingPattern.type, symTable.anyType);
+                varBindingPattern.isLastPattern = types.isAssignable(wildCardBindingPattern.type, symTable.anyType);
                 break;
             case CAPTURE_BINDING_PATTERN:
                 BLangCaptureBindingPattern captureBindingPattern = (BLangCaptureBindingPattern) bindingPattern;

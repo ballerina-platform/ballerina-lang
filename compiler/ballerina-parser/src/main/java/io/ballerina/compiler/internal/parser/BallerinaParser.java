@@ -262,7 +262,10 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
                 if (metadata != null) {
-                    addInvalidNodeToNextToken(metadata, DiagnosticErrorCode.ERROR_INVALID_METADATA);
+                    STNode moduleVarDecl = createMissingSimpleVarDecl(metadata);
+                    moduleVarDecl = SyntaxErrors.addDiagnostic(moduleVarDecl, 
+                            DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT);
+                    return moduleVarDecl;
                 }
                 return null;
             case PUBLIC_KEYWORD:
@@ -781,10 +784,7 @@ public class BallerinaParser extends AbstractParser {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case EOF_TOKEN:
-                reportInvalidMetaData(metadata);
-                reportInvalidQualifier(publicQualifier);
-                reportInvalidQualifierList(qualifiers);
-                return null;
+                return createMissingSimpleVarDecl(metadata, publicQualifier, qualifiers, true);
             case FUNCTION_KEYWORD:
                 // Anything starts with a function keyword could be a function definition
                 // or a module-var-decl with function type desc.
@@ -2602,7 +2602,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode createBuiltinSimpleNameReference(STNode token) {
-        SyntaxKind typeKind = getTypeSyntaxKind(token.kind);
+        SyntaxKind typeKind = getBuiltinTypeSyntaxKind(token.kind);
         return STNodeFactory.createBuiltinSimpleNameReferenceNode(typeKind, token);
     }
 
@@ -3943,6 +3943,7 @@ public class BallerinaParser extends AbstractParser {
         STNode annots = STNodeFactory.createEmptyNodeList();
         switch (nextToken.kind) {
             case CLOSE_BRACE_TOKEN:
+            case EOF_TOKEN:
                 // Returning null marks the end of statements
                 return null;
             case SEMICOLON_TOKEN:
@@ -3997,10 +3998,9 @@ public class BallerinaParser extends AbstractParser {
         
         switch (nextToken.kind) {
             case CLOSE_BRACE_TOKEN:
-                // Returning null marks the end of statements
-                reportInvalidStatementAnnots(annots, qualifiers);
-                reportInvalidQualifierList(qualifiers);
-                return null;
+            case EOF_TOKEN:
+                STNode publicQualifier = STNodeFactory.createEmptyNode();
+                return createMissingSimpleVarDecl(getAnnotations(annots), publicQualifier, qualifiers, false);
             case SEMICOLON_TOKEN:
                 addInvalidTokenToNextToken(errorHandler.consumeInvalidToken());
                 return parseStatement(annots, qualifiers);
@@ -4129,7 +4129,7 @@ public class BallerinaParser extends AbstractParser {
                     // If the statement starts with a type, then its a var declaration.
                     // This is an optimization since if we know the next token is a type, then
                     // we can parse the var-def faster.
-                    STNode publicQualifier = STNodeFactory.createEmptyNode();
+                    publicQualifier = STNodeFactory.createEmptyNode();
                     return parseVariableDecl(getAnnotations(annots), publicQualifier, new ArrayList<>(), qualifiers,
                             false);
                 }
@@ -4368,6 +4368,67 @@ public class BallerinaParser extends AbstractParser {
         STNode varDeclQualifiersNode = STNodeFactory.createNodeList(varDeclQuals);
         return STNodeFactory.createModuleVariableDeclarationNode(metadata, publicQualifier, varDeclQualifiersNode,
                 typedBindingPattern, assign, expr, semicolon);
+    }
+
+    private STNode createMissingSimpleVarDecl(STNode metadata) {
+        STNode publicQualifier = STNodeFactory.createEmptyNode();
+        return createMissingSimpleVarDecl(metadata, publicQualifier, new ArrayList<>(), true);
+    }
+
+    private STNode createMissingSimpleVarDecl(STNode metadata, STNode publicQualifier, List<STNode> qualifiers,
+                                              boolean isModuleVar) {
+        STNode emptyNode = STNodeFactory.createEmptyNode();
+        STNode simpleTypeDescIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+        STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_VARIABLE_NAME);
+        STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
+        STNode semicolon = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.SEMICOLON_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN);
+        
+        STNode captureBP = STNodeFactory.createCaptureBindingPatternNode(identifier);
+        STNode typedBindingPattern = STNodeFactory.createTypedBindingPatternNode(simpleNameRef, captureBP);
+        
+        if (isModuleVar) {
+            List<STNode> varDeclQuals = extractVarDeclQualifiers(qualifiers);
+            STNode varDeclQualNodeList = STNodeFactory.createNodeList(varDeclQuals);
+
+            typedBindingPattern = modifyNodeWithInvalidTokenList(qualifiers, typedBindingPattern);
+
+            return STNodeFactory.createModuleVariableDeclarationNode(metadata, publicQualifier, varDeclQualNodeList,
+                    typedBindingPattern, emptyNode, emptyNode, semicolon);
+        }
+
+        typedBindingPattern = modifyNodeWithInvalidTokenList(qualifiers, typedBindingPattern);
+
+        return STNodeFactory.createVariableDeclarationNode(metadata, emptyNode, typedBindingPattern, emptyNode,
+                emptyNode, semicolon);
+    }
+
+    private STNode createMissingSimpleObjectField(STNode metadata, List<STNode> qualifiers, boolean isObjectTypeDesc) {
+        STNode emptyNode = STNodeFactory.createEmptyNode();
+        STNode simpleTypeDescIdentifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+        STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_FIELD_NAME);
+        STNode simpleNameRef = STNodeFactory.createSimpleNameReferenceNode(simpleTypeDescIdentifier);
+        STNode semicolon = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.SEMICOLON_TOKEN,
+                DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN);
+
+        List<STNode> objectFieldQualifiers = extractObjectFieldQualifiers(qualifiers, isObjectTypeDesc);
+        STNode objectFieldQualNodeList = STNodeFactory.createNodeList(objectFieldQualifiers);
+
+        simpleNameRef = modifyNodeWithInvalidTokenList(qualifiers, simpleNameRef);
+
+        return STNodeFactory.createObjectFieldNode(metadata, emptyNode, objectFieldQualNodeList, simpleNameRef,
+                identifier, emptyNode, emptyNode, semicolon);
+    }
+
+    private STNode modifyNodeWithInvalidTokenList(List<STNode> qualifiers, STNode node) {
+        for (STNode qualifier : qualifiers) {
+            node = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(node, qualifier);
+        }
+        return node;
     }
 
     private STNode modifyTypedBindingPatternWithIsolatedQualifier(STNode typedBindingPattern,
@@ -4698,7 +4759,7 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTION_KEYWORD:
                 return parseQualifiedIdentWithTransactionPrefix(ParserRuleContext.VARIABLE_REF);
             default:
-                if (isSimpleType(nextToken.kind)) {
+                if (isSimpleTypeInExpression(nextToken.kind)) {
                     return parseSimpleTypeDescriptor();
                 }
 
@@ -4824,7 +4885,10 @@ public class BallerinaParser extends AbstractParser {
             case OBJECT_KEYWORD:
                 return true;
             default:
-                return isSimpleType(tokenKind);
+                if (isPredeclaredPrefix(tokenKind)) {
+                    return true;
+                }
+                return isSimpleTypeInExpression(tokenKind);
         }
     }
 
@@ -6108,9 +6172,12 @@ public class BallerinaParser extends AbstractParser {
         switch (nextToken.kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
-                reportInvalidMetaData(metadata);
-                reportInvalidQualifierList(qualifiers);
-                return null;
+                STNode objectField = createMissingSimpleObjectField(metadata, qualifiers, isObjectTypeDesc);
+                if (metadata != null) {
+                    objectField = SyntaxErrors.addDiagnostic(objectField,
+                            DiagnosticErrorCode.ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER);
+                }
+                return objectField;
             case PUBLIC_KEYWORD:
             case PRIVATE_KEYWORD:
                 reportInvalidQualifierList(qualifiers);
@@ -9223,6 +9290,7 @@ public class BallerinaParser extends AbstractParser {
             case FUTURE_KEYWORD: // future type desc
             case TYPEDESC_KEYWORD: // typedesc type desc
             case ERROR_KEYWORD: // error type desc
+            case XML_KEYWORD: // xml type desc
             case STREAM_KEYWORD: // stream type desc
             case TABLE_KEYWORD: // table type
             case FUNCTION_KEYWORD:
@@ -9240,6 +9308,25 @@ public class BallerinaParser extends AbstractParser {
         }
     }
 
+    /**
+     * Check if the token kind is a type descriptor in terminal expression.
+     * <p>
+     * simple-type-in-expr :=
+     * boolean | int | byte | float | decimal | string | handle | json | anydata | any | never
+     *
+     * @param nodeKind token kind to check
+     * @return <code>true</code> for simple type token in expression. <code>false</code> otherwise.
+     */
+    private boolean isSimpleTypeInExpression(SyntaxKind nodeKind) {
+        switch (nodeKind) {
+            case VAR_KEYWORD:
+            case READONLY_KEYWORD:
+                return false;
+            default:
+                return isSimpleType(nodeKind);
+        }
+    }
+
     static boolean isSimpleType(SyntaxKind nodeKind) {
         switch (nodeKind) {
             case INT_KEYWORD:
@@ -9248,18 +9335,13 @@ public class BallerinaParser extends AbstractParser {
             case BOOLEAN_KEYWORD:
             case STRING_KEYWORD:
             case BYTE_KEYWORD:
-            case XML_KEYWORD:
             case JSON_KEYWORD:
             case HANDLE_KEYWORD:
             case ANY_KEYWORD:
             case ANYDATA_KEYWORD:
             case NEVER_KEYWORD:
             case VAR_KEYWORD:
-            case ERROR_KEYWORD: // This is for the recovery. <code>error a;</code> scenario recovered here.
-            case STREAM_KEYWORD: // This is for recovery logic. <code>stream a;</code> scenario recovered here.
-            case TYPEDESC_KEYWORD: // This is for recovery logic. <code>typedesc a;</code> scenario recovered here.
             case READONLY_KEYWORD:
-            case DISTINCT_KEYWORD:
                 return true;
             default:
                 return false;
@@ -9292,7 +9374,7 @@ public class BallerinaParser extends AbstractParser {
        return isPredeclaredPrefix(nodeKind) && getNextNextToken().kind == SyntaxKind.COLON_TOKEN;
     }
 
-    private SyntaxKind getTypeSyntaxKind(SyntaxKind typeKeyword) {
+    private SyntaxKind getBuiltinTypeSyntaxKind(SyntaxKind typeKeyword) {
         switch (typeKeyword) {
             case INT_KEYWORD:
                 return SyntaxKind.INT_TYPE_DESC;
@@ -9306,8 +9388,6 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.STRING_TYPE_DESC;
             case BYTE_KEYWORD:
                 return SyntaxKind.BYTE_TYPE_DESC;
-            case XML_KEYWORD:
-                return SyntaxKind.XML_TYPE_DESC;
             case JSON_KEYWORD:
                 return SyntaxKind.JSON_TYPE_DESC;
             case HANDLE_KEYWORD:
@@ -9316,15 +9396,14 @@ public class BallerinaParser extends AbstractParser {
                 return SyntaxKind.ANY_TYPE_DESC;
             case ANYDATA_KEYWORD:
                 return SyntaxKind.ANYDATA_TYPE_DESC;
-            case READONLY_KEYWORD:
-                return SyntaxKind.READONLY_TYPE_DESC;
             case NEVER_KEYWORD:
                 return SyntaxKind.NEVER_TYPE_DESC;
             case VAR_KEYWORD:
                 return SyntaxKind.VAR_TYPE_DESC;
-            case ERROR_KEYWORD:
-                return SyntaxKind.ERROR_TYPE_DESC;
+            case READONLY_KEYWORD:
+                return SyntaxKind.READONLY_TYPE_DESC;
             default:
+                assert false : typeKeyword + " is not a built-in type";
                 return SyntaxKind.TYPE_REFERENCE;
         }
     }
@@ -9501,13 +9580,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseListConstructorMemberEnd() {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case COMMA_TOKEN:
-                return parseComma();
+                return consume();
             case CLOSE_BRACKET_TOKEN:
                 return null;
             default:
-                recover(peek(), ParserRuleContext.LIST_CONSTRUCTOR_MEMBER_END);
+                recover(nextToken, ParserRuleContext.LIST_CONSTRUCTOR_MEMBER_END);
                 return parseListConstructorMemberEnd();
         }
     }
@@ -15122,7 +15202,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfMappingBindingPattern(SyntaxKind nextTokenKind) {
-        return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN;
+        return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN || endOfModuleLevelNode(1);
     }
 
     private STNode parseErrorTypeDescOrErrorBP(STNode annots) {

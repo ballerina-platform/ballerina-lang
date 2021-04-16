@@ -1161,8 +1161,10 @@ function testTypeDescTypeTest1() returns boolean {
     return false;
 }
 
+type XmlType xml;
+
 function testTypeDescTypeTest2() returns boolean {
-    string result = testType(xml);
+    string result = testType(XmlType);
     if (result == "null") {
         return true;
     }

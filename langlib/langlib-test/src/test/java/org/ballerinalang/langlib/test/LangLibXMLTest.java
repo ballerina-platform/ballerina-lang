@@ -291,6 +291,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXmlFilter() {
+        BRunUtil.invoke(compileResult, "testXmlFilter");
+    }
+
+    @Test
     public void testGetDescendants() {
         BRunUtil.invoke(compileResult, "testGetDescendants");
     }
