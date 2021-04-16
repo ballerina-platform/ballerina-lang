@@ -412,7 +412,7 @@ public class SymbolTable {
     }
 
     private void initializeTSymbol(BType type, Name name, PackageID packageID) {
-        type.tsymbol = new BTypeSymbol(SymTag.TYPE, Flags.PUBLIC, name, packageID, type, rootPkgSymbol, builtinPos,
+        type.tsymbol = new BTypeSymbol(SymTag.TYPE_DEF, Flags.PUBLIC, name, packageID, type, rootPkgSymbol, builtinPos,
                                        BUILTIN);
     }
 

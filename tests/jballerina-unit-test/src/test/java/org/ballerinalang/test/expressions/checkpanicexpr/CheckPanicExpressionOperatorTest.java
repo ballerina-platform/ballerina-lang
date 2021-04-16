@@ -94,8 +94,8 @@ public class CheckPanicExpressionOperatorTest {
         Assert.assertEquals(negative.getErrorCount(), 4, negative.toString());
         BAssertUtil.validateError(negative, 0, "invalid usage of the 'checkpanic' expression " +
                 "operator: no expression type is equivalent to error type", 11, 30);
-        BAssertUtil.validateError(negative, 1, "incompatible types: expected 'string', found 'never'", 16, 19);
-        BAssertUtil.validateError(negative, 2, "incompatible types: expected 'string', found 'never'", 29, 19);
+        BAssertUtil.validateError(negative, 1, "'checkpanic' expression of type 'never' is not allowed", 16, 19);
+        BAssertUtil.validateError(negative, 2, "'checkpanic' expression of type 'never' is not allowed", 29, 19);
         BAssertUtil.validateError(negative, 3, "incompatible types: expected '(string|error)'" +
                 ", found '(string|int)'", 37, 30);
     }
