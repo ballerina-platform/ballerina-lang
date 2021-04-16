@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Set;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_PREFIX;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 
 /**
@@ -57,6 +58,7 @@ public class JConstructor extends BFunction  {
         parentClass = c.getDeclaringClass();
         super.setDeclaringClass(parentClass);
         shortClassName = getAlias(c.getDeclaringClass(), env.getAliases());
+        shortClassName = getExceptionName(jClass.getCurrentClass(), shortClassName);
         setExternalReturnType("handle");
 
         // Loop through the parameters of the constructor to populate a list.
@@ -96,6 +98,19 @@ public class JConstructor extends BFunction  {
         setErrorType(exceptionName);
         setFunctionName(constructorName);
         setExternalFunctionName(parentClass.getName().replace(".", "_").replace("$", "_") + "_" + constructorName);
+    }
+
+    private String getExceptionName(Class exception, String name) {
+        try {
+            // Append the exception class prefix in front of bindings generated for Java exceptions.
+            if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
+                    .isAssignableFrom(exception)) {
+                return EXCEPTION_CLASS_PREFIX + name;
+            }
+        } catch (ClassNotFoundException ignore) {
+            // Silently ignore if the exception class cannot be found.
+        }
+        return name;
     }
 
     private String getPackageAlias(String shortClassName, Class objectType) {
