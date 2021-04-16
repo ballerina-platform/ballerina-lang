@@ -434,14 +434,15 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE3030", "checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
             "BCE3032", "checked.expr.no.matching.error.return.in.encl.invokable"),
+    NEVER_TYPE_NOT_ALLOWED_WITH_CHECKED_EXPR("BCE3033", "never.type.not.allowed.with.checked.expr"),
 
     FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
-            "BCE3033", "fail.expr.no.matching.error.return.in.encl.invokable"),
-    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("BCE3034", "on.fail.no.matching.error"),
+            "BCE3034", "fail.expr.no.matching.error.return.in.encl.invokable"),
+    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("BCE3035", "on.fail.no.matching.error"),
 
-    START_REQUIRE_INVOCATION("BCE3035", "start.require.invocation"),
-    INVALID_EXPR_STATEMENT("BCE3036", "invalid.expr.statement"),
-    INVALID_ACTION_INVOCATION_AS_EXPR("BCE3037", "invalid.action.invocation.as.expr"),
+    START_REQUIRE_INVOCATION("BCE3036", "start.require.invocation"),
+    INVALID_EXPR_STATEMENT("BCE3037", "invalid.expr.statement"),
+    INVALID_ACTION_INVOCATION_AS_EXPR("BCE3038", "invalid.action.invocation.as.expr"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("BCE3100", "invalid.token"),

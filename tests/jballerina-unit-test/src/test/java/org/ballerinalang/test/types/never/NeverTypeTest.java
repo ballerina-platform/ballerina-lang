@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.test.types.never;
 
+import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
@@ -35,7 +36,6 @@ public class NeverTypeTest {
 
     private CompileResult neverTypeTestResult;
     private CompileResult negativeCompileResult;
-    private CompileResult runtimeResult;
 
     @BeforeClass
     public void setup() {
@@ -101,7 +101,7 @@ public class NeverTypeTest {
 
     @Test
     public void testNeverTypeNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 42);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 37);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot define a variable of type 'never' or equivalent to type 'never'", 2, 5);
@@ -175,18 +175,8 @@ public class NeverTypeTest {
                 "cannot be of type 'never' or equivalent to type 'never'", 182, 25);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot call a remote method with return type 'never'",
                 187, 5);
-        BAssertUtil.validateError(negativeCompileResult, i++, "cannot call a remote method with return type 'never'",
-                188, 5);
-        BAssertUtil.validateError(negativeCompileResult, i++, "cannot call a remote method with return type 'never'",
-                189, 5);
-        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
-                "or equivalent to type 'never'", 207, 5);
-        BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter" +
-                " cannot be of type 'never' or equivalent to type 'never'", 210, 48);
-        BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter" +
-                " cannot be of type 'never' or equivalent to type 'never'", 214, 48);
-        BAssertUtil.validateError(negativeCompileResult, i, "cannot define an object field of type 'never'" +
-                " or equivalent to type 'never'", 214, 82);
+        BAssertUtil.validateError(negativeCompileResult, i, "cannot define a variable of type 'never' " +
+                "or equivalent to type 'never'", 197, 5);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -195,21 +185,17 @@ public class NeverTypeTest {
         BRunUtil.invoke(neverTypeTestResult, "testNeverWithCallStmt");
     }
 
-    @Test(dataProvider = "dataToTestNeverWithExpressions", description = "Test never type with expressions")
-    public void testNeverWithExpressions(String functionName) {
-        BRunUtil.invoke(neverTypeTestResult, functionName);
+    @Test(expectedExceptions = BLangRuntimeException.class,
+            expectedExceptionsMessageRegExp = "error: Bad Sad!!.*")
+    public void testNeverWithStartAction() {
+        BRunUtil.invoke(neverTypeTestResult, "testNeverWithStartAction");
     }
 
-    @DataProvider
-    public Object[] dataToTestNeverWithExpressions() {
-        return new Object[]{
-                "testNeverWithStartAction1",
-                "testNeverWithStartAction2",
-                "testNeverWithTrapExpr1",
-                "testNeverWithTrapExpr2",
-                "testValidNeverReturnFuncAssignment",
-                "testValidNeverReturnFuncAssignment2",
-        };
+    @Test(description = "Test never type with trap expression")
+    public void testNeverWithTrapExpr() {
+        BValue[] returns = BRunUtil.invoke(neverTypeTestResult, "testNeverWithTrapExpr");
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertEquals(returns[0].stringValue(), "Bad Sad!! {}");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -283,16 +269,14 @@ public class NeverTypeTest {
         BRunUtil.invoke(neverTypeTestResult, "testNeverWithServiceObjFunc");
     }
 
-    @Test(description = "Test never type in remote method return type of service object")
-    public void testNeverRuntime() {
-        runtimeResult = BCompileUtil.compile("test-src/types/never/never-type-runtime.bal");
-        BRunUtil.invoke(runtimeResult, "testNeverRuntime");
+    @Test(description = "Test never sub typing")
+    public void testNeverSubtyping() {
+        BRunUtil.invoke(neverTypeTestResult, "testNeverSubtyping");
     }
 
     @AfterClass
     public void tearDown() {
         neverTypeTestResult = null;
         negativeCompileResult = null;
-        runtimeResult = null;
     }
 }
