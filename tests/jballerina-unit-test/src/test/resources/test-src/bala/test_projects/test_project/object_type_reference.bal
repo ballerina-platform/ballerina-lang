@@ -109,3 +109,11 @@ public type Employee3 object {
 
     public function getBonus(float ratio, int months=12) returns float;
 };
+
+public type Employee4 object {
+    float salary;
+};
+
+public type Employee5 object {
+    function getBonus(float ratio, int months) returns float;
+};

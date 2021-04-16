@@ -42,7 +42,7 @@ public class FindRefsInTestsTest extends FindAllReferencesTest {
     public void setup() {
         Project project = BCompileUtil.loadProject(getTestSourcePath());
         Module baz = getModule(project, "baz");
-        model = baz.getCompilation().getSemanticModel();
+        model = project.currentPackage().getCompilation().getSemanticModel(baz.moduleId());
         DocumentId id = baz.testDocumentIds().iterator().next();
         srcFile = baz.document(id);
     }

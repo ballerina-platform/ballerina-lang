@@ -158,6 +158,12 @@ public class SymbolFactory {
             if (Symbols.isFlagOn(symbol.flags, Flags.REST_PARAM)) {
                 return createBallerinaParameter((BVarSymbol) symbol, ParameterKind.REST);
             }
+            if (symbol.kind == SymbolKind.PATH_PARAMETER) {
+                return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_PARAMETER);
+            }
+            if (symbol.kind == SymbolKind.PATH_REST_PARAMETER) {
+                return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_REST_PARAMETER);
+            }
 
             // return the variable symbol
             return createVariableSymbol((BVarSymbol) symbol, name);
@@ -246,7 +252,7 @@ public class SymbolFactory {
         TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(invokableSymbol.type);
         BallerinaFunctionSymbol functionSymbol = createFunctionSymbol(invokableSymbol, name);
         if (typeDescriptor.typeKind() == TypeDescKind.FUNCTION) {
-            return new BallerinaMethodSymbol(functionSymbol);
+            return new BallerinaMethodSymbol(functionSymbol, invokableSymbol, this.context);
         }
 
         throw new AssertionError("Invalid type descriptor found");

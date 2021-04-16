@@ -125,3 +125,17 @@ record {int a;} {a:myA} = {a:5};
 # + return - `float` return parameter is float
 # parameter `invalidParameter`
 error error(message) = error ("stack over flow");
+
+# Description
+#
+# + name1 - My Name
+public function myFunc1(string name1, string val1) {
+
+}
+
+# Description
+#
+# + name2 - My Name
+function myFunc2(string name2, string val2) {
+
+}

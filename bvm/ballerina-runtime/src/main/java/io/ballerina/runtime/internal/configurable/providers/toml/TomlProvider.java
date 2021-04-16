@@ -339,7 +339,7 @@ public class TomlProvider implements ConfigProvider {
             recordName = type.getName();
             recordType = (RecordType) type;
         } else {
-            recordName = ((BIntersectionType) type).getConstituentTypes().get(0).getName();
+            recordName = ((BIntersectionType) type).getEffectiveType().getName();
             recordType = (RecordType) ((BIntersectionType) type).getEffectiveType();
         }
         if (tomlNode.kind() != getEffectiveTomlType(recordType, variableName)) {

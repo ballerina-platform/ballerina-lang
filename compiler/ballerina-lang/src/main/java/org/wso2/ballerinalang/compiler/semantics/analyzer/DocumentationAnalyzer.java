@@ -20,7 +20,6 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
-import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.tree.DocReferenceErrorType;
 import org.ballerinalang.model.tree.DocumentableNode;
 import org.ballerinalang.model.tree.NodeKind;
@@ -485,12 +484,8 @@ public class DocumentationAnalyzer extends BLangNodeVisitor {
                     dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
                 }
 
-                // If the parameter is a public function parameter, the parameter should be documented.
                 if (documentableNode.getKind() == NodeKind.FUNCTION) {
-                    BLangFunction function = (BLangFunction) documentableNode;
-                    if (function.flagSet.contains(Flag.PUBLIC)) {
-                        dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
-                    }
+                    dlog.warning(((BLangNode) parameter).pos, undocumentedParameter, name);
                 }
             }
         });

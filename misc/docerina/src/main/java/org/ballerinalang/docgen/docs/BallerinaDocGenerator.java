@@ -419,7 +419,8 @@ public class BallerinaDocGenerator {
     public static Map<String, ModuleDoc> generateModuleDocMap(io.ballerina.projects.Project project)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
-        for (io.ballerina.projects.Module module : project.currentPackage().modules()) {
+        for (io.ballerina.projects.ModuleId moduleId : project.currentPackage().moduleIds()) {
+            io.ballerina.projects.Module module = project.currentPackage().module(moduleId);
             String moduleName;
             String moduleMdText = module.moduleMd().map(d -> d.content()).orElse("");
             Path modulePath;
@@ -438,6 +439,8 @@ public class BallerinaDocGenerator {
                 Document document = module.document(documentId);
                 syntaxTreeMap.put(document.name(), document.syntaxTree());
             });
+            // we cannot remove the module.getCompilation() here since the semantic model is accessed
+            // after the code gen phase here. package.getCompilation() throws an IllegalStateException
             ModuleDoc moduleDoc = new ModuleDoc(moduleMdText, resources,
                     syntaxTreeMap, module.getCompilation().getSemanticModel());
             moduleDocMap.put(moduleName, moduleDoc);
