@@ -71,8 +71,6 @@ public class ObjectTest {
         Assert.assertEquals(returns[1].stringValue(), "sample name");
         Assert.assertEquals(((BInteger) returns[2]).intValue(), 50);
         Assert.assertEquals(returns[3].stringValue(), "february");
-
-        BRunUtil.invoke(compileResult, "testErrorAsObjectField");
     }
 
     @Test(description = "Test Basic object as struct with just new")
