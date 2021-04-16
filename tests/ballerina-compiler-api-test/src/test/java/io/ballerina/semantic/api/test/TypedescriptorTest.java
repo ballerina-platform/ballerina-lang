@@ -196,7 +196,7 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(49, 16);
         MapTypeSymbol type = (MapTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), MAP);
-        assertEquals(type.typeParameter().get().typeKind(), STRING);
+        assertEquals(type.typeParam().typeKind(), STRING);
     }
 
     @Test

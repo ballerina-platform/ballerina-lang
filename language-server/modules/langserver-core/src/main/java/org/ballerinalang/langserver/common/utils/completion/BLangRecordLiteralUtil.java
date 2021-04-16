@@ -101,14 +101,11 @@ public class BLangRecordLiteralUtil {
 
     private static List<TypeSymbol> getTypeListForMapAndRecords(TypeSymbol typeDesc) {
         if (typeDesc.typeKind() == TypeDescKind.MAP) {
-            Optional<TypeSymbol> memberType = ((MapTypeSymbol) typeDesc).typeParameter();
-            if (memberType.isEmpty()) {
-                return new ArrayList<>();
+            TypeSymbol memberType = ((MapTypeSymbol) typeDesc).typeParam();
+            if (memberType.typeKind() == TypeDescKind.UNION) {
+                return new ArrayList<>(((UnionTypeSymbol) memberType).memberTypeDescriptors());
             }
-            if (memberType.get().typeKind() == TypeDescKind.UNION) {
-                return new ArrayList<>(((UnionTypeSymbol) memberType.get()).memberTypeDescriptors());
-            }
-            return Collections.singletonList(memberType.get());
+            return Collections.singletonList(memberType);
         } else if (typeDesc.typeKind() == TypeDescKind.RECORD) {
             return ((RecordTypeSymbol) typeDesc).fieldDescriptors().values().stream()
                     .map(RecordFieldSymbol::typeDescriptor)

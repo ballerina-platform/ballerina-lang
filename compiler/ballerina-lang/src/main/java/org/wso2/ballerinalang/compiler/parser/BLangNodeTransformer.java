@@ -4028,6 +4028,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 matchGuardAvailable = true;
                 BLangMatchGuard bLangMatchGuard = (BLangMatchGuard) TreeBuilder.createMatchGuard();
                 bLangMatchGuard.expr = createExpression(matchClauseNode.matchGuard().get().expression());
+                bLangMatchGuard.pos = getPosition(matchClauseNode.matchGuard().get());
                 bLangMatchClause.setMatchGuard(bLangMatchGuard);
             }
 
