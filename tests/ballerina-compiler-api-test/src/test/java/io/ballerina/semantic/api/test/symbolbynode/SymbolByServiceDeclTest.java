@@ -117,8 +117,8 @@ public class SymbolByServiceDeclTest extends SymbolByNodeTest {
                     }
 
                     assertEquals(method.signature(),
-                                 "resource function get greet/[int x]/hello/[float y]/[string... rest] () returns " +
-                                         "json");
+                            "isolated resource function get greet/[int x]/hello/[float y]/[string... rest] () " +
+                                         "returns json");
                     assertEquals(method.resourcePath().kind(), ResourcePath.Kind.PATH_SEGMENT_LIST);
                     assertEquals(method.resourcePath().signature(),
                                  "greet/[int x]/hello/[float y]/[string... rest]");

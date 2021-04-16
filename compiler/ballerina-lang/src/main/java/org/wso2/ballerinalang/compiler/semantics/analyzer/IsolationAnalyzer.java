@@ -30,6 +30,7 @@ import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
@@ -245,16 +246,17 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     private static final String CLONE_READONLY_LANG_LIB_METHOD = "cloneReadOnly";
 
     private SymbolEnv env;
-    private SymbolTable symTable;
-    private SymbolResolver symResolver;
-    private Names names;
-    private Types types;
-    private BLangDiagnosticLog dlog;
+    private final SymbolTable symTable;
+    private final SymbolResolver symResolver;
+    private final Names names;
+    private final Types types;
+    private final BLangDiagnosticLog dlog;
 
     private boolean inferredIsolated = true;
     private boolean inLockStatement = false;
-    private Stack<PotentiallyInvalidExpressionInfo> copyInLockInfoStack = new Stack<>();
-    private Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
+    private final Stack<PotentiallyInvalidExpressionInfo> copyInLockInfoStack = new Stack<>();
+    private final Stack<Set<BSymbol>> isolatedLetVarStack = new Stack<>();
+    private final Map<BInvokableSymbol, IsolationInferenceInfo> isolationInferenceInfoMap = new HashMap<>();
 
     private IsolationAnalyzer(CompilerContext context) {
         context.put(ISOLATION_ANALYZER_KEY, this);
@@ -286,6 +288,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         this.dlog.setCurrentPackageId(pkgNode.packageID);
         SymbolEnv pkgEnv = this.symTable.pkgEnvMap.get(pkgNode.symbol);
         analyzeNode(pkgNode, pkgEnv);
+        inferFunctionIsolation();
         return pkgNode;
     }
 
@@ -349,6 +352,13 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         boolean prevInferredIsolated = this.inferredIsolated;
         this.inferredIsolated = true;
 
+        IsolationInferenceInfo isolationInferenceInfo = null;
+
+        if (isIsolationInferableFunction(funcNode)) {
+            isolationInferenceInfo = new IsolationInferenceInfo();
+            isolationInferenceInfoMap.put(funcNode.symbol, isolationInferenceInfo);
+        }
+
         SymbolEnv funcEnv = SymbolEnv.createFunctionEnv(funcNode, funcNode.symbol.scope, env);
 
         for (BLangSimpleVariable requiredParam : funcNode.requiredParams) {
@@ -361,9 +371,15 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
         analyzeNode(funcNode.body, funcEnv);
 
-        if (isBallerinaModule(env.enclPkg) && !isIsolated(funcNode.symbol.flags) &&
-                this.inferredIsolated && !Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
-            dlog.warning(funcNode.pos, DiagnosticWarningCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
+        if (!isIsolated(funcNode.symbol.flags) && this.inferredIsolated && !
+                Symbols.isFlagOn(funcNode.symbol.flags, Flags.WORKER)) {
+            if (isBallerinaModule(env.enclPkg)) {
+                dlog.warning(funcNode.pos, DiagnosticWarningCode.FUNCTION_CAN_BE_MARKED_ISOLATED, funcNode.name);
+            }
+
+            if (isolationInferenceInfo != null) {
+                isolationInferenceInfo.inferredIsolated = true;
+            }
         }
 
         this.inferredIsolated = this.inferredIsolated && prevInferredIsolated;
@@ -385,6 +401,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangExternalFunctionBody body) {
+        markDependsOnIsolationNonInferableConstructs();
         inferredIsolated = false;
     }
 
@@ -447,6 +464,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         }
 
         if (Symbols.isFlagOn(flags, Flags.WORKER)) {
+            markDependsOnIsolationNonInferableConstructs();
             inferredIsolated = false;
 
             if (isInIsolatedFunction(env.enclInvokable)) {
@@ -964,6 +982,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangForkJoin forkJoin) {
+        markDependsOnIsolationNonInferableConstructs();
         inferredIsolated = false;
 
         if (isInIsolatedFunction(env.enclInvokable)) {
@@ -1144,6 +1163,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             }
         }
 
+        markDependsOnIsolationNonInferableConstructs();
         inferredIsolated = false;
 
         if (isolatedModuleVariableReference) {
@@ -1219,6 +1239,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             return;
         }
 
+        markDependsOnIsolationNonInferableConstructs();
         inferredIsolated = false;
 
         if (actionInvocationExpr.functionPointerInvocation) {
@@ -1234,6 +1255,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTypeInit typeInitExpr) {
         BSymbol initInvocationSymbol = typeInitExpr.initInvocation.symbol;
         if (initInvocationSymbol != null && !isIsolated(initInvocationSymbol.flags)) {
+            analyzeFunctionForInference((BInvokableSymbol) initInvocationSymbol);
+
             inferredIsolated = false;
 
             if (isInIsolatedFunction(env.enclInvokable)) {
@@ -1795,9 +1818,12 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
             copyInLockInfoStack.peek().nonIsolatedInvocations.add(invocationExpr);
         }
 
-        if (Symbols.isFlagOn(symbol.flags, Flags.ISOLATED_PARAM)) {
+        long flags = symbol.flags;
+        if (Symbols.isFlagOn(flags, Flags.ISOLATED_PARAM)) {
             return;
         }
+
+        analyzeFunctionForInference(symbol);
 
         inferredIsolated = false;
 
@@ -2816,6 +2842,100 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return isReferenceToVarDefinedInSameInvokable(nextOwner, enclInvokableSymbol);
     }
 
+    private boolean isIsolationInferableFunction(BLangFunction funcNode) {
+        Set<Flag> flagSet = funcNode.flagSet;
+
+        if (flagSet.contains(Flag.PUBLIC) || flagSet.contains(Flag.INTERFACE)) {
+            return false;
+        }
+
+        if (!flagSet.contains(Flag.ATTACHED)) {
+            return true;
+        }
+
+        BSymbol owner = funcNode.symbol.owner;
+
+        if (!Symbols.isFlagOn(owner.flags, Flags.PUBLIC)) {
+            return true;
+        }
+
+        return owner instanceof BClassSymbol && ((BClassSymbol) owner).isServiceDecl;
+    }
+
+    private void markDependsOnIsolationNonInferableConstructs() {
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+        if (enclInvokable == null) {
+            return;
+        }
+
+        BInvokableSymbol enclInvokableSymbol = enclInvokable.symbol;
+        if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+            return;
+        }
+
+        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOnlyOnFunctionsWithModuleLevelVisibility = false;
+    }
+
+    private void analyzeFunctionForInference(BInvokableSymbol symbol) {
+        if (Symbols.isFlagOn(symbol.flags, Flags.PUBLIC)) {
+            markDependsOnIsolationNonInferableConstructs();
+            return;
+        }
+        markDependentlyIsolated(symbol);
+    }
+
+    private void markDependentlyIsolated(BInvokableSymbol symbol) {
+        BLangInvokableNode enclInvokable = env.enclInvokable;
+        if (enclInvokable == null) {
+            return;
+        }
+
+        BInvokableSymbol enclInvokableSymbol = enclInvokable.symbol;
+        if (!isolationInferenceInfoMap.containsKey(enclInvokableSymbol)) {
+            return;
+        }
+
+        isolationInferenceInfoMap.get(enclInvokableSymbol).dependsOn.add(symbol);
+    }
+
+    private void inferFunctionIsolation() {
+        for (Map.Entry<BInvokableSymbol, IsolationInferenceInfo> entry : this.isolationInferenceInfoMap.entrySet()) {
+            BInvokableSymbol key = entry.getKey();
+            if (inferredIsolated(key, entry.getValue(), new HashSet<>())) {
+                key.flags |= Flags.ISOLATED;
+                key.type.flags |= Flags.ISOLATED;
+            }
+        }
+    }
+
+    private boolean inferredIsolated(BInvokableSymbol symbol, IsolationInferenceInfo isolationInferenceInfo,
+                                     Set<BInvokableSymbol> unresolvedSymbols) {
+        if (!unresolvedSymbols.add(symbol)) {
+            return true;
+        }
+
+        if (!isolationInferenceInfo.dependsOnlyOnFunctionsWithModuleLevelVisibility) {
+            return false;
+        }
+
+        if (isolationInferenceInfo.inferredIsolated) {
+            return true;
+        }
+
+        for (BInvokableSymbol bInvokableSymbol : isolationInferenceInfo.dependsOn) {
+            if (!this.isolationInferenceInfoMap.containsKey(bInvokableSymbol)) {
+                return false;
+            }
+
+            if (!inferredIsolated(bInvokableSymbol, this.isolationInferenceInfoMap.get(bInvokableSymbol),
+                                  unresolvedSymbols)) {
+                return false;
+            }
+        }
+        isolationInferenceInfo.inferredIsolated = true;
+        return true;
+    }
+
     /**
      * For lock statements with restricted var usage, invalid transfers and non-isolated invocations should result in
      * compilation errors. This class holds potentially erroneous expression per lock statement, and the protected
@@ -2833,5 +2953,11 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         private PotentiallyInvalidExpressionInfo(BLangLock lockNode) {
             this.lockNode = lockNode;
         }
+    }
+
+    private static class IsolationInferenceInfo {
+        boolean inferredIsolated = false;
+        boolean dependsOnlyOnFunctionsWithModuleLevelVisibility = true;
+        List<BInvokableSymbol> dependsOn = new ArrayList<>();
     }
 }
