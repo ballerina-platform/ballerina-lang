@@ -53,7 +53,6 @@ import java.util.Map;
 import java.util.function.Function;
 
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
-import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 
 /**
  * Test cases for toml configuration related implementations.

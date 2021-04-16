@@ -29,19 +29,12 @@ import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.values.BArray;
-import io.ballerina.runtime.api.values.BMap;
-import io.ballerina.runtime.api.values.BString;
-import io.ballerina.runtime.api.values.BTable;
-import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
 import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
-import io.ballerina.runtime.internal.types.BType;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -285,9 +278,10 @@ public class TomlProviderNegativeTest {
     public void testMultipleTomlProvidersNegative() {
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, getSimpleVariableKeys(module)));
         DiagnosticLog diagnosticLog = new DiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                                                           List.of(new TomlFileProvider(getConfigPath("Config_First.toml")),
-                                                                   new TomlFileProvider(getConfigPath("Config_Second.toml"))));
+        ConfigResolver configResolver =
+                new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+                                   List.of(new TomlFileProvider(getConfigPath("Config_First.toml")),
+                                           new TomlFileProvider(getConfigPath("Config_Second.toml"))));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: value not provided for " +

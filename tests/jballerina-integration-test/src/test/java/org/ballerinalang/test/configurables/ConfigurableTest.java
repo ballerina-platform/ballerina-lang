@@ -89,8 +89,8 @@ public class ConfigurableTest extends BaseTest {
                               new LogLeecher[]{testLog}, testFileLocation + "/testProject");
         testLog.waitForText(5000);
 
-        String errorMsg = "[Config.toml:(3:14,3:28)] configurable variable 'configPkg:invalidArr' with type " +
-                "'(int[] & readonly)[] & readonly' is not supported";
+        String errorMsg = "error: configurable variable 'configPkg:invalidMap' with type 'map<(anydata & readonly)> &" +
+                " readonly' is not supported";
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
                 new LogLeecher[]{errorLog}, testFileLocation + "/testErrorProject");
