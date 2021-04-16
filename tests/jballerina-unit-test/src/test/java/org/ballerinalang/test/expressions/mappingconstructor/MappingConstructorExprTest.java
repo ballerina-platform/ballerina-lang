@@ -239,6 +239,7 @@ public class MappingConstructorExprTest {
                 { "testSpreadOpInConstMap" },
                 { "testSpreadOpInGlobalMap" },
                 { "testMappingConstrExprAsSpreadExpr" },
+                { "testSpreadFieldWithRecordTypeHavingNeverField" }
         };
     }
 
