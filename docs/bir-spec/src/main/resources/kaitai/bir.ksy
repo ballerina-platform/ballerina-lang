@@ -175,7 +175,7 @@ types:
         type: s4
       - id: value
         size: value_length
-  type_invokable:
+  type_invokable_body:
     seq:
       - id: param_types_count
         type: s4
@@ -190,6 +190,13 @@ types:
         if: has_rest_type == 1
       - id: return_type_cp_index
         type: s4
+  type_invokable:
+    seq:
+      - id: is_any_function
+        type: u1
+      - id: invokable_kind
+        type: type_invokable_body
+        if: is_any_function == 0
   type_map:
     seq:
       - id: constraint_type_cp_index
@@ -295,6 +302,12 @@ types:
         type: s4
         repeat: expr
         repeat-expr: member_types_count
+      - id: original_member_types_count
+        type: s4
+      - id: original_member_type_cp_index
+        type: s4
+        repeat: expr
+        repeat-expr: original_member_types_count
       - id: is_enum_type
         type: u1
       - id: pkg_cp_index
@@ -451,6 +464,12 @@ types:
         type: annotation
         repeat: expr
         repeat-expr: annotations_size
+      - id: service_decls_size
+        type: s4
+      - id: service_declarations
+        type: service_declaration
+        repeat: expr
+        repeat-expr: service_decls_size
   golbal_var:
     seq:
       - id: kind
@@ -497,6 +516,48 @@ types:
         type: referenced_type
         repeat: expr
         repeat-expr: referenced_types_count
+  service_declaration:
+    seq:
+      - id: name_cp_index
+        type: s4
+      - id: associated_class_name_cp_index
+        type: s4
+      - id: flags
+        type: s8
+      - id: origin
+        type: s1
+      - id: position
+        type: position
+      - id: has_type
+        type: u1
+      - id: type_cp_index
+        type: s4
+        if: has_type != 0
+      - id: has_attach_point
+        type: u1
+      - id: attach_point_count
+        type: s4
+        if: has_attach_point != 0
+      - id: attach_points
+        type: s4
+        if: has_attach_point != 0
+        repeat: expr
+        repeat-expr: attach_point_count
+      - id: has_attach_point_literal
+        type: u1
+      - id: attach_point_literal
+        type: s4
+        if: has_attach_point_literal != 0
+      - id: listener_types_count
+        type: s4
+      - id: listener_types
+        type: listener_type
+        repeat: expr
+        repeat-expr: listener_types_count
+  listener_type:
+    seq:
+      - id: type_cp_index
+        type: s4
   annotation:
     seq:
       - id: name_cp_index
@@ -630,6 +691,14 @@ types:
         type: markdown_parameter
         repeat: expr
         repeat-expr: parameters_count
+      - id: deprecated_docs_cp_index
+        type: s4
+      - id: deprecated_params_count
+        type: s4
+      - id: deprecated_params
+        type: markdown_parameter
+        repeat: expr
+        repeat-expr: deprecated_params_count
   markdown_parameter:
     seq:
       - id: name_cp_index
@@ -1202,6 +1271,37 @@ types:
         type: operand
       - id: lhs_operand
         type: operand
+      - id: init_values_count
+        type: s4
+      - id: init_values
+        type: mapping_constructor
+        repeat: expr
+        repeat-expr: init_values_count
+  mapping_constructor:
+    seq:
+      - id: mapping_constructor_kind
+        type: u1
+        enum: mapping_constructor_body_kind
+      - id: mapping_constructor_body
+        type:
+          switch-on: mapping_constructor_kind
+          cases:
+            'mapping_constructor_body_kind::mapping_constructor_spread_field_kind': mapping_constructor_spread_field_body
+            'mapping_constructor_body_kind::mapping_constructor_key_value_kind': mapping_constructor_key_value_body
+    enums:
+      mapping_constructor_body_kind:
+        0: mapping_constructor_spread_field_kind
+        1: mapping_constructor_key_value_kind
+  mapping_constructor_key_value_body:
+    seq:
+      - id: key_operand
+        type: operand
+      - id: value_operand
+        type: operand
+  mapping_constructor_spread_field_body:
+    seq:
+      - id: expr_operand
+        type: operand
   instruction_type_cast:
     seq:
       - id: lhs_operand
@@ -1220,6 +1320,12 @@ types:
         type: operand
       - id: size_operand
         type: operand
+      - id: init_values_count
+        type: s4
+      - id: init_values
+        type: operand
+        repeat: expr
+        repeat-expr: init_values_count
   instruction_branch:
     seq:
       - id: branch_operand

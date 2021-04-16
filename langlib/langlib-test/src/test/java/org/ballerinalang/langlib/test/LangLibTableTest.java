@@ -156,15 +156,16 @@ public class LangLibTableTest {
 
     @Test
     public void testCompilerNegativeCases() {
-        assertEquals(negativeResult.getErrorCount(), 14);
+        assertEquals(negativeResult.getErrorCount(), 19);
         int index = 0;
         validateError(negativeResult, index++, "incompatible types: expected 'table<Employee> " +
                 "key(name)', found 'table<Person> key<string>'", 68, 36);
         validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
                 "found 'Person'", 68, 47);
         validateError(negativeResult, index++, "incompatible types: expected " +
-                        "'object { public function next () returns (record {| Employee value; |}?); }', found " +
-                        "'object { public function next () returns (record {| Person value; |}?); }'",
+                        "'object { public isolated function next () returns (record {| Employee value; |}?); }', " +
+                        "found " +
+                        "'object { public isolated function next () returns (record {| Person value; |}?); }'",
                 77, 92);
         validateError(negativeResult, index++, "incompatible types: expected 'table<(any|error)> " +
                 "key<int>', found 'table<Person> key(name)'", 84, 12);
@@ -186,8 +187,14 @@ public class LangLibTableTest {
                 "found 'record {| string name; int age; |}'", 157, 21);
         validateError(negativeResult, index++, "incompatible types: expected 'Employee', " +
                 "found 'record {| string name; int age; |}'", 166, 21);
-        validateError(negativeResult, index, "cannot update 'table<Person> key(name)' with member " +
+        validateError(negativeResult, index++, "cannot update 'table<Person> key(name)' with member " +
                         "access expression", 177, 5);
+        validateError(negativeResult, index++, "a type compatible with mapping constructor expressions not found in " +
+                "type 'int'", 181, 38);
+        validateError(negativeResult, index++, "missing ellipsis token", 181, 38);
+        validateError(negativeResult, index++, "missing open brace token", 181, 38);
+        validateError(negativeResult, index++, "missing close brace token", 181, 39);
+        validateError(negativeResult, index, "incompatible types: expected '[]', found 'int'", 182, 20);
     }
 
     @Test

@@ -33,15 +33,13 @@ public class ExecutionContext {
 
     private IDebugProtocolClient client;
     private final JBallerinaDebugServer adapter;
-    private VirtualMachineProxyImpl debuggee;
+    private VirtualMachineProxyImpl debuggeeVM;
     private Project sourceProject;
     private Process launchedProcess;
+    private DebugInstruction lastInstruction;
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
-        this.client = null;
-        this.debuggee = null;
-        this.launchedProcess = null;
     }
 
     public Optional<Process> getLaunchedProcess() {
@@ -64,12 +62,12 @@ public class ExecutionContext {
         return adapter;
     }
 
-    public VirtualMachineProxyImpl getDebuggee() {
-        return debuggee;
+    public VirtualMachineProxyImpl getDebuggeeVM() {
+        return debuggeeVM;
     }
 
-    public void setDebuggee(VirtualMachineProxyImpl debuggee) {
-        this.debuggee = debuggee;
+    public void setDebuggeeVM(VirtualMachineProxyImpl debuggeeVM) {
+        this.debuggeeVM = debuggeeVM;
     }
 
     public Project getSourceProject() {
@@ -81,14 +79,31 @@ public class ExecutionContext {
     }
 
     public EventRequestManager getEventManager() {
-        return debuggee.eventRequestManager();
+        if (debuggeeVM == null) {
+            return null;
+        }
+        return debuggeeVM.eventRequestManager();
     }
 
     public BufferedReader getInputStream() {
+        if (launchedProcess == null) {
+            return null;
+        }
         return new BufferedReader(new InputStreamReader(launchedProcess.getInputStream(), StandardCharsets.UTF_8));
     }
 
     public BufferedReader getErrorStream() {
+        if (launchedProcess == null) {
+            return null;
+        }
         return new BufferedReader(new InputStreamReader(launchedProcess.getErrorStream(), StandardCharsets.UTF_8));
+    }
+
+    public DebugInstruction getLastInstruction() {
+        return lastInstruction;
+    }
+
+    public void setLastInstruction(DebugInstruction lastInstruction) {
+        this.lastInstruction = lastInstruction;
     }
 }

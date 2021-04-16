@@ -20,24 +20,20 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.Optional;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
@@ -55,34 +51,15 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
     protected List<LSCompletionItem> getFilteredItems(BallerinaCompletionContext context, ExpressionNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        Predicate<Symbol> predicate;
-        switch (node.kind()) {
-            case SIMPLE_NAME_REFERENCE:
-                predicate = symbol -> symbol.kind() != SymbolKind.FUNCTION
-                        && Objects.equals(symbol.getName().orElse(null),
-                                          ((SimpleNameReferenceNode) node).name().text());
-                break;
-            case FUNCTION_CALL:
-                predicate = symbol -> symbol.kind() == SymbolKind.FUNCTION
-                        && Objects.equals(symbol.getName().orElse(null),
-                                          ((SimpleNameReferenceNode) ((FunctionCallExpressionNode) node)
-                                                  .functionName()).name().text());
-                break;
-            default:
-                return completionItems;
-        }
+        ContextTypeResolver resolver = new ContextTypeResolver(context);
+        Optional<TypeSymbol> expressionType = node.apply(resolver);
 
-        Optional<Symbol> filteredEntry = visibleSymbols.stream().filter(predicate).findAny();
-
-        if (filteredEntry.isEmpty()) {
-            return completionItems;
-        }
-        if (SymbolUtil.isClient(filteredEntry.get())) {
+        if (expressionType.isPresent() && SymbolUtil.isClient(expressionType.get())) {
             /*
             Covers the following case where a is a client object and we suggest the remote actions
             (1) a -> g<cursor>
              */
-            List<Symbol> clientActions = this.getClientActions(filteredEntry.get());
+            List<Symbol> clientActions = this.getClientActions(expressionType.get());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
         } else {
             /*
@@ -94,7 +71,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
                     .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(filteredWorkers, context));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         }
 
         return completionItems;
@@ -110,7 +87,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
         if (!SymbolUtil.isObject(symbol)) {
             return new ArrayList<>();
         }
-        TypeSymbol typeDescriptor = CommonUtil.getRawType(((VariableSymbol) symbol).typeDescriptor());
+        TypeSymbol typeDescriptor = CommonUtil.getRawType(SymbolUtil.getTypeDescriptor(symbol).orElseThrow());
         return ((ObjectTypeSymbol) typeDescriptor).methods().values().stream()
                 .filter(method -> method.qualifiers().contains(Qualifier.REMOTE))
                 .collect(Collectors.toList());

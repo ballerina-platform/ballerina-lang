@@ -40,6 +40,7 @@ public class PackageData {
     private final DocumentData ballerinaToml;
     private final DocumentData dependenciesToml;
     private final DocumentData cloudToml;
+    private final DocumentData compilerPluginToml;
     private final DocumentData packageMd;
 
 
@@ -51,6 +52,7 @@ public class PackageData {
                         DocumentData ballerinaToml,
                         DocumentData dependenciesToml,
                         DocumentData cloudToml,
+                        DocumentData compilerPluginToml,
                         DocumentData packageMd) {
         this.packagePath = packagePath;
         this.defaultModule = defaultModule;
@@ -61,6 +63,7 @@ public class PackageData {
         this.ballerinaToml = ballerinaToml;
         this.dependenciesToml = dependenciesToml;
         this.cloudToml = cloudToml;
+        this.compilerPluginToml = compilerPluginToml;
     }
 
     public static PackageData from(Path packagePath,
@@ -69,9 +72,11 @@ public class PackageData {
                                    DocumentData ballerinaToml,
                                    DocumentData dependenciesToml,
                                    DocumentData cloudToml,
+                                   DocumentData compilerPluginToml,
                                    DocumentData packageMd) {
         return new PackageData(packagePath, defaultModule, otherModules, DependencyGraph.emptyGraph(),
-                DependencyGraph.emptyGraph(), ballerinaToml, dependenciesToml, cloudToml, packageMd);
+                               DependencyGraph.emptyGraph(), ballerinaToml, dependenciesToml, cloudToml,
+                               compilerPluginToml, packageMd);
     }
 
     public static PackageData from(Path packagePath,
@@ -82,9 +87,10 @@ public class PackageData {
                                    DocumentData ballerinaToml,
                                    DocumentData dependenciesToml,
                                    DocumentData cloudToml,
+                                   DocumentData compilerPluginToml,
                                    DocumentData packageMd) {
         return new PackageData(packagePath, defaultModule, otherModules, packageDesDependencyGraph,
-                moduleDependencyGraph, ballerinaToml, dependenciesToml, cloudToml, packageMd);
+                moduleDependencyGraph, ballerinaToml, dependenciesToml, cloudToml, compilerPluginToml, packageMd);
     }
 
     public Path packagePath() {
@@ -117,6 +123,10 @@ public class PackageData {
 
     public Optional<DocumentData> cloudToml() {
         return Optional.ofNullable(cloudToml);
+    }
+
+    public Optional<DocumentData> compilerPluginToml() {
+        return Optional.ofNullable(compilerPluginToml);
     }
 
     public Optional<DocumentData> packageMd() {

@@ -23,6 +23,7 @@ import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -65,7 +66,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
 
-        if (onQualifiedNameIdentifier(context, nodeAtCursor)) {
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
             /*
             Covers the following
             Ex: function test() {
@@ -74,12 +75,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                 }
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Symbol> filter = symbol ->
-                    symbol.kind() == SymbolKind.TYPE_DEFINITION
-                            || symbol.kind() == SymbolKind.VARIABLE
-                            || symbol.kind() == SymbolKind.CONSTANT
-                            || symbol.kind() == SymbolKind.FUNCTION
-                            || symbol.kind() == SymbolKind.CLASS;
+            Predicate<Symbol> filter = symbol -> symbol.kind() != SymbolKind.SERVICE_DECLARATION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
@@ -106,13 +102,13 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
         ArrayList<LSCompletionItem> completionItems = new ArrayList<>();
 
+        // Remove the function keyword suggestion from here, since it is suggested by typeItems API
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_NAMESPACE_DECLARATION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_XMLNS.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_VAR.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_WAIT.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_START.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FLUSH.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_TRANSACTIONAL.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_CHECK_PANIC.get()));
@@ -133,12 +129,19 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_DO.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
+        if (this.onSuggestFork(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
+        }
+        if (this.withinTransactionStatement(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
+        }
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_PANIC.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_STREAM.get()));
         Optional<Node> nodeBeforeCursor = this.nodeBeforeCursor(context, node);
         if (nodeBeforeCursor.isPresent()) {
             switch (nodeBeforeCursor.get().kind()) {
@@ -175,7 +178,8 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         List<LSCompletionItem> completionItems = new ArrayList<>();
         // TODO: Can we get this filter to a common place
         List<Symbol> filteredList = visibleSymbols.stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol)
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION || symbol instanceof VariableSymbol ||
+                        symbol.kind() == SymbolKind.PARAMETER)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
         completionItems.addAll(this.getTypeguardDestructedItems(visibleSymbols, context));
@@ -195,6 +199,18 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return withinLoops;
     }
 
+    private boolean withinTransactionStatement(T node) {
+        Node evalNode = node;
+        boolean withinTransaction = false;
+
+        while (!withinTransaction && evalNode != null) {
+            withinTransaction = evalNode.kind() == SyntaxKind.TRANSACTION_STATEMENT;
+            evalNode = evalNode.parent();
+        }
+
+        return withinTransaction;
+    }
+
     private Optional<Node> nodeBeforeCursor(BallerinaCompletionContext context, Node node) {
         NodeList<StatementNode> statements;
         if (node.kind() == SyntaxKind.FUNCTION_BODY_BLOCK) {
@@ -208,7 +224,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
 
         for (int i = statements.size() - 1; i >= 0; i--) {
             StatementNode statementNode = statements.get(i);
-            int endOffset = statementNode.lineRange().endLine().offset();
+            int endOffset = statementNode.textRange().endOffset();
             if (statementNode.kind() == SyntaxKind.LOCAL_VAR_DECL
                     && ((VariableDeclarationNode) statementNode).equalsToken().isEmpty()) {
                 continue;
@@ -291,5 +307,18 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                             SnippetBlock.Kind.SNIPPET);
                     return new SnippetCompletionItem(ctx, cItemSnippet);
                 }).collect(Collectors.toList());
+    }
+    
+    private boolean onSuggestFork(Node node) {
+        Node parent = node.parent();
+        while (parent != null) {
+            if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                return ((FunctionDefinitionNode) parent).qualifierList().stream()
+                        .noneMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
+            }
+            parent = parent.parent();
+        }
+        
+        return false;
     }
 }

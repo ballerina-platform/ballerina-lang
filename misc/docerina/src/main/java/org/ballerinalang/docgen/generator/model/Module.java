@@ -41,7 +41,7 @@ public class Module {
     @Expose
     public List<BClass> classes = new ArrayList<>();
     @Expose
-    public List<BAbstractObject> abstractObjects = new ArrayList<>();
+    public List<BObjectType> objectTypes = new ArrayList<>();
     @Expose
     public List<Client> clients = new ArrayList<>();
     @Expose

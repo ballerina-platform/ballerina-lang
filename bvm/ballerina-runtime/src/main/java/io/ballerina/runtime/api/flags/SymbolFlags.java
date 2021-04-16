@@ -38,6 +38,8 @@ public class SymbolFlags {
     public static final long TRANSACTIONAL = 33554432;
     public static final long CLASS = 268435456;
     public static final long ISOLATED = 536870912;
+    public static final long ENUM = 8589934592L;
+    public static final long ANY_FUNCTION = 549755813888L;
 
     public static boolean isFlagOn(long bitmask, long flag) {
         return (bitmask & flag) == flag;

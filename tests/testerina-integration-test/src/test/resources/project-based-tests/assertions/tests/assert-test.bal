@@ -266,9 +266,17 @@ function testAssertTypeNotEquals() {
 
     float x = 1.1;
     decimal y = 1.1;
-    (anydata|error)[] arr1 = ["test", "array", x];
-    (anydata|error)[] arr2 = ["test", "array", y];
+    anydata[] arr1 = ["test", "array", x];
+    anydata[] arr2 = ["test", "array", y];
     test:assertNotEquals(arr1, arr2);
+}
+
+@test:Config {}
+function testAssertErrorEquals(){
+    error testError = error("test", message = "actual value is an error.");
+    // When actual value is an error, equality check should fail.
+    error? err = trap test:assertEquals(testError, 1);
+    test:assertTrue(err is error);
 }
 
 function intAdd(int a, int b) returns (int) {

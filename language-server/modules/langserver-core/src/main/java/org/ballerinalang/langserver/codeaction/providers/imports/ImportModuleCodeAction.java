@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.common.constants.CommandConstants;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
+import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.CodeActionKind;
@@ -55,7 +56,9 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
     private static final String UNDEFINED_MODULE = "undefined module";
 
     @Override
-    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic, CodeActionContext context) {
+    public List<CodeAction> getDiagBasedCodeActions(Diagnostic diagnostic,
+                                                    DiagBasedPositionDetails positionDetails,
+                                                    CodeActionContext context) {
         List<CodeAction> actions = new ArrayList<>();
         if (!(diagnostic.message().startsWith(UNDEFINED_MODULE))) {
             return actions;
@@ -76,12 +79,14 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                 })
                 .forEach(pkgEntry -> {
                     String pkgName = pkgEntry.packageName().value();
-                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE, pkgName);
-                    String moduleName = CommonUtil.escapeModuleName(context, pkgName);
-                    CodeAction action = new CodeAction(commandTitle);
+                    String moduleName = CommonUtil.escapeModuleName(pkgName);
+                    CodeAction action = new CodeAction();
                     Position insertPos = getImportPosition(context);
                     String importText = ItemResolverConstants.IMPORT + " " + pkgEntry.packageOrg().value() + "/"
                             + moduleName + ";" + CommonUtil.LINE_SEPARATOR;
+                    String commandTitle = String.format(CommandConstants.IMPORT_MODULE_TITLE,
+                                                        pkgEntry.packageOrg().value() + "/" + moduleName);
+                    action.setTitle(commandTitle);
                     List<TextEdit> edits = Collections.singletonList(
                             new TextEdit(new Range(insertPos, insertPos), importText));
                     action.setKind(CodeActionKind.QuickFix);
@@ -95,7 +100,7 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
 
     private static Position getImportPosition(CodeActionContext context) {
         // Calculate initial import insertion line
-        Optional<SyntaxTree> syntaxTree = context.workspace().syntaxTree(context.filePath());
+        Optional<SyntaxTree> syntaxTree = context.currentSyntaxTree();
         ModulePartNode modulePartNode = syntaxTree.orElseThrow().rootNode();
         NodeList<ImportDeclarationNode> imports = modulePartNode.imports();
         if (imports.isEmpty()) {

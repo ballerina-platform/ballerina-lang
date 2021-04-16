@@ -72,7 +72,7 @@ public class MavenTestCase extends BaseTest {
         // delete the platform lib directory
         deleteFiles(this.projectPath.resolve("target").resolve("platform-libs"));
 
-        String mvnBuildMsg = "target/bin/tests-0.1.0.jar";
+        String mvnBuildMsg = "target/bin/tests.jar";
         LogLeecher mvnBuildLeecher = new LogLeecher(mvnBuildMsg);
         balClient.runMain("build", new String[]{}, envVariables, new String[]{},
                 new LogLeecher[]{mvnBuildLeecher}, projectPath.toString());
@@ -82,7 +82,7 @@ public class MavenTestCase extends BaseTest {
 
         Path tempFile = projectPath.resolve("temp.txt");
         Assert.assertFalse(tempFile.toFile().exists());
-        balClient.runMain("run", new String[]{".", tempFile.toString()}, envVariables, new String[]{},
+        balClient.runMain("run", new String[]{"--", tempFile.toString()}, envVariables, new String[]{},
                 new LogLeecher[]{}, projectPath.toString());
         Assert.assertTrue(tempFile.toFile().exists());
         Files.delete(tempFile);

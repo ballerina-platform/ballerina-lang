@@ -99,6 +99,14 @@ public class CreateExecutableTask implements Task {
             PackageCompilation pkgCompilation = project.currentPackage().getCompilation();
             JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(pkgCompilation, JvmTarget.JAVA_11);
             jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
+
+            // Print warnings for conflicted jars
+            if (!jBallerinaBackend.conflictedJars().isEmpty()) {
+                out.println("\twarning: Detected conflicting jar files:");
+                for (JBallerinaBackend.JarConflict conflict : jBallerinaBackend.conflictedJars()) {
+                    out.println(conflict.getWarning(project.buildOptions().listConflictedClasses()));
+                }
+            }
         } catch (ProjectException e) {
             throw createLauncherException(e.getMessage());
         }

@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -39,21 +40,24 @@ public class FieldAccessExpressionNodeContext extends FieldAccessContext<FieldAc
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, FieldAccessExpressionNode node)
             throws LSCompletionException {
         ExpressionNode expression = node.expression();
-        List<LSCompletionItem> completionItems = getEntries(context, expression);
+        List<LSCompletionItem> completionItems = getEntries(context, expression, false);
         this.sort(context, node, completionItems);
-        
-        return completionItems;
-    }
 
-    @Override
-    protected boolean removeOptionalFields() {
-        return true;
+        return completionItems;
     }
 
     @Override
     public boolean onPreValidation(BallerinaCompletionContext context, FieldAccessExpressionNode node) {
         int cursor = context.getCursorPositionInTree();
-
-        return cursor <= node.textRange().endOffset();
+        Token dotToken = node.dotToken();
+        /*
+        Added the cursor check against the dot token in order to validate the following and move to the enclosing 
+        block.
+        This check will skip the field access and accordingly navigate to MethodCallExpressionNodeContext
+        and the particular onPreValidation will route to the it's own parent (ex: BlockNode)
+        (1) s<cursor>abc.def.testMethod()
+         */
+        return cursor <= node.textRange().endOffset() && !dotToken.isMissing() &&
+                cursor > dotToken.textRange().startOffset();
     }
 }

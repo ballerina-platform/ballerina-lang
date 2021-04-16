@@ -44,7 +44,6 @@ BALLERINA COMMANDS
         search          Search Ballerina Central for packages
 
    Other Commands:
-        encrypt         Encrypt sensitive data
         grpc            Generate Ballerina sources for the given protobuf definition
         openapi         Generate Ballerina sources for the given OpenAPI definition and vice versa.
         version         Print Ballerina version

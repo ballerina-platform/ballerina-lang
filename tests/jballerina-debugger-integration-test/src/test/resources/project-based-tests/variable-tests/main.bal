@@ -1,4 +1,3 @@
-import ballerina/lang.'int;
 // Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
@@ -14,6 +13,8 @@ import ballerina/lang.'int;
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+
+import ballerina/lang.'int;
 
 type '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student record {
     string '1st_name;
@@ -93,6 +94,12 @@ const map<string> nameMap = {"name":"John"};
 const nilWithoutType = ();
 const () nilWithType = ();
 
+// enums
+enum Color {
+    RED,
+    BLUE = "Blue"
+}
+
 // global variables
 var stringValue = "Ballerina";
 var decimalValue = 100.0d;
@@ -100,6 +107,9 @@ var byteValue = <byte>2;
 var floatValue = 2.0;
 json jsonVar = {name:"John", age:20};
 var '\ \/\:\@\[\`\{\~\u{2324}_IL = "IL with global var";
+
+// configurable variables
+configurable int port = ?;
 
 public function main() {
     //------------------------ basic, simple type variables ------------------------//
@@ -125,6 +135,12 @@ public function main() {
     //------------------------ basic, structured type variables ------------------------//
 
     any[] arrayVar = [1, 20, -10.0, "foo"];
+    boolean[] booleanArrayVar = [false, true];
+    int[] intArrayVar = [1, 2, 3];
+    float[] floatArrayVar = [1.5, -2.0, 3.0];
+    decimal[] decimalArrayVar = [3, 34.3, -45];
+    string[] stringArrayVar = ["foo", "bar"];
+    byte[] byteArrayVar = base64 `aa ab cc ad af df 1a d2 f3 a4`;
     [int, string] tupleVar = [20, "foo"];
     map<string> mapVar = {line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka"};
 
@@ -179,6 +195,56 @@ public function main() {
     string '\ \/\:\@\[\`\{\~\u{2324}_var = "IL with special characters in var";
     string 'üňĩćőđę_var = "IL with unicode characters in var";
     json 'ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{2324}_json = {};
+    
+    // variable visibility in 'if' statement
+    if (true) {
+        intVar = 1;
+    }
+
+    // variable visibility in 'else' statement
+    if (false) {
+        intVar = 2;
+    } else {
+        intVar = 3;
+    }
+
+    // variable visibility in 'else-if' statement
+    if (false) {
+        intVar = 4;
+    } else if (true) {
+        intVar = 5;
+    } else {
+        intVar = 6;
+    }
+
+    // variable visibility in 'while' loop
+    while (true) {
+        if (intVar >= 1) {
+            intVar = 7;
+            break;
+        }
+    }
+
+    // variable visibility in 'foreach' loop
+    foreach string str in nameMap {
+        intVar = intVar + 1;
+    }
+
+    // variable visibility in 'match' statement
+    foreach var str in nameMap {
+        match str {
+            "John" => {
+                intVar = 8;
+            }
+        }
+    }
+
+    // variable visibility inside foreach loop + lambda function
+    mapVar.forEach(function(string item) {
+                       intVar += intVar;
+                   });
+
+    intVar = addition(2, 3);
 }
 
 function printSalaryDetails(int baseSalary, int annualIncrement = 20, float bonusRate = 0.02) returns string {
@@ -198,4 +264,8 @@ function printDetails(string name, int age = 18, string... modules) returns stri
         moduleString = "Module(s): " + modules[0];
     }
     return  string `[${name}, ${age}, ${moduleString}]`;
+}
+
+function addition(int a, int b) returns int {
+    return a + b;
 }

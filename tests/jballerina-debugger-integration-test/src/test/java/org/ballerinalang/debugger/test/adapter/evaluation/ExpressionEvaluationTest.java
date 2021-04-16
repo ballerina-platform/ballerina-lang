@@ -19,12 +19,19 @@
 package org.ballerinalang.debugger.test.adapter.evaluation;
 
 import org.ballerinalang.test.context.BallerinaTestException;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
  * Test implementation for debug expression evaluation scenarios.
  */
 public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
+
+    @BeforeClass(alwaysRun = true)
+    public void setup() throws BallerinaTestException {
+        prepareForEvaluation();
+    }
 
     @Override
     @Test
@@ -33,12 +40,21 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, "()", "()", "nil");
         // boolean literal
         debugTestRunner.assertExpression(context, "true", "true", "boolean");
-        // numeric literal (int)
+        // numeric literal (decimal int)
         debugTestRunner.assertExpression(context, "10", "10", "int");
-        // numeric literal (float)
+        debugTestRunner.assertExpression(context, "-20", "-20", "int");
+        // numeric literal (hex int)
+        debugTestRunner.assertExpression(context, "0xabc", "2748", "int");
+        debugTestRunner.assertExpression(context, "-0X999", "-2457", "int");
+        // numeric literal (decimal float)
         debugTestRunner.assertExpression(context, "20.0", "20.0", "float");
+        debugTestRunner.assertExpression(context, "-30.0f", "-30.0", "float");
+        debugTestRunner.assertExpression(context, "-40.0F", "-40.0", "float");
+        debugTestRunner.assertExpression(context, "-5.0e34f", "-5.0E34", "float");
+        debugTestRunner.assertExpression(context, "-30.0d", "-30.0", "decimal");
+        debugTestRunner.assertExpression(context, "-40.0D", "-40.0", "decimal");
+        debugTestRunner.assertExpression(context, "-5.0e34d", "-5.0E+34", "decimal");
         // Todo - add following tests after the implementation
-        //  - hex int
         //  - hex float
         //  - string literal
         //  - byte-array literal
@@ -71,7 +87,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     public void xmlTemplateEvaluationTest() throws BallerinaTestException {
         // XML element
         debugTestRunner.assertExpression(context, "xml `<book>The Lost World</book>`", "<book>The Lost World</book>",
-            "xml");
+                "xml");
         // Todo - enable after https://github.com/ballerina-platform/ballerina-lang/issues/26589 is fixed from the
         //  runtime.
         // XML text
@@ -118,13 +134,13 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // record variable test (Student record)
         debugTestRunner.assertExpression(context, RECORD_VAR, " /:@[`{~⌤_123_ƮέŞŢ_Student", "record");
         // anonymous record variable test
-        debugTestRunner.assertExpression(context, ANON_RECORD_VAR,
-                                         "record {| string city; string country; |}", "record");
+        debugTestRunner.assertExpression(context, ANON_RECORD_VAR, "record {| string city; string country; |}",
+                "record");
         // error variable test
         debugTestRunner.assertExpression(context, ERROR_VAR, "SimpleErrorType", "error");
         // anonymous function variable test
         debugTestRunner.assertExpression(context, ANON_FUNCTION_VAR, "function (string,string) returns (string)",
-            "function");
+                "function");
         // future variable test
         debugTestRunner.assertExpression(context, FUTURE_VAR, "future", "future");
         // object variable test (Person object)
@@ -237,7 +253,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // parameters. The value for the `annualIncrement` parameter is passed as a named argument.
         // The `bonusRate` parameter defaults to 0.02.
         debugTestRunner.assertExpression(context, "printSalaryDetails(2500, annualIncrement = 100)",
-            "[2500, 100, 0.02]", "string");
+                "[2500, 100, 0.02]", "string");
 
         // Call the function again by passing values only for the `baseSalary` and `annualIncrement`
         // parameters, now passing the value for the `annualIncrement` parameter as a positional argument.
@@ -247,7 +263,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // Call the function by passing values only for the `baseSalary` and `bonusRate` parameters.
         // The `annualIncrement` parameter defaults to 20.
         debugTestRunner.assertExpression(context, "printSalaryDetails(2500, bonusRate = 0.1);", "[2500, 20, 0.1]",
-            "string");
+                "string");
 
         // In order to pass the value for `bonusRate` as a positional argument, a value would
         // have to be specified for the `annualIncrement` parameter too.
@@ -263,7 +279,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // Any and all arguments after the first named argument need to be specified
         // as named arguments but could be specified in any order.
         debugTestRunner.assertExpression(context,
-            "printSalaryDetails(annualIncrement = 100, baseSalary = 2500, bonusRate = 0.1);",
+                "printSalaryDetails(annualIncrement = 100, baseSalary = 2500, bonusRate = 0.1);",
                 "[2500, 100, 0.1]", "string");
 
         // ----------------------------  Rest Parameters  ------------------------------------------
@@ -361,7 +377,10 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Override
     @Test
     public void typeCastEvaluationTest() throws BallerinaTestException {
-        // Todo
+        // casting into a basic type
+        debugTestRunner.assertExpression(context, String.format("<float>%s", ANYDATA_VAR), "619.0", "float");
+        // casting into a union type
+        debugTestRunner.assertExpression(context, String.format("<float|boolean>%s", ANYDATA_VAR), "619.0", "float");
     }
 
     @Override
@@ -375,7 +394,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("typeof %s", JSON_VAR), "map<json>", "typedesc");
         debugTestRunner.assertExpression(context, String.format("typeof %s[0]", STRING_VAR), "string", "typedesc");
         debugTestRunner.assertExpression(context, String.format("typeof typeof %s", BOOLEAN_VAR), "typedesc",
-            "typedesc");
+                "typedesc");
     }
 
     @Override
@@ -420,7 +439,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("%s * %s", FLOAT_VAR, FLOAT_VAR), "100.0", "float");
         // decimal * decimal
         debugTestRunner.assertExpression(context, String.format("%s * %s", DECIMAL_VAR, DECIMAL_VAR), "12.25",
-            "decimal");
+                "decimal");
         // int * decimal
         debugTestRunner.assertExpression(context, String.format("%s * %s", INT_VAR, DECIMAL_VAR), "70.00", "decimal");
         // decimal * int
@@ -443,8 +462,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("%s / %s", DECIMAL_VAR, DECIMAL_VAR), "1", "decimal");
         // int / decimal
         debugTestRunner.assertExpression(context, String.format("%s / %s", INT_VAR, DECIMAL_VAR),
-        "5.714285714285714285714285714285714",
-                "decimal");
+                "5.714285714285714285714285714285714", "decimal");
         // decimal / int
         debugTestRunner.assertExpression(context, String.format("%s / %s", DECIMAL_VAR, INT_VAR), "0.175", "decimal");
         // float / decimal
@@ -463,8 +481,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // float % float
         debugTestRunner.assertExpression(context, String.format("%s %% %s", FLOAT_VAR, FLOAT_VAR), "-0.0", "float");
         // decimal % decimal
-        debugTestRunner.assertExpression(context, String.format("%s %% %s", DECIMAL_VAR, DECIMAL_VAR), "0.0",
-            "decimal");
+        debugTestRunner.assertExpression(context, String.format("%s %% %s", DECIMAL_VAR, DECIMAL_VAR), "0",
+                "decimal");
         // int % decimal
         debugTestRunner.assertExpression(context, String.format("%s %% %s", INT_VAR, DECIMAL_VAR), "2.5", "decimal");
         // decimal % int
@@ -506,9 +524,9 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
 
         // xml + xml
         debugTestRunner.assertExpression(context, String.format("%s + %s", XML_VAR, XML_VAR),
-            "<person gender=\"male\">" +
-                "<firstname>Praveen</firstname><lastname>Nada</lastname></person><person gender=\"male\">" +
-                "<firstname>Praveen</firstname><lastname>Nada</lastname></person>", "xml");
+                "<person gender=\"male\">" +
+                        "<firstname>Praveen</firstname><lastname>Nada</lastname></person><person gender=\"male\">" +
+                        "<firstname>Praveen</firstname><lastname>Nada</lastname></person>", "xml");
 
         //////////////////////////////-------------subtraction------------------//////////////////////////////////////
         // int - int
@@ -520,7 +538,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // float - float
         debugTestRunner.assertExpression(context, String.format("%s - %s", FLOAT_VAR, FLOAT_VAR), "0.0", "float");
         // decimal - decimal
-        debugTestRunner.assertExpression(context, String.format("%s - %s", DECIMAL_VAR, DECIMAL_VAR), "0.0", "decimal");
+        debugTestRunner.assertExpression(context, String.format("%s - %s", DECIMAL_VAR, DECIMAL_VAR), "0", "decimal");
         // int - decimal
         debugTestRunner.assertExpression(context, String.format("%s - %s", INT_VAR, DECIMAL_VAR), "16.5", "decimal");
         // decimal - int
@@ -536,34 +554,34 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     public void shiftExpressionEvaluationTest() throws BallerinaTestException {
         debugTestRunner.assertExpression(context, String.format("%s << %s", INT_VAR, INT_VAR), "20971520", "int");
         debugTestRunner.assertExpression(context, String.format("%s << %s", SIGNED32INT_VAR, SIGNED8INT_VAR), "0",
-            "int");
+                "int");
         debugTestRunner.assertExpression(context, String.format("%s << %s", SIGNED32INT_VAR, UNSIGNED8INT_VAR), "-2000",
-            "int");
+                "int");
         debugTestRunner.assertExpression(context, String.format("%s << %s", UNSIGNED32INT_VAR, SIGNED8INT_VAR), "0",
-            "int");
+                "int");
         debugTestRunner.assertExpression(context, String.format("%s << %s", UNSIGNED32INT_VAR, UNSIGNED8INT_VAR),
-            "2000", "int");
+                "2000", "int");
 
         debugTestRunner.assertExpression(context, String.format("%s >> %s", INT_VAR, INT_VAR), "0", "int");
         debugTestRunner.assertExpression(context, String.format("%s >> %s", SIGNED32INT_VAR, SIGNED8INT_VAR), "-1",
-            "int");
+                "int");
         debugTestRunner.assertExpression(context, String.format("%s >> %s", SIGNED32INT_VAR, UNSIGNED8INT_VAR), "-500",
-            "int");
+                "int");
         debugTestRunner.assertExpression(context, String.format("%s >> %s", UNSIGNED32INT_VAR, SIGNED8INT_VAR), "0",
-            "int");
+                "int");
         debugTestRunner.assertExpression(context, String.format("%s >> %s", UNSIGNED32INT_VAR, UNSIGNED8INT_VAR), "500",
-            "int");
+                "int");
 
         debugTestRunner.assertExpression(context, String.format("%s >>> %s", INT_VAR, INT_VAR), "0", "int");
         debugTestRunner.assertExpression(context, String.format("%s >>> %s", SIGNED32INT_VAR, SIGNED8INT_VAR), "1",
-            "int");
+                "int");
         debugTestRunner.assertExpression(context, String.format("%s >>> %s", SIGNED32INT_VAR, UNSIGNED8INT_VAR),
-        "9223372036854775308",
+                "9223372036854775308",
                 "int");
         debugTestRunner.assertExpression(context, String.format("%s >>> %s", UNSIGNED32INT_VAR, SIGNED8INT_VAR), "0",
-            "int");
+                "int");
         debugTestRunner.assertExpression(context, String.format("%s >>> %s", UNSIGNED32INT_VAR, UNSIGNED8INT_VAR),
-            "500", "int");
+                "500", "int");
     }
 
     @Override
@@ -576,90 +594,80 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void comparisonEvaluationTest() throws BallerinaTestException {
         // expression < expression
+        // nil - nil
+        debugTestRunner.assertExpression(context, String.format("%s < %s", NIL_VAR, NIL_VAR), "false", "boolean");
+        // boolean - boolean
+        debugTestRunner.assertExpression(context, String.format("%s < %s", BOOLEAN_VAR, BOOLEAN_VAR), "false",
+                "boolean");
         // int - int
         debugTestRunner.assertExpression(context, String.format("%s < %s", INT_VAR, INT_VAR), "false", "boolean");
-        // float - int
-        debugTestRunner.assertExpression(context, String.format("%s < %s", FLOAT_VAR, INT_VAR), "true", "boolean");
-        // int - float
-        debugTestRunner.assertExpression(context, String.format("%s < %s", INT_VAR, FLOAT_VAR), "false", "boolean");
         // float - float
         debugTestRunner.assertExpression(context, String.format("%s < %s", FLOAT_VAR, FLOAT_VAR), "false", "boolean");
         // decimal - decimal
         debugTestRunner.assertExpression(context, String.format("%s < %s", DECIMAL_VAR, DECIMAL_VAR), "false",
-            "boolean");
-        // int - decimal
-        debugTestRunner.assertExpression(context, String.format("%s < %s", INT_VAR, DECIMAL_VAR), "false", "boolean");
-        // decimal - int
-        debugTestRunner.assertExpression(context, String.format("%s < %s", DECIMAL_VAR, INT_VAR), "true", "boolean");
-        // float - decimal
-        debugTestRunner.assertExpression(context, String.format("%s < %s", FLOAT_VAR, DECIMAL_VAR), "true", "boolean");
-        // decimal - float
-        debugTestRunner.assertExpression(context, String.format("%s < %s", DECIMAL_VAR, FLOAT_VAR), "false", "boolean");
-
-        // expression > expression
-        // int - int
-        debugTestRunner.assertExpression(context, String.format("%s > %s", INT_VAR, INT_VAR), "false", "boolean");
-        // float - int
-        debugTestRunner.assertExpression(context, String.format("%s > %s", FLOAT_VAR, INT_VAR), "false", "boolean");
-        // int - float
-        debugTestRunner.assertExpression(context, String.format("%s > %s", INT_VAR, FLOAT_VAR), "true", "boolean");
-        // float - float
-        debugTestRunner.assertExpression(context, String.format("%s > %s", FLOAT_VAR, FLOAT_VAR), "false", "boolean");
-        // decimal - decimal
-        debugTestRunner.assertExpression(context, String.format("%s > %s", DECIMAL_VAR, DECIMAL_VAR), "false",
-            "boolean");
-        // int - decimal
-        debugTestRunner.assertExpression(context, String.format("%s > %s", INT_VAR, DECIMAL_VAR), "true", "boolean");
-        // decimal - int
-        debugTestRunner.assertExpression(context, String.format("%s > %s", DECIMAL_VAR, INT_VAR), "false", "boolean");
-        // float - decimal
-        debugTestRunner.assertExpression(context, String.format("%s > %s", FLOAT_VAR, DECIMAL_VAR), "false", "boolean");
-        // decimal - float
-        debugTestRunner.assertExpression(context, String.format("%s > %s", DECIMAL_VAR, FLOAT_VAR), "true", "boolean");
+                "boolean");
+        // string - string
+        debugTestRunner.assertExpression(context, String.format("%s < %s", STRING_VAR, STRING_VAR), "false",
+                "boolean");
+        // boolean[] - boolean[]
+        debugTestRunner.assertExpression(context, String.format("%s < %s", "booleanArrayVar", "booleanArrayVar"),
+                "false", "boolean");
+        // int[] - int[]
+        debugTestRunner.assertExpression(context, String.format("%s < %s", "intArrayVar", "intArrayVar"),
+                "false", "boolean");
+        // float[] - float[]
+        debugTestRunner.assertExpression(context, String.format("%s < %s", "floatArrayVar", "floatArrayVar"),
+                "false", "boolean");
+        // decimal[] - decimal[]
+        debugTestRunner.assertExpression(context, String.format("%s < %s", "decimalArrayVar", "decimalArrayVar"),
+                "false", "boolean");
+        // string[] - string[]
+        debugTestRunner.assertExpression(context, String.format("%s < %s", "stringArrayVar", "stringArrayVar"),
+                "false", "boolean");
 
         // expression <= expression
+        // nil - nil
+        debugTestRunner.assertExpression(context, String.format("%s <= %s", NIL_VAR, NIL_VAR), "true", "boolean");
+        // boolean - boolean
+        debugTestRunner.assertExpression(context, String.format("%s <= %s", BOOLEAN_VAR, BOOLEAN_VAR), "true",
+                "boolean");
         // int - int
         debugTestRunner.assertExpression(context, String.format("%s <= %s", INT_VAR, INT_VAR), "true", "boolean");
-        // float - int
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", FLOAT_VAR, INT_VAR), "true", "boolean");
-        // int - float
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", INT_VAR, FLOAT_VAR), "false", "boolean");
         // float - float
         debugTestRunner.assertExpression(context, String.format("%s <= %s", FLOAT_VAR, FLOAT_VAR), "true", "boolean");
         // decimal - decimal
         debugTestRunner.assertExpression(context, String.format("%s <= %s", DECIMAL_VAR, DECIMAL_VAR), "true",
-            "boolean");
-        // int - decimal
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", INT_VAR, DECIMAL_VAR), "false", "boolean");
-        // decimal - int
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", DECIMAL_VAR, INT_VAR), "true", "boolean");
-        // float - decimal
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", FLOAT_VAR, DECIMAL_VAR), "true", "boolean");
-        // decimal - float
-        debugTestRunner.assertExpression(context, String.format("%s <= %s", DECIMAL_VAR, FLOAT_VAR), "false",
-            "boolean");
+                "boolean");
+        // string - string
+        debugTestRunner.assertExpression(context, String.format("%s <= %s", STRING_VAR, STRING_VAR), "true",
+                "boolean");
+        // boolean[] - boolean[]
+        debugTestRunner.assertExpression(context, String.format("%s <= %s", "booleanArrayVar", "booleanArrayVar"),
+                "true", "boolean");
+        // int[] - int[]
+        debugTestRunner.assertExpression(context, String.format("%s <= %s", "intArrayVar", "intArrayVar"),
+                "true", "boolean");
+        // float[] - float[]
+        debugTestRunner.assertExpression(context, String.format("%s <= %s", "floatArrayVar", "floatArrayVar"),
+                "true", "boolean");
+        // decimal[] - decimal[]
+        debugTestRunner.assertExpression(context, String.format("%s <= %s", "decimalArrayVar", "decimalArrayVar"),
+                "true", "boolean");
+        // string[] - string[]
+        debugTestRunner.assertExpression(context, String.format("%s <= %s", "stringArrayVar", "stringArrayVar"),
+                "true", "boolean");
+
+        // expression > expression
+        // Note ::= Not required to test all the possibilities in here, as 'X > Y' is processed as '!(X <= Y)' by the
+        // evaluation engine.
+        // int - int
+        debugTestRunner.assertExpression(context, String.format("%s > %s", INT_VAR, INT_VAR), "false", "boolean");
 
         // expression >= expression
+        // Note ::= Not required to test all the possibilities in here, as `X >= Y` is processed as '!(X < Y)' by the
+        // evaluation engine.
         // int - int
         debugTestRunner.assertExpression(context, String.format("%s >= %s", INT_VAR, INT_VAR), "true", "boolean");
-        // float - int
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", FLOAT_VAR, INT_VAR), "false", "boolean");
-        // int - float
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", INT_VAR, FLOAT_VAR), "true", "boolean");
-        // float - float
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", FLOAT_VAR, FLOAT_VAR), "true", "boolean");
-        // decimal - decimal
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", DECIMAL_VAR, DECIMAL_VAR), "true",
-            "boolean");
-        // int - decimal
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", INT_VAR, DECIMAL_VAR), "true", "boolean");
-        // decimal - int
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", DECIMAL_VAR, INT_VAR), "false", "boolean");
-        // float - decimal
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", FLOAT_VAR, DECIMAL_VAR), "false",
-            "boolean");
-        // decimal - float
-        debugTestRunner.assertExpression(context, String.format("%s >= %s", DECIMAL_VAR, FLOAT_VAR), "true", "boolean");
     }
 
     @Override
@@ -684,20 +692,20 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, "2.0==2.00", "true", "boolean");
         debugTestRunner.assertExpression(context, String.format("%s==%s", INT_VAR, FLOAT_VAR), "false", "boolean");
         debugTestRunner.assertExpression(context, String.format("%s==%s", OBJECT_VAR, ANON_OBJECT_VAR), "false",
-            "boolean");
+                "boolean");
         debugTestRunner.assertExpression(context, "2.0!=2.00", "false", "boolean");
         debugTestRunner.assertExpression(context, String.format("%s!=%s", INT_VAR, FLOAT_VAR), "true", "boolean");
         debugTestRunner.assertExpression(context, String.format("%s!=%s", OBJECT_VAR, ANON_OBJECT_VAR), "true",
-            "boolean");
+                "boolean");
         // reference equality
         debugTestRunner.assertExpression(context, "2.0===2.00", "true", "boolean");
         debugTestRunner.assertExpression(context, String.format("%s===%s", INT_VAR, FLOAT_VAR), "false", "boolean");
         debugTestRunner.assertExpression(context, String.format("%s===%s", OBJECT_VAR, ANON_OBJECT_VAR), "false",
-            "boolean");
+                "boolean");
         debugTestRunner.assertExpression(context, "2.0!==2.00", "false", "boolean");
         debugTestRunner.assertExpression(context, String.format("%s!==%s", INT_VAR, FLOAT_VAR), "true", "boolean");
         debugTestRunner.assertExpression(context, String.format("%s!==%s", OBJECT_VAR, ANON_OBJECT_VAR), "true",
-            "boolean");
+                "boolean");
     }
 
     @Override
@@ -725,7 +733,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     public void conditionalExpressionEvaluationTest() throws BallerinaTestException {
         // expression ? expression : expression
         debugTestRunner.assertExpression(context, String.format("%s ? %s : %s", BOOLEAN_VAR, INT_VAR, FLOAT_VAR), "20",
-            "int");
+                "int");
         // expression ?: expression
         debugTestRunner.assertExpression(context, String.format("%s ?: %s", INT_VAR, FLOAT_VAR), "20", "int");
         debugTestRunner.assertExpression(context, String.format("%s ?: %s", NIL_VAR, FLOAT_VAR), "-10.0", "float");
@@ -753,5 +761,11 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     @Test
     public void xmlNavigationEvaluationTest() throws BallerinaTestException {
         // Todo
+    }
+
+    @AfterClass(alwaysRun = true)
+    public void cleanUp() {
+        debugTestRunner.terminateDebugSession();
+        this.context = null;
     }
 }

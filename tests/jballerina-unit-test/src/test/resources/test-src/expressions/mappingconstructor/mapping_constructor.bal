@@ -132,11 +132,7 @@ function testTypeWithReadOnlyInUnionCET() {
 }
 
 function assertEquality(any|error expected, any|error actual) {
-    if expected is anydata|error && actual is anydata|error  {
-        if (expected == actual) {
-            return;
-        }
-    } else if expected === actual {
+    if isEqual(expected, actual) {
         return;
     }
 
@@ -148,4 +144,12 @@ function getFailureError(any|error expected, any|error actual) returns error {
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     return  error(ASSERTION_ERROR_REASON,
                     message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+isolated function isEqual(any|error val1, any|error val2) returns boolean {
+    if (val1 is anydata && val2 is anydata) {
+        return (val1 == val2);
+    } else {
+        return (val1 === val2);
+    }
 }

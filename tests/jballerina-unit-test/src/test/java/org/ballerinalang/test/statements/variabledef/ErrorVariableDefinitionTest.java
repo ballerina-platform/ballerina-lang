@@ -241,8 +241,13 @@ public class ErrorVariableDefinitionTest {
     public void testNegativeErrorVariables() {
         CompileResult resultNegative = BCompileUtil.
                 compile("test-src/statements/variabledef/error_variable_definition_stmt_negative.bal");
-        Assert.assertEquals(resultNegative.getErrorCount(), 13);
         int i = -1;
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'detail' when error detail type 'record {| string message?; error cause?; string...; |}' " +
+                "contains individual field descriptors", 21, 60);
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'fatal' when error detail type 'record {| string message?; error cause?; anydata...; |}' " +
+                "contains individual field descriptors", 22, 60);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 27, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'SMS', found 'SMA'", 28, 85);
@@ -250,6 +255,12 @@ public class ErrorVariableDefinitionTest {
                 "incompatible types: expected 'boolean', found 'string'", 30, 26);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'string', found 'string?'", 31, 28);
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'detail' when error detail type 'record {| string message?; error cause?; string...; |}' " +
+                "contains individual field descriptors", 35, 60);
+        BAssertUtil.validateError(resultNegative, ++i, "error constructor does not accept additional detail args " +
+                "'fatal' when error detail type 'record {| string message?; error cause?; anydata...; |}' " +
+                "contains individual field descriptors", 36, 60);
         BAssertUtil.validateError(resultNegative, ++i, "redeclared symbol 'reason11'", 41, 16);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 44, 26);
@@ -258,17 +269,16 @@ public class ErrorVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "redeclared symbol 'message'", 54, 36);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'int', found 'map<Cloneable>'", 56, 18);
+                "incompatible types: expected 'int', found 'map<ballerina/lang.value:1.0.0:Cloneable>'", 56, 18);
         BAssertUtil.validateError(resultNegative, ++i,
                 "invalid error variable; expecting an error type but found 'int' in type definition", 57, 47);
         BAssertUtil.validateError(resultNegative, ++i,
                 "incompatible types: expected 'boolean', found 'string'", 63, 17);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found " +
-                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 64, 16);
+                "incompatible types: expected 'string', found 'ballerina/lang.value:1.0.0:Cloneable'", 64, 16);
         BAssertUtil.validateError(resultNegative, ++i,
-                "incompatible types: expected 'string', found " +
-                        "'(readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>)'", 70, 16);
+                "incompatible types: expected 'string', found 'ballerina/lang.value:1.0.0:Cloneable'", 70, 16);
+        Assert.assertEquals(resultNegative.getErrorCount(), ++i);
     }
 
     @AfterClass

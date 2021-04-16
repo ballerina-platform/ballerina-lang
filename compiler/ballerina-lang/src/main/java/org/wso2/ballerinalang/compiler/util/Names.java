@@ -107,8 +107,7 @@ public class Names {
     public static final Name RAW_TEMPLATE = new Name("RawTemplate");
     public static final Name CLONEABLE = new Name("Cloneable");
     public static final Name CLONEABLE_INTERNAL = new Name("__Cloneable");
-    public static final Name CLONEABLE_INTERNAL1 = new Name("__Cloneable1");
-    public static final Name CLONEABLE_INTERNAL2 = new Name("__Cloneable2");
+    public static final Name OBJECT_ITERABLE = new Name("Iterable");
 
     // Subtypes
     public static final Name SIGNED32 = new Name(STRING_SIGNED32);
@@ -140,8 +139,8 @@ public class Names {
 
     // Names related to streams
     public static final Name CONSTRUCT_STREAM = new Name("construct");
-    public static final Name ABSTRACT_ITERATOR = new Name("_Iterator");
-    public static final Name ABSTRACT_CLOSEABLE_ITERATOR = new Name("_CloseableIterator");
+    public static final Name ABSTRACT_STREAM_ITERATOR = new Name("_StreamImplementor");
+    public static final Name ABSTRACT_STREAM_CLOSEABLE_ITERATOR = new Name("_CloseableStreamImplementor");
 
     // Module Versions
     public static final Name DEFAULT_VERSION = new Name("0.0.0");
@@ -149,7 +148,6 @@ public class Names {
     public static final Name INTERNAL_VERSION = new Name(BLangCompilerConstants.INTERNAL_VERSION);
     public static final Name ANNOTATIONS_VERSION = new Name(BLangCompilerConstants.ANNOTATIONS_VERSION);
     public static final Name ARRAY_VERSION = new Name(BLangCompilerConstants.ARRAY_VERSION);
-    public static final Name CONFIG_VERSION = new Name(BLangCompilerConstants.CONFIG_VERSION);
     public static final Name DECIMAL_VERSION = new Name(BLangCompilerConstants.DECIMAL_VERSION);
     public static final Name ERROR_VERSION = new Name(BLangCompilerConstants.ERROR_VERSION);
     public static final Name FLOAT_VERSION = new Name(BLangCompilerConstants.FLOAT_VERSION);

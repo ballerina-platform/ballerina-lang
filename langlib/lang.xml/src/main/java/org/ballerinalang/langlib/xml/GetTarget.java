@@ -17,25 +17,20 @@
  */
 package org.ballerinalang.langlib.xml;
 
+import io.ballerina.runtime.api.types.XmlNodeType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
+import io.ballerina.runtime.internal.values.XmlPi;
 
 /**
  * Create XML processing instruction.
  *
  * @since 1.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.xml",
-//        functionName = "getTarget",
-//        args = {
-//                @Argument(name = "xmlValue", type = TypeKind.XML)},
-//        returnType = {@ReturnType(type = TypeKind.STRING)},
-//        isPublic = true
-//)
+
 public class GetTarget {
 
     public static BString getTarget(BXml xmlValue) {
@@ -44,6 +39,10 @@ public class GetTarget {
                     "getTarget", "processing instruction");
         }
 
-        return StringUtils.fromString(XMLValueUtil.getTarget(xmlValue));
+        if (xmlValue.getNodeType() == XmlNodeType.PI) {
+            return StringUtils.fromString(((XmlPi) xmlValue).getTarget());
+        }
+
+        return StringUtils.fromString(((XmlPi) xmlValue.getItem(0)).getTarget());
     }
 }

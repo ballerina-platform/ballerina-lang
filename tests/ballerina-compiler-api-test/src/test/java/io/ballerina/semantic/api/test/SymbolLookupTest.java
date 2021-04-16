@@ -26,6 +26,7 @@ import io.ballerina.projects.ModuleId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.tools.text.LinePosition;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -34,6 +35,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDocumentForSingleSource;
@@ -273,8 +275,81 @@ public class SymbolLookupTest {
         Map<String, Symbol> symbolsForJoinRHS = getSymbolsInFile(model, srcFile, 36, 28, moduleID);
         assertList(symbolsForJoinRHS, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "j"));
 
-        Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 50, 25, moduleID);
+        Map<String, Symbol> symbolsForOrderBy = getSymbolsInFile(model, srcFile, 44, 25, moduleID);
         assertList(symbolsForOrderBy, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "p1",
                 "p2", "personList", "p"));
+
+        Map<String, Symbol> symbolsForNestedFrom1 = getSymbolsInFile(model, srcFile, 48, 42, moduleID);
+        assertList(symbolsForNestedFrom1, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
+                "p1", "p2", "personList", "k"));
+
+        Map<String, Symbol> symbolsForNestedFrom2 = getSymbolsInFile(model, srcFile, 49, 23, moduleID);
+        assertList(symbolsForNestedFrom2, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
+                "p1", "p2", "personList", "i"));
+
+        Map<String, Symbol> symbolsForNestedFrom3 = getSymbolsInFile(model, srcFile, 53, 58, moduleID);
+        assertList(symbolsForNestedFrom3, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
+                "res6", "p1", "p2", "personList", "m"));
+
+        Map<String, Symbol> symbolsForNestedFrom4 = getSymbolsInFile(model, srcFile, 53, 64, moduleID);
+        assertList(symbolsForNestedFrom4, Arrays.asList("test", "arr1", "arr2", "res1", "res2", "res3", "res4", "res5",
+                "res6", "p1", "p2", "personList", "ii"));
+    }
+
+    @Test
+    public void testSymbolLookupWithAnnotationOnFunction() {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_with_annotation_on_function.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        List<Symbol> symbolList = model.visibleSymbols(srcFile, LinePosition.from(24, 5)).stream()
+                .filter(s -> s.getModule().get().id().equals(moduleID)).collect(Collectors.toList());
+        List<String> symbolStringList = symbolList.stream().map(this::createSymbolString).collect(Collectors.toList());
+
+        List<String> expectedNameList = asList("SimpleRecordTYPE_DEFINITION", "func1ANNOTATION", "func1FUNCTION");
+
+        assert symbolStringList.containsAll(expectedNameList);
+    }
+
+    @Test(dataProvider = "PositionProvider5")
+    public void testSymbolLookupInMatchClause(int line, int column, int expSymbols, List<String> expSymbolNames) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_lookup_in_match.bal");
+        Package currentPackage = project.currentPackage();
+        ModuleId defaultModuleId = currentPackage.getDefaultModule().moduleId();
+        PackageCompilation packageCompilation = currentPackage.getCompilation();
+        SemanticModel model = packageCompilation.getSemanticModel(defaultModuleId);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        BLangPackage pkg = packageCompilation.defaultModuleBLangPackage();
+        ModuleID moduleID = new BallerinaModuleID(pkg.packageID);
+
+        Map<String, Symbol> symbolsInFile = getSymbolsInFile(model, srcFile, line, column, moduleID);
+        assertEquals(symbolsInFile.size(), expSymbols);
+
+        for (String symName : expSymbolNames) {
+            assertTrue(symbolsInFile.containsKey(symName), "Symbol not found: " + symName);
+        }
+    }
+
+    @DataProvider(name = "PositionProvider5")
+    public Object[][] getPositionsForMatchStatement() {
+        return new Object[][]{
+                {24, 26, 7, asList("a", "func", "v", "c1", "c2", "x1", "x2")},
+                {28, 26, 7, asList("b", "func", "v", "c1", "c2", "x3", "x4")},
+                {32, 26, 7, asList("c", "func", "v", "c1", "c2", "x5", "x6")},
+                {35, 18, 5, asList("func", "v", "c1", "c2", "x7")},
+                {36, 26, 6, asList("d", "func", "v", "c1", "c2", "x7")},
+                {39, 9, 4, asList("func", "v", "c1", "c2")}
+        };
+    }
+
+    private String createSymbolString(Symbol symbol) {
+        return (symbol.getName().isPresent() ? symbol.getName().get() : "") + symbol.kind();
     }
 }

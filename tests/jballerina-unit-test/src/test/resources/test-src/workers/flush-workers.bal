@@ -57,6 +57,7 @@ function flushAll() returns string {
             int a = 10;
 
             var sync = a ->> w2;
+            any|error res = sync;
             a -> w3;
             a -> w2;
             error? result = flush;
@@ -99,6 +100,7 @@ function errorTest() returns error? {
             int a = 10;
 
             var sync = a ->> w2;
+            any|error res = sync;
             a -> w3;
             a -> w2;
             error? result = flush;
@@ -151,6 +153,7 @@ function panicTest() returns error? {
             int a = 10;
 
             var sync = a ->> w2;
+            any|error res = sync;
             a -> w3;
             a -> w2;
             error? result = flush;
@@ -206,9 +209,9 @@ function flushInDefaultError() returns error? {
        error err = error("err", message = "err msg");
               return err;
      }
-     a = <- default;
+     a = <- function;
      b = a + b;
-     b -> default;
+     b -> function;
      return ;
    }
    int a = 10;
@@ -223,9 +226,9 @@ function flushInDefault() returns int {
    worker w2 {
      int a = 0;
      int b = 15;
-     a = <- default;
+     a = <- function;
      b = a + b;
-     b -> default;
+     b -> function;
    }
    int a = 10;
     a -> w2;
@@ -235,5 +238,5 @@ function flushInDefault() returns int {
 }
 
 public function sleep(int millis) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Sleep"
+    'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;

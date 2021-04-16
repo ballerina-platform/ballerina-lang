@@ -29,6 +29,7 @@ import java.io.IOException;
  * @since 2.0.0
  */
 public class FixReturnTypeTest extends AbstractCodeActionTest {
+
     @Override
     public String getResourceDir() {
         return "fix-return-type";
@@ -47,6 +48,11 @@ public class FixReturnTypeTest extends AbstractCodeActionTest {
                 {"fixReturnType1.json", "fixReturnType.bal"},
                 {"fixReturnType2.json", "fixReturnType.bal"},
                 {"fixReturnType3.json", "fixReturnType.bal"},
+                {"fixReturnTypeWithImports1.json", "fixReturnTypeWithImports.bal"},
+                {"fixReturnTypeWithClass1.json", "fixReturnTypeInClass.bal"},
+                {"fixReturnTypeWithClass2.json", "fixReturnTypeInClass.bal"},
+                {"fixReturnTypeWithClass3.json", "fixReturnTypeInClass.bal"},
+                {"fixReturnTypeWithService1.json", "fixReturnTypeInService.bal"},
         };
     }
 }

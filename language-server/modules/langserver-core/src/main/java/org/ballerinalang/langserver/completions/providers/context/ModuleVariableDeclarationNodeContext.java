@@ -16,10 +16,7 @@
 package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
-import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDescriptorNode;
@@ -27,17 +24,17 @@ import io.ballerina.compiler.syntax.tree.TypedBindingPatternNode;
 import io.ballerina.tools.text.LineRange;
 import io.ballerina.tools.text.TextRange;
 import org.ballerinalang.annotation.JavaSPIService;
-import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
+import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.context.util.ModulePartNodeContextUtil;
+import org.ballerinalang.langserver.completions.util.CompletionUtil;
 import org.ballerinalang.langserver.completions.util.Snippet;
 import org.eclipse.lsp4j.Position;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Predicate;
 
 /**
  * Completion provider for {@link ModuleVariableDeclarationNode} context.
@@ -51,7 +48,8 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ModuleVariableDeclarationNode node) {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext ctx, ModuleVariableDeclarationNode node)
+            throws LSCompletionException {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         TypeDescriptorNode tDescNode = node.typedBindingPattern().typeDescriptor();
@@ -78,29 +76,9 @@ public class ModuleVariableDeclarationNodeContext extends VariableDeclarationPro
         } else if (withinServiceOnKeywordContext(ctx, node)) {
             completionItems.add(new SnippetCompletionItem(ctx, Snippet.KW_ON.get()));
         } else {
-            completionItems.addAll(this.getModulePartContextItems(ctx, node));
+            completionItems.addAll(CompletionUtil.route(ctx, node.parent()));
         }
         this.sort(ctx, node, completionItems);
-
-        return completionItems;
-    }
-
-    private List<LSCompletionItem> getModulePartContextItems(BallerinaCompletionContext context,
-                                                             ModuleVariableDeclarationNode node) {
-        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
-        if (this.onQualifiedNameIdentifier(context, nodeAtCursor)) {
-            Predicate<Symbol> predicate =
-                    symbol -> symbol.kind() == SymbolKind.TYPE_DEFINITION || symbol.kind() == SymbolKind.CLASS;
-            List<Symbol> types = QNameReferenceUtil.getModuleContent(context,
-                    (QualifiedNameReferenceNode) nodeAtCursor, predicate);
-            return this.getCompletionItemList(types, context);
-        }
-
-        List<LSCompletionItem> completionItems = new ArrayList<>();
-        completionItems.addAll(ModulePartNodeContextUtil.getTopLevelItems(context));
-        completionItems.addAll(this.getTypeItems(context));
-        completionItems.addAll(this.getModuleCompletionItems(context));
-        this.sort(context, node, completionItems);
 
         return completionItems;
     }

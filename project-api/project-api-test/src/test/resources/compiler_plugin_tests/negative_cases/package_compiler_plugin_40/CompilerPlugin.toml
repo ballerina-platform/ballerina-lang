@@ -1,0 +1,5 @@
+[plugin]
+class = "io.samjs.plugins.badsad.BadSadCompilerPlugin40"
+
+[[dependency]]
+path = "../../../../../../build/compiler-plugin-jars/bad-sad-compiler-plugin-1.0.0.jar"

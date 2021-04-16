@@ -45,8 +45,7 @@ import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
 
-import java.util.HashMap;
-import java.util.Map;
+import java.util.LinkedHashMap;
 import java.util.Optional;
 
 /**
@@ -83,7 +82,7 @@ public class DocumentationGenerator {
     public static Optional<Range> getDocsRange(NonTerminalNode node) {
         for (Node next : node.children()) {
             if (next.kind() == SyntaxKind.METADATA && ((MetadataNode) next).documentationString().isPresent()) {
-                return Optional.of(CommonUtil.toRange(next.lineRange()));
+                return Optional.of(CommonUtil.toRange(((MetadataNode) next).documentationString().get().lineRange()));
             }
         }
         return Optional.empty();
@@ -205,7 +204,7 @@ public class DocumentationGenerator {
         }
         io.ballerina.compiler.syntax.tree.Node typeDesc = typeDefNode.typeDescriptor();
         String desc = String.format("Description%n");
-        Map<String, String> parameters = new HashMap<>();
+        LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         switch (typeDesc.kind()) {
             case RECORD_TYPE_DESC:
                 RecordTypeDescriptorNode recordTypeDescNode = (RecordTypeDescriptorNode) typeDesc;
@@ -216,7 +215,7 @@ public class DocumentationGenerator {
                     } else if (field.kind() == SyntaxKind.RECORD_FIELD_WITH_DEFAULT_VALUE) {
                         paramName = Optional.of(((RecordFieldWithDefaultValueNode) field).fieldName());
                     }
-                    paramName.ifPresent(param -> parameters.put(param.text(), "Parameter Description"));
+                    paramName.ifPresent(param -> parameters.put(param.text(), "Field Description"));
                 });
                 break;
             case OBJECT_TYPE_DESC:
@@ -226,7 +225,7 @@ public class DocumentationGenerator {
                             ((ObjectFieldNode) field).visibilityQualifier().isPresent()) {
                         ObjectFieldNode fieldNode = (ObjectFieldNode) field;
                         if (fieldNode.visibilityQualifier().get().kind() == SyntaxKind.PUBLIC_KEYWORD) {
-                            parameters.put(fieldNode.fieldName().text(), "Parameter Description");
+                            parameters.put(fieldNode.fieldName().text(), "Field Description");
                         }
                     }
                 });
@@ -234,7 +233,7 @@ public class DocumentationGenerator {
             default:
                 break;
         }
-        return new DocAttachmentInfo(desc, parameters, null, docStart, getPadding(typeDefNode, syntaxTree));
+        return new DocAttachmentInfo(desc, parameters, null, null, docStart, getPadding(typeDefNode, syntaxTree));
     }
 
     /**
@@ -252,7 +251,7 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         String desc = String.format("Description%n");
-        Map<String, String> parameters = new HashMap<>();
+        LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         classDefNode.members().forEach(field -> {
             if (field.kind() == SyntaxKind.OBJECT_FIELD &&
                     ((ObjectFieldNode) field).visibilityQualifier().isPresent()) {
@@ -262,7 +261,7 @@ public class DocumentationGenerator {
                 }
             }
         });
-        return new DocAttachmentInfo(desc, parameters, null, docStart, getPadding(classDefNode, syntaxTree));
+        return new DocAttachmentInfo(desc, parameters, null, null, docStart, getPadding(classDefNode, syntaxTree));
     }
 
 
@@ -282,7 +281,7 @@ public class DocumentationGenerator {
             docStart = CommonUtil.toRange(metadata.annotations().get(0).lineRange()).getStart();
         }
         String desc = String.format("Description%n");
-        Map<String, String> parameters = new HashMap<>();
+        LinkedHashMap<String, String> parameters = new LinkedHashMap<>();
         signatureNode.parameters().forEach(param -> {
             Optional<Token> paramName = Optional.empty();
             if (param.kind() == SyntaxKind.REQUIRED_PARAM) {
@@ -295,8 +294,13 @@ public class DocumentationGenerator {
             paramName.ifPresent(token -> parameters.put(token.text(), "Parameter Description"));
         });
         String returnDesc = signatureNode.returnTypeDesc().isPresent() ? "Return Value Description" : null;
-        //TODO: Handle deprecated documentation blocks, currently Documentation interface does not support it
-        return new DocAttachmentInfo(desc, parameters, returnDesc, docStart,
+
+        String deprecatedDesc = null;
+        if (hasDeprecated) {
+            deprecatedDesc = "Deprecated Description";
+        }
+        //TODO: Handle deprecated parameters
+        return new DocAttachmentInfo(desc, parameters, returnDesc, deprecatedDesc, docStart,
                                      getPadding(signatureNode.parent(), syntaxTree));
     }
 

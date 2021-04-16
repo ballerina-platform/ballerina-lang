@@ -173,7 +173,7 @@ public class AnnotationDesugar {
             BLangLambdaFunction lambdaFunction = defineAnnotations(classDefinition, pkgNode, classEnv, pkgID, owner);
             if (lambdaFunction != null) {
                 BType type = classDefinition.type;
-                if (Symbols.isService(type.tsymbol) || Symbols.isFlagOn(type.flags, Flags.OBJECT_CTOR)) {
+                if (Symbols.isFlagOn(type.flags, Flags.OBJECT_CTOR)) {
                     // Add the lambda/invocation in a temporary block.
                     BLangBlockStmt target = (BLangBlockStmt) TreeBuilder.createBlockNode();
                     BLangBlockFunctionBody initBody = (BLangBlockFunctionBody) initFunction.body;
@@ -298,6 +298,9 @@ public class AnnotationDesugar {
     private void attachSchedulerPolicy(BLangFunction function) {
         for (BLangAnnotationAttachment annotation : function.annAttachments) {
             if (!annotation.annotationName.value.equals("strand")) {
+                continue;
+            }
+            if (annotation.expr == null) {
                 continue;
             }
             List<RecordLiteralNode.RecordField> fields = ((BLangRecordLiteral) annotation.expr).fields;

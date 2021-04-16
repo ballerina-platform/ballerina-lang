@@ -30,8 +30,7 @@ public class ObservabilityConstants {
     }
 
     public static final String KEY_OBSERVER_CONTEXT = "__observer_context__";
-    public static final String UNKNOWN_SERVICE = "Unknown Service";
-    public static final String UNKNOWN_RESOURCE = "Unknown Resource";
+    public static final String DEFAULT_SERVICE_NAME = "Ballerina";
 
     public static final String SERVER_CONNECTOR_HTTP = "http";
     public static final String SERVER_CONNECTOR_WEBSOCKET = "ws";
@@ -46,7 +45,9 @@ public class ObservabilityConstants {
     // Runtime related tags
     public static final String TAG_KEY_ERROR = "error";     // Standard boolean error tag
     public static final String TAG_KEY_ENTRYPOINT_FUNCTION_MODULE = "entrypoint.function.module";
-    public static final String TAG_KEY_ENTRYPOINT_FUNCTION_POSITION = "entrypoint.function.position";
+    public static final String TAG_KEY_ENTRYPOINT_SERVICE_NAME = "entrypoint.service.name";
+    public static final String TAG_KEY_ENTRYPOINT_FUNCTION_NAME = "entrypoint.function.name";
+    public static final String TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR = "entrypoint.resource.accessor";
     public static final String TAG_KEY_LISTENER_NAME = "listener.name";
 
     // Source related tags

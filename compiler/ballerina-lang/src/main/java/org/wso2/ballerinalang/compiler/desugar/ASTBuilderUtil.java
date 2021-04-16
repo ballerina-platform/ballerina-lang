@@ -390,7 +390,7 @@ public class ASTBuilderUtil {
         return unaryExpr;
     }
 
-    static BLangTypedescExpr createTypeofExpr(Location pos, BType type, BType resolvedType) {
+    static BLangTypedescExpr createTypedescExpr(Location pos, BType type, BType resolvedType) {
         final BLangTypedescExpr typeofExpr = (BLangTypedescExpr) TreeBuilder.createTypeAccessNode();
         typeofExpr.pos = pos;
         typeofExpr.type = type;
@@ -894,7 +894,7 @@ public class ASTBuilderUtil {
         BVarSymbol newParamSymbol = new BVarSymbol(paramSymbol.flags, paramSymbol.name, paramSymbol.pkgID,
                                                    paramSymbol.type, owner, paramSymbol.pos, paramSymbol.origin);
         newParamSymbol.tainted = paramSymbol.tainted;
-        newParamSymbol.defaultableParam = paramSymbol.defaultableParam;
+        newParamSymbol.isDefaultable = paramSymbol.isDefaultable;
         newParamSymbol.markdownDocumentation = paramSymbol.markdownDocumentation;
         return newParamSymbol;
     }

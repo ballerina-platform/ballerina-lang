@@ -34,7 +34,13 @@ public interface BallerinaDocumentService {
     CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTree(BallerinaSyntaxTreeRequest request);
 
     @JsonRequest
+    CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeByRange(BallerinaSyntaxTreeByRangeRequest request);
+
+    @JsonRequest
     CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeModify(BallerinaSyntaxTreeModifyRequest request);
+
+    @JsonRequest
+    CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTreeLocate(BallerinaSyntaxTreeByRangeRequest request);
 
     @JsonRequest
     CompletableFuture<BallerinaSyntaxTreeResponse> triggerModify(BallerinaTriggerModifyRequest request);
@@ -44,4 +50,7 @@ public interface BallerinaDocumentService {
 
     @JsonRequest
     CompletableFuture<List<PublishDiagnosticsParams>> diagnostics(BallerinaProjectParams params);
+
+    @JsonRequest
+    CompletableFuture<SyntaxTreeNodeResponse> syntaxTreeNode(SyntaxTreeNodeRequest params);
 }

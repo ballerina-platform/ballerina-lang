@@ -59,6 +59,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLetClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -135,6 +136,7 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBreak;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangContinue;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -258,6 +260,7 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(funcNode.annAttachments);
         lookupNodes(funcNode.requiredParams);
         lookupNode(funcNode.restParam);
+        lookupNodes(funcNode.returnTypeAnnAttachments);
         lookupNode(funcNode.returnTypeNode);
         lookupNode(funcNode.body);
     }
@@ -287,6 +290,12 @@ class SymbolFinder extends BaseVisitor {
         lookupNodes(serviceNode.annAttachments);
         lookupNode(serviceNode.serviceClass);
         lookupNodes(serviceNode.attachedExprs);
+
+        // A service decl is a special case. Since there isn't a name associated with it, we take the starting
+        // position of the node to lookup the service symbol.
+        if (this.symbolAtCursor == null && this.cursorPos.equals(serviceNode.pos.lineRange().startLine())) {
+            this.symbolAtCursor = serviceNode.symbol;
+        }
     }
 
     @Override
@@ -315,6 +324,7 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(varNode.annAttachments);
         lookupNode(varNode.typeNode);
         lookupNode(varNode.expr);
     }
@@ -330,18 +340,22 @@ class SymbolFinder extends BaseVisitor {
             return;
         }
 
+        lookupNodes(annotationNode.annAttachments);
         lookupNode(annotationNode.typeNode);
     }
 
     @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
+        if (annAttachmentNode.annotationSymbol != null
+                && setEnclosingNode(annAttachmentNode.annotationSymbol.owner, annAttachmentNode.pkgAlias.pos)) {
+            return;
+        }
+
         if (setEnclosingNode(annAttachmentNode.annotationSymbol, annAttachmentNode.annotationName.pos)) {
             return;
         }
 
         lookupNode(annAttachmentNode.expr);
-
-        // TODO: See how we can return module info if the cursor is at the module alias
     }
 
     @Override
@@ -468,6 +482,12 @@ class SymbolFinder extends BaseVisitor {
     }
 
     @Override
+    public void visit(BLangDo doNode) {
+        lookupNode(doNode.body);
+        lookupNode(doNode.onFailClause);
+    }
+
+    @Override
     public void visit(BLangFromClause fromClause) {
         lookupNode(fromClause.collection);
         lookupNode((BLangNode) fromClause.variableDefinitionNode);
@@ -518,6 +538,12 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangDoClause doClause) {
         lookupNode(doClause.body);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        lookupNode((BLangNode) onFailClause.variableDefinitionNode);
+        lookupNode(onFailClause.body);
     }
 
     @Override
@@ -595,6 +621,9 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangConstRef constRef) {
+        if (constRef.symbol != null && setEnclosingNode(constRef.symbol.owner, constRef.pkgAlias.pos)) {
+            return;
+        }
         this.symbolAtCursor = constRef.symbol;
     }
 
@@ -1224,6 +1253,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
+        lookupNodes(bLangTupleVariable.annAttachments);
         lookupNodes(bLangTupleVariable.memberVariables);
         lookupNode(bLangTupleVariable.restVariable);
         lookupNode(bLangTupleVariable.expr);

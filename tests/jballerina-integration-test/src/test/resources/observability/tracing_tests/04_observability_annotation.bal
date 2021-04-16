@@ -17,7 +17,8 @@
 import ballerina/testobserve;
 import intg_tests/tracing_tests.utils as utils;
 
-service /testServiceFour on new testobserve:Listener(9094) {
+@display { label: "testSvcFour" }
+service /testServiceFour on new testobserve:Listener(19094) {
     # Resource function for testing function call with observable annotation
     resource function post resourceOne(testobserve:Caller caller) {
         var sum = calculateSumWithObservability(10, 51);

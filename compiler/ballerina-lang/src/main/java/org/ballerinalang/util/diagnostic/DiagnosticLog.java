@@ -17,6 +17,7 @@
  */
 package org.ballerinalang.util.diagnostic;
 
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.elements.PackageID;
@@ -46,5 +47,17 @@ public interface DiagnosticLog {
      * @param location  the location of the source code element
      * @param message   the message
      */
+    @Deprecated
     void logDiagnostic(DiagnosticSeverity kind, PackageID pkgId, Location location, CharSequence message);
+
+    /**
+     * @param severity  the severity of the diagnostic
+     * @param moduleDescriptor  the module descriptor
+     * @param location  the location of the source code element
+     * @param message   the message
+     */
+    void logDiagnostic(DiagnosticSeverity severity,
+                       ModuleDescriptor moduleDescriptor,
+                       Location location,
+                       CharSequence message);
 }

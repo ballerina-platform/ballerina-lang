@@ -217,6 +217,10 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(restArgumentNode);
     }
 
+    public void visit(STInferredTypedescDefaultNode inferredTypedescDefaultNode) {
+        visitSyntaxNode(inferredTypedescDefaultNode);
+    }
+
     public void visit(STObjectTypeDescriptorNode objectTypeDescriptorNode) {
         visitSyntaxNode(objectTypeDescriptorNode);
     }
@@ -363,10 +367,6 @@ public abstract class STNodeVisitor {
 
     public void visit(STErrorTypeDescriptorNode errorTypeDescriptorNode) {
         visitSyntaxNode(errorTypeDescriptorNode);
-    }
-
-    public void visit(STErrorTypeParamsNode errorTypeParamsNode) {
-        visitSyntaxNode(errorTypeParamsNode);
     }
 
     public void visit(STStreamTypeDescriptorNode streamTypeDescriptorNode) {
@@ -769,8 +769,20 @@ public abstract class STNodeVisitor {
         visitSyntaxNode(markdownParameterDocumentationLineNode);
     }
 
-    public void visit(STDocumentationReferenceNode documentationReferenceNode) {
-        visitSyntaxNode(documentationReferenceNode);
+    public void visit(STBallerinaNameReferenceNode ballerinaNameReferenceNode) {
+        visitSyntaxNode(ballerinaNameReferenceNode);
+    }
+
+    public void visit(STInlineCodeReferenceNode inlineCodeReferenceNode) {
+        visitSyntaxNode(inlineCodeReferenceNode);
+    }
+
+    public void visit(STMarkdownCodeBlockNode markdownCodeBlockNode) {
+        visitSyntaxNode(markdownCodeBlockNode);
+    }
+
+    public void visit(STMarkdownCodeLineNode markdownCodeLineNode) {
+        visitSyntaxNode(markdownCodeLineNode);
     }
 
     public void visit(STOrderByClauseNode orderByClauseNode) {

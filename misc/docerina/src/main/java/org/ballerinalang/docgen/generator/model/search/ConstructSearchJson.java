@@ -17,23 +17,33 @@
  */
 package org.ballerinalang.docgen.generator.model.search;
 
+import com.google.gson.annotations.Expose;
+
 /**
  * JSON to hold search data for constructs.
  */
 public class ConstructSearchJson {
+    @Expose
     private String id;
+    @Expose
     private String description;
+    @Expose
+    private String packageName;
+    @Expose
     private String moduleId;
+    @Expose
     private String moduleOrgName;
+    @Expose
     private String moduleVersion;
 
-    public ConstructSearchJson(String id, String moduleId, String moduleOrgName, String moduleVersion,
-                               String description) {
+    public ConstructSearchJson(String id, String packageName, String moduleId, String moduleOrgName,
+                               String moduleVersion, String description) {
         this.setId(id);
         this.setDescription(description);
         this.setModuleId(moduleId);
         this.setModuleOrgName(moduleOrgName);
         this.setModuleVersion(moduleVersion);
+        this.setPackageName(packageName);
     }
 
     public String getId() {
@@ -74,5 +84,13 @@ public class ConstructSearchJson {
 
     public void setModuleVersion(String moduleVersion) {
         this.moduleVersion = moduleVersion;
+    }
+
+    public String getPackageName() {
+        return packageName;
+    }
+
+    public void setPackageName(String packageName) {
+        this.packageName = packageName;
     }
 }

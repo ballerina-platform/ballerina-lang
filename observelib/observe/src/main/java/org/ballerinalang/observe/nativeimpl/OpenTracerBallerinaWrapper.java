@@ -24,11 +24,10 @@ import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.observability.ObserveUtils;
 import io.ballerina.runtime.observability.ObserverContext;
-import io.ballerina.runtime.observability.TracingUtils;
 import io.ballerina.runtime.observability.tracer.BSpan;
-import io.ballerina.runtime.observability.tracer.TraceConstants;
 import io.ballerina.runtime.observability.tracer.TracersStore;
-import io.opentracing.Tracer;
+import io.ballerina.runtime.observability.tracer.TracingUtils;
+import io.opentelemetry.api.trace.Tracer;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -36,7 +35,11 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
 
-import static io.ballerina.runtime.observability.ObservabilityConstants.UNKNOWN_SERVICE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.DEFAULT_SERVICE_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_MODULE;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_FUNCTION_NAME;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR;
+import static io.ballerina.runtime.observability.ObservabilityConstants.TAG_KEY_ENTRYPOINT_SERVICE_NAME;
 
 /**
  * This class wraps opentracing apis and exposes extern functions to use within ballerina.
@@ -89,10 +92,20 @@ public class OpenTracerBallerinaWrapper {
         String serviceName;
         if (prevObserverContext != null) {
             serviceName = prevObserverContext.getServiceName();
-            observerContext.setEntrypointFunctionModule(prevObserverContext.getEntrypointFunctionModule());
-            observerContext.setEntrypointFunctionPosition(prevObserverContext.getEntrypointFunctionPosition());
+            String entrypointFunctionModule = prevObserverContext.getEntrypointFunctionModule();
+            String entrypointServiceName = prevObserverContext.getEntrypointServiceName();
+            String entrypointFunctionName = prevObserverContext.getEntrypointFunctionName();
+            String entrypointResourceAccessor = prevObserverContext.getEntrypointResourceAccessor();
+            observerContext.setEntrypointFunctionModule(entrypointFunctionModule);
+            observerContext.setEntrypointServiceName(entrypointServiceName);
+            observerContext.setEntrypointFunctionName(entrypointFunctionName);
+            observerContext.setEntrypointResourceAccessor(entrypointResourceAccessor);
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, entrypointFunctionModule);
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_SERVICE_NAME, entrypointServiceName);
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_NAME, entrypointFunctionName);
+            observerContext.addTag(TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR, entrypointResourceAccessor);
         } else {
-            serviceName = UNKNOWN_SERVICE;
+            serviceName = DEFAULT_SERVICE_NAME;
         }
         observerContext.setServiceName(serviceName);
 
@@ -169,7 +182,7 @@ public class OpenTracerBallerinaWrapper {
                         StringUtils.fromString(
                                 ("Span already finished. Can not add tag {" + tagKey + ":" + tagValue + "}")));
             }
-            span = (BSpan) observer.getProperty(TraceConstants.KEY_SPAN);
+            span = observer.getSpan();
         } else {
             ObserverContext observerContext = observerContextMap.get(spanId);
             if (observerContext == null) {
@@ -179,7 +192,7 @@ public class OpenTracerBallerinaWrapper {
                 log.info(errorMsg);
                 return ErrorCreator.createError(StringUtils.fromString(errorMsg));
             }
-            span = (BSpan) observerContext.getProperty(TraceConstants.KEY_SPAN);
+            span = observerContext.getSpan();
         }
 
         span.addTag(tagKey, tagValue);

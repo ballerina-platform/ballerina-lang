@@ -244,17 +244,25 @@ public class ClosedRecordTest {
     @Test(description = "Test invocation of nil-able function pointer fields in a closed record")
     public void testNilableFunctionPtrInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_nil-able_fn_ptr.bal");
-        String errMsg1 = "function invocation on type 'function (string,string) returns (string)?' is not supported";
-        String errMsg2 = "incompatible types: expected 'string?', found 'other'";
+        String errMsg =
+                "invalid method call expression: expected a function type, but found 'function" +
+                        " (string,string) returns (string)?'";
         int indx = 0;
-        BAssertUtil.validateError(result, indx++, errMsg1, 28, 17);
-        BAssertUtil.validateError(result, indx++, errMsg2, 28, 17);
-        BAssertUtil.validateError(result, indx++, errMsg1, 33, 17);
-        BAssertUtil.validateError(result, indx++, errMsg2, 33, 17);
-        BAssertUtil.validateError(result, indx++, errMsg1, 47, 17);
-        BAssertUtil.validateError(result, indx++, errMsg2, 47, 17);
-        BAssertUtil.validateError(result, indx++, errMsg1, 52, 17);
-        BAssertUtil.validateError(result, indx, errMsg2, 52, 17);
+        BAssertUtil.validateError(result, indx++, errMsg, 28, 17);
+        BAssertUtil.validateError(result, indx++, errMsg, 33, 17);
+        Assert.assertEquals(result.getErrorCount(), indx);
+    }
+
+    @Test(description = "Test closed record mismatch fields")
+    public void testClosedRecordMismatchFields() {
+        CompileResult result = BCompileUtil.compile("test-src/record/negative/closed_record_mismatch_fields.bal");
+        int indx = 0;
+        BAssertUtil.validateError(result, indx++, "missing error detail arg for error detail field 'foo'",
+                18, 27);
+        BAssertUtil.validateError(result, indx++, "missing error detail arg for error detail field 'message'",
+                18, 27);
+        BAssertUtil.validateError(result, indx, "unknown error detail arg 'bar' passed to closed error " +
+                "detail type 'FooErrData'", 18, 27);
     }
 
     @Test

@@ -64,7 +64,9 @@ public class BallerinaExampleServiceImpl implements BallerinaExampleService {
                 response.setSamples(data);
             } catch (Throwable e) {
                 String msg = "Operation 'ballerinaExample/list' failed!";
-                this.clientLogger.logError(msg, e, new TextDocumentIdentifier(bbeJSONPath.toString()), (Position) null);
+                this.clientLogger.logError(ExampleContext.EXAMPLE_LIST, msg, e,
+                                           new TextDocumentIdentifier(bbeJSONPath.toString()),
+                                           (Position) null);
                 response.setSamples(new ArrayList<>());
             }
             return response;

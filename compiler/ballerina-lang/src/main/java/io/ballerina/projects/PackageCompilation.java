@@ -29,6 +29,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangPackage;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.CompilerOptions;
 
+import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -60,11 +61,11 @@ public class PackageCompilation {
 
     private DiagnosticResult diagnosticResult;
     private volatile boolean compiled;
+    private CompilerPluginManager compilerPluginManager;
 
-    private PackageCompilation(PackageContext rootPackageContext,
-                               PackageResolution packageResolution) {
+    private PackageCompilation(PackageContext rootPackageContext) {
         this.rootPackageContext = rootPackageContext;
-        this.packageResolution = packageResolution;
+        this.packageResolution = rootPackageContext.getResolution();
 
         ProjectEnvironment projectEnvContext = rootPackageContext.project().projectEnvironmentContext();
         this.compilerContext = projectEnvContext.getService(CompilerContext.class);
@@ -90,8 +91,29 @@ public class PackageCompilation {
     }
 
     static PackageCompilation from(PackageContext rootPackageContext) {
-        PackageResolution packageResolution = rootPackageContext.getResolution();
-        return new PackageCompilation(rootPackageContext, packageResolution);
+        PackageCompilation compilation = new PackageCompilation(rootPackageContext);
+
+        // Compile modules in the dependency graph
+        compilation.compileModules();
+
+        // Now the modules are compiled, initialize the compiler plugin manager
+        CompilerPluginManager compilerPluginManager = CompilerPluginManager.from(compilation);
+        compilation.setCompilerPluginManager(compilerPluginManager);
+
+        // Run the CodeAnalyzer tasks.
+        CodeAnalyzerManager codeAnalyzerManager = compilerPluginManager.getCodeAnalyzerManager();
+        // At the moment, we run SyntaxNodeAnalysis and CompilationAnalysis tasks at the same time.
+        // We can run SyntaxNodeAnalysis for each module compilation in the future.
+        List<Diagnostic> reportedDiagnostics = codeAnalyzerManager.runCodeAnalyzerTasks();
+        addCompilerPluginDiagnostics(compilation, reportedDiagnostics);
+        return compilation;
+    }
+
+    public List<Diagnostic> notifyCompilationCompletion(Path filePath) {
+        CompilerLifecycleManager manager = this.compilerPluginManager.getCompilerLifecycleListenerManager();
+        List<Diagnostic> diagnostics = manager.runCodeGeneratedTasks(filePath);
+        this.pluginDiagnostics.addAll(diagnostics);
+        return diagnostics;
     }
 
     public PackageResolution getResolution() {
@@ -99,13 +121,10 @@ public class PackageCompilation {
     }
 
     public DiagnosticResult diagnosticResult() {
-        compileIfRequired();
         return diagnosticResult;
     }
 
     public SemanticModel getSemanticModel(ModuleId moduleId) {
-        compileIfRequired();
-
         ModuleContext moduleContext = this.rootPackageContext.moduleContext(moduleId);
         // We check whether the particular module compilation state equal to the typecheck phase here. 
         // If the states do not match, then this is a illegal state exception.
@@ -116,6 +135,10 @@ public class PackageCompilation {
         }
 
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
+    }
+
+    CompilerPluginManager compilerPluginManager() {
+        return compilerPluginManager;
     }
 
     // TODO Remove this method. We should not expose BLangPackage from this class
@@ -133,7 +156,7 @@ public class PackageCompilation {
         return rootPackageContext;
     }
 
-    private void compileIfRequired() {
+    private void compileModules() {
         if (compiled) {
             return;
         }
@@ -142,19 +165,21 @@ public class PackageCompilation {
             if (compiled) {
                 return;
             }
-            
-            List<Diagnostic> diagnostics = new ArrayList<>();
-            for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
-                moduleContext.compile(compilerContext);
-                moduleContext.diagnostics()
-                        .forEach(diagnostic -> diagnostics
-                                .add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
-            }
-            runPluginCodeAnalysis(diagnostics);
-            addOtherDiagnostics(diagnostics);
-            diagnosticResult = new DefaultDiagnosticResult(diagnostics);
+            compileModulesInternal();
             compiled = true;
         }
+    }
+
+    private void compileModulesInternal() {
+        List<Diagnostic> diagnostics = new ArrayList<>();
+        for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
+            moduleContext.compile(compilerContext);
+            moduleContext.diagnostics().forEach(diagnostic ->
+                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
+        }
+        runPluginCodeAnalysis(diagnostics);
+        addOtherDiagnostics(diagnostics);
+        diagnosticResult = new DefaultDiagnosticResult(diagnostics);
     }
 
     private void runPluginCodeAnalysis(List<Diagnostic> diagnostics) {
@@ -174,7 +199,23 @@ public class PackageCompilation {
         diagnostics.addAll(diagnosticResult.allDiagnostics);
     }
 
-    public List<Diagnostic> pluginDiagnostics() {
+    private void setCompilerPluginManager(CompilerPluginManager compilerPluginManager) {
+        this.compilerPluginManager = compilerPluginManager;
+    }
+
+    List<Diagnostic> pluginDiagnostics() {
         return pluginDiagnostics;
+    }
+
+    private static void addCompilerPluginDiagnostics(PackageCompilation compilation,
+                                                     List<Diagnostic> reportedDiagnostics) {
+        List<Diagnostic> allDiagnostics = new ArrayList<>(compilation.diagnosticResult.diagnostics());
+        allDiagnostics.addAll(reportedDiagnostics);
+        compilation.diagnosticResult = new DefaultDiagnosticResult(allDiagnostics);
+
+        // TODO We need to refactor how diagnostics are stored and returned
+        // TODO I had to put the following line in order to make compiler plugin diagnostics
+        //  available to the build command
+        compilation.pluginDiagnostics.addAll(reportedDiagnostics);
     }
 }

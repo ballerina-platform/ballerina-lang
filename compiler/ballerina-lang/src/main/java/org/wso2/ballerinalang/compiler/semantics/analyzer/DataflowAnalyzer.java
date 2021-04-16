@@ -19,6 +19,7 @@ package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.compiler.CompilerPhase;
+import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.Node;
 import org.ballerinalang.model.tree.NodeKind;
@@ -32,6 +33,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
@@ -94,6 +96,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangActionInvocation;
@@ -242,6 +245,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     private BLangDiagnosticLog dlog;
     private Types types;
     private Map<BSymbol, InitStatus> uninitializedVars;
+    private Map<BSymbol, Location> unusedErrorVarsDeclaredWithVar;
     private Map<BSymbol, Set<BSymbol>> globalNodeDependsOn;
     private Map<BSymbol, Set<BSymbol>> functionToDependency;
     private boolean flowTerminated = false;
@@ -291,6 +295,8 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         if (pkgNode.completedPhases.contains(CompilerPhase.DATAFLOW_ANALYZE)) {
             return;
         }
+        Map<BSymbol, Location> prevUnusedErrorVarsDeclaredWithVar = this.unusedErrorVarsDeclaredWithVar;
+        this.unusedErrorVarsDeclaredWithVar = new HashMap<>();
 
         // Rearrange the top level nodes so that global variables come on top
         List<TopLevelNode> sortedListOfNodes = new ArrayList<>(pkgNode.globalVars);
@@ -307,9 +313,12 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         checkForUninitializedGlobalVars(pkgNode.globalVars);
         pkgNode.getTestablePkgs().forEach(testablePackage -> visit((BLangPackage) testablePackage));
         this.globalVariableRefAnalyzer.analyzeAndReOrder(pkgNode, this.globalNodeDependsOn);
-        this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency);
+        this.globalVariableRefAnalyzer.populateFunctionDependencies(this.functionToDependency, pkgNode.globalVars);
         pkgNode.globalVariableDependencies = globalVariableRefAnalyzer.getGlobalVariablesDependsOn();
         checkUnusedImports(pkgNode.imports);
+        checkUnusedErrorVarsDeclaredWithVar();
+        this.unusedErrorVarsDeclaredWithVar = prevUnusedErrorVarsDeclaredWithVar;
+
         pkgNode.completedPhases.add(CompilerPhase.DATAFLOW_ANALYZE);
     }
 
@@ -345,9 +354,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
         this.currDependentSymbol.pop();
     }
 
-    private void checkForUninitializedGlobalVars(List<BLangSimpleVariable> globalVars) {
-        for (BLangSimpleVariable globalVar : globalVars) {
-            if (this.uninitializedVars.containsKey(globalVar.symbol)) {
+    private void checkForUninitializedGlobalVars(List<BLangVariable> globalVars) {
+        for (BLangVariable globalVar : globalVars) {
+            if (globalVar.getKind() == NodeKind.VARIABLE && this.uninitializedVars.containsKey(globalVar.symbol)) {
                 this.dlog.error(globalVar.pos, DiagnosticErrorCode.UNINITIALIZED_VARIABLE, globalVar.symbol);
             }
         }
@@ -495,27 +504,32 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangSimpleVariable variable) {
         analyzeNode(variable.typeNode, env);
-        if (variable.symbol == null) {
+        BVarSymbol symbol = variable.symbol;
+        if (symbol == null) {
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
             }
             return;
         }
 
-        this.currDependentSymbol.push(variable.symbol);
+        this.currDependentSymbol.push(symbol);
         try {
+            if (variable.isDeclaredWithVar) {
+                addVarIfInferredTypeIncludesError(variable);
+            }
+
             if (variable.expr != null) {
                 analyzeNode(variable.expr, env);
-                this.uninitializedVars.remove(variable.symbol);
+                this.uninitializedVars.remove(symbol);
                 return;
             }
             // Required configurations will be initialized at the run time
-            long varFlags = variable.symbol.flags;
+            long varFlags = symbol.flags;
             if (Symbols.isFlagOn(varFlags, Flags.CONFIGURABLE) && Symbols.isFlagOn(varFlags, Flags.REQUIRED)) {
                 return;
             }
             // Handle package/object level variables
-            BSymbol owner = variable.symbol.owner;
+            BSymbol owner = symbol.owner;
             if (owner.tag != SymTag.PACKAGE && owner.tag != SymTag.OBJECT) {
                 return;
             }
@@ -952,6 +966,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangSimpleVarRef varRefExpr) {
+        unusedErrorVarsDeclaredWithVar.remove(varRefExpr.symbol);
         checkVarRef(varRefExpr.symbol, varRefExpr.pos);
     }
 
@@ -1113,6 +1128,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangOnFailClause onFailClause) {
+        analyzeNode((BLangVariable) onFailClause.variableDefinitionNode.getVariable(), env);
         analyzeNode(onFailClause.body, env);
     }
 
@@ -1529,6 +1545,9 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangFunctionTypeNode functionTypeNode) {
+        if (functionTypeNode.flagSet.contains(Flag.ANY_FUNCTION)) {
+            return;
+        }
         functionTypeNode.params.forEach(param -> analyzeNode(param.typeNode, env));
         analyzeNode(functionTypeNode.returnTypeNode, env);
     }
@@ -1627,6 +1646,10 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     }
 
     @Override
+    public void visit(BLangInferredTypedescDefaultNode inferTypedescExpr) {
+    }
+
+    @Override
     public void visit(BLangErrorType errorType) {
     }
 
@@ -1667,41 +1690,40 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
         analyzeNode(bLangTupleVariable.typeNode, env);
+        this.currDependentSymbol.push(bLangTupleVariable.symbol);
+        analyzeNode(bLangTupleVariable.expr, env);
+        this.currDependentSymbol.pop();
     }
 
     @Override
     public void visit(BLangTupleVariableDef bLangTupleVariableDef) {
-        BLangVariable var = bLangTupleVariableDef.var;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-            return;
-        }
+        analyzeNode(bLangTupleVariableDef.var, env);
     }
 
     @Override
     public void visit(BLangRecordVariable bLangRecordVariable) {
         analyzeNode(bLangRecordVariable.typeNode, env);
+        this.currDependentSymbol.push(bLangRecordVariable.symbol);
+        analyzeNode(bLangRecordVariable.expr, env);
+        this.currDependentSymbol.pop();
     }
 
     @Override
     public void visit(BLangRecordVariableDef bLangRecordVariableDef) {
-        BLangVariable var = bLangRecordVariableDef.var;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-        }
+        analyzeNode(bLangRecordVariableDef.var, env);
     }
 
     @Override
     public void visit(BLangErrorVariable bLangErrorVariable) {
         analyzeNode(bLangErrorVariable.typeNode, env);
+        this.currDependentSymbol.push(bLangErrorVariable.symbol);
+        analyzeNode(bLangErrorVariable.expr, env);
+        this.currDependentSymbol.pop();
     }
 
     @Override
     public void visit(BLangErrorVariableDef bLangErrorVariableDef) {
-        BLangVariable var = bLangErrorVariableDef.errorVariable;
-        if (var.expr == null) {
-            addUninitializedVar(var);
-        }
+        analyzeNode(bLangErrorVariableDef.errorVariable, env);
     }
 
     @Override
@@ -1963,6 +1985,23 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
                 continue;
             }
             dlog.error(importStmt.pos, DiagnosticErrorCode.UNUSED_IMPORT_MODULE, importStmt.getQualifiedPackageName());
+        }
+    }
+
+    private void checkUnusedErrorVarsDeclaredWithVar() {
+        for (Map.Entry<BSymbol, Location> entry : this.unusedErrorVarsDeclaredWithVar.entrySet()) {
+            this.dlog.error(entry.getValue(), DiagnosticErrorCode.UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR,
+                            entry.getKey().name);
+        }
+    }
+
+    private void addVarIfInferredTypeIncludesError(BLangSimpleVariable variable) {
+        BType typeIntersection =
+                types.getTypeIntersection(Types.IntersectionContext.compilerInternalIntersectionContext(),
+                                          variable.type, symTable.errorType, env);
+        if (typeIntersection != null &&
+                typeIntersection != symTable.semanticError && typeIntersection != symTable.noType) {
+            unusedErrorVarsDeclaredWithVar.put(variable.symbol, variable.pos);
         }
     }
 

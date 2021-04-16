@@ -18,22 +18,27 @@
 
 package io.ballerina.shell.parser;
 
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.ModuleMemberDeclarationNode;
+import io.ballerina.compiler.syntax.tree.ModulePartNode;
 import io.ballerina.compiler.syntax.tree.Node;
-import io.ballerina.shell.Diagnostic;
 import io.ballerina.shell.exceptions.TreeParserException;
 import io.ballerina.shell.parser.trials.EmptyExpressionTrial;
 import io.ballerina.shell.parser.trials.ExpressionTrial;
 import io.ballerina.shell.parser.trials.GetErrorMessageTrial;
 import io.ballerina.shell.parser.trials.ImportDeclarationTrial;
 import io.ballerina.shell.parser.trials.ModuleMemberTrial;
+import io.ballerina.shell.parser.trials.ModulePartTrial;
 import io.ballerina.shell.parser.trials.ParserRejectedException;
 import io.ballerina.shell.parser.trials.ParserTrialFailedException;
-import io.ballerina.shell.parser.trials.RejectInvalidStmtTrial;
 import io.ballerina.shell.parser.trials.StatementTrial;
 import io.ballerina.shell.parser.trials.TreeParserTrial;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 /**
  * Parses the source code line using a trial based method.
@@ -43,13 +48,13 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class SerialTreeParser extends TrialTreeParser {
+    private static final Set<String> RESTRICTED_FUNCTION_NAMES = Set.of("main", "init");
     private final List<TreeParserTrial> nodeParserTrials;
 
     public SerialTreeParser(long timeOutDurationMs) {
         super(timeOutDurationMs);
         this.nodeParserTrials = List.of(
                 new ImportDeclarationTrial(this),
-                new RejectInvalidStmtTrial(this),
                 new ModuleMemberTrial(this),
                 new ExpressionTrial(this),
                 new StatementTrial(this),
@@ -69,14 +74,49 @@ public class SerialTreeParser extends TrialTreeParser {
             } catch (ParserRejectedException e) {
                 errorMessage = "Invalid statement: " + e.getMessage();
                 break;
-            } catch (Exception e) {
-                errorMessage = "Invalid statement. Could not parse the expression: " + e.getMessage();
-            } catch (Error e) {
-                errorMessage = "Something severely went wrong: " + e.toString();
+            } catch (Throwable e) {
+                errorMessage = "Code contains syntax error(s).";
             }
         }
-        addDiagnostic(Diagnostic.error(errorMessage));
-        addDiagnostic(Diagnostic.error("Parsing aborted because of errors."));
+        addErrorDiagnostic(errorMessage);
+        addErrorDiagnostic("Parsing aborted due to errors.");
         throw new TreeParserException();
+    }
+
+    @Override
+    public Collection<Node> parseDeclarations(String source) throws TreeParserException {
+        try {
+            ModulePartTrial modulePartTrial = new ModulePartTrial(this);
+            ModulePartNode modulePartNode = (ModulePartNode) modulePartTrial.parse(source);
+            List<Node> declarationNodes = new ArrayList<>();
+            modulePartNode.imports().forEach(declarationNodes::add);
+            modulePartNode.members().stream().filter(this::isModuleDeclarationAllowed)
+                    .forEach(declarationNodes::add);
+            return declarationNodes;
+        } catch (ParserTrialFailedException e) {
+            addErrorDiagnostic(e.getMessage());
+            addErrorDiagnostic("Parsing aborted because of errors.");
+            throw new TreeParserException();
+        }
+    }
+
+    /**
+     * Whether the declaration is allowed to be parsed.
+     */
+    private boolean isModuleDeclarationAllowed(ModuleMemberDeclarationNode declarationNode) {
+        if (declarationNode instanceof FunctionDefinitionNode) {
+            String functionName = ((FunctionDefinitionNode) declarationNode).functionName().text();
+            if (RESTRICTED_FUNCTION_NAMES.contains(functionName)) {
+                addWarnDiagnostic("Found '" + functionName + "' function in the declarations.\n" +
+                        "Discarded '" + functionName + "' function without loading.");
+                return false;
+            }
+            if (functionName.startsWith("__")) {
+                addWarnDiagnostic("Functions starting with '__' are reserved in REPL.\n" +
+                        "Discarded '" + functionName + "' without loading.");
+                return false;
+            }
+        }
+        return true;
     }
 }

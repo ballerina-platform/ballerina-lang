@@ -18,9 +18,10 @@ package org.ballerinalang.langserver.common.utils.completion;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDefinitionSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.PositionedOperationContext;
@@ -100,9 +101,26 @@ public class QNameReferenceUtil {
                                                 QualifiedNameReferenceNode qNameRef) {
         Optional<ModuleSymbol> module = CommonUtil.searchModuleForAlias(context, QNameReferenceUtil.getAlias(qNameRef));
         return module.map(symbol -> symbol.allSymbols().stream()
-                .filter(moduleItem -> moduleItem instanceof TypeDefinitionSymbol ||
-                        moduleItem.kind() == SymbolKind.CLASS)
+                .filter(moduleItem -> moduleItem.kind() == SymbolKind.TYPE_DEFINITION ||
+                        moduleItem.kind() == SymbolKind.CLASS || moduleItem.kind() == SymbolKind.ENUM)
                 .collect(Collectors.toList()))
                 .orElseGet(ArrayList::new);
+    }
+
+    /**
+     * Check whether the current cursor is positioned in the qualified name identifier.
+     *
+     * @param context completion context
+     * @param node    node to be evaluated
+     * @return {@link Boolean}
+     */
+    public static boolean onQualifiedNameIdentifier(BallerinaCompletionContext context, Node node) {
+        if (node.kind() != SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+            return false;
+        }
+        int colonPos = ((QualifiedNameReferenceNode) node).colon().textRange().startOffset();
+        int cursor = context.getCursorPositionInTree();
+
+        return colonPos < cursor;
     }
 }

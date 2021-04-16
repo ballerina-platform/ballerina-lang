@@ -24,6 +24,7 @@ import org.testng.annotations.Test;
 import picocli.CommandLine;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 
@@ -49,11 +50,18 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(projectPath));
         Assert.assertTrue(Files.exists(balFile));
         Assert.assertTrue(Files.exists(projectPath.resolve(ProjectConstants.BALLERINA_TOML)));
+        String tomlContent = Files.readString(
+                projectPath.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedContent = "[build-options]\n" +
+                "observabilityIncluded = true";
+        Assert.assertEquals(tomlContent, expectedContent);
+
         Path testPath = projectPath.resolve(ProjectConstants.TEST_DIR_NAME);
         Assert.assertFalse(Files.exists(testPath));
 
         Path resourcePath = projectPath.resolve(ProjectConstants.RESOURCE_DIR_NAME);
         Assert.assertFalse(Files.exists(resourcePath));
+        Assert.assertTrue(Files.notExists(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
@@ -82,7 +90,14 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedContent = "[build-options]\n" +
+                "observabilityIncluded = true";
+        Assert.assertEquals(tomlContent, expectedContent);
+
         Assert.assertTrue(Files.exists(packageDir.resolve("main.bal")));
+        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
@@ -111,7 +126,14 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedContent = "[build-options]\n" +
+                "observabilityIncluded = true";
+        Assert.assertEquals(tomlContent, expectedContent);
+
         Assert.assertTrue(Files.exists(packageDir.resolve("service.bal")));
+        Assert.assertTrue(Files.notExists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));
     }
@@ -140,6 +162,18 @@ public class InitCommandTest extends BaseCommandTest {
         Assert.assertTrue(Files.exists(packageDir));
         Assert.assertTrue(Files.isDirectory(packageDir));
         Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.BALLERINA_TOML)));
+        String tomlContent = Files.readString(
+                packageDir.resolve(ProjectConstants.BALLERINA_TOML), StandardCharsets.UTF_8);
+        String expectedTomlContent = "[package]\n" +
+                "org = \"" + System.getProperty("user.name") + "\"\n" +
+                "name = \"myproject\"\n" +
+                "version = \"0.1.0\"\n" +
+                "\n" +
+                "[build-options]\n" +
+                "observabilityIncluded = true";
+        Assert.assertEquals(tomlContent, expectedTomlContent);
+
+        Assert.assertTrue(Files.exists(packageDir.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME)));
         Assert.assertTrue(Files.exists(packageDir.resolve("myproject.bal")));
 
         Assert.assertTrue(readOutput().contains("Created new Ballerina package"));

@@ -73,6 +73,13 @@ public class RenameTest {
         return new Object[][]{
                 {"rename_method_param_result.json", "newA"},
                 {"rename_rec_result.json", "NewRecData"},
+                {"rename_with_invalid_identifier.json", "NewRecData]"},
+                {"rename_with_cursor_at_end.json", "myIntVal"},
+                {"rename_with_cursor_at_end2.json", "x"},
+                {"rename_on_fail.json", "myVarName"},
+                {"rename_within_service1.json", "ep1"},
+                {"rename_within_service2.json", "baz"},
+                {"rename_within_service3.json", "baz"}
         };
     }
 

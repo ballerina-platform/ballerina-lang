@@ -21,10 +21,12 @@ package org.ballerinalang.debugadapter.variable;
  */
 public enum JVMValueType {
 
+    BOOLEAN("boolean"),
     INT("int"),
     LONG("long"),
-    BOOLEAN("boolean"),
+    FLOAT("float"),
     DOUBLE("double"),
+    BYTE("byte"),
     J_INT("java.lang.Int"),
     J_LONG("java.lang.Long"),
     J_BOOLEAN("java.lang.Boolean"),

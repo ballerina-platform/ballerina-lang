@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.'value;
 
 const MSG = "Message";
 
@@ -74,7 +75,7 @@ function errorConstructorExpr5() returns error {
 
 function testErrorConstructorExpr5() {
     error e = errorConstructorExpr5();
-    map<anydata|readonly> m = e.detail();
+    map<value:Cloneable> m = e.detail();
     assertEquals(<int> checkpanic m["c"], 200);
     assertEquals(<int> checkpanic m["d"], 300);
 }
@@ -86,22 +87,13 @@ function errorConstructorExpr6() returns error {
 function testErrorConstructorExpr6() {
     error e = errorConstructorExpr6();
     e = <error> e.cause();
-    map<anydata|readonly> m = e.detail();
+    map<value:Cloneable> m = e.detail();
     assertEquals(100, <int> checkpanic m["a"]);
     assertEquals("400", <string> checkpanic m["b"]);
     assertEquals((), <int?> checkpanic m["c"]);
 }
 
-type MyError1 error <*>;
 type MyError2 error <map<string>>;
-
-function errorConstructorExpr7() returns error {
-    return error MyError1("Message1");
-}
-
-function testErrorConstructorExpr7() {
-    assertEquals("Message1", errorConstructorExpr7().message());
-}
 
 function errorConstructorExpr8() returns MyError2 {
     return error MyError2("Message1", a = "str1", b = "str2");
