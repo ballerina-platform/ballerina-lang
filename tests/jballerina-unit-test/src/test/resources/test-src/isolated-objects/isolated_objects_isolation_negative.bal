@@ -639,3 +639,13 @@ function testInvalidCopyInWithNonObjectSelf2() {
         x = 'self;
     }
 }
+
+public isolated class IsolatedClassWithBoundMethodAccess {
+
+    public isolated function bar() {
+        isolated function () fn = self.baz;
+    }
+
+    isolated function baz() {
+    }
+}

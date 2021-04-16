@@ -619,6 +619,17 @@ isolated function getMember(IsolatedClassUsingSelf foo) returns int[] {
     return foo.getMember(false);
 }
 
+isolated class IsolatedClassWithBoundMethodAccess {
+    public isolated function bar() {
+        lock {
+            isolated function () fn = self.baz;
+        }
+    }
+
+    isolated function baz() {
+    }
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

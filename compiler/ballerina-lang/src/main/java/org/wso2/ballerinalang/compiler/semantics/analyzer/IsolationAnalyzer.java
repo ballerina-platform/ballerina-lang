@@ -503,7 +503,7 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
 
             if (enclInvokable != null && enclInvokable.getKind() == NodeKind.FUNCTION &&
                     ((BLangFunction) enclInvokable).objInitFunction &&
-                    isIsolatedObjectFieldAccessViaSelf(fieldAccess, false)) {
+                    isIsolatedObjectFieldOrMethodAccessViaSelf(fieldAccess, false)) {
                 validateIsolatedExpression(
                         ((BObjectType) enclInvokable.symbol.owner.type).fields.get(fieldAccess.field.value).type, expr);
             }
@@ -1171,13 +1171,19 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
     public void visit(BLangFieldBasedAccess fieldAccessExpr) {
         analyzeNode(fieldAccessExpr.expr, env);
 
-        if (!isValidIsolatedObjectFieldAccessViaSelfOutsideLock(fieldAccessExpr, true)) {
+        if (!isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(fieldAccessExpr, true)) {
             return;
         }
 
         if (inLockStatement) {
             addToAccessedRestrictedVars(copyInLockInfoStack.peek().accessedRestrictedVars,
                                         (BLangSimpleVarRef) fieldAccessExpr.expr);
+            return;
+        }
+
+        if (((BObjectType) env.enclInvokable.symbol.owner.type).fields.get(fieldAccessExpr.field.value) == null) {
+            dlog.error(fieldAccessExpr.pos,
+                       DiagnosticErrorCode.INVALID_REFERENCE_TO_SELF_IN_ISOLATED_OBJECT_OUTSIDE_LOCK);
             return;
         }
 
@@ -2193,7 +2199,8 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return !Symbols.isFlagOn(symbol.flags, Flags.FINAL) || !types.isSubTypeOfReadOnlyOrIsolatedObjectUnion(type);
     }
 
-    private boolean isIsolatedObjectFieldAccessViaSelf(BLangFieldBasedAccess fieldAccessExpr, boolean ignoreInit) {
+    private boolean isIsolatedObjectFieldOrMethodAccessViaSelf(BLangFieldBasedAccess fieldAccessExpr,
+                                                               boolean ignoreInit) {
         BLangExpression expr = fieldAccessExpr.expr;
 
         if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
@@ -2207,13 +2214,18 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
         return isInIsolatedObjectMethod(env, ignoreInit);
     }
 
-    private boolean isValidIsolatedObjectFieldAccessViaSelfOutsideLock(BLangFieldBasedAccess fieldAccessExpr,
-                                                                       boolean ignoreInit) {
-        if (!isIsolatedObjectFieldAccessViaSelf(fieldAccessExpr, ignoreInit)) {
+    private boolean isInvalidIsolatedObjectFieldOrMethodAccessViaSelfIfOutsideLock(
+            BLangFieldBasedAccess fieldAccessExpr, boolean ignoreInit) {
+        if (!isIsolatedObjectFieldOrMethodAccessViaSelf(fieldAccessExpr, ignoreInit)) {
             return false;
         }
 
         BField field = ((BObjectType) env.enclInvokable.symbol.owner.type).fields.get(fieldAccessExpr.field.value);
+
+        if (field == null) {
+            // Bound method access.
+            return true;
+        }
 
         return isExpectedToBeAPrivateField(field.symbol, field.type);
     }
