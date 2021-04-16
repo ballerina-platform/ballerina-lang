@@ -507,30 +507,38 @@ function testMappingMatchPattern23() {
     assertEquals("No match", mappingMatchPattern23({x: 3, y: 3}));
 }
 
-function testMappingMatchPattern24() {
-    map<string>|error v1 = {a: "str5", b: "str6", c: "str7"};
-    string result = "";
-    match v1 {
-        {a: "str1", b: "str2"} | {a: "str5", b: "str6", c: "str8"} => {
-            result = "Matched";
+function mappingMatchPattern24(anydata v) returns anydata {
+    match v {
+        {x: var a, y: var b} => {
+            return a;
         }
         _ => {
-            result = "Default";
+            return "No match";
         }
     }
-    assertEquals("Default", result);
+}
 
-    any|error v2 = error("SampleError");
-    result = "Not Matched";
-    match v2 {
-        {a: "str1", b: "str2"} => {
-            result = "Matched";
+function testMappingMatchPattern24() {
+    assertEquals(2, mappingMatchPattern24({x: 2, y: 3}));
+    assertEquals("No match", mappingMatchPattern24({x: 3, z: 3}));
+}
+
+function mappingMatchPattern25(anydata v) returns string {
+    match v {
+        {x: _, y: _} => {
+            return "matched x and y";
         }
-        _ => {
-            result = "Default";
+        var z => {
+            return "other";
         }
     }
-    assertEquals("Not Matched", result);
+}
+
+function testMappingMatchPattern25() {
+    assertEquals("matched x and y", mappingMatchPattern25({x: "abc", y: 1}));
+    assertEquals("matched x and y", mappingMatchPattern25({x: "abc", y: 1, z: "hello"}));
+    assertEquals("other", mappingMatchPattern25({a: "abc", b: 1}));
+    assertEquals("other", mappingMatchPattern25(1));
 }
 
 function assertEquals(anydata expected, anydata actual) {

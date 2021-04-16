@@ -570,6 +570,29 @@ public abstract class BIRNonTerminator extends BIRAbstractInstruction implements
     }
 
     /**
+     * New xml sequence instruction.
+     *
+     * @since 2.0.0
+     */
+    public static class NewXMLSequence extends BIRNonTerminator {
+
+        public NewXMLSequence(Location location, BIROperand lhsOp) {
+            super(location, InstructionKind.NEW_XML_SEQUENCE);
+            this.lhsOp = lhsOp;
+        }
+
+        @Override
+        public void accept(BIRVisitor visitor) {
+            visitor.visit(this);
+        }
+
+        @Override
+        public BIROperand[] getRhsOperands() {
+            return new BIROperand[0];
+        }
+    }
+
+    /**
      * New XML text instruction.
      *
      * @since 0.995.0

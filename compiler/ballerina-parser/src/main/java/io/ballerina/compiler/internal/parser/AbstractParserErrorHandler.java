@@ -112,6 +112,12 @@ public abstract class AbstractParserErrorHandler {
         }
 
         // Fail safe. This means we can't find a path to recover.
+        // TODO: enable assert
+        // assert itterCount == ITTER_LIMIT : "fail safe reached";
+        return getFailSafeSolution(currentCtx, nextToken);
+    }
+
+    private Solution getFailSafeSolution(ParserRuleContext currentCtx, STToken nextToken) {
         Solution sol = new Solution(Action.REMOVE, currentCtx, nextToken.kind, nextToken.toString());
         sol.removedToken = consumeInvalidToken();
         return sol;
@@ -554,6 +560,6 @@ public abstract class AbstractParserErrorHandler {
      * @since 1.2.0
      */
     protected enum Action {
-        INSERT, REMOVE, KEEP;
+        INSERT, REMOVE, KEEP
     }
 }

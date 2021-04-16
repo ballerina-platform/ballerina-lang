@@ -43,10 +43,12 @@ function stampTupleToJSON() returns json|error {
     return jsonValue;
 }
 
+type XmlType xml;
+
 function stampTupleToXML() returns xml|error {
     [string, string, string] tupleValue = ["Mohan", "single", "LK2014"];
 
-    xml|error xmlValue = tupleValue.cloneWithType(xml);
+    xml|error xmlValue = tupleValue.cloneWithType(XmlType);
     return xmlValue;
 }
 
