@@ -860,6 +860,54 @@ function testTypeCheckingOnAny() returns anydata {
     return ad;
 }
 
+function testRuntimeIsAnydata() {
+    any a = <(anydata|error)[]> [1, error("error!")];
+    any b = <(anydata|error)[]> [1];
+    any c = <[int, error]> [1, error("error!")];
+    any d = <[int, error...]> [1, error("error!")];
+    any e = <map<anydata|error>> {a: 1, b: error("error!")};
+    any f = <map<anydata|error>> {a: 1, b: "hello"};
+    any g = <record {anydata a; error e;}> {a: 1, e: error("error!")};
+    any h = <record {|anydata a; error...;|}> {a: 1};
+    any i = <record {anydata a; error e?;}> {a: 1};
+
+    assertFalse(a is anydata);
+    assertFalse(b is anydata);
+    assertFalse(c is anydata);
+    assertFalse(d is anydata);
+    assertFalse(e is anydata);
+    assertFalse(f is anydata);
+    assertFalse(g is anydata);
+    assertFalse(h is anydata);
+    assertFalse(i is anydata);
+
+    any a2 = <(anydata|error)[] & readonly> [1, 2];
+    any b2 = <anydata[]> [1];
+    any c2 = <[int]> [1];
+    any d2 = <[int, error...] & readonly> [1];
+    any e2 = <map<anydata|error> & readonly> {a: 1};
+    any f2 = <map<anydata>> {a: 1, b: "hello"};
+    any g2 = <record {anydata a; error e?;} & readonly> {a: 1};
+    any h2 = <record {|anydata a; error...;|} & readonly> {a: 1};
+
+    assertTrue(a2 is anydata);
+    assertTrue(b2 is anydata);
+    assertTrue(c2 is anydata);
+    assertTrue(d2 is anydata);
+    assertTrue(e2 is anydata);
+    assertTrue(f2 is anydata);
+    assertTrue(g2 is anydata);
+    assertTrue(h2 is anydata);
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertFalse(any|error actual) {
+    assertEquality(false, actual);
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

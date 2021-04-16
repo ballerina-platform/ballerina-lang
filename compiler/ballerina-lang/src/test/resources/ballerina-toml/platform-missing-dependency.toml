@@ -14,7 +14,7 @@ version = "0.7.2"
 groupId = "com.moandjiezana.toml"
 
 [[platform.java11]]
-path = "path/to/swagger.jar"
+path = "path/to/swagger.txt"
 artifactId = "swagger"
 version = "0.7.2"
 groupId = "swagger.io"

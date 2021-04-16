@@ -21,3 +21,12 @@ function testSimilarVariables() {
         [var a, [var a, 2]] => {} // same variable cannot repeat in a match pattern // redeclared symbol 'a'
     }
 }
+
+function testInvalidTypes((int|error)[][] a) {
+    match a {
+        [var p, ...var oth] if p is anydata => {
+            string[] m = p;
+            (int)[][] n = oth;
+        }
+    }
+}

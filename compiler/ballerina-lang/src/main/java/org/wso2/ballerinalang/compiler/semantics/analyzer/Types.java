@@ -100,7 +100,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -411,13 +410,6 @@ public class Types {
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
         }
-        if (matchExprType.tag == TypeTags.ANYDATA) {
-            Collections.fill(listBindingPatternType.tupleTypes, symTable.anydataType);
-            if (listBindingPatternType.restType != null) {
-                listBindingPatternType.restType = symTable.anydataType;
-            }
-            return listBindingPatternType;
-        }
         return symTable.noType;
     }
 
@@ -432,13 +424,6 @@ public class Types {
                 matchExprType, listMatchPatternType, env);
         if (intersectionType != symTable.semanticError) {
             return intersectionType;
-        }
-        if (matchExprType.tag == TypeTags.ANYDATA) {
-            Collections.fill(listMatchPatternType.tupleTypes, symTable.anydataType);
-            if (listMatchPatternType.restType != null) {
-                listMatchPatternType.restType = symTable.anydataType;
-            }
-            return listMatchPatternType;
         }
         return symTable.noType;
     }
@@ -3738,8 +3723,6 @@ public class Types {
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (type.tag == TypeTags.NULL_SET) {
-            return type;
         } else if (type.tag == TypeTags.MAP && lhsType.tag == TypeTags.MAP) {
             BType intersectionType = createRecordAndMapIntersection(intersectionContext,
                     type, lhsType, env);
@@ -3758,15 +3741,78 @@ public class Types {
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
+        } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.RECORD) {
+            BType intersectionType = createAnyDataAndRecordIntersection(intersectionContext, (BRecordType) lhsType,
+                    env);
+            if (intersectionType != symTable.semanticError) {
+                return intersectionType;
+            }
+        } else if (type.tag == TypeTags.RECORD && lhsType.tag == TypeTags.ANYDATA) {
+            BType intersectionType = createAnyDataAndRecordIntersection(intersectionContext, (BRecordType) type, env);
+            if (intersectionType != symTable.semanticError) {
+                return intersectionType;
+            }
+        } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.MAP) {
+            return getIntersection(intersectionContext, lhsType, env, symTable.mapAnydataType);
+        } else if (type.tag == TypeTags.MAP && lhsType.tag == TypeTags.ANYDATA) {
+            return getIntersection(intersectionContext, symTable.mapAnydataType, env, type);
+        } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.TUPLE) {
+            BType intersectionType = createAnyDataAndTupleIntersection(intersectionContext, (BTupleType) lhsType, env);
+            if (intersectionType != symTable.semanticError) {
+                return intersectionType;
+            }
+        } else if (type.tag == TypeTags.TUPLE && lhsType.tag == TypeTags.ANYDATA) {
+            BType intersectionType = createAnyDataAndTupleIntersection(intersectionContext, (BTupleType) type, env);
+            if (intersectionType != symTable.semanticError) {
+                return intersectionType;
+            }
+        } else if (type.tag == TypeTags.ANYDATA && lhsType.tag == TypeTags.ARRAY) {
+            BType elementIntersection = getIntersection(intersectionContext, ((BArrayType) lhsType).eType, env,
+                                                        symTable.anydataType);
+            if (elementIntersection == null) {
+                return elementIntersection;
+            }
+            return new BArrayType(elementIntersection);
+        } else if (type.tag == TypeTags.ARRAY && lhsType.tag == TypeTags.ANYDATA) {
+            BType elementIntersection = getIntersection(intersectionContext, symTable.anydataType, env,
+                                                        ((BArrayType) type).eType);
+            if (elementIntersection == null) {
+                return elementIntersection;
+            }
+            return new BArrayType(elementIntersection);
+        } else if (type.tag == TypeTags.NULL_SET) {
+            return type;
         }
         return null;
     }
 
+    private BType createAnyDataAndRecordIntersection(IntersectionContext intersectionContext, BRecordType recordType,
+                                                     SymbolEnv env) {
+        return createRecordAndMapIntersection(intersectionContext, recordType, symTable.mapAnydataType, env);
+    }
+
+    private BType createAnyDataAndTupleIntersection(IntersectionContext intersectionContext, BTupleType tupleType,
+                                                    SymbolEnv env) {
+        return createArrayAndTupleIntersection(intersectionContext, symTable.arrayAnydataType, tupleType, env);
+    }
+
     private BType createArrayAndTupleIntersection(IntersectionContext intersectionContext,
                                                   BArrayType arrayType, BTupleType tupleType, SymbolEnv env) {
+        List<BType> tupleTypes = tupleType.tupleTypes;
+        if (arrayType.state == BArrayState.CLOSED && tupleTypes.size() != arrayType.size) {
+            if (tupleTypes.size() > arrayType.size) {
+                return symTable.semanticError;
+            }
+
+            if (tupleType.restType == null) {
+                return symTable.semanticError;
+            }
+        }
+
         List<BType> tupleMemberTypes = new ArrayList<>();
-        for (BType memberType : tupleType.tupleTypes) {
-            BType intersectionType = getTypeIntersection(intersectionContext, memberType, arrayType.eType, env);
+        BType eType = arrayType.eType;
+        for (BType memberType : tupleTypes) {
+            BType intersectionType = getTypeIntersection(intersectionContext, memberType, eType, env);
             if (intersectionType == symTable.semanticError) {
                 return symTable.semanticError;
             }
@@ -3777,8 +3823,7 @@ public class Types {
             return new BTupleType(null, tupleMemberTypes);
         }
 
-        BType restIntersectionType = getTypeIntersection(intersectionContext,
-                tupleType.restType, arrayType.eType, env);
+        BType restIntersectionType = getTypeIntersection(intersectionContext, tupleType.restType, eType, env);
         if (restIntersectionType == symTable.semanticError) {
             return new BTupleType(null, tupleMemberTypes);
         }

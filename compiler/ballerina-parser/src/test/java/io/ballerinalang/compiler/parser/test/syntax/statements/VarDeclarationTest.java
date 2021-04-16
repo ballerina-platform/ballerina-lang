@@ -92,4 +92,14 @@ public class VarDeclarationTest extends AbstractStatementTest {
     public void testLocalVarDeclWithComplexTypeMissingVarName() {
         testFile("var-decl-stmt/local_var_decl_source_13.bal", "var-decl-stmt/local_var_decl_assert_13.json");
     }
+
+    @Test
+    public void testLocalVarDeclWithAnnotsOnly() {
+        testFile("var-decl-stmt/local_var_decl_source_14.bal", "var-decl-stmt/local_var_decl_assert_14.json");
+    }
+
+    @Test
+    public void testLocalVarDeclAtEOF() {
+        testFile("var-decl-stmt/local_var_decl_source_15.bal", "var-decl-stmt/local_var_decl_assert_15.json");
+    }
 }
