@@ -645,6 +645,10 @@ public class Types {
         int sourceTag = source.tag;
         int targetTag = target.tag;
 
+        if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source)) {
+            return true;
+        }
+
         if (!Symbols.isFlagOn(source.flags, Flags.PARAMETERIZED) &&
                 !isInherentlyImmutableType(target) && Symbols.isFlagOn(target.flags, Flags.READONLY) &&
                 !isInherentlyImmutableType(source) && isMutable(source)) {
@@ -3844,7 +3848,7 @@ public class Types {
 
     private BType getConstraint(BRecordType recordType) {
         if (recordType.sealed) {
-            return symTable.neverType;
+            return symTable.noType;
         }
 
         return recordType.restFieldType;

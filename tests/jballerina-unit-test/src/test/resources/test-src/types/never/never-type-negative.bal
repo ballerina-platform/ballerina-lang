@@ -12,10 +12,6 @@ function testAssignNeverReturnedFuncCall() {
     never x = functionWithNeverReturnType();
 }
 
-function testMisAssignNeverReturnedFuncCall() {
-    () x = functionWithNeverReturnType();
-}
-
 function testAssignAnyToNeverReturnedFuncCall() {
     any x = functionWithNeverReturnType();
 }
@@ -143,9 +139,6 @@ function testNeverInUnionTypedKeyConstraints() {
 
 //------------ Testing a never type assignment ---------
 function testNeverAssignment() {
-     never[] arr = [];
-     'xml:Text a = arr[0];
-     xml<never> b = arr[0];
      string empty = "";
      xml<never> c = xml `${empty}`;
      xml|'xml:Text d = xml ``;
