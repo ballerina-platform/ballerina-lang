@@ -1457,6 +1457,16 @@ public class BIRPackageSymbolEnter {
                     }
 
                     objectType.typeInclusions = readTypeInclusions();
+
+                    boolean mutable = inputStream.readByte() == 1;
+                    if (mutable) {
+                        objectType.mutableType = (BObjectType) readTypeFromCp();
+                    }
+                    boolean immutable = inputStream.readByte() == 1;
+                    if (immutable) {
+                        objectType.immutableType = (BIntersectionType) readTypeFromCp();
+                    }
+
                     objectType.typeIdSet = readTypeIdSet(inputStream);
 
                     Object poppedObjType = compositeStack.pop();
