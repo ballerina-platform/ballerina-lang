@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -159,12 +159,12 @@ public class ErrorUtils {
         }
     }
 
-    public static BString getErrorMessage(RuntimeErrorType runtimeErrors, Object... params) {
+    public static BString getErrorMessage(RuntimeErrorType errorType, Object... params) {
         return StringUtils.fromString(MessageFormat
-                .format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params));
+                .format(messageBundle.getString(errorType.getErrorMsgKey()), params));
     }
 
-    public static BMap<BString, Object> getErrorDetail(BString errMessage) {
+    private static BMap<BString, Object> getErrorDetail(BString errMessage) {
         BMap<BString, Object> errDetail = ValueCreator.createRecordValue(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                 RECORD_TYPE_NAME);
         errDetail.put(ERROR_MESSAGE_FIELD, errMessage);
