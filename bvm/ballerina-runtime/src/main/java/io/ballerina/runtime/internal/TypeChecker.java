@@ -98,7 +98,6 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_16;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_32;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_INT_UNSIGNED_8;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_JSON;
-import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NEVER;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_NULL;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_READONLY_JSON;
 import static io.ballerina.runtime.api.PredefinedTypes.TYPE_STRING;
