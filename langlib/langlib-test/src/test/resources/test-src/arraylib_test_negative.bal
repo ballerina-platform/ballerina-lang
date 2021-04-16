@@ -185,3 +185,16 @@ function testArrSortNegativeScenarios() {
         return val;
     });
 }
+
+function passThrough(int int1) returns int {
+    return int1;
+}
+
+function testLastIndexOf() {
+    (Person|error)[] personArray = [];
+    int? i1 = personArray.lastIndexOf(person1);
+    int? i2 = personArray.indexOf(person1);
+    function[] sd = [];
+    function (int) returns (int) d;
+    int? i3 = sd.indexOf(d);
+}

@@ -119,6 +119,7 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangMappingBindingP
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangNamedArgBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangRestBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangSimpleBindingPattern;
+import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBindingPattern;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
@@ -212,6 +213,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLNavigationAccess
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
@@ -365,6 +367,7 @@ public class Desugar extends BLangNodeVisitor {
     private QueryDesugar queryDesugar;
     private TransactionDesugar transactionDesugar;
     private ObservabilityDesugar observabilityDesugar;
+    private Code2CloudDesugar code2CloudDesugar;
     private AnnotationDesugar annotationDesugar;
     private Types types;
     private Names names;
@@ -433,6 +436,7 @@ public class Desugar extends BLangNodeVisitor {
         this.queryDesugar = QueryDesugar.getInstance(context);
         this.transactionDesugar = TransactionDesugar.getInstance(context);
         this.observabilityDesugar = ObservabilityDesugar.getInstance(context);
+        this.code2CloudDesugar = Code2CloudDesugar.getInstance(context);
         this.annotationDesugar = AnnotationDesugar.getInstance(context);
         this.types = Types.getInstance(context);
         this.names = Names.getInstance(context);
@@ -735,6 +739,8 @@ public class Desugar extends BLangNodeVisitor {
         }
         observabilityDesugar.addObserveInternalModuleImport(pkgNode);
         observabilityDesugar.addObserveModuleImport(pkgNode);
+
+        code2CloudDesugar.addCode2CloudModuleImport(pkgNode);
 
         createPackageInitFunctions(pkgNode, env);
         // Adding object functions to package level.
@@ -3469,7 +3475,8 @@ public class Desugar extends BLangNodeVisitor {
         NodeKind patternKind = matchPattern.getKind();
         switch (patternKind) {
             case WILDCARD_MATCH_PATTERN:
-                return createConditionForWildCardMatchPattern((BLangWildCardMatchPattern) matchPattern);
+                return createConditionForWildCardMatchPattern((BLangWildCardMatchPattern) matchPattern,
+                        matchExprVarRef);
             case CONST_MATCH_PATTERN:
                 return createConditionForConstMatchPattern((BLangConstPattern) matchPattern, matchExprVarRef);
             case VAR_BINDING_PATTERN_MATCH_PATTERN:
@@ -3488,14 +3495,21 @@ public class Desugar extends BLangNodeVisitor {
         }
     }
 
-    private BLangExpression createConditionForWildCardMatchPattern(BLangWildCardMatchPattern wildCardMatchPattern) {
-        return ASTBuilderUtil.createLiteral(wildCardMatchPattern.pos, symTable.booleanType,
-                wildCardMatchPattern.isLastPattern);
+    private BLangExpression createConditionForWildCardMatchPattern(BLangWildCardMatchPattern wildCardMatchPattern,
+                                                                   BLangSimpleVarRef matchExprVarRef) {
+        return createLiteral(wildCardMatchPattern.pos, symTable.booleanType,
+                types.isAssignable(matchExprVarRef.type, wildCardMatchPattern.type));
     }
 
     private BLangExpression createConditionForConstMatchPattern(BLangConstPattern constPattern,
                                                                 BLangSimpleVarRef matchExprVarRef) {
         return createBinaryExpression(constPattern.pos, matchExprVarRef, constPattern.expr);
+    }
+
+    private BLangExpression createConditionForWildCardBindingPattern(BLangWildCardBindingPattern wildCardBindingPattern,
+                                                                     BLangSimpleVarRef matchExprVarRef) {
+        return ASTBuilderUtil.createLiteral(wildCardBindingPattern.pos, symTable.booleanType,
+                types.isAssignable(matchExprVarRef.type, wildCardBindingPattern.type));
     }
 
     private BLangExpression createConditionForCaptureBindingPattern(BLangCaptureBindingPattern captureBindingPattern,
@@ -3594,7 +3608,7 @@ public class Desugar extends BLangNodeVisitor {
         NodeKind bindingPatternKind = bindingPattern.getKind();
         switch (bindingPatternKind) {
             case WILDCARD_BINDING_PATTERN:
-                return createConditionForWildCardBindingPattern(true, bindingPattern.pos);
+                return createConditionForWildCardBindingPattern((BLangWildCardBindingPattern) bindingPattern, varRef);
             case CAPTURE_BINDING_PATTERN:
                 return createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern, varRef);
             case LIST_BINDING_PATTERN:
@@ -3676,7 +3690,8 @@ public class Desugar extends BLangNodeVisitor {
 
         switch (bindingPattern.getKind()) {
             case WILDCARD_BINDING_PATTERN:
-                return createConditionForWildCardBindingPattern(varBindingPatternMatchPattern.matchesAll, pos);
+                return createConditionForWildCardBindingPattern((BLangWildCardBindingPattern) bindingPattern,
+                        matchExprVarRef);
             case CAPTURE_BINDING_PATTERN:
                 return createConditionForCaptureBindingPattern((BLangCaptureBindingPattern) bindingPattern,
                         matchExprVarRef, pos);
@@ -3693,10 +3708,6 @@ public class Desugar extends BLangNodeVisitor {
                 // TODO : Remove this after all patterns are implemented
                 return null;
         }
-    }
-
-    private BLangExpression createConditionForWildCardBindingPattern(boolean matchesAll, Location pos) {
-        return ASTBuilderUtil.createLiteral(pos, symTable.booleanType, matchesAll);
     }
 
     private BLangExpression createConditionForCaptureBindingPattern(BLangCaptureBindingPattern captureBindingPattern,
@@ -4138,7 +4149,7 @@ public class Desugar extends BLangNodeVisitor {
         NodeKind patternKind = matchPattern.getKind();
         switch (patternKind) {
             case WILDCARD_MATCH_PATTERN:
-                return createConditionForWildCardMatchPattern((BLangWildCardMatchPattern) matchPattern);
+                return createConditionForWildCardMatchPattern((BLangWildCardMatchPattern) matchPattern, varRef);
             case CONST_MATCH_PATTERN:
                 return createConditionForConstMatchPattern((BLangConstPattern) matchPattern, varRef);
             case VAR_BINDING_PATTERN_MATCH_PATTERN:
@@ -6758,6 +6769,14 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         result = xmlElementLiteral;
+    }
+
+    @Override
+    public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
+        for (BLangExpression xmlItem : xmlSequenceLiteral.xmlItems) {
+            rewriteExpr(xmlItem);
+        }
+        result = xmlSequenceLiteral;
     }
 
     @Override

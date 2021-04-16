@@ -94,7 +94,7 @@ public final class BallerinaUserHome {
         // If directory does not exists, create it
         if (Files.notExists(ballerinaUserHomeDirPath) || !Files.isDirectory(ballerinaUserHomeDirPath)) {
             try {
-                Files.createDirectory(ballerinaUserHomeDirPath);
+                Files.createDirectories(ballerinaUserHomeDirPath);
             } catch (IOException e) {
                 throw new ProjectException(
                         "Ballerina user home directory does not exists in '" + ballerinaUserHomeDirPath

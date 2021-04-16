@@ -1,0 +1,33 @@
+{
+  "packages": [
+    {
+      "org": "foo",
+      "name": "winery",
+      "version": "0.1.0",
+      "dependencies": []
+    }
+  ],
+  "modules": [
+    {
+      "org": "foo",
+      "package_name": "winery",
+      "version": "0.1.0",
+      "module_name": "winery.storage",
+      "dependencies": []
+    },
+    {
+      "org": "foo",
+      "package_name": "winery",
+      "version": "0.1.0",
+      "module_name": "winery.services",
+      "dependencies": []
+    },
+    {
+      "org": "foo",
+      "package_name": "winery",
+      "version": "0.1.0",
+      "module_name": "winery",
+      "dependencies": []
+    }
+  ]
+}

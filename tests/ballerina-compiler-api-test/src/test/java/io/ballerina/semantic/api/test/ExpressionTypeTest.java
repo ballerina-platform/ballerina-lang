@@ -154,7 +154,7 @@ public class ExpressionTypeTest {
         TypeSymbol type = getExprType(34, 20, 34, 34);
         assertEquals(type.typeKind(), MAP);
 
-        TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
+        TypeSymbol constraint = ((MapTypeSymbol) type).typeParam();
         assertEquals(constraint.typeKind(), STRING);
 
         assertType(34, 28, 34, 33, STRING);
@@ -188,7 +188,7 @@ public class ExpressionTypeTest {
         TypeSymbol type = getExprType(42, 13, 42, 40);
         assertEquals(type.typeKind(), MAP);
 
-        TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
+        TypeSymbol constraint = ((MapTypeSymbol) type).typeParam();
         assertEquals(constraint.typeKind(), JSON);
 
         // Disabled ones due to #26628

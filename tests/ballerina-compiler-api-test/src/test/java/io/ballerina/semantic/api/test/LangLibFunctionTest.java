@@ -34,6 +34,7 @@ import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -226,7 +227,7 @@ public class LangLibFunctionTest {
         ClassSymbol clazz = ((ClassSymbol) symbol);
         assertEquals(clazz.typeKind(), OBJECT);
 
-        List<String> expFunctions = List.of("toString", "toBalString", "ensureType");
+        List<String> expFunctions = Collections.emptyList();
         assertLangLibList(clazz.langLibMethods(), expFunctions);
     }
 

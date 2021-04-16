@@ -115,6 +115,7 @@ import org.ballerinalang.model.tree.expressions.UnaryExpressionNode;
 import org.ballerinalang.model.tree.expressions.XMLAttributeNode;
 import org.ballerinalang.model.tree.expressions.XMLCommentLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLElementLiteralNode;
+import org.ballerinalang.model.tree.expressions.XMLLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLProcessingInstructionLiteralNode;
 import org.ballerinalang.model.tree.expressions.XMLQNameNode;
 import org.ballerinalang.model.tree.expressions.XMLQuotedStringNode;
@@ -299,6 +300,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLElementLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLProcInsLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQuotedString;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLSequenceLiteral;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLTextLiteral;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
@@ -1032,6 +1034,10 @@ public class TreeBuilder {
 
     public static XMLTextLiteralNode createXMLTextLiteralNode() {
         return new BLangXMLTextLiteral();
+    }
+
+    public static XMLLiteralNode createXMLSequenceLiteralNode() {
+        return new BLangXMLSequenceLiteral();
     }
 
     public static XMLCommentLiteralNode createXMLCommentLiteralNode() {
