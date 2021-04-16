@@ -42,8 +42,7 @@
             <class name="io.ballerina.semantic.api.test.ServiceSemanticAPITest" />
 
             <class name="io.ballerina.semantic.api.test.allreferences.AnnotationRefsTest" />
-            <!--            The following is disabled due to https://github.com/ballerina-platform/ballerina-lang/issues/27049-->
-            <!--            <class name="io.ballerina.semantic.api.test.allreferences.FindModulePrefixRefsTest" />-->
+            <class name="io.ballerina.semantic.api.test.allreferences.FindModulePrefixRefsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsAcrossFilesTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInExprsTest" />
             <class name="io.ballerina.semantic.api.test.allreferences.FindRefsInLambdasTest" />
