@@ -138,8 +138,11 @@ function testNeverWithStartAction() {
 }
 
 function testNeverWithTrapExpr() returns error? {
-    error err = trap foo();
-    return err;
+    error err = trap foo(); // hello fddd
+    string exp = "Bad Sad!!";
+    if (err.message() != exp) {
+        panic error(string `Expected error message: ${exp}, found: ${err.message()}`);
+    }
 }
 
 function testNeverWithMethodCallExpr() {
