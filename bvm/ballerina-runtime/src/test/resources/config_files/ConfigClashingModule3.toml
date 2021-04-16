@@ -1,0 +1,7 @@
+[rootOrg.test_module.util.foo]
+intVar = 12
+stringVar = "apple"
+
+[myOrg.test_module.util.foo]
+intVar = 34
+stringVar = "orange"
