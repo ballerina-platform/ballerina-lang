@@ -239,7 +239,6 @@ public class BIRPackageSymbolEnter {
 
         // Define typeDescRef definitions.
         this.structureTypes = new ArrayList<>();
-
         defineSymbols(dataInStream, rethrow(this::defineTypeDef));
 
         // Define package level variables.
@@ -259,7 +258,6 @@ public class BIRPackageSymbolEnter {
         populateReferencedFunctions();
 
         this.typeReader = null;
-
         return this.env.pkgSymbol;
     }
 
