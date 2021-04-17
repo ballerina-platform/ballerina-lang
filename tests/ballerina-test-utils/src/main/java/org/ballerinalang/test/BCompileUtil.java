@@ -191,7 +191,7 @@ public class BCompileUtil {
     }
 
     private static void invokeModuleInit(CompileResult compileResult) {
-        if (compileResult.getDiagnostics().length > 0) {
+        if (compileResult.getErrorCount() != 0) {
             return;
         }
 

@@ -13,6 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+import ballerina/lang.value;
 
 function testDecimalToString() returns int {
     decimal res3 = 8;
@@ -66,7 +67,7 @@ class Person {
 
 function testObjectToString() returns int {
     Person p3 = new Person();
-    return p3.toString().length();
+    return value:toString(p3).length();
 }
 
 function testArrayValueToString() returns int {
