@@ -18,7 +18,7 @@ class ErrorField {
     public error 'error;
     public int 'int;
 
-    function init (error er, int value = 20) {
+    function init(error er, int value = 20) {
         self.'error = er;
         self.'int = value;
     }
@@ -33,7 +33,7 @@ public function testErrorAsObjectField() {
     assertEquality(p.'int, 20);
 }
 
-type ErrorDataWithErrorField record {
+public type ErrorDataWithErrorField record {
     error 'error;
 };
 
@@ -52,6 +52,28 @@ function testErrorConstructorWithErrorField() {
     assertEquality(errorInCtor.message(), "error as a detail");
 }
 
+function getError() returns error {
+    return error("Generated Error");
+}
+
+public function functionWithErrorNamedDefaultArgument(error 'error = getError()) {
+    assertEquality('error.message(), "Generated Error");
+}
+
+public function functionWithErrorNamedIncludedParam(*ErrorDataWithErrorField 'error) {
+    assertEquality('error.'error.message(), "Generated Error");
+}
+
+public function testErrorNamedDefaultArgument() {
+    functionWithErrorNamedDefaultArgument();
+}
+
+public function testErrorNamedIncludedParam() {
+    error newError = getError();
+    ErrorDataWithErrorField er = {'error: newError};
+    functionWithErrorNamedIncludedParam(er);
+}
+
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error actual, any|error expected) {
@@ -65,6 +87,6 @@ function assertEquality(any|error actual, any|error expected) {
 
     string expectedValAsString = expected is error ? expected.toString() : expected.toString();
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
-    panic error(ASSERTION_ERROR_REASON,
-                message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+    panic error(ASSERTION_ERROR_REASON, message =
+    "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

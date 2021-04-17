@@ -50,6 +50,16 @@ public class QuotedIdentifierTest {
         BRunUtil.invoke(errorTestCompileResult, "testErrorAsObjectField");
     }
 
+    @Test
+    public void testErrorNamedDefaultArgument() {
+        BRunUtil.invoke(errorTestCompileResult, "testErrorNamedDefaultArgument");
+    }
+
+    @Test
+    public void testErrorNamedIncludedParam() {
+        BRunUtil.invoke(errorTestCompileResult, "testErrorNamedIncludedParam");
+    }
+
     @AfterClass
     public void cleanup() {
         errorTestCompileResult = null;

@@ -3768,7 +3768,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
         boolean considerAsMemberSymbol = flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
-                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM);
+                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM) ||
+                flagSet.contains(Flag.INCLUDED);
 
         if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
