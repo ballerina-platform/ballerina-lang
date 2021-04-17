@@ -47,6 +47,8 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddCheckCodeAction extends TypeCastCodeAction {
 
+    public static final String NAME = "Add Check";
+
     public AddCheckCodeAction() {
         super();
         this.codeActionNodeTypes = Arrays.asList(CodeActionNodeType.LOCAL_VARIABLE,
@@ -87,5 +89,10 @@ public class AddCheckCodeAction extends TypeCastCodeAction {
                 positionDetails.matchedNode(), context));
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(
                 CommandConstants.ADD_CHECK_TITLE, edits, context.fileUri()));
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 }

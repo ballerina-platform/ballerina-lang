@@ -40,6 +40,9 @@ import java.util.regex.Matcher;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class MarkAsUntaintedCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "Mar As Untainted";
+
     /**
      * {@inheritDoc}
      */
@@ -70,6 +73,11 @@ public class MarkAsUntaintedCodeAction extends AbstractCodeActionProvider {
             return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, uri));
         }
         return new ArrayList<>();
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private String getContent(Document document, Range range) {
