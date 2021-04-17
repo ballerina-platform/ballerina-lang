@@ -571,25 +571,32 @@ public class ObjectInBalaTest {
         BRunUtil.invoke(result, "testObjectReferingNonAbstractObjLoadedFromBala");
     }
 
-//    @Test
-//    public void testObjectReferingTypeFromBalaNegative() {
-//        CompileResult result =
-//                BCompileUtil.compile("test-src/bala/test_bala/object/test_objects_type_reference_negative.bal");
-//        Assert.assertEquals(result.getErrorCount(), 5);
-//        int i = 0;
-//        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 13);
-//        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 13);
-//        BAssertUtil.validateError(result, i++,
-//                                  "no implementation found for the method 'getBonus' of class 'Manager2'",
-//                                  35, 1);
-//        BAssertUtil.validateError(result, i++,
-//                                  "no implementation found for the method 'getName' of class 'Manager2'",
-//                                  35, 1);
-//        BAssertUtil.validateError(result, i,
-//                                  "incompatible type reference 'foo:NormalPerson': a referenced object cannot have " +
-//                                          "non-public fields or methods",
-//                                  42, 6);
-//    }
+    @Test
+    public void testObjectReferingTypeFromBalaNegative() {
+        CompileResult result =
+                BCompileUtil.compile("test-src/bala/test_bala/object/test_objects_type_reference_negative.bal");
+        Assert.assertEquals(result.getErrorCount(), 8);
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "undefined field 'name' in object 'Manager1'", 25, 14);
+        BAssertUtil.validateError(result, i++, "undefined field 'age' in object 'Manager1'", 26, 14);
+        BAssertUtil.validateError(result, i++,
+                "no implementation found for the method 'getBonus' of class 'Manager2'",
+                35, 1);
+        BAssertUtil.validateError(result, i++,
+                "no implementation found for the method 'getName' of class 'Manager2'",
+                35, 1);
+        BAssertUtil.validateError(result, i++,
+                "mismatched visibility qualifiers for field 'dpt' with object type inclusion",
+                36, 5);
+        BAssertUtil.validateError(result, i++,
+                "incompatible type reference 'foo:NormalPerson': a referenced object cannot have " +
+                        "non-public fields or methods",
+                42, 6);
+        BAssertUtil.validateError(result, i++,
+                "no implementation found for the method 'getSalary' of class 'Emp'", 45, 1);
+        BAssertUtil.validateError(result, i,
+                "no implementation found for the method 'toString' of class 'FrameImpl'", 53, 1);
+    }
 
     @AfterClass
     public void tearDown() {
