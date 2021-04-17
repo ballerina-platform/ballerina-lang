@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -20,10 +20,10 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.ModuleXMLNamespaceDeclarationNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.Token;
-import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -39,20 +39,21 @@ import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
 /**
- * Completion provider for {@link XMLNamespaceDeclarationNode} context.
+ * Completion provider for {@link ModuleXMLNamespaceDeclarationNode} context.
  *
  * @since 2.0.0
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.completion.spi.BallerinaCompletionProvider")
-public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLNamespaceDeclarationNode> {
+public class ModuleXMLNamespaceDeclarationNodeContext extends
+        AbstractCompletionProvider<ModuleXMLNamespaceDeclarationNode> {
 
-    public XMLNSDeclarationNodeContext() {
-        super(XMLNamespaceDeclarationNode.class);
+    public ModuleXMLNamespaceDeclarationNodeContext() {
+        super(ModuleXMLNamespaceDeclarationNode.class);
     }
 
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
-                                                 XMLNamespaceDeclarationNode node) {
+                                                 ModuleXMLNamespaceDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
 
         if (this.onSuggestConstants(context, node)) {
@@ -79,7 +80,7 @@ public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLN
         return completionItems;
     }
 
-    private boolean onSuggestConstants(BallerinaCompletionContext context, XMLNamespaceDeclarationNode node) {
+    private boolean onSuggestConstants(BallerinaCompletionContext context, ModuleXMLNamespaceDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         Token xmlnsKeyword = node.xmlnsKeyword();
         Optional<Token> asKeyword = node.asKeyword();
@@ -90,12 +91,12 @@ public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLN
                 && (namespaceuri.isMissing() || cursor < namespaceuri.textRange().endOffset() + 1);
     }
 
-    private boolean onSuggestAsKeyword(BallerinaCompletionContext context, XMLNamespaceDeclarationNode node) {
+    private boolean onSuggestAsKeyword(BallerinaCompletionContext context, ModuleXMLNamespaceDeclarationNode node) {
         int cursor = context.getCursorPositionInTree();
         ExpressionNode namespaceuri = node.namespaceuri();
         Optional<Token> asKeyword = node.asKeyword();
 
-        return !namespaceuri.isMissing() && cursor >= namespaceuri.textRange().endOffset() + 1
+        return !namespaceuri.isMissing() && cursor > namespaceuri.textRange().endOffset()
                 && (asKeyword.isEmpty() || asKeyword.get().isMissing());
     }
 }
