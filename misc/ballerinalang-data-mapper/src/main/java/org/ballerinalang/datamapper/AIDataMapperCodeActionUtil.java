@@ -87,17 +87,17 @@ class AIDataMapperCodeActionUtil {
     private static final int MAXIMUM_CACHE_SIZE = 100;
     private static final int RIGHT_SYMBOL_INDEX = 1;
     private static final int LEFT_SYMBOL_INDEX = 0;
-    private static Cache<Integer, String> mappingCache =
+    private Cache<Integer, String> mappingCache =
             CacheBuilder.newBuilder().maximumSize(MAXIMUM_CACHE_SIZE).build();
-    private static HashMap<String, String> isOptionalMap = new HashMap<>();
-    private static HashMap<String, String> leftFieldMap = new HashMap<>();
-    private static HashMap<String, String> responseFieldMap = new HashMap<>();
-    private static HashMap<String, String> restFieldMap = new HashMap<>();
-    private static HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
-    private static HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
-    private static ArrayList<String> leftReadOnlyFields = new ArrayList<>();
-    private static ArrayList<String> rightSpecificFieldList = new ArrayList<>();
-    private static ArrayList<String> optionalRightRecordFields = new ArrayList<>();
+    private HashMap<String, String> isOptionalMap = new HashMap<>();
+    private HashMap<String, String> leftFieldMap = new HashMap<>();
+    private HashMap<String, String> responseFieldMap = new HashMap<>();
+    private HashMap<String, String> restFieldMap = new HashMap<>();
+    private HashMap<String, Map<String, RecordFieldSymbol>> spreadFieldMap = new HashMap<>();
+    private HashMap<String, String> spreadFieldResponseMap = new HashMap<>();
+    private ArrayList<String> leftReadOnlyFields = new ArrayList<>();
+    private ArrayList<String> rightSpecificFieldList = new ArrayList<>();
+    private ArrayList<String> optionalRightRecordFields = new ArrayList<>();
 
     private static final String SCHEMA = "schema";
     private static final String ID = "id";
@@ -107,6 +107,20 @@ class AIDataMapperCodeActionUtil {
     private static final String READONLY = "readonly";
     private static final String SIGNATURE = "signature";
 
+    //static member holds only one instance of the JDBCSingleton class.
+    private static AIDataMapperCodeActionUtil dataMapperCodeAction;
+
+    //JDBCSingleton prevents the instantiation from any other class.
+    private AIDataMapperCodeActionUtil() {
+    }
+
+    //Now we are providing global point of access.
+    public static AIDataMapperCodeActionUtil getInstance() {
+        if (dataMapperCodeAction == null) {
+            dataMapperCodeAction = new AIDataMapperCodeActionUtil();
+        }
+        return dataMapperCodeAction;
+    }
 
     /**
      * Returns the workspace edits for the automatic data mapping code action.
@@ -117,7 +131,7 @@ class AIDataMapperCodeActionUtil {
      * @return edits for the data mapper code action
      * @throws IOException throws if error occurred when getting generatedRecordMappingFunction
      */
-    static List<TextEdit> getAIDataMapperCodeActionEdits(DiagBasedPositionDetails positionDetails,
+    public List<TextEdit> getAIDataMapperCodeActionEdits(DiagBasedPositionDetails positionDetails,
                                                          CodeActionContext context, Diagnostic diagnostic)
             throws IOException {
         List<TextEdit> fEdits = new ArrayList<>();
@@ -337,7 +351,7 @@ class AIDataMapperCodeActionUtil {
         }
     }
 
-    public static Optional<Node> findExpressionInTypeCastNode(Range range, SyntaxTree syntaxTree) {
+    private Optional<Node> findExpressionInTypeCastNode(Range range, SyntaxTree syntaxTree) {
         TextDocument textDocument = syntaxTree.textDocument();
         Position rangeStart = range.getStart();
         Position rangeEnd = range.getEnd();
@@ -357,7 +371,7 @@ class AIDataMapperCodeActionUtil {
      * @param fileContentSymbols {@link List}
      * @return return the symbol
      */
-    public static Symbol findSymbol(List<TypeSymbol> fileContentSymbols) {
+    public Symbol findSymbol(List<TypeSymbol> fileContentSymbols) {
         for (Symbol symbol : fileContentSymbols) {
             if (!"ERROR".equals(symbol.getName().get())) {
                 return symbol;
@@ -377,7 +391,7 @@ class AIDataMapperCodeActionUtil {
      * @return function string with mapped schemas
      * @throws IOException throws if error occurred when getting mapped function
      */
-    private static String getGeneratedRecordMapping(CodeActionContext context, String foundTypeLeft,
+    private String getGeneratedRecordMapping(CodeActionContext context, String foundTypeLeft,
                                                     String foundTypeRight,
                                                     Symbol lftTypeSymbol, Symbol rhsTypeSymbol,
                                                     SyntaxTree syntaxTree, SemanticModel semanticModel)
@@ -394,20 +408,20 @@ class AIDataMapperCodeActionUtil {
             DataMapperNodeVisitor nodeVisitor = new DataMapperNodeVisitor(foundTypeRight);
             nodeVisitor.setModel(semanticModel);
             syntaxTree.rootNode().accept(nodeVisitor);
-            restFieldMap = nodeVisitor.restFields;
-            spreadFieldMap = nodeVisitor.spreadFields;
-            rightSpecificFieldList = nodeVisitor.specificFieldList;
+            this.restFieldMap = nodeVisitor.restFields;
+            this.spreadFieldMap = nodeVisitor.spreadFields;
+            this.rightSpecificFieldList = nodeVisitor.specificFieldList;
 
 
             Map<String, RecordFieldSymbol> rightSchemaFields = symbolList.get(0).fieldDescriptors();
             JsonObject rightSchema = (JsonObject) rightRecordToJSON(rightSchemaFields.values());
 
-            if (!restFieldMap.isEmpty()) {
+            if (!this.restFieldMap.isEmpty()) {
                 rightSchema = insertRestFields(rightSchema, foundTypeRight);
             }
 
-            if (!spreadFieldMap.isEmpty()) {
-                for (Map.Entry<String, Map<String, RecordFieldSymbol>> field : spreadFieldMap.entrySet()) {
+            if (!this.spreadFieldMap.isEmpty()) {
+                for (Map.Entry<String, Map<String, RecordFieldSymbol>> field : this.spreadFieldMap.entrySet()) {
                     JsonObject spreadFieldDetails = new JsonObject();
                     spreadFieldDetails.addProperty(ID, "dummy_id");
                     spreadFieldDetails.addProperty(TYPE, "ballerina_type");
@@ -424,7 +438,7 @@ class AIDataMapperCodeActionUtil {
             Map<String, Object> rightSchemaMap = new Gson().fromJson(rightSchema,
                     new TypeToken<HashMap<String, Object>>() {
                     }.getType());
-            isOptionalMap.clear();
+            this.isOptionalMap.clear();
             generateOptionalMap(rightSchemaMap, foundTypeRight);
 
 
@@ -439,7 +453,7 @@ class AIDataMapperCodeActionUtil {
             Map<String, Object> leftSchemaMap = new Gson().fromJson(leftSchema,
                     new TypeToken<HashMap<String, Object>>() {
                     }.getType());
-            leftFieldMap.clear();
+            this.leftFieldMap.clear();
             getLeftFields(leftSchemaMap, "");
         }
         JsonArray schemas = new JsonArray();
@@ -448,9 +462,9 @@ class AIDataMapperCodeActionUtil {
         return getMapping(schemas, context);
     }
 
-    private static JsonObject insertRestFields(JsonObject rightSchema, String foundTypeRight) {
+    private JsonObject insertRestFields(JsonObject rightSchema, String foundTypeRight) {
         // Added to get the rest fields
-        HashMap<String, String> tempRestFieldMap = new HashMap<>(restFieldMap);
+        HashMap<String, String> tempRestFieldMap = new HashMap<>(this.restFieldMap);
         Set<Map.Entry<String, String>> entrySet = tempRestFieldMap.entrySet();
         for (Map.Entry<String, String> restField : entrySet) {
             JsonObject fieldDetails = new JsonObject();
@@ -458,14 +472,14 @@ class AIDataMapperCodeActionUtil {
             fieldDetails.addProperty(TYPE, restField.getValue());
             fieldDetails.addProperty(OPTIONAL, false);
             rightSchema.add(restField.getKey(), fieldDetails);
-            restFieldMap.put(foundTypeRight.toLowerCase() + "." + restField.getKey(),
-                    restFieldMap.remove(restField.getKey()));
+            this.restFieldMap.put(foundTypeRight.toLowerCase() + "." + restField.getKey(),
+                    this.restFieldMap.remove(restField.getKey()));
         }
         return rightSchema;
     }
 
 
-    private static void generateOptionalMap(Map<String, Object> rightSchemaMap, String foundTypeRight) {
+    private void generateOptionalMap(Map<String, Object> rightSchemaMap, String foundTypeRight) {
         for (Map.Entry<String, Object> field : rightSchemaMap.entrySet()) {
             StringBuilder optionalKey = new StringBuilder(foundTypeRight.toLowerCase());
             if (!(((LinkedTreeMap) field.getValue()).containsKey(OPTIONAL))) {
@@ -475,14 +489,15 @@ class AIDataMapperCodeActionUtil {
             } else if ((boolean) ((LinkedTreeMap) field.getValue()).get(OPTIONAL) |
                     (checkForOptionalRecordField(optionalKey.toString()) > 0)) {
                 optionalKey.append(".").append(field.getKey());
-                isOptionalMap.put(optionalKey.toString(), ((LinkedTreeMap) field.getValue()).get(SIGNATURE).toString());
+                this.isOptionalMap.put(optionalKey.toString(), ((LinkedTreeMap) field.getValue()).get(SIGNATURE).
+                        toString());
             }
         }
     }
 
 
-    private static int checkForOptionalRecordField(String optionalKey) {
-        for (String recordRecordField : optionalRightRecordFields) {
+    private int checkForOptionalRecordField(String optionalKey) {
+        for (String recordRecordField : this.optionalRightRecordFields) {
             if (optionalKey.contains(recordRecordField)) {
                 return optionalKey.indexOf(recordRecordField);
             }
@@ -490,7 +505,7 @@ class AIDataMapperCodeActionUtil {
         return -1;
     }
 
-    private static void getLeftFields(Map<String, Object> leftSchemaMap, String fieldName) {
+    private void getLeftFields(Map<String, Object> leftSchemaMap, String fieldName) {
         for (Map.Entry<String, Object> field : leftSchemaMap.entrySet()) {
             StringBuilder fieldKey = new StringBuilder();
             if (!fieldName.isEmpty()) {
@@ -502,9 +517,9 @@ class AIDataMapperCodeActionUtil {
                         fieldKey.toString());
             } else {
                 fieldKey.append(field.getKey());
-                leftFieldMap.put(fieldKey.toString(), ((LinkedTreeMap) field.getValue()).get(TYPE).toString());
+                this.leftFieldMap.put(fieldKey.toString(), ((LinkedTreeMap) field.getValue()).get(TYPE).toString());
                 if ((((LinkedTreeMap) field.getValue()).get(READONLY)).toString().contains("true")) {
-                    leftReadOnlyFields.add(field.getKey());
+                    this.leftReadOnlyFields.add(field.getKey());
                 }
             }
         }
@@ -516,7 +531,7 @@ class AIDataMapperCodeActionUtil {
      * @param key          {@link String}
      * @param schemaFields {@link List<RecordFieldSymbol>}
      */
-    private static void getSpreadFieldDetails(String key, Collection<RecordFieldSymbol> schemaFields) {
+    private void getSpreadFieldDetails(String key, Collection<RecordFieldSymbol> schemaFields) {
         Iterator iterator = schemaFields.iterator();
         while (iterator.hasNext()) {
             RecordFieldSymbol attribute = (RecordFieldSymbol) iterator.next();
@@ -549,7 +564,7 @@ class AIDataMapperCodeActionUtil {
                     }
                 }
             } else {
-                spreadFieldResponseMap.put(key + attribute.getName().get(), attributeType.typeKind().getName());
+                this.spreadFieldResponseMap.put(key + attribute.getName().get(), attributeType.typeKind().getName());
                 if (!iterator.hasNext()) {
                     key = "";
                 }
@@ -557,7 +572,7 @@ class AIDataMapperCodeActionUtil {
         }
     }
 
-    private static void getResponseKeys(Map<String, Object> leftSchemaMap, String keyName) {
+    private void getResponseKeys(Map<String, Object> leftSchemaMap, String keyName) {
         for (Map.Entry<String, Object> field : leftSchemaMap.entrySet()) {
             StringBuilder fieldKey = new StringBuilder();
             LinkedTreeMap linkedTreeMap = null;
@@ -573,7 +588,7 @@ class AIDataMapperCodeActionUtil {
             if (linkedTreeMap != null) {
                 getResponseKeys((Map<String, Object>) linkedTreeMap, fieldKey.toString());
             } else {
-                responseFieldMap.put(fieldKey.toString(), field.getValue().toString());
+                this.responseFieldMap.put(fieldKey.toString(), field.getValue().toString());
             }
         }
     }
@@ -585,14 +600,14 @@ class AIDataMapperCodeActionUtil {
      * @return mapped function
      * @throws IOException throws if an error occurred in HTTP request
      */
-    private static String getMapping(JsonArray schemas, CodeActionContext context) throws IOException {
+    private String getMapping(JsonArray schemas, CodeActionContext context) throws IOException {
         int hashCode = schemas.hashCode();
-        if (mappingCache.asMap().containsKey(hashCode)) {
-            return mappingCache.asMap().get(hashCode);
+        if (this.mappingCache.asMap().containsKey(hashCode)) {
+            return this.mappingCache.asMap().get(hashCode);
         }
         try {
             String mappingFromServer = getMappingFromServer(schemas, context.languageServercontext());
-            mappingCache.put(hashCode, mappingFromServer);
+            this.mappingCache.put(hashCode, mappingFromServer);
             return mappingFromServer;
         } catch (IOException e) {
             throw new IOException("Error connecting the AI service" + e.getMessage(), e);
@@ -605,19 +620,19 @@ class AIDataMapperCodeActionUtil {
      * @param schemaFields {@link List<RecordFieldSymbol>}
      * @return Field symbol properties
      */
-    private static JsonElement rightRecordToJSON(Collection<RecordFieldSymbol> schemaFields) {
+    private JsonElement rightRecordToJSON(Collection<RecordFieldSymbol> schemaFields) {
         JsonObject properties = new JsonObject();
         for (RecordFieldSymbol attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
             // check if an optional field doesn't have a value
-            if (attribute.isOptional() && !rightSpecificFieldList.contains(attribute.getName().get())) {
+            if (attribute.isOptional() && !this.rightSpecificFieldList.contains(attribute.getName().get())) {
                 continue;
             }
             fieldDetails.addProperty(ID, "dummy_id");
             TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
             if (attributeType.typeKind() == TypeDescKind.RECORD) {
                 if (attribute.isOptional()) {
-                    optionalRightRecordFields.add(attribute.getName().get());
+                    this.optionalRightRecordFields.add(attribute.getName().get());
                 }
                 Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
                 fieldDetails.addProperty(TYPE, "ballerina_type");
@@ -632,7 +647,7 @@ class AIDataMapperCodeActionUtil {
                                 typeDescriptor();
                         if (attributeTypeRecord.typeKind() == TypeDescKind.RECORD) {
                             if (attribute.isOptional()) {
-                                optionalRightRecordFields.add(attribute.getName().get());
+                                this.optionalRightRecordFields.add(attribute.getName().get());
                             }
                             Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeTypeRecord).
                                     fieldDescriptors();
@@ -658,7 +673,7 @@ class AIDataMapperCodeActionUtil {
      * @param schemaFields {@link List<RecordFieldSymbol>}
      * @return Field symbol properties
      */
-    private static JsonElement leftRecordToJSON(Collection<RecordFieldSymbol> schemaFields) {
+    private JsonElement leftRecordToJSON(Collection<RecordFieldSymbol> schemaFields) {
         JsonObject properties = new JsonObject();
         for (RecordFieldSymbol attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
@@ -722,7 +737,7 @@ class AIDataMapperCodeActionUtil {
      * @return - response data from the Data Mapper service
      * @throws IOException If an error occurs in the Data Mapper service
      */
-    private static String getMappingFromServer(JsonArray dataToSend,
+    private String getMappingFromServer(JsonArray dataToSend,
                                                LanguageServerContext serverContext) throws IOException {
         try {
             Map<String, String> headers = new HashMap<>();
@@ -759,7 +774,7 @@ class AIDataMapperCodeActionUtil {
      * @param syntaxTree
      * @return - Generated mapping Function
      */
-    private static String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
+    private String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
                                                   String foundTypeRight, String leftModule, String rightModule,
                                                   String rhsSignature, SyntaxTree syntaxTree) {
 
@@ -778,28 +793,28 @@ class AIDataMapperCodeActionUtil {
 
 
         // change the generated mapping function to be compatible with spread fields.
-        if (!spreadFieldMap.isEmpty()) {
-            for (Map.Entry<String, Map<String, RecordFieldSymbol>> field : spreadFieldMap.entrySet()) {
+        if (!this.spreadFieldMap.isEmpty()) {
+            for (Map.Entry<String, Map<String, RecordFieldSymbol>> field : this.spreadFieldMap.entrySet()) {
                 if (mappingFromServer.contains("." + field.getKey() + ".")) {
                     getSpreadFieldDetails("", field.getValue().values());
 
                     String commonString = foundTypeRight.toLowerCase() + "." + field.getKey() + ".";
 
-                    for (Map.Entry<String, String> spreadField : spreadFieldResponseMap.entrySet()) {
+                    for (Map.Entry<String, String> spreadField : this.spreadFieldResponseMap.entrySet()) {
                         String targetString = commonString + spreadField.getKey();
                         String replaceString = "<" + spreadField.getValue() + "> " + foundTypeRight.toLowerCase() +
                                 "[\"" + spreadField.getKey() + "\"]";
                         mappingFromServer = mappingFromServer.replace(targetString, replaceString);
                     }
                 }
-                spreadFieldResponseMap.clear();
+                this.spreadFieldResponseMap.clear();
             }
-            spreadFieldMap.clear();
+            this.spreadFieldMap.clear();
         }
 
         // change the generated mapping function to be compatible with optional fields.
-        if (!isOptionalMap.isEmpty()) {
-            for (Map.Entry<String, String> field : isOptionalMap.entrySet()) {
+        if (!this.isOptionalMap.isEmpty()) {
+            for (Map.Entry<String, String> field : this.isOptionalMap.entrySet()) {
                 if (mappingFromServer.contains(field.getKey() + ",") ||
                         mappingFromServer.contains(field.getKey() + "}")) {
 
@@ -829,8 +844,8 @@ class AIDataMapperCodeActionUtil {
         }
 
         // change the generated mapping function to be compatible with rest fields.
-        if (!restFieldMap.isEmpty()) {
-            for (Map.Entry<String, String> field : restFieldMap.entrySet()) {
+        if (!this.restFieldMap.isEmpty()) {
+            for (Map.Entry<String, String> field : this.restFieldMap.entrySet()) {
                 if (mappingFromServer.contains(field.getKey() + ",") ||
                         mappingFromServer.contains(field.getKey() + "}")) {
                     int i = field.getKey().lastIndexOf(".");
@@ -840,11 +855,11 @@ class AIDataMapperCodeActionUtil {
                             field.getValue() + "> " + replacement);
                 }
             }
-            restFieldMap.clear();
+            this.restFieldMap.clear();
         }
 
-        if (!leftReadOnlyFields.isEmpty()) {
-            for (String readOnlyField : leftReadOnlyFields) {
+        if (!this.leftReadOnlyFields.isEmpty()) {
+            for (String readOnlyField : this.leftReadOnlyFields) {
                 if (mappingFromServer.contains(readOnlyField + ":")) {
                     String[] splitArray = mappingFromServer.split(readOnlyField + ":");
                     int inputIndex = splitArray[1].indexOf(",");
@@ -853,7 +868,7 @@ class AIDataMapperCodeActionUtil {
                     int i = 0;
                 }
             }
-            leftReadOnlyFields.clear();
+            this.leftReadOnlyFields.clear();
         }
 
         //To generate the default values
@@ -863,12 +878,12 @@ class AIDataMapperCodeActionUtil {
                     new TypeToken<HashMap<String, Object>>() {
                     }.getType());
             getResponseKeys(responseMap, "");
-            HashSet<String> unionKeys = new HashSet<>(responseFieldMap.keySet());
-            unionKeys.addAll(leftFieldMap.keySet());
-            unionKeys.removeAll(responseFieldMap.keySet());
+            HashSet<String> unionKeys = new HashSet<>(this.responseFieldMap.keySet());
+            unionKeys.addAll(this.leftFieldMap.keySet());
+            unionKeys.removeAll(this.responseFieldMap.keySet());
             if (!unionKeys.isEmpty()) {
                 for (String key : unionKeys) {
-                    String defaultValue = generateDefaultValues(leftFieldMap.get(key)).toString();
+                    String defaultValue = generateDefaultValues(this.leftFieldMap.get(key)).toString();
                     mappingFromServer = generateResponseWithDefaultValues(key, defaultValue, mappingFromServer);
                 }
             }
@@ -876,11 +891,11 @@ class AIDataMapperCodeActionUtil {
             // Safe to ignore
         }
 
-        leftFieldMap.clear();
-        responseFieldMap.clear();
-        optionalRightRecordFields.clear();
-        rightSpecificFieldList.clear();
-        isOptionalMap.clear();
+        this.leftFieldMap.clear();
+        this.responseFieldMap.clear();
+        this.optionalRightRecordFields.clear();
+        this.rightSpecificFieldList.clear();
+        this.isOptionalMap.clear();
 
         if (leftModule != null) {
             leftType = leftModule + ":" + foundTypeLeft;
@@ -905,7 +920,7 @@ class AIDataMapperCodeActionUtil {
      * @param rhsTypeSymbol {@link String}
      * @return - Type casted symbol list
      */
-    private static List<RecordTypeSymbol> checkMappingCapability(Symbol lftTypeSymbol, Symbol rhsTypeSymbol) {
+    private List<RecordTypeSymbol> checkMappingCapability(Symbol lftTypeSymbol, Symbol rhsTypeSymbol) {
 
         ArrayList<RecordTypeSymbol> symbolArrayList = new ArrayList<>();
         // rhs Schema
@@ -932,7 +947,7 @@ class AIDataMapperCodeActionUtil {
         return symbolArrayList;
     }
 
-    private static String generateResponseWithDefaultValues(String key, String defaultValue, String mappingFromServer) {
+    private String generateResponseWithDefaultValues(String key, String defaultValue, String mappingFromServer) {
         if (key.contains(".")) {
             StringBuilder insertString = new StringBuilder();
             String[] keyArray = key.split("\\.");

@@ -42,7 +42,7 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static org.ballerinalang.datamapper.AIDataMapperCodeActionUtil.getAIDataMapperCodeActionEdits;
+//import static org.ballerinalang.datamapper.AIDataMapperCodeActionUtil.getAIDataMapperCodeActionEdits;
 
 /**
  * Code Action provider for automatic data mapping.
@@ -97,7 +97,9 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                 action.setKind(CodeActionKind.QuickFix);
 
                 String uri = context.fileUri();
-                List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(positionDetails, context, diagnostic);
+                AIDataMapperCodeActionUtil dataMapperUtil = AIDataMapperCodeActionUtil.getInstance();
+                List<TextEdit> fEdits = dataMapperUtil.getAIDataMapperCodeActionEdits(positionDetails, context,
+                        diagnostic);
                 if (fEdits.isEmpty()) {
                     return Optional.empty();
                 }
