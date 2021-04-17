@@ -1,3 +1,3 @@
-[myOrg.test_module]
+[myOrg.mod]
 intVar = 4.25
 stringVar = false

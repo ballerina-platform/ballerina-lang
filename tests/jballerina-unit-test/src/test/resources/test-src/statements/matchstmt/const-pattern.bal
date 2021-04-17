@@ -532,6 +532,74 @@ public function testConstPattern17() {
     assertEquals(4, constPattern17(5));
 }
 
+function testConstPattern18() {
+    string result = "";
+    any|error a = 12;
+    match a {
+        1 | 2 => {
+            result = "1|2";
+        }
+        3 | 4 => {
+            result = "3|4";
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Default", result);
+
+    string|error b = "John";
+    match b {
+        "Kate" | "Anne" => {
+            result = "1|2";
+        }
+        "James" => {
+            result = "3|4";
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Default", result);
+
+    any|error c = error("SimpleError");
+    result = "Not matched";
+    match c {
+        "Kate" | "Anne" => {
+            result = "1|2";
+        }
+        "James" => {
+            result = "3|4";
+        }
+        _ => {
+            result = "Default";
+        }
+    }
+    assertEquals("Not matched", result);
+
+    string|boolean|int|error d = "Ballerina";
+    result = "";
+    match d {
+        12 => {
+            result = "int value 1";
+        }
+        "Hello" => {
+            result = "string value 1";
+        }
+        _ => {
+            match d {
+                34 => {
+                    result = "int value 2";
+                }
+                _ => {
+                    result = "Default";
+                }
+            }
+        }
+    }
+    assertEquals("Default", result);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

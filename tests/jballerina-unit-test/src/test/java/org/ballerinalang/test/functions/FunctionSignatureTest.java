@@ -460,6 +460,11 @@ public class FunctionSignatureTest {
         BRunUtil.invoke(result, "testFunctionOfFunctionTypedParamWithRest2");
     }
 
+    @Test(description = "Test function with actual never return")
+    public void testFuncWithActualNeverReturn() {
+        BRunUtil.invoke(result, "testFuncWithActualNeverReturn");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
