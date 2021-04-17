@@ -355,14 +355,17 @@ public function testQueryWithStream() returns boolean {
 }
 
 
-public function testQueryStreamWithError() returns int[]|error {
+public function testQueryStreamWithError() {
     NumberGeneratorWithError numGen = new;
     var numberStream = new stream<int, error>(numGen);
 
     int[]|error oddNumberList = from int num in numberStream
                                 where (num % 2 == 1)
                                 select num;
-    return oddNumberList;
+    if (oddNumberList is error) {
+        return;
+    }
+    panic error("Expeted error, found: " + (typeof oddNumberList).toString());
 }
 
 function testOthersAssociatedWithRecordTypes() returns Teacher1[]{

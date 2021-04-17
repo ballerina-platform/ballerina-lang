@@ -132,14 +132,34 @@ function testNeverWithCallStmt() {
     _ = foo();
 }
 
-function testNeverWithStartAction() {
+function testNeverWithStartAction1() {
     future<never> f = start foo();
-    any result = wait f;
+    any|error result = trap wait f;
+    assertEquality(true, result is error);
+    if (result is error) {
+        assertEquality("Bad Sad!!", result.message());
+    }
 }
 
-function testNeverWithTrapExpr() returns error? {
+function testNeverWithStartAction2() {
+    Bar bar = new (12);
+    future<never> f = start bar.barFunc();
+    any|error result = trap wait f;
+    assertEquality(true, result is error);
+    if (result is error) {
+        assertEquality("Bad Sad!!", result.message());
+    }
+}
+
+function testNeverWithTrapExpr1() {
     error err = trap foo();
-    return err;
+    assertEquality("Bad Sad!!", err.message());
+}
+
+function testNeverWithTrapExpr2() {
+    Bar bar = new (12);
+    error err = trap bar.barFunc();
+    assertEquality("Bad Sad!!", err.message());
 }
 
 function testNeverWithMethodCallExpr() {
@@ -198,7 +218,7 @@ function testNeverWithIterator5() {
     assertEquality((), y);
 }
 
-type Bunny record{|
+type Bunny record {|
     string name;
 |};
 
@@ -331,7 +351,7 @@ type RestRecord record {|
 |};
 
 function testNeverWithRestParamsAndFields() {
-    RestRecord x = {someName:"ABC"};
+    RestRecord x = {someName: "ABC"};
     var y = testNeverWithRestParams({});
 }
 
@@ -345,6 +365,64 @@ function testNeverWithServiceObjFunc() {
             panic e;
         }
     };
+}
+
+function testNeverSubtyping() {
+    ()|error x1 = trap foo();
+    assertEquality(true, x1 is error);
+    if (x1 is error) {
+        assertEquality("Bad Sad!!", x1.message());
+    }
+
+    int|error x2 = trap blowUp1();
+    assertEquality(true, x2 is error);
+    if (x2 is error) {
+        assertEquality("Bad Sad!!", x2.message());
+    }
+
+    int|error x3 = trap blowUp2();
+    assertEquality(true, x3 is error);
+    if (x3 is error) {
+        assertEquality("Bad Sad!!", x3.message());
+    }
+
+    error? x4 = trap blowUp2();
+    assertEquality(true, x4 is error);
+    if (x4 is error) {
+        assertEquality("Bad Sad!!", x4.message());
+    }
+
+    int|error x5 = trap blowUp3();
+    assertEquality(true, x5 is error);
+    if (x5 is error) {
+        assertEquality("Bad Sad!!", x5.message());
+    }
+}
+
+function blowUp1() returns int {
+    panic error("Bad Sad!!");
+}
+
+function blowUp2() returns never {
+    panic error("Bad Sad!!");
+}
+
+function blowUp3() returns int|never {
+    panic error("Bad Sad!!");
+}
+
+function testValidNeverReturnFuncAssignment() {
+    function () returns record {| never val; |} rec = foo;
+    never|error err = trap rec().val;
+    assertEquality("Bad Sad!!", err.message());
+}
+
+function testValidNeverReturnFuncAssignment2() {
+    function () returns never x = bar;
+}
+
+function bar() returns record {| never x; |} {
+    panic error("error!");
 }
 
 type AssertionError distinct error;

@@ -48,6 +48,8 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
 
+    public static final String NAME = "Update Documentation";
+
     @Override
     public int priority() {
         return 998;
@@ -107,5 +109,10 @@ public class UpdateDocumentationCodeAction extends AbstractCodeActionProvider {
                                       args);
         action.setCommand(command);
         return Collections.singletonList(action);
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 }

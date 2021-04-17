@@ -1,0 +1,15 @@
+[rootOrg.test_module]
+intVar = 111
+stringVar = "one"
+
+[rootOrg.test_module.util.foo]
+intVar = 222
+stringVar = "two"
+
+[test_module.util.foo]
+intVar = 333
+stringVar = "three"
+
+[myOrg.mod12]
+intVar = 444
+stringVar = "four"

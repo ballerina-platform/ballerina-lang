@@ -54,6 +54,7 @@ under the License.
             <class name="org.ballerinalang.langserver.workspace.TestWorkspaceManager" />
             <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeByRangeTest" />
             <class name="org.ballerinalang.langserver.extensions.document.SyntaxTreeLocateTest" />
+            <class name="org.ballerinalang.langserver.extensions.document.SyntaxApiCallsGenTest" />
         </classes>
     </test>
 </suite>

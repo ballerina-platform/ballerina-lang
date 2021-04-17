@@ -295,4 +295,9 @@ public class AnydataTest {
         assertEquals(rets.getRefValue(6).stringValue(), "{a:15}");
         assertEquals(rets.getRefValue(7).stringValue(), "{ca:15}");
     }
+
+    @Test
+    public void testRuntimeIsAnydata() {
+        BRunUtil.invokeFunction(result, "testRuntimeIsAnydata");
+    }
 }
