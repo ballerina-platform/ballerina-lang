@@ -3497,8 +3497,16 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createConditionForWildCardMatchPattern(BLangWildCardMatchPattern wildCardMatchPattern,
                                                                    BLangSimpleVarRef matchExprVarRef) {
-        return createLiteral(wildCardMatchPattern.pos, symTable.booleanType,
+        BLangExpression lhsCheck = createLiteral(wildCardMatchPattern.pos, symTable.booleanType,
                 types.isAssignable(matchExprVarRef.type, wildCardMatchPattern.type));
+
+        BLangValueType anyType = (BLangValueType) TreeBuilder.createValueTypeNode();
+        anyType.type = symTable.anyType;
+        anyType.typeKind = TypeKind.ANY;
+        BLangExpression rhsCheck = createTypeCheckExpr(wildCardMatchPattern.pos, matchExprVarRef, anyType);
+
+        return ASTBuilderUtil.createBinaryExpr(wildCardMatchPattern.pos, lhsCheck, rhsCheck,
+                symTable.booleanType, OperatorKind.OR, null);
     }
 
     private BLangExpression createConditionForConstMatchPattern(BLangConstPattern constPattern,
@@ -6527,6 +6535,35 @@ public class Desugar extends BLangNodeVisitor {
 
         if (rhsExprTypeTag == TypeTags.FLOAT) {
             binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.rhsExpr.type);
+            return;
+        }
+
+        if (binaryExpr.opKind == OperatorKind.LESS_THAN || binaryExpr.opKind == OperatorKind.LESS_EQUAL ||
+                binaryExpr.opKind == OperatorKind.GREATER_THAN || binaryExpr.opKind == OperatorKind.GREATER_EQUAL) {
+            if (TypeTags.isIntegerTypeTag(lhsExprTypeTag)) {
+                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+                return;
+            }
+
+            if (TypeTags.isIntegerTypeTag(rhsExprTypeTag)) {
+                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+                return;
+            }
+
+            if (lhsExprTypeTag == TypeTags.BYTE || rhsExprTypeTag == TypeTags.BYTE) {
+                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+                return;
+            }
+
+            if (TypeTags.isStringTypeTag(lhsExprTypeTag)) {
+                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
+                return;
+            }
+
+            if (TypeTags.isStringTypeTag(rhsExprTypeTag)) {
+                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
+            }
         }
     }
 

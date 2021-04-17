@@ -1,0 +1,7 @@
+[rootOrg.test_module]
+intVar = 100
+stringVar = "aaa"
+
+[test_module.util]
+intVar = 200
+stringVar = "bbb"

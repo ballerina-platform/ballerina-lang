@@ -14,36 +14,36 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function main(int i, string s, boolean b1, boolean b2) {
+public function main(int i, string s, float b1, float b2) {
     string untaintedS = <@untainted> s;
     assertEquals(bar(<@untainted> i, untaintedS), "1.str");
 
-    assertEquals(bar(<@untainted> i, untaintedS, <@untainted> b1, <@untainted> b2), "1.strtruefalse");
+    assertEquals(bar(<@untainted> i, untaintedS, <@untainted> b1, <@untainted> b2), "1.str1.0 0.0 ");
 
-    boolean[] bArr = [b1, b2];
-    assertEquals(bar(<@untainted> i, <@untainted> s, ...<@untainted> bArr), "1.strtruefalse");
+    float[] bArr = [b1, b2];
+    assertEquals(bar(<@untainted> i, <@untainted> s, ...<@untainted> bArr), "1.str1.0 0.0 ");
 
-    assertEquals(bar(<@untainted> i, untaintedS, <@untainted> b1, ...<@untainted> bArr), "1.strtruetruefalse");
+    assertEquals(bar(<@untainted> i, untaintedS, <@untainted> b1, ...<@untainted> bArr), "1.str1.0 1.0 0.0 ");
 
     var w = [s, b1, b2];
-    assertEquals(bar(<@untainted> i, ...<@untainted> w), "1.strtruefalse");
+    assertEquals(bar(<@untainted> i, ...<@untainted> w), "1.str1.0 0.0 ");
 
-    [int, string, boolean] x = [i, s, b1];
-    assertEquals(bar(...<@untainted> x), "1.strtrue");
+    [int, string, float] x = [i, s, b1];
+    assertEquals(bar(...<@untainted> x), "1.str1.0 ");
 
-    [int, string, boolean, boolean] y = [i, s, b1, b2];
-    assertEquals(bar(...<@untainted> y), "1.strtruefalse");
+    [int, string, float, float] y = [i, s, b1, b2];
+    assertEquals(bar(...<@untainted> y), "1.str1.0 0.0 ");
 
     [int, string] z = <@untainted> [i, s];
     assertEquals(bar(...z), "1.str");
     assertEquals(baz(...z), "2.str2");
 }
 
-function bar(@untainted int i, @untainted string s, @untainted boolean... b) returns string {
+function bar(@untainted int i, @untainted string s, @untainted float... b) returns string {
     string str = string `${i}.${s}`;
 
-    foreach boolean val in b {
-        str += val.toString();
+    foreach float val in b {
+        str += val.toString() + " ";
     }
     return str;
 }

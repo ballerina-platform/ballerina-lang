@@ -60,6 +60,9 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class TypeGuardCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "Type Guard";
+
     public TypeGuardCodeAction() {
         super(Arrays.asList(CodeActionNodeType.LOCAL_VARIABLE,
                             CodeActionNodeType.ASSIGNMENT));
@@ -103,6 +106,11 @@ public class TypeGuardCodeAction extends AbstractCodeActionProvider {
             return Collections.emptyList();
         }
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private Optional<String> getVariableName(Node matchedNode) {

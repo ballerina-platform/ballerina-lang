@@ -132,14 +132,34 @@ function testNeverWithCallStmt() {
     _ = foo();
 }
 
-function testNeverWithStartAction() {
+function testNeverWithStartAction1() {
     future<never> f = start foo();
-    any result = wait f;
+    any|error result = trap wait f;
+    assertEquality(true, result is error);
+    if (result is error) {
+        assertEquality("Bad Sad!!", result.message());
+    }
 }
 
-function testNeverWithTrapExpr() returns error? {
+function testNeverWithStartAction2() {
+    Bar bar = new (12);
+    future<never> f = start bar.barFunc();
+    any|error result = trap wait f;
+    assertEquality(true, result is error);
+    if (result is error) {
+        assertEquality("Bad Sad!!", result.message());
+    }
+}
+
+function testNeverWithTrapExpr1() {
     error err = trap foo();
-    return err;
+    assertEquality("Bad Sad!!", err.message());
+}
+
+function testNeverWithTrapExpr2() {
+    Bar bar = new (12);
+    error err = trap bar.barFunc();
+    assertEquality("Bad Sad!!", err.message());
 }
 
 function testNeverWithMethodCallExpr() {
@@ -198,7 +218,7 @@ function testNeverWithIterator5() {
     assertEquality((), y);
 }
 
-type Bunny record{|
+type Bunny record {|
     string name;
 |};
 
@@ -331,7 +351,7 @@ type RestRecord record {|
 |};
 
 function testNeverWithRestParamsAndFields() {
-    RestRecord x = {someName:"ABC"};
+    RestRecord x = {someName: "ABC"};
     var y = testNeverWithRestParams({});
 }
 
@@ -389,6 +409,20 @@ function blowUp2() returns never {
 
 function blowUp3() returns int|never {
     panic error("Bad Sad!!");
+}
+
+function testValidNeverReturnFuncAssignment() {
+    function () returns record {| never val; |} rec = foo;
+    never|error err = trap rec().val;
+    assertEquality("Bad Sad!!", err.message());
+}
+
+function testValidNeverReturnFuncAssignment2() {
+    function () returns never x = bar;
+}
+
+function bar() returns record {| never x; |} {
+    panic error("error!");
 }
 
 type AssertionError distinct error;

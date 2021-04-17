@@ -76,7 +76,8 @@ function testUnion() returns T7 {
 
 // ---------------------------------------------------------------------------------------------------------------------
 
-type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, object { public G g; }, error];
+type Err error<record{| |}>;
+type T8 [int[], A[], [B, C], map<string>, map<D>, E, int, record { F f; }, object { public G g; }, Err];
 
 function testComplexTuple() returns T8 {
     int[] iarr = [1, 2];
@@ -88,7 +89,7 @@ function testComplexTuple() returns T8 {
     int i = 10;
     record { F f; } r = { f: "Ballerina" };
     var o = object { public G g = ""; };
-    error err = error("reason");
+    Err err = error("reason");
     T8 t8 = [iarr, aarr, bc, ms, md, e, i, r, o, err];
     return t8;
 }
