@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2019, WSO2 Inc. (http://wso2.com) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,20 +17,18 @@ package org.ballerinalang.docgen.generator.model;
 
 import com.google.gson.annotations.Expose;
 
-import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Represents a Ballerina Package.
+ * Contains all the modules of the Ballerina Standard Library and Lang lib.
  */
-public class DocPackage extends DocPackageMetadata {
-
+public class ModuleLibrary {
     @Expose
-    public String description;
+    public String releaseVersion = "";
+    @Expose
+    public List<Module> langLibs = new ArrayList<>();
     @Expose
     public List<Module> modules = new ArrayList<>();
-
-    public List<Path> resources = new ArrayList<>();
 
 }

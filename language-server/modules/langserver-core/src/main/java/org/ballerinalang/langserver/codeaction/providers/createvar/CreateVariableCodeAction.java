@@ -43,6 +43,9 @@ import java.util.stream.Collectors;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class CreateVariableCodeAction extends AbstractCodeActionProvider {
+    
+    public static final String NAME = "Create Variable";
+    
     /**
      * {@inheritDoc}
      */
@@ -89,6 +92,11 @@ public class CreateVariableCodeAction extends AbstractCodeActionProvider {
             actions.add(createQuickFixCodeAction(commandTitle, edits, uri));
         }
         return actions;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     CreateVariableOut getCreateVariableTextEdits(Range range, DiagBasedPositionDetails positionDetails,

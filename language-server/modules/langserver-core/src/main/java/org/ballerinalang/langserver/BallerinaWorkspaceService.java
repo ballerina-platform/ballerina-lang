@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
 import org.ballerinalang.langserver.exception.UserErrorException;
+import org.ballerinalang.langserver.telemetry.TelemetryUtil;
 import org.eclipse.lsp4j.DidChangeConfigurationParams;
 import org.eclipse.lsp4j.DidChangeWatchedFilesParams;
 import org.eclipse.lsp4j.ExecuteCommandParams;
@@ -124,7 +125,14 @@ public class BallerinaWorkspaceService implements WorkspaceService {
                 Optional<LSCommandExecutor> executor = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
                         .getCommandExecutor(params.getCommand());
                 if (executor.isPresent()) {
-                    return executor.get().execute(context);
+                    LSCommandExecutor commandExecutor = executor.get();
+                    Object result = commandExecutor.execute(context);
+                    // Send feature usage telemetry event if applicable
+                    TelemetryUtil.featureUsageEventFromCommandExecutor(commandExecutor)
+                            .ifPresent(lsFeatureUsageTelemetryEvent ->
+                                    TelemetryUtil.sendTelemetryEvent(context.languageServercontext(),
+                                            lsFeatureUsageTelemetryEvent));
+                    return result;
                 }
             } catch (UserErrorException e) {
                 this.clientLogger.notifyUser("Execute Command", e);

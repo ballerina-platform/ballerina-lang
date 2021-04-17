@@ -25,7 +25,6 @@ import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Constant;
 import org.ballerinalang.docgen.generator.model.Construct;
 import org.ballerinalang.docgen.generator.model.DefaultableVariable;
-import org.ballerinalang.docgen.generator.model.DocPackage;
 import org.ballerinalang.docgen.generator.model.Error;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Module;
@@ -55,9 +54,9 @@ public class DeprecatedAnnotationTest {
                 "test-src" + File.separator + "documentation" + File.separator + "deprecated_annotation_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
-        DocPackage docerinaDocPackage = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
+        List<Module> modulesList = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                         .packageOrg().toString(), project.currentPackage().packageVersion().toString());
-        testModule = docerinaDocPackage.modules.get(0);
+        testModule = modulesList.get(0);
     }
 
     @Test(description = "Test @deprecated annotation for module-level union type definitions")

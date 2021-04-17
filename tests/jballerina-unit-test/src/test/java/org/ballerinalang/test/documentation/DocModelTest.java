@@ -20,7 +20,6 @@ import org.ballerinalang.docgen.generator.model.BClass;
 import org.ballerinalang.docgen.generator.model.BObjectType;
 import org.ballerinalang.docgen.generator.model.BType;
 import org.ballerinalang.docgen.generator.model.Client;
-import org.ballerinalang.docgen.generator.model.DocPackage;
 import org.ballerinalang.docgen.generator.model.Function;
 import org.ballerinalang.docgen.generator.model.Listener;
 import org.ballerinalang.docgen.generator.model.Module;
@@ -33,6 +32,7 @@ import org.testng.annotations.Test;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -47,9 +47,9 @@ public class DocModelTest {
         String sourceRoot = "test-src" + File.separator + "documentation" + File.separator + "docerina_project";
         io.ballerina.projects.Project project = BCompileUtil.loadProject(sourceRoot);
         Map<String, ModuleDoc> moduleDocMap = BallerinaDocGenerator.generateModuleDocMap(project);
-        DocPackage docerinaDocPackage = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
+        List<Module> modulesList = BallerinaDocGenerator.getDocsGenModel(moduleDocMap, project.currentPackage()
                 .packageOrg().toString(), project.currentPackage().packageVersion().toString());
-        testModule = docerinaDocPackage.modules.get(0);
+        testModule = modulesList.get(0);
     }
 
     @Test(description = "Test tuple type doc model")
