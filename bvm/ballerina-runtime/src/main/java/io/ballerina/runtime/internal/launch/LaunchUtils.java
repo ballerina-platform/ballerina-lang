@@ -45,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.logging.LogManager;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX;
@@ -147,14 +148,15 @@ public class LaunchUtils {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         CliProvider cliConfigProvider = new CliProvider(rootModule, args);
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+        Set<Module> moduleSet = configurationData.keySet();
         if (configContent != null) {
-            supportedConfigProviders.add(new TomlContentProvider(configContent));
+            supportedConfigProviders.add(new TomlContentProvider(rootModule, configContent, moduleSet));
         }
         for (int i = configFilePaths.length - 1; i >= 0; i--) {
-            supportedConfigProviders.add(new TomlFileProvider(configFilePaths[i]));
+            supportedConfigProviders.add(new TomlFileProvider(rootModule, configFilePaths[i], moduleSet));
         }
         if (secretContent != null) {
-            supportedConfigProviders.add(new TomlContentProvider(secretContent));
+            supportedConfigProviders.add(new TomlContentProvider(rootModule, secretContent, moduleSet));
         }
         supportedConfigProviders.add(cliConfigProvider);
         ConfigResolver configResolver = new ConfigResolver(rootModule, configurationData,

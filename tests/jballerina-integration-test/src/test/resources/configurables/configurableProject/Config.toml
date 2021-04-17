@@ -13,6 +13,18 @@ stringArr = ["red", "yellow", "green"]
 booleanArr = [true, false, false, true]
 decimalArr = [8.9, 4.5, 6.2]
 
+int2DArr = [[1,2],[3,4]]
+byte2DArr = [[11,22,33,44],[55,66,77,88,99]]
+float2DArr = [[9.0, 5.6], [4.1, 56.7]]
+string2DArr = [["red", "yellow", "green"], ["white", "purple"]]
+boolean2DArr = [[true, false], [false, true]]
+decimal2DArr = [[8.9, 4.5, 6.2], [5.4, 8.5]]
+
+int3DArr = [[[1,2],[3,4]],[[1,2],[3,4]]]
+customType1Array = [[1,2],[3,4]]
+customType2Array = [[5,6],[7,8]]
+customType3DArray = [[[5,6],[7,8]],[[5,6],[7,8]]]
+
 [main.admin]
 username = "jack"
 password = "password"

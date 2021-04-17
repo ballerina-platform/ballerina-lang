@@ -183,6 +183,21 @@ function testErrorMatchPattern9() {
     assertEquals("match2", errorMatchPattern9(error("Message1")));
 }
 
+function testErrorMatchPattern10() {
+    any|error e = error("Message1", error("Message3"));
+    string result = "Not Matched";
+    match e {
+        error("Message1", error("Message2")) => {
+            result = "Matched";
+        }
+        _ => {
+            result = "Default";
+        }
+
+    }
+    assertEquals("Not Matched", result);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

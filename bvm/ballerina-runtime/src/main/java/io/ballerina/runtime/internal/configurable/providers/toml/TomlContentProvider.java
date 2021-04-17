@@ -18,9 +18,12 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.toml.api.Toml;
+
+import java.util.Set;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 
@@ -33,7 +36,8 @@ public class TomlContentProvider extends TomlProvider {
 
     private final String configContent;
 
-    public TomlContentProvider(String configContent) {
+    public TomlContentProvider(Module rootModule, String configContent, Set<Module> moduleSet) {
+        super(rootModule, moduleSet);
         this.configContent = configContent;
     }
 
@@ -43,6 +47,7 @@ public class TomlContentProvider extends TomlProvider {
             throw new ConfigException(RuntimeErrors.CONFIG_TOML_EMPTY_CONTENT, CONFIG_DATA_ENV_VARIABLE);
         }
         super.tomlNode = Toml.read(configContent, CONFIG_DATA_ENV_VARIABLE).rootNode();
+        super.initialize();
     }
 
 }

@@ -40,6 +40,7 @@ import org.testng.annotations.Test;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 
@@ -51,6 +52,7 @@ public class ConfigTest {
     Module module = new Module("myOrg", "test_module", "1.0.0");
 
     private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1.0.0");
+    private final Set<Module> moduleSet = Set.of(module);
 
     @Test(dataProvider = "simple-type-values-data-provider")
     public void testTomlConfigProviderWithSimpleTypes(VariableKey key, Class<?> expectedJClass,
@@ -72,22 +74,24 @@ public class ConfigTest {
         return new Object[][]{
                 // Int value given only with toml
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L,
-                        new TomlFileProvider(getConfigPath("SimpleTypesConfig.toml"))},
+                        new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
                 // Byte value given only with toml
                 {new VariableKey(module, "byteVar", PredefinedTypes.TYPE_BYTE, true), Integer.class, 5,
-                        new TomlFileProvider(getConfigPath("SimpleTypesConfig.toml"))},
+                        new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
                 // Float value given only with toml
                 {new VariableKey(module, "floatVar", PredefinedTypes.TYPE_FLOAT, true), Double.class, 3.5,
-                        new TomlFileProvider(getConfigPath("SimpleTypesConfig.toml"))},
+                        new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
                 // String value given only with toml
                 {new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true), BString.class,
-                        StringUtils.fromString("abc"), new TomlFileProvider(getConfigPath("SimpleTypesConfig.toml"))},
+                        StringUtils.fromString("abc"), new TomlFileProvider(ROOT_MODULE,
+                        getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
                 // Boolean value given only with toml
                 {new VariableKey(module, "booleanVar", PredefinedTypes.TYPE_BOOLEAN, true), Boolean.class, true,
-                        new TomlFileProvider(getConfigPath("SimpleTypesConfig.toml"))},
+                        new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
                 // Decimal value given only with toml
                 {new VariableKey(module, "decimalVar", PredefinedTypes.TYPE_DECIMAL, true), DecimalValue.class,
-                        new DecimalValue("24.87"), new TomlFileProvider(getConfigPath("SimpleTypesConfig.toml"))},
+                        new DecimalValue("24.87"), new TomlFileProvider(ROOT_MODULE,
+                        getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
                 // Int value given only with cli
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 123L,
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=123")},
@@ -118,10 +122,10 @@ public class ConfigTest {
                 // Multiple provider but use the first registered provider ( CLI arg as final value)
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 42L,
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13579"),
-                        new TomlFileProvider(getConfigPath("SimpleTypesConfig.toml"))},
+                        new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet)},
                 // Multiple provider but use the first registered provider ( Toml file value as final value)
                 {new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true), Long.class, 13579L,
-                        new TomlFileProvider(getConfigPath("SimpleTypesConfig.toml")),
+                        new TomlFileProvider(ROOT_MODULE, getConfigPath("SimpleTypesConfig.toml"), moduleSet),
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13579")}
         };
     }

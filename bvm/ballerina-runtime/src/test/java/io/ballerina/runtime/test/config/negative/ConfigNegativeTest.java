@@ -36,6 +36,7 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 
@@ -45,16 +46,12 @@ import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
 public class ConfigNegativeTest {
 
     private static final Module ROOT_MODULE = new Module("rootOrg", "rootMod", "1.0.0");
+    private final Module module = new Module("org", "mod1", "1.0.0");
 
     @Test(dataProvider = "different-config-use-cases-data-provider")
-    public void testConfigErrors(String[] args,
-                                 String tomlFilePath,
-                                 VariableKey[] varKeys,
-                                 int errorCount,
-                                 int warnCount,
-                                 String[] expectedDiagnosticMsgs) {
+    public void testConfigErrors(String[] args, String tomlFilePath, VariableKey[] varKeys, int errorCount,
+                                 int warnCount, String[] expectedDiagnosticMsgs) {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        Module module = new Module("org", "mod1", "1.0.0");
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         configVarMap.put(module, varKeys);
         ConfigResolver configResolver;
@@ -62,7 +59,8 @@ public class ConfigNegativeTest {
             configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
                                                 diagnosticLog, List.of(
                                                 new CliProvider(ROOT_MODULE, args),
-                                                new TomlFileProvider(getConfigPathForNegativeCases(tomlFilePath))));
+                                                new TomlFileProvider(ROOT_MODULE,
+                                                        getConfigPathForNegativeCases(tomlFilePath), Set.of(module))));
 
         } else {
             configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
@@ -78,7 +76,6 @@ public class ConfigNegativeTest {
 
     @DataProvider(name = "different-config-use-cases-data-provider")
     public Object[][] configErrorCases() {
-        Module module = new Module("org", "mod1", "1.0.0");
         return new Object[][]{
                 // Required but not given
                 {new String[]{}, null,

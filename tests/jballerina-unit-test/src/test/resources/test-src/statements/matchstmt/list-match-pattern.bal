@@ -613,6 +613,114 @@ function testListMatchPattern23() {
     assertEquals("1", listMatchPattern23([1, 2, 3, 4, 5]));
 }
 
+function listMatchPattern24(any[] a) returns string {
+    match a {
+        [var x, var y, var z] => {
+            return x.toString() + z.toString();
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+function testListMatchPattern24() {
+    assertEquals("No match", listMatchPattern24([1, 2, 3, 4, 5]));
+    assertEquals("13", listMatchPattern24([1, 2, 3]));
+}
+
+function listMatchPattern25(any[] a) returns string {
+    match a {
+        [var x, _, var z] => {
+            return x.toString() + z.toString();
+        }
+        _ => {
+            return "No match";
+        }
+    }
+}
+
+function testListMatchPattern25() {
+    assertEquals("No match", listMatchPattern25([1, 2, 3, 4, 5]));
+    assertEquals("13", listMatchPattern25([1, 2, 3]));
+}
+
+function listMatchPattern26(int[3] a) returns int {
+    match a {
+        [var x, _, var z] => {
+            return x + z;
+        }
+    }
+}
+
+function testListMatchPattern26() {
+    assertEquals(4, listMatchPattern26([1, 2, 3]));
+}
+
+function listMatchPattern27(any a) returns string {
+    match a {
+        [12, _, "A"] => {
+            return "Matched";
+        }
+        _ => {
+            return "Match Default";
+        }
+    }
+}
+
+function testListMatchPattern27() {
+    assertEquals("Matched", listMatchPattern27([12, 2, "A"]));
+    assertEquals("Matched", listMatchPattern27([12, [12, 3], "A"]));
+    assertEquals("Match Default", listMatchPattern27([13, 2, "A"]));
+}
+
+function listMatchPattern28(anydata val) returns anydata {
+    match val {
+        [var m] if m is any[] => {
+            anydata[] o = m;
+            return o;
+        }
+        _ => {
+            return "other";
+        }
+    }
+}
+
+function testListMatchPatternWithWildCard() {
+    [int, string, CONST1]|error v1 = [1, "str", CONST1];
+    string result = "";
+    match v1 {
+        [1, "str", "Ballerina1"] => {
+            result = "Matched";
+        }
+        _ => {
+           result = "Default";
+        }
+    }
+    assertEquals("Default", result);
+
+    [int, string, CONST1]|error v2 = error("SampleError");
+    result = "Not Matched";
+    match v2 {
+        [1, "str", "Ballerina"] => {
+            result = "Matched";
+        }
+        _ => {
+           result = "Default";
+        }
+    }
+    assertEquals("Not Matched", result);
+}
+
+function testListMatchPatternWithArrayAndAnydataIntersection() {
+    int[] x = [1, 2, 3];
+    assertEquals(x, listMatchPattern28(<int[][]> [x]));
+    anydata[] y = [["hello", "world"]];
+    assertEquals(["hello", "world"], listMatchPattern28(y));
+    assertEquals("other", listMatchPattern28(<anydata[]> [["hello", "world"], 1, 2]));
+    assertEquals("other", listMatchPattern28("hello"));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

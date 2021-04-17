@@ -15,3 +15,8 @@ function testFunction() returns int {
     return 0;
 }
 
+type CyclicUnion int|CyclicUnion[];
+
+function UseCyclicUnion() {
+    CyclicUnion x = 1;
+}

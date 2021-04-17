@@ -101,7 +101,7 @@ public class ConfigMethodGen {
         mv.visitEnd();
 
         generateConfigInit(cw, moduleInitClass, imprtMods, pkg.packageID);
-        populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(stringConstantsGen));
+        populateConfigDataMethod(cw, moduleInitClass, pkg, new JvmTypeGen(stringConstantsGen, pkg.packageID));
         cw.visitEnd();
         jarEntries.put(innerClassName + ".class", cw.toByteArray());
     }

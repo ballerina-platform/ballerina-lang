@@ -103,7 +103,8 @@ public enum RuntimeErrors implements DiagnosticCode {
     CONFIG_TOML_FIELD_INCOMPATIBLE_TYPE("config.toml.field.incompatible.type", "RUNTIME_0073"),
     CONFIG_TOML_READ_FAILED("config.toml.read.failed", "RUNTIME_0074"),
     CONFIG_TOML_PARSE_FAILED("config.toml.parse.failed", "RUNTIME_0075"),
-    CONFIG_CLI_TYPE_NOT_SUPPORTED("config.cli.type.not.supported", "RUNTIME_0076");
+    CONFIG_TOML_MODULE_AMBIGUITY("config.toml.module.ambiguity", "RUNTIME_0076"),
+    CONFIG_CLI_TYPE_NOT_SUPPORTED("config.cli.type.not.supported", "RUNTIME_0077");
 
     private String errorMsgKey;
     private String errorCode;

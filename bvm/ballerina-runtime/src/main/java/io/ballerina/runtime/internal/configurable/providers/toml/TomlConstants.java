@@ -31,8 +31,6 @@ import java.nio.file.Paths;
 public class TomlConstants {
     public static final String CONFIG_FILE_NAME = "Config.toml";
     public static final String CONFIG_SECRET_FILE_NAME = "Config-secrets.toml";
-    public static final String DEFAULT_MODULE = ".";
-    public static final String SUBMODULE_DELIMITER = ".";
     public static final String CONFIG_FILES_ENV_VARIABLE = "BAL_CONFIG_FILES";
     public static final String CONFIG_DATA_ENV_VARIABLE = "BAL_CONFIG_DATA";
     public static final String SECRET_FILE_ENV_VARIABLE = "BAL_CONFIG_SECRET_FILE";

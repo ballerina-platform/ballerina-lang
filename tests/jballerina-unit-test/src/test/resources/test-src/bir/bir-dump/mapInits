@@ -1,4 +1,4 @@
-private mapInits function() -> (string|(), int|()) {
+mapInits function() -> (string|(), int|()) {
     %0(RETURN) (string|(), int|());
     %0(RETURN) (string|(), int|());
     %1(LOCAL) map<Employee>;

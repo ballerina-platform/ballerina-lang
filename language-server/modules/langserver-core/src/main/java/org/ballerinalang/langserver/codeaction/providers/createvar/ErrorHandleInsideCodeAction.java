@@ -44,6 +44,9 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
+
+    public static final String NAME = "Error Handle Inside";
+
     /**
      * {@inheritDoc}
      */
@@ -92,5 +95,10 @@ public class ErrorHandleInsideCodeAction extends CreateVariableCodeAction {
         // Add all the import text edits excluding duplicates
         createVarTextEdits.imports.stream().filter(edit -> !edits.contains(edit)).forEach(edits::add);
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 }

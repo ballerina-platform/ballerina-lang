@@ -35,7 +35,7 @@ public abstract class BFunction {
     private String externalReturnType;
     private String functionName;
     private Class declaringClass;
-    private List<JParameter> parameters;
+    private List<JParameter> parameters = new LinkedList<>();
     private List<JError> throwables = new LinkedList<>();
     private boolean isStatic = true;
     private String returnType;

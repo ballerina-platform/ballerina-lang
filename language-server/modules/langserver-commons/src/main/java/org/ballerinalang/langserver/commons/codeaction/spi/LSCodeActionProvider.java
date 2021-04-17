@@ -90,4 +90,11 @@ public interface LSCodeActionProvider {
      * @return list of code action node type
      */
     List<CodeActionNodeType> getCodeActionNodeTypes();
+
+    /**
+     * Get the name of the code action. Will be used for analytics and logging purposes.
+     *
+     * @return Name of the code action
+     */
+    String getName();
 }

@@ -45,6 +45,7 @@ import java.math.MathContext;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.BiFunction;
 
 /**
  * @since 0.990.4
@@ -189,6 +190,20 @@ public class ConstantValueResolver extends BLangNodeVisitor {
                     return calculateMultiplication(lhs, rhs);
                 case DIV:
                     return calculateDivision(lhs, rhs);
+                case BITWISE_AND:
+                    return calculateBitWiseOp(lhs, rhs, (a, b) -> a & b);
+                case BITWISE_OR:
+                    return calculateBitWiseOp(lhs, rhs, (a, b) -> a | b);
+                case BITWISE_LEFT_SHIFT:
+                    return calculateBitWiseOp(lhs, rhs, (a, b) -> a << b);
+                case BITWISE_RIGHT_SHIFT:
+                    return calculateBitWiseOp(lhs, rhs, (a, b) -> a >> b);
+                case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                    return calculateBitWiseOp(lhs, rhs, (a, b) -> a >>> b);
+                case BITWISE_XOR:
+                    return calculateBitWiseOp(lhs, rhs, (a, b) -> a ^ b);
+                default:
+                    dlog.error(currentPos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
             }
         } catch (NumberFormatException nfe) {
             // Ignore. This will be handled as a compiler error.
@@ -197,6 +212,19 @@ public class ConstantValueResolver extends BLangNodeVisitor {
         }
         // This is a compilation error already logged.
         // This is to avoid NPE exceptions in sub-sequent validations.
+        return new BLangConstantValue(null, this.currentConstSymbol.type);
+    }
+
+    private BLangConstantValue calculateBitWiseOp(BLangConstantValue lhs, BLangConstantValue rhs,
+                                                  BiFunction<Long, Long, Long> func) {
+        switch (this.currentConstSymbol.type.tag) {
+            case TypeTags.INT:
+                Long val = func.apply((Long) lhs.value, (Long) rhs.value);
+                return new BLangConstantValue(val, this.currentConstSymbol.type);
+            default:
+                dlog.error(currentPos, DiagnosticErrorCode.CONSTANT_EXPRESSION_NOT_SUPPORTED);
+
+        }
         return new BLangConstantValue(null, this.currentConstSymbol.type);
     }
 

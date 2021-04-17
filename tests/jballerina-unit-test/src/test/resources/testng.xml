@@ -243,7 +243,9 @@
             </class>
             <class name="org.ballerinalang.test.bala.record.OpenRecordTypeReferenceTest" />
             <class name="org.ballerinalang.test.bala.record.ClosedRecordTypeReferenceTest" />
-            <class name="org.ballerinalang.test.main.function.MainFunctionsTest"></class>
+            <class name="org.ballerinalang.test.main.function.MainFunctionsTest" />
+            <class name="org.ballerinalang.test.main.function.OperandCompilationTest" />
+            <class name="org.ballerinalang.test.main.function.OptionCompilationTest" />
             <class name="org.ballerinalang.test.ParserTestRunner"/>
         </classes>
     </test>

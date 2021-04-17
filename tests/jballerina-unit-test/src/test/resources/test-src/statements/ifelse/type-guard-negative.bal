@@ -85,15 +85,6 @@ function testMultipleTypeGuardsWithAndOperator_2() returns int {
     return -1;
 }
 
-function typeGuardInMatch([string, int]|[int, boolean]|int|float x) returns string {
-    match x {
-        var [s, i] if s is string => {return "Matched with string";}
-        var [s, i] if s is float => {return "Matched with float";}
-        var [s, i] if i is boolean => {return "Matched with boolean";}
-        var y => {return "Matched with default type - float";}
-    }
-}
-
 function testTypeGuardsWithBinaryOps_1() {
     int|string|boolean|float x = 5;
     if (((x is int|string && x is int) || (x is boolean)) && (x is float)) {
@@ -148,14 +139,6 @@ function testTypeGuardsWithBinaryOps_6() {
         int y = 1;
     } else {
         string y = "";
-    }
-}
-
-function testTypeGuardsWithErrorInmatch() returns string {
-    any a = 5;
-    match a {
-        var p if p is error => {return string `${p.message()}`;}
-        var p => {return "Internal server error";}
     }
 }
 

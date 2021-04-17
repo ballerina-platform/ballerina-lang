@@ -19,12 +19,14 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Set;
 
 /**
  * Toml parser that reads from file content for configurable implementation.
@@ -35,13 +37,15 @@ public class TomlFileProvider extends TomlProvider {
 
     private final Path configPath;
 
-    public TomlFileProvider(Path configPath) {
+    public TomlFileProvider(Module rootModule, Path configPath, Set<Module> moduleSet) {
+        super(rootModule, moduleSet);
         this.configPath = configPath;
     }
 
     @Override
     public void initialize() {
         super.tomlNode = getConfigTomlData(configPath);
+        super.initialize();
     }
 
     private TomlTableNode getConfigTomlData(Path configFilePath) {

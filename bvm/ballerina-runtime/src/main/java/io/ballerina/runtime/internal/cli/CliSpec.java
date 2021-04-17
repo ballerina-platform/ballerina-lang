@@ -84,7 +84,7 @@ public class CliSpec {
                 int elementCount = getElementCount(elementType, operands, opIndex);
                 while (argIndex < operandArgs.size() - elementCount) {
                     try {
-                        bArray.append(CliUtil.getBValue(elementType, operandArgs.get(argIndex++)));
+                        bArray.append(CliUtil.getBValue(elementType, operandArgs.get(argIndex++), curOperand.name));
                     } catch (BError error) {
                         argIndex--;
                         break;
@@ -92,7 +92,7 @@ public class CliSpec {
                 }
                 bValue = bArray;
             } else {
-                bValue = CliUtil.getBValueWithUnionValue(curOperand.type, operandArgs.get(argIndex++));
+                bValue = CliUtil.getBValueWithUnionValue(curOperand.type, operandArgs.get(argIndex++), curOperand.name);
             }
             mainArgs.add(bValue);
             mainArgs.add(true);
@@ -117,8 +117,8 @@ public class CliSpec {
                 mainArgs.add(null);
                 mainArgs.add(true);
             } else {
-                throw ErrorCreator.createError(
-                        StringUtils.fromString("missing operand arguments for type '" + opType + "'"));
+                throw ErrorCreator.createError(StringUtils.fromString(
+                        "missing operand arguments for parameter '" + operand.name + "' of type '" + opType + "'"));
             }
         }
     }
