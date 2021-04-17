@@ -123,7 +123,6 @@ import org.wso2.ballerinalang.compiler.tree.bindingpatterns.BLangWildCardBinding
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessibleExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -2492,7 +2491,7 @@ public class Desugar extends BLangNodeVisitor {
      * This method creates a assignment statement and assigns and array expression based on the given indexExpr.
      *
      */
-    private void createAssignmentStmt(BLangAccessibleExpression accessibleExpression, BLangBlockStmt parentBlockStmt,
+    private void createAssignmentStmt(BLangExpression accessibleExpression, BLangBlockStmt parentBlockStmt,
                                       BLangExpression indexExpr, BVarSymbol tupleVarSymbol,
                                       BLangIndexBasedAccess parentArrayAccessExpr) {
 
@@ -3229,7 +3228,7 @@ public class Desugar extends BLangNodeVisitor {
         } while (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR);
 
         // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
-        BLangAccessibleExpression var = varRef;
+        BLangExpression var = varRef;
         for (int ref = 0; ref < varRefs.size(); ref++) {
             var = ASTBuilderUtil.createIndexAccessExpr(var, varRefs.get(ref));
             var.type = types.get(ref);
@@ -8178,8 +8177,8 @@ public class Desugar extends BLangNodeVisitor {
                         args.add(ASTBuilderUtil.createDynamicParamExpression(hasKeyInvocation, ternaryExpr));
                     } else {
                         BLangFieldBasedAccess fieldBasedAccessExpression =
-                                ASTBuilderUtil.createFieldAccessExpr((BLangAccessibleExpression) varargRef,
-                                                          ASTBuilderUtil.createIdentifier(param.pos, param.name.value));
+                                ASTBuilderUtil.createFieldAccessExpr(varargRef,
+                                        ASTBuilderUtil.createIdentifier(param.pos, param.name.value));
                         fieldBasedAccessExpression.type = param.type;
                         args.add(fieldBasedAccessExpression);
                     }
@@ -9365,11 +9364,11 @@ public class Desugar extends BLangNodeVisitor {
         BLangAccessExpression accessExpr;
         switch (originalAccessExpr.getKind()) {
             case FIELD_BASED_ACCESS_EXPR:
-                accessExpr = ASTBuilderUtil.createFieldAccessExpr((BLangAccessibleExpression) varRef,
+                accessExpr = ASTBuilderUtil.createFieldAccessExpr(varRef,
                         ((BLangFieldBasedAccess) originalAccessExpr).field);
                 break;
             case INDEX_BASED_ACCESS_EXPR:
-                accessExpr = ASTBuilderUtil.createIndexAccessExpr((BLangAccessibleExpression) varRef,
+                accessExpr = ASTBuilderUtil.createIndexAccessExpr(varRef,
                         ((BLangIndexBasedAccess) originalAccessExpr).indexExpr);
                 break;
             case INVOCATION:

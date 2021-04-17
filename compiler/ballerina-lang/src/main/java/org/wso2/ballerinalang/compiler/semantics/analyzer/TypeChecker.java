@@ -107,7 +107,6 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangWhereClause;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessExpression;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangAccessibleExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangAnnotAccessExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangArrowFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangBinaryExpr;
@@ -2482,18 +2481,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         // First analyze the accessible expression.
         BLangExpression containerExpression = fieldAccessExpr.expr;
-
-        // Container expression must be a accessible expression.
-        if (!(containerExpression instanceof BLangAccessibleExpression)) {
-            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS,
-                    containerExpression);
-            resultType = symTable.semanticError;
-            return;
-        }
-
-        ((BLangAccessibleExpression) containerExpression).lhsVar = fieldAccessExpr.lhsVar;
-        ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
-                fieldAccessExpr.compoundAssignmentLhsVar;
+        containerExpression.lhsVar = fieldAccessExpr.lhsVar;
+        containerExpression.compoundAssignmentLhsVar = fieldAccessExpr.compoundAssignmentLhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(containerExpression);
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
@@ -2620,18 +2609,9 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         boolean isStringValue = containerExpression.type != null && containerExpression.type.tag == TypeTags.STRING;
-
-        // Container expression must be a accessible expression.
-        if (!(containerExpression instanceof BLangAccessibleExpression) && !isStringValue) {
-            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS,
-                    containerExpression);
-            resultType = symTable.semanticError;
-            return;
-        }
-
         if (!isStringValue) {
-            ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
-            ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
+            containerExpression.lhsVar = indexBasedAccessExpr.lhsVar;
+            containerExpression.compoundAssignmentLhsVar =
                     indexBasedAccessExpr.compoundAssignmentLhsVar;
             checkExpr(containerExpression, this.env, symTable.noType);
         }
