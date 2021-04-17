@@ -88,3 +88,16 @@ public class DynamicListenerImpl2 {
 public readonly class StackFrameImpl {
     *runtime:StackFrame;
 }
+
+public readonly class StackFrameImpl2 {
+    *runtime:StackFrame;
+
+    public function toString() returns string {
+        return "Default string";
+    }
+}
+
+public function testImplInvocation() {
+    StackFrameImpl2 stkFrm = new;
+    string s = stkFrm.toString();
+}

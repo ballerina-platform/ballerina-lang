@@ -1618,15 +1618,16 @@ public class BIRPackageSymbolEnter {
             if (Symbols.isFlagOn(attachedFuncFlags, Flags.INTERFACE) &&
                     Symbols.isFlagOn(attachedFuncFlags, Flags.ATTACHED)) {
                 BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
-                Name funcName = names.fromString(attachedFuncName);
+                Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
+                        objectSymbol.name.value, attachedFuncName));
                 BInvokableSymbol attachedFuncSymbol =
                         Symbols.createFunctionSymbol(attachedFuncFlags,
                                 funcName, env.pkgSymbol.pkgID, attachedFuncType,
                                 env.pkgSymbol, false, symTable.builtinPos,
                                 COMPILED_SOURCE);
                 attachedFuncSymbol.retType = attachedFuncType.retType;
-                BAttachedFunction attachedFunction = new BAttachedFunction(funcName, attachedFuncSymbol,
-                        attachedFuncType, symTable.builtinPos);
+                BAttachedFunction attachedFunction = new BAttachedFunction(names.fromString(attachedFuncName),
+                        attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
 
                 objectSymbol.referencedFunctions.add(attachedFunction);
                 objectSymbol.attachedFuncs.add(attachedFunction);
