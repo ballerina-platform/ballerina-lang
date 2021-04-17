@@ -14,6 +14,7 @@
  * specific language governing permissions and limitations
  * under the License.
  */
+
 package org.ballerinalang.test.main.function;
 
 import org.ballerinalang.core.model.types.BTypes;
@@ -43,7 +44,7 @@ public class MainFunctionsTest {
 
     @Test
     public void basicMainInvocationTest() {
-        CompileResult result = BCompileUtil.compile("test-src/main.function/test_basic_main_function.bal");
+        CompileResult result = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_basic_main_function.bal");
         assertEquals(result.getErrorCount(), 0);
         BValueArray args = new BValueArray(BTypes.typeString);
         args.add(0, "V1");
@@ -91,21 +92,6 @@ public class MainFunctionsTest {
         assertTrue(result.errorOutput.contains("{\"message\":\"error message\""), "invalid error message");
     }
 
-    @Test(groups = { "disableOnOldParser" })
-    public void invalidMainFunctionSignatureTest() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/main.function/test_main_function_negative.bal");
-        assertEquals(negativeResult.getErrorCount(), 5);
-        validateError(negativeResult, 0, "the 'main' function should be public", 17, 1);
-        validateError(negativeResult, 1,
-                "invalid type 'typedesc' as 'main' function parameter, expected anydata", 17, 15);
-        validateError(negativeResult, 2,
-                "invalid type '(int|typedesc)' as 'main' function parameter, expected anydata", 17, 32);
-        validateError(negativeResult, 3,
-                "invalid type 'FooObject[]' as 'main' function parameter, expected anydata", 17, 57);
-        validateError(negativeResult, 4, "invalid 'main' function return type 'string', expected a subtype of " +
-                              "'error?' containing '()'", 17, 81);
-    }
-
     @Test
     public void testInvalidErrorReturningMain() {
         CompileResult negativeResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR +
@@ -118,13 +104,20 @@ public class MainFunctionsTest {
     @Test
     public void testMainWithStackOverflow() {
         CompileResult compileResult = BCompileUtil
-                .compile("test-src/main.function/test_main_with_stackoverflow.bal");
+                .compile(MAIN_FUNCTION_TEST_SRC_DIR + "test_main_with_stackoverflow.bal");
         BRunUtil.ExitDetails details = BRunUtil.run(compileResult, new String[]{});
         assertTrue(details.errorOutput.contains("error: {ballerina}StackOverflow\n\tat $value$Foo:init" +
                 "(test_main_with_stackoverflow.bal:19)\n\t   $value$Foo:init(test_main_with_stackoverflow.bal:19)" +
                 "\n\t   $value$Foo:init(test_main_with_stackoverflow.bal:19)"));
     }
 
+
+    @Test
+    public void testWithoutPublic() {
+        CompileResult negativeResult = BCompileUtil.compile(MAIN_FUNCTION_TEST_SRC_DIR + "without_public.bal");
+        assertEquals(negativeResult.getErrorCount(), 1);
+        validateError(negativeResult, 0, "the 'main' function should be public", 17, 1);
+    }
 
     private String runMain(CompileResult compileResult, String[] args) {
         try {

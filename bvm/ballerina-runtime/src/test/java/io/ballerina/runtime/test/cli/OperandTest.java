@@ -70,7 +70,7 @@ public class OperandTest {
     }
 
     @Test(expectedExceptions = BError.class,
-          expectedExceptionsMessageRegExp = "'boolean' type expected as an unnamed option argument")
+          expectedExceptionsMessageRegExp = "the option 'opBoolean' of type 'boolean' is expected without a value")
     public void testBoolean() {
         Operand[] operands = {new Operand(false, "opBoolean", PredefinedTypes.TYPE_BOOLEAN)};
         String val = "true";
@@ -207,4 +207,10 @@ public class OperandTest {
         Assert.assertNull(args[3]);
     }
 
+    @Test(expectedExceptions = BError.class,
+          expectedExceptionsMessageRegExp = "missing operand arguments for parameter 'opString' of type 'string'")
+    public void testMissingOperand() {
+        Operand[] operands = {new Operand(false, "opString", PredefinedTypes.TYPE_STRING)};
+         new CliSpec(null, operands).getMainArgs();
+    }
 }
