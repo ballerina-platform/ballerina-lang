@@ -165,7 +165,7 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
             return Optional.of(((ArrayTypeSymbol) rawType).memberTypeDescriptor());
         }
         if (rawType.typeKind() == TypeDescKind.MAP) {
-            return ((MapTypeSymbol) rawType).typeParameter();
+            return Optional.of(((MapTypeSymbol) rawType).typeParam());
         }
 
         return Optional.empty();

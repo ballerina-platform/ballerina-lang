@@ -19,7 +19,7 @@ package io.ballerina.compiler.api.symbols;
 import java.util.Optional;
 
 /**
- * Represents an array type descriptor.
+ * Represents a map type descriptor.
  *
  * @since 2.0.0
  */
@@ -29,6 +29,15 @@ public interface MapTypeSymbol extends TypeSymbol {
      * Get the element type descriptor.
      *
      * @return {@link TypeSymbol} of the members
+     * @deprecated This method will be removed in a later release. Use `typeParam()` instead.
      */
+    @Deprecated(forRemoval = true, since = "slalpha5")
     Optional<TypeSymbol> typeParameter();
+
+    /**
+     * Gets the type of the values in the fields of the mapping.
+     *
+     * @return The type of the members
+     */
+    TypeSymbol typeParam();
 }

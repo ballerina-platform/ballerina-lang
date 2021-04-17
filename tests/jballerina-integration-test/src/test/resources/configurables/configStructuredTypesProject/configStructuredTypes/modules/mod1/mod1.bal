@@ -24,7 +24,26 @@ public type Employee readonly & record {
     int id = 0;
 };
 
-public type Person record {|
+public type Officer record {|
     readonly string name = "";
     readonly int id = 0;
 |};
+
+
+public type Person readonly & record {
+     string name;
+     int id;
+     Address address;
+};
+
+public type Address  record {
+    string city;
+    County country;
+};
+
+public type County  record {
+    string name;
+};
+
+public type PersonArray Person;
+

@@ -101,19 +101,17 @@ isolated function getStringValue(int v) returns string = @Method {
     paramTypes: ["java.lang.Long"]
 } external;
 
-# Returns an `JObject|error`, which is obtained after casting the provided `JObject` instance
-# to the given `JObject` type depending on assignability.
+# Performs a Java cast operation on a value.
+# This casts a value describing a `JObject` to a type describing a `JObject` based on Java assignability,
+# returns an error if the cast cannot be done.
 # ```ballerina
-# JObject|error obj = java:cast(inputStream, typedesc<FileInputStream>);
-# if (obj is JObject) {
-#   FileInputStream fileInputStream = <FileInputStream>obj;
-# }
+# FileInputStream|error obj = java:cast(inputStream);
 # ```
 #
-# + value - The `JObject` instance which is to be casted
-# + castType - The `JObject` implementation type ``typedesc<JObject>`` to which the given object is casted to if assignable
-# + return - The `JObject|error`, which refers to the new `JObject` instance or an `error`
-public isolated function cast(JObject value, typedesc<JObject> castType) returns JObject|error = @Method {
+# + value - A value describing a `JObject` which is to be casted
+# + t - A type describing a `JObject` to which the `value` is to be casted
+# + return - A value belonging to type `t` or an error if this cast cannot be done
+public isolated function cast(JObject value, typedesc<JObject> t = <>) returns t|error = @Method {
     'class: "org.ballerinalang.langlib.java.Cast",
     name: "cast"
 } external;
