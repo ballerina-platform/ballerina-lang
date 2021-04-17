@@ -1,0 +1,4 @@
+test_module.util.foo.intVar = 56
+test_module.util.foo.stringVar = "green"
+myOrg.test_module.util.foo.intVar = 78
+myOrg.test_module.util.foo.stringVar = "blue"

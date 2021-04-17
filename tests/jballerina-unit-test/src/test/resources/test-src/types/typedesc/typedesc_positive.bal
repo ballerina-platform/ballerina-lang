@@ -247,7 +247,8 @@ function testTypeDefWithFunctionTypeDescAsTypedesc() {
     typedesc a = FunctionTypeOne;
     typedesc b = FunctionTypeTwo;
 
-    any c = function () returns string => "hello";
+    string str = "hello";
+    any c = function () returns string => str;
     typedesc d = typeof c;
 
     assertEquality(false, a.toString() == b.toString());

@@ -225,11 +225,12 @@ function waitTest18() returns int {
     result = result + 50;
     return result;
 }
-function waitTest19() returns int|error {
+
+function waitTest19() {
     future<int|error> f1 = @strand{thread:"any"} start addOrError(5, 2);
     future<int|error> f2 = @strand{thread:"any"} start addOrError(10, 12);
     int|error result = wait f1 | f2;
-    return result;
+    validateError(result, "err returned");
 }
 
 function waitTest20() returns int|string|error {
@@ -262,11 +263,11 @@ function waitTest23() returns int|string|() {
     return result;
 }
 
-function waitTest24() returns int|error {
+function waitTest24() {
     future<int|error> f1 = @strand{thread:"any"} start fError();
     future<int|error> f2 = @strand{thread:"any"} start sError();
     int|error result = wait f1 | f2;
-    return result;
+    validateError(result, "A hazardous error occurred!!! Abort immediately!!");
 }
 
 function add_panic1(int i, int j) returns int {
@@ -390,3 +391,13 @@ function funcWithPanic() {
 public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
+
+function validateError(any|error value, string message) {
+    if (value is error) {
+        if (value.message() == message) {
+            return;
+        }
+        panic error("Expected error message: " + message + ", found: " + value.message());
+    }
+    panic error("Expected error, found: " + (typeof value).toString());
+}

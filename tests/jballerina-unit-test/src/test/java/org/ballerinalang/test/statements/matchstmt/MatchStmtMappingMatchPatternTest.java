@@ -170,6 +170,11 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
+    public void testMappingMatchPatternWithWildCard() {
+        BRunUtil.invoke(result, "testMappingMatchPatternWithWildCard");
+    }
+
+    @Test
     public void testMappingMatchPatternWithRestPattern1() {
         BRunUtil.invoke(resultRestPattern, "testMappingMatchPattern1");
     }

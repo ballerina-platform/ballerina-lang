@@ -276,7 +276,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
     private static final CompilerContext.Key<CodeAnalyzer> CODE_ANALYZER_KEY =
             new CompilerContext.Key<>();
-    private static final String NULL_LITERAL = "null";
 
     private final SymbolResolver symResolver;
     private int loopCount;
@@ -312,7 +311,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int commitCountWithinBlock;
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
-    private BType matchExprType;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -467,16 +465,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         if (Symbols.isPublic(funcNode.symbol)) {
             funcNode.symbol.params.forEach(symbol -> analyzeExportableTypeRef(funcNode.symbol, symbol.type.tsymbol,
-                    true,
-                    funcNode.pos));
+                                                                              true,
+                                                                              funcNode.pos));
             if (funcNode.symbol.restParam != null) {
                 analyzeExportableTypeRef(funcNode.symbol, funcNode.symbol.restParam.type.tsymbol, true,
-                        funcNode.restParam.pos);
+                                         funcNode.restParam.pos);
             }
             analyzeExportableTypeRef(funcNode.symbol, funcNode.symbol.retType.tsymbol, true,
-                    funcNode.returnTypeNode.pos);
+                                     funcNode.returnTypeNode.pos);
         }
-        this.validateMainFunction(funcNode);
+        if (MAIN_FUNCTION_NAME.equals(funcNode.name.value)) {
+            new MainFunctionValidator(types, dlog).validateMainFunction(funcNode);
+        }
         this.validateModuleInitFunction(funcNode);
         try {
 
@@ -823,7 +823,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         if (!this.failureHandled) {
             this.failureHandled = matchStatement.onFailClause != null;
         }
-        matchExprType = matchStatement.expr.type;
 
         boolean currentErrorThrown = this.errorThrown;
         boolean hasLastPatternInStatement = this.hasLastPatternInStatement;
@@ -3946,32 +3945,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 && transactionCount > 0 && withinTransactionScope;
     }
 
-    private void validateMainFunction(BLangFunction funcNode) {
-        if (!MAIN_FUNCTION_NAME.equals(funcNode.name.value)) {
-            return;
-        }
-
-        if (!Symbols.isPublic(funcNode.symbol)) {
-            this.dlog.error(funcNode.pos, DiagnosticErrorCode.MAIN_SHOULD_BE_PUBLIC);
-        }
-
-        IsAnydataUniqueVisitor isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
-        funcNode.requiredParams.forEach(param -> {
-            if (!isAnydataUniqueVisitor.visit(param.type)) {
-                this.dlog.error(param.pos, DiagnosticErrorCode.MAIN_PARAMS_SHOULD_BE_ANYDATA, param.type);
-            }
-        });
-
-        isAnydataUniqueVisitor.reset();
-
-        if (funcNode.restParam != null && !isAnydataUniqueVisitor.visit(funcNode.restParam.type)) {
-            this.dlog.error(funcNode.restParam.pos, DiagnosticErrorCode.MAIN_PARAMS_SHOULD_BE_ANYDATA,
-                            funcNode.restParam.type);
-        }
-
-        types.validateErrorOrNilReturn(funcNode, DiagnosticErrorCode.MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL);
-    }
-
     private void validateModuleInitFunction(BLangFunction funcNode) {
         if (funcNode.attachedFunction || !Names.USER_DEFINED_INIT_SUFFIX.value.equals(funcNode.name.value)) {
             return;
@@ -4161,5 +4134,4 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             return value;
         }
     }
-
 }

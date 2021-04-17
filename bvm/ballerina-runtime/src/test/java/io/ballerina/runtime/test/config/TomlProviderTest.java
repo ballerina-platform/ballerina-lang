@@ -23,6 +23,7 @@ import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.creators.ValueCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
+import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.RecordType;
@@ -49,28 +50,31 @@ import org.testng.annotations.Test;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
+import static io.ballerina.runtime.test.TestUtils.getSimpleVariableKeys;
 
 /**
  * Test cases for toml configuration related implementations.
  */
 public class TomlProviderTest {
 
-    private static final Module ROOT_MODULE = new Module("rootOrg", "mod12", "1.0.0");
-    private final Module module = new Module("myOrg", "test_module", "1.0.0");
-    private final Module subModule = new Module("myOrg", "test_module.util.foo", "1.0.0");
+    private static final Module ROOT_MODULE = new Module("rootOrg", "test_module", "1.0.0");
+    private final Module subModule = new Module("rootOrg", "test_module.util.foo", "1.0.0");
+    private final Module importedModule = new Module("myOrg", "mod12", "1.0.0");
 
     @Test(dataProvider = "arrays-data-provider")
     public void testConfigurableArrays(VariableKey arrayKey,
                                        Function<BArray, Object[]> arrayGetFunction, Object[] expectedArray) {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = new VariableKey[]{arrayKey};
-        configVarMap.put(module, keys);
+        configVarMap.put(ROOT_MODULE, keys);
         DiagnosticLog diagnosticLog = new DiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                List.of(new TomlFileProvider(getConfigPath("ArrayConfig.toml"))));
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ArrayConfig.toml"),
+                        configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
         Assert.assertTrue(configValueMap.get(arrayKey) instanceof BArray,
                 "Non-array value received for variable : " + arrayKey.variable);
@@ -94,28 +98,30 @@ public class TomlProviderTest {
         expectedDecimalArray[2] = ValueCreator.createDecimalValue("6.2");
         return new Object[][]{
                 // Int array
-                {new VariableKey(module, "intArr", new BIntersectionType(module, new BType[]{}, TypeCreator
+                {new VariableKey(ROOT_MODULE, "intArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_INT), 0, false), true), intArrayGetFunction,
                         new long[]{123456, 1234567, 987654321}
                 },
                 // Byte array
-                {new VariableKey(module, "byteArr", new BIntersectionType(module, new BType[]{}, TypeCreator
+                {new VariableKey(ROOT_MODULE, "byteArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_BYTE), 0, false), true), byteArrayGetFunction,
                         new byte[]{1, 2, 3}},
                 // Float array
-                {new VariableKey(module, "floatArr", new BIntersectionType(module, new BType[]{}, TypeCreator
+                {new VariableKey(ROOT_MODULE, "floatArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_FLOAT), 0, false), true), floatArrayGetFunction,
                         new double[]{9.0, 5.6}},
                 // String array
-                {new VariableKey(module, "stringArr", new BIntersectionType(module, new BType[]{}, TypeCreator
+                {new VariableKey(ROOT_MODULE, "stringArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_STRING), 0, false), true), stringArrayGetFunction,
                         new String[]{"red", "yellow", "green"}},
                 // Boolean array
-                {new VariableKey(module, "booleanArr", new BIntersectionType(module, new BType[]{}, TypeCreator
+                {new VariableKey(
+                        ROOT_MODULE, "booleanArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true), booleanArrayGetFunction,
                         new boolean[]{true, false, false, true}},
                 // Decimal array
-                {new VariableKey(module, "decimalArr", new BIntersectionType(module, new BType[]{}, TypeCreator
+                {new VariableKey(
+                        ROOT_MODULE, "decimalArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_DECIMAL), 0, false), true), decimalArrayGetFunction,
                         expectedDecimalArray}
         };
@@ -124,12 +130,14 @@ public class TomlProviderTest {
     @Test(dataProvider = "record-data-provider")
     public void testTomlProviderRecords(String variableName, Map<String, Field> fields,
                                         Map<String, Object> expectedValues) {
-        RecordType type = TypeCreator.createRecordType("Person", module, SymbolFlags.READONLY, fields, null, true, 6);
-        VariableKey recordVar = new VariableKey(module, variableName, type, true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{recordVar}));
+        RecordType type =
+                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
+        VariableKey recordVar = new VariableKey(ROOT_MODULE, variableName, type, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{recordVar}));
         DiagnosticLog diagnosticLog = new DiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                List.of(new TomlFileProvider(getConfigPath("RecordTypeConfig.toml"))));
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("RecordTypeConfig.toml"),
+                        configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
         Assert.assertTrue(configValueMap.get(recordVar) instanceof BMap<?, ?>,
@@ -161,16 +169,18 @@ public class TomlProviderTest {
     @Test(dataProvider = "table-data-provider")
     public void testTomlProviderTables(String variableName, Map<String, Field> fields, String key, Map<String,
             Object>[] expectedValues) {
-        RecordType type = TypeCreator.createRecordType("Person", module, SymbolFlags.READONLY, fields, null, true, 6);
+        RecordType type =
+                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
         TableType tableType = TypeCreator.createTableType(type, new String[]{key}, true);
-        IntersectionType intersectionType = new BIntersectionType(module, new Type[]{tableType,
+        IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{tableType,
                 PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
 
-        VariableKey tableVar = new VariableKey(module, variableName, intersectionType, true);
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, new VariableKey[]{tableVar}));
+        VariableKey tableVar = new VariableKey(ROOT_MODULE, variableName, intersectionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tableVar}));
         DiagnosticLog diagnosticLog = new DiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                List.of(new TomlFileProvider(getConfigPath("TableTypeConfig.toml"))));
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("TableTypeConfig.toml"),
+                        configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
         Assert.assertTrue(configValueMap.get(tableVar) instanceof BTable<?, ?>, "Non-table value received for " +
@@ -229,65 +239,378 @@ public class TomlProviderTest {
 
     @DataProvider(name = "multi-module-data-provider")
     public Object[][] multiModuleDataProvider() {
-        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
-        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
-        VariableKey[] variableKeys = {intVar, stringVar};
+        VariableKey[] rootVariableKeys = getSimpleVariableKeys(ROOT_MODULE);
+        VariableKey[] subVariableKeys = getSimpleVariableKeys(subModule);
+        VariableKey[] importedVariableKeys = getSimpleVariableKeys(importedModule);
 
-        VariableKey subIntVar = new VariableKey(subModule, "intVar", PredefinedTypes.TYPE_INT, true);
-        VariableKey subStringVar = new VariableKey(subModule, "stringVar", PredefinedTypes.TYPE_STRING, true);
-        VariableKey[] subVariableKeys = {subIntVar, subStringVar};
+        Module subModule2 = new Module("rootOrg", "test_module.mod1", "1.0.0");
+        VariableKey[] subVariableKeys2 = getSimpleVariableKeys(subModule2);
 
+        Module clashingModule1 = new Module("myOrg", "test_module", "1.0.0");
+        VariableKey[] clashingVariableKeys1 = getSimpleVariableKeys(clashingModule1);
+
+        Module clashingModule2 = new Module("myOrg", "test_module.util.foo", "1.0.0");
+        VariableKey[] clashingVariableKeys2 = getSimpleVariableKeys(clashingModule2);
+
+        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
+
+        Module clashingModule4 = new Module("test_module", "util", "1.0.0");
+        VariableKey[] clashingVariableKeys4 = getSimpleVariableKeys(clashingModule4);
+
+        Set<Module> moduleSet = Set.of(ROOT_MODULE);
         return new Object[][]{
-                {Map.ofEntries(Map.entry(module, variableKeys), Map.entry(subModule, subVariableKeys)),
-                        Map.ofEntries(Map.entry(intVar, 42L), Map.entry(stringVar, StringUtils.fromString("abc")),
-                                Map.entry(subIntVar, 24L), Map.entry(subStringVar, StringUtils.fromString("world"))),
-                        List.of(new TomlFileProvider(getConfigPath("MultiModuleConfig.toml")))},
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys), Map.entry(subModule, subVariableKeys),
+                        Map.entry(importedModule, importedVariableKeys)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 42L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("abc")),
+                                Map.entry(subVariableKeys[0], 24L), Map.entry(subVariableKeys[1],
+                                        StringUtils.fromString("world")), Map.entry(importedVariableKeys[0], 99L),
+                                Map.entry(importedVariableKeys[1], StringUtils.fromString("imported"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("MultiModuleConfig.toml"),
+                                Set.of(ROOT_MODULE, subModule, importedModule)))},
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys)),
-                        Map.ofEntries(Map.entry(subIntVar, 89L), Map.entry(subStringVar, StringUtils.fromString(
-                                "Hello World!"))),
-                        List.of(new TomlFileProvider(getConfigPath("SubModuleConfig.toml")))},
-                {Map.ofEntries(Map.entry(module, variableKeys)),
-                        Map.ofEntries(Map.entry(intVar, 77L), Map.entry(stringVar, StringUtils.fromString(
-                                "test string"))),
-                        List.of(new TomlFileProvider(getConfigPath("Config_A.toml")),
-                                new TomlFileProvider(getConfigPath("Config_B.toml")))},
-                {Map.ofEntries(Map.entry(module, variableKeys)),
-                        Map.ofEntries(Map.entry(intVar, 54L), Map.entry(stringVar, StringUtils.fromString(
-                                "final string"))),
-                        List.of(new TomlFileProvider(getConfigPath("Config_2.toml")),
-                                new TomlFileProvider(getConfigPath("Config_1.toml")))
-                }
-
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 89L), Map.entry(subVariableKeys[1],
+                                StringUtils.fromString("Hello World!"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("SubModuleConfig.toml"),
+                                Set.of(subModule)))},
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 77L), Map.entry(rootVariableKeys[1],
+                                StringUtils.fromString("test string"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_A.toml"), moduleSet),
+                                new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_B.toml"), moduleSet))},
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 54L), Map.entry(rootVariableKeys[1],
+                                StringUtils.fromString("final string"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_2.toml"), moduleSet),
+                                new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_1.toml"), moduleSet))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 26L), Map.entry(rootVariableKeys[1],
+                                StringUtils.fromString("root module string"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_root1.toml"),
+                                moduleSet))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 26L), Map.entry(rootVariableKeys[1],
+                                StringUtils.fromString("root module string"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_root2.toml"),
+                                moduleSet))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 26L), Map.entry(rootVariableKeys[1],
+                                StringUtils.fromString("root module string"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_root3.toml"),
+                                moduleSet))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 11L), Map.entry(subVariableKeys[1],
+                                StringUtils.fromString("module string"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_module1.toml"),
+                                Set.of(subModule)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 11L), Map.entry(subVariableKeys[1],
+                                StringUtils.fromString("module string"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_module2.toml"),
+                                Set.of(subModule)))
+                },
+                {Map.ofEntries(Map.entry(importedModule, importedVariableKeys)),
+                        Map.ofEntries(Map.entry(importedVariableKeys[0], 89L),
+                                Map.entry(importedVariableKeys[1], StringUtils.fromString("imported string"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_imported.toml"),
+                                Set.of(importedModule)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                        Map.entry(clashingModule1, clashingVariableKeys1)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 98L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("xyz")),
+                                Map.entry(clashingVariableKeys1[0], 76L),
+                                Map.entry(clashingVariableKeys1[1], StringUtils.fromString("lmn"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule1.toml"),
+                                Set.of(ROOT_MODULE, clashingModule1)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                        Map.entry(clashingModule1, clashingVariableKeys1)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 98L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("xyz")),
+                                Map.entry(clashingVariableKeys1[0], 76L),
+                                Map.entry(clashingVariableKeys1[1], StringUtils.fromString("lmn"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModuleInline1.toml"),
+                                Set.of(ROOT_MODULE, clashingModule1)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                        Map.entry(clashingModule1, clashingVariableKeys1)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 54L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("abc")),
+                                Map.entry(clashingVariableKeys1[0], 32L),
+                                Map.entry(clashingVariableKeys1[1], StringUtils.fromString("pqr"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule2.toml"),
+                                Set.of(ROOT_MODULE, clashingModule1)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                        Map.entry(clashingModule1, clashingVariableKeys1)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 54L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("abc")),
+                                Map.entry(clashingVariableKeys1[0], 32L),
+                                Map.entry(clashingVariableKeys1[1], StringUtils.fromString("pqr"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModuleInline2.toml"),
+                                Set.of(ROOT_MODULE, clashingModule1)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys),
+                        Map.entry(clashingModule2, clashingVariableKeys2)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 12L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("apple")),
+                                Map.entry(clashingVariableKeys2[0], 34L),
+                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("orange"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule3.toml"),
+                                Set.of(subModule, clashingModule2)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys),
+                        Map.entry(clashingModule2, clashingVariableKeys2)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 12L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("apple")),
+                                Map.entry(clashingVariableKeys2[0], 34L),
+                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("orange"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModuleInline3.toml"),
+                                Set.of(subModule, clashingModule2)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys),
+                        Map.entry(clashingModule2, clashingVariableKeys2)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 56L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("green")),
+                                Map.entry(clashingVariableKeys2[0], 78L),
+                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("blue"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule4.toml"),
+                                Set.of(subModule, clashingModule2)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys),
+                        Map.entry(clashingModule2, clashingVariableKeys2)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 56L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("green")),
+                                Map.entry(clashingVariableKeys2[0], 78L),
+                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("blue"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModuleInline4.toml"),
+                                Set.of(subModule, clashingModule2)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys),
+                        Map.entry(clashingModule3, clashingVariableKeys3)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 11L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("white")),
+                                Map.entry(clashingVariableKeys3[0], 99L),
+                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("black"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule5.toml"),
+                                Set.of(subModule, clashingModule3)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                        Map.entry(clashingModule3, clashingVariableKeys3)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 56L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("green")),
+                                Map.entry(clashingVariableKeys3[0], 78L),
+                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("blue"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule6.toml"),
+                                Set.of(ROOT_MODULE, clashingModule2)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule2, clashingVariableKeys2),
+                        Map.entry(ROOT_MODULE, rootVariableKeys)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 56L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("green")),
+                                Map.entry(clashingVariableKeys2[0], 78L),
+                                Map.entry(clashingVariableKeys2[1], StringUtils.fromString("blue")),
+                                Map.entry(rootVariableKeys[0], 90L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("red"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule7.toml"),
+                                Set.of(ROOT_MODULE, subModule, clashingModule2)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                        Map.entry(clashingModule4, clashingVariableKeys4)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 100L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("aaa")),
+                                Map.entry(clashingVariableKeys4[0], 200L),
+                                Map.entry(clashingVariableKeys4[1], StringUtils.fromString("bbb"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule8.toml"),
+                                Set.of(ROOT_MODULE, clashingModule4)))
+                },
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(subModule2, subVariableKeys2),
+                        Map.entry(clashingModule3, clashingVariableKeys3)),
+                        Map.ofEntries(Map.entry(subVariableKeys[0], 100L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("aaa")),
+                                Map.entry(clashingVariableKeys3[0], 200L),
+                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("bbb")),
+                        Map.entry(subVariableKeys2[0], 300L),
+                        Map.entry(subVariableKeys2[1], StringUtils.fromString("ccc"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule9.toml"),
+                                Set.of(subModule, subModule2, clashingModule3)))
+                },
+                {Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys), Map.entry(subModule, subVariableKeys),
+                        Map.entry(clashingModule3, clashingVariableKeys3), Map.entry(importedModule,
+                                importedVariableKeys)),
+                        Map.ofEntries(Map.entry(rootVariableKeys[0], 111L),
+                                Map.entry(rootVariableKeys[1], StringUtils.fromString("one")),
+                                Map.entry(subVariableKeys[0], 222L),
+                                Map.entry(subVariableKeys[1], StringUtils.fromString("two")),
+                                Map.entry(clashingVariableKeys3[0], 333L),
+                                Map.entry(clashingVariableKeys3[1], StringUtils.fromString("three")),
+                                Map.entry(importedVariableKeys[0], 444L),
+                                Map.entry(importedVariableKeys[1], StringUtils.fromString("four"))),
+                        List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule10.toml"),
+                                Set.of(ROOT_MODULE, subModule, clashingModule3)))
+                },
         };
 
+    }
+
+    @Test()
+    public void testMultiDimensionalArray() {
+        ArrayType arrayElementType = TypeCreator.createArrayType(PredefinedTypes.TYPE_INT, true);
+        BType elementType =
+                new BIntersectionType(ROOT_MODULE, new Type[]{arrayElementType, PredefinedTypes.TYPE_READONLY},
+                        arrayElementType, 0, true);
+        ArrayType arrayType = TypeCreator.createArrayType(elementType, true);
+        VariableKey intArr =
+                new VariableKey(ROOT_MODULE, "complexArr", new BIntersectionType(ROOT_MODULE, new Type[]{arrayType
+                        , PredefinedTypes.TYPE_READONLY}, arrayType, 0, true), true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{intArr}));
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        List<ConfigProvider> providers = List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
+                "MultiDimentionalArray.toml"), Set.of(ROOT_MODULE)));
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog, providers);
+        Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Object bValue = variableKeyObjectMap.get(intArr);
+        Assert.assertTrue(bValue instanceof BArray);
+        BArray bArray = (BArray) bValue;
+        Assert.assertTrue(bArray.get(0) instanceof BArray);
+        Assert.assertTrue(bArray.get(1) instanceof BArray);
+        BArray bArray1 = (BArray) bArray.get(0);
+        BArray bArray2 = (BArray) bArray.get(1);
+        Assert.assertEquals(bArray1.get(0), 55L);
+        Assert.assertEquals(bArray1.get(1), 66L);
+        Assert.assertEquals(bArray2.get(0), 11L);
+        Assert.assertEquals(bArray2.get(1), 22L);
+        Assert.assertEquals(bArray2.get(2), 33L);
+    }
+
+    @Test()
+    public void testComplexTableValue() {
+        ArrayType arrayElementType = TypeCreator.createArrayType(PredefinedTypes.TYPE_STRING, true);
+        BType elementType =
+                new BIntersectionType(ROOT_MODULE, new Type[]{arrayElementType, PredefinedTypes.TYPE_READONLY},
+                                                  arrayElementType, 0, true);
+        ArrayType arrayType = TypeCreator.createArrayType(elementType, true);
+        Field intArr = TypeCreator.createField(arrayType, "array", SymbolFlags.REQUIRED);
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        Map<String, Field> fields = Map.ofEntries(Map.entry("name", name), Map.entry("array", intArr));
+        RecordType type =
+                TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY, fields, null, true, 6);
+        TableType tableType = TypeCreator.createTableType(type, new String[]{"name"}, true);
+        IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{tableType,
+                PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
+
+        VariableKey tableVar = new VariableKey(ROOT_MODULE, "tableVar", intersectionType, true);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tableVar}));
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        List<ConfigProvider> providers = List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ComplexTableType" +
+                ".toml"), Set.of(ROOT_MODULE)));
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog, providers);
+        Map<VariableKey, Object> variableKeyObjectMap = configResolver.resolveConfigs();
+        Object bValue = variableKeyObjectMap.get(tableVar);
+        Assert.assertTrue(bValue instanceof BTable);
+        BTable<?, ?> bTable = (BTable<?, ?>) bValue;
+        BMap<?, ?>  bmap = (BMap<?, ?> ) bTable.get("abc");
+        Assert.assertEquals(((BString) bmap.get(StringUtils.fromString("name"))).getValue(), "abc");
+        Assert.assertTrue(bmap.get(StringUtils.fromString("array")) instanceof BArray);
+        BArray bArray = (BArray) bmap.get(StringUtils.fromString("array"));
+        BArray bArray1 = (BArray) bArray.get(0);
+        BArray bArray2 = (BArray) bArray.get(1);
+        Assert.assertEquals(bArray1.get(0).toString(), "a");
+        Assert.assertEquals(bArray1.get(1).toString(), "b");
+        Assert.assertEquals(bArray2.get(0).toString(), "c");
+        Assert.assertEquals(bArray2.get(1).toString(), "d");
+    }
+
+    @Test
+    public void testModuleAmbiguities() {
+        VariableKey[] rootVariableKeys = getSimpleVariableKeys(ROOT_MODULE);
+
+        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
+
+        Map<Module, VariableKey[]> variableMap = Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                Map.entry(clashingModule3, clashingVariableKeys3));
+                Map<VariableKey, Object> expectedValues = Map.ofEntries(Map.entry(rootVariableKeys[0], 56L),
+                        Map.entry(rootVariableKeys[1], StringUtils.fromString("green")),
+                        Map.entry(clashingVariableKeys3[0], 78L),
+                        Map.entry(clashingVariableKeys3[1], StringUtils.fromString("blue")));
+               List<ConfigProvider> providers =  List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath(
+                       "ConfigClashingModule6.toml"), Set.of(ROOT_MODULE, clashingModule3)));
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog, providers);
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
+            VariableKey key = keyEntry.getKey();
+            Object value = configValueMap.get(key);
+            Assert.assertNotNull(value, "value not found for variable : " + key.variable);
+            Assert.assertEquals(value, keyEntry.getValue());
+        }
+    }
+
+    @Test
+    public void testRootModuleAmbiguities() {
+        VariableKey[] subVariableKeys = getSimpleVariableKeys(subModule);
+
+        Module clashingModule3 = new Module("test_module", "util.foo", "1.0.0");
+        VariableKey[] clashingVariableKeys3 = getSimpleVariableKeys(clashingModule3);
+
+        Map<Module, VariableKey[]> variableMap = Map.ofEntries(Map.entry(subModule, subVariableKeys),
+                Map.entry(clashingModule3, clashingVariableKeys3));
+        Map<VariableKey, Object> expectedValues = Map.ofEntries(Map.entry(subVariableKeys[0], 11L),
+                        Map.entry(subVariableKeys[1], StringUtils.fromString("white")),
+                        Map.entry(clashingVariableKeys3[0], 99L),
+                        Map.entry(clashingVariableKeys3[1], StringUtils.fromString("black")));
+        List<ConfigProvider> providers =
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("ConfigClashingModule5.toml"),
+                Set.of(subModule, clashingModule3)));
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog, providers);
+        Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
+
+        for (Map.Entry<VariableKey, Object> keyEntry : expectedValues.entrySet()) {
+            VariableKey key = keyEntry.getKey();
+            Object value = configValueMap.get(key);
+            Assert.assertNotNull(value, "value not found for variable : " + key.variable);
+            Assert.assertEquals(value, keyEntry.getValue());
+        }
     }
 
     @Test
     public void testTomlProviderWithString() {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {
-                new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true),
-                new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true),
-                new VariableKey(module, "stringArr", new BIntersectionType(module, new BType[]{}, TypeCreator
+                new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true),
+                new VariableKey(ROOT_MODULE, "stringArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_STRING), 0, false), true),
-                new VariableKey(module, "booleanArr", new BIntersectionType(module, new BType[]{}, TypeCreator
+                new VariableKey(ROOT_MODULE, "booleanArr", new BIntersectionType(ROOT_MODULE, new BType[]{}, TypeCreator
                         .createArrayType(PredefinedTypes.TYPE_BOOLEAN), 0, false), true),
         };
-        configVarMap.put(module, keys);
-        String tomlContent = "[test_module] intVar = 33 stringVar = \"xyz\" " +
+        configVarMap.put(ROOT_MODULE, keys);
+        String tomlContent = "[rootOrg.test_module] intVar = 33 stringVar = \"xyz\" " +
                 "stringArr = [\"aa\", \"bb\", \"cc\"] booleanArr = [false, true, true, false]";
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, new DiagnosticLog(),
-                List.of(new TomlContentProvider(tomlContent)));
+                List.of(new TomlContentProvider(ROOT_MODULE, tomlContent, configVarMap.keySet())));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
 
         Assert.assertTrue(configValueMap.get(keys[0]) instanceof Long,
-                "Value received for variable : " + keys[0].variable + "is not 'Long'");
+                "Value received for variable : " + keys[0].variable + " is not 'Long'");
         Assert.assertTrue(configValueMap.get(keys[1]) instanceof BString,
-                "Value received for variable : " + keys[1].variable + "is not 'BString'");
+                "Value received for variable : " + keys[1].variable + " is not 'BString'");
         Assert.assertTrue(configValueMap.get(keys[2]) instanceof BArray,
-                "Value received for variable : " + keys[2].variable + "is not 'Array'");
+                "Value received for variable : " + keys[2].variable + " is not 'Array'");
         Assert.assertTrue(configValueMap.get(keys[3]) instanceof BArray,
-                "Value received for variable : " + keys[3].variable + "is not 'Array'");
+                "Value received for variable : " + keys[3].variable + " is not 'Array'");
 
         Assert.assertEquals(((Long) configValueMap.get(keys[0])).intValue(), 33);
         Assert.assertEquals(((BString) configValueMap.get(keys[1])).getValue(), "xyz");
@@ -296,41 +619,4 @@ public class TomlProviderTest {
         Assert.assertEquals(((BArray) configValueMap.get(keys[3])).getBooleanArray(),
                 new boolean[]{false, true, true, false});
     }
-
-    @Test
-    public void testTomlProviderWithStringNegative() {
-        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
-        VariableKey[] keys = getSimpleVariableKeys(module);
-        String tomlContent = "[test_module] intVar = 42.22 floatVar = 3 stringVar = 11";
-        configVarMap.put(module, keys);
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                List.of(new TomlContentProvider(tomlContent)));
-        configResolver.resolveConfigs();
-        Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: [BAL_CONFIG_DATA:(1:24,1:29)" +
-                "] configurable variable 'test_module:intVar' is expected to be of type 'int', but found 'float'");
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(), "error: [BAL_CONFIG_DATA:(1:55,1:57)" +
-                "] configurable variable 'test_module:stringVar' is expected to be of type 'string', but found 'int'");
-    }
-
-    @Test
-    public void testMultipleTomlProvidersNegative() {
-        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(module, getSimpleVariableKeys(module)));
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
-                List.of(new TomlFileProvider(getConfigPath("Config_First.toml")),
-                        new TomlFileProvider(getConfigPath("Config_Second.toml"))));
-        configResolver.resolveConfigs();
-        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
-        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: value not provided for " +
-                "required configurable variable 'myOrg/test_module:stringVar'");
-    }
-
-    private VariableKey[] getSimpleVariableKeys(Module module) {
-        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
-        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
-        return new VariableKey[]{intVar, stringVar};
-    }
-
 }

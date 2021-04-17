@@ -31,7 +31,7 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 /**
  * Test cases related to isolation analysis.
  *
- * @since Swan Lake
+ * @since 2.0.0
  */
 public class IsolationAnalysisTest {
 

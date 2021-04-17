@@ -53,6 +53,9 @@ import static org.ballerinalang.langserver.common.utils.CommonUtil.LINE_SEPARATO
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ImplementMethodCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "Implement Method";
+
     /**
      * {@inheritDoc}
      */
@@ -110,5 +113,10 @@ public class ImplementMethodCodeAction extends AbstractCodeActionProvider {
         CodeAction quickFixCodeAction = createQuickFixCodeAction(commandTitle, edits, context.fileUri());
         quickFixCodeAction.setDiagnostics(CodeActionUtil.toDiagnostics(Collections.singletonList((diagnostic))));
         return Collections.singletonList(quickFixCodeAction);
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 }

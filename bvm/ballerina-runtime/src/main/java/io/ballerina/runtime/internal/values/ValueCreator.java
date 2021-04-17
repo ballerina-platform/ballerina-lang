@@ -17,6 +17,7 @@
  */
 package io.ballerina.runtime.internal.values;
 
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BObject;
 import io.ballerina.runtime.api.values.BString;
@@ -86,4 +87,7 @@ public abstract class ValueCreator {
 
     public abstract BError createErrorValue(String errorTypeName, BString message, BError cause, Object details)
             throws BError;
+
+    public abstract Type getAnonType(int typeHash, String typeShape) throws BError;
+
 }

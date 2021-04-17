@@ -1,0 +1,7 @@
+[test_module]
+intVar = 54
+stringVar = "abc"
+
+[myOrg.test_module]
+intVar = 32
+stringVar = "pqr"
