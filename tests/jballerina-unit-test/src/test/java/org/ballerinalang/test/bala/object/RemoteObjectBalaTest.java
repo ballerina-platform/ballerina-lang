@@ -22,7 +22,6 @@ import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -43,12 +42,7 @@ public class RemoteObjectBalaTest {
 
     @Test
     public void testRemoteObject() {
-        BValue[] result = BRunUtil.invoke(compileResult, "testCheck");
-        Assert.assertEquals(result.length, 1);
-        Assert.assertEquals(result[0].stringValue(), "i1 {}");
-
-        result = BRunUtil.invoke(compileResult, "testNewEP", new BValue[]{new BString("done")});
-        Assert.assertEquals(result.length, 1);
-        Assert.assertEquals(result[0].stringValue(), "donedone");
+        BRunUtil.invoke(compileResult, "testCheck");
+        BRunUtil.invoke(compileResult, "testNewEP", new BValue[]{new BString("done")});
     }
 }

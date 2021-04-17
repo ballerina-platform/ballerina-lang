@@ -18,6 +18,7 @@
 
 package io.ballerina.runtime.internal.configurable.providers.toml;
 
+import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
@@ -61,7 +62,7 @@ public class Utils {
         }
     }
 
-     static TomlType getEffectiveTomlType(Type expectedType, String variableName) {
+    static TomlType getEffectiveTomlType(Type expectedType, String variableName) {
         TomlType tomlType;
         switch (expectedType.getTag()) {
             case TypeTags.INT_TAG:
@@ -87,27 +88,29 @@ public class Utils {
             case TypeTags.TABLE_TAG:
                 tomlType = TomlType.TABLE_ARRAY;
                 break;
+            case TypeTags.XML_ATTRIBUTES_TAG:
+            case TypeTags.XML_COMMENT_TAG:
+            case TypeTags.XML_ELEMENT_TAG:
+            case TypeTags.XML_PI_TAG:
+            case TypeTags.XML_TAG:
+            case TypeTags.XML_TEXT_TAG:
+                throw new TomlConfigException(String.format(CONFIGURATION_NOT_SUPPORTED_FOR_TOML, variableName,
+                                                            expectedType.toString()));
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) expectedType).getEffectiveType();
-                switch (effectiveType.getTag()) {
-                    case TypeTags.XML_ATTRIBUTES_TAG:
-                    case TypeTags.XML_COMMENT_TAG:
-                    case TypeTags.XML_ELEMENT_TAG:
-                    case TypeTags.XML_PI_TAG:
-                    case TypeTags.XML_TAG:
-                    case TypeTags.XML_TEXT_TAG:
-                    default:
-                        throw new TomlConfigException(String.format(CONFIGURATION_NOT_SUPPORTED_FOR_TOML, variableName,
-                                                                    effectiveType.toString()));
-                }
+                return getEffectiveTomlType(effectiveType, variableName);
             default:
-                throw new TomlConfigException(
-                        String.format(CONFIGURATION_NOT_SUPPORTED, variableName, expectedType.toString()));
+                throw new TomlConfigException(String.format(CONFIGURATION_NOT_SUPPORTED,
+                                                            variableName, expectedType.toString()));
         }
         return tomlType;
     }
 
     static boolean isPrimitiveType(int typeTag) {
         return typeTag <= TypeTags.BOOLEAN_TAG;
+    }
+
+    static String getModuleKey(Module module) {
+        return module.getOrg() + "." + module.getName();
     }
 }

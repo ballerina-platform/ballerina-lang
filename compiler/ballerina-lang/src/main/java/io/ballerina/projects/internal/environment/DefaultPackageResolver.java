@@ -214,9 +214,7 @@ public class DefaultPackageResolver implements PackageResolver {
             }
         }
 
-        return resolvedPackage.orElseThrow(() -> new IllegalStateException(
-                "Ballerina langlib package cannot be found in Ballerina distribution: org=" +
-                        resolutionRequest.orgName() + ", name=" + resolutionRequest.packageName()));
+        return resolvedPackage.orElse(null);
     }
 
     private PackageVersion findLatest(List<PackageVersion> packageVersions) {
