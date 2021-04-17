@@ -337,3 +337,18 @@ function testAnydataAgainstInvalidArray() {
         object {}[] p = arr2;
     }
 }
+
+type RecordWithIntFieldAndNeverRestField record {|
+    int i;
+    never...;
+|};
+
+type Record record {|
+    int i;
+    string s;
+|};
+
+function testRecordNegative2() {
+    Record rec = {i: 1, s: ""};
+    boolean b2 = rec is RecordWithIntFieldAndNeverRestField;
+}
