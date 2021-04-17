@@ -179,12 +179,18 @@ public class UnaryExprTest {
 
     }
 
-    @Test(description = "Test uanry statement with errors")
+    @Test(description = "Test complement operator")
+    public void testComplementOperator() {
+        BRunUtil.invoke(result, "testComplementOperator");
+    }
+
+    @Test(description = "Test unary statement with errors")
     public void testUnaryStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        Assert.assertEquals(resultNegative.getErrorCount(), 4);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json'", 5, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '!' not defined for 'json'", 23, 10);
+        BAssertUtil.validateError(resultNegative, 3, "operator '!' not defined for 'int'", 29, 13);
     }
 
     @AfterClass

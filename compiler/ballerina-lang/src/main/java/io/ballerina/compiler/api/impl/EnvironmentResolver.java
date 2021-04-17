@@ -155,7 +155,6 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangForeach;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangForkJoin;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangIf;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangLock;
-import org.wso2.ballerinalang.compiler.tree.statements.BLangMatch;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangMatchStatement;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangPanic;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangRecordDestructure;
@@ -473,15 +472,6 @@ public class EnvironmentResolver extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangMatch matchNode) {
-        if (PositionUtil.withinBlock(this.linePosition, matchNode.getPosition())) {
-            this.scope = this.symbolEnv;
-            matchNode.patternClauses.forEach(patternClause -> acceptNode(patternClause, this.symbolEnv));
-            this.acceptNode(matchNode.onFailClause, symbolEnv);
-        }
-    }
-
-    @Override
     public void visit(BLangAnnotationAttachment annAttachmentNode) {
         if (!PositionUtil.withinBlock(this.linePosition, annAttachmentNode.getPosition())) {
             return;
@@ -515,16 +505,6 @@ public class EnvironmentResolver extends BLangNodeVisitor {
         List<RecordLiteralNode.RecordField> fields = recordLiteral.fields;
         this.scope = recordLiteralEnv;
         fields.forEach(keyValue -> this.acceptNode((BLangNode) keyValue, recordLiteralEnv));
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStaticBindingPatternClause patternClause) {
-        this.acceptNode(patternClause.body, this.symbolEnv);
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchStructuredBindingPatternClause patternClause) {
-        this.acceptNode(patternClause.body, this.symbolEnv);
     }
 
     @Override
@@ -1223,10 +1203,6 @@ public class EnvironmentResolver extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangListBindingPattern listBindingPattern) {
-    }
-
-    @Override
-    public void visit(BLangMatch.BLangMatchTypedBindingPatternClause patternClauseNode) {
     }
 
     @Override

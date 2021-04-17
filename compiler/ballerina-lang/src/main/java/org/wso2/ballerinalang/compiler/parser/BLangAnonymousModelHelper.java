@@ -47,17 +47,18 @@ public class BLangAnonymousModelHelper {
     private Map<PackageID, Integer> intersectionRecordCount;
     private Map<PackageID, Integer> intersectionErrorCount;
 
-    private static final String ANON_TYPE = "$anonType$";
+    public static final String ANON_PREFIX = "$anon";
+    private static final String ANON_TYPE = ANON_PREFIX + "Type$";
     public static final String LAMBDA = "$lambda$";
     private static final String SERVICE = "$$service$";
-    private static final String ANON_SERVICE = "$anonService$";
-    private static final String BUILTIN_ANON_TYPE = "$anonType$builtin$";
+    private static final String ANON_SERVICE = ANON_PREFIX + "Service$";
+    private static final String BUILTIN_ANON_TYPE = ANON_PREFIX + "Type$builtin$";
     private static final String BUILTIN_LAMBDA = "$lambda$builtin$";
     private static final String FORK = "$fork$";
-    private static final String ANON_TYPE_ID = "$anonTypeid$";
+    private static final String ANON_TYPE_ID = ANON_PREFIX + "Typeid$";
     private static final String RAW_TEMPLATE_TYPE = "$rawTemplate$";
-    private static final String ANON_INTERSECTION_RECORD = "$anonIntersectionRecordType$";
-    private static final String ANON_INTERSECTION_ERROR_TYPE = "$anonIntersectionErrorType$";
+    private static final String ANON_INTERSECTION_RECORD = ANON_PREFIX + "IntersectionRecordType$";
+    private static final String ANON_INTERSECTION_ERROR_TYPE = ANON_PREFIX + "IntersectionErrorType$";
     private static final String TUPLE_VAR = "$tupleVar$";
     private static final String RECORD_VAR = "$recordVar$";
     private static final String ERROR_VAR = "$errorVar$";

@@ -184,6 +184,11 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPatternWithWildCard() {
+        BRunUtil.invoke(result, "testListMatchPatternWithWildCard");
+    }
+
+    @Test
     public void testListMatchPatternWithArrayAndAnydataIntersection() {
         BRunUtil.invoke(result, "testListMatchPatternWithArrayAndAnydataIntersection");
     }
