@@ -14,37 +14,23 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.'object as lang_obj;
 import ballerina/lang.runtime;
 
-class Person {
-    string name = "";
+class Employee {
+    string name = "David";
     int age = 10;
-}
 
-public function testLangLibFuncInvocationNegative() {
-    Person person = new;
-    string str = person.toString();
-}
-
-public type Frame readonly & object {
-   public function returnString() returns string;
-};
-
-public readonly class FrameImpl {
-   *Frame;
-}
-
-public class RawTemplateImpl {
-    *lang_obj:RawTemplate;
-
-    public function init() {
-        self.insertions = [1, 2, 3];
+    public function toString() returns string {
+        return "Name:" + self.name + " age:" + self.age.toString();
     }
 }
 
-public class DynamicListenerImpl {
+public class DynamicListenerImpl2 {
     *runtime:DynamicListener;
+
+    public function 'start() returns error? {
+        return ();
+    }
 
     public function gracefulStop() returns error? {
         return ();
@@ -57,4 +43,16 @@ public class DynamicListenerImpl {
 
 public readonly class StackFrameImpl {
     *runtime:StackFrame;
+
+    public function toString() returns string {
+        return "Default string";
+    }
+}
+
+public function testLangLibObjectInclusion() returns [string, string] {
+    Employee emp = new;
+    string empToString = emp.toString();
+    StackFrameImpl stkFrm = new;
+    string defaultToStr = stkFrm.toString();
+    return [empToString, defaultToStr];
 }

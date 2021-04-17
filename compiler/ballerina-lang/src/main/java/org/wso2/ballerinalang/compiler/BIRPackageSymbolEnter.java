@@ -114,6 +114,7 @@ import java.util.function.Consumer;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
+import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
 /**
@@ -279,12 +280,11 @@ public class BIRPackageSymbolEnter {
                         String referencedFuncName = function.funcName.value;
                         Name funcName = names.fromString(
                                 Symbols.getAttachedFuncSymbolName(structureTypeSymbol.name.value, referencedFuncName));
-                        Scope.ScopeEntry matchingObjFuncSym = this.env.pkgSymbol.scope.lookup(funcName);
-                        if (matchingObjFuncSym != null) {
-                            continue;
+                        Scope.ScopeEntry matchingObjFuncSym = objectType.tsymbol.scope.lookup(funcName);
+                        if (matchingObjFuncSym == NOT_FOUND_ENTRY) {
+                            structureTypeSymbol.attachedFuncs.add(function);
+                            ((BObjectTypeSymbol) structureTypeSymbol).referencedFunctions.add(function);
                         }
-                        structureTypeSymbol.attachedFuncs.add(function);
-                        ((BObjectTypeSymbol) structureTypeSymbol).referencedFunctions.add(function);
                     }
                 }
             }

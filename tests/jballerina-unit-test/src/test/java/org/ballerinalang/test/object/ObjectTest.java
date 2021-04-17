@@ -782,6 +782,17 @@ public class ObjectTest {
         Assert.assertEquals(result.getErrorCount(), 1);
     }
 
+    @Test(description = "Test lang lib object type inclusion")
+    public void testLangLibObjectInclusion() {
+        CompileResult compileResult = BCompileUtil.compile("test-src/object/object_langlib_inclusion.bal");
+        BValue[] result = BRunUtil.invoke(compileResult, "testLangLibObjectInclusion");
+        Assert.assertEquals(result.length, 2);
+        Assert.assertTrue(result[0] instanceof BString);
+        Assert.assertTrue(result[1] instanceof BString);
+        Assert.assertEquals(result[0].stringValue(), "Name:David age:10");
+        Assert.assertEquals(result[1].stringValue(), "Default string");
+    }
+
     @Test(description = "Negative test to test calling lang lib functions for objects")
     public void testLangLibFunctionInvocation() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_langlib_function_invocation_negative.bal");
@@ -790,12 +801,12 @@ public class ObjectTest {
                 27, 25);
         BAssertUtil.validateError(result, 1, "no implementation found for the method 'returnString' " +
                         "of class 'FrameImpl'",
-                48, 1);
+                34, 1);
         BAssertUtil.validateError(result, 2, "no implementation found for the method 'start' " +
                         "of class 'DynamicListenerImpl'",
-                60, 1);
+                46, 1);
         BAssertUtil.validateError(result, 3, "no implementation found for the method 'toString' " +
                         "of class 'StackFrameImpl'",
-                88, 1);
+                58, 1);
     }
 }
