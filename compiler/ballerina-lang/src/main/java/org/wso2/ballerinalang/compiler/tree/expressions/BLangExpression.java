@@ -54,7 +54,7 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
     public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
 
     /**
-     * Indicates whether the expression is an accessible expression.
+     * Indicates whether the expression is part of a field/member access expression.
      */
     public BSymbol symbol;
     public boolean lhsVar = false;
