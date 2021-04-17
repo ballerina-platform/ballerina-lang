@@ -630,6 +630,13 @@ public class TypeGuardTest {
         Assert.assertEquals(BBoolean.TRUE, returns[0]);
     }
 
+    @Test
+    public void testTypeGuardRuntimeWithAlwaysTrueHint() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/type_guard_with_always_true_hint.bal");
+        BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint1");
+        BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint2");
+    }
+
     @AfterClass
     public void tearDown() {
         result = null;
