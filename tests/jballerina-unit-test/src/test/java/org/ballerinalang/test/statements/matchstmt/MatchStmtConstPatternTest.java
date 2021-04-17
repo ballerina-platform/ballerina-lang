@@ -128,6 +128,11 @@ public class MatchStmtConstPatternTest {
         BRunUtil.invoke(result, "testConstPattern17");
     }
 
+    @Test
+    public void testConstPattern18() {
+        BRunUtil.invoke(result, "testConstPattern18");
+    }
+
     @Test(description = "Test pattern will not be matched")
     public void testConstPatternNegative() {
         int i = -1;
