@@ -263,7 +263,7 @@ public class BIRPackageSymbolEnter {
 
     private void populateReferencedFunctions() {
         for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
-            if (structureTypeSymbol instanceof BObjectTypeSymbol) {
+            if (structureTypeSymbol.type.tag == TypeTags.OBJECT) {
                 BObjectType objectType = (BObjectType) structureTypeSymbol.type;
                 for (BType typeRef : objectType.typeInclusions) {
                     if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
@@ -272,15 +272,15 @@ public class BIRPackageSymbolEnter {
 
                     List<BAttachedFunction> attachedFunctions = ((BObjectTypeSymbol) typeRef.tsymbol).attachedFuncs;
                     for (BAttachedFunction function : attachedFunctions) {
+                        if (Symbols.isPrivate(function.symbol)) {
+                            // we should not copy private functions.
+                            continue;
+                        }
                         String referencedFuncName = function.funcName.value;
                         Name funcName = names.fromString(
                                 Symbols.getAttachedFuncSymbolName(structureTypeSymbol.name.value, referencedFuncName));
                         Scope.ScopeEntry matchingObjFuncSym = this.env.pkgSymbol.scope.lookup(funcName);
                         if (matchingObjFuncSym != null) {
-                            continue;
-                        }
-                        if (Symbols.isPrivate(function.symbol)) {
-                            // we should not copy private functions.
                             continue;
                         }
                         structureTypeSymbol.attachedFuncs.add(function);
@@ -1487,26 +1487,7 @@ public class BIRPackageSymbolEnter {
                     for (int i = 0; i < funcCount; i++) {
                         //populate intersection type object functions
                         if (isImmutable(objectSymbol.flags) && Symbols.isFlagOn(flags, Flags.ANONYMOUS)) {
-                            String attachedFuncName = getStringCPEntryValue(inputStream);
-                            var attachedFuncFlags = inputStream.readLong();
-                            if (Symbols.isFlagOn(attachedFuncFlags, Flags.INTERFACE) &&
-                                    Symbols.isFlagOn(attachedFuncFlags, Flags.ATTACHED)) {
-                                BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
-                                Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
-                                        objectSymbol.name.value, attachedFuncName));
-                                BInvokableSymbol attachedFuncSymbol =
-                                        Symbols.createFunctionSymbol(attachedFuncFlags,
-                                                funcName, env.pkgSymbol.pkgID, attachedFuncType,
-                                                env.pkgSymbol, false, symTable.builtinPos,
-                                                COMPILED_SOURCE);
-                                attachedFuncSymbol.retType = attachedFuncType.retType;
-                                BAttachedFunction attachedFunction = new BAttachedFunction(funcName, attachedFuncSymbol,
-                                        attachedFuncType, symTable.builtinPos);
-
-                                objectSymbol.referencedFunctions.add(attachedFunction);
-                                objectSymbol.attachedFuncs.add(attachedFunction);
-                                objectSymbol.scope.define(funcName, attachedFuncSymbol);
-                            }
+                            populateIntersectionTypeReferencedFunctions(inputStream, objectSymbol);
                         } else {
                             ignoreAttachedFunc();
                         }
@@ -1628,6 +1609,29 @@ public class BIRPackageSymbolEnter {
 
             unionType.tsymbol = new BEnumSymbol(members, flags, names.fromString(enumName), pkgSymbol.pkgID, unionType,
                                                 pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
+        }
+
+        private void populateIntersectionTypeReferencedFunctions(DataInputStream inputStream,
+                                                                 BObjectTypeSymbol objectSymbol) throws IOException {
+            String attachedFuncName = getStringCPEntryValue(inputStream);
+            var attachedFuncFlags = inputStream.readLong();
+            if (Symbols.isFlagOn(attachedFuncFlags, Flags.INTERFACE) &&
+                    Symbols.isFlagOn(attachedFuncFlags, Flags.ATTACHED)) {
+                BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
+                Name funcName = names.fromString(attachedFuncName);
+                BInvokableSymbol attachedFuncSymbol =
+                        Symbols.createFunctionSymbol(attachedFuncFlags,
+                                funcName, env.pkgSymbol.pkgID, attachedFuncType,
+                                env.pkgSymbol, false, symTable.builtinPos,
+                                COMPILED_SOURCE);
+                attachedFuncSymbol.retType = attachedFuncType.retType;
+                BAttachedFunction attachedFunction = new BAttachedFunction(funcName, attachedFuncSymbol,
+                        attachedFuncType, symTable.builtinPos);
+
+                objectSymbol.referencedFunctions.add(attachedFunction);
+                objectSymbol.attachedFuncs.add(attachedFunction);
+                objectSymbol.scope.define(funcName, attachedFuncSymbol);
+            }
         }
     }
 
