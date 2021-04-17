@@ -686,6 +686,32 @@ function listMatchPattern28(anydata val) returns anydata {
     }
 }
 
+function testListMatchPatternWithWildCard() {
+    [int, string, CONST1]|error v1 = [1, "str", CONST1];
+    string result = "";
+    match v1 {
+        [1, "str", "Ballerina1"] => {
+            result = "Matched";
+        }
+        _ => {
+           result = "Default";
+        }
+    }
+    assertEquals("Default", result);
+
+    [int, string, CONST1]|error v2 = error("SampleError");
+    result = "Not Matched";
+    match v2 {
+        [1, "str", "Ballerina"] => {
+            result = "Matched";
+        }
+        _ => {
+           result = "Default";
+        }
+    }
+    assertEquals("Not Matched", result);
+}
+
 function testListMatchPatternWithArrayAndAnydataIntersection() {
     int[] x = [1, 2, 3];
     assertEquals(x, listMatchPattern28(<int[][]> [x]));

@@ -49,6 +49,9 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "AI Data Mapper";
+
     /**
      * {@inheritDoc}
      */
@@ -61,6 +64,11 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             getAIDataMapperCommand(diagnostic, positionDetails, context).map(actions::add);
         }
         return actions;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     /**

@@ -176,7 +176,8 @@ public class OptionTest {
             getMap(type, new String[]{"--array", "10", "--array", "arr-val"});
             Assert.fail();
         } catch (BError error) {
-            Assert.assertEquals(error.getMessage(), "invalid argument 'arr-val', expected integer value");
+            Assert.assertEquals(error.getMessage(),
+                                "invalid argument 'arr-val' for parameter 'array', expected integer value");
         }
     }
     private BArray getMap(RecordType type, String[] args) {
@@ -202,13 +203,15 @@ public class OptionTest {
             getMap(type, new String[]{"--array=true"});
             Assert.fail();
         } catch (BError error) {
-            Assert.assertEquals(error.getMessage(), "'boolean' type expected as an unnamed option argument");
+            Assert.assertEquals(error.getMessage(),
+                                "the option 'array' of type 'boolean' is expected without a value");
         }
         try {
             getMap(type, new String[]{"--array=false"});
             Assert.fail();
         } catch (BError error) {
-            Assert.assertEquals(error.getMessage(), "'boolean' type expected as an unnamed option argument");
+            Assert.assertEquals(error.getMessage(),
+                                "the option 'array' of type 'boolean' is expected without a value");
         }
     }
 
@@ -218,16 +221,17 @@ public class OptionTest {
         Map<String, Field> fields = Map.ofEntries(Map.entry(booleanField.getFieldName(), booleanField));
         RecordType type = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
         Option option = new Option(type, ValueCreator.createMapValue(type));
-        CliSpec cliSpec = new CliSpec(option, new Operand[0], new String[]{"--bool"});
+        CliSpec cliSpec = new CliSpec(option, new Operand[0], "--bool");
         Object[] mainArgs = cliSpec.getMainArgs();
         BMap map = (BMap) mainArgs[1];
         Assert.assertEquals(map.get(StringUtils.fromString(booleanField.getFieldName())), true);
         try {
-            cliSpec = new CliSpec(option, new Operand[0], new String[]{"--bool=false"});
+            cliSpec = new CliSpec(option, new Operand[0], "--bool=false");
             cliSpec.getMainArgs();
             Assert.fail();
         } catch (BError error) {
-            Assert.assertEquals(error.getMessage(), "'boolean' type expected as an unnamed option argument");
+            Assert.assertEquals(error.getMessage(),
+                                "the option 'bool' of type 'boolean' is expected without a value");
         }
     }
 
@@ -240,7 +244,8 @@ public class OptionTest {
 
     @Test(dataProvider = "invalidTypes")
     public void testInvalidTypes(Type type, String typeStr) {
-        testInvalid(type, new String[]{"--val=name"}, "invalid argument 'name', expected " + typeStr + " value");
+        testInvalid(type, new String[]{"--val=name"},
+                    "invalid argument 'name' for parameter 'val', expected " + typeStr + " value");
     }
 
     @DataProvider(name = "invalid")

@@ -54,6 +54,8 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
 
+    public static final String NAME = "Change Parameter Type";
+
     /**
      * {@inheritDoc}
      */
@@ -118,6 +120,11 @@ public class ChangeParameterTypeCodeAction extends AbstractCodeActionProvider {
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private VariableDeclarationNode getVariableDeclarationNode(NonTerminalNode node) {

@@ -66,6 +66,8 @@ public class IsolatedObjectTest {
                 "x; }'", 106, 38);
         validateError(result, i++, "incompatible types: expected 'isolated object { int x; }', found 'object { " +
                 "private int x; }'", 109, 46);
+        validateError(result, i++, "incompatible types: expected 'isolated function () returns ()', found 'function " +
+                "() returns ()'", 118, 39);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -228,6 +230,10 @@ public class IsolatedObjectTest {
                 "'lock' statement", 609, 13);
         validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
                 "'lock' statement", 610, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 632, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 639, 13);
+        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
+                646, 35);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
