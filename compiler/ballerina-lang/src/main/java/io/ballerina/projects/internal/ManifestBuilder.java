@@ -42,15 +42,20 @@ import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
+import io.ballerina.toml.semantic.diagnostics.TomlDiagnostic;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.compiler.CompilerOptionName;
 
 import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -84,7 +89,7 @@ public class ManifestBuilder {
     private static final String AUTHORS = "authors";
     private static final String REPOSITORY = "repository";
     private static final String KEYWORDS = "keywords";
-    private static final String EXPORTED = "exported";
+    private static final String EXPORT = "export";
 
     private ManifestBuilder(TomlDocument ballerinaToml, TomlDocument dependenciesToml, TomlDocument compilerPluginToml,
             Path projectPath) {
@@ -159,7 +164,7 @@ public class ManifestBuilder {
                 license = getStringArrayFromPackageNode(pkgNode, LICENSE);
                 authors = getStringArrayFromPackageNode(pkgNode, AUTHORS);
                 keywords = getStringArrayFromPackageNode(pkgNode, KEYWORDS);
-                exported = getStringArrayFromPackageNode(pkgNode, EXPORTED);
+                exported = getStringArrayFromPackageNode(pkgNode, EXPORT);
                 repository = getStringValueFromPackageNode(pkgNode, REPOSITORY, "");
             }
         }
@@ -329,8 +334,18 @@ public class ManifestBuilder {
                             for (TomlTableNode platformEntryTable : children) {
                                 if (!platformEntryTable.entries().isEmpty()) {
                                     Map<String, Object> platformEntryMap = new HashMap<>();
+                                    String pathValue = getStringValueFromPlatformEntry(platformEntryTable, "path");
+                                    if (pathValue != null) {
+                                        Path path = Paths.get(pathValue);
+                                        if (!path.isAbsolute()) {
+                                            path = this.projectPath.resolve(path);
+                                        }
+                                        if (Files.notExists(path)) {
+                                            reportInvalidPathDiagnostic(platformEntryTable, pathValue);
+                                        }
+                                    }
                                     platformEntryMap.put("path",
-                                            getStringValueFromPlatformEntry(platformEntryTable, "path"));
+                                            pathValue);
                                     platformEntryMap.put("groupId",
                                             getStringValueFromPlatformEntry(platformEntryTable, "groupId"));
                                     platformEntryMap.put("artifactId",
@@ -352,6 +367,16 @@ public class ManifestBuilder {
         }
 
         return platforms;
+    }
+
+    private void reportInvalidPathDiagnostic(TomlTableNode tomlTableNode, String path) {
+        DiagnosticInfo diagnosticInfo =
+                new DiagnosticInfo(null, "error.invalid.path", DiagnosticSeverity.ERROR);
+        TomlDiagnostic tomlDiagnostic = new TomlDiagnostic(
+                tomlTableNode.entries().get("path").location(),
+                diagnosticInfo,
+                "could not locate dependency path '" + path + "'");
+        tomlTableNode.addDiagnostic(tomlDiagnostic);
     }
 
     private BuildOptions setBuildOptions(TomlTableNode tomlTableNode) {

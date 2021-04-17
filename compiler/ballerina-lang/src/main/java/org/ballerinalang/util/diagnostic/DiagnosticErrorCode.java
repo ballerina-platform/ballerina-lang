@@ -384,12 +384,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "never.type.not.allowed.for.required.and.defaultable.params"),
     INVALID_CLIENT_REMOTE_METHOD_CALL("BCE2645", "invalid.client.remote.method.call"),
     NEVER_TYPED_VAR_DEF_NOT_ALLOWED("BCE2646", "never.typed.var.def.not.allowed"),
+    NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED("BCE2647", "never.typed.object.field.not.allowed"),
 
-    EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2647", "expression.does.not.support.member.access"),
-    EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2648", "expression.does.not.support.field.access"),
-    CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2649",
+    EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2648", "expression.does.not.support.member.access"),
+    EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2649", "expression.does.not.support.field.access"),
+    CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2650",
             "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
-    INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2650", "invalid.method.call.expr.on.field"),
+    INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -433,14 +434,15 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     CHECKED_EXPR_INVALID_USAGE_NO_ERROR_TYPE_IN_RHS("BCE3030", "checked.expr.invalid.usage.no.error.type.rhs"),
     CHECKED_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
             "BCE3032", "checked.expr.no.matching.error.return.in.encl.invokable"),
+    NEVER_TYPE_NOT_ALLOWED_WITH_CHECKED_EXPR("BCE3033", "never.type.not.allowed.with.checked.expr"),
 
     FAIL_EXPR_NO_MATCHING_ERROR_RETURN_IN_ENCL_INVOKABLE(
-            "BCE3033", "fail.expr.no.matching.error.return.in.encl.invokable"),
-    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("BCE3034", "on.fail.no.matching.error"),
+            "BCE3034", "fail.expr.no.matching.error.return.in.encl.invokable"),
+    INCOMPATIBLE_ON_FAIL_ERROR_DEFINITION("BCE3035", "on.fail.no.matching.error"),
 
-    START_REQUIRE_INVOCATION("BCE3035", "start.require.invocation"),
-    INVALID_EXPR_STATEMENT("BCE3036", "invalid.expr.statement"),
-    INVALID_ACTION_INVOCATION_AS_EXPR("BCE3037", "invalid.action.invocation.as.expr"),
+    START_REQUIRE_INVOCATION("BCE3036", "start.require.invocation"),
+    INVALID_EXPR_STATEMENT("BCE3037", "invalid.expr.statement"),
+    INVALID_ACTION_INVOCATION_AS_EXPR("BCE3038", "invalid.action.invocation.as.expr"),
 
     // Parser error diagnostic codes
     INVALID_TOKEN("BCE3100", "invalid.token"),
@@ -517,7 +519,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_TYPE_CHECK("BCE3603", "incompatible.type.check"),
 
     INVALID_USAGE_OF_CLONE("BCE3605", "clone.invocation.invalid"),
-    CANNOT_ITERATE_A_CLOSED_RECORD_WITH_NO_FIELDS("BCE3606", "cannot.iterate.a.closed.record.with.no.fields"),
 
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("BCE3700", "partially.initialized.variable"),
@@ -533,7 +534,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNKNOWN_DETAIL_ARG_TO_CLOSED_ERROR_DETAIL_REC("BCE3709", "unknown.error.detail.arg.to.closed.detail"),
     INVALID_ERROR_DETAIL_REST_ARG_TYPE("BCE3710", "invalid.error.detail.rest.arg"),
     UNDEFINED_ERROR_TYPE_DESCRIPTOR("BCE3711", "undefined.error.type.descriptor"),
-    INVALID_REST_DETAIL_ARG("BCE3712",
+    INVALID_ERROR_TYPE_REFERENCE("BCE3712", "invalid.error.type.reference"),
+    INVALID_REST_DETAIL_ARG("BCE3713",
             "invalid.error.constructor.rest.detail.arg.on.detail.type.with.individual.fields"),
 
     // Seal inbuilt function related codes

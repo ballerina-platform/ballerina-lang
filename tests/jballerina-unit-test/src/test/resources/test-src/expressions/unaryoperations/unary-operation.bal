@@ -62,3 +62,20 @@ function unaryNegationTest(int a, int b) returns (int) {
 function unaryPositiveNegationTest(int a) returns (int) {
     return +-a;
 }
+
+function complementOperator(int a) returns int {
+    return ~a;
+}
+
+function testComplementOperator() {
+    assertEquality(-1, complementOperator(0));
+    assertEquality(-6, complementOperator(5));
+    assertEquality(4, complementOperator(-5));
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString() + "'");
+}

@@ -1,0 +1,11 @@
+[rootOrg.test_module.util.foo]
+intVar = 100
+stringVar = "aaa"
+
+[rootOrg.test_module.mod1]
+intVar = 300
+stringVar = "ccc"
+
+[test_module.util.foo]
+intVar = 200
+stringVar = "bbb"

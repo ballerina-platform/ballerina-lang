@@ -21,7 +21,6 @@ package org.ballerinalang.langlib.java;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.ObjectType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.TypedescType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BHandle;
 import io.ballerina.runtime.api.values.BMap;
@@ -71,8 +70,7 @@ public class Cast {
             ObjectType castObjType;
             String castObjTypeName;
             try {
-                TypedescType describingType = (TypedescType) describingBType;
-                castObjType = (ObjectType) describingType.getConstraint();
+                castObjType = (ObjectType) describingBType;
                 castObjTypeName = castObjType.getName();
                 Field objField = castObjType.getFields().get(jObjField);
                 if (objField == null) {
@@ -84,9 +82,8 @@ public class Cast {
                         "parameter: " + e));
             }
             try {
-                BMap castObjAnnotation = (BMap) castObjType.getAnnotation(
-                        StringUtils.fromString(annotationType));
-                castObjClass = (BString) castObjAnnotation.getStringValue(StringUtils.fromString(classAttribute));
+                BMap castObjAnnotation = (BMap) castObjType.getAnnotation(StringUtils.fromString(annotationType));
+                castObjClass = castObjAnnotation.getStringValue(StringUtils.fromString(classAttribute));
             } catch (Exception e) {
                 return createError(StringUtils.fromString(moduleName + " Error while retrieving details of the `" +
                         annotationName + "` annotation from `" + castObjTypeName + "` typedesc: " + e));

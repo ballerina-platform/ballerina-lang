@@ -29,8 +29,10 @@ import org.wso2.ballerinalang.compiler.bir.codegen.internal.AsyncDataCollector;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.BIRVarToJVMIndexMap;
 import org.wso2.ballerinalang.compiler.bir.codegen.internal.ScheduleFunctionInfo;
 import org.wso2.ballerinalang.compiler.bir.model.BIRNode.BIRTypeDefinition;
+import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsAnydataUniqueVisitor;
 import org.wso2.ballerinalang.compiler.semantics.analyzer.IsPureTypeUniqueVisitor;
+import org.wso2.ballerinalang.compiler.semantics.analyzer.TypeHashVisitor;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
@@ -66,6 +68,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.ArrayList;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -91,6 +94,7 @@ import static org.objectweb.asm.Opcodes.ICONST_1;
 import static org.objectweb.asm.Opcodes.IFEQ;
 import static org.objectweb.asm.Opcodes.IFNE;
 import static org.objectweb.asm.Opcodes.IFNONNULL;
+import static org.objectweb.asm.Opcodes.ILOAD;
 import static org.objectweb.asm.Opcodes.INSTANCEOF;
 import static org.objectweb.asm.Opcodes.INVOKEINTERFACE;
 import static org.objectweb.asm.Opcodes.INVOKESPECIAL;
@@ -133,6 +137,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUNCTION_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.FUTURE_VALUE;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.GET_ANON_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.HANDLE_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.INTEGER_TYPE;
@@ -195,6 +200,7 @@ import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_TYPE_IMPL;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmConstants.XML_VALUE;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.NAME_HASH_COMPARATOR;
+import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.TYPE_HASH_COMPARATOR;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.createDefaultCase;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeDescClassName;
 import static org.wso2.ballerinalang.compiler.bir.codegen.JvmValueGen.getTypeValueClassName;
@@ -209,11 +215,15 @@ public class JvmTypeGen {
     private final IsPureTypeUniqueVisitor isPureTypeUniqueVisitor;
     private final IsAnydataUniqueVisitor isAnydataUniqueVisitor;
     private final JvmBStringConstantsGen stringConstantsGen;
+    private final TypeHashVisitor typeHashVisitor;
+    private final PackageID packageID;
 
-    public JvmTypeGen(JvmBStringConstantsGen stringConstantsGen) {
+    public JvmTypeGen(JvmBStringConstantsGen stringConstantsGen, PackageID packageID) {
         this.stringConstantsGen = stringConstantsGen;
+        this.packageID = packageID;
         isPureTypeUniqueVisitor = new IsPureTypeUniqueVisitor();
         isAnydataUniqueVisitor = new IsAnydataUniqueVisitor();
+        typeHashVisitor = new TypeHashVisitor();
     }
 
     /**
@@ -411,7 +421,7 @@ public class JvmTypeGen {
 
     private void addImmutableType(MethodVisitor mv, BType type) {
         BIntersectionType immutableType = ((SelectivelyImmutableReferenceType) type).getImmutableType();
-        if (immutableType == null) {
+        if (immutableType == null || !(immutableType.tsymbol.pkgID.equals(type.tsymbol.pkgID))) {
             return;
         }
 
@@ -499,6 +509,75 @@ public class JvmTypeGen {
         }
 
         return targetLabels;
+    }
+
+    // -------------------------------------------------------
+    //              getAnonType() generation methods
+    // -------------------------------------------------------
+
+    void generateGetAnonTypeMethod(ClassWriter cw, List<BIRTypeDefinition> typeDefinitions, String typeOwnerClass) {
+        MethodVisitor mv = cw.visitMethod(ACC_PUBLIC, GET_ANON_TYPE,
+                String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), null, null);
+        mv.visitCode();
+
+        int hashParamRegIndex = 1;
+        int shapeParamRegIndex = 2;
+        Label defaultCaseLabel = new Label();
+
+        // filter anon types and sorts them before generating switch case.
+        Set<BIRTypeDefinition> typeDefSet = new TreeSet<>(TYPE_HASH_COMPARATOR);
+        for (BIRTypeDefinition t : typeDefinitions) {
+            if (t.internalName.value.contains(BLangAnonymousModelHelper.ANON_PREFIX)
+                    || Symbols.isFlagOn(t.type.flags, Flags.ANONYMOUS)) {
+                typeDefSet.add(t);
+            }
+        }
+
+        Map<String, Label> labels = createLabelsForAnonTypeHashSwitch(mv, hashParamRegIndex,
+                typeDefSet, defaultCaseLabel);
+
+        for (Map.Entry<String, Label> labelEntry : labels.entrySet()) {
+            String fieldName = labelEntry.getKey();
+            Label targetLabel = labelEntry.getValue();
+            mv.visitLabel(targetLabel);
+            mv.visitFieldInsn(GETSTATIC, typeOwnerClass, fieldName, String.format("L%s;", TYPE));
+            mv.visitInsn(ARETURN);
+        }
+
+        createDefaultCase(mv, defaultCaseLabel, shapeParamRegIndex, "No such type: ");
+        mv.visitMaxs(typeDefSet.size() + 10, typeDefSet.size() + 10);
+        mv.visitEnd();
+    }
+
+    private Map<String, Label> createLabelsForAnonTypeHashSwitch(MethodVisitor mv,
+                                                                 int nameRegIndex,
+                                                                 Set<BIRTypeDefinition> nodes,
+                                                                 Label defaultCaseLabel) {
+        mv.visitVarInsn(ILOAD, nameRegIndex);
+        // Create labels for the cases
+        Map<String, Label> labelFieldMapping = new LinkedHashMap<>();
+        Map<Integer, Label> labelHashMapping = new LinkedHashMap<>();
+        for (BIRTypeDefinition node : nodes) {
+            if (node != null) {
+                BType type = node.type;
+                String fieldName = getTypeFieldName(node.internalName.value);
+                Integer typeHash = typeHashVisitor.visit(type);
+                boolean fieldExists = labelFieldMapping.containsKey(fieldName);
+                boolean hashExists = labelHashMapping.containsKey(typeHash);
+                if (!fieldExists && !hashExists) {
+                    Label label = new Label();
+                    labelFieldMapping.put(fieldName, label);
+                    labelHashMapping.put(typeHash, label);
+                } else {
+                    assert fieldExists && hashExists; // hashing issues.
+                }
+                typeHashVisitor.reset();
+            }
+        }
+        int[] hashes = labelHashMapping.keySet().stream().mapToInt(Integer::intValue).toArray();
+        Label[] labels = labelHashMapping.values().toArray(new Label[0]);
+        mv.visitLookupSwitchInsn(defaultCaseLabel, hashes, labels);
+        return labelFieldMapping;
     }
 
     // -------------------------------------------------------
@@ -1856,13 +1935,31 @@ public class JvmTypeGen {
      * @param bType user defined type
      */
     private void loadUserDefinedType(MethodVisitor mv, BType bType) {
-
-        PackageID packageID = bType.tsymbol.pkgID;
-
+        BTypeSymbol typeSymbol = bType.tsymbol.isTypeParamResolved ? bType.tsymbol.typeParamTSymbol : bType.tsymbol;
+        BType typeToLoad = bType.tsymbol.isTypeParamResolved ? typeSymbol.type : bType;
+        PackageID packageID = typeSymbol.pkgID;
         String typeOwner = JvmCodeGenUtil.getPackageName(packageID) + MODULE_INIT_CLASS_NAME;
-        String fieldName = getTypeFieldName(toNameString(bType));
+        String fieldName = getTypeFieldName(toNameString(typeToLoad));
 
-        mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", TYPE));
+        // if name contains $anon and doesn't belong to the same package, load type using getAnonType() method.
+        if (!this.packageID.equals(packageID) &&
+                (fieldName.contains(BLangAnonymousModelHelper.ANON_PREFIX)
+                        || Symbols.isFlagOn(typeToLoad.flags, Flags.ANONYMOUS))) {
+            Integer hash = typeHashVisitor.visit(typeToLoad);
+            String shape = typeToLoad.toString();
+            typeHashVisitor.reset();
+
+            mv.visitTypeInsn(NEW, typeOwner);
+            mv.visitInsn(DUP);
+            mv.visitMethodInsn(INVOKESPECIAL, typeOwner, JVM_INIT_METHOD, "()V", false);
+
+            mv.visitLdcInsn(hash);
+            mv.visitLdcInsn(String.format("Package: %s, TypeName: %s, Shape: %s", typeOwner, fieldName, shape));
+            mv.visitMethodInsn(INVOKEVIRTUAL, typeOwner, GET_ANON_TYPE,
+                    String.format("(IL%s;)L%s;", STRING_VALUE, TYPE), false);
+        } else {
+            mv.visitFieldInsn(GETSTATIC, typeOwner, fieldName, String.format("L%s;", TYPE));
+        }
     }
 
     /**
@@ -1871,7 +1968,7 @@ public class JvmTypeGen {
      * @param typeName type name
      * @return name of the field that holds the type instance
      */
-    private String getTypeFieldName(String typeName) {
+    private static String getTypeFieldName(String typeName) {
 
         return String.format("$type$%s", typeName);
     }

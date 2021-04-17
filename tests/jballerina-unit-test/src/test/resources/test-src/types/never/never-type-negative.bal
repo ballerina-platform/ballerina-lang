@@ -12,10 +12,6 @@ function testAssignNeverReturnedFuncCall() {
     never x = functionWithNeverReturnType();
 }
 
-function testMisAssignNeverReturnedFuncCall() {
-    () x = functionWithNeverReturnType();
-}
-
 function testAssignAnyToNeverReturnedFuncCall() {
     any x = functionWithNeverReturnType();
 }
@@ -143,9 +139,6 @@ function testNeverInUnionTypedKeyConstraints() {
 
 //------------ Testing a never type assignment ---------
 function testNeverAssignment() {
-     never[] arr = [];
-     'xml:Text a = arr[0];
-     xml<never> b = arr[0];
      string empty = "";
      xml<never> c = xml `${empty}`;
      xml|'xml:Text d = xml ``;
@@ -192,14 +185,32 @@ function blow4(int val, record {| never x; |} rec = {}) {
 function blow5() returns error? {
     Bam bam = new;
     bam->func();
+    bam->func2();
+    bam->func3();
 }
 
 client class Bam {
     remote function func() returns never {
         panic error("error!");
     }
+
+    remote function func2() returns [never] {
+        panic error("error!");
+    }
+
+    remote function func3() returns record {| never x; |} {
+        panic error("error!");
+    }
 }
 
 function testNeverTypeInTypedBindingPattern2() {
     [never] x = [];
+}
+
+function testNeverEquivalentRequiredArgInFunc1([never] a = foo()) {
+
+}
+
+function testNeverEquivalentRequiredArgInFunc2(record {| never x; |} a, object { never value; } b) {
+
 }
