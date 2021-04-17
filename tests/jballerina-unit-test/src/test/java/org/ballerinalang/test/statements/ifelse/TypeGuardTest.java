@@ -633,6 +633,11 @@ public class TypeGuardTest {
     @Test
     public void testTypeGuardRuntimeWithAlwaysTrueHint() {
         CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/type_guard_with_always_true_hint.bal");
+
+        Assert.assertEquals(result.getHintCount(), 2);
+        BAssertUtil.validateHint(result, 0, "unnecessary condition: expression will always evaluate to 'true'", 23, 8);
+        BAssertUtil.validateHint(result, 1, "unnecessary condition: expression will always evaluate to 'true'", 33, 8);
+
         BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint1");
         BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint2");
     }
