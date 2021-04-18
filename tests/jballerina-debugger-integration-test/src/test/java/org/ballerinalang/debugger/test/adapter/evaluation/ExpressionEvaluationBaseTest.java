@@ -80,7 +80,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     protected static final String GLOBAL_VAR_08 = "byteValue";
     protected static final String GLOBAL_VAR_09 = "floatValue";
     protected static final String GLOBAL_VAR_10 = "jsonVar";
-    protected static final String GLOBAL_VAR_11 = "'\\ \\/\\:\\@\\[\\`\\{\\~\\u{2324}_IL";
+    protected static final String GLOBAL_VAR_11 = "'\\ \\/\\:\\@\\[\\`\\{\\~\\u{03C0}_IL";
 
     protected DebugTestRunner debugTestRunner;
 
