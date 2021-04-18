@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/lang.value;
 class PersonObj {
     public string name = "Waruna";
     public int age = 10;
@@ -45,5 +45,5 @@ type Person3 record {|
 
 function testObjectToJson() returns json|error {
     PersonObj p = new PersonObj();
-    return p.cloneWithType(json);
+    return value:cloneWithType(p, json);
 }

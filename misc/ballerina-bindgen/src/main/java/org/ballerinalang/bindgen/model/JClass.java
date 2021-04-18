@@ -31,8 +31,11 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import static org.ballerinalang.bindgen.utils.BindgenConstants.EXCEPTION_CLASS_PREFIX;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.getAlias;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isFinalField;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicClass;
+import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicConstructor;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicField;
 import static org.ballerinalang.bindgen.utils.BindgenUtils.isPublicMethod;
 
@@ -69,9 +72,14 @@ public class JClass {
         modulesFlag = env.getModulesFlag();
 
         Class sClass = c.getSuperclass();
+        // Iterate until a public super class is found.
+        while (sClass != null && !isPublicClass(sClass)) {
+            sClass = sClass.getSuperclass();
+        }
         if (sClass != null) {
             env.setClassListForLooping(sClass.getName());
             String simpleClassName = getAlias(sClass, env.getAliases()).replace("$", "");
+            simpleClassName = getExceptionName(sClass, simpleClassName);
             superClassPackage.put(simpleClassName, sClass.getPackageName().replace(".", ""));
         }
 
@@ -88,10 +96,12 @@ public class JClass {
 
     private String getExceptionName(Class exception, String name) {
         try {
-            // Append the prefix "J" in front of bindings generated for Java exceptions.
+            // Append the exception class prefix in front of bindings generated for Java exceptions.
             if (this.getClass().getClassLoader().loadClass(Exception.class.getCanonicalName())
                     .isAssignableFrom(exception)) {
-                return "J" + name;
+                String shortClassName = EXCEPTION_CLASS_PREFIX + name;
+                env.setAlias(shortClassName, exception.getName());
+                return shortClassName;
             }
         } catch (ClassNotFoundException ignore) {
             // Silently ignore if the exception class cannot be found.
@@ -114,7 +124,9 @@ public class JClass {
         int i = 1;
         List<JConstructor> tempList = new ArrayList<>();
         for (Constructor constructor : constructors) {
-            tempList.add(new JConstructor(constructor, env, this, null));
+            if (isPublicConstructor(constructor)) {
+                tempList.add(new JConstructor(constructor, env, this, null));
+            }
         }
         tempList.sort(Comparator.comparing(JConstructor::getParamTypes));
         for (JConstructor constructor:tempList) {
@@ -157,7 +169,7 @@ public class JClass {
         for (Field field : fields) {
             // To prevent the duplication of fields resulting from super classes.
             for (JField jField : fieldList) {
-                if (jField.getFieldName().equals(field.getName())) {
+                if (jField.getFieldName().equals(field.getName()) || !isPublicField(field)) {
                     addField = false;
                 }
             }

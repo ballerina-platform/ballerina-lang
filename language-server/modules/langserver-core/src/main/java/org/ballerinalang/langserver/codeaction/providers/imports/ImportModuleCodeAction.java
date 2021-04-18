@@ -53,6 +53,9 @@ import java.util.Optional;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ImportModuleCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "Import Module";
+
     private static final String UNDEFINED_MODULE = "undefined module";
 
     @Override
@@ -96,6 +99,11 @@ public class ImportModuleCodeAction extends AbstractCodeActionProvider {
                     actions.add(action);
                 });
         return actions;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private static Position getImportPosition(CodeActionContext context) {

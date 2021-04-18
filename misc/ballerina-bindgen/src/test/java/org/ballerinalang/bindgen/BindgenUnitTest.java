@@ -82,6 +82,16 @@ public class BindgenUnitTest {
         Assert.assertFalse(eSyntaxTree.hasDiagnostics());
     }
 
+    @Test(description = "Test the bindings generated for Java inner classes.")
+    public void innerClassMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
+        Path innerClassFilePath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "innerClass.bal");
+        String innerClass = Files.readString(resourceDirectory.resolve(innerClassFilePath));
+        SyntaxTree iSyntaxTree = getBindingsGenerator().generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("java.lang.Character$Subset"), getBindgenEnv()));
+        Assert.assertEquals(Formatter.format(iSyntaxTree.toSourceCode()), Formatter.format(innerClass));
+        Assert.assertFalse(iSyntaxTree.hasDiagnostics());
+    }
+
     @Test(description = "Test the bindings generated for a module level mapping.")
     public void moduleLevelMapping() throws FormatterException, ClassNotFoundException, BindgenException, IOException {
         BindgenEnv moduleBindgenEnv = new BindgenEnv();
@@ -97,6 +107,36 @@ public class BindgenUnitTest {
                 .loadClass("java.io.FileInputStream"), moduleBindgenEnv));
         Assert.assertEquals(Formatter.format(moduleSyntaxTree.toSourceCode()), Formatter.format(moduleMappingValue));
         Assert.assertFalse(moduleSyntaxTree.hasDiagnostics());
+    }
+
+    @Test(description = "Test the bindings generated for an indirect (dependent) class mapping.")
+    public void dependentClassMapping() throws FormatterException, ClassNotFoundException,
+            BindgenException, IOException {
+        BindgenEnv bindgenEnv = new BindgenEnv();
+        bindgenEnv.setDirectJavaClass(false);
+        BindgenFileGenerator bindingsGenerator = new BindgenFileGenerator(bindgenEnv);
+
+        Path assertFilePath = Paths.get(resourceDirectory.toString(), "unit-test-resources", "dependentClass.bal");
+        String assertValue = Files.readString(resourceDirectory.resolve(assertFilePath));
+        SyntaxTree syntaxTree = bindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("java.lang.String"), bindgenEnv));
+        Assert.assertEquals(Formatter.format(syntaxTree.toSourceCode()), Formatter.format(assertValue));
+        Assert.assertFalse(syntaxTree.hasDiagnostics());
+    }
+
+    @Test(description = "Test the bindings generated for a direct throwable class mapping.")
+    public void directThrowableMapping() throws FormatterException, ClassNotFoundException,
+            BindgenException, IOException {
+        BindgenEnv throwableBindgenEnv = getBindgenEnv();
+        BindgenFileGenerator throwableBindingsGenerator = new BindgenFileGenerator(throwableBindgenEnv);
+        Path throwableMappingPath = Paths.get(resourceDirectory.toString(),
+                "unit-test-resources", "throwableMapping.bal");
+        String throwableMappingValue = Files.readString(resourceDirectory.resolve(throwableMappingPath));
+        SyntaxTree throwableSyntaxTree = throwableBindingsGenerator.generate(new JClass(this.getClass().getClassLoader()
+                .loadClass("java.io.IOException"), throwableBindgenEnv));
+        Assert.assertEquals(Formatter.format(throwableSyntaxTree.toSourceCode()),
+                Formatter.format(throwableMappingValue));
+        Assert.assertFalse(throwableSyntaxTree.hasDiagnostics());
     }
 
     private BindgenEnv getBindgenEnv() {

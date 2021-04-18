@@ -73,8 +73,16 @@ public class SemanticVersion {
             return false;
         }
 
+        return !isPreReleaseVersion();
+    }
+
+    public boolean isPreReleaseVersion() {
         String preReleaseComp = version.getPreReleaseVersion();
-        return preReleaseComp == null || preReleaseComp.trim().isEmpty();
+        return preReleaseComp != null && !preReleaseComp.trim().isEmpty();
+    }
+
+    public boolean isInitialVersion() {
+        return this.major() == 0;
     }
 
     public boolean greaterThan(SemanticVersion other) {

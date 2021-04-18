@@ -474,7 +474,7 @@ function testToString() returns string[] {
 
     return [varInt.toString(), varFloat.toString(), varStr.toString(), varNil.toString(), varBool.toString(),
             varDecimal.toString(), varJson.toString(), varXml.toString(), varArr.toString(), varErr.toString(),
-            varObj.toString(), varObj2.toString(), varObjArr.toString(), p.toString(), varMap.toString()];
+            value:toString(varObj), varObj2.toString(), varObjArr.toString(), p.toString(), varMap.toString()];
 }
 
 function testToStringMethodForTable() {
@@ -1470,6 +1470,34 @@ function testEnsureTypeWithCast3() returns map<json>|error {
     return bloodType;
 }
 
+function testEnsureTypeFunction() returns int:Unsigned32|error {
+    int number = 10;
+    int:Unsigned32|error number1 = number.ensureType(int:Unsigned32);
+    return number1;
+}
+
+type StrArray string[];
+
+function testEnsureTypeFunction1() returns string|error {
+    string|int a =  "chirans";
+    string|error str = a.ensureType(string);
+    return str;
+}
+
+function testEnsureTypeFunction2() returns string[]|error {
+    string[]|int a =  ["Chiran", "Sachintha"];
+    string[]|error strArray = a.ensureType(StrArray);
+    return strArray;
+}
+
+type T string[]|int|string;
+
+function testEnsureTypeFunction3() returns int|error {
+    T a =  "chiran";
+    int|error val = a.ensureType(int);
+    return val;
+}
+
 function testEnsureType() {
     decimal h = 178.5;
     float h1 = 178.5;
@@ -1499,6 +1527,10 @@ function testEnsureType() {
     assert(<json[]>(checkpanic testEnsureTypeWithCast2()), [125.0/3, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
     assert(<map<json>>(checkpanic testEnsureTypeWithJson3()), {group: "O", RHD: "+"});
+    assert(testEnsureTypeFunction() is int:Unsigned32, true);
+    assert(testEnsureTypeFunction1() is string, true);
+    assert(testEnsureTypeFunction2() is string[], true);
+    assert(testEnsureTypeFunction3() is error, true);
 }
 
 function testRequiredTypeWithInvalidCast1() returns error? {

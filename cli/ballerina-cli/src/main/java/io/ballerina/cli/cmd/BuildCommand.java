@@ -33,6 +33,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -40,6 +41,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -241,6 +243,13 @@ public class BuildCommand implements BLauncherCmd {
         // Skip --includes flag if it is set without code coverage
         if (!project.buildOptions().codeCoverage() && includes != null) {
             this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+        }
+
+        // Validate Settings.toml file
+        try {
+            readSettings();
+        } catch (SettingsTomlException e) {
+            this.outStream.println("warning: " + e.getMessage());
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()

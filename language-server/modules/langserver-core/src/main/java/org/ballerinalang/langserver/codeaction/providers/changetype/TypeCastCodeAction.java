@@ -57,6 +57,8 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
+    public static final String NAME = "Type Cast";
+
     /**
      * {@inheritDoc}
      */
@@ -101,6 +103,11 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         edits.addAll(getTextEdits(positionDetails, typeName.get()));
         String commandTitle = CommandConstants.ADD_TYPE_CAST_TITLE;
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     protected NonTerminalNode getMatchedNode(NonTerminalNode node) {

@@ -28,6 +28,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BAttachedFunction;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BErrorTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BResourceFunction;
@@ -760,6 +761,8 @@ public class TypeParamAnalyzer {
                                                                     expTSymbol.pkgID, null,
                                                                     expType.tsymbol.scope.owner, expTSymbol.pos,
                                                                     VIRTUAL);
+        recordSymbol.isTypeParamResolved = true;
+        recordSymbol.typeParamTSymbol = expTSymbol;
         recordSymbol.scope = new Scope(recordSymbol);
         recordSymbol.initializerFunc = expTSymbol.initializerFunc;
 
@@ -793,15 +796,16 @@ public class TypeParamAnalyzer {
                 .collect(Collectors.toList());
         BType restType = expType.restType;
         var flags = expType.flags;
-        BInvokableType invokableType = new BInvokableType(paramTypes, restType,
-                                                          getMatchingBoundType(expType.retType, env, resolvedTypes),
-                                                          Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE,
-                                                                                            flags,
-                                                                                            env.enclPkg.symbol.pkgID,
-                                                                                            expType, env.scope.owner,
-                                                                                            expType.tsymbol.pos,
-                                                                                            VIRTUAL));
+        BInvokableTypeSymbol invokableTypeSymbol = Symbols.createInvokableTypeSymbol(SymTag.FUNCTION_TYPE, flags,
+                env.enclPkg.symbol.pkgID, expType, env.scope.owner, expType.tsymbol.pos, VIRTUAL);
 
+        BInvokableType invokableType = new BInvokableType(paramTypes, restType,
+                getMatchingBoundType(expType.retType, env, resolvedTypes), invokableTypeSymbol);
+
+        invokableTypeSymbol.returnType = invokableType.retType;
+
+        invokableType.tsymbol.isTypeParamResolved = true;
+        invokableType.tsymbol.typeParamTSymbol = expType.tsymbol;
         if (Symbols.isFlagOn(flags, Flags.ISOLATED)) {
             invokableType.flags |= Flags.ISOLATED;
         }
@@ -815,6 +819,9 @@ public class TypeParamAnalyzer {
                                                                        expType.tsymbol.name, expType.tsymbol.pkgID,
                                                                        null, expType.tsymbol.scope.owner,
                                                                        expType.tsymbol.pos, VIRTUAL);
+        actObjectSymbol.isTypeParamResolved = true;
+        actObjectSymbol.typeParamTSymbol = expType.tsymbol;
+
         BObjectType objectType = new BObjectType(actObjectSymbol);
         actObjectSymbol.type = objectType;
         actObjectSymbol.scope = new Scope(actObjectSymbol);
@@ -860,7 +867,12 @@ public class TypeParamAnalyzer {
     private BType getMatchingOptionalBoundType(BUnionType expType, SymbolEnv env, HashSet<BType> resolvedTypes) {
         LinkedHashSet<BType> members = new LinkedHashSet<>();
         expType.getMemberTypes()
-                .forEach(type -> members.add(getMatchingBoundType(type, env, resolvedTypes)));
+                .forEach(type -> {
+                    final BType boundType = getMatchingBoundType(type, env, resolvedTypes);
+                    if (boundType != symTable.noType) {
+                        members.add(boundType);
+                    }
+                });
         return BUnionType.create(null, members);
     }
 
@@ -875,6 +887,8 @@ public class TypeParamAnalyzer {
                                                            symTable.errorType.tsymbol.name,
                                                            symTable.errorType.tsymbol.pkgID,
                                                            null, null, symTable.builtinPos, VIRTUAL);
+        typeSymbol.isTypeParamResolved = true;
+        typeSymbol.typeParamTSymbol = expType.tsymbol;
         BErrorType errorType = new BErrorType(typeSymbol, detailType);
         typeSymbol.type = errorType;
         return errorType;

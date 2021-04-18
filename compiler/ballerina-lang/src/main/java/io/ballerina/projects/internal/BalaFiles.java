@@ -359,8 +359,12 @@ public class BalaFiles {
         }
 
         return compilerPluginJson.map(pluginJson -> PackageManifest
-                .from(pkgDesc, Optional.of(CompilerPluginDescriptor.from(pluginJson)), dependencies, platforms))
-                .orElseGet(() -> PackageManifest.from(pkgDesc, Optional.empty(), dependencies, platforms));
+                .from(pkgDesc, Optional.of(CompilerPluginDescriptor.from(pluginJson)), dependencies, platforms,
+                      packageJson.getLicenses(), packageJson.getAuthors(), packageJson.getKeywords(),
+                      packageJson.getExport(), packageJson.getSourceRepository())).orElseGet(() -> PackageManifest
+                .from(pkgDesc, Optional.empty(), dependencies, platforms, packageJson.getLicenses(),
+                      packageJson.getAuthors(), packageJson.getKeywords(), packageJson.getExport(),
+                      packageJson.getSourceRepository()));
     }
 
     private static PackageJson readPackageJson(Path balaPath, Path packageJsonPath) {

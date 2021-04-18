@@ -173,7 +173,7 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public boolean isAnydata() {
-        return this.elementType.isPureType();
+        return this.elementType.isAnydata();
     }
 
     @Override

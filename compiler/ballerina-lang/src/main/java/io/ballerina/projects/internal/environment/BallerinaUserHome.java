@@ -6,6 +6,7 @@ import io.ballerina.projects.environment.PackageRepository;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -85,7 +86,8 @@ public final class BallerinaUserHome {
         }
         try {
             return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);
-        } catch (IOException e) {
+        } catch (IOException | SettingsTomlException e) {
+            // Ignore 'Settings.toml' reading and parsing errors
             return new Settings();
         }
     }
@@ -94,7 +96,7 @@ public final class BallerinaUserHome {
         // If directory does not exists, create it
         if (Files.notExists(ballerinaUserHomeDirPath) || !Files.isDirectory(ballerinaUserHomeDirPath)) {
             try {
-                Files.createDirectory(ballerinaUserHomeDirPath);
+                Files.createDirectories(ballerinaUserHomeDirPath);
             } catch (IOException e) {
                 throw new ProjectException(
                         "Ballerina user home directory does not exists in '" + ballerinaUserHomeDirPath

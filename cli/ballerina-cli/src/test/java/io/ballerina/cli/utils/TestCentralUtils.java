@@ -1,5 +1,6 @@
 package io.ballerina.cli.utils;
 
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.model.Settings;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -24,7 +25,7 @@ public class TestCentralUtils extends PowerMockTestCase {
     private static final Path UTILS_TEST_RESOURCES = Paths.get("src/test/resources/test-resources/central-utils");
 
     @Test(description = "Test get access token from Settings.toml")
-    public void testGetAccessTokenOfCliFromSettings() {
+    public void testGetAccessTokenOfCliFromSettings() throws SettingsTomlException {
         PowerMockito.mockStatic(RepoUtils.class);
         PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(UTILS_TEST_RESOURCES);
         Settings settings = readSettings();
@@ -33,7 +34,7 @@ public class TestCentralUtils extends PowerMockTestCase {
     }
 
     @Test(description = "Test read settings")
-    public void testReadSettings() {
+    public void testReadSettings() throws SettingsTomlException {
         PowerMockito.mockStatic(RepoUtils.class);
         PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(UTILS_TEST_RESOURCES);
 

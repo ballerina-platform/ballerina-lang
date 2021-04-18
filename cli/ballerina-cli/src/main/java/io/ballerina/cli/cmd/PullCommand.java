@@ -26,6 +26,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.PackageAlreadyExistsException;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.compiler.util.Names;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -176,7 +177,13 @@ public class PullCommand implements BLauncherCmd {
 
         for (String supportedPlatform : SUPPORTED_PLATFORMS) {
             try {
-                Settings settings = readSettings();
+                Settings settings;
+                try {
+                    settings = readSettings();
+                } catch (SettingsTomlException e) {
+                    // Ignore 'Settings.toml' parsing errors
+                    settings = new Settings();
+                }
                 Proxy proxy = initializeProxy(settings.getProxy());
                 CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
                 client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
