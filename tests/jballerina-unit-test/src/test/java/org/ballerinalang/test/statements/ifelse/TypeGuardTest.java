@@ -175,6 +175,8 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'j'", 377, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
                 "'record {| byte i?; boolean b; |}'", 393, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'record {| byte i?;" +
+                " boolean b; |}'", 402, 17);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }

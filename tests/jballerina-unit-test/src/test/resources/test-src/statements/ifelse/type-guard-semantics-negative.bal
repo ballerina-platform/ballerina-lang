@@ -385,11 +385,20 @@ type ClosedRec record {|
     boolean b;
 |};
 
-public function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegative() {
+function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegative() {
     record {| boolean b; |} x = {b: true};
     record {| byte i?; boolean b?; |} y = x;
 
     if y is ClosedRec {
         record {| byte...; |} rec = y;
+    }
+}
+
+function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegativeTwo() {
+    record {| boolean b; |} x = {b: true};
+    record {| byte i?; boolean b?; |} y = x;
+
+    if y is ClosedRec {
+        int a = y;
     }
 }
