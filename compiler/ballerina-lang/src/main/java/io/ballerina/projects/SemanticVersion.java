@@ -85,6 +85,10 @@ public class SemanticVersion {
         return this.major() == 0;
     }
 
+    public boolean isPreReleaseVersion() {
+        return version.getPreReleaseVersion() != null  && !"".equals(version.getPreReleaseVersion());
+    }
+
     public boolean greaterThan(SemanticVersion other) {
         return this.version.greaterThan(other.version);
     }
