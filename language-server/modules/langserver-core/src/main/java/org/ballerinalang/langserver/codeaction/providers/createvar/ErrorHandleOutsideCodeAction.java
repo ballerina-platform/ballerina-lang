@@ -44,6 +44,8 @@ import java.util.stream.Collectors;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
+    public static final String NAME = "Error Handle Outside";
+
     /**
      * {@inheritDoc}
      */
@@ -86,6 +88,11 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
 
         String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private List<TextEdit> getModifiedCreateVarTextEdits(Diagnostic diagnostic,

@@ -24,9 +24,6 @@ import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.util.HashMap;
-import java.util.Map;
-
 /**
  * Test class for entry function argument parsing negative scenarios.
  *
@@ -35,11 +32,6 @@ import java.util.Map;
 public class ArgumentParserNegativeTest {
 
     private static final String MAIN_FUNCTION_TEST_SRC_DIR = "test-src/main.function/";
-
-    private final Map<String, String> runtimeParams = new HashMap<>();
-    private final String configFilePath = null;
-    private final boolean offline = true;
-    private final boolean observe = false;
 
     @Test
     public void testTooManyArgs() {

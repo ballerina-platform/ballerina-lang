@@ -49,6 +49,8 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
 
+    public static final String NAME = "Fix Return Type";
+
     /**
      * {@inheritDoc}
      */
@@ -117,6 +119,11 @@ public class FixReturnTypeCodeAction extends AbstractCodeActionProvider {
         });
 
         return codeActions;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private ReturnStatementNode getReturnStatement(NonTerminalNode node) {

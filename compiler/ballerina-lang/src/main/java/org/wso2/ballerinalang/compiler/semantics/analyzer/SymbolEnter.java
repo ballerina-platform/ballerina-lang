@@ -1960,7 +1960,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (varNode.flagSet.contains(Flag.REQUIRED_PARAM) || varNode.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
                 dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_DEFAULTABLE_PARAMS);
             } else {
-                dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED);
+                if ((env.scope.owner.tag & SymTag.OBJECT) == SymTag.OBJECT) {
+                    dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED);
+                } else {
+                    dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED);
+                }
             }
         }
     }
@@ -2262,10 +2266,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case TypeTags.MAP:
                 recordVarType = createSameTypedFieldsRecordType(recordVar, ((BMapType) recordVar.type).constraint, env);
-                break;
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-                recordVarType = createSameTypedFieldsRecordType(recordVar, recordVar.type, env);
                 break;
             default:
                 dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);

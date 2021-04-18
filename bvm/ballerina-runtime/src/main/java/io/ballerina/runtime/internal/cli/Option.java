@@ -59,7 +59,6 @@ public class Option {
     }
 
     public BMap<BString, Object> parseRecord(String[] args) {
-        // Todo: Improve error messages
         int index = 0;
         while (index < args.length) {
             String arg = args[index++];
@@ -117,7 +116,7 @@ public class Option {
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             handleArrayParameter(optionName, val, (ArrayType) fieldType);
         } else {
-            record.put(optionName, CliUtil.getBValueWithUnionValue(fieldType, val));
+            record.put(optionName, CliUtil.getBValueWithUnionValue(fieldType, val, optionName.getValue()));
         }
     }
 
@@ -145,7 +144,6 @@ public class Option {
     }
 
     private void validateRecordKeys() {
-        // Todo: test this as a unit test
         for (BString key : record.getKeys()) {
             if (!recordKeysFound.contains(key) && isRequired(recordType, key.getValue())) {
                 Type fieldType = recordType.getFields().get(key.getValue()).getFieldType();
@@ -212,13 +210,13 @@ public class Option {
             handleArrayParameter(paramName, val, (ArrayType) fieldType);
             return;
         }
-        record.put(paramName, CliUtil.getBValueWithUnionValue(fieldType, val));
+        record.put(paramName, CliUtil.getBValueWithUnionValue(fieldType, val, paramName.getValue()));
     }
 
     private void handleArrayParameter(BString paramName, String val, ArrayType fieldType) {
         BArray bArray = getBArray(paramName, fieldType);
         Type arrayType = bArray.getElementType();
-        bArray.append(CliUtil.getBValue(arrayType, val));
+        bArray.append(CliUtil.getBValue(arrayType, val, paramName.getValue()));
     }
 
     private void validateFieldExists(BString recordKey) {

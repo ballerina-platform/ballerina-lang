@@ -50,6 +50,9 @@ import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.UNUSED_IMPOR
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "Optimize Imports";
+
     private static final String ALIAS_SEPARATOR = "as";
 
 
@@ -138,6 +141,11 @@ public class OptimizeImportsCodeAction extends AbstractCodeActionProvider {
         List<TextEdit> edits = Collections.singletonList(textEdit);
         actions.add(createQuickFixCodeAction(CommandConstants.OPTIMIZE_IMPORTS_TITLE, edits, uri));
         return actions;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private List<ImportDeclarationNode> sortImports(List<ImportDeclarationNode> fileImports) {

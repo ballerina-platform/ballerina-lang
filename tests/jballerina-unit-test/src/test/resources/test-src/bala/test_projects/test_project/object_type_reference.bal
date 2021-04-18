@@ -117,3 +117,16 @@ public type Employee4 object {
 public type Employee5 object {
     function getBonus(float ratio, int months) returns float;
 };
+
+public type Employee6 object {
+    public function getSalary() returns float;
+};
+
+public type Employee7 object {
+    *Employee6;
+    public function getEmploymentDuration() returns int;
+};
+
+public type Frame readonly & object {
+   public function toString() returns string;
+};

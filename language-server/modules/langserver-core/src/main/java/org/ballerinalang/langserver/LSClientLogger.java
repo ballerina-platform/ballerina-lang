@@ -19,6 +19,8 @@ import org.ballerinalang.langserver.commons.LSOperation;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.config.LSClientConfig;
 import org.ballerinalang.langserver.config.LSClientConfigHolder;
+import org.ballerinalang.langserver.telemetry.LSErrorTelemetryEvent;
+import org.ballerinalang.langserver.telemetry.LSTelemetryEvent;
 import org.eclipse.lsp4j.MessageParams;
 import org.eclipse.lsp4j.MessageType;
 import org.eclipse.lsp4j.Position;
@@ -91,7 +93,7 @@ public class LSClientLogger {
         }
         LSClientConfig config = this.configHolder.getConfig();
         if (config.isEnableTelemetry()) {
-            this.languageClient.telemetryEvent(LSTelemetry.from(operation, message, error));
+            this.languageClient.telemetryEvent(LSErrorTelemetryEvent.from(operation, message, error));
         }
         String details = getErrorDetails(identifier, error, pos);
         if (config.isDebugLogEnabled()) {
@@ -118,6 +120,22 @@ public class LSClientLogger {
         }
         if (this.configHolder.getConfig().isTraceLogEnabled() && this.languageClient != null) {
             this.languageClient.logMessage(new MessageParams(MessageType.Info, message));
+        }
+    }
+
+    /**
+     * Sends a telemetry event to the client. Though this is doesn't do any logging directly, sending telemetry events
+     * via the client is related to this context.
+     *
+     * @param event Telemetry event
+     */
+    public void telemetryEvent(LSTelemetryEvent event) {
+        if (!this.isInitializedOnce || this.languageClient == null) {
+            return;
+        }
+
+        if (this.configHolder.getConfig().isEnableTelemetry()) {
+            this.languageClient.telemetryEvent(event);
         }
     }
 

@@ -131,6 +131,10 @@ public class ConstantExpressionTest {
         Assert.assertEquals(returns[0].stringValue(), "{\"v1\":3.0, \"v2\":5.0}");
     }
 
+    @Test void testBitwiseConstExpressions() {
+        BRunUtil.invoke(compileResult, "testBitwiseConstExpressions");
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

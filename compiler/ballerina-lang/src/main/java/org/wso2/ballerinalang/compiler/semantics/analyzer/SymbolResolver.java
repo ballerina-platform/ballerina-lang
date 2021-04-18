@@ -390,6 +390,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         return resolveOperator(entry, types);
     }
 
+    BSymbol createBinaryComparisonOperator(OperatorKind opKind, BType lhsType, BType rhsType) {
+        List<BType> paramTypes = Lists.of(lhsType, rhsType);
+        BInvokableType opType = new BInvokableType(paramTypes, symTable.booleanType, null);
+        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+    }
+
     public BSymbol resolvePkgSymbol(Location pos, SymbolEnv env, Name pkgAlias) {
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
@@ -651,7 +657,7 @@ public class SymbolResolver extends BLangNodeVisitor {
             default:
                 bSymbol = symTable.notFoundSymbol;
         }
-        if (bSymbol == symTable.notFoundSymbol) {
+        if (bSymbol == symTable.notFoundSymbol && type.tag != TypeTags.OBJECT) {
             bSymbol = lookupMethodInModule(symTable.langValueModuleSymbol, name, env);
         }
 
@@ -1643,6 +1649,43 @@ public class SymbolResolver extends BLangNodeVisitor {
                     default:
                         return createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
                 }
+            }
+        }
+        return symTable.notFoundSymbol;
+    }
+
+    /**
+     * Define binary comparison operator for valid ordered types.
+     *
+     * @param opKind Binary operator kind
+     * @param lhsType Type of the left hand side value
+     * @param rhsType Type of the right hand side value
+     * @return <, <=, >, or >= symbol
+     */
+    public BSymbol getBinaryComparisonOpForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        boolean validOrderedTypesExist;
+        switch (opKind) {
+            case LESS_THAN:
+            case LESS_EQUAL:
+            case GREATER_THAN:
+            case GREATER_EQUAL:
+                validOrderedTypesExist = types.isOrderedType(lhsType, false) &&
+                        types.isOrderedType(rhsType, false) && types.isSameOrderedType(lhsType, rhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+
+        if (validOrderedTypesExist) {
+            switch (opKind) {
+                case LESS_THAN:
+                    return createBinaryComparisonOperator(OperatorKind.LESS_THAN, lhsType, rhsType);
+                case LESS_EQUAL:
+                    return createBinaryComparisonOperator(OperatorKind.LESS_EQUAL, lhsType, rhsType);
+                case GREATER_THAN:
+                    return createBinaryComparisonOperator(OperatorKind.GREATER_THAN, lhsType, rhsType);
+                default:
+                    return createBinaryComparisonOperator(OperatorKind.GREATER_EQUAL, lhsType, rhsType);
             }
         }
         return symTable.notFoundSymbol;

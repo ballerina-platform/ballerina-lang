@@ -1,0 +1,7 @@
+[rootOrg.test_module.util.foo]
+intVar = 33
+stringVar = "test"
+
+[test_module.util.foo]
+intVar = 42
+stringVar = "string"
