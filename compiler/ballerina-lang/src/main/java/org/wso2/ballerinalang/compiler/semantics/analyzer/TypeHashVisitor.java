@@ -432,7 +432,8 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         }
         List<Integer> valueSpaceHashes = type.getValueSpace().stream().map(Object::toString)
                 .sorted().map(String::hashCode).collect(Collectors.toList());
-        Integer hash = hash(baseHash(type), type.isAnyData, valueSpaceHashes);
+        Boolean isAnyData = type.isAnyData == null ? Boolean.FALSE : type.isAnyData;
+        Integer hash = hash(baseHash(type), isAnyData, valueSpaceHashes);
         return addToVisited(type, hash);
     }
 
@@ -490,7 +491,9 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), type.isAnyData, type.isPureType, type.isCyclic,
+        Boolean isAnyData = type.isAnyData == null ? Boolean.FALSE : type.isAnyData;
+        Boolean isPureType = type.isPureType == null ? Boolean.FALSE : type.isPureType;
+        Integer hash = hash(baseHash(type), isAnyData, isPureType, type.isCyclic,
                 getTypesHashes(type.getMemberTypes()));
         return addToVisited(type, hash);
     }
