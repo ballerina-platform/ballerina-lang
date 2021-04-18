@@ -46,6 +46,8 @@ import java.util.regex.Matcher;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
 
+    public static final String NAME = "Create Function";
+
     private static final String UNDEFINED_FUNCTION = "undefined function";
 
     /**
@@ -90,6 +92,11 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         }
 
         return Collections.emptyList();
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     /**

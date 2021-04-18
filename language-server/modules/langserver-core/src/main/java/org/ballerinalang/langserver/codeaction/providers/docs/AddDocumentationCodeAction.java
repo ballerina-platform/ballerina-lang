@@ -40,6 +40,9 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "Add Documentation";
+
     public AddDocumentationCodeAction() {
         super(Arrays.asList(CodeActionNodeType.FUNCTION,
                 CodeActionNodeType.OBJECT,
@@ -78,5 +81,10 @@ public class AddDocumentationCodeAction extends AbstractCodeActionProvider {
         Command command = new Command(CommandConstants.ADD_DOCUMENTATION_TITLE, AddDocumentationExecutor.COMMAND, args);
         action.setCommand(command);
         return Collections.singletonList(action);
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 }

@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+import ballerina/lang.value;
+
 const int aInt = 4;
 const str = "Hello";
 const nameWithoutType = "Ballerina";
@@ -377,7 +379,7 @@ function testToString() returns string[] {
 
     return [varInt.toString(), varFloat.toString(), varStr.toString(), varNil.toString(), varBool.toString(),
             varDecimal.toString(), varJson.toString(), varXml.toString(), varArr.toString(), varErr.toString(),
-            varObj.toString(), varObj2.toString(), varObjArr.toString(), p.toString(), varMap.toString()];
+            value:toString(varObj), varObj2.toString(), varObjArr.toString(), p.toString(), varMap.toString()];
 }
 
 function testToStringMethodForTable() {

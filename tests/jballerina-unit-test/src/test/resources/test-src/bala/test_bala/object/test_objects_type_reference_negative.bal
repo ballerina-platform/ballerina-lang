@@ -41,3 +41,15 @@ class Manager2 {
 class NamedPerson {
     *foo:NormalPerson;
 }
+
+class Emp {
+    *foo:Employee7;
+
+    public function getEmploymentDuration() returns int {
+        return 5;
+    }
+}
+
+readonly class FrameImpl {
+    *foo:Frame;
+}

@@ -3497,8 +3497,16 @@ public class Desugar extends BLangNodeVisitor {
 
     private BLangExpression createConditionForWildCardMatchPattern(BLangWildCardMatchPattern wildCardMatchPattern,
                                                                    BLangSimpleVarRef matchExprVarRef) {
-        return createLiteral(wildCardMatchPattern.pos, symTable.booleanType,
+        BLangExpression lhsCheck = createLiteral(wildCardMatchPattern.pos, symTable.booleanType,
                 types.isAssignable(matchExprVarRef.type, wildCardMatchPattern.type));
+
+        BLangValueType anyType = (BLangValueType) TreeBuilder.createValueTypeNode();
+        anyType.type = symTable.anyType;
+        anyType.typeKind = TypeKind.ANY;
+        BLangExpression rhsCheck = createTypeCheckExpr(wildCardMatchPattern.pos, matchExprVarRef, anyType);
+
+        return ASTBuilderUtil.createBinaryExpr(wildCardMatchPattern.pos, lhsCheck, rhsCheck,
+                symTable.booleanType, OperatorKind.OR, null);
     }
 
     private BLangExpression createConditionForConstMatchPattern(BLangConstPattern constPattern,

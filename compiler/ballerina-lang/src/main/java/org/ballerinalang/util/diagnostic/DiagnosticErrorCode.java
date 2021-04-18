@@ -129,7 +129,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
 
     INVOKABLE_MUST_RETURN("BCE2095", "invokable.must.return"),
     MAIN_SHOULD_BE_PUBLIC("BCE2096", "main.should.be.public"),
-    MAIN_PARAMS_SHOULD_BE_ANYDATA("BCE2097", "main.params.should.be.anydata"),
+    INVALID_MAIN_PARAMS_TYPE("BCE2097", "invalid.main.params.type"),
     MAIN_RETURN_SHOULD_BE_ERROR_OR_NIL("BCE2098", "main.return.should.be.error.or.nil"),
     MODULE_INIT_CANNOT_BE_PUBLIC("BCE2099", "module.init.cannot.be.public"),
     MODULE_INIT_CANNOT_HAVE_PARAMS("BCE2100", "module.init.cannot.have.params"),
@@ -384,12 +384,13 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "never.type.not.allowed.for.required.and.defaultable.params"),
     INVALID_CLIENT_REMOTE_METHOD_CALL("BCE2645", "invalid.client.remote.method.call"),
     NEVER_TYPED_VAR_DEF_NOT_ALLOWED("BCE2646", "never.typed.var.def.not.allowed"),
+    NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED("BCE2647", "never.typed.object.field.not.allowed"),
 
-    EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2647", "expression.does.not.support.member.access"),
-    EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2648", "expression.does.not.support.field.access"),
-    CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2649",
+    EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2648", "expression.does.not.support.member.access"),
+    EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2649", "expression.does.not.support.field.access"),
+    CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2650",
             "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
-    INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2650", "invalid.method.call.expr.on.field"),
+    INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
 
     // Error codes related to iteration.
     ITERABLE_NOT_SUPPORTED_COLLECTION("BCE2800", "iterable.not.supported.collection"),
@@ -518,7 +519,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_TYPE_CHECK("BCE3603", "incompatible.type.check"),
 
     INVALID_USAGE_OF_CLONE("BCE3605", "clone.invocation.invalid"),
-    CANNOT_ITERATE_A_CLOSED_RECORD_WITH_NO_FIELDS("BCE3606", "cannot.iterate.a.closed.record.with.no.fields"),
 
     // Dataflow analysis related error codes
     PARTIALLY_INITIALIZED_VARIABLE("BCE3700", "partially.initialized.variable"),
@@ -706,7 +706,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNUSED_VARIABLE_WITH_INFERRED_TYPE_INCLUDING_ERROR("BCE3998", "unused.variable.with.inferred.type.including.error"),
     INVALID_ITERABLE_OBJECT_TYPE("BCE3999", "invalid.iterable.type"),
     INVALID_ITERABLE_COMPLETION_TYPE_IN_FOREACH_NEXT_FUNCTION("BCE4000",
-            "invalid.iterable.completion.type.in.foreach.next.function")
+            "invalid.iterable.completion.type.in.foreach.next.function"),
+    SAME_ARRAY_TYPE_AS_MAIN_PARAMETER("BCE4001", "same.array.type.as.main.param"),
+    VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM("BCE4002", "variable.and.array.type.as.main.param"),
+    INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4003", "invalid.main.option.params.type")
+            ;
     ;
 
     private String diagnosticId;
