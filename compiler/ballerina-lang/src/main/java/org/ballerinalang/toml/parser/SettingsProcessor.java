@@ -18,46 +18,40 @@
 package org.ballerinalang.toml.parser;
 
 import com.moandjiezana.toml.Toml;
-import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.model.Settings;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.PrintStream;
 import java.nio.file.Path;
 
 /**
- * SettingHeaders Processor which processes the settings toml file parsed and populate a {@link Settings}.
+ * {@code SettingsProcessor} processes the settings toml file parsed and populate a {@link Settings}.
  *
  * @since 0.964
  */
 public class SettingsProcessor {
-    
+
+    private static final PrintStream out = System.out;
+
     /**
      * Get a {@link Settings} object by giving the path to the settings toml file.
      *
      * @param settingsPath Path of the Settings.toml file.
      * @return The settings object.
-     * @throws IOException Exception if the file cannot be found
+     * @throws IOException           Exception if the file cannot be found
+     * @throws SettingsTomlException Exception if the Settings.toml parsing failed
      */
-    public static Settings parseTomlContentFromFile(Path settingsPath) throws IOException {
-        InputStream settingsInputStream = new FileInputStream(settingsPath.toFile());
-        return getSettings(settingsInputStream);
-    }
-    
-    /**
-     * Get the settings config object by an input stream.
-     *
-     * @param inputStream Settings.toml file's input stream.
-     * @return The Settings object
-     */
-    private static Settings getSettings(InputStream inputStream) {
+    public static Settings parseTomlContentFromFile(Path settingsPath) throws IOException, SettingsTomlException {
         Toml toml;
-        try {
-            toml = new Toml().read(inputStream);
+        try (InputStream settingsInputStream = new FileInputStream(settingsPath.toFile())) {
+            toml = new Toml().read(settingsInputStream);
+            return toml.to(Settings.class);
         } catch (IllegalStateException e) {
-            throw new BLangCompilerException("invalid Settings.toml due to " + e.getMessage());
+            throw new SettingsTomlException(
+                    "invalid 'Settings.toml' file at:" + settingsPath + " due to:" + e.getMessage());
         }
-        return toml.to(Settings.class);
     }
 }
