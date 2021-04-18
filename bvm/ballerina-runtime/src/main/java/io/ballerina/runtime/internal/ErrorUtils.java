@@ -1,5 +1,5 @@
 /*
- *  Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ *  Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  *  WSO2 Inc. licenses this file to you under the Apache License,
  *  Version 2.0 (the "License"); you may not use this file except
@@ -29,6 +29,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -146,23 +147,28 @@ public class ErrorUtils {
     }
 
     public static BError createRuntimeError(Module module, RuntimeErrorType errorType, Object... params) {
-        return createRuntimeError(module, errorType, getErrorDetail(getErrorMessage(errorType, params)), null);
-    }
-
-    public static BError createRuntimeError(Module module, RuntimeErrorType errorType,
-                                            BMap<BString, Object> detail, BError cause) {
+        BString errorMessage = getErrorMessage(errorType, params);
+        BString modulePrefixedErrorName = getModulePrefixedErrorName(module, errorType);
+        BError errorCause = getErrorCause(errorMessage);
+        BMap<BString, Object> detail = getErrorDetail(errorMessage);
         try {
-            return createError(module, errorType.getErrorName(), getModulePrefixedErrorName(module, errorType),
-                    cause, detail);
-        } catch (BError e) {
+            return createError(module, errorType.getErrorName(), modulePrefixedErrorName, null, detail);
+        } catch (BallerinaException e) {
             // This should never happen unless ErrorCreator itself has a bug
-            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()));
+            e.addSuppressed(errorCause);
+            Throwable[] suppressedException = e.getSuppressed();
+            throw new BallerinaException("error occurred while error creation: " + e.getMessage(),
+                    suppressedException[0]);
         }
     }
 
     private static BString getErrorMessage(RuntimeErrorType errorType, Object... params) {
         String pattern = messageBundle.getString(errorType.getErrorMsgKey());
         return StringUtils.fromString(MessageFormat.format(pattern, params));
+    }
+
+    private static BError getErrorCause(BString errorMessage) {
+        return ErrorCreator.createError(errorMessage);
     }
 
     private static BMap<BString, Object> getErrorDetail(BString errMessage) {

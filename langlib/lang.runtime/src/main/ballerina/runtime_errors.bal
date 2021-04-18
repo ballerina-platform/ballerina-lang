@@ -23,10 +23,5 @@ public type Detail record {|
    Cloneable...;
 |};
 
-// IndexOutOfRange
-public type IndexOutOfRange distinct error;
-public type ArrayIndexOutOfRange distinct IndexOutOfRange;
-
 // TypeCastError
 public type TypeCastError distinct error;
-

@@ -75,7 +75,7 @@ function testRuntimeCastError() {
     'runtime:TypeCastError err2 = <'runtime:TypeCastError> m1;
     assert("{ballerina/lang.runtime}TypeCastError", err2.message());
     var detailMessage = err2.detail()["message"];
-    string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+    string detailMessageString = detailMessage is error ? detailMessage.toString() : detailMessage.toString();
     assert("incompatible types: 'map' cannot be cast to 'map<anydata>'", detailMessageString);
 }
 

@@ -199,7 +199,7 @@ function testCastingToImmutableCyclicUnion() {
     error err = <error> b;
     assert("{ballerina/lang.runtime}TypeCastError", err.message());
     var detailMessage = err.detail()["message"];
-    string detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+    string detailMessageString = detailMessage is error ? detailMessage.toString() : detailMessage.toString();
     assert("incompatible types: 'MyCyclicUnion[]' cannot be cast to '(MyCyclicUnion & readonly)'",
            detailMessageString);
 
@@ -207,7 +207,7 @@ function testCastingToImmutableCyclicUnion() {
     runtime:TypeCastError err2 = <runtime:TypeCastError> b;
     assert("{ballerina/lang.runtime}TypeCastError", err2.message());
     detailMessage = err2.detail()["message"];
-    detailMessageString = detailMessage is error? detailMessage.toString(): detailMessage.toString();
+    detailMessageString = detailMessage is error ? detailMessage.toString() : detailMessage.toString();
     assert("incompatible types: 'MyCyclicUnion[]' cannot be cast to '(MyCyclicUnion & readonly)'",
            detailMessageString);
 
