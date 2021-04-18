@@ -143,8 +143,8 @@ public class PackageResolutionTests extends BaseTest {
         // package_missing_transitive_dep --> package_b --> package_c
         // package_missing_transitive_dep --> package_k --> package_z (this is missing)
         Path balaPath = RESOURCE_DIRECTORY.resolve("balas").resolve("missing_transitive_deps")
-                .resolve("samjs-package_k-any-1.0.0.bala");
-        BCompileUtil.copyBalaToDistRepository(balaPath, "samjs", "package_k", "1.0.0");
+                .resolve("samjs-package_kk-any-1.0.0.bala");
+        BCompileUtil.copyBalaToDistRepository(balaPath, "samjs", "package_kk", "1.0.0");
 
         Path projectDirPath = RESOURCE_DIRECTORY.resolve("package_missing_transitive_dep");
         BuildProject buildProject = BuildProject.load(projectDirPath);
