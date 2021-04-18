@@ -460,10 +460,8 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         }
         List<Integer> fieldsHashes = getFieldsHashes(type.fields);
         List<Integer> typeInclHashes = getTypesHashes(type.typeInclusions);
-        final int initFunctionHash = getFunctionHash(((BObjectTypeSymbol) type.tsymbol).initializerFunc);
         List<Integer> attachedFunctionsHashes = getFunctionsHashes(((BObjectTypeSymbol) type.tsymbol).attachedFuncs);
-        Integer hash = hash(baseHash(type), fieldsHashes, typeInclHashes,
-                initFunctionHash, attachedFunctionsHashes, type.typeIdSet);
+        Integer hash = hash(baseHash(type), fieldsHashes, typeInclHashes, attachedFunctionsHashes, type.typeIdSet);
         return addToVisited(type, hash);
     }
 
