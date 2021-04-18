@@ -1,4 +1,5 @@
 import ballerina/jballerina.java;
+import ballerina/lang.value;
 
 // Correct use case.
 public function testJavaCastFunction() returns string|error {
@@ -14,7 +15,7 @@ public function testJavaCastFunction() returns string|error {
 public function testIncorrectJavaCast() returns string|error {
     String1 strValue = newString1("cast this object");
     ArrayList1 castedValue = check java:cast(strValue);
-    return castedValue.toString();
+    return value:toString(castedValue);
 }
 
 // Typedesc is an object without a handle argument for initialization.

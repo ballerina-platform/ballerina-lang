@@ -98,9 +98,9 @@ function testReadOnlyObjectsForImmutableIntersections1() {
     assertTrue(<any> cn.c1 is ro:Controller);
     assertTrue(<any> cn.c1 is ro:Controller & readonly);
     assertTrue(<any> cn.c2 is ro:Controller);
-    assertTrue(cn.c2 is ro:Controller & readonly);
+    assertTrue(<any> cn.c2 is ro:Controller & readonly);
     assertTrue(<any> cn.c3 is ro:Controller);
-    assertFalse(cn.c3 is ro:Controller & readonly);
+    assertFalse(<any> cn.c3 is ro:Controller & readonly);
 
     ro:DefaultController v1 = <ro:DefaultController> cn.c1;
     ro:CustomController v2 = <ro:CustomController> cn.c2;
