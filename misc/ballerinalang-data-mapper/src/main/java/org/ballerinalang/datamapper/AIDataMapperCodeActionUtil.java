@@ -107,14 +107,11 @@ class AIDataMapperCodeActionUtil {
     private static final String READONLY = "readonly";
     private static final String SIGNATURE = "signature";
 
-    //static member holds only one instance of the JDBCSingleton class.
     private static AIDataMapperCodeActionUtil dataMapperCodeAction;
 
-    //JDBCSingleton prevents the instantiation from any other class.
     private AIDataMapperCodeActionUtil() {
     }
 
-    //Now we are providing global point of access.
     public static AIDataMapperCodeActionUtil getInstance() {
         if (dataMapperCodeAction == null) {
             dataMapperCodeAction = new AIDataMapperCodeActionUtil();
@@ -180,21 +177,22 @@ class AIDataMapperCodeActionUtil {
             } else {
                 // to get the symbol when type casting is done
                 Optional<Node> nodeAtCursor = findExpressionInTypeCastNode(newTextRange, syntaxTree);
-                if (nodeAtCursor.isPresent()) {
-                    symbolFromModel = semanticModel.symbol(nodeAtCursor.get());
-                    if (symbolFromModel.isPresent()) {
-                        symbolAtCursor = symbolFromModel.get();
-                        lftTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
-                        rhsTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
-
-                        foundTypeLeft = lftTypeSymbol.getName().orElse("");
-                        foundTypeRight = rhsTypeSymbol.getName().orElse("");
-                    } else {
-                        return fEdits;
-                    }
-                } else {
+                if (nodeAtCursor.isEmpty()) {
                     return fEdits;
                 }
+                symbolFromModel = semanticModel.symbol(nodeAtCursor.get());
+
+                if (symbolFromModel.isEmpty()) {
+                    return fEdits;
+                }
+
+                symbolAtCursor = symbolFromModel.get();
+                lftTypeSymbol = (Symbol) props.get(RIGHT_SYMBOL_INDEX).value();
+                rhsTypeSymbol = (Symbol) props.get(LEFT_SYMBOL_INDEX).value();
+
+                foundTypeLeft = lftTypeSymbol.getName().orElse("");
+                foundTypeRight = rhsTypeSymbol.getName().orElse("");
+
             }
             String symbolAtCursorName = symbolAtCursor.getName().orElse("");
             String symbolAtCursorType = "";
@@ -271,20 +269,19 @@ class AIDataMapperCodeActionUtil {
                         generatedFunctionName =
                                 String.format("map%sTo%s(%s)", foundTypeRight, foundTypeLeft, functionCall);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
-                    } else if (foundErrorLeft && !foundErrorRight) {
-                        String checkExpression = "";
+                    } else if (foundErrorLeft) {
                         Collection<ChildNodeEntry> childEntries = matchedNode.childEntries();
                         for (ChildNodeEntry childEntry : childEntries) {
                             if (childEntry.name().equals("expression")) {
                                 functionCall = childEntry.node().isPresent() ?
                                         childEntry.node().get().toString() : null;
-                            } else if (childEntry.name().equals("expression")) {
-                                checkExpression = childEntry.node().isPresent() ?
-                                        childEntry.node().get().toString() : null;
                             }
                         }
+                        if (functionCall == null) {
+                            return fEdits;
+                        }
                         symbolAtCursorName = functionCall.trim();
-                        generatedFunctionName = String.format("%s map%sTo%s(%s)", checkExpression,
+                        generatedFunctionName = String.format("map%sTo%s(%s)",
                                 foundTypeRight, foundTypeLeft, symbolAtCursorName);
                         fEdits.add(new TextEdit(newTextRange, generatedFunctionName));
                     } else {
@@ -392,9 +389,9 @@ class AIDataMapperCodeActionUtil {
      * @throws IOException throws if error occurred when getting mapped function
      */
     private String getGeneratedRecordMapping(CodeActionContext context, String foundTypeLeft,
-                                                    String foundTypeRight,
-                                                    Symbol lftTypeSymbol, Symbol rhsTypeSymbol,
-                                                    SyntaxTree syntaxTree, SemanticModel semanticModel)
+                                             String foundTypeRight,
+                                             Symbol lftTypeSymbol, Symbol rhsTypeSymbol,
+                                             SyntaxTree syntaxTree, SemanticModel semanticModel)
 
             throws IOException {
         JsonObject rightRecordJSON = new JsonObject();
@@ -738,7 +735,7 @@ class AIDataMapperCodeActionUtil {
      * @throws IOException If an error occurs in the Data Mapper service
      */
     private String getMappingFromServer(JsonArray dataToSend,
-                                               LanguageServerContext serverContext) throws IOException {
+                                        LanguageServerContext serverContext) throws IOException {
         try {
             Map<String, String> headers = new HashMap<>();
             headers.put("Content-Type", "application/json; utf-8");
@@ -775,8 +772,8 @@ class AIDataMapperCodeActionUtil {
      * @return - Generated mapping Function
      */
     private String generateMappingFunction(String mappingFromServer, String foundTypeLeft,
-                                                  String foundTypeRight, String leftModule, String rightModule,
-                                                  String rhsSignature, SyntaxTree syntaxTree) {
+                                           String foundTypeRight, String leftModule, String rightModule,
+                                           String rhsSignature, SyntaxTree syntaxTree) {
 
         String leftType = foundTypeLeft;
         String rightType;

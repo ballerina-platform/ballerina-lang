@@ -42,7 +42,6 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-//import static org.ballerinalang.datamapper.AIDataMapperCodeActionUtil.getAIDataMapperCodeActionEdits;
 
 /**
  * Code Action provider for automatic data mapping.
