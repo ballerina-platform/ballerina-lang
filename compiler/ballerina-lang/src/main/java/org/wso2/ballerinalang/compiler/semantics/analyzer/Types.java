@@ -4098,18 +4098,28 @@ public class Types {
 
         BRecordType newType = createAnonymousRecord(env);
 
+        BType recordTypeOneRestFieldConstraintType = getConstraint(recordTypeOne);
+        BType recordTypeTwoRestFieldConstraintType = getConstraint(recordTypeTwo);
+
         if (!populateRecordFields(diagnosticContext.switchLeft(), newType, recordTypeOne, env,
-                                  getConstraint(recordTypeTwo)) ||
+                                  recordTypeTwoRestFieldConstraintType) ||
                 !populateRecordFields(diagnosticContext.switchRight(), newType, recordTypeTwo, env,
-                                      getConstraint(recordTypeOne))) {
+                                      recordTypeOneRestFieldConstraintType)) {
             return symTable.semanticError;
         }
 
-        newType.restFieldType = getTypeIntersection(diagnosticContext, recordTypeOne.restFieldType,
-                                                    recordTypeTwo.restFieldType, env);
-
-        if (newType.restFieldType == symTable.semanticError) {
+        BType restFieldType = getTypeIntersection(diagnosticContext, recordTypeOneRestFieldConstraintType,
+                                                  recordTypeTwoRestFieldConstraintType, env);
+        if (restFieldType == symTable.semanticError) {
+            newType.restFieldType = symTable.semanticError;
             return symTable.semanticError;
+        }
+
+        if (restFieldType == symTable.neverType) {
+            newType.sealed = true;
+            newType.restFieldType = symTable.noType;
+        } else {
+            newType.restFieldType = restFieldType;
         }
 
         if (!diagnosticContext.compilerInternalIntersectionTest) {
@@ -4286,7 +4296,10 @@ public class Types {
         }
 
         BType fieldType = getTypeIntersection(intersectionContext, origField.type, constraint, env);
-        if (fieldType.tag == TypeTags.NEVER && !Symbols.isOptional(origField.symbol)) {
+        if (fieldType.tag == TypeTags.NEVER) {
+            if (Symbols.isOptional(origField.symbol)) {
+                return origField.type;
+            }
             return symTable.semanticError;
         }
 

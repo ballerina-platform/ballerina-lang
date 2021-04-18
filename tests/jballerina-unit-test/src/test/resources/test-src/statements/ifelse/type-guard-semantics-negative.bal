@@ -379,3 +379,17 @@ function testInvalidAccessOfOutOfScopeVar() {
 }
 
 type ErrorD error<Detail>;
+
+type ClosedRec record {|
+    int i?;
+    boolean b;
+|};
+
+public function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegative() {
+    record {| boolean b; |} x = {b: true};
+    record {| byte i?; boolean b?; |} y = x;
+
+    if y is ClosedRec {
+        record {| byte...; |} rec = y;
+    }
+}

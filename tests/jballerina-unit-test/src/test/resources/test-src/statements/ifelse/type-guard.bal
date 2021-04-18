@@ -1289,3 +1289,33 @@ type OpenRecordWithIntField record {
 type ClosedRecordWithIntField record {|
     int i;
 |};
+
+type ClosedRec record {|
+    int i?;
+    boolean b;
+|};
+
+public function testRecordIntersectionWithClosedRecordAndRecordWithOptionalField() {
+    record {| boolean b; |} x = {b: true};
+    record {| byte i?; boolean b?; |} y = x;
+
+    assertEquality(true, y is ClosedRec);
+
+    if y is ClosedRec {
+        record {| byte i?; boolean b; |} rec = y;
+        assertEquality(true, rec.b);
+        assertEquality((), rec?.i);
+
+        record {| byte i?; boolean...; |} rec2 = y;
+        assertEquality(true, rec2["b"]);
+        assertEquality((), rec2?.i);
+    }
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

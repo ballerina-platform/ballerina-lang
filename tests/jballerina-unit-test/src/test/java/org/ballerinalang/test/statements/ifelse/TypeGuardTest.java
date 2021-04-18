@@ -173,6 +173,8 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 343, 22);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 355, 22);
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'j'", 377, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 393, 37);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
@@ -628,6 +630,11 @@ public class TypeGuardTest {
     public void testTypetestForTypedefs2() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest2");
         Assert.assertEquals(BBoolean.TRUE, returns[0]);
+    }
+
+    @Test
+    public void testRecordIntersectionWithClosedRecordAndRecordWithOptionalField() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField");
     }
 
     @Test
