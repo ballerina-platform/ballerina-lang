@@ -185,11 +185,12 @@ public class BuildProject extends Project {
             Collection<ResolvedPackageDependency> pkgDependencies =
                     currentPackage.getResolution().dependencyGraph().getDirectDependencies(resolvedPackageDependency);
 
-            if (!pkgDependencies.isEmpty()) {
+            String dependenciesContent = getDependenciesTomlContent(pkgDependencies,
+                                                                    currentPackage.manifest().dependencies());
+            if (!dependenciesContent.isEmpty()) {
                 // write content to Dependencies.toml file
                 createIfNotExistsAndWrite(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML),
-                                          getDependenciesTomlContent(pkgDependencies,
-                        currentPackage.manifest().dependencies()));
+                                          dependenciesContent);
             } else {
                 // check Dependencies.toml already exists, then delete it
                 deleteIfExists(currentPackage.project().sourceRoot().resolve(DEPENDENCIES_TOML));
