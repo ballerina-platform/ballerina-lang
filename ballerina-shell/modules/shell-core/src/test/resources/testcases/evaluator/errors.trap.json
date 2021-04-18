@@ -10,11 +10,11 @@
   {
     "description": "View error.",
     "code": "result",
-    "expr": "error {ballerina/lang.runtime:0.0.1}ZeroDivisionError&{ballerina/lang.runtime:0.0.1}ArithmeticError (\"{ballerina/lang.runtime}ZeroDivisionError\",message=\"/ by zero\")"
+    "expr": "error(\"{ballerina}DivisionByZero\",message=\" / by zero\")"
   },
   {
     "description": "Directly view trapped value.",
     "code": "trap divide(1, 0);",
-    "expr": "error {ballerina/lang.runtime:0.0.1}ZeroDivisionError&{ballerina/lang.runtime:0.0.1}ArithmeticError (\"{ballerina/lang.runtime}ZeroDivisionError\",message=\"/ by zero\")"
+    "expr": "error(\"{ballerina}DivisionByZero\",message=\" / by zero\")"
   }
 ]
