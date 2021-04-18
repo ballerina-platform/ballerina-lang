@@ -424,6 +424,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "commit",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "commit;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -456,6 +464,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "T5",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "T5",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "STRING_VAL_TWO",
       "kind": "Variable",
       "detail": "string value two",
@@ -470,11 +486,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "T5",
+      "label": "TR1",
       "kind": "Struct",
       "detail": "Record",
       "sortText": "L",
-      "insertText": "T5",
+      "insertText": "TR1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -497,14 +513,6 @@
       },
       "sortText": "B",
       "insertText": "STRING_VAL",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TR1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TR1",
       "insertTextFormat": "Snippet"
     },
     {

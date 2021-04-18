@@ -392,6 +392,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "commit",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "commit;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -424,6 +432,20 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "functionWithReturn()(Record1)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \nThis is a test function\n  \n  \n  \n**Returns** `Record1`   \n- Return Value Description  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "insertText": "functionWithReturn()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -446,17 +468,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "functionWithReturn()(Record1)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \nThis is a test function\n  \n  \n  \n**Returns** `Record1`   \n- Return Value Description  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "functionWithReturn()",
+      "label": "testVar",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "testVar",
       "insertTextFormat": "Snippet"
     },
     {
@@ -465,14 +481,6 @@
       "detail": "Record",
       "sortText": "L",
       "insertText": "Record1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testVar",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "testVar",
       "insertTextFormat": "Snippet"
     },
     {
