@@ -751,3 +751,10 @@ function funcAcceptingIntArgs(int... scores) returns int {
     };
     return fn();
 }
+
+function errorConstructorReferenceTest() returns error? {
+    string temp = "text";
+    var process = function() returns error? {
+        return error("An Error", tempString = temp);
+    };
+}
