@@ -1317,6 +1317,11 @@ type ClosedRecTwo record {|
     string s?;
 |};
 
+type ClosedRecThree record {|
+    int i?;
+    boolean b = true;
+|};
+
 function testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2() {
     record {| int i; |} x = {i: 1};
     record {| int i; boolean b?; |} y = x;
@@ -1351,6 +1356,66 @@ function testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2() {
         record {| byte i; boolean b; |} rec = cr3;
         assertEquality(45, rec?.i);
         assertEquality(true, rec.b);
+    }
+
+    ClosedRecThree cr4 = {i: 1, b: true};
+    assertEquality(false, cr4 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr4 is record {| byte i; boolean b?; |});
+
+    record {| byte i?; boolean b = false; |} rec3 = {i: 100};
+    ClosedRecThree cr5 = rec3;
+    assertEquality(true, cr5 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr5 is record {| byte i; boolean b?; |});
+
+    if cr5 is record {| byte i?; boolean b?; |} {
+        record {| byte i?; boolean b; |} rec = cr5;
+        assertEquality(100, rec?.i);
+        assertEquality(false, rec.b);
+    }
+
+    ClosedRecThree cr6 = <record {| byte i; boolean b = false; |}> {i: 45, b: true};
+    assertEquality(true, cr6 is record {| byte i?; boolean b?; |});
+    assertEquality(true, cr6 is record {| byte i; boolean b?; |});
+
+    if cr6 is record {| byte i; boolean b?; |} {
+        record {| byte i; boolean b; |} rec = cr6;
+        assertEquality(45, rec?.i);
+        assertEquality(true, rec.b);
+    }
+}
+
+type RecordWithDefaultValue record {|
+    int i = 10;
+    boolean b?;
+|};
+
+type RecordWithNoDefaultValue record {|
+    byte i;
+    boolean|string b?;
+|};
+
+function testRecordIntersectionWithDefaultValues() {
+    RecordWithDefaultValue e = {};
+    assertEquality(false, e is RecordWithNoDefaultValue);
+
+    record {| byte i = 101; |} rec = {};
+    RecordWithDefaultValue f = rec;
+    assertEquality(true, f is RecordWithNoDefaultValue);
+
+    if f is RecordWithNoDefaultValue {
+        record {| byte i; boolean b?; |} rec2 = f;
+        assertEquality(101, rec2?.i);
+        assertEquality((), rec2?.b);
+    }
+
+    record {| byte i = 101; boolean b; |} rec3 = {b: true};
+    RecordWithDefaultValue g = rec3;
+    assertEquality(true, g is RecordWithNoDefaultValue);
+
+    if g is RecordWithNoDefaultValue {
+        record {| byte i; boolean b?; |} rec2 = g;
+        assertEquality(101, rec2?.i);
+        assertEquality(true, rec2?.b);
     }
 }
 

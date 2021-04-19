@@ -385,6 +385,11 @@ type ClosedRec record {|
     boolean b;
 |};
 
+type ClosedRecTwo record {|
+    int i?;
+    boolean b = true;
+|};
+
 function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegative() {
     record {| boolean b; |} x = {b: true};
     record {| byte i?; boolean b?; |} y = x;
@@ -400,6 +405,19 @@ function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegativ
 
     if cr is record {| byte i; boolean b?; |} {
         record {| byte...; |} rec = cr;
+    }
+
+    if y is ClosedRecTwo {
+        record {| byte...; |} rec = y;
+    }
+
+    ClosedRecTwo cr2 = {i: 1, b: true};
+    if cr2 is record {| byte i?; boolean b?; |} {
+        record {| byte...; |} rec = cr2;
+    }
+
+    if cr2 is record {| byte i; boolean b?; |} {
+        record {| byte...; |} rec = cr2;
     }
 }
 
@@ -439,5 +457,20 @@ function testIntersectionReadOnlyness() {
     }
 }
 
+type RecordWithDefaultValue record {|
+    int i = 10;
+    boolean b?;
+|};
 
+type RecordWithNoDefaultValue record {|
+    byte i;
+    boolean|string b?;
+|};
 
+function testRecordIntersectionWithDefaultValues() {
+    RecordWithDefaultValue e = {};
+
+    if e is RecordWithNoDefaultValue {
+        record {| byte i; |} rec2 = e;
+    }
+}
