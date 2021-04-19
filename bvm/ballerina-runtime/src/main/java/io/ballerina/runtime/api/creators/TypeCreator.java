@@ -253,6 +253,32 @@ public class TypeCreator {
     }
 
     /**
+     * Creates a {@link BStreamType} which represents the stream type.
+     *
+     * @param constraint the type by which this stream is constrained
+     * @return the new stream type
+     * @deprecated use {@link #createStreamType(Type, Type)} instead
+     */
+    @Deprecated
+    public static StreamType createStreamType(Type constraint) {
+        return new BStreamType(constraint);
+    }
+
+    /**
+     * Creates a {@link BStreamType} which represents the stream type.
+     *
+     * @param typeName       string name of the type
+     * @param completionType the type which indicates the completion of the stream
+     * @param modulePath     package path
+     * @return the new stream type
+     * @deprecated use {@link #createStreamType(String, Type, Type, Module)} instead
+     */
+    @Deprecated
+    public static StreamType createStreamType(String typeName, Type completionType, Module modulePath) {
+        return new BStreamType(typeName, completionType, modulePath);
+    }
+
+    /**
      * Create a {@code UnionType} which represents the union type.
      *
      * @param memberTypes of the union type

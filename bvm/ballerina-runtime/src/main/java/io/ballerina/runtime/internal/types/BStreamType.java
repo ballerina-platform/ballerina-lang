@@ -19,6 +19,7 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.StreamType;
@@ -51,10 +52,38 @@ public class BStreamType extends BType implements StreamType {
         this.completionType = completionType;
     }
 
+    /**
+     * Creates a {@link BStreamType} which represents the stream type.
+     *
+     * @param constraint     the type by which this stream is constrained
+     * @param completionType the type which indicates the completion of the stream
+     */
     public BStreamType(Type constraint, Type completionType) {
-        super(TypeConstants.STREAM_TNAME, null, StreamValue.class);
-        this.constraint = constraint;
-        this.completionType = completionType;
+        this(TypeConstants.STREAM_TNAME, constraint, completionType, null);
+    }
+
+    /**
+     * Creates a {@link BStreamType} which represents the stream type.
+     *
+     * @param typeName   string name of the type
+     * @param constraint the type by which this stream is constrained
+     * @param pkgPath    package path
+     * @deprecated use {@link #BStreamType(String, Type, Type, Module)} instead.
+     */
+    @Deprecated
+    public BStreamType(String typeName, Type constraint, Module pkgPath) {
+        this(typeName, constraint, PredefinedTypes.TYPE_NULL, pkgPath);
+    }
+
+    /**
+     * Creates a {@link BStreamType} which represents the stream type.
+     *
+     * @param constraint the type by which this stream is constrained
+     * @deprecated use {@link #BStreamType(Type, Type)} instead.
+     */
+    @Deprecated
+    public BStreamType(Type constraint) {
+        this(TypeConstants.STREAM_TNAME, constraint, null);
     }
 
     public Type getConstrainedType() {
