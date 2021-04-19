@@ -206,7 +206,15 @@ public abstract class AbstractLexer {
     /**
      * Check whether a given char is a unicode identifier char.
      * <p>
-     * <code> UnicodeIdentifierChar := ^ ( AsciiChar | UnicodeNonIdentifierChar ) </code>
+     * <code>
+     * UnicodeIdentifierChar := ^ ( AsciiChar | UnicodeNonIdentifierChar )
+     * <br><br/>
+     * AsciiChar := 0x0 .. 0x7F
+     * <br><br/>
+     * UnicodeNonIdentifierChar := UnicodePrivateUseChar | UnicodePatternWhiteSpaceChar | UnicodePatternSyntaxChar
+     * <br><br/>
+     * UnicodePatternSyntaxChar := character with Unicode property Pattern_Syntax=True
+     * </code>
      *
      * @param c character to check
      * @return <code>true</code>, if the character is a unicode identifier char. <code>false</code> otherwise.
@@ -222,8 +230,8 @@ public abstract class AbstractLexer {
             return false;
         }
 
-        // TODO: if (UnicodePatternSyntaxChar) return false
-        return (c != Character.MAX_VALUE);
+        // return false for UnicodePatternSyntaxChar
+        return Character.isUnicodeIdentifierPart(c);
     }
 
     /**

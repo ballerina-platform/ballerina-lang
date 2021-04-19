@@ -132,7 +132,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // map variable test
         debugTestRunner.assertExpression(context, MAP_VAR, "map", "map");
         // record variable test (Student record)
-        debugTestRunner.assertExpression(context, RECORD_VAR, " /:@[`{~⌤_123_ƮέŞŢ_Student", "record");
+        debugTestRunner.assertExpression(context, RECORD_VAR, " /:@[`{~π_123_ƮέŞŢ_Student", "record");
         // anonymous record variable test
         debugTestRunner.assertExpression(context, ANON_RECORD_VAR, "record {| string city; string country; |}",
                 "record");
@@ -144,7 +144,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // future variable test
         debugTestRunner.assertExpression(context, FUTURE_VAR, "future", "future");
         // object variable test (Person object)
-        debugTestRunner.assertExpression(context, OBJECT_VAR, "Person_\\ /<>:@[`{~⌤_ƮέŞŢ", "object");
+        debugTestRunner.assertExpression(context, OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
         // type descriptor variable test
         debugTestRunner.assertExpression(context, TYPEDESC_VAR, "int", "typedesc");
         // union variable test
@@ -166,7 +166,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // json variable test
         debugTestRunner.assertExpression(context, JSON_VAR, "map<json>", "json");
         // anonymous object variable test (AnonPerson object)
-        debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~⌤_ƮέŞŢ", "object");
+        debugTestRunner.assertExpression(context, ANON_OBJECT_VAR, "Person_\\ /<>:@[`{~π_ƮέŞŢ", "object");
 
         // Todo - Enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/26139
         // debugTestRunner.assertExpression(context, GL, "Ballerina", "string");
@@ -191,7 +191,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // objects fields
         debugTestRunner.assertExpression(context, OBJECT_VAR + ".address", "No 20, Palm grove", "string");
         // record fields
-        debugTestRunner.assertExpression(context, RECORD_VAR + ".'Ȧɢέ_\\ \\/\\:\\@\\[\\`\\{\\~⌤", "20", "int");
+        debugTestRunner.assertExpression(context, RECORD_VAR + ".'Ȧɢέ_\\ \\/\\:\\@\\[\\`\\{\\~π", "20", "int");
         // json fields
         debugTestRunner.assertExpression(context, JSON_VAR + ".name", "John", "string");
         // nested field access (chain access)
@@ -681,7 +681,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         debugTestRunner.assertExpression(context, String.format("%s is int | string", STRING_VAR), "true", "boolean");
         // other named types
         debugTestRunner.assertExpression(context, String.format("%s is 'Person_\\\\\\ \\/\\<\\>\\:\\@\\[\\`\\{\\~" +
-                "\\u{2324}_ƮέŞŢ", OBJECT_VAR), "true", "boolean");
+                "\\u{03C0}_ƮέŞŢ", OBJECT_VAR), "true", "boolean");
         // Todo: add tests for full qualified type resolving, after adding support
     }
 
