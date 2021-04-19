@@ -29,7 +29,6 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 import io.ballerina.runtime.internal.values.ErrorValue;
@@ -153,12 +152,10 @@ public class ErrorUtils {
         BMap<BString, Object> detail = getErrorDetail(errorMessage);
         try {
             return createError(module, errorType.getErrorName(), modulePrefixedErrorName, null, detail);
-        } catch (BallerinaException e) {
+        } catch (Exception e) {
             // This should never happen unless ErrorCreator itself has a bug
             e.addSuppressed(errorCause);
-            Throwable[] suppressedException = e.getSuppressed();
-            throw new BallerinaException("error occurred while error creation: " + e.getMessage(),
-                    suppressedException[0]);
+            throw e;
         }
     }
 

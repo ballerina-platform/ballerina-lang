@@ -386,7 +386,7 @@ public class SymbolTable {
                                                 Map.entry(Names.INT, this.langIntModuleSymbol),
                                                 Map.entry(Names.MAP, this.langMapModuleSymbol),
                                                 Map.entry(Names.OBJECT, this.langObjectModuleSymbol),
-                                                Map.entry(Names.RUNTIME, this.langInternalModuleSymbol),
+                                                Map.entry(Names.RUNTIME, this.langRuntimeModuleSymbol),
                                                 Map.entry(Names.STREAM, this.langStreamModuleSymbol),
                                                 Map.entry(Names.STRING, this.langStringModuleSymbol),
                                                 Map.entry(Names.TABLE, this.langTableModuleSymbol),

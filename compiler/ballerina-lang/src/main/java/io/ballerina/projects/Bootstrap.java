@@ -173,7 +173,7 @@ public class Bootstrap {
         symbolTable.langXmlModuleSymbol = loadLangLibFromBala(XML, compilerContext);
         symbolTable.langBooleanModuleSymbol = loadLangLibFromBala(BOOLEAN, compilerContext);
         symbolTable.langQueryModuleSymbol = loadLangLibFromBala(QUERY, compilerContext);
-        symbolTable.langTransactionModuleSymbol = loadLangLibFromBala(RUNTIME, compilerContext);
+        symbolTable.langRuntimeModuleSymbol = loadLangLibFromBala(RUNTIME, compilerContext);
         symbolTable.langTransactionModuleSymbol = loadLangLibFromBala(TRANSACTION, compilerContext);
         symbolTable.loadPredeclaredModules();
         symResolver.bootstrapIntRangeType();
