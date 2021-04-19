@@ -267,12 +267,23 @@ public class ObserveUtils {
             return;
         }
 
+        if (!observerContext.isManuallyClosed()) {
+            stopObservationWithContext(observerContext);
+        }
+        setObserverContextToCurrentFrame(env, observerContext.getParent());
+    }
+
+    /**
+     * Notify observers to stop observations and set finished to observer context.
+     *
+     * @param observerContext Observer context
+     */
+    public static void stopObservationWithContext(ObserverContext observerContext) {
         if (observerContext.isServer()) {
             observers.forEach(observer -> observer.stopServerObservation(observerContext));
         } else {
             observers.forEach(observer -> observer.stopClientObservation(observerContext));
         }
-        setObserverContextToCurrentFrame(env, observerContext.getParent());
         observerContext.setFinished();
     }
 
