@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
+import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -111,27 +112,27 @@ public class ErrorUtils {
         return (ErrorValue) createError(BallerinaErrorReasons.FUTURE_CANCELLED);
     }
 
-    public static BError createRuntimeError(Module module, RuntimeErrorType errorType, BMap<BString, Object> detail) {
-        return createRuntimeError(module, errorType, null, detail);
-    }
-
-    public static BError createRuntimeError(Module module, RuntimeErrorType errorType, BError cause,
-                                            BMap<BString, Object> detail) {
+    public static BError createRuntimeError(Module module, RuntimeErrorType errorType, Object... params) {
+        BString errorMessage = getErrorMessage(errorType, params);
+        BString modulePrefixedErrorName = getModulePrefixedErrorName(module, errorType);
+        BError errorCause = getErrorCause(errorMessage);
+        BMap<BString, Object> detail = getErrorDetail(errorMessage);
         try {
-            return createError(module, errorType.getErrorName(), getModulePrefixedErrorName(module, errorType),
-                    cause, detail);
-        } catch (BError e) {
-            throw ErrorCreator.createError(StringUtils.fromString(e.getMessage()));
+            return createError(module, errorType.getErrorName(), modulePrefixedErrorName, null, detail);
+        } catch (BallerinaException e) {
+            // This should never happen unless ErrorCreator itself has a bug
+            e.addSuppressed(errorCause);
+            throw e;
         }
-    }
-
-    public static BError getRuntimeError(Module module, RuntimeErrorType errorType, Object... params) {
-        return createRuntimeError(module, errorType, getErrorDetail(getErrorMessage(errorType, params)));
     }
 
     public static BString getErrorMessage(RuntimeErrorType runtimeErrors, Object... params) {
         return StringUtils.fromString(MessageFormat
                 .format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params));
+    }
+
+    private static BError getErrorCause(BString errorMessage) {
+        return ErrorCreator.createError(errorMessage);
     }
 
     public static BMap<BString, Object> getErrorDetail(BString errMessage) {

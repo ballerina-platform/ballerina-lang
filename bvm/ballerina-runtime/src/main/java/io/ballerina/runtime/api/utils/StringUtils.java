@@ -100,7 +100,7 @@ public class StringUtils {
 
     public static BString getStringAt(BString s, long index) {
         if (index < 0 || index >= s.length()) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.STRING_INDEX_OUT_OF_RANGE, index, s.length());
         }
 

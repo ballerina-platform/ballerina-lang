@@ -82,14 +82,14 @@ public class FromJsonWithType {
             if (targetType.isNilable()) {
                 return null;
             }
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.CANNOT_CONVERT_NIL, targetType);
         }
 
         Type sourceType = TypeChecker.getType(value);
 
         if (unresolvedValues.contains(typeValuePair)) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_VALUE_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_VALUE_PKG_ID,
                     RuntimeErrorType.CYCLIC_VALUE_REFERENCE, sourceType);
         }
 

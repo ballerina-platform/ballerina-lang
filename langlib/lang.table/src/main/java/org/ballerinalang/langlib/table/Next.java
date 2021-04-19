@@ -72,7 +72,7 @@ public class Next {
         if (initialSize < table.size() ||
                 // Key-less situation, mutation can occur only by calling add() or removeAll()
                 (initialSize > 0 && table.size() == 0)) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TABLE_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_TABLE_PKG_ID,
                     RuntimeErrorType.TABLE_ITERATOR_MUTABILITY_ERROR);
         }
 
@@ -95,7 +95,7 @@ public class Next {
         }
 
         if (!TypeChecker.isEqual(currentKeyArray, keys)) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TABLE_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_TABLE_PKG_ID,
                     RuntimeErrorType.TABLE_ITERATOR_MUTABILITY_ERROR);
         }
 

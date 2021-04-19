@@ -69,7 +69,7 @@ public class LangLibBooleanTest {
     }
 
     private BError getError(String value) {
-        return ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_BOOLEAN_PKG_ID,
+        return ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_BOOLEAN_PKG_ID,
                 RuntimeErrorType.BOOLEAN_PARSING_ERROR, PredefinedTypes.TYPE_STRING,
                 value, PredefinedTypes.TYPE_BOOLEAN);
     }

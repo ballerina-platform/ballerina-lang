@@ -38,7 +38,7 @@ public class IndexOf {
             throw createNullReferenceError();
         }
         if (startIndx > Integer.MAX_VALUE) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
                     RuntimeErrorType.STRING_INDEX_TOO_LARGE, startIndx);
         }
         return bStr.indexOf(subString, (int) startIndx);

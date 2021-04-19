@@ -53,7 +53,7 @@ class AttributeMapValueImpl extends MapValueImpl<BString, BString> {
     @Override
     public BString put(BString keyBStr, BString value) {
         if (isFrozen()) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_XML_PKG_ID, RuntimeErrorType.INVALID_READONLY_VALUE_UPDATE);
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_XML_PKG_ID, RuntimeErrorType.INVALID_READONLY_VALUE_UPDATE);
         }
 
         return insertValue(keyBStr, value, false);

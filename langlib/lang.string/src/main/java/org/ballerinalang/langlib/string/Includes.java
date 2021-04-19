@@ -32,7 +32,7 @@ import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 public class Includes {
     public static boolean includes(BString str, BString substr, long index) {
         if (index  > Integer.MAX_VALUE) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
                     RuntimeErrorType.STRING_INDEX_TOO_LARGE, index);
         }
         try {

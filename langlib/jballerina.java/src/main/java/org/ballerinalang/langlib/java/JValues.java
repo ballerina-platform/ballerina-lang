@@ -39,12 +39,12 @@ class JValues {
 
     static void rangeCheck(long index, Object[] arr) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if (index < 0 || index >= arr.length) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, index, arr.length);
         }
     }

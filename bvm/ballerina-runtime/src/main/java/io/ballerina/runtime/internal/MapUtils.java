@@ -64,7 +64,7 @@ public class MapUtils {
         Type expType = mapType.getConstrainedType();
         Type valuesType = TypeChecker.getType(value);
 
-        throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.INVALID_MAP_INSERTION,
+        throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.INVALID_MAP_INSERTION,
                 expType, valuesType);
     }
 
@@ -80,7 +80,7 @@ public class MapUtils {
             // expression.
             if (!initialValue && SymbolFlags.isFlagOn(recField.getFlags(), SymbolFlags.READONLY)) {
 
-                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+                throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
                         RuntimeErrorType.INVALID_READONLY_FIELD_UPDATE, fieldName, recType);
             }
 
@@ -92,7 +92,7 @@ public class MapUtils {
         } else {
             // If both of the above conditions fail, the implication is that this is an attempt to insert a
             // value to a non-existent field in a closed record.
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
                     RuntimeErrorType.INVALID_RECORD_FIELD_ACCESS, fieldName, recType);
         }
 
@@ -101,7 +101,7 @@ public class MapUtils {
         }
         Type valuesType = TypeChecker.getType(value);
 
-        throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.INVALID_RECORD_FIELD_ADDITION,
+        throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.INVALID_RECORD_FIELD_ADDITION,
                 fieldName, recFieldType, valuesType);
     }
 

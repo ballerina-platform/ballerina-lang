@@ -78,7 +78,7 @@ public class ToJson {
         TypeValuePair typeValuePair = new TypeValuePair(value, jsonType);
 
         if (unresolvedValues.contains(typeValuePair)) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_VALUE_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_VALUE_PKG_ID,
                     RuntimeErrorType.CYCLIC_VALUE_REFERENCE, ((BRefValue) value).getType());
         }
 
@@ -155,7 +155,7 @@ public class ToJson {
     }
 
     private static BError createConversionError(Object inputValue, Type targetType) {
-        return ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+        return ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
                 INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType);
     }
 

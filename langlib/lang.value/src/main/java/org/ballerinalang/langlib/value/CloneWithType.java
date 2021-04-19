@@ -100,7 +100,7 @@ public class CloneWithType {
             if (targetType.isNilable()) {
                 return null;
             }
-            return ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+            return ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
                     RuntimeErrorType.CANNOT_CONVERT_NIL, targetType);
         }
 
@@ -138,7 +138,7 @@ public class CloneWithType {
             if (targetType.isNilable()) {
                 return null;
             }
-            return ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+            return ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
                     RuntimeErrorType.CANNOT_CONVERT_NIL, targetType);
         }
         List<Type> convertibleTypes;
@@ -169,7 +169,7 @@ public class CloneWithType {
         TypeValuePair typeValuePair = new TypeValuePair(value, targetType);
 
         if (unresolvedValues.contains(typeValuePair)) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
                     RuntimeErrorType.CYCLIC_VALUE_REFERENCE, value.getType());
         }
 
@@ -286,7 +286,7 @@ public class CloneWithType {
     }
 
     private static BError createConversionError(Object inputValue, Type targetType) {
-        return ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
+        return ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_TYPEDESC_PKG_ID,
                 RuntimeErrorType.INCOMPATIBLE_CONVERT_OPERATION, TypeChecker.getType(inputValue), targetType);
     }
 

@@ -58,7 +58,7 @@ public class TableUtils {
             Node node = new Node(obj, parent);
 
             if (node.hasCyclesSoFar()) {
-                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_TABLE_PKG_ID,
+                throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_TABLE_PKG_ID,
                         RuntimeErrorType.CYCLIC_VALUE_REFERENCE, TypeChecker.getType(obj));
             }
 

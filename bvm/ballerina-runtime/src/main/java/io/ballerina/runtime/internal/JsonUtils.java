@@ -166,7 +166,7 @@ public class JsonUtils {
      */
     private static Object getMappingElement(Object json, BString elementName, boolean returnNilOnMissingKey) {
         if (!isJSONObject(json)) {
-            return ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.JSON_OPERATION_ERROR);
+            return ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.JSON_OPERATION_ERROR);
         }
 
         MapValueImpl<BString, Object> jsonObject = (MapValueImpl<BString, Object>) json;
@@ -176,7 +176,7 @@ public class JsonUtils {
                 return null;
             }
 
-            return ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+            return ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
                     RuntimeErrorType.MAP_KEY_NOT_FOUND, elementName);
         }
 
@@ -184,13 +184,13 @@ public class JsonUtils {
             return jsonObject.get(elementName);
         } catch (BallerinaException e) {
             if (e.getDetail() != null) {
-                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+                throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
                         RuntimeErrorType.JSON_GET_ERROR, e.getDetail());
             }
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
                     RuntimeErrorType.JSON_GET_ERROR, e.getMessage());
         } catch (Throwable t) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
                     RuntimeErrorType.JSON_GET_ERROR, t.getMessage());
         }
     }
@@ -215,7 +215,7 @@ public class JsonUtils {
         } catch (ErrorValue e) {
             throw e;
         } catch (Throwable t) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.JSON_SET_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.JSON_SET_ERROR,
                     t.getMessage());
         }
     }
@@ -259,7 +259,7 @@ public class JsonUtils {
      */
     public static MapValueImpl<BString, ?> jsonToMap(Object json, MapType mapType) {
         if (!isJSONObject(json)) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
@@ -288,7 +288,7 @@ public class JsonUtils {
      */
     public static MapValueImpl<BString, Object> convertJSONToRecord(Object json, StructureType structType) {
         if (!isJSONObject(json)) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, getComplexObjectTypeName(OBJECT), getTypeName(json));
         }
 
@@ -331,7 +331,7 @@ public class JsonUtils {
                 return jsonNodeToBoolean(jsonValue);
             case TypeTags.JSON_TAG:
                 if (jsonValue != null && !TypeChecker.checkIsType(jsonValue, targetType)) {
-                    throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                    throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                             RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType, getTypeName(jsonValue));
                 }
                 // fall through
@@ -361,10 +361,10 @@ public class JsonUtils {
                 }
                 // fall through
             default:
-                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                         RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType, getTypeName(jsonValue));
         }
-        throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+        throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                 RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, targetType, getTypeName(jsonValue));
     }
 
@@ -405,7 +405,7 @@ public class JsonUtils {
             case TypeTags.JSON_TAG:
                 return source;
             default:
-                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                         RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, PredefinedTypes.TYPE_JSON, type);
         }
     }
@@ -433,13 +433,13 @@ public class JsonUtils {
         Type j2Type = TypeChecker.getType(j2);
 
         if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
-            return ErrorUtils.getRuntimeError(BALLERINA_LANG_VALUE_PKG_ID,
+            return ErrorUtils.createRuntimeError(BALLERINA_LANG_VALUE_PKG_ID,
                     RuntimeErrorType.MERGE_JSON_ERROR, j1Type, j2Type);
         }
 
         ObjectPair currentPair = new ObjectPair(j1, j2);
         if (visitedPairs.contains(currentPair)) {
-            return ErrorUtils.getRuntimeError(BALLERINA_LANG_VALUE_PKG_ID,
+            return ErrorUtils.createRuntimeError(BALLERINA_LANG_VALUE_PKG_ID,
                     RuntimeErrorType.MERGE_JSON_WITH_CYCLIC_REFERENCE);
         }
         visitedPairs.add(currentPair);
@@ -485,7 +485,7 @@ public class JsonUtils {
             Type j2Type = TypeChecker.getType(j2);
 
             if (j1Type.getTag() != TypeTags.MAP_TAG || j2Type.getTag() != TypeTags.MAP_TAG) {
-                return ErrorUtils.getRuntimeError(BALLERINA_LANG_VALUE_PKG_ID,
+                return ErrorUtils.createRuntimeError(BALLERINA_LANG_VALUE_PKG_ID,
                         RuntimeErrorType.MERGE_JSON_ERROR, j1Type, j2Type);
             }
         }
@@ -505,7 +505,7 @@ public class JsonUtils {
      */
     public static ArrayValue convertJSONToBArray(Object json, BArrayType targetArrayType) {
         if (!(json instanceof ArrayValue)) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, getComplexObjectTypeName(ARRAY), getTypeName(json));
         }
 
@@ -565,7 +565,7 @@ public class JsonUtils {
      */
     private static long jsonNodeToInt(Object json) {
         if (!(json instanceof Long)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, PredefinedTypes.TYPE_INT, getTypeName(json));
         }
 
@@ -586,7 +586,7 @@ public class JsonUtils {
         } else if (json instanceof DecimalValue) {
             return ((DecimalValue) json).floatValue();
         } else {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.INCOMPATIBLE_TYPE_FOR_CASTING_JSON, PredefinedTypes.TYPE_FLOAT, getTypeName(json));
         }
     }
@@ -608,7 +608,7 @@ public class JsonUtils {
         } else if (json instanceof DecimalValue) {
             return (DecimalValue) json;
         } else {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     PredefinedTypes.TYPE_DECIMAL, getTypeName(json));
         }
@@ -624,7 +624,7 @@ public class JsonUtils {
      */
     private static boolean jsonNodeToBoolean(Object json) {
         if (!(json instanceof Boolean)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.INCOMPATIBLE_TYPE_FOR_CASTING_JSON,
                     PredefinedTypes.TYPE_BOOLEAN, getTypeName(json));
         }
@@ -703,7 +703,7 @@ public class JsonUtils {
                     json.append(convertArrayToJSON((ArrayValue) value));
                     break;
                 default:
-                    throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                    throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                             RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, PredefinedTypes.TYPE_JSON, type);
             }
         }
@@ -795,7 +795,7 @@ public class JsonUtils {
                     json.put(key, convertMapToJSON((MapValueImpl<BString, ?>) value, (BJsonType) exptType));
                     break;
                 default:
-                    throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                    throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                             RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, PredefinedTypes.TYPE_JSON, type);
             }
         } catch (Exception e) {

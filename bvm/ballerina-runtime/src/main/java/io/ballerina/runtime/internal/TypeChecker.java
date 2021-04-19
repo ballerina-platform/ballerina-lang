@@ -148,117 +148,117 @@ public class TypeChecker {
             }
         }
 
-        throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, TYPE_CAST_ERROR,
+        throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, TYPE_CAST_ERROR,
                 getType(sourceVal), targetType);
     }
 
     public static long anyToInt(Object sourceVal) {
         return TypeConverter.anyToIntCast(sourceVal,
-                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, TYPE_CAST_ERROR,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, TYPE_CAST_ERROR,
                         getType(sourceVal), TYPE_INT));
     }
 
     public static long anyToSigned32(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_SIGNED_32,
-                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                 () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                                                          TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_SIGNED_32));
     }
 
     public static long anyToSigned16(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_SIGNED_16,
-                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                 () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                                                          TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_SIGNED_16));
     }
 
     public static long anyToSigned8(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_SIGNED_8,
-                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                 () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                                                          TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_SIGNED_8));
     }
 
     public static long anyToUnsigned32(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_UNSIGNED_32,
-                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                 () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                                                          TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_UNSIGNED_32));
     }
 
     public static long anyToUnsigned16(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_UNSIGNED_16,
-                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                 () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                                                          TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_UNSIGNED_16));
     }
 
     public static long anyToUnsigned8(Object sourceVal) {
         return TypeConverter.anyToIntSubTypeCast(sourceVal, TYPE_INT_UNSIGNED_8,
-                                                 () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+                                                 () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                                                          TYPE_CAST_ERROR, getType(sourceVal), TYPE_INT_UNSIGNED_8));
     }
 
     public static double anyToFloat(Object sourceVal) {
-        return TypeConverter.anyToFloatCast(sourceVal, () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+        return TypeConverter.anyToFloatCast(sourceVal, () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                 TYPE_CAST_ERROR, getType(sourceVal), TYPE_FLOAT));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
-        return TypeConverter.anyToBooleanCast(sourceVal, () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+        return TypeConverter.anyToBooleanCast(sourceVal, () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                 TYPE_CAST_ERROR, getType(sourceVal), TYPE_BOOLEAN));
     }
 
     public static int anyToByte(Object sourceVal) {
-        return TypeConverter.anyToByteCast(sourceVal, () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+        return TypeConverter.anyToByteCast(sourceVal, () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                 TYPE_CAST_ERROR, getType(sourceVal), TYPE_BYTE));
     }
 
     public static DecimalValue anyToDecimal(Object sourceVal) {
-        return TypeConverter.anyToDecimal(sourceVal, () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+        return TypeConverter.anyToDecimal(sourceVal, () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                 TYPE_CAST_ERROR, getType(sourceVal), TYPE_DECIMAL));
     }
 
     public static byte anyToJByte(Object sourceVal) {
         return TypeConverter.anyToJByteCast(sourceVal,
-                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
                         getType(sourceVal), "byte"));
     }
 
     public static char anyToJChar(Object sourceVal) {
         return TypeConverter.anyToJCharCast(sourceVal,
-                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
                         getType(sourceVal), "char"));
     }
 
     public static short anyToJShort(Object sourceVal) {
         return TypeConverter.anyToJShortCast(sourceVal,
-                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
                         getType(sourceVal), "short"));
     }
 
     public static int anyToJInt(Object sourceVal) {
         return TypeConverter.anyToJIntCast(sourceVal,
-                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
                         getType(sourceVal), "int"));
     }
 
     public static long anyToJLong(Object sourceVal) {
         return TypeConverter.anyToJLongCast(sourceVal,
-                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
                         getType(sourceVal), "long"));
     }
 
     public static float anyToJFloat(Object sourceVal) {
         return TypeConverter.anyToJFloatCast(sourceVal,
-                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
                         getType(sourceVal), "float"));
     }
 
     public static double anyToJDouble(Object sourceVal) {
         return TypeConverter.anyToJDoubleCast(sourceVal,
-                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
                         getType(sourceVal), "double"));
     }
 
     public static boolean anyToJBoolean(Object sourceVal) {
         return TypeConverter.anyToJBooleanCast(sourceVal,
-                () -> ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, J_TYPE_CAST_ERROR,
                         getType(sourceVal), "boolean"));
     }
 

@@ -1012,7 +1012,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index >= size) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
@@ -1020,12 +1020,12 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     protected void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if ((int) index < 0 || index >= maxSize) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, index, size);
         }
     }
@@ -1038,7 +1038,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
             return;
         }
         if (index > size) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_ARRAY_INSERTION,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_ARRAY_INSERTION,
                     size, index + 1);
         }
     }
@@ -1067,7 +1067,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     @Override
     protected void checkFixedLength(long length) {
         if (this.arrayType.getState() == ArrayState.CLOSED) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_ARRAY_SIZE_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_ARRAY_SIZE_ERROR,
                     size, length);
         }
     }
@@ -1090,7 +1090,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
     private void prepareForAdd(long index, Object value, Type sourceType, int currentArraySize) {
         // check types
         if (!TypeChecker.checkIsType(value, sourceType, this.elementType)) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, this.elementType, sourceType);
         }
 
@@ -1104,7 +1104,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
 
     private void fillRead(long index, int currentArraySize) {
         if (!arrayType.hasFillerValue()) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_ARRAY_INSERTION,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_ARRAY_INSERTION,
                     size, index + 1);
         }
 
@@ -1155,7 +1155,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         Object arr = getArrayFromType(elementType.getTag());
 
         if (index > lastIndex) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, index);
         }
 

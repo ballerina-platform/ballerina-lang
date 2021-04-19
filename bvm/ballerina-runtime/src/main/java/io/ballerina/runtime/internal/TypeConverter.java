@@ -86,28 +86,28 @@ public class TypeConverter {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 return anyToInt(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                                 TypeChecker.getType(inputValue), inputValue, PredefinedTypes.TYPE_INT));
             case TypeTags.DECIMAL_TAG:
                 return anyToDecimal(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                                 TypeChecker.getType(inputValue), inputValue, PredefinedTypes.TYPE_DECIMAL));
             case TypeTags.FLOAT_TAG:
                 return anyToFloat(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                                 TypeChecker.getType(inputValue), inputValue, PredefinedTypes.TYPE_FLOAT));
             case TypeTags.STRING_TAG:
                 return StringUtils.fromString(anyToString(inputValue));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBoolean(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                                 TypeChecker.getType(inputValue), inputValue, PredefinedTypes.TYPE_BOOLEAN));
             case TypeTags.BYTE_TAG:
                 return anyToByte(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                                 TypeChecker.getType(inputValue), inputValue, PredefinedTypes.TYPE_BYTE));
             default:
-                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+                throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                         inputType, inputValue, targetType);
         }
     }
@@ -122,30 +122,30 @@ public class TypeConverter {
             case TypeTags.UNSIGNED16_INT_TAG:
             case TypeTags.UNSIGNED8_INT_TAG:
                 return anyToIntCast(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
                                 getType(inputValue), PredefinedTypes.TYPE_INT));
             case TypeTags.DECIMAL_TAG:
                 return anyToDecimal(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
                                 getType(inputValue), PredefinedTypes.TYPE_DECIMAL));
             case TypeTags.FLOAT_TAG:
                 return anyToFloatCast(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
                                 getType(inputValue), PredefinedTypes.TYPE_FLOAT));
             case TypeTags.STRING_TAG:
                 return anyToStringCast(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
                                 getType(inputValue), PredefinedTypes.TYPE_STRING));
             case TypeTags.BOOLEAN_TAG:
                 return anyToBooleanCast(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
                                 getType(inputValue), PredefinedTypes.TYPE_BOOLEAN));
             case TypeTags.BYTE_TAG:
                 return anyToByteCast(inputValue, () ->
-                        ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
+                        ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
                                 getType(inputValue), PredefinedTypes.TYPE_BYTE));
             default:
-                throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
+                throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
                         getType(inputValue), targetType);
         }
     }
@@ -512,7 +512,7 @@ public class TypeConverter {
 
     public static int intToByte(long sourceVal) {
         if (!TypeChecker.isByteLiteral(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_BYTE);
         }
         return ((Long) sourceVal).intValue();
@@ -520,7 +520,7 @@ public class TypeConverter {
 
     public static long intToSigned32(long sourceVal) {
         if (!TypeChecker.isSigned32LiteralValue(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_INT_SIGNED_32);
         }
         return sourceVal;
@@ -528,7 +528,7 @@ public class TypeConverter {
 
     public static long intToSigned16(long sourceVal) {
         if (!isSigned16LiteralValue(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_INT_SIGNED_16);
         }
         return sourceVal;
@@ -536,7 +536,7 @@ public class TypeConverter {
 
     public static long intToSigned8(long sourceVal) {
         if (!isSigned8LiteralValue(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_INT_SIGNED_8);
         }
         return sourceVal;
@@ -544,7 +544,7 @@ public class TypeConverter {
 
     public static long intToUnsigned32(long sourceVal) {
         if (!isUnsigned32LiteralValue(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_INT_UNSIGNED_32);
         }
         return sourceVal;
@@ -552,7 +552,7 @@ public class TypeConverter {
 
     public static long intToUnsigned16(long sourceVal) {
         if (!isUnsigned16LiteralValue(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_INT_UNSIGNED_16);
         }
         return sourceVal;
@@ -560,7 +560,7 @@ public class TypeConverter {
 
     public static long intToUnsigned8(long sourceVal) {
         if (!isUnsigned8LiteralValue(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_INT_UNSIGNED_8);
         }
         return sourceVal;
@@ -592,7 +592,7 @@ public class TypeConverter {
 
     public static BString stringToChar(Object sourceVal) {
         if (!isCharLiteralValue(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_STRING_CHAR);
         }
         return StringUtils.fromString(Objects.toString(sourceVal));
@@ -639,7 +639,7 @@ public class TypeConverter {
 
         long intVal = Math.round(sourceVal);
         if (!TypeChecker.isByteLiteral(intVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_BYTE);
         }
 
@@ -650,7 +650,7 @@ public class TypeConverter {
         checkIsValidFloat(sourceVal, PredefinedTypes.TYPE_INT);
 
         if (!isFloatWithinIntRange(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_INT);
         }
 
@@ -659,13 +659,13 @@ public class TypeConverter {
 
     private static void checkIsValidFloat(double sourceVal, Type targetType) {
         if (Double.isNaN(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                     SIMPLE_TYPE_NUMBER_CONVERSION_ERROR, PredefinedTypes.TYPE_FLOAT, NaN, targetType);
         }
 
         if (Double.isInfinite(sourceVal)) {
             String value = sourceVal > 0 ? POSITIVE_INFINITY : NEGATIVE_INFINITY;
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
                     SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     PredefinedTypes.TYPE_FLOAT, value, targetType);
         }
@@ -729,7 +729,7 @@ public class TypeConverter {
             return "()";
         }
 
-        throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+        throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                 TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_STRING);
     }
 
@@ -828,7 +828,7 @@ public class TypeConverter {
         checkIsValidFloat(sourceVal, PredefinedTypes.TYPE_INT);
 
         if (!isFloatWithinIntRange(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_INT);
         }
 
@@ -839,7 +839,7 @@ public class TypeConverter {
         checkIsValidFloat(sourceVal, PredefinedTypes.TYPE_INT);
 
         if (!isFloatWithinIntRange(sourceVal)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, SIMPLE_TYPE_NUMBER_CONVERSION_ERROR,
                     TypeChecker.getType(sourceVal), sourceVal, PredefinedTypes.TYPE_INT);
         }
 

@@ -160,7 +160,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
      */
     public V getOrThrow(Object key) {
         if (!containsKey(key)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.MAP_KEY_NOT_FOUND, key);
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.MAP_KEY_NOT_FOUND, key);
         }
         return this.get(key);
     }
@@ -189,7 +189,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
             } else {
                 if (recordType.sealed) {
                     // Panic if this record type does not contain a key by the specified name.
-                    throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
+                    throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID,
                             RuntimeErrorType.MAP_KEY_NOT_FOUND, key);
                 }
                 expectedType = recordType.restFieldType;
@@ -200,7 +200,7 @@ public class MapValueImpl<K, V> extends LinkedHashMap<K, V> implements RefValue,
 
         if (!TypeChecker.hasFillerValue(expectedType)) {
             // Panic if the field does not have a filler value.
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.MAP_KEY_NOT_FOUND, key);
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_MAP_PKG_ID, RuntimeErrorType.MAP_KEY_NOT_FOUND, key);
         }
 
         Object value = expectedType.getZeroValue();

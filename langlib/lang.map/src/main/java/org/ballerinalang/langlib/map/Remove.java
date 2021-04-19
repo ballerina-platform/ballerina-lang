@@ -52,7 +52,7 @@ public class Remove {
             }
         }
 
-        throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_MAP_PKG_ID,
+        throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_MAP_PKG_ID,
                 RuntimeErrorType.MAP_KEY_NOT_FOUND, k);
     }
 }

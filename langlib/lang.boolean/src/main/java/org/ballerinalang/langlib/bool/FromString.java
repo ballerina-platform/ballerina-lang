@@ -43,7 +43,7 @@ public class FromString {
         try {
             return TypeConverter.stringToBoolean(s);
         } catch (NumberFormatException e) {
-            return ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_BOOLEAN_PKG_ID,
+            return ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_BOOLEAN_PKG_ID,
                     RuntimeErrorType.BOOLEAN_PARSING_ERROR, PredefinedTypes.TYPE_STRING, s,
                     PredefinedTypes.TYPE_BOOLEAN);
         }

@@ -46,18 +46,18 @@ public class Slice {
         int size = arr.size();
 
         if (startIndex < 0) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, startIndex, size);
         }
 
         if (endIndex > size) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, endIndex, size);
         }
 
         long sliceSize = endIndex - startIndex;
         if (sliceSize < 0) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.ARRAY_INDEX_OUT_OF_RANGE, sliceSize, size);
         }
 

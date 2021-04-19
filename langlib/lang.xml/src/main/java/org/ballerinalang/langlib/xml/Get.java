@@ -55,7 +55,7 @@ public class Get {
                 if (i == 0) {
                     return xmlVal;
                 }
-                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_XML_PKG_ID,
+                throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_XML_PKG_ID,
                         RuntimeErrorType.XML_SEQUENCE_INDEX_OUT_OF_RANGE, LENGTH_OF_ONE, i);
         }
 
@@ -63,7 +63,7 @@ public class Get {
         List<BXml> childrenList = ((BXmlSequence) xmlVal).getChildrenList();
         int size = childrenList.size();
         if (i < 0 || i >= size) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_XML_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_XML_PKG_ID,
                     RuntimeErrorType.XML_SEQUENCE_INDEX_OUT_OF_RANGE, size, i);
         }
 

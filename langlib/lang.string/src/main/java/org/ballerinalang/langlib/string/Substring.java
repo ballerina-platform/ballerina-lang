@@ -42,20 +42,20 @@ public class Substring {
             throw createNullReferenceError();
         }
         if (startIndex != (int) startIndex) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
                     RuntimeErrorType.STRING_INDEX_TOO_LARGE, startIndex);
         }
         if (endIndex != (int) endIndex) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
                     RuntimeErrorType.STRING_INDEX_TOO_LARGE, endIndex);
         }
 
         if (startIndex < 0 || endIndex > value.length()) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
                     RuntimeErrorType.SUBSTRING_INDEX_OUT_OF_RANGE, value.length(), startIndex, endIndex);
         }
         if (endIndex < startIndex) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
                     RuntimeErrorType.INVALID_SUBSTRING_RANGE, value.length(), startIndex, endIndex);
         }
         return value.substring((int) startIndex, (int) endIndex);

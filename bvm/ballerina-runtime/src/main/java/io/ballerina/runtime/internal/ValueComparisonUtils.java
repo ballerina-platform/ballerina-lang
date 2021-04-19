@@ -195,7 +195,7 @@ public class ValueComparisonUtils {
                 return 0;
             }
             if (inRelationalExpr) {
-                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                         RuntimeErrorType.UNORDERED_TYPES_IN_COMPARISON, TYPE_NULL, rhsValue);
             }
             if (isAscending) {
@@ -205,7 +205,7 @@ public class ValueComparisonUtils {
         }
         if (rhsValue == null) {
             if (inRelationalExpr) {
-                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                         RuntimeErrorType.UNORDERED_TYPES_IN_COMPARISON, lhsValue, TYPE_NULL);
             }
             if (isAscending) {
@@ -243,7 +243,7 @@ public class ValueComparisonUtils {
             }
         }
 
-        throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+        throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                 RuntimeErrorType.UNSUPPORTED_COMPARISON_OPERATION, TypeChecker.getType(lhsValue),
                 TypeChecker.getType(rhsValue));
     }
@@ -276,7 +276,7 @@ public class ValueComparisonUtils {
         // CompareA(x, y) and CompareD(x, y).
         if (Double.isNaN(lhsValue)) {
             if (inRelationalExpr) {
-                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                         RuntimeErrorType.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue);
             }
             if (Double.isNaN(rhsValue)) {
@@ -289,7 +289,7 @@ public class ValueComparisonUtils {
         }
         if (Double.isNaN(rhsValue)) {
             if (inRelationalExpr) {
-                throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+                throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                         RuntimeErrorType.UNORDERED_TYPES_IN_COMPARISON, lhsValue, rhsValue);
             }
             if (isAscending) {

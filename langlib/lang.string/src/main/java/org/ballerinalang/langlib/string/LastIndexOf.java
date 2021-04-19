@@ -41,7 +41,7 @@ public class LastIndexOf {
     public static Object lastIndexOf(BString value, BString subString, long startIndex) {
         StringUtils.checkForNull(value, subString);
         if (startIndex > Integer.MAX_VALUE) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_STRING_PKG_ID,
                     RuntimeErrorType.STRING_INDEX_TOO_LARGE, startIndex);
         }
         return value.lastIndexOf(subString, (int) startIndex);

@@ -571,7 +571,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     protected void rangeCheckForGet(long index, int size) {
         rangeCheck(index, size);
         if (index < 0 || index >= size) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.TUPLE_INDEX_OUT_OF_RANGE, index, size);
         }
     }
@@ -579,12 +579,12 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     protected void rangeCheck(long index, int size) {
         if (index > Integer.MAX_VALUE || index < Integer.MIN_VALUE) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, index);
         }
 
         if ((this.tupleType.getRestType() == null && index >= this.maxSize) || (int) index < 0) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.TUPLE_INDEX_OUT_OF_RANGE, index, size);
         }
     }
@@ -600,7 +600,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         // if the elementType doesn't have an implicit initial value & if the insertion is not a consecutive append
         // to the array, then an exception will be thrown.
         if (!TypeChecker.hasFillerValue(this.tupleType.getRestType()) && (index > size)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_TUPLE_INSERTION,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_TUPLE_INSERTION,
                     size, index + 1);
         }
     }
@@ -640,10 +640,10 @@ public class TupleValueImpl extends AbstractArrayValue {
     @Override
     protected void checkFixedLength(long length) {
         if (this.tupleType.getRestType() == null) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_TUPLE_SIZE_ERROR,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_TUPLE_SIZE_ERROR,
                     size, length);
         } else if (this.tupleType.getTupleTypes().size() > length) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.ILLEGAL_TUPLE_WITH_REST_TYPE_SIZE,
                     this.tupleType.getTupleTypes().size(), length);
         }
@@ -671,7 +671,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         }
 
         if (!TypeChecker.checkIsType(value, elemType)) {
-            throw ErrorUtils.getRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+            throw ErrorUtils.createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
                     RuntimeErrorType.INCOMPATIBLE_TYPE_ERROR, elemType, TypeChecker.getType(value));
         }
 
@@ -684,7 +684,7 @@ public class TupleValueImpl extends AbstractArrayValue {
     private void fillRead(long index, int currentArraySize) {
         Type restType = this.tupleType.getRestType();
         if (!TypeChecker.hasFillerValue(restType)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_TUPLE_INSERTION,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.ILLEGAL_TUPLE_INSERTION,
                     size, index + 1);
         }
 
@@ -718,7 +718,7 @@ public class TupleValueImpl extends AbstractArrayValue {
         int lastIndex = size() + unshiftByN - 1;
         prepareForConsecutiveMultiAdd(lastIndex, arrLength);
         if (index > lastIndex) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID,
                     RuntimeErrorType.INDEX_NUMBER_TOO_LARGE, index);
         }
 

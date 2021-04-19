@@ -185,14 +185,14 @@ public abstract class AbstractObjectValue implements ObjectValue {
 
     protected void checkFieldUpdate(String fieldName, Object value) {
         if (type.isReadOnly()) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_OBJECT_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_OBJECT_PKG_ID,
                     RuntimeErrorType.INVALID_READONLY_VALUE_UPDATE);
         }
 
         Field field = type.getFields().get(fieldName);
 
         if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.FINAL)) {
-            throw ErrorUtils.getRuntimeError(BALLERINA_LANG_OBJECT_PKG_ID,
+            throw ErrorUtils.createRuntimeError(BALLERINA_LANG_OBJECT_PKG_ID,
                     RuntimeErrorType.OBJECT_INVALID_FINAL_FIELD_UPDATE, fieldName, type);
         }
         checkFieldUpdateType(fieldName, value);
@@ -204,7 +204,7 @@ public abstract class AbstractObjectValue implements ObjectValue {
             return;
         }
 
-        throw ErrorUtils.getRuntimeError(BALLERINA_LANG_OBJECT_PKG_ID, RuntimeErrorType.INVALID_OBJECT_FIELD_VALUE,
+        throw ErrorUtils.createRuntimeError(BALLERINA_LANG_OBJECT_PKG_ID, RuntimeErrorType.INVALID_OBJECT_FIELD_VALUE,
                 fieldName, fieldType, TypeChecker.getType(value));
     }
 }
