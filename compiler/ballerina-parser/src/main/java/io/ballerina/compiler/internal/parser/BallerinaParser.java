@@ -9039,7 +9039,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseSimpleConstExprInternal() {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case STRING_LITERAL_TOKEN:
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
@@ -9049,16 +9050,17 @@ public class BallerinaParser extends AbstractParser {
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
                 return parseBasicLiteral();
-            case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
             case PLUS_TOKEN:
             case MINUS_TOKEN:
                 return parseSignedIntOrFloat();
             case OPEN_PAREN_TOKEN:
                 return parseNilLiteral();
             default:
-                STToken token = peek();
-                recover(token, ParserRuleContext.CONSTANT_EXPRESSION_START);
+                if (isPredeclaredIdentifier(nextToken.kind)) {
+                    return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
+                }
+                
+                recover(nextToken, ParserRuleContext.CONSTANT_EXPRESSION_START);
                 return parseSimpleConstExprInternal();
         }
     }
