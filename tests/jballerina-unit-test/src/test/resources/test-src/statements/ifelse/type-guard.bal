@@ -1289,3 +1289,101 @@ type OpenRecordWithIntField record {
 type ClosedRecordWithIntField record {|
     int i;
 |};
+
+type ClosedRec record {|
+    int i?;
+    boolean b;
+|};
+
+public function testRecordIntersectionWithClosedRecordAndRecordWithOptionalField() {
+    record {| boolean b; |} x = {b: true};
+    record {| byte i?; boolean b?; |} y = x;
+
+    assertEquality(true, y is ClosedRec);
+
+    if y is ClosedRec {
+        record {| byte i?; boolean b; |} rec = y;
+        assertEquality(true, rec.b);
+        assertEquality((), rec?.i);
+
+        record {| byte i?; boolean...; |} rec2 = y;
+        assertEquality(true, rec2["b"]);
+        assertEquality((), rec2?.i);
+    }
+}
+
+type ClosedRecTwo record {|
+    int i;
+    string s?;
+|};
+
+function testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2() {
+    record {| int i; |} x = {i: 1};
+    record {| int i; boolean b?; |} y = x;
+
+    assertEquality(true, y is ClosedRecTwo);
+
+    if y is ClosedRecTwo {
+        record {| int i; |} z = y;
+        assertEquality(1, z.i);
+    }
+}
+
+function testClosedRecordAndMapIntersection() {
+    record {| byte i; |} x = {i: 123};
+    map<int|string> m = x;
+
+    assertEquality(true, m is record {| int i; float f?; |});
+
+    if m is record {| int i; float f?; |} {
+        record {| int i; |} rec = m;
+        assertEquality(123, rec.i);
+    }
+}
+
+type RecordWithNonReadOnlyField record {|
+    int i;
+    string s?;
+|};
+
+type RecordWithReadOnlyFieldAndOptionalNonReadOnlyField record {|
+    readonly int i;
+    boolean b?;
+|};
+
+type RecordWithReadOnlyFieldAndNonReadOnlyField record {|
+    readonly int i;
+    string|boolean s;
+|};
+
+function testIntersectionReadOnlyness() {
+    record {| int i; |} & readonly r1 = {i: 1};
+    RecordWithNonReadOnlyField r2 = r1;
+
+    assertEquality(true, r2 is RecordWithReadOnlyFieldAndOptionalNonReadOnlyField);
+    assertEquality(false, r2 is RecordWithReadOnlyFieldAndNonReadOnlyField);
+
+    if r2 is RecordWithReadOnlyFieldAndOptionalNonReadOnlyField {
+        readonly x = r2;
+        record {| readonly int i; |} y = r2;
+        assertEquality(1, y.i);
+    }
+
+    record {| readonly int i; string s; |} r3 = {i: 123, s: "hello"};
+    RecordWithNonReadOnlyField r4 = r3;
+
+    assertEquality(true, r4 is RecordWithReadOnlyFieldAndNonReadOnlyField);
+    if r2 is RecordWithReadOnlyFieldAndNonReadOnlyField {
+        record {| readonly int i; string s; |} x = r2;
+        assertEquality(123, x.i);
+        assertEquality("hello", x.s);
+    }
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

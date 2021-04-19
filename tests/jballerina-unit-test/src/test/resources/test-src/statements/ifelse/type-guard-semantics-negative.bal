@@ -379,3 +379,53 @@ function testInvalidAccessOfOutOfScopeVar() {
 }
 
 type ErrorD error<Detail>;
+
+type ClosedRec record {|
+    int i?;
+    boolean b;
+|};
+
+function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegative() {
+    record {| boolean b; |} x = {b: true};
+    record {| byte i?; boolean b?; |} y = x;
+
+    if y is ClosedRec {
+        record {| byte...; |} rec = y;
+    }
+}
+
+function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegativeTwo() {
+    record {| boolean b; |} x = {b: true};
+    record {| byte i?; boolean b?; |} y = x;
+
+    if y is ClosedRec {
+        int a = y;
+    }
+}
+
+type RecordWithNonReadOnlyField record {|
+    int i;
+    string s?;
+|};
+
+type RecordWithReadOnlyFieldAndOptionalNonReadOnlyField record {|
+    readonly int i;
+    boolean b?;
+|};
+
+type RecordWithReadOnlyFieldAndNonReadOnlyField record {|
+    readonly int i;
+    string|boolean s;
+|};
+
+function testIntersectionReadOnlyness() {
+    RecordWithNonReadOnlyField r1 = {i: 1};
+
+    if r1 is RecordWithReadOnlyFieldAndOptionalNonReadOnlyField {
+        RecordWithReadOnlyFieldAndNonReadOnlyField x = r1;
+    }
+
+    if r1 is RecordWithReadOnlyFieldAndNonReadOnlyField {
+        readonly x = r1;
+    }
+}

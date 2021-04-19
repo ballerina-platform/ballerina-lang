@@ -2931,10 +2931,24 @@ public class Types {
             rhsFields.remove(lhsField.name.value);
         }
 
+        if (lhsType.sealed) {
+            for (BField field : rhsFields.values()) {
+                if (!isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type)) {
+                    return false;
+                }
+            }
+            return true;
+        }
+
         // If there are any remaining RHS fields, the types of those should be assignable to the rest field type of
         // the LHS record.
-        return rhsFields.entrySet().stream().allMatch(
-                fieldEntry -> isAssignable(fieldEntry.getValue().type, lhsType.restFieldType, unresolvedTypes));
+        BType lhsRestFieldType = lhsType.restFieldType;
+        for (BField field : rhsFields.values()) {
+            if (!isAssignable(field.type, lhsRestFieldType, unresolvedTypes)) {
+                return false;
+            }
+        }
+        return true;
     }
 
     private BAttachedFunction getMatchingInvokableType(List<BAttachedFunction> rhsFuncList, BAttachedFunction lhsFunc,
@@ -4093,26 +4107,51 @@ public class Types {
         return intersectionErrorType;
     }
 
-    private BType createRecordIntersection(IntersectionContext diagnosticContext,
+    private BType createRecordIntersection(IntersectionContext intersectionContext,
                                            BRecordType recordTypeOne, BRecordType recordTypeTwo, SymbolEnv env) {
+        LinkedHashMap<String, BField> recordOneFields = recordTypeOne.fields;
+        LinkedHashMap<String, BField> recordTwoFields = recordTypeTwo.fields;
+
+        Set<String> recordOneKeys = recordOneFields.keySet();
+        Set<String> recordTwoKeys = recordTwoFields.keySet();
+
+        boolean isRecordOneClosed = recordTypeOne.sealed;
+        boolean isRecordTwoClosed = recordTypeTwo.sealed;
+
+        BType effectiveRecordOneRestFieldType = getConstraint(recordTypeOne);
+        BType effectiveRecordTwoRestFieldType = getConstraint(recordTypeTwo);
 
         BRecordType newType = createAnonymousRecord(env);
+        BTypeSymbol newTypeSymbol = newType.tsymbol;
+        Set<String> addedKeys = new HashSet<>();
 
-        if (!populateRecordFields(diagnosticContext.switchLeft(), newType, recordTypeOne, env,
-                                  getConstraint(recordTypeTwo)) ||
-                !populateRecordFields(diagnosticContext.switchRight(), newType, recordTypeTwo, env,
-                                      getConstraint(recordTypeOne))) {
+        LinkedHashMap<String, BField> newTypeFields = newType.fields;
+
+        if (!populateFields(intersectionContext.switchLeft(), recordTypeOne, env, recordOneFields, recordTwoFields,
+                            recordOneKeys, recordTwoKeys, isRecordTwoClosed, effectiveRecordTwoRestFieldType,
+                            newTypeSymbol, addedKeys, newTypeFields)) {
             return symTable.semanticError;
         }
 
-        newType.restFieldType = getTypeIntersection(diagnosticContext, recordTypeOne.restFieldType,
-                                                    recordTypeTwo.restFieldType, env);
-
-        if (newType.restFieldType == symTable.semanticError) {
+        if (!populateFields(intersectionContext.switchRight(), recordTypeTwo, env, recordTwoFields, recordOneFields,
+                            recordTwoKeys, recordOneKeys, isRecordOneClosed, effectiveRecordOneRestFieldType,
+                            newTypeSymbol, addedKeys, newTypeFields)) {
             return symTable.semanticError;
         }
 
-        if (!diagnosticContext.compilerInternalIntersectionTest) {
+        BType restFieldType = getTypeIntersection(intersectionContext, effectiveRecordOneRestFieldType,
+                effectiveRecordTwoRestFieldType, env);
+        if (setRestType(newType, restFieldType) == symTable.semanticError) {
+            return symTable.semanticError;
+        }
+
+        if ((newType.sealed || newType.restFieldType == symTable.neverType) &&
+                (newTypeFields.isEmpty() || allReadOnlyFields(newTypeFields))) {
+            newType.flags |= Flags.READONLY;
+            newTypeSymbol.flags |= Flags.READONLY;
+        }
+
+        if (!intersectionContext.compilerInternalIntersectionTest) {
             BLangRecordTypeNode recordTypeNode = TypeDefBuilderHelper.createRecordTypeNode(
                     newType, env.enclPkg.packageID, symTable, symTable.builtinPos);
             BLangTypeDefinition recordTypeDef = TypeDefBuilderHelper.addTypeDefinition(
@@ -4122,6 +4161,114 @@ public class Types {
         }
 
         return newType;
+    }
+
+    private boolean populateFields(IntersectionContext intersectionContext, BRecordType lhsRecord, SymbolEnv env,
+                                   LinkedHashMap<String, BField> lhsRecordFields,
+                                   LinkedHashMap<String, BField> rhsRecordFields,
+                                   Set<String> lhsRecordKeys, Set<String> rhsRecordKeys,
+                                   boolean isRhsRecordClosed, BType effectiveRhsRecordRestFieldType,
+                                   BTypeSymbol newTypeSymbol, Set<String> addedKeys,
+                                   LinkedHashMap<String, BField> newTypeFields) {
+        for (String key : lhsRecordKeys) {
+            BField lhsRecordField = lhsRecordFields.get(key);
+
+            if (!validateRecordFieldDefaultValueForIntersection(intersectionContext, lhsRecordField, lhsRecord)) {
+                return false;
+            }
+
+            if (!addedKeys.add(key)) {
+                continue;
+            }
+            
+            BType intersectionFieldType;
+
+            long intersectionFlags = lhsRecordField.symbol.flags;
+
+            BType recordOneFieldType = lhsRecordField.type;
+            if (!rhsRecordKeys.contains(key)) {
+                if (isRhsRecordClosed) {
+                    if (!Symbols.isFlagOn(lhsRecordField.symbol.flags, Flags.OPTIONAL)) {
+                        return false;
+                    }
+                    continue;
+                }
+
+                if (isNeverTypeOrStructureTypeWithARequiredNeverMember(effectiveRhsRecordRestFieldType) &&
+                        !isNeverTypeOrStructureTypeWithARequiredNeverMember(recordOneFieldType)) {
+                    return false;
+                }
+
+                intersectionFieldType = getIntersection(intersectionContext, recordOneFieldType, env,
+                                                        effectiveRhsRecordRestFieldType);
+            } else {
+                BField rhsRecordField = rhsRecordFields.get(key);
+                intersectionFieldType = getIntersection(intersectionContext, recordOneFieldType, env,
+                                                        rhsRecordField.type);
+
+                long rhsFieldFlags = rhsRecordField.symbol.flags;
+                if (Symbols.isFlagOn(rhsFieldFlags, Flags.READONLY)) {
+                    intersectionFlags |= Flags.READONLY;
+                }
+
+                if (!Symbols.isFlagOn(rhsFieldFlags, Flags.OPTIONAL) &&
+                        Symbols.isFlagOn(intersectionFlags, Flags.OPTIONAL)) {
+                    intersectionFlags &= ~Flags.OPTIONAL;
+                }
+
+                if (Symbols.isFlagOn(rhsFieldFlags, Flags.REQUIRED) &&
+                        !Symbols.isFlagOn(intersectionFlags, Flags.REQUIRED)) {
+                    intersectionFlags |= Flags.REQUIRED;
+                }
+            }
+
+            if (intersectionFieldType == null || intersectionFieldType == symTable.semanticError) {
+                return false;
+            }
+
+            org.wso2.ballerinalang.compiler.util.Name name = lhsRecordField.name;
+            BVarSymbol recordFieldSymbol = new BVarSymbol(intersectionFlags, name, env.enclPkg.packageID,
+                                                          intersectionFieldType, newTypeSymbol, lhsRecordField.pos,
+                                                          SOURCE);
+
+            if (intersectionFieldType.tag == TypeTags.INVOKABLE && intersectionFieldType.tsymbol != null) {
+                BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) intersectionFieldType.tsymbol;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) recordFieldSymbol;
+                invokableSymbol.params = tsymbol.params;
+                invokableSymbol.restParam = tsymbol.restParam;
+                invokableSymbol.retType = tsymbol.returnType;
+                invokableSymbol.flags = tsymbol.flags;
+            }
+
+            newTypeFields.put(key, new BField(name, null, recordFieldSymbol));
+            newTypeSymbol.scope.define(name,  recordFieldSymbol);
+        }
+        return true;
+    }
+
+    private boolean allReadOnlyFields(LinkedHashMap<String, BField> fields) {
+        for (BField field : fields.values()) {
+            if (!Symbols.isFlagOn(field.symbol.flags, Flags.READONLY)) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private BType setRestType(BRecordType recordType, BType restType) {
+        if (restType == symTable.semanticError) {
+            recordType.restFieldType = symTable.semanticError;
+            return symTable.semanticError;
+        }
+
+        if (restType == symTable.neverType) {
+            recordType.sealed = true;
+            recordType.restFieldType = symTable.noType;
+            return symTable.noType;
+        }
+
+        recordType.restFieldType = restType;
+        return restType;
     }
 
     private BType getConstraint(BRecordType recordType) {
@@ -4168,9 +4315,9 @@ public class Types {
             return intersectionRecord;
         }
 
-        intersectionRecord.restFieldType = getRestFieldIntersectionType(intersectionContext,
+        BType restFieldType = getRestFieldIntersectionType(intersectionContext,
                 type, (BMapType) mapType, env);
-        if (intersectionRecord.restFieldType == symTable.semanticError) {
+        if (setRestType(intersectionRecord, restFieldType) == symTable.semanticError) {
             return symTable.semanticError;
         }
 
@@ -4190,7 +4337,7 @@ public class Types {
                                                BType type, BMapType mapType, SymbolEnv env) {
         if (type.tag == TypeTags.RECORD) {
             return getTypeIntersection(intersectionContext,
-                    ((BRecordType) type).restFieldType, mapType.constraint, env);
+                    getConstraint((BRecordType) type), mapType.constraint, env);
         } else {
             return getTypeIntersection(intersectionContext,
                     ((BMapType) type).constraint, mapType.constraint, env);
@@ -4248,6 +4395,12 @@ public class Types {
             BVarSymbol recordFieldSymbol = new BVarSymbol(origField.symbol.flags, origFieldName,
                                                           env.enclPkg.packageID, recordFieldType,
                                                           intersectionRecordSymbol, origField.pos, SOURCE);
+
+            if (recordFieldType == symTable.neverType && Symbols.isFlagOn(recordFieldSymbol.flags, Flags.OPTIONAL)) {
+                recordFieldSymbol.flags &= (~Flags.REQUIRED);
+                recordFieldSymbol.flags |= Flags.OPTIONAL;
+            }
+
             if (recordFieldType.tag == TypeTags.INVOKABLE && recordFieldType.tsymbol != null) {
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) recordFieldType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) recordFieldSymbol;
@@ -4295,7 +4448,7 @@ public class Types {
         }
 
         if (Symbols.isOptional(origField.symbol)) {
-            return null;
+            return symTable.neverType;
         }
 
         return symTable.semanticError;
