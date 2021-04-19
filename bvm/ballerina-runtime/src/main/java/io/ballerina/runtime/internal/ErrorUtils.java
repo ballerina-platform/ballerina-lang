@@ -26,7 +26,6 @@ import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
-import io.ballerina.runtime.internal.util.exceptions.BallerinaException;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import io.ballerina.runtime.internal.values.ErrorValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
@@ -119,7 +118,7 @@ public class ErrorUtils {
         BMap<BString, Object> detail = getErrorDetail(errorMessage);
         try {
             return createError(module, errorType.getErrorName(), modulePrefixedErrorName, null, detail);
-        } catch (BallerinaException e) {
+        } catch (Exception e) {
             // This should never happen unless ErrorCreator itself has a bug
             e.addSuppressed(errorCause);
             throw e;
