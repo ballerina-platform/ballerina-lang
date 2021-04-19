@@ -182,13 +182,17 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'j'", 377, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
                 "'record {| byte i?; boolean b; |}'", 393, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 398, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i; boolean b; |}'", 402, 37);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'record {| byte i?;" +
-                " boolean b; |}'", 402, 17);
+                " boolean b; |}'", 411, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
-                "'RecordWithReadOnlyFieldAndNonReadOnlyField', found 'record {| readonly int i; |} & readonly'", 425,
+                "'RecordWithReadOnlyFieldAndNonReadOnlyField', found 'record {| readonly int i; |} & readonly'", 434,
                 56);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'readonly', found 'record {| " +
-                "readonly int i; string s; |}'", 429, 22);
+                "readonly int i; string s; |}'", 438, 22);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }

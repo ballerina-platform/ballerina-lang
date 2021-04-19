@@ -392,6 +392,15 @@ function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegativ
     if y is ClosedRec {
         record {| byte...; |} rec = y;
     }
+
+    ClosedRec cr = {i: 1, b: true};
+    if cr is record {| byte i?; boolean b?; |} {
+        record {| byte...; |} rec = cr;
+    }
+
+    if cr is record {| byte i; boolean b?; |} {
+        record {| byte...; |} rec = cr;
+    }
 }
 
 function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegativeTwo() {
@@ -429,3 +438,6 @@ function testIntersectionReadOnlyness() {
         readonly x = r1;
     }
 }
+
+
+

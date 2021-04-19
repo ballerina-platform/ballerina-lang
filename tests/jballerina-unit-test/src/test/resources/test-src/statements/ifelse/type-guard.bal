@@ -1327,6 +1327,31 @@ function testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2() {
         record {| int i; |} z = y;
         assertEquality(1, z.i);
     }
+
+    ClosedRec cr1 = {i: 1, b: true};
+    assertEquality(false, cr1 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr1 is record {| byte i; boolean b?; |});
+
+    record {| byte i?; boolean b = false; |} rec2 = {i: 100};
+    ClosedRec cr2 = rec2;
+    assertEquality(true, cr2 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr2 is record {| byte i; boolean b?; |});
+
+    if cr2 is record {| byte i?; boolean b?; |} {
+        record {| byte i?; boolean b; |} rec = cr2;
+        assertEquality(100, rec?.i);
+        assertEquality(false, rec.b);
+    }
+
+    ClosedRec cr3 = <record {| byte i; boolean b; |}> {i: 45, b: true};
+    assertEquality(true, cr3 is record {| byte i?; boolean b?; |});
+    assertEquality(true, cr3 is record {| byte i; boolean b?; |});
+
+    if cr3 is record {| byte i; boolean b?; |} {
+        record {| byte i; boolean b; |} rec = cr3;
+        assertEquality(45, rec?.i);
+        assertEquality(true, rec.b);
+    }
 }
 
 function testClosedRecordAndMapIntersection() {
