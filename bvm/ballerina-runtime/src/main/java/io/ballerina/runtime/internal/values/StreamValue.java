@@ -90,7 +90,7 @@ public class StreamValue implements RefValue, BStream {
      * @param parent The link to the parent node
      */
     public String stringValue(BLink parent) {
-        return getType().toString();
+        return "stream <" + getType().toString() + ">";
     }
 
     /**
