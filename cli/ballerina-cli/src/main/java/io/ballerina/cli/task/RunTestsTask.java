@@ -380,8 +380,6 @@ public class RunTestsTask implements Task {
         String classPath = getClassPath(jBallerinaBackend, currentPackage);
         List<String> cmdArgs = new ArrayList<>();
         cmdArgs.add(System.getProperty("java.command"));
-        cmdArgs.add("-Djava.util.logging.config.class=org.ballerinalang.logging.util.LogConfigReader");
-        cmdArgs.add("-Djava.util.logging.manager=org.ballerinalang.logging.BLogManager");
 
         String mainClassName = TesterinaConstants.TESTERINA_LAUNCHER_CLASS_NAME;
 
@@ -522,18 +520,19 @@ public class RunTestsTask implements Task {
 
         for (ModuleId moduleId : currentPackage.moduleIds()) {
             Module module = currentPackage.module(moduleId);
-
-            // Skip adding the path if the module doesnt contain a generated module jar
-            if (!module.documentIds().isEmpty()) {
+            try {
                 PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
                         currentPackage.packageId(), module.moduleName());
                 exclusionPathList.add(generatedJarLibrary.path());
+            } catch (IllegalStateException e) {
+                continue;
             }
-            // Skip adding the path if the module doesnt contain a generated testable jar
-            if (!module.testDocumentIds().isEmpty()) {
+            try {
                 PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
                         currentPackage.packageId(), module.moduleName());
                 exclusionPathList.add(codeGeneratedTestLibrary.path());
+            } catch (Exception e) {
+                continue;
             }
         }
 
