@@ -70,6 +70,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "doc_source_21.bal", // issue #28172
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
+                "service_decl_source_20.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
