@@ -1,10 +1,18 @@
 {
   "position": {
-    "line": 3,
+    "line": 8,
     "character": 9
   },
-  "source": "statement_context/source/wait_action_ctx_source1.bal",
+  "source": "statement_context/source/wait_action_ctx_source11.bal",
   "items": [
+    {
+      "label": "module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "P",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet"
+    },
     {
       "label": "ballerina/lang.test",
       "kind": "Module",
@@ -94,29 +102,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -423,6 +408,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "fs",
+      "kind": "Variable",
+      "detail": "future<string>",
+      "sortText": "B",
+      "insertText": "fs",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -437,11 +430,47 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testVar",
+      "label": "getStringResult2()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "insertText": "getStringResult2()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getStringResult()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+        }
+      },
+      "sortText": "E",
+      "insertText": "getStringResult()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "W1",
       "kind": "Variable",
-      "detail": "int",
-      "sortText": "D",
-      "insertText": "testVar",
+      "detail": "worker",
+      "sortText": "A",
+      "insertText": "W1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fs2",
+      "kind": "Variable",
+      "detail": "future<string>",
+      "sortText": "B",
+      "insertText": "fs2",
       "insertTextFormat": "Snippet"
     }
   ]
