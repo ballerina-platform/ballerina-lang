@@ -78,6 +78,13 @@ public class TypeGuardTest {
                 "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 150, 15);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 156, 15);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'record {| int i; boolean b; |}' will not be matched to 'ClosedRec'", 187, 8);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'record {| int i; boolean...; |}' will not be matched to 'ClosedRec'", 191, 8);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'map<(int|string)>' will not be matched to 'record {| int i; float f; |}'", 198,
+                8);
 
         Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }
@@ -177,6 +184,11 @@ public class TypeGuardTest {
                 "'record {| byte i?; boolean b; |}'", 393, 37);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'record {| byte i?;" +
                 " boolean b; |}'", 402, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'RecordWithReadOnlyFieldAndNonReadOnlyField', found 'record {| readonly int i; |} & readonly'", 425,
+                56);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'readonly', found 'record {| " +
+                "readonly int i; string s; |}'", 429, 22);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
@@ -637,6 +649,21 @@ public class TypeGuardTest {
     @Test
     public void testRecordIntersectionWithClosedRecordAndRecordWithOptionalField() {
         BRunUtil.invoke(result, "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField");
+    }
+
+    @Test
+    public void testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2");
+    }
+
+    @Test
+    public void testClosedRecordAndMapIntersection() {
+        BRunUtil.invoke(result, "testClosedRecordAndMapIntersection");
+    }
+
+    @Test
+    public void testIntersectionReadOnlyness() {
+        BRunUtil.invoke(result, "testIntersectionReadOnlyness");
     }
 
     @Test

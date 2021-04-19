@@ -402,3 +402,30 @@ function testRecordIntersectionWithClosedRecordAndRecordWithOptionalFieldNegativ
         int a = y;
     }
 }
+
+type RecordWithNonReadOnlyField record {|
+    int i;
+    string s?;
+|};
+
+type RecordWithReadOnlyFieldAndOptionalNonReadOnlyField record {|
+    readonly int i;
+    boolean b?;
+|};
+
+type RecordWithReadOnlyFieldAndNonReadOnlyField record {|
+    readonly int i;
+    string|boolean s;
+|};
+
+function testIntersectionReadOnlyness() {
+    RecordWithNonReadOnlyField r1 = {i: 1};
+
+    if r1 is RecordWithReadOnlyFieldAndOptionalNonReadOnlyField {
+        RecordWithReadOnlyFieldAndNonReadOnlyField x = r1;
+    }
+
+    if r1 is RecordWithReadOnlyFieldAndNonReadOnlyField {
+        readonly x = r1;
+    }
+}
