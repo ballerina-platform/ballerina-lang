@@ -246,11 +246,10 @@ class AIDataMapperCodeActionUtil {
                         if (matchedNode.parent().kind() == SyntaxKind.CHECK_EXPRESSION) {
                             matchedNode = matchedNode.parent();
                         }
-                    } else if (positionDetails.matchedNode().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) {
-                        if (((TypeCastExpressionNode) positionDetails.matchedNode()).expression().kind() ==
-                                SyntaxKind.FUNCTION_CALL) {
+                    } else if ((positionDetails.matchedNode().kind() == SyntaxKind.TYPE_CAST_EXPRESSION) &&
+                            (((TypeCastExpressionNode) positionDetails.matchedNode()).expression().kind() ==
+                                SyntaxKind.FUNCTION_CALL)) {
                             matchedNode = ((TypeCastExpressionNode) positionDetails.matchedNode()).expression();
-                        }
                     }
 
                     if (matchedNode == null) {
@@ -420,7 +419,7 @@ class AIDataMapperCodeActionUtil {
             if (!this.spreadFieldMap.isEmpty()) {
                 for (Map.Entry<String, Map<String, RecordFieldSymbol>> field : this.spreadFieldMap.entrySet()) {
                     JsonObject spreadFieldDetails = new JsonObject();
-                    spreadFieldDetails.addProperty(ID, "dummy_id");
+                    spreadFieldDetails.addProperty(ID, "id");
                     spreadFieldDetails.addProperty(TYPE, "ballerina_type");
                     spreadFieldDetails.add(PROPERTIES, rightRecordToJSON(field.getValue().values()));
                     rightSchema.add(field.getKey(), spreadFieldDetails);
@@ -428,7 +427,7 @@ class AIDataMapperCodeActionUtil {
             }
 
             rightRecordJSON.addProperty(SCHEMA, foundTypeRight);
-            rightRecordJSON.addProperty(ID, "dummy_id");
+            rightRecordJSON.addProperty(ID, "id");
             rightRecordJSON.addProperty(TYPE, "object");
             rightRecordJSON.add(PROPERTIES, rightSchema);
 
@@ -443,7 +442,7 @@ class AIDataMapperCodeActionUtil {
             Map<String, RecordFieldSymbol> leftSchemaFields = symbolList.get(1).fieldDescriptors();
             JsonObject leftSchema = (JsonObject) leftRecordToJSON(leftSchemaFields.values());
             leftRecordJSON.addProperty(SCHEMA, foundTypeLeft);
-            leftRecordJSON.addProperty(ID, "dummy_id");
+            leftRecordJSON.addProperty(ID, "id");
             leftRecordJSON.addProperty(TYPE, "object");
             leftRecordJSON.add(PROPERTIES, leftSchema);
 
@@ -465,7 +464,7 @@ class AIDataMapperCodeActionUtil {
         Set<Map.Entry<String, String>> entrySet = tempRestFieldMap.entrySet();
         for (Map.Entry<String, String> restField : entrySet) {
             JsonObject fieldDetails = new JsonObject();
-            fieldDetails.addProperty(ID, "dummy_id");
+            fieldDetails.addProperty(ID, "id");
             fieldDetails.addProperty(TYPE, restField.getValue());
             fieldDetails.addProperty(OPTIONAL, false);
             rightSchema.add(restField.getKey(), fieldDetails);
@@ -625,7 +624,7 @@ class AIDataMapperCodeActionUtil {
             if (attribute.isOptional() && !this.rightSpecificFieldList.contains(attribute.getName().get())) {
                 continue;
             }
-            fieldDetails.addProperty(ID, "dummy_id");
+            fieldDetails.addProperty(ID, "id");
             TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
             if (attributeType.typeKind() == TypeDescKind.RECORD) {
                 if (attribute.isOptional()) {
@@ -674,7 +673,7 @@ class AIDataMapperCodeActionUtil {
         JsonObject properties = new JsonObject();
         for (RecordFieldSymbol attribute : schemaFields) {
             JsonObject fieldDetails = new JsonObject();
-            fieldDetails.addProperty(ID, "dummy_id");
+            fieldDetails.addProperty(ID, "id");
             TypeSymbol attributeType = CommonUtil.getRawType(attribute.typeDescriptor());
             if (attributeType.typeKind() == TypeDescKind.RECORD) {
                 Map<String, RecordFieldSymbol> recordFields = ((RecordTypeSymbol) attributeType).fieldDescriptors();
