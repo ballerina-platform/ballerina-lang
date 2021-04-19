@@ -29,15 +29,6 @@ import io.ballerina.runtime.api.values.BTypedesc;
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.__internal", functionName = "construct",
-//        args = {
-//                @Argument(name = "constraintTd", type = TypeKind.TYPEDESC),
-//                @Argument(name = "completionTd", type = TypeKind.TYPEDESC),
-//                @Argument(name = "iteratorObj", type = TypeKind.OBJECT)
-//        },
-//        returnType = {@ReturnType(type = TypeKind.STREAM)}
-//)
 public class Construct {
 
     public static BStream construct(BTypedesc constraintTd, BTypedesc completionTd, BObject iteratorObj) {
