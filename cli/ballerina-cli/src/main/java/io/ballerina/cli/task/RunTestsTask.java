@@ -520,13 +520,11 @@ public class RunTestsTask implements Task {
 
         for (ModuleId moduleId : currentPackage.moduleIds()) {
             Module module = currentPackage.module(moduleId);
-            try {
-                PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
-                        currentPackage.packageId(), module.moduleName());
-                exclusionPathList.add(generatedJarLibrary.path());
-            } catch (IllegalStateException e) {
-                continue;
-            }
+
+            PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(currentPackage.packageId(),
+                    module.moduleName());
+            exclusionPathList.add(generatedJarLibrary.path());
+
             try {
                 PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
                         currentPackage.packageId(), module.moduleName());
