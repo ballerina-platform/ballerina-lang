@@ -392,6 +392,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "commit",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "commit;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -424,20 +432,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testNewFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "testNewFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "TestObject1",
       "kind": "Interface",
       "detail": "Object",
@@ -467,6 +461,20 @@
       "detail": "TestObject1",
       "sortText": "B",
       "insertText": "obj1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testNewFunction()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "insertText": "testNewFunction()",
       "insertTextFormat": "Snippet"
     },
     {
