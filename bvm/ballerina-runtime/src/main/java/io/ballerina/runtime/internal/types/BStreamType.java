@@ -19,12 +19,13 @@
 package io.ballerina.runtime.internal.types;
 
 import io.ballerina.runtime.api.Module;
-import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.TypeConstants;
 import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.values.StreamValue;
+
+import java.util.Objects;
 
 /**
  * {@link BStreamType} represents streaming data in Ballerina.
@@ -34,26 +35,34 @@ import io.ballerina.runtime.internal.values.StreamValue;
 public class BStreamType extends BType implements StreamType {
 
     private Type constraint;
+    private Type completionType;
 
     /**
      * Creates a {@link BStreamType} which represents the stream type.
      *
      * @param typeName   string name of the type
      * @param constraint the type by which this stream is constrained
+     * @param completionType the type which indicates the completion of the stream
      * @param pkgPath    package path
      */
-    public BStreamType(String typeName, Type constraint, Module pkgPath) {
+    public BStreamType(String typeName, Type constraint, Type completionType, Module pkgPath) {
         super(typeName, pkgPath, StreamValue.class);
         this.constraint = constraint;
+        this.completionType = completionType;
     }
 
-    public BStreamType(Type constraint) {
+    public BStreamType(Type constraint, Type completionType) {
         super(TypeConstants.STREAM_TNAME, null, StreamValue.class);
         this.constraint = constraint;
+        this.completionType = completionType;
     }
 
     public Type getConstrainedType() {
         return constraint;
+    }
+
+    public Type getCompletionType() {
+        return completionType;
     }
 
     @Override
@@ -73,11 +82,9 @@ public class BStreamType extends BType implements StreamType {
 
     @Override
     public String toString() {
-        if (constraint == PredefinedTypes.TYPE_ANY) {
-            return super.toString();
-        } else {
-            return "stream" + "<" + constraint.getName() + ">";
-        }
+        return super.toString() + "<" + constraint.toString() +
+                ((completionType != null && completionType.getTag() != TypeTags.NULL_TAG)
+                        ? "," + completionType.toString() : "") + ">";
     }
 
     @Override
@@ -87,7 +94,7 @@ public class BStreamType extends BType implements StreamType {
         }
 
         BStreamType other = (BStreamType) obj;
-        if (constraint == other.constraint) {
+        if (constraint == other.constraint && completionType == other.completionType) {
             return true;
         }
 
@@ -95,6 +102,7 @@ public class BStreamType extends BType implements StreamType {
             return false;
         }
 
-        return constraint.equals(other.constraint);
+        return Objects.equals(constraint, other.constraint)
+                && Objects.equals(completionType, other.completionType);
     }
 }

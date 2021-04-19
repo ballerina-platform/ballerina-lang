@@ -877,7 +877,7 @@ public class BIRPackageSymbolEnter {
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) type;
                 populateParameterizedType(streamType.constraint, paramsMap, invSymbol);
-                populateParameterizedType(streamType.error, paramsMap, invSymbol);
+                populateParameterizedType(streamType.completionType, paramsMap, invSymbol);
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) type;
@@ -1178,7 +1178,7 @@ public class BIRPackageSymbolEnter {
                     bStreamType.flags = flags;
                     boolean hasError = inputStream.readByte() == 1;
                     if (hasError) {
-                        bStreamType.error = readTypeFromCp();
+                        bStreamType.completionType = readTypeFromCp();
                     }
                     return bStreamType;
                 case TypeTags.TABLE:

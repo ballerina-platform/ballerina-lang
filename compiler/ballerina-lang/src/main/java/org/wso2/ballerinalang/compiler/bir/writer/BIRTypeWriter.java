@@ -214,9 +214,9 @@ public class BIRTypeWriter implements TypeVisitor {
     @Override
     public void visit(BStreamType bStreamType) {
         writeTypeCpIndex(bStreamType.constraint);
-        if (bStreamType.error != null) {
+        if (bStreamType.completionType != null) {
             buff.writeBoolean(true);
-            writeTypeCpIndex(bStreamType.error);
+            writeTypeCpIndex(bStreamType.completionType);
         } else {
             buff.writeBoolean(false);
         }

@@ -231,10 +231,11 @@ public class TypeCreator {
      * Creates a {@link BStreamType} which represents the stream type.
      *
      * @param constraint the type by which this stream is constrained
+     * @param completionType the type which indicates the completion of the stream
      * @return the new stream type
      */
-    public static StreamType createStreamType(Type constraint) {
-        return new BStreamType(constraint);
+    public static StreamType createStreamType(Type constraint, Type completionType) {
+        return new BStreamType(constraint, completionType);
     }
 
     /**
@@ -242,11 +243,13 @@ public class TypeCreator {
      *
      * @param typeName   string name of the type
      * @param constraint the type by which this stream is constrained
+     * @param completionType the type which indicates the completion of the stream
      * @param modulePath package path
      * @return the new stream type
      */
-    public static StreamType createStreamType(String typeName, Type constraint, Module modulePath) {
-        return new BStreamType(typeName, constraint, modulePath);
+    public static StreamType createStreamType(String typeName, Type constraint,
+                                              Type completionType, Module modulePath) {
+        return new BStreamType(typeName, constraint, completionType, modulePath);
     }
 
     /**

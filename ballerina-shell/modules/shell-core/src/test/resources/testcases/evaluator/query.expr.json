@@ -15,7 +15,7 @@
   {
     "description": "Query stream evaluation.",
     "code": "stream<any>? reportListStream = (); reportListStream = stream from var student in studentList where student.gpa >= 2.0 let string degreeName = \"Bachelor of Medicine\", int graduationYear = calGraduationYear(student.intakeYear) order by student.firstName descending limit 2 select { name: student.firstName + \" \" + student.lastName, degree: degreeName, graduationYear: graduationYear }; reportListStream",
-    "expr": "stream <stream<map>>"
+    "expr": "stream<map>"
   },
   {
     "description": "String from query evaluation.",
