@@ -46,11 +46,6 @@
     "expr": "\"John doe\""
   },
   {
-    "description": "Use unicode with escape in name.",
-    "code": "string 'unicode_\\u{2324} = \"Jane doe\"; 'unicode_\\u{2324}",
-    "expr": "\"Jane doe\""
-  },
-  {
     "description": "Invoke function with unicode.",
     "code": "'get_ɱȇşşağę_for_\\#('int);",
     "expr": "\"1 is a numeric value\""
