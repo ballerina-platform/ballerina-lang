@@ -497,8 +497,8 @@ public class TableValueImpl<K, V> implements TableValue<K, V> {
             Long hash = TableUtils.hash(key, null);
 
             if (!hash.equals(actualHash)) {
-                throw ErrorUtils.createRuntimeError(BALLERINA_LANG_TABLE_PKG_ID, RuntimeErrorType.KEY_NOT_FOUND_IN_VALUE,
-                        key, data.toString());
+                throw ErrorUtils.createRuntimeError(BALLERINA_LANG_TABLE_PKG_ID,
+                        RuntimeErrorType.KEY_NOT_FOUND_IN_VALUE, key, data.toString());
             }
 
             return putData(key, data, entry, hash);

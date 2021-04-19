@@ -207,7 +207,8 @@ public abstract class AbstractArrayValue implements ArrayValue {
             return;
         }
 
-        throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID, RuntimeErrorType.INVALID_READONLY_VALUE_UPDATE);
+        throw ErrorUtils.createRuntimeError(BALLERINA_LANG_ARRAY_PKG_ID,
+                RuntimeErrorType.INVALID_READONLY_VALUE_UPDATE);
     }
 
     /**

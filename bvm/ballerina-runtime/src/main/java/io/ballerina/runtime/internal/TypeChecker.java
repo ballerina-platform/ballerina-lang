@@ -195,13 +195,15 @@ public class TypeChecker {
     }
 
     public static double anyToFloat(Object sourceVal) {
-        return TypeConverter.anyToFloatCast(sourceVal, () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
-                TYPE_CAST_ERROR, getType(sourceVal), TYPE_FLOAT));
+        return TypeConverter.anyToFloatCast(sourceVal,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, TYPE_CAST_ERROR,
+                        getType(sourceVal), TYPE_FLOAT));
     }
 
     public static boolean anyToBoolean(Object sourceVal) {
-        return TypeConverter.anyToBooleanCast(sourceVal, () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID,
-                TYPE_CAST_ERROR, getType(sourceVal), TYPE_BOOLEAN));
+        return TypeConverter.anyToBooleanCast(sourceVal,
+                () -> ErrorUtils.createRuntimeError(BALLERINA_LANG_RUNTIME_PKG_ID, TYPE_CAST_ERROR,
+                        getType(sourceVal), TYPE_BOOLEAN));
     }
 
     public static int anyToByte(Object sourceVal) {
