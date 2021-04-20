@@ -121,6 +121,11 @@ public class JDIEventProcessor {
             Map<Integer, BalBreakpoint> fileBreakpoints = this.breakpoints.get(qualifiedClassName);
             int lineNumber = bpEvent.location().lineNumber();
 
+            if (context.getLastInstruction() != DebugInstruction.CONTINUE) {
+                notifyStopEvent(event);
+                return;
+            }
+
             if (fileBreakpoints == null || !fileBreakpoints.containsKey(lineNumber)) {
                 notifyStopEvent(event);
                 return;
@@ -141,14 +146,13 @@ public class JDIEventProcessor {
             context.getEventManager().stepRequests().forEach(EventRequest::disable);
             CompletableFuture<Boolean> resultFuture = evaluateBreakpointCondition(condition, bpEvent.thread());
             try {
-                Boolean result = resultFuture.get(4000, TimeUnit.MILLISECONDS);
+                Boolean result = resultFuture.get(5000, TimeUnit.MILLISECONDS);
                 if (result) {
                     notifyStopEvent(event);
                     return;
                 }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                context.getAdapter().sendOutput("warn: conditional breakpoint evaluation timed out.",
-                        STDOUT);
+                context.getAdapter().sendOutput("warn: conditional breakpoint evaluation timed out.", STDOUT);
             }
             context.getDebuggeeVM().resume();
         } else if (event instanceof StepEvent) {
@@ -233,25 +237,7 @@ public class JDIEventProcessor {
         ThreadReferenceProxyImpl threadReference = context.getAdapter().getAllThreads().get(threadId);
         try {
             List<StackFrameProxyImpl> jStackFrames = threadReference.frames();
-            List<BallerinaStackFrame> validFrames = jStackFrames.stream()
-                    .map(stackFrameProxy -> {
-                        try {
-                            if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
-                                return null;
-                            }
-                            return new BallerinaStackFrame(context, 0L, stackFrameProxy);
-                        } catch (Exception e) {
-                            return null;
-                        }
-                    })
-                    .filter(Objects::nonNull)
-                    .filter(ballerinaStackFrame -> {
-                        if (ballerinaStackFrame.getAsDAPStackFrame().isEmpty()) {
-                            return false;
-                        }
-                        return JBallerinaDebugServer.isValidFrame(ballerinaStackFrame.getAsDAPStackFrame().get());
-                    })
-                    .collect(Collectors.toList());
+            List<BallerinaStackFrame> validFrames = filterValidBallerinaFrames(jStackFrames);
 
             if (!validFrames.isEmpty()) {
                 configureBreakpointsForMethod(validFrames.get(0));
@@ -331,27 +317,7 @@ public class JDIEventProcessor {
         return CompletableFuture.supplyAsync(() -> {
             try {
                 ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads().get(threadReference.uniqueID());
-                List<StackFrameProxyImpl> jStackFrames = thread.frames();
-                List<BallerinaStackFrame> validFrames = jStackFrames.stream()
-                        .map(stackFrameProxy -> {
-                            try {
-                                if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
-                                    return null;
-                                }
-                                return new BallerinaStackFrame(context, 0L, stackFrameProxy);
-                            } catch (Exception e) {
-                                return null;
-                            }
-                        })
-                        .filter(Objects::nonNull)
-                        .filter(ballerinaStackFrame -> {
-                            if (ballerinaStackFrame.getAsDAPStackFrame().isEmpty()) {
-                                return false;
-                            }
-                            return JBallerinaDebugServer.isValidFrame(ballerinaStackFrame.getAsDAPStackFrame().get());
-                        })
-                        .collect(Collectors.toList());
-
+                List<BallerinaStackFrame> validFrames = filterValidBallerinaFrames(thread.frames());
                 if (validFrames.isEmpty()) {
                     return false;
                 }
@@ -367,6 +333,32 @@ public class JDIEventProcessor {
                 return false;
             }
         });
+    }
+
+    /**
+     * Returns the list of valid ballerina stack frames, extracted from the java stack trace.
+     *
+     * @param jStackFrames java stack trace.
+     */
+    private List<BallerinaStackFrame> filterValidBallerinaFrames(List<StackFrameProxyImpl> jStackFrames) {
+        List<BallerinaStackFrame> validFrames = new ArrayList<>();
+        for (StackFrameProxyImpl stackFrameProxy : jStackFrames) {
+            try {
+                if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
+                    continue;
+                }
+                BallerinaStackFrame balStackFrame = new BallerinaStackFrame(context, 0L, stackFrameProxy);
+                if (balStackFrame.getAsDAPStackFrame().isEmpty()) {
+                    continue;
+                }
+                if (JBallerinaDebugServer.isValidFrame(balStackFrame.getAsDAPStackFrame().get())) {
+                    validFrames.add(balStackFrame);
+                }
+            } catch (Exception ignored) {
+                // it is safe to ignore JDI exceptions in here.
+            }
+        }
+        return validFrames;
     }
 
     /**
