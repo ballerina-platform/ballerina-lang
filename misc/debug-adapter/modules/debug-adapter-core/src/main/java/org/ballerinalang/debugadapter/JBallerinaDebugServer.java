@@ -299,7 +299,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             // There are instances where we need to STEP_IN twice to actually step into a module.
             // In such case, we are comparing the previous breakpoint's top stack frame with the current breakpoint's
             // top stack frame, and if both are same we are sending a step request with stepType STEP_INTO.
-            StackFrame lastBreakpointTopStackFrame = context.getLastBreakpointTopStackFrame();
+            StackFrame lastBreakpointTopStackFrame = context.getLastDebugHitFrame();
             if (context.getLastInstruction() == DebugInstruction.STEP_IN
                 && validFrames.length > 0 && lastBreakpointTopStackFrame != null
                 && validFrames[0].getSource().getPath().equals(lastBreakpointTopStackFrame.getSource().getPath())
@@ -310,7 +310,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                 context.setLastInstruction(null);
             }
             StackFrame currentBreakpointTopStackFrame = validFrames.length > 0 ? validFrames[0] : null;
-            context.setLastBreakpointTopStackFrame(currentBreakpointTopStackFrame);
+            context.setLastDebugHitFrame(currentBreakpointTopStackFrame);
             stackTraceResponse.setStackFrames(validFrames);
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (JdiProxyException e) {

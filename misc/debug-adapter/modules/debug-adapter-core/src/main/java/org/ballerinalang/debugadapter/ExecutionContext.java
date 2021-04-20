@@ -38,7 +38,7 @@ public class ExecutionContext {
     private Project sourceProject;
     private Process launchedProcess;
     private DebugInstruction lastInstruction;
-    private StackFrame lastBreakpointTopStackFrame;
+    private StackFrame lastDebugHitFrame;
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
@@ -109,11 +109,11 @@ public class ExecutionContext {
         this.lastInstruction = lastInstruction;
     }
 
-    public StackFrame getLastBreakpointTopStackFrame() {
-        return lastBreakpointTopStackFrame;
+    public StackFrame getLastDebugHitFrame() {
+        return lastDebugHitFrame;
     }
 
-    public void setLastBreakpointTopStackFrame(StackFrame lastBreakpointTopStackFrame) {
-        this.lastBreakpointTopStackFrame = lastBreakpointTopStackFrame;
+    public void setLastDebugHitFrame(StackFrame lastDebugHitFrame) {
+        this.lastDebugHitFrame = lastDebugHitFrame;
     }
 }
