@@ -360,7 +360,8 @@ public class SymbolFactory {
         if (symbol == null) {
             return null;
         }
-        String name = symbol.getName().getValue().isBlank() ? null : symbol.getName().getValue();
+        String name = symbol.getName().getValue().isBlank() ? null :
+                this.escapeReservedKeyword(symbol.getName().getValue());
         TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(symbol.getType());
         List<Qualifier> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
@@ -582,5 +583,13 @@ public class SymbolFactory {
         String fieldName = symbol.name.value;
         BStructureType type = (BStructureType) symbol.owner.type;
         return type.fields.get(fieldName);
+    }
+
+    private String escapeReservedKeyword(String value) {
+        if (BallerinaKeywordsProvider.BALLERINA_KEYWORDS.contains(value)) {
+            return "'" + value;
+        }
+
+        return value;
     }
 }
