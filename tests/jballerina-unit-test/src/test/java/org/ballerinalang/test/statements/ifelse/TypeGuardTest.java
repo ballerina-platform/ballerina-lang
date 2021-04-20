@@ -88,6 +88,8 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: 'map<(int|string)>' will not be matched to 'record {| int i; float f; |}'", 214,
                 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<(int|string)>' will not be matched " +
+                        "to 'map<boolean>'", 221, 8);
 
         Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }
@@ -684,6 +686,11 @@ public class TypeGuardTest {
     @Test
     public void testIntersectionReadOnlyness() {
         BRunUtil.invoke(result, "testIntersectionReadOnlyness");
+    }
+
+    @Test
+    public void testMapIntersection() {
+        BRunUtil.invoke(result, "testMapIntersection");
     }
 
     @Test

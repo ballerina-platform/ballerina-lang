@@ -1470,6 +1470,23 @@ function testIntersectionReadOnlyness() {
     }
 }
 
+function testMapIntersection() {
+    map<int|string> m = {a: 1, b: 2};
+    assertEquality(false, m is map<int|boolean>);
+
+    map<int> m2 = {a: 1, b: 2};
+    map<int|string> m3 = m2;
+    assertEquality(true, m3 is map<int|boolean>);
+
+    if m3 is map<int|boolean> {
+        map<int> m4 = m3;
+        assertEquality(2, m4.length());
+        assertEquality(1, m4["a"]);
+        assertEquality(2, m4["b"]);
+        assertEquality((), m4["c"]);
+    }
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

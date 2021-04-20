@@ -214,3 +214,11 @@ function testClosedRecordAndMapIntersectionNegative() {
     if m is record {| int i; float f; |} {
     }
 }
+
+function testMapIntersectionNegative() {
+    map<int|string> m = {};
+
+    if m is map<boolean> {
+        map<int> x = m;
+    }
+}

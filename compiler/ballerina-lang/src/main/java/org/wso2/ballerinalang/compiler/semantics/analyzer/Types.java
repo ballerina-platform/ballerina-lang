@@ -3974,9 +3974,10 @@ public class Types {
         } else if (type.tag == TypeTags.MAP && lhsType.tag == TypeTags.MAP) {
             BType intersectionConstraintTypeType = getIntersection(intersectionContext, ((BMapType) lhsType).constraint,
                                                                    env, ((BMapType) type).constraint);
-            if (intersectionConstraintTypeType != symTable.semanticError) {
-                return new BMapType(TypeTags.MAP, intersectionConstraintTypeType, null);
+            if (intersectionConstraintTypeType == null || intersectionConstraintTypeType == symTable.semanticError) {
+                return null;
             }
+            return new BMapType(TypeTags.MAP, intersectionConstraintTypeType, null);
         } else if (type.tag == TypeTags.ARRAY && lhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
                     (BArrayType) type, (BTupleType) lhsType, env);
