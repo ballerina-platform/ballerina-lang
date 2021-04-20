@@ -176,3 +176,25 @@ type Qux record {
 readonly class Class {
 
 }
+
+type ClosedRec record {|
+    int i;
+    string s?;
+|};
+
+function testRecordIntersectionNegative() {
+    record {| int i; boolean b; |} y = {i: 1, b: true};
+    if y is ClosedRec {
+    }
+    
+    record {| int i; boolean...; |} z = {i: 1, "b": true};
+    if z is ClosedRec {
+    }
+}
+
+function testClosedRecordAndMapIntersectionNegative() {
+    map<int|string> m = {};
+
+    if m is record {| int i; float f; |} {
+    }
+}
