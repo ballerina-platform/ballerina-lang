@@ -51,13 +51,11 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
-import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
@@ -138,10 +136,11 @@ public class JDIEventProcessor {
             }
 
             // When evaluating breakpoint conditions, we might need to invoke methods in the remote JVM and it can
-            // cause deadlocks if invokeMethod is called from the client's event handler thread. In this case, this
+            // cause deadlocks if 'invokeMethod' is called from the client's event handler thread. In that case, the
             // thread will be waiting for the invokeMethod to complete and won't read the EventSet that comes in for
-            // the new event. If this new EventSet is SUSPEND_ALL, then a deadlock will occur because no one will
-            // resume the EventSet. To avoid this, we ard disabling EventRequests before doing the invokeMethod.
+            // the new event. If this new EventSet is in 'SUSPEND_ALL' mode, then a deadlock will occur because no one
+            // will resume the EventSet. Therefore to avoid this, we are disabling possible event requests before doing
+            // the condition evaluation.
             context.getEventManager().classPrepareRequests().forEach(EventRequest::disable);
             context.getEventManager().stepRequests().forEach(EventRequest::disable);
             CompletableFuture<Boolean> resultFuture = evaluateBreakpointCondition(condition, bpEvent.thread());
@@ -152,7 +151,8 @@ public class JDIEventProcessor {
                     return;
                 }
             } catch (InterruptedException | ExecutionException | TimeoutException e) {
-                context.getAdapter().sendOutput("warn: conditional breakpoint evaluation timed out.", STDOUT);
+                context.getAdapter().sendOutput("Warning: Skipping the conditional breakpoint at line: "
+                        + lineNumber + ", due to the timeout when evaluating the condition.", STDOUT);
             }
             context.getDebuggeeVM().resume();
         } else if (event instanceof StepEvent) {
