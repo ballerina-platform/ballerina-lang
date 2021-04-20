@@ -1,6 +1,6 @@
 [package]
 org = "wso2"
-name = "sourcelessTest"
+name = "sourcelessProjectTest"
 version = "0.0.0"
 
 [build-options]
