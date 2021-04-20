@@ -36,6 +36,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BObjectTypeSymbol
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BRecordTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.SymTag;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BAnyType;
@@ -503,17 +504,21 @@ public class ImmutableTypeCloner {
                                                         unresolvedTypes);
 
             Name origFieldName = origField.name;
-            BInvokableSymbol immutableFieldSymbol = new BInvokableSymbol(origField.symbol.tag,
-                                                                         origField.symbol.flags | flag, origFieldName,
-                                                                         pkgID, immutableFieldType,
-                                                                         immutableStructureSymbol, origField.pos,
-                                                                         SOURCE);
+            BVarSymbol immutableFieldSymbol;
             if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
+                immutableFieldSymbol = new BInvokableSymbol(origField.symbol.tag, origField.symbol.flags | flag,
+                                                            origFieldName, pkgID, immutableFieldType,
+                                                            immutableStructureSymbol, origField.pos, SOURCE);
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
-                immutableFieldSymbol.params = tsymbol.params;
-                immutableFieldSymbol.restParam = tsymbol.restParam;
-                immutableFieldSymbol.retType = tsymbol.returnType;
-                immutableFieldSymbol.flags = tsymbol.flags;
+                BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
+                invokableSymbol.params = tsymbol.params;
+                invokableSymbol.restParam = tsymbol.restParam;
+                invokableSymbol.retType = tsymbol.returnType;
+                invokableSymbol.flags = tsymbol.flags;
+            } else {
+                immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | flag, origFieldName, pkgID,
+                                                      immutableFieldType, immutableStructureSymbol, origField.pos,
+                                                      SOURCE);
             }
             String nameString = origFieldName.value;
             fields.put(nameString, new BField(origFieldName, null, immutableFieldSymbol));
