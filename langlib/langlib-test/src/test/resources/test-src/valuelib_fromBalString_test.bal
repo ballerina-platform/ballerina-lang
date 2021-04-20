@@ -295,8 +295,8 @@ function testObjectFromString() {
     Student obj1 = new("Alaa", "MMV");
     Teacher obj2 = new("Rola", "MMV");
 
-    string s1 = obj1.toBalString();
-    string s2 = obj2.toBalString();
+    string s1 = values:toBalString(obj1);
+    string s2 = values:toBalString(obj2);
 
     anydata|error result1 = s1.fromBalString();
     anydata|error result2 = s2.fromBalString();

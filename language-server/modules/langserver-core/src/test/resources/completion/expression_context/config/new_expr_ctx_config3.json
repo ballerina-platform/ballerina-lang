@@ -439,6 +439,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "commit",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "insertText": "commit;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -471,27 +479,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "obj2",
-      "kind": "Variable",
-      "detail": "TestObject2",
-      "sortText": "A",
-      "insertText": "obj2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "A",
-      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -509,11 +501,27 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "A",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TestObject2",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "A",
       "insertText": "TestObject2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "obj2",
+      "kind": "Variable",
+      "detail": "TestObject2",
+      "sortText": "A",
+      "insertText": "obj2",
       "insertTextFormat": "Snippet"
     },
     {

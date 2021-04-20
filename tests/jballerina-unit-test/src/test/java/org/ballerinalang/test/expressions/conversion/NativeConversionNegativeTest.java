@@ -103,9 +103,7 @@ public class NativeConversionNegativeTest {
                 BCompileUtil.compile("test-src/expressions/conversion/native-conversion--compile-negative.bal");
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 48, 12);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'anydata', found 'PersonObj'", 48, 12);
+                "incompatible types: expected 'anydata', found 'PersonObj'", 48, 32);
         Assert.assertEquals(i, negativeCompileResult.getErrorCount());
     }
 

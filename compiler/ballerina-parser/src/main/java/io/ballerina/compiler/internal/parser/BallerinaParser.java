@@ -5634,6 +5634,7 @@ public class BallerinaParser extends AbstractParser {
             case ASCENDING_KEYWORD:
             case DESCENDING_KEYWORD:
             case EQUALS_KEYWORD:
+            case TYPE_KEYWORD:
                 return true;
             case RIGHT_DOUBLE_ARROW_TOKEN:
                 return isInMatchGuard;
@@ -5931,7 +5932,6 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case IDENTIFIER_TOKEN:
                 // Identifier can means two things: either its a named-arg, or just an expression.
-                // TODO: Handle package-qualified var-refs (i.e: qualified-identifier).
                 arg = parseNamedOrPositionalArg();
                 break;
             default:
@@ -8304,8 +8304,6 @@ public class BallerinaParser extends AbstractParser {
      * @return Call statement node
      */
     private STNode parseCallStatement(STNode expression) {
-        // TODO Validate the expression.
-        // This is not a must because this expression is validated in the semantic analyzer.
         STNode semicolon = parseSemicolon();
         endContext();
         if (expression.kind == SyntaxKind.CHECK_EXPRESSION) {
@@ -9041,7 +9039,8 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseSimpleConstExprInternal() {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case STRING_LITERAL_TOKEN:
             case DECIMAL_INTEGER_LITERAL_TOKEN:
             case HEX_INTEGER_LITERAL_TOKEN:
@@ -9051,16 +9050,17 @@ public class BallerinaParser extends AbstractParser {
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
                 return parseBasicLiteral();
-            case IDENTIFIER_TOKEN:
-                return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
             case PLUS_TOKEN:
             case MINUS_TOKEN:
                 return parseSignedIntOrFloat();
             case OPEN_PAREN_TOKEN:
                 return parseNilLiteral();
             default:
-                STToken token = peek();
-                recover(token, ParserRuleContext.CONSTANT_EXPRESSION_START);
+                if (isPredeclaredIdentifier(nextToken.kind)) {
+                    return parseQualifiedIdentifier(ParserRuleContext.VARIABLE_REF);
+                }
+                
+                recover(nextToken, ParserRuleContext.CONSTANT_EXPRESSION_START);
                 return parseSimpleConstExprInternal();
         }
     }
@@ -17298,9 +17298,6 @@ public class BallerinaParser extends AbstractParser {
                 if (isWildcardBP(identifier)) {
                     return getWildcardBindingPattern(identifier);
                 }
-
-                // TODO: handle function-binding-pattern
-                // we don't know which one
                 return parseExpressionRhs(DEFAULT_OP_PRECEDENCE, identifier, false, false);
             case OPEN_BRACE_TOKEN:
                 return parseMappingBindingPatterOrMappingConstructor();

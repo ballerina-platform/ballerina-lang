@@ -114,6 +114,7 @@ import java.util.function.Consumer;
 import static org.ballerinalang.model.symbols.SymbolOrigin.COMPILED_SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.symbols.SymbolOrigin.toOrigin;
+import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 import static org.wso2.ballerinalang.util.LambdaExceptionUtils.rethrow;
 
 /**
@@ -255,8 +256,39 @@ public class BIRPackageSymbolEnter {
         // Define service declarations
         defineSymbols(dataInStream, rethrow(this::defineServiceDeclarations));
 
+        populateReferencedFunctions();
+
         this.typeReader = null;
         return this.env.pkgSymbol;
+    }
+
+    private void populateReferencedFunctions() {
+        for (BStructureTypeSymbol structureTypeSymbol : this.structureTypes) {
+            if (structureTypeSymbol.type.tag == TypeTags.OBJECT) {
+                BObjectType objectType = (BObjectType) structureTypeSymbol.type;
+                for (BType typeRef : objectType.typeInclusions) {
+                    if (typeRef.tsymbol == null || typeRef.tsymbol.kind != SymbolKind.OBJECT) {
+                        continue;
+                    }
+
+                    List<BAttachedFunction> attachedFunctions = ((BObjectTypeSymbol) typeRef.tsymbol).attachedFuncs;
+                    for (BAttachedFunction function : attachedFunctions) {
+                        if (Symbols.isPrivate(function.symbol)) {
+                            // we should not copy private functions.
+                            continue;
+                        }
+                        String referencedFuncName = function.funcName.value;
+                        Name funcName = names.fromString(
+                                Symbols.getAttachedFuncSymbolName(structureTypeSymbol.name.value, referencedFuncName));
+                        Scope.ScopeEntry matchingObjFuncSym = objectType.tsymbol.scope.lookup(funcName);
+                        if (matchingObjFuncSym == NOT_FOUND_ENTRY) {
+                            structureTypeSymbol.attachedFuncs.add(function);
+                            ((BObjectTypeSymbol) structureTypeSymbol).referencedFunctions.add(function);
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private void readTypeDefBodies(DataInputStream dataInStream) throws IOException {
@@ -1453,7 +1485,12 @@ public class BIRPackageSymbolEnter {
                     }
                     int funcCount = inputStream.readInt();
                     for (int i = 0; i < funcCount; i++) {
-                        ignoreAttachedFunc();
+                        //populate intersection type object functions
+                        if (isImmutable(objectSymbol.flags) && Symbols.isFlagOn(flags, Flags.ANONYMOUS)) {
+                            populateIntersectionTypeReferencedFunctions(inputStream, objectSymbol);
+                        } else {
+                            ignoreAttachedFunc();
+                        }
                     }
 
                     objectType.typeInclusions = readTypeInclusions();
@@ -1572,6 +1609,30 @@ public class BIRPackageSymbolEnter {
 
             unionType.tsymbol = new BEnumSymbol(members, flags, names.fromString(enumName), pkgSymbol.pkgID, unionType,
                                                 pkgSymbol, symTable.builtinPos, COMPILED_SOURCE);
+        }
+
+        private void populateIntersectionTypeReferencedFunctions(DataInputStream inputStream,
+                                                                 BObjectTypeSymbol objectSymbol) throws IOException {
+            String attachedFuncName = getStringCPEntryValue(inputStream);
+            var attachedFuncFlags = inputStream.readLong();
+            if (Symbols.isFlagOn(attachedFuncFlags, Flags.INTERFACE) &&
+                    Symbols.isFlagOn(attachedFuncFlags, Flags.ATTACHED)) {
+                BInvokableType attachedFuncType = (BInvokableType) readTypeFromCp();
+                Name funcName = names.fromString(Symbols.getAttachedFuncSymbolName(
+                        objectSymbol.name.value, attachedFuncName));
+                BInvokableSymbol attachedFuncSymbol =
+                        Symbols.createFunctionSymbol(attachedFuncFlags,
+                                funcName, env.pkgSymbol.pkgID, attachedFuncType,
+                                env.pkgSymbol, false, symTable.builtinPos,
+                                COMPILED_SOURCE);
+                attachedFuncSymbol.retType = attachedFuncType.retType;
+                BAttachedFunction attachedFunction = new BAttachedFunction(names.fromString(attachedFuncName),
+                        attachedFuncSymbol, attachedFuncType, symTable.builtinPos);
+
+                objectSymbol.referencedFunctions.add(attachedFunction);
+                objectSymbol.attachedFuncs.add(attachedFunction);
+                objectSymbol.scope.define(funcName, attachedFuncSymbol);
+            }
         }
     }
 
