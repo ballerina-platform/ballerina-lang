@@ -171,6 +171,19 @@ type Identifier record {|
     string code;
 |};
 
+type Foo2 record {|
+    function () f;
+    int id;    
+|};
+
+function testRecordWithFunctionTypeField() {
+    Foo2 & readonly x = {
+        f: testRecordWithFunctionTypeField,
+        id: 3456
+    };
+    assertEquality(3456, x.id);
+}
+
 function testReadOnlyFieldWithDefaultValue() {
     string k = "id";
 
