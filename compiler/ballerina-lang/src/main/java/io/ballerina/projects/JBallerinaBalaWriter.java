@@ -152,17 +152,35 @@ public class JBallerinaBalaWriter extends BalaWriter {
         }
     }
 
+    /**
+     * Mark target platform as `java11` if one of the following condition fulfils.
+     * 1) Direct dependencies of imports in the package have any `ballerina/java` dependency.
+     * 2) Package has defined any platform dependency.
+     *
+     * @param pkgResolution package resolution
+     * @return target platform
+     */
     private CompilerBackend.TargetPlatform getTargetPlatform(PackageResolution pkgResolution) {
         ResolvedPackageDependency resolvedPackageDependency = new ResolvedPackageDependency(
                 this.packageContext.project().currentPackage(), PackageDependencyScope.DEFAULT);
         Collection<ResolvedPackageDependency> resolvedPackageDependencies = pkgResolution.dependencyGraph()
                 .getDirectDependencies(resolvedPackageDependency);
+
+        // 1) Check direct dependencies of imports in the package have any `ballerina/java` dependency
         for (ResolvedPackageDependency dependency : resolvedPackageDependencies) {
-            if (dependency.packageInstance().packageOrg().value().equals("ballerina")
-                    && dependency.packageInstance().packageName().value().equals("jballerina.java")) {
+            if (dependency.packageInstance().packageOrg().value().equals("ballerina") && dependency.packageInstance()
+                    .packageName().value().equals("jballerina.java")) {
                 return this.backend.targetPlatform();
             }
         }
+
+        // 2) Check package has defined any platform dependency
+        PackageManifest manifest = this.packageContext.project().currentPackage().manifest();
+        if (manifest.platform(this.backend.targetPlatform().code()) != null &&
+                !manifest.platform(this.backend.targetPlatform().code()).dependencies().isEmpty()) {
+            return this.backend.targetPlatform();
+        }
+
         return AnyTarget.ANY;
     }
 
