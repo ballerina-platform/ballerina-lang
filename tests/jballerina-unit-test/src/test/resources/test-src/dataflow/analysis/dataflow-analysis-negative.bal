@@ -361,15 +361,15 @@ listener test:MockListener echoEP = new(9090);
 string x = "x";
 string y = "sample value";
 
-service echo on echoEP {
+service "echo" on echoEP {
 
-    resource function echo_1(string conn, string request) {
+    resource function get echo_1(string conn, string request) {
         string a = x;
         a = y;
         x = "init within echo_1";
     }
 
-    resource function echo_2(string conn, string request) {
+    resource function get echo_2(string conn, string request) {
         string a = x;
         a = y;
         x = "init within echo_2";
@@ -444,9 +444,9 @@ listener test:MockListener testEP = new(9092);
 
 int a = 0;
 
-service testService on testEP {
+service "testService" on testEP {
 
-    resource function resource_1(string conn, string request) {
+    resource function get resource_1(string conn, string request) {
         a = 5;
         int b = a;
         int c;
@@ -460,7 +460,7 @@ service testService on testEP {
         int d = c;
     }
 
-    resource function resource_2(string conn, string request) {
+    resource function get resource_2(string conn, string request) {
         int b = a;
     }
 }
@@ -579,7 +579,7 @@ class F {
 }
 
 public function testDataFlow_13(){
-    object { public string s; } o = new;
+    var o = object { public string s; };
 }
 
 function testMatch2() returns int {
