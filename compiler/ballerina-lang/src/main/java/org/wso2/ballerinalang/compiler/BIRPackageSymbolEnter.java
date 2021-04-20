@@ -1175,11 +1175,8 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();
+                    bStreamType.completionType = readTypeFromCp();
                     bStreamType.flags = flags;
-                    boolean hasError = inputStream.readByte() == 1;
-                    if (hasError) {
-                        bStreamType.completionType = readTypeFromCp();
-                    }
                     return bStreamType;
                 case TypeTags.TABLE:
                     BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol, flags);
