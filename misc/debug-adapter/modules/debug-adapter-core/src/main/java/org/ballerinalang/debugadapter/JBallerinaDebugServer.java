@@ -142,7 +142,6 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
     private boolean terminationRequestReceived = false;
-    private StackFrame previousTopFrame;
 
     private final AtomicLong nextVarReference = new AtomicLong();
     private final Map<Long, StackFrameProxyImpl> stackFramesMap = new HashMap<>();
@@ -297,14 +296,21 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     .filter(JBallerinaDebugServer::isValidFrame)
                     .toArray(StackFrame[]::new);
 
+            // There are instances where we need to STEP_IN twice to actually step into a module.
+            // In such case, we are comparing the previous breakpoint's top stack frame with the current breakpoint's
+            // top stack frame, and if both are same we are sending a step request with stepType STEP_INTO.
+            StackFrame lastBreakpointTopStackFrame = context.getLastBreakpointTopStackFrame();
             if (context.getLastInstruction() == DebugInstruction.STEP_IN
-                && validFrames.length > 0 && previousTopFrame != null
-                && validFrames[0].getSource().getPath().equals(previousTopFrame.getSource().getPath())
-                && validFrames[0].getLine().intValue() == previousTopFrame.getLine()) {
+                && validFrames.length > 0 && lastBreakpointTopStackFrame != null
+                && validFrames[0].getSource().getPath().equals(lastBreakpointTopStackFrame.getSource().getPath())
+                && validFrames[0].getLine().intValue() == lastBreakpointTopStackFrame.getLine()
+            ) {
+                prepareFor(DebugInstruction.STEP_IN);
                 eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
                 context.setLastInstruction(null);
             }
-            previousTopFrame = validFrames.length > 0 ? validFrames[0] : null;
+            StackFrame currentBreakpointTopStackFrame = validFrames.length > 0 ? validFrames[0] : null;
+            context.setLastBreakpointTopStackFrame(currentBreakpointTopStackFrame);
             stackTraceResponse.setStackFrames(validFrames);
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (JdiProxyException e) {
