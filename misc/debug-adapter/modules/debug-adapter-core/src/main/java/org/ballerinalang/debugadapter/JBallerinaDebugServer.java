@@ -142,6 +142,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     private ThreadReferenceProxyImpl activeThread;
     private SuspendedContext suspendedContext;
     private boolean terminationRequestReceived = false;
+    private StackFrame topStackFrame;
 
     private final AtomicLong nextVarReference = new AtomicLong();
     private final Map<Long, StackFrameProxyImpl> stackFramesMap = new HashMap<>();
@@ -296,6 +297,13 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
                     .filter(JBallerinaDebugServer::isValidFrame)
                     .toArray(StackFrame[]::new);
 
+            if (context.getLastInstruction() == DebugInstruction.STEP_IN
+                && validFrames[0].getSource().getPath().equals(topStackFrame.getSource().getPath())
+                && validFrames[0].getLine().intValue() == topStackFrame.getLine()) {
+                eventProcessor.sendStepRequest(args.getThreadId(), StepRequest.STEP_INTO);
+                context.setLastInstruction(null);
+            }
+            topStackFrame = validFrames[0];
             stackTraceResponse.setStackFrames(validFrames);
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (JdiProxyException e) {
