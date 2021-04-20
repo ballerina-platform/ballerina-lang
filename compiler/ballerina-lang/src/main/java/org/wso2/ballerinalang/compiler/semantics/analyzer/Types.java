@@ -4227,17 +4227,21 @@ public class Types {
             }
 
             org.wso2.ballerinalang.compiler.util.Name name = lhsRecordField.name;
-            BVarSymbol recordFieldSymbol = new BVarSymbol(intersectionFlags, name, env.enclPkg.packageID,
-                                                          intersectionFieldType, newTypeSymbol, lhsRecordField.pos,
-                                                          SOURCE);
+            BVarSymbol recordFieldSymbol;
 
             if (intersectionFieldType.tag == TypeTags.INVOKABLE && intersectionFieldType.tsymbol != null) {
+                recordFieldSymbol = new BInvokableSymbol(lhsRecordField.symbol.tag, intersectionFlags,
+                                                         name, env.enclPkg.packageID, intersectionFieldType,
+                                                         newTypeSymbol, lhsRecordField.pos, SOURCE);
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) intersectionFieldType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) recordFieldSymbol;
                 invokableSymbol.params = tsymbol.params;
                 invokableSymbol.restParam = tsymbol.restParam;
                 invokableSymbol.retType = tsymbol.returnType;
                 invokableSymbol.flags = tsymbol.flags;
+            } else {
+                recordFieldSymbol = new BVarSymbol(intersectionFlags, name, env.enclPkg.packageID,
+                                                   intersectionFieldType, newTypeSymbol, lhsRecordField.pos, SOURCE);
             }
 
             newTypeFields.put(key, new BField(name, null, recordFieldSymbol));
