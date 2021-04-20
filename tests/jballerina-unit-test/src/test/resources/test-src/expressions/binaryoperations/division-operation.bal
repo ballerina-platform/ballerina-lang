@@ -29,3 +29,82 @@ function getPowerof(int num, int power) returns int {
     }
     return res;
 }
+
+public const A = 10;
+public const B = 20;
+public const C = 30;
+public const D = 40;
+
+type SomeTypes A|B|C|D;
+
+type E 12|13|14;
+
+const float F = 20.25;
+const float G = 10.0;
+
+type H F|G;
+
+type I 10.5|10.0;
+
+const decimal J = 4.0;
+const decimal K = 5.0;
+
+type L J|K;
+
+function testDivisionWithTypes() {
+    SomeTypes a1 = 10;
+    int a2 = 20;
+    SomeTypes a3 = 30;
+    byte a4 = 25;
+    int|int:Signed16 a5 = 15;
+    E a6 = 12;
+    float a7 = 10.5;
+    H a8 = 10.0;
+    I a9 = 10.0;
+    L a10 = 5.0;
+
+    assertEqual(a1 / a2, 0);
+    assertEqual(a2 / a3, 0);
+    assertEqual(a3 / a4, 1);
+    assertEqual(a1 / a5, 0);
+    assertEqual(a1 / a6, 0);
+    assertEqual(a4 / a6, 2);
+    assertEqual(a5 / a6, 1);
+    assertEqual(a1 / a7, 0.9523809523809523);
+    assertEqual(a5 / a7, 1.4285714285714286);
+    assertEqual(a6 / a7, 1.1428571428571428);
+    assertEqual(a1 / a8, 1.0);
+    assertEqual(a2 / a8, 2.0);
+    assertEqual(a4 / a8, 2.5);
+    assertEqual(a5 / a8, 1.5);
+    assertEqual(a6 / a8, 1.2);
+    assertEqual(a7 / a8, 1.05);
+    assertEqual(a1 / a9, 1.0);
+    assertEqual(a2 / a9, 2.0);
+    assertEqual(a4 / a9, 2.5);
+    assertEqual(a5 / a9, 1.5);
+    assertEqual(a6 / a9, 1.2);
+    assertEqual(a7 / a9, 1.05);
+    assertEqual(a8 / a9, 1.0);
+    assertEqual(a1 / a10, 2d);
+    assertEqual(a2 / a10, 4d);
+    assertEqual(a4 / a10, 5d);
+    assertEqual(a5 / a10, 3d);
+    assertEqual(a6 / a10, 2.4d);
+    assertEqual(a7 / a10, 2.1d);
+    assertEqual(a8 / a10, 2d);
+}
+
+function assertEqual(any actual, any expected) {
+    if actual is anydata && expected is anydata && actual == expected {
+        return;
+    }
+
+    if actual === expected {
+        return;
+    }
+
+    string actualValAsString = actual.toString();
+    string expectedValAsString = expected.toString();
+    panic error(string `Assertion error: expected ${expectedValAsString} found ${actualValAsString}`);
+}

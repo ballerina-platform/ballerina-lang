@@ -108,11 +108,19 @@ public class SubtractOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
+    @Test(description = "Test subtraction with types")
+    public void testSubtractionWithTypes() {
+        BRunUtil.invoke(result, "testSubtractionWithTypes");
+    }
 
     @Test(description = "Test substract statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
         BAssertUtil.validateError(resultNegative, 0, "operator '-' not defined for 'int' and 'string'", 4, 9);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 10);
+        BAssertUtil.validateError(resultNegative, 2, "operator '-' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, 3, "operator '-' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, 4, "operator '-' not defined for 'string' and " +
+                "'(string|string:Char)'", 30, 17);
     }
 }

@@ -13,3 +13,19 @@ function addIncompatibleTypes() {
     // Following line is invalid.
     i = 5 + "abc";
 }
+
+const A = 10;
+const B = 20;
+
+type C A|B;
+
+function addIncompatibleTypes2() {
+    C a = 10;
+    string b = "ABC";
+    float|int c = 12;
+    xml e = xml `abc`;
+
+    int i1 = a + b;
+    int i2 = a + c;
+    xml i3 = a + e;
+}

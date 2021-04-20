@@ -125,9 +125,13 @@ public class DivisionOperationTest {
 
     @Test(description = "Test devide statement with errors")
     public void testDivideStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
         BAssertUtil.validateError(resultNegative, 0, "operator '/' not defined for 'json' and 'json'", 8, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '/' not defined for 'string' and 'float'", 14, 11);
+        BAssertUtil.validateError(resultNegative, 2, "operator '/' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, 3, "operator '/' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, 4, "operator '/' not defined for 'string' and " +
+                "'(string|string:Char)'", 30, 17);
     }
 
     @Test
@@ -153,5 +157,10 @@ public class DivisionOperationTest {
                     "overflow\"\\}.*")
     public void testIntOverflowByDivision() {
         BRunUtil.invoke(result, "overflowByDivision");
+    }
+
+    @Test(description = "Test division with types")
+    public void testDivisionWithTypes() {
+        BRunUtil.invoke(result, "testDivisionWithTypes");
     }
 }

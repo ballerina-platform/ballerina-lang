@@ -97,12 +97,19 @@ public class MultiplyOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-
+    @Test(description = "Test multiplication with types")
+    public void testMultiplicationWithTypes() {
+        BRunUtil.invoke(result, "testMultiplicationWithTypes");
+    }
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 2);
+        Assert.assertEquals(resultNegative.getErrorCount(), 5);
         BAssertUtil.validateError(resultNegative, 0, "operator '*' not defined for 'json' and 'json'", 8, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '*' not defined for 'float' and 'string'", 14, 9);
+        BAssertUtil.validateError(resultNegative, 2, "operator '*' not defined for 'C' and 'string'", 28, 14);
+        BAssertUtil.validateError(resultNegative, 3, "operator '*' not defined for 'C' and '(float|int)'", 29, 14);
+        BAssertUtil.validateError(resultNegative, 4, "operator '*' not defined for 'string' and " +
+                "'(string|string:Char)'", 30, 17);
     }
 }

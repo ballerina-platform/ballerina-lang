@@ -139,4 +139,9 @@ public class ModOperationTest {
         BValue[] returns = BRunUtil.invoke(result, "intFloatMod", new BValue[]{new BInteger(2100), new BFloat(0.0)});
         Assert.assertEquals(returns[0].stringValue(), "NaN");
     }
+
+    @Test(description = "Test mod with types")
+    public void testModWithTypes() {
+        BRunUtil.invoke(result, "testModWithTypes");
+    }
 }
