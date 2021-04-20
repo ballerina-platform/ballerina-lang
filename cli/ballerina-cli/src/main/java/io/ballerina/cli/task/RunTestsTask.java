@@ -525,12 +525,10 @@ public class RunTestsTask implements Task {
                     module.moduleName());
             exclusionPathList.add(generatedJarLibrary.path());
 
-            try {
+            if (!module.testDocumentIds().isEmpty()) {
                 PlatformLibrary codeGeneratedTestLibrary = jBallerinaBackend.codeGeneratedTestLibrary(
                         currentPackage.packageId(), module.moduleName());
                 exclusionPathList.add(codeGeneratedTestLibrary.path());
-            } catch (Exception e) {
-                continue;
             }
         }
 
