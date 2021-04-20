@@ -3166,34 +3166,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-//    @Override
-//    public ServiceConstructorExpressionNode transform(
-//            ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-//        NodeList<AnnotationNode> annots = serviceConstructorExpressionNode.annotations();
-//        NodeList<AnnotationNode> annotations;
-//        if (annots.size() <= 1) {
-//            annotations = formatNodeList(serviceConstructorExpressionNode.annotations(), 1, 0, 1,
-//                    0);
-//        } else {
-//            annotations = formatNodeList(serviceConstructorExpressionNode.annotations(), 0, 1, 0,
-//                    1);
-//        }
-//
-//        Token serviceKeyword = formatToken(serviceConstructorExpressionNode.serviceKeyword(), 1, 0);
-//        int prevIndentation = env.currentIndentation;
-//        // Set indentation for braces.
-//        int fieldIndentation = env.lineLength - serviceKeyword.text().length() - 1;
-//        setIndentation(fieldIndentation);
-//        Node serviceBody = formatNode(serviceConstructorExpressionNode.serviceBody(), env.trailingWS, env.trailingNL);
-//        setIndentation(prevIndentation);
-//
-//        return serviceConstructorExpressionNode.modify()
-//                .withAnnotations(annotations)
-//                .withServiceKeyword(serviceKeyword)
-//                .withServiceBody(serviceBody)
-//                .apply();
-//    }
-
     @Override
     public TypeReferenceTypeDescNode transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
         NameReferenceNode typeRef = formatNode(typeReferenceTypeDescNode.typeRef(), env.trailingWS, env.trailingNL);
