@@ -23,26 +23,21 @@ import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 import org.ballerinalang.test.BCompileUtil;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.OBJECT;
-import static io.ballerina.compiler.api.symbols.TypeDescKind.STRING;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.TYPE_REFERENCE;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.assertList;
 import static io.ballerina.semantic.api.test.util.SemanticAPITestUtils.getDefaultModulesSemanticModel;
@@ -116,46 +111,21 @@ public class ClassSymbolTest {
 
     @Test(dataProvider = "TypeInitPosProvider")
     public void testTypeInit(int line, int col, String name) {
-        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, col));
-
-        if (name == null) {
-            assertTrue(symbol.isEmpty());
-            return;
-        }
-
-        ClassSymbol clazz = (ClassSymbol) ((TypeReferenceTypeSymbol) symbol.get()).typeDescriptor();
+        Symbol symbol = model.symbol(srcFile, LinePosition.from(line, col)).get();
+        ClassSymbol clazz = (ClassSymbol) ((TypeReferenceTypeSymbol) symbol).typeDescriptor();
         assertEquals(clazz.getName().get(), name);
     }
 
     @DataProvider(name = "TypeInitPosProvider")
     public Object[][] getTypeInit() {
         return new Object[][]{
-                {40, 17, null},
-                {40, 21, null},
-                {40, 30, null},
-                {41, 17, null},
-                {42, 9, null},
+                {40, 17, "Person1"},
+                {40, 21, "Person1"},
+                {40, 30, "Person1"},
+                {41, 17, "Person2"},
+                {42, 9, "Person2"},
                 {42, 13, "Person2"},
-                {42, 21, null},
-        };
-    }
-
-    @Test(dataProvider = "TypeInitPosProvider2")
-    public void testTypeInit2(int line, int sCol, int eCol, TypeDescKind typeKind, String name) {
-        Optional<TypeSymbol> type = model.type(
-                LineRange.from(srcFile.name(), LinePosition.from(line, sCol), LinePosition.from(line, eCol)));
-        assertTrue(type.isPresent());
-        assertEquals(type.get().typeKind(), typeKind);
-        type.get().getName().ifPresent(tName -> assertEquals(tName, name));
-    }
-
-    @DataProvider(name = "TypeInitPosProvider2")
-    public Object[][] getTypeInit2() {
-        return new Object[][]{
-                {40, 17, 42, TYPE_REFERENCE, "Person1"},
-                {40, 21, 29, STRING, null},
-                {41, 17, 20, TYPE_REFERENCE, "Person2"},
-                {42, 9, 22, TYPE_REFERENCE, "Person2"},
+                {42, 21, "Person2"},
         };
     }
 
