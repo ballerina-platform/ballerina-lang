@@ -396,6 +396,12 @@ public class SymbolResolver extends BLangNodeVisitor {
         return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
     }
 
+    BSymbol createBinaryOperator(OperatorKind opKind, BType lhsType, BType rhsType, BType retType) {
+        List<BType> paramTypes = Lists.of(lhsType, rhsType);
+        BInvokableType opType = new BInvokableType(paramTypes, retType, null);
+        return new BOperatorSymbol(names.fromString(opKind.value()), null, opType, null, symTable.builtinPos, VIRTUAL);
+    }
+
     public BSymbol resolvePkgSymbol(Location pos, SymbolEnv env, Name pkgAlias) {
         if (pkgAlias == Names.EMPTY) {
             // Return the current package symbol
@@ -1650,6 +1656,71 @@ public class SymbolResolver extends BLangNodeVisitor {
                         return createEqualityOperator(opKind, symTable.anyType, symTable.anyType);
                 }
             }
+        }
+        return symTable.notFoundSymbol;
+    }
+
+    public BSymbol getBitwiseShiftOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
+        boolean validIntTypesExists;
+        switch (opKind) {
+            case BITWISE_LEFT_SHIFT:
+            case BITWISE_RIGHT_SHIFT:
+            case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                validIntTypesExists = types.validIntegerTypeExists(lhsType) && types.validIntegerTypeExists(rhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+
+        if (validIntTypesExists) {
+            switch (opKind) {
+                case BITWISE_LEFT_SHIFT:
+                    return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+                case BITWISE_RIGHT_SHIFT:
+                case BITWISE_UNSIGNED_RIGHT_SHIFT:
+                    switch (lhsType.tag) {
+                        case TypeTags.UNSIGNED32_INT:
+                        case TypeTags.UNSIGNED16_INT:
+                        case TypeTags.UNSIGNED8_INT:
+                        case TypeTags.BYTE:
+                            return createBinaryOperator(opKind, lhsType, rhsType, lhsType);
+                        default:
+                            return createBinaryOperator(opKind, lhsType, rhsType, symTable.intType);
+                    }
+            }
+        }
+        return symTable.notFoundSymbol;
+    }
+
+    public BSymbol getArithmeticOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType, BType resType) {
+        boolean validNumericOrStringTypeExists;
+        switch (opKind) {
+            case ADD:
+                validNumericOrStringTypeExists = (types.validNumericTypeExists(lhsType) &&
+                        types.validNumericTypeExists(rhsType)) || (types.validStringTypeExists(lhsType) &&
+                        types.validStringTypeExists(rhsType));
+                break;
+            case SUB:
+            case DIV:
+            case MUL:
+            case MOD:
+                validNumericOrStringTypeExists = types.validNumericTypeExists(lhsType) &&
+                        types.validNumericTypeExists(rhsType);
+                break;
+            default:
+                return symTable.notFoundSymbol;
+        }
+
+        if (validNumericOrStringTypeExists) {
+            BType retType;
+            BType compatibleType1 = types.findCompatibleType(lhsType);
+            BType compatibleType2 = types.findCompatibleType(rhsType);
+            if (compatibleType1.tag < compatibleType2.tag) {
+                retType = compatibleType2;
+            } else {
+                retType = compatibleType1;
+            }
+            return createBinaryOperator(opKind, lhsType, rhsType, retType);
         }
         return symTable.notFoundSymbol;
     }
