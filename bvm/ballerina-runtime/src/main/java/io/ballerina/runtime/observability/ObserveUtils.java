@@ -356,8 +356,14 @@ public class ObserveUtils {
         if (newObContext.getEntrypointFunctionModule() != null) {
             newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, newObContext.getEntrypointFunctionModule());
         }
+        if (newObContext.getEntrypointServiceName() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_SERVICE_NAME, newObContext.getEntrypointServiceName());
+        }
         if (newObContext.getEntrypointFunctionName() != null) {
             newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_NAME, newObContext.getEntrypointFunctionName());
+        }
+        if (newObContext.getEntrypointResourceAccessor() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR, newObContext.getEntrypointResourceAccessor());
         }
 
         newObContext.setStarted();
