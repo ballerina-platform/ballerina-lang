@@ -3250,7 +3250,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(constant.name.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
         }
         if (constant.typeNode != null && !types.isAllowedConstantType(constant.typeNode.type)) {
-            dlog.error(constant.typeNode.pos, DiagnosticErrorCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE, constant.typeNode);
+            if (TypeTags.isIntegerTypeTag(constant.typeNode.type.tag) ||
+                    TypeTags.isStringTypeTag(constant.typeNode.type.tag)) {
+                dlog.error(constant.typeNode.pos, DiagnosticErrorCode.CONSTANT_DECLARATION_NOT_YET_SUPPORTED,
+                        constant.typeNode);
+            } else {
+                dlog.error(constant.typeNode.pos, DiagnosticErrorCode.CANNOT_DEFINE_CONSTANT_WITH_TYPE,
+                        constant.typeNode);
+            }
         }
 
 
