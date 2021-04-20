@@ -296,7 +296,7 @@ public class SymbolFactory {
      */
     public BallerinaVariableSymbol createVariableSymbol(BVarSymbol symbol, String name) {
         BallerinaVariableSymbol.VariableSymbolBuilder symbolBuilder =
-                new BallerinaVariableSymbol.VariableSymbolBuilder(name, symbol, this.context);
+                new BallerinaVariableSymbol.VariableSymbolBuilder(this.escapeReservedKeyword(name), symbol, this.context);
 
         if (isFlagOn(symbol.flags, Flags.FINAL) || isFlagOn(symbol.flags, Flags.FUNCTION_FINAL)) {
             symbolBuilder.withQualifier(Qualifier.FINAL);
@@ -585,7 +585,7 @@ public class SymbolFactory {
         return type.fields.get(fieldName);
     }
 
-    private String escapeReservedKeyword(String value) {
+    public String escapeReservedKeyword(String value) {
         if (BallerinaKeywordsProvider.BALLERINA_KEYWORDS.contains(value)) {
             return "'" + value;
         }

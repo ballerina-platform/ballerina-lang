@@ -366,7 +366,8 @@ public class BallerinaSemanticModel implements SemanticModel {
         BSymbol symbol = scopeEntry.symbol;
         if ((hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol))
                 && !isServiceDeclSymbol(symbol)) {
-            Symbol compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, name.getValue());
+            Symbol compiledSymbol = symbolFactory.getBCompiledSymbol(symbol,
+                    symbolFactory.escapeReservedKeyword(name.getValue()));
             if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
                 return;
             }
