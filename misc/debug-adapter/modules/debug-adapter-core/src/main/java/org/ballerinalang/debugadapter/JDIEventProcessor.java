@@ -21,6 +21,7 @@ import com.sun.jdi.Location;
 import com.sun.jdi.ReferenceType;
 import com.sun.jdi.ThreadReference;
 import com.sun.jdi.VMDisconnectedException;
+import com.sun.jdi.Value;
 import com.sun.jdi.event.BreakpointEvent;
 import com.sun.jdi.event.ClassPrepareEvent;
 import com.sun.jdi.event.Event;
@@ -38,6 +39,7 @@ import org.ballerinalang.debugadapter.evaluation.ExpressionEvaluator;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
 import org.ballerinalang.debugadapter.jdi.ThreadReferenceProxyImpl;
+import org.ballerinalang.debugadapter.variable.VariableFactory;
 import org.eclipse.lsp4j.debug.ContinuedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArguments;
 import org.eclipse.lsp4j.debug.StoppedEventArgumentsReason;
@@ -52,11 +54,15 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 import static org.ballerinalang.debugadapter.JBallerinaDebugServer.isBalStackFrame;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getQualifiedClassName;
+import static org.eclipse.lsp4j.debug.OutputEventArgumentsCategory.STDOUT;
 
 /**
  * JDI Event processor implementation.
@@ -112,16 +118,39 @@ public class JDIEventProcessor {
             BreakpointEvent bpEvent = (BreakpointEvent) event;
             ReferenceType bpReference = bpEvent.location().declaringType();
             String qualifiedClassName = getQualifiedClassName(context, bpReference);
-            Map<Integer, BalBreakpoint> breakpoints = this.breakpoints.get(qualifiedClassName);
+            Map<Integer, BalBreakpoint> fileBreakpoints = this.breakpoints.get(qualifiedClassName);
             int lineNumber = bpEvent.location().lineNumber();
 
-            if (breakpoints != null && breakpoints.containsKey(lineNumber)
-                    && breakpoints.get(lineNumber).getCondition() != null
-                    && !evaluateBreakpointCondition(breakpoints.get(lineNumber).getCondition(), bpEvent.thread())) {
-                context.getDebuggeeVM().resume();
-            } else {
+            if (fileBreakpoints == null || !fileBreakpoints.containsKey(lineNumber)) {
                 notifyStopEvent(event);
+                return;
             }
+
+            String condition = fileBreakpoints.get(lineNumber).getCondition();
+            if (condition == null) {
+                notifyStopEvent(event);
+                return;
+            }
+
+            // When evaluating breakpoint conditions, we might need to invoke methods in the remote JVM and it can
+            // cause deadlocks if invokeMethod is called from the client's event handler thread. In this case, this
+            // thread will be waiting for the invokeMethod to complete and won't read the EventSet that comes in for
+            // the new event. If this new EventSet is SUSPEND_ALL, then a deadlock will occur because no one will
+            // resume the EventSet. To avoid this, we ard disabling EventRequests before doing the invokeMethod.
+            context.getEventManager().classPrepareRequests().forEach(EventRequest::disable);
+            context.getEventManager().stepRequests().forEach(EventRequest::disable);
+            CompletableFuture<Boolean> resultFuture = evaluateBreakpointCondition(condition, bpEvent.thread());
+            try {
+                Boolean result = resultFuture.get(4000, TimeUnit.MILLISECONDS);
+                if (result) {
+                    notifyStopEvent(event);
+                    return;
+                }
+            } catch (InterruptedException | ExecutionException | TimeoutException e) {
+                context.getAdapter().sendOutput("warn: conditional breakpoint evaluation timed out.",
+                        STDOUT);
+            }
+            context.getDebuggeeVM().resume();
         } else if (event instanceof StepEvent) {
             StepEvent stepEvent = (StepEvent) event;
             long threadId = stepEvent.thread().uniqueID();
@@ -298,18 +327,46 @@ public class JDIEventProcessor {
      * @param threadReference suspended thread reference, which should be used to get the top stack frame
      * @return result of the given breakpoint condition (logical expression).
      */
-    private boolean evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
-        try {
-            StackFrameProxyImpl frame = context.getAdapter().getAllThreads().get(threadReference.uniqueID()).frame(0);
-            SuspendedContext ctx = new SuspendedContext(context.getSourceProject(), context.getDebuggeeVM(),
-                    context.getAdapter().getAllThreads().get(threadReference.uniqueID()), frame);
-            ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
-            String condition = evaluator.evaluate(expression).toString();
-            return condition.equalsIgnoreCase(CONDITION_TRUE);
-        } catch (JdiProxyException e) {
-            LOGGER.error(e.getMessage(), e);
-            return false;
-        }
+    private CompletableFuture<Boolean> evaluateBreakpointCondition(String expression, ThreadReference threadReference) {
+        return CompletableFuture.supplyAsync(() -> {
+            try {
+                ThreadReferenceProxyImpl thread = context.getAdapter().getAllThreads().get(threadReference.uniqueID());
+                List<StackFrameProxyImpl> jStackFrames = thread.frames();
+                List<BallerinaStackFrame> validFrames = jStackFrames.stream()
+                        .map(stackFrameProxy -> {
+                            try {
+                                if (!isBalStackFrame(stackFrameProxy.getStackFrame())) {
+                                    return null;
+                                }
+                                return new BallerinaStackFrame(context, 0L, stackFrameProxy);
+                            } catch (Exception e) {
+                                return null;
+                            }
+                        })
+                        .filter(Objects::nonNull)
+                        .filter(ballerinaStackFrame -> {
+                            if (ballerinaStackFrame.getAsDAPStackFrame().isEmpty()) {
+                                return false;
+                            }
+                            return JBallerinaDebugServer.isValidFrame(ballerinaStackFrame.getAsDAPStackFrame().get());
+                        })
+                        .collect(Collectors.toList());
+
+                if (validFrames.isEmpty()) {
+                    return false;
+                }
+
+                SuspendedContext ctx = new SuspendedContext(context.getSourceProject(), context.getDebuggeeVM(),
+                        thread, validFrames.get(0).getJStackFrame());
+                ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
+                Value evaluatorResult = evaluator.evaluate(expression);
+                String condition = VariableFactory.getVariable(ctx, evaluatorResult).getDapVariable().getValue();
+                return condition.equalsIgnoreCase(CONDITION_TRUE);
+            } catch (JdiProxyException e) {
+                LOGGER.error(e.getMessage(), e);
+                return false;
+            }
+        });
     }
 
     /**
