@@ -21,7 +21,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.ClassDefinitionNode;
-import io.ballerina.compiler.syntax.tree.ExplicitNewExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
@@ -36,9 +35,7 @@ import java.util.Optional;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS;
 import static io.ballerina.compiler.api.symbols.SymbolKind.CLASS_FIELD;
 import static io.ballerina.compiler.api.symbols.SymbolKind.METHOD;
-import static io.ballerina.compiler.api.symbols.SymbolKind.TYPE;
 import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
 
 /**
  * Test cases for looking up a symbol given a class.
@@ -59,9 +56,8 @@ public class SymbolByClassTest extends SymbolByNodeTest {
 
             @Override
             public void visit(ClassDefinitionNode classDefinitionNode) {
-                String className = classDefinitionNode.className().text();
-                assertSymbol(classDefinitionNode, model, CLASS, className);
-                assertSymbol(classDefinitionNode.className(), model, CLASS, className);
+                assertSymbol(classDefinitionNode, model, CLASS, "Person");
+                assertSymbol(classDefinitionNode.className(), model, CLASS, "Person");
 
                 for (Node member : classDefinitionNode.members()) {
                     member.accept(this);
@@ -95,18 +91,12 @@ public class SymbolByClassTest extends SymbolByNodeTest {
                 assertSymbol(remoteMethodCallActionNode, model, METHOD, "getAge");
                 assertSymbol(remoteMethodCallActionNode.methodName(), model, METHOD, "getAge");
             }
-
-            @Override
-            public void visit(ExplicitNewExpressionNode explicitNewExpressionNode) {
-                assertSymbol(explicitNewExpressionNode.typeDescriptor(), model, TYPE, "Employee");
-                assertTrue(model.symbol(explicitNewExpressionNode).isEmpty());
-            }
         };
     }
 
     @Override
     void verifyAssertCount() {
-        assertEquals(getAssertCount(), 17);
+        assertEquals(getAssertCount(), 13);
     }
 
     private void assertSymbol(Node node, SemanticModel model, SymbolKind kind, String name) {

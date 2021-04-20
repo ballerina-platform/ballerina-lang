@@ -870,7 +870,7 @@ class SymbolFinder extends BaseVisitor {
     @Override
     public void visit(BLangTypeInit typeInit) {
         lookupNodes(typeInit.argsExpr);
-        lookupNode(typeInit.userDefinedType);
+        setEnclosingNode(typeInit.type.tsymbol, typeInit.pos);
     }
 
     @Override
