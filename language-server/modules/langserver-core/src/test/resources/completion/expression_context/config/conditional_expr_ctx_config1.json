@@ -355,6 +355,13 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "commit",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "insertText": "commit;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -383,10 +390,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "insertText": "Thread",
+      "label": "flag",
+      "kind": "Variable",
+      "detail": "boolean",
+      "insertText": "flag",
       "insertTextFormat": "Snippet"
     },
     {
@@ -394,6 +401,13 @@
       "kind": "Variable",
       "detail": "int",
       "insertText": "n",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -407,13 +421,6 @@
         }
       },
       "insertText": "name()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "flag",
-      "kind": "Variable",
-      "detail": "boolean",
-      "insertText": "flag",
       "insertTextFormat": "Snippet"
     },
     {
