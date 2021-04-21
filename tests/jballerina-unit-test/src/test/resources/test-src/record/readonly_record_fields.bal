@@ -171,6 +171,44 @@ type Identifier record {|
     string code;
 |};
 
+type Foo2 record {|
+    function () f;
+    int id;
+    function (int, int) returns int f2;    
+    function () returns string f3;
+    function (int) f4;
+|};
+
+function sum(int a, int b) returns int {
+    return a + b;
+} 
+
+function name() returns string {
+    return "chirans";
+}
+
+function value(int a) {
+
+}
+
+function testRecordWithFunctionTypeField() {
+    Foo2 & readonly x = {
+        f: testRecordWithFunctionTypeField,
+        id: 3456,
+        f2: sum,
+        f3: name,
+        f4: value
+    };
+    
+    assertEquality(3456, x.id);
+    function (int, int) returns int sum = x.f2;
+    function () returns string name = x.f3;
+    function (int) value = x.f4;
+    assertEquality(25, sum(10, 15));
+    assertEquality("chirans", name());
+    assertEquality((), value(10));
+}
+
 function testReadOnlyFieldWithDefaultValue() {
     string k = "id";
 

@@ -162,6 +162,7 @@ public class JvmConstants {
     public static final String STRAND_STATE = "io/ballerina/runtime/internal/scheduling/State";
     public static final String VALUE_CREATOR = "io/ballerina/runtime/internal/values/ValueCreator";
     public static final String XML_FACTORY = "io/ballerina/runtime/internal/XmlFactory";
+    public static final String XML_SEQUENCE = "io/ballerina/runtime/internal/values/XmlSequence";
     public static final String WD_CHANNELS = "io/ballerina/runtime/internal/scheduling/WDChannels";
     public static final String WORKER_DATA_CHANNEL = "io/ballerina/runtime/internal/scheduling/WorkerDataChannel";
     public static final String CHANNEL_DETAILS = "io/ballerina/runtime/internal/values/ChannelDetails";
@@ -302,6 +303,7 @@ public class JvmConstants {
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
+    public static final String GET_ANON_TYPE = "getAnonType";
 
     // strand data related constants
     public static final String STRAND = "strand";

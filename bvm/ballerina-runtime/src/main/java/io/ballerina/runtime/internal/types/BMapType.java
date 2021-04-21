@@ -139,7 +139,7 @@ public class BMapType extends BType implements MapType {
 
     @Override
     public boolean isAnydata() {
-        return this.constraint.isPureType();
+        return this.constraint.isAnydata();
     }
 
     @Override

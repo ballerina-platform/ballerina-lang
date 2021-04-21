@@ -151,10 +151,10 @@
     },
     {
       "label": "rollback",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "rollback",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "rollback;",
       "insertTextFormat": "Snippet"
     },
     {
@@ -472,6 +472,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -480,14 +488,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -617,14 +617,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "res",
-      "kind": "Variable",
-      "detail": "error",
-      "sortText": "B",
-      "insertText": "res",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "main()",
       "kind": "Function",
       "detail": "Function",
@@ -636,6 +628,14 @@
       },
       "sortText": "C",
       "insertText": "main()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "res",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "B",
+      "insertText": "res",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -31,6 +31,21 @@ configurable string[] & readonly stringArr = ["apple", "orange", "banana"];
 configurable boolean[] & readonly booleanArr = [true, true];
 configurable decimal[] & readonly decimalArr = ?;
 
+configurable int[][] & readonly int2DArr = ?;
+configurable byte[][] & readonly byte2DArr = ?;
+configurable float[][] & readonly float2DArr = ?;
+configurable string[][] & readonly string2DArr = ?;
+configurable boolean[][] & readonly boolean2DArr = ?;
+configurable decimal[][] & readonly decimal2DArr = ?;
+configurable int[][][] & readonly int3DArr = ?;
+
+type CustomArrayType1 int[];
+type CustomArrayType2 int[][];
+
+configurable CustomArrayType1[] & readonly customType1Array = ?;
+configurable CustomArrayType2 & readonly customType2Array = ?;
+configurable CustomArrayType2[] & readonly customType3DArray = ?;
+
 type AuthInfo record {|
     readonly string username;
     int id = 100;
@@ -75,7 +90,10 @@ type PersonInfoTable table<PersonInfo> & readonly;
 
 type EmpInfoTable table<EmployeeInfo>;
 
+configurable AuthInfo & readonly admin = ?;
 configurable UserTable & readonly users = ?;
+configurable PersonInfo personInfo = ?;
+configurable EmployeeInfo & readonly empInfo = ?;
 configurable EmployeeTable employees = ?;
 configurable PersonTable people = ?;
 configurable nonKeyTable & readonly nonKeyUsers = ?;
@@ -85,6 +103,9 @@ configurable EmpInfoTable & readonly empInfoTab = ?;
 public function main() {
     testSimpleValues();
     testArrayValues();
+    testMultiDimentionalArrayValues();
+    testCustomArrayTypeValues();
+    testRecordValues();
     testTableValues();
 
     print("Tests passed");
@@ -114,6 +135,41 @@ function testArrayValues() {
 
     byte[] & readonly resultArr2 = [11, 22, 33, 44, 55, 66, 77, 88, 99];
     test:assertEquals(byteArr, resultArr2);
+}
+
+function testMultiDimentionalArrayValues() {
+    test:assertEquals([[1,2],[3,4]], int2DArr);
+    test:assertEquals([[9.0, 5.6], [4.1, 56.7]], float2DArr);
+    test:assertEquals([["red", "yellow", "green"], ["white", "purple"]], string2DArr);
+    test:assertEquals([[true, false], [false, true]], boolean2DArr);
+
+    decimal[][] & readonly resultArr = [[8.9, 4.5, 6.2], [5.4, 8.5]];
+    test:assertEquals(resultArr, decimal2DArr);
+
+    byte[][] & readonly resultArr2 = [[11,22,33,44],[55,66,77,88,99]];
+    test:assertEquals(byte2DArr, resultArr2);
+}
+
+function testCustomArrayTypeValues() {
+    test:assertEquals([[[1,2],[3,4]],[[1,2],[3,4]]], int3DArr);
+    test:assertEquals([[1,2],[3,4]], customType1Array);
+    test:assertEquals([[5,6],[7,8]], customType2Array);
+    test:assertEquals([[[5,6],[7,8]],[[5,6],[7,8]]], customType3DArray);
+}
+
+function testRecordValues() {
+    test:assertEquals("jack", admin.username);
+    test:assertEquals("password", admin.password);
+    test:assertEquals(["write", "read", "execute"], admin["scopes"]);
+    test:assertTrue(admin.isAdmin);
+
+    test:assertEquals("harry", personInfo.name);
+    test:assertEquals("Colombo", personInfo.address);
+    test:assertEquals(28, personInfo["age"]);
+
+    test:assertEquals(34, empInfo.id);
+    test:assertEquals("test", empInfo.name);
+    test:assertEquals(75000.0, empInfo["salary"]);
 }
 
 function testTableValues() {

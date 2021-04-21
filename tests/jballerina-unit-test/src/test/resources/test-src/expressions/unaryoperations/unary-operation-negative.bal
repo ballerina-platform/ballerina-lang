@@ -24,3 +24,8 @@ function testJsonNot() returns (json) {
 
     return j1;
 }
+
+function testNotOperator() returns int {
+    int i = !10;
+    return i;
+}

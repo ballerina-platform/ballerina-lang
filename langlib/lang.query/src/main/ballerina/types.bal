@@ -33,17 +33,29 @@ type Type any|error;
 # Has the special semantic that when used in a declaration
 # all uses in the declaration must refer to same type.
 @typeParam
-type ErrorType error?;
+type ErrorType error;
+
+# A type parameter that is a subtype of `error?`.
+# Has the special semantic that when used in a declaration
+# all uses in the declaration must refer to same type.
+# This represents the result type of an iterator.
+@typeParam
+type CompletionType error?;
 
 # An abstract `_Iterator` object.
 type _Iterator object {
-    public isolated function next() returns record {|Type value;|}|ErrorType?;
+    public function next() returns record {|Type value;|}|CompletionType;
 };
 
-# An abstract `_CloseableIterator` object.
-type _CloseableIterator object {
-    public isolated function next() returns record {|Type value;|}|ErrorType?;
-    public isolated function close() returns ErrorType?;
+# An abstract `_StreamImplementor` object
+type _StreamImplementor object {
+    public isolated function next() returns record {|Type value;|}|CompletionType;
+};
+
+# An abstract `_CloseableStreamImplementor` object.
+type _CloseableStreamImplementor object {
+    public isolated function next() returns record {|Type value;|}|CompletionType;
+    public isolated function close() returns CompletionType;
 };
 
 # An abstract `_Iterable` object.
@@ -66,7 +78,7 @@ class _StreamPipeline {
     typedesc<Type> resType;
 
     function init(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection,
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection,
             typedesc<Type> resType) {
         self.streamFunction = new _InitFunction(collection);
         self.resType = resType;
@@ -91,7 +103,7 @@ class _StreamPipeline {
         self.streamFunction = streamFunction;
     }
 
-    public function getStream() returns stream <Type, ErrorType> {
+    public function getStream() returns stream <Type,CompletionType> {
         IterHelper itrObj = new (self, self.resType);
         var strm = internal:construct(self.resType, itrObj);
         return strm;
@@ -102,10 +114,10 @@ class _InitFunction {
     *_StreamFunction;
     _Iterator? itr;
     boolean resettable = true;
-    Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection;
+    Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection;
 
     function init(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection) {
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection) {
         self.prevFunc = ();
         self.itr = ();
         self.collection = collection;
@@ -131,7 +143,7 @@ class _InitFunction {
     }
 
     function _getIterator(
-            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, ErrorType>|_Iterable collection)
+            Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection)
                 returns _Iterator {
         if (collection is Type[]) {
             return lang_array:iterator(collection);
@@ -267,7 +279,7 @@ class _NestedFromFunction {
             return lang_table:iterator(collection);
         } else if (collection is _Iterable) {
             return collection.iterator();
-        } else if (collection is stream <Type, ErrorType>) {
+        } else if (collection is stream <Type,CompletionType>) {
             return lang_stream:iterator(collection);
         }
         panic error("Unsuppored collection", message = "unsuppored collection type.");
@@ -706,7 +718,7 @@ class IterHelper {
 
     public isolated function next() returns record {|Type value;|}|error? {
         _StreamPipeline p = self.pipeline;
-        _Frame|ErrorType? f = p.next();
+        _Frame|error? f = p.next();
         if (f is _Frame) {
             Type v = <Type>f["$value$"];
             return internal:setNarrowType(self.outputType, {value: v});

@@ -1,3 +1,4 @@
 [configPkg]
 intVar = 45
-invalidArr = [[11],[22,33]]
+[configPkg.invalidMap]
+name = "waruna"

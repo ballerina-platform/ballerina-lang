@@ -424,6 +424,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "commit",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "insertText": "commit;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -456,6 +464,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "l1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "C",
+      "insertText": "l1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -478,22 +494,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testValue",
-      "kind": "Variable",
-      "detail": "module1:TestClass1",
-      "sortText": "A",
-      "insertText": "testValue",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "l1",
-      "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "C",
-      "insertText": "l1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -502,6 +502,14 @@
       },
       "sortText": "M",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testValue",
+      "kind": "Variable",
+      "detail": "module1:TestClass1",
+      "sortText": "A",
+      "insertText": "testValue",
       "insertTextFormat": "Snippet"
     },
     {

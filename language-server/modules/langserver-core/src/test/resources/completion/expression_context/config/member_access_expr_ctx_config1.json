@@ -392,6 +392,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "commit",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "commit;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -424,14 +432,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "indexVal",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "indexVal",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -451,6 +451,14 @@
       "detail": "Union",
       "sortText": "M",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "indexVal",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "indexVal",
       "insertTextFormat": "Snippet"
     },
     {

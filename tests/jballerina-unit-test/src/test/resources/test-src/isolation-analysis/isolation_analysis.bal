@@ -90,7 +90,9 @@ service /s1 on new Listener() {
     }
 
     resource isolated function get res2(string str) returns error? {
-        self.res3();
+        lock {
+            self.res3();
+        }
         return error(str + <string> ms["first"]);
     }
 
@@ -105,7 +107,9 @@ service object {} s2 = service object {
     }
 
     resource isolated function get res2(string str) returns error? {
-        self.res3();
+        lock {
+            self.res3();
+        }
         return error(str + <string> ms["first"]);
     }
 

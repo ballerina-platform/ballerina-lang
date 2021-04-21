@@ -187,10 +187,6 @@ public abstract class AbstractObjectValue implements ObjectValue {
         }
     }
 
-    protected void checkFieldUpdateOnInitialization(String fieldName, Object value) {
-        checkFieldUpdateType(fieldName, value);
-    }
-
     protected void checkFieldUpdate(String fieldName, Object value) {
         if (type.isReadOnly()) {
             throw ErrorCreator.createError(

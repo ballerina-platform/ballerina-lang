@@ -104,12 +104,15 @@ class IterableWithError {
     }
 }
 
-public function testIterableWithError() returns int[]|error {
+public function testIterableWithError() {
     IterableWithError p = new IterableWithError();
     int[]|error integers = from var item in p
                      select item;
 
-    return integers;
+    if (integers is error) {
+        return;
+    }
+    panic error("Expected error, found: " + (typeof integers).toString());
 }
 
 class NumberGenerator {
@@ -195,4 +198,51 @@ class IterableFromIterator {
 
 function getIterableObject(_Iterator iterator) returns IterableFromIterator {
     return new IterableFromIterator(iterator);
+}
+
+class MyIterable {
+    *object:Iterable;
+    public function iterator() returns object {
+                                           public function next() returns record {| int value; |}?;
+                                       } {
+        return new MyIterator();
+    }
+}
+
+int i = 0;
+
+public class MyIterator {
+    public function next() returns record {| int value; |}? {
+        i += 1;
+        if (i < 5) {
+            return {value: i};
+        }
+        return ();
+    }
+}
+
+public function testObjectIterator() {
+    int[] expectedArr = [1, 2, 3, 4];
+    int[] integers = from var item in new MyIterable()
+                     select item;
+
+    assertEquality(integers, expectedArr);
+}
+
+//---------------------------------------------------------------------------------------------------------
+const ASSERTION_ERROR_REASON = "AssertionError";
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error(ASSERTION_ERROR_REASON,
+                      message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

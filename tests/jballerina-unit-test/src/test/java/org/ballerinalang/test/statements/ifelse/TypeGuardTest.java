@@ -56,34 +56,42 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: '(float|boolean)' will not be matched to 'string'", 53, 16);
         BAssertUtil.validateError(negativeResult, i++, "unreachable code", 84, 5);
-//        BAssertUtil.validateError(negativeResult, i++,
-//                                  "incompatible types: '(string|int)' will not be matched to 'float'", 91, 23);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(int|boolean)' will not be matched to 'float'", 99, 63);
+                                  "incompatible types: '(int|boolean)' will not be matched to 'float'", 90, 63);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(boolean|float)' will not be matched to 'int'", 108, 30);
+                                  "incompatible types: '(boolean|float)' will not be matched to 'int'", 99, 30);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: 'string' will not be matched to 'int'", 117, 25);
+                                  "incompatible types: 'string' will not be matched to 'int'", 108, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: 'string' will not be matched to 'float'", 117, 37);
+                                  "incompatible types: 'string' will not be matched to 'float'", 108, 37);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: 'string' will not be matched to 'float'", 126, 25);
+                                  "incompatible types: 'string' will not be matched to 'float'", 117, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(Person|Student)' will not be matched to 'string'", 147, 10);
+                                  "incompatible types: '(Person|Student)' will not be matched to 'string'", 138, 10);
         BAssertUtil.validateHint(negativeResult, i++,
-                                  "unnecessary condition: expression will always evaluate to 'true'", 147, 25);
+                                  "unnecessary condition: expression will always evaluate to 'true'", 138, 25);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(Person|Student)' will not be matched to 'float'", 147, 40);
+                                  "incompatible types: '(Person|Student)' will not be matched to 'float'", 138, 40);
         BAssertUtil.validateError(negativeResult, i++,
-                                  "incompatible types: '(Person|Student)' will not be matched to 'boolean'", 147, 56);
-//        BAssertUtil.validateError(negativeResult, i++,
-//                                  "incompatible types: 'any' will not be matched to 'error'", 157, 18);
+                                  "incompatible types: '(Person|Student)' will not be matched to 'boolean'", 138, 56);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 167, 15);
+                "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 150, 15);
         BAssertUtil.validateError(negativeResult, i++,
-                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 173, 15);
+                "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 156, 15);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'record {| int i; boolean b; |}' will not be matched to 'ClosedRec'", 187, 8);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'record {| int i; boolean s; boolean...; |}' will not be matched to 'ClosedRec'",
+                191, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'RecordWithDefaultValue' will not be " +
+                        "matched to 'RecordWithNoDefaultValue'", 207, 8);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'map<(int|string)>' will not be matched to 'record {| int i; float f; |}'", 214,
+                8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<(int|string)>' will not be matched " +
+                        "to 'map<boolean>'", 221, 8);
 
-        Assert.assertEquals(negativeResult.getErrorCount(), 14);
+        Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }
 
     @Test
@@ -107,6 +115,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "a type compatible with mapping constructor expressions not found in " +
                                           "type '(int|string|boolean)'", 137, 9);
+        BAssertUtil.validateError(negativeResult, i++, "pattern will not be matched", 144, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'",
                                   154, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found '(int|string)'",
@@ -142,6 +151,7 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++,
                                   "incompatible types: expected 'string', found '(Person|Student)'",
                                   240, 20);
+        BAssertUtil.validateError(negativeResult, i++, "pattern will not be matched", 247, 9);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found " +
                 "'(int|string|boolean)'", 257, 17);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found '" +
@@ -175,6 +185,27 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 343, 22);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 355, 22);
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'j'", 377, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 398, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 403, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i; boolean b; |}'", 407, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 411, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 416, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i; boolean b; |}'", 420, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'record {| byte i?;" +
+                " boolean b; |}'", 429, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'RecordWithReadOnlyFieldAndNonReadOnlyField', found 'record {| readonly int i; |} & readonly'", 452,
+                56);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'readonly', found 'record {| " +
+                "readonly int i; string s; |}'", 456, 22);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte i; |}', found " +
+                "'record {| byte i; boolean b?; |}'", 474, 37);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
@@ -630,6 +661,48 @@ public class TypeGuardTest {
     public void testTypetestForTypedefs2() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest2");
         Assert.assertEquals(BBoolean.TRUE, returns[0]);
+    }
+
+    @Test
+    public void testRecordIntersectionWithClosedRecordAndRecordWithOptionalField() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField");
+    }
+
+    @Test
+    public void testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2");
+    }
+
+    @Test
+    public void testRecordIntersectionWithDefaultValues() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithDefaultValues");
+    }
+
+    @Test
+    public void testClosedRecordAndMapIntersection() {
+        BRunUtil.invoke(result, "testClosedRecordAndMapIntersection");
+    }
+
+    @Test
+    public void testIntersectionReadOnlyness() {
+        BRunUtil.invoke(result, "testIntersectionReadOnlyness");
+    }
+
+    @Test
+    public void testMapIntersection() {
+        BRunUtil.invoke(result, "testMapIntersection");
+    }
+
+    @Test
+    public void testTypeGuardRuntimeWithAlwaysTrueHint() {
+        CompileResult result = BCompileUtil.compile("test-src/statements/ifelse/type_guard_with_always_true_hint.bal");
+
+        Assert.assertEquals(result.getHintCount(), 2);
+        BAssertUtil.validateHint(result, 0, "unnecessary condition: expression will always evaluate to 'true'", 23, 8);
+        BAssertUtil.validateHint(result, 1, "unnecessary condition: expression will always evaluate to 'true'", 33, 8);
+
+        BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint1");
+        BRunUtil.invoke(result, "testTypeGuardRuntimeWithAlwaysTrueHint2");
     }
 
     @AfterClass

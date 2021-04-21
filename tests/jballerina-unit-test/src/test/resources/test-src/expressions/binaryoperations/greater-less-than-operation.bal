@@ -161,6 +161,27 @@ function testArrayComparison2() {
     test:assertTrue(c >= d);
 }
 
+function testArrayComparison3() {
+    float[] a = [10, 23.1, 30.1];
+    float[] b = [10, 23.1];
+    float[] c = [];
+
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertTrue(a > b);
+    test:assertTrue(a >= b);
+
+    test:assertTrue(b < a);
+    test:assertTrue(b <= a);
+    test:assertFalse(b > a);
+    test:assertFalse(b >= a);
+
+    test:assertTrue(c < a);
+    test:assertTrue(c <= a);
+    test:assertFalse(c > a);
+    test:assertFalse(c >= a);
+}
+
 function testTupleComparison1() {
     [int, decimal] a = [59215, 9945];
     [int, decimal] b = [59283, 24345];
@@ -225,6 +246,42 @@ function testTupleComparison2() {
     test:assertFalse(f <= a);
 }
 
+function testTupleComparison3() {
+    [float, int] a = [10, 23];
+    [float, int, string...] b = [10, 23, "ABC"];
+    [float, int, string...] c = [10, 46];
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertTrue(a < c);
+    test:assertTrue(a <= c);
+    test:assertFalse(a > c);
+    test:assertFalse(a >= c);
+
+    test:assertTrue(b < c);
+    test:assertTrue(b <= c);
+    test:assertFalse(b > c);
+    test:assertFalse(b >= c);
+}
+
+function testTupleComparison4() {
+    [float, int, string] a = [10, 23];
+    [float, int, string...] b = [10, 23, "ABC"];
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
 type Utc readonly & [int,decimal];
 
 function testTypeComparison1() {
@@ -284,6 +341,65 @@ function testTypeComparison5() {
     test:assertFalse(a >= b);
 }
 
+type TenOrEleven 10|11;
+
+function testTypeComparison6() {
+    TenOrEleven a = 10;
+    NumberSet b = 2;
+
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertTrue(a > b);
+    test:assertTrue(a >= b);
+
+    test:assertTrue(b < a);
+    test:assertTrue(b <= a);
+    test:assertFalse(b > a);
+    test:assertFalse(b >= a);
+}
+
+type TwoFloats 50.6|32.5;
+
+function testTypeComparison7() {
+    OneOrTwo a = 2.0;
+    TwoFloats b = 32.5;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
+function testTypeComparison8() {
+    float a = 2.0;
+    TwoFloats b = 32.5;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
+function testTypeComparison9() {
+    float? a = 2.0;
+    TwoFloats? b = 32.5;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+}
+
 function testUnionComparison1() {
     int? a = 1;
     int? b = 2;
@@ -324,6 +440,120 @@ function testUnionComparison4() {
     test:assertTrue(a <= b);
     test:assertFalse(a > b);
     test:assertFalse(a >= b);
+}
+
+function testUnionComparison5() {
+    OneOrTwo? a = 2.0;
+    TwoFloats? b = 32.5;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    TwoFloats? c = ();
+
+    test:assertFalse(c < a);
+    test:assertFalse(c <= a);
+    test:assertFalse(c > a);
+    test:assertFalse(c >= a);
+}
+
+function testUnionComparison6() {
+    int|(int|int|int) a = 1;
+    int b = 2;
+    int|int:Signed32|int:Signed16 c = 4;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertTrue(b < c);
+    test:assertTrue(b <= c);
+    test:assertFalse(b > c);
+    test:assertFalse(b >= c);
+}
+
+function testUnionComparison7() {
+    TwoFloats a = 50.6;
+    float b = 2.0;
+    TwoFloats|OneOrTwo c = 1.0;
+
+    test:assertFalse(a < b);
+    test:assertFalse(a <= b);
+    test:assertTrue(a > b);
+    test:assertTrue(a >= b);
+
+    test:assertFalse(b < c);
+    test:assertFalse(b <= c);
+    test:assertTrue(b > c);
+    test:assertTrue(b >= c);
+
+    test:assertFalse(a < c);
+    test:assertFalse(a <= c);
+    test:assertTrue(a > c);
+    test:assertTrue(a >= c);
+}
+
+function testUnionComparison8() {
+    string|string:Char a = "A";
+    string b = "B";
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
+function testUnionComparison9() {
+    int|int:Signed16 a = 5;
+    byte b = 12;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
+function testUnionComparison10() {
+    decimal|(decimal|decimal) a = 5;
+    decimal b = 12;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
+}
+
+function testUnionComparison11() {
+    float|(float|float) a = 5.0;
+    float b = 12.0;
+
+    test:assertTrue(a < b);
+    test:assertTrue(a <= b);
+    test:assertFalse(a > b);
+    test:assertFalse(a >= b);
+
+    test:assertFalse(b < a);
+    test:assertFalse(b <= a);
+    test:assertTrue(b > a);
+    test:assertTrue(b >= a);
 }
 
 function testUnorderedTypeComparison1() {

@@ -66,6 +66,8 @@ public class IsolatedObjectTest {
                 "x; }'", 106, 38);
         validateError(result, i++, "incompatible types: expected 'isolated object { int x; }', found 'object { " +
                 "private int x; }'", 109, 46);
+        validateError(result, i++, "incompatible types: expected 'isolated function () returns ()', found 'function " +
+                "() returns ()'", 118, 39);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 
@@ -185,6 +187,53 @@ public class IsolatedObjectTest {
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 493, 40);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 505, 6);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 505, 6);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 516, 5);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 519, 9);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 523, 9);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 527, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 531, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 535, 9);
+        validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
+                "'lock' statement", 540, 13);
+        validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
+                "'lock' statement", 541, 13);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 547, 5);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 550, 9);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 554, 9);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 558, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 562, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 566, 9);
+        validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
+                "'lock' statement", 571, 13);
+        validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
+                "'lock' statement", 572, 13);
+        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 578, 5);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 581, 9);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 585, 9);
+        validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +
+                "statement", 589, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 593, 9);
+        validateError(result, i++, ERROR_INVALID_ACCESS_OF_MUTABLE_STORAGE_IN_ISOLATED_FUNC, 597, 9);
+        validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
+                "'lock' statement", 602, 13);
+        validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
+                "'lock' statement", 603, 13);
+        validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
+                "'lock' statement", 609, 13);
+        validateError(result, i++, "cannot access more than one variable for which usage is restricted in a single " +
+                "'lock' statement", 610, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 632, 13);
+        validateError(result, i++, ERROR_INVALID_TRANSFER_OUT_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 639, 13);
+        validateError(result, i++, "invalid reference to 'self' outside a 'lock' statement in an 'isolated' object",
+                646, 35);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 

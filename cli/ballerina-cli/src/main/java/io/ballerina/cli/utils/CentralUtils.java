@@ -19,6 +19,7 @@ package io.ballerina.cli.utils;
 
 import io.ballerina.cli.launcher.LauncherUtils;
 import io.ballerina.projects.util.ProjectConstants;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.model.Settings;
 import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.util.RepoUtils;
@@ -48,7 +49,7 @@ public class CentralUtils {
      * @return access token if its present
      */
     public static String authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl, Settings settings,
-            Path settingsTomlFilePath) {
+            Path settingsTomlFilePath) throws SettingsTomlException {
         String accessToken = getAccessTokenOfCLI(settings);
 
         if (accessToken.isEmpty()) {
@@ -137,7 +138,7 @@ public class CentralUtils {
      *
      * @return {@link Settings} settings object
      */
-    public static Settings readSettings() {
+    public static Settings readSettings() throws SettingsTomlException {
         Path settingsFilePath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectConstants.SETTINGS_FILE_NAME);
         try {
             return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);

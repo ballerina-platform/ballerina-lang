@@ -153,6 +153,48 @@ function testMappingMatchPattern8() {
     assertEquals("z", mappingMatchPattern8({x: {y: 1, z: "z"}}));
 }
 
+function mappingMatchPattern9(anydata a) returns anydata {
+    match a {
+        {x: var p, ...var oth} if p is map<any> => {
+            map<anydata> m = p;
+            return m;
+        }
+        _ => {
+            return "other";
+        }
+    }
+}
+
+function mappingMatchPattern10(map<map<int|error>> a) returns [map<int>, map<map<int|error>>]|string {
+    match a {
+        {x: var p, ...var oth} if p is anydata => {
+            map<int> m = p;
+            map<map<int|error>> n = oth;
+            return [m, n];
+        }
+        _ => {
+            return "other";
+        }
+    }
+}
+
+function testMappingMatchPatternWithMapAndAnydataIntersection() {
+    map<int> m1 = {a: 1, b: 2};
+    map<anydata> m2 = {x: m1, y: "hello"};
+    assertEquals(m1, mappingMatchPattern9(m2));
+    map<anydata> m3 = {a: 1, x: "foo"};
+    assertEquals("other", mappingMatchPattern9(m3));
+    assertEquals("other", mappingMatchPattern9("foo"));
+
+    map<int|error> m4 = {a: 1, b: error("error!")};
+    [map<int>, map<map<int|error>>] res = <[map<int>, map<map<int|error>>]> mappingMatchPattern10({x: m1, y: m4});
+    assertEquals(m1, res[0]);
+    assertEquals(true, m4 === res[1]["y"]);
+    assertEquals(1, res[1].length());
+    assertEquals("other", <string> mappingMatchPattern10({x: {a: error("error!")}}));
+    assertEquals("other", <string> mappingMatchPattern10({}));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

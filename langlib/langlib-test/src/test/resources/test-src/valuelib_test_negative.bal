@@ -30,3 +30,12 @@ function testCloneWithTypeWithInvalidInferredType() {
     MyClass|error y = x.cloneWithType();
     MyClass|error z = value:cloneWithType(x);
 }
+
+type Person record {
+    int name;
+};
+
+function testEnsureTypeFunction() returns error? {
+    Person p = {name: 12};
+    int age = check p.name;
+}

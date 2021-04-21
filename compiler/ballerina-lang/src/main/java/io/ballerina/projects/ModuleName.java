@@ -19,13 +19,14 @@ package io.ballerina.projects;
 
 import java.util.Objects;
 
+import static io.ballerina.projects.util.ProjectConstants.MODULE_NAME_SEPARATOR;
+
 /**
  * Represents the name of a {@code Package}.
  *
  * @since 2.0.0
  */
 public class ModuleName {
-    private static final String MODULE_NAME_SEPARATOR = ".";
 
     private final PackageName packageName;
     private final String moduleNamePart;

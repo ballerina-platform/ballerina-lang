@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -60,7 +59,6 @@ public class Option {
     }
 
     public BMap<BString, Object> parseRecord(String[] args) {
-        // Todo: Improve error messages
         int index = 0;
         while (index < args.length) {
             String arg = args[index++];
@@ -118,7 +116,7 @@ public class Option {
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             handleArrayParameter(optionName, val, (ArrayType) fieldType);
         } else {
-            record.put(optionName, CliUtil.getBValueWithUnionValue(fieldType, val));
+            record.put(optionName, CliUtil.getBValueWithUnionValue(fieldType, val, optionName.getValue()));
         }
     }
 
@@ -146,11 +144,10 @@ public class Option {
     }
 
     private void validateRecordKeys() {
-        // Todo: test this as a unit test
         for (BString key : record.getKeys()) {
             if (!recordKeysFound.contains(key) && isRequired(recordType, key.getValue())) {
                 Type fieldType = recordType.getFields().get(key.getValue()).getFieldType();
-                if (isUnionWithNil(fieldType) || isSupportedArrayType(key, fieldType) ||
+                if (CliUtil.isUnionWithNil(fieldType) || isSupportedArrayType(key, fieldType) ||
                         handleBooleanFalse(key, fieldType)) {
                     continue;
                 }
@@ -172,7 +169,7 @@ public class Option {
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(key, (ArrayType) fieldType);
             Type elementType = bArray.getElementType();
-            if (isSupported(elementType.getTag())) {
+            if (CliUtil.isSupportedType(elementType.getTag())) {
                 if (record.get(key) == null) {
                     record.put(key, bArray);
                 }
@@ -181,22 +178,6 @@ public class Option {
             throw CliUtil.getUnsupportedTypeException(fieldType);
         }
         return false;
-    }
-
-    private boolean isUnionWithNil(Type fieldType) {
-        if (fieldType.getTag() == TypeTags.UNION_TAG) {
-            List<Type> unionMemberTypes = ((UnionType) fieldType).getMemberTypes();
-            if (CliUtil.isUnionWithNil(unionMemberTypes)) {
-                return true;
-            }
-            throw CliUtil.getUnsupportedTypeException(fieldType);
-        }
-        return false;
-    }
-
-    private boolean isSupported(int tag) {
-        return tag == TypeTags.STRING_TAG || tag == TypeTags.INT_TAG || tag == TypeTags.FLOAT_TAG ||
-                tag == TypeTags.DECIMAL_TAG || tag == TypeTags.BOOLEAN_TAG;
     }
 
     private boolean isRequired(RecordType recordType, String fieldName) {
@@ -229,13 +210,13 @@ public class Option {
             handleArrayParameter(paramName, val, (ArrayType) fieldType);
             return;
         }
-        record.put(paramName, CliUtil.getBValueWithUnionValue(fieldType, val));
+        record.put(paramName, CliUtil.getBValueWithUnionValue(fieldType, val, paramName.getValue()));
     }
 
     private void handleArrayParameter(BString paramName, String val, ArrayType fieldType) {
         BArray bArray = getBArray(paramName, fieldType);
         Type arrayType = bArray.getElementType();
-        bArray.append(CliUtil.getBValue(arrayType, val));
+        bArray.append(CliUtil.getBValue(arrayType, val, paramName.getValue()));
     }
 
     private void validateFieldExists(BString recordKey) {

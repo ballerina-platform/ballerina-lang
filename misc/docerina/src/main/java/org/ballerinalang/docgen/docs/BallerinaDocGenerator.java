@@ -23,7 +23,6 @@ import com.google.gson.GsonBuilder;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
-import io.ballerina.projects.PackageMd;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
@@ -31,13 +30,11 @@ import org.ballerinalang.docgen.Generator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.docs.utils.PathToJson;
 import org.ballerinalang.docgen.generator.model.ApiDocsJson;
-import org.ballerinalang.docgen.generator.model.BuiltInType;
 import org.ballerinalang.docgen.generator.model.CentralStdLibrary;
-import org.ballerinalang.docgen.generator.model.DocPackage;
-import org.ballerinalang.docgen.generator.model.DocPackageMetadata;
 import org.ballerinalang.docgen.generator.model.Module;
 import org.ballerinalang.docgen.generator.model.ModuleDoc;
-import org.ballerinalang.docgen.generator.model.PackageLibrary;
+import org.ballerinalang.docgen.generator.model.ModuleLibrary;
+import org.ballerinalang.docgen.generator.model.ModuleMetaData;
 import org.ballerinalang.docgen.generator.model.search.ConstructSearchJson;
 import org.ballerinalang.docgen.generator.model.search.ModuleSearchJson;
 import org.ballerinalang.docgen.generator.model.search.SearchJson;
@@ -53,22 +50,17 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.PrintStream;
-import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.CodeSource;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 import java.util.Properties;
 import java.util.stream.Collectors;
-import java.util.zip.ZipEntry;
-import java.util.zip.ZipInputStream;
 
 /**
  * Main class to generate a ballerina documentation.
@@ -105,36 +97,33 @@ public class BallerinaDocGenerator {
             return;
         }
         Arrays.sort(orgFileList);
-        PackageLibrary packageLib = new PackageLibrary();
+        ModuleLibrary moduleLib = new ModuleLibrary();
         CentralStdLibrary centralLib = new CentralStdLibrary();
 
-        packageLib.releaseVersion = getBallerinaShortVersion().replace("sl", "swan-lake-");;
-        packageLib.releaseShortVersion = getBallerinaShortVersion();
-        packageLib.description = getReleaseDescription();
-
+        moduleLib.releaseVersion = getBallerinaShortVersion().replace("sl", "swan-lake-");
         centralLib.releaseVersion = getBallerinaShortVersion().replace("sl", "swan-lake-");
         centralLib.releaseShortVersion = getBallerinaShortVersion();
         centralLib.description = getReleaseDescription();
 
         for (File orgFile : orgFileList) {
             if (orgFile.isDirectory()) {
-                File[] pkgFileList = orgFile.listFiles();
-                Arrays.sort(pkgFileList);
-                for (File pkgFile : pkgFileList) {
-                    if (pkgFile.isDirectory() && pkgFile.listFiles().length > 0
-                            && pkgFile.listFiles()[0].isDirectory()) {
-                        File versionFile = pkgFile.listFiles()[0];
+                File[] moduleFileList = orgFile.listFiles();
+                Arrays.sort(moduleFileList);
+                for (File moduleFile : moduleFileList) {
+                    if (moduleFile.isDirectory() && moduleFile.listFiles().length > 0
+                            && moduleFile.listFiles()[0].isDirectory()) {
+                        File versionFile = moduleFile.listFiles()[0];
                         Path docJsonPath = Paths.get(versionFile.getAbsolutePath(), API_DOCS_JSON);
                         if (docJsonPath.toFile().exists()) {
                             try (BufferedReader br = Files.newBufferedReader(docJsonPath, StandardCharsets.UTF_8)) {
                                 ApiDocsJson apiDocsJson = gson.fromJson(br, ApiDocsJson.class);
-                                if (apiDocsJson.docsData.packages.isEmpty()) {
+                                if (apiDocsJson.docsData.modules.isEmpty()) {
                                     log.warn("No packages found at: " + docJsonPath.toString());
                                     continue;
                                 }
-                                apiDocsJson.docsData.packages.forEach(docPackage -> {
+                                apiDocsJson.docsData.modules.forEach(mod -> {
                                     try {
-                                        docPackage.resources
+                                        mod.resources
                                                 .addAll(getResourcePaths(Paths.get(orgFile.getAbsolutePath())));
                                     } catch (IOException e) {
                                         log.error(String.format("API documentation generation failed. Cause: %s"
@@ -142,14 +131,20 @@ public class BallerinaDocGenerator {
                                         return;
                                     }
                                 });
-                                for (DocPackage docPackage : apiDocsJson.docsData.packages) {
-                                    packageLib.packages.add(docPackage);
-                                    DocPackageMetadata pkgMeta = new DocPackageMetadata();
-                                    pkgMeta.name = docPackage.name;
-                                    pkgMeta.summary = docPackage.summary;
-                                    pkgMeta.orgName = docPackage.orgName;
-                                    pkgMeta.version = docPackage.version;
-                                    centralLib.packages.add(pkgMeta);
+                                for (Module module : apiDocsJson.docsData.modules) {
+                                    ModuleMetaData moduleMeta = new ModuleMetaData();
+                                    moduleMeta.id = module.id;
+                                    moduleMeta.summary = module.summary;
+                                    moduleMeta.orgName = module.orgName;
+                                    moduleMeta.version = module.version;
+                                    if (module.id.startsWith("lang.")) {
+                                        centralLib.langLibs.add(moduleMeta);
+                                        moduleLib.langLibs.add(module);
+                                    } else {
+                                        centralLib.modules.add(moduleMeta);
+                                        moduleLib.modules.add(module);
+                                    }
+
                                 }
                             } catch (IOException e) {
                                 log.error(String.format("API documentation generation failed. Cause: %s",
@@ -161,16 +156,9 @@ public class BallerinaDocGenerator {
                 }
             }
         }
-        List<BuiltInType> builtInTypes = getBuiltInTypesOrKeywords(packageLib.packages, BUILTIN_TYPES_DESCRIPTION_DIR);
-        List<BuiltInType> keywords = getBuiltInTypesOrKeywords(packageLib.packages, BUILTIN_KEYWORDS_DESCRIPTION_DIR);
-
-        packageLib.builtinTypes = builtInTypes;
-        packageLib.keywords = keywords;
-        centralLib.builtinTypes = builtInTypes;
-        centralLib.keywords = keywords;
-        packageLib.packages.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-        centralLib.packages.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-        writeAPIDocs(packageLib, apiDocsRoot, true, false);
+        moduleLib.modules.sort((o1, o2) -> o1.id.compareToIgnoreCase(o2.id));
+        centralLib.modules.sort((o1, o2) -> o1.id.compareToIgnoreCase(o2.id));
+        writeAPIDocs(moduleLib, apiDocsRoot, true, false);
 
         // Create the central standard library index json
         String stdIndexJson = gson.toJson(centralLib);
@@ -183,7 +171,7 @@ public class BallerinaDocGenerator {
         }
 
         // Create the central standard library search json
-        String stdSearchJson = gson.toJson(genSearchJson(packageLib));
+        String stdSearchJson = gson.toJson(genSearchJson(moduleLib));
         File stdSearchJsonFile = apiDocsRoot.resolve(CENTRAL_STDLIB_SEARCH_JSON).toFile();
         try (java.io.Writer writer = new OutputStreamWriter(new FileOutputStream(stdSearchJsonFile),
                 StandardCharsets.UTF_8)) {
@@ -202,96 +190,92 @@ public class BallerinaDocGenerator {
     public static void generateAPIDocs(Project project, String output, boolean excludeUI)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = generateModuleDocMap(project);
-        DocPackage docPackage = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
+        ModuleLibrary moduleLib = new ModuleLibrary();
+        moduleLib.modules = getDocsGenModel(moduleDocMap, project.currentPackage().packageOrg().toString(),
                 project.currentPackage().packageVersion().toString());
-        docPackage.name = project.currentPackage().descriptor().name().toString();
-        docPackage.orgName = project.currentPackage().packageOrg().toString();
-        docPackage.version = project.currentPackage().packageVersion().toString();
-        Optional<PackageMd> packageMdPath = project.currentPackage().packageMd();
-        docPackage.description = packageMdPath
-                .map(packageMd -> packageMd.content())
-                .orElse("");
-        if (!docPackage.description.equals("")) {
-            docPackage.summary = BallerinaDocUtils.getSummary(docPackage.description);
-        } else if (moduleDocMap.get(docPackage.name) != null) {
-            // Use summary of the default module
-            docPackage.summary = moduleDocMap.get(docPackage.name).summary;
-        }
-        if (!docPackage.modules.isEmpty()) {
-            PackageLibrary packageLib = new PackageLibrary();
-            packageLib.packages.add(docPackage);
-            writeAPIDocs(packageLib, Path.of(output), false, excludeUI);
-        }
+        writeAPIDocs(moduleLib, Path.of(output), false, excludeUI);
     }
 
-    private static void writeAPIDocs(PackageLibrary packageLib, Path output, boolean isMerge, boolean excludeUI) {
-        if (packageLib.packages.size() == 0) {
+    private static void writeAPIDocs(ModuleLibrary moduleLib, Path output, boolean isMerge, boolean excludeUI) {
+        if (moduleLib.modules.size() == 0) {
+            log.error("No modules found to create docs.");
             return;
         }
-        if (!isMerge && packageLib.packages.get(0).modules.size() != 0) {
-            output = packageLib.packages.get(0).name.equals("")
-                    ? output.resolve(packageLib.packages.get(0).modules.get(0).orgName)
-                    .resolve(packageLib.packages.get(0).modules.get(0).id).resolve(packageLib.packages.get(0).version)
-                    : output.resolve(packageLib.packages.get(0).orgName).resolve(packageLib.packages.get(0).name)
-                    .resolve(packageLib.packages.get(0).version);
-        }
-        try {
-            Files.createDirectories(output);
-            Files.createDirectories(output);
-            genApiDocsJson(packageLib, output, excludeUI);
-        } catch (IOException e) {
-            log.error("API documentation generation failed:", e);
-        }
-
-        for (DocPackage docPackage: packageLib.packages) {
-            if (!docPackage.resources.isEmpty()) {
-                File resourcesDirFile = output.resolve("resources").toFile();
-                if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: copying project resources ");
-                }
-                for (Path resourcePath : docPackage.resources) {
-                    try {
-                        FileUtils.copyFileToDirectory(resourcePath.toFile(), resourcesDirFile);
-                    } catch (IOException e) {
-                        log.error(String.format("docerina: failed to copy [resource] %s into [resources directory] "
-                                        + "%s. Cause: %s", resourcePath.toString(), resourcesDirFile.toString(),
-                                e.getMessage()), e);
-                    }
-                }
-                if (BallerinaDocUtils.isDebugEnabled()) {
-                    out.println("docerina: successfully copied project resources into " + resourcesDirFile);
-                }
+        if (!isMerge && excludeUI) {
+            // Doc gen for a bala.
+            // Creates jsons for each modules
+            for (Module module : moduleLib.modules) {
+                ModuleLibrary tempLib = new ModuleLibrary();
+                tempLib.modules.add(module);
+                Path outputPath = output.resolve(module.orgName).resolve(module.id).resolve(module.version);
+                genApiDocsJson(tempLib, outputPath, true);
+                copyResources(module.resources, outputPath);
             }
+            return;
+        } else if (!isMerge) {
+            // Doc generation via doc command
+            output = output.resolve(moduleLib.modules.get(0).orgName).resolve(moduleLib.modules.get(0).id)
+                    .resolve(moduleLib.modules.get(0).version);
         }
-        // Copy docerina ui
-        if (!excludeUI) {
-            File source = Path.of(System.getProperty("ballerina.home"), "lib", "tools", "doc-ui").toFile();
-            File dest;
-            if (source.exists()) {
-                dest = output.toFile();
-                try {
-                    FileUtils.copyDirectory(source, dest);
-                } catch (IOException e) {
-                    log.error("Failed to copy the doc ui.", e);
-                }
-            } else {
-                dest = output.resolve("index.html").toFile();
-                try {
-                    FileUtils.copyInputStreamToFile(BallerinaDocGenerator.class
-                            .getResourceAsStream("/doc-ui/index.html"), dest);
-                    //BallerinaDocUtils.unzipResources(, dest);
-                } catch (IOException e) {
-                    log.error("Failed to copy the doc ui.", e);
-                }
+        genApiDocsJson(moduleLib, output, false);
+        for (Module module: moduleLib.modules) {
+            copyResources(module.resources, output);
+        }
+        copyDocerinaUI(output);
+    }
+
+    private static void copyDocerinaUI(Path output) {
+        File source = Path.of(System.getProperty("ballerina.home"), "lib", "tools", "doc-ui").toFile();
+        File dest;
+        if (source.exists()) {
+            dest = output.toFile();
+            try {
+                FileUtils.copyDirectory(source, dest);
+            } catch (IOException e) {
+                log.error("Failed to copy the doc ui.", e);
+            }
+        } else {
+            dest = output.resolve("index.html").toFile();
+            try {
+                FileUtils.copyInputStreamToFile(BallerinaDocGenerator.class
+                        .getResourceAsStream("/doc-ui/index.html"), dest);
+            } catch (IOException e) {
+                log.error("Failed to copy the doc ui.", e);
             }
         }
     }
 
-    private static void genApiDocsJson(PackageLibrary packageLib, Path destination, boolean excludeUI) {
+    private static void copyResources(List<Path> resources, Path output) {
+        if (!resources.isEmpty()) {
+            File resourcesDirFile = output.resolve("resources").toFile();
+            if (BallerinaDocUtils.isDebugEnabled()) {
+                out.println("docerina: copying project resources ");
+            }
+            for (Path resourcePath : resources) {
+                try {
+                    FileUtils.copyFileToDirectory(resourcePath.toFile(), resourcesDirFile);
+                } catch (IOException e) {
+                    log.error(String.format("docerina: failed to copy [resource] %s into [resources directory] "
+                                    + "%s. Cause: %s", resourcePath.toString(), resourcesDirFile.toString(),
+                            e.getMessage()), e);
+                }
+            }
+            if (BallerinaDocUtils.isDebugEnabled()) {
+                out.println("docerina: successfully copied project resources into " + resourcesDirFile);
+            }
+        }
+    }
+
+    private static void genApiDocsJson(ModuleLibrary moduleLib, Path destination, boolean excludeUI) {
+        try {
+            Files.createDirectories(destination);
+        } catch (IOException e) {
+            log.error("API documentation generation failed when creating directory:", e);
+        }
 
         ApiDocsJson apiDocsJson = new ApiDocsJson();
-        apiDocsJson.docsData = packageLib;
-        apiDocsJson.searchData = genSearchJson(packageLib);
+        apiDocsJson.docsData = moduleLib;
+        apiDocsJson.searchData = genSearchJson(moduleLib);
 
         File jsFile = destination.resolve(API_DOCS_JS).toFile();
         File jsonFile = destination.resolve(API_DOCS_JSON).toFile();
@@ -325,7 +309,7 @@ public class BallerinaDocGenerator {
         }
     }
 
-    private static SearchJson genSearchJson(PackageLibrary packageLib) {
+    private static SearchJson genSearchJson(ModuleLibrary moduleLib) {
         List<ModuleSearchJson> searchModules = new ArrayList<>();
         List<ConstructSearchJson> searchFunctions = new ArrayList<>();
         List<ConstructSearchJson> searchClasses = new ArrayList<>();
@@ -339,59 +323,56 @@ public class BallerinaDocGenerator {
         List<ConstructSearchJson> searchObjectTypes = new ArrayList<>();
         List<ConstructSearchJson> searchEnums = new ArrayList<>();
 
-        for (DocPackage docPackage: packageLib.packages) {
-            for (Module module : docPackage.modules) {
-                if (module.summary == null && docPackage.summary != null) {
-                    searchModules.add(new ModuleSearchJson(module.id, module.orgName, docPackage.name, module.version,
-                            getFirstLine(docPackage.summary)));
-                } else if (module.summary != null) {
-                    searchModules.add(new ModuleSearchJson(module.id, module.orgName, docPackage.name, module.version,
-                            getFirstLine(module.summary)));
-                }
-                module.functions.forEach((function) ->
-                        searchFunctions.add(new ConstructSearchJson(function.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(function.description))));
-
-                module.classes.forEach((bClass) ->
-                        searchClasses.add(new ConstructSearchJson(bClass.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(bClass.description))));
-
-                module.objectTypes.forEach((absObj) ->
-                        searchObjectTypes.add(new ConstructSearchJson(absObj.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(absObj.description))));
-
-                module.clients.forEach((client) ->
-                        searchClients.add(new ConstructSearchJson(client.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(client.description))));
-
-                module.listeners.forEach((listener) ->
-                        searchListeners.add(new ConstructSearchJson(listener.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(listener.description))));
-
-                module.records.forEach((record) ->
-                        searchRecords.add(new ConstructSearchJson(record.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(record.description))));
-
-                module.constants.forEach((constant) ->
-                        searchConstants.add(new ConstructSearchJson(constant.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(constant.description))));
-
-                module.errors.forEach((error) ->
-                        searchErrors.add(new ConstructSearchJson(error.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(error.description))));
-
-                module.types.forEach((unionType) ->
-                        searchTypes.add(new ConstructSearchJson(unionType.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(unionType.description))));
-
-                module.annotations.forEach((annotation) ->
-                        searchAnnotations.add(new ConstructSearchJson(annotation.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(annotation.description))));
-
-                module.enums.forEach((benum) ->
-                        searchEnums.add(new ConstructSearchJson(benum.name, docPackage.name , module.id,
-                                module.orgName, module.version, getFirstLine(benum.description))));
+        for (Module module: moduleLib.modules) {
+            if (module.summary != null) {
+                searchModules.add(new ModuleSearchJson(module.id, module.orgName, module.version,
+                        getFirstLine(module.summary)));
             }
+
+            module.functions.forEach((function) ->
+                    searchFunctions.add(new ConstructSearchJson(function.name, module.id, module.orgName,
+                            module.version, getFirstLine(function.description))));
+
+            module.classes.forEach((bClass) ->
+                    searchClasses.add(new ConstructSearchJson(bClass.name, module.id, module.orgName, module.version,
+                            getFirstLine(bClass.description))));
+
+            module.objectTypes.forEach((absObj) ->
+                    searchObjectTypes.add(new ConstructSearchJson(absObj.name, module.id, module.orgName,
+                            module.version, getFirstLine(absObj.description))));
+
+            module.clients.forEach((client) ->
+                    searchClients.add(new ConstructSearchJson(client.name, module.id, module.orgName, module.version,
+                            getFirstLine(client.description))));
+
+            module.listeners.forEach((listener) ->
+                    searchListeners.add(new ConstructSearchJson(listener.name, module.id, module.orgName,
+                            module.version, getFirstLine(listener.description))));
+
+            module.records.forEach((record) ->
+                    searchRecords.add(new ConstructSearchJson(record.name, module.id, module.orgName, module.version,
+                            getFirstLine(record.description))));
+
+            module.constants.forEach((constant) ->
+                    searchConstants.add(new ConstructSearchJson(constant.name, module.id, module.orgName,
+                            module.version, getFirstLine(constant.description))));
+
+            module.errors.forEach((error) ->
+                    searchErrors.add(new ConstructSearchJson(error.name, module.id, module.orgName, module.version,
+                            getFirstLine(error.description))));
+
+            module.types.forEach((unionType) ->
+                    searchTypes.add(new ConstructSearchJson(unionType.name, module.id, module.orgName, module.version,
+                            getFirstLine(unionType.description))));
+
+            module.annotations.forEach((annotation) ->
+                    searchAnnotations.add(new ConstructSearchJson(annotation.name, module.id, module.orgName,
+                            module.version, getFirstLine(annotation.description))));
+
+            module.enums.forEach((benum) ->
+                    searchEnums.add(new ConstructSearchJson(benum.name, module.id, module.orgName, module.version,
+                            getFirstLine(benum.description))));
+
         }
 
         return new SearchJson(searchModules, searchClasses, searchFunctions, searchRecords,
@@ -419,9 +400,12 @@ public class BallerinaDocGenerator {
     public static Map<String, ModuleDoc> generateModuleDocMap(io.ballerina.projects.Project project)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
-        for (io.ballerina.projects.Module module : project.currentPackage().modules()) {
+        for (io.ballerina.projects.ModuleId moduleId : project.currentPackage().moduleIds()) {
+            io.ballerina.projects.Module module = project.currentPackage().module(moduleId);
             String moduleName;
-            String moduleMdText = module.moduleMd().map(d -> d.content()).orElse("");
+            // Temporarily append package.md to module.md
+            String moduleMdText = project.currentPackage().packageMd().map(d -> d.content()).orElse("");
+            moduleMdText += module.moduleMd().map(d -> d.content()).orElse("");
             Path modulePath;
             if (module.isDefaultModule()) {
                 moduleName = module.moduleName().packageName().toString();
@@ -438,6 +422,8 @@ public class BallerinaDocGenerator {
                 Document document = module.document(documentId);
                 syntaxTreeMap.put(document.name(), document.syntaxTree());
             });
+            // we cannot remove the module.getCompilation() here since the semantic model is accessed
+            // after the code gen phase here. package.getCompilation() throws an IllegalStateException
             ModuleDoc moduleDoc = new ModuleDoc(moduleMdText, resources,
                     syntaxTreeMap, module.getCompilation().getSemanticModel());
             moduleDocMap.put(moduleName, moduleDoc);
@@ -465,54 +451,6 @@ public class BallerinaDocGenerator {
         return "";
     }
 
-    private static List<BuiltInType> getBuiltInTypesOrKeywords(List<DocPackage> packages, String dir) {
-
-        List<BuiltInType> builtInTypesOrKeywords = new ArrayList<>();
-        // Iterate through JAR resources and add builtin types and descriptions
-        CodeSource src = BallerinaDocGenerator.class.getProtectionDomain().getCodeSource();
-        if (src != null) {
-            URL jar = src.getLocation();
-            try {
-                ZipInputStream zip = new ZipInputStream(jar.openStream());
-                while (true) {
-                    ZipEntry e = zip.getNextEntry();
-                    if (e == null) {
-                        break;
-                    }
-                    String name = e.getName();
-                    if (name.startsWith(dir + "/")
-                            && !name.equals(dir + "/")) {
-                        InputStream in = Thread.currentThread().getContextClassLoader().getResourceAsStream(name);
-                        if (in != null) {
-                            String builtinTypename = name
-                                    .replace(dir + "/", "")
-                                    .replace(".md", "");
-                            String desc = new BufferedReader(new InputStreamReader(in)).lines()
-                                    .collect(Collectors.joining("\n"));
-                            Optional<DocPackage> relevantLangLib = packages.stream().filter(docPackage ->
-                                    docPackage.name.equals("lang." + builtinTypename)).findFirst();
-                            BuiltInType builtInType = new BuiltInType(builtinTypename, desc);
-                            if (relevantLangLib.isPresent()) {
-                                DocPackageMetadata relevantLangLibMetaData = new DocPackageMetadata();
-                                relevantLangLibMetaData.name = relevantLangLib.get().name;
-                                relevantLangLibMetaData.orgName = relevantLangLib.get().orgName;
-                                relevantLangLibMetaData.version = relevantLangLib.get().version;
-                                builtInType.langlib = relevantLangLibMetaData;
-                            }
-                            builtInTypesOrKeywords.add(builtInType);
-                        }
-                    }
-                }
-            } catch (IOException exp) {
-                out.printf("docerina: API documentation generation failed at getting builtin type mds %n",
-                        exp.getMessage());
-                log.error("API documentation generation failed at getting builtin type mds:", exp);
-            }
-        }
-        builtInTypesOrKeywords.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
-        return builtInTypesOrKeywords;
-    }
-
     public static void setPrintStream(PrintStream out) {
         BallerinaDocGenerator.out = out;
     }
@@ -525,12 +463,9 @@ public class BallerinaDocGenerator {
      * @param version project version.
      * @return docs generator model of the project.
      */
-    public static DocPackage getDocsGenModel(Map<String, ModuleDoc> docsMap, String orgName, String version) {
-        DocPackage docPackage = new DocPackage();
-        docPackage.name = "";
-        docPackage.description = "";
-
+    public static List<Module> getDocsGenModel(Map<String, ModuleDoc> docsMap, String orgName, String version) {
         List<Module> moduleDocs = new ArrayList<>();
+        List<ModuleMetaData> relatedModules = new ArrayList<>();
         for (Map.Entry<String, ModuleDoc> moduleDoc : docsMap.entrySet()) {
             SemanticModel model = moduleDoc.getValue().semanticModel;
             Module module = new Module();
@@ -545,7 +480,7 @@ public class BallerinaDocGenerator {
             module.description = moduleDoc.getValue().description;
 
             // collect module's doc resources
-            docPackage.resources.addAll(moduleDoc.getValue().resources);
+            module.resources.addAll(moduleDoc.getValue().resources);
 
             boolean hasPublicConstructs = false;
             // Loop through bal files
@@ -569,11 +504,21 @@ public class BallerinaDocGenerator {
                 module.annotations.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
                 module.errors.sort((o1, o2) -> o1.name.compareToIgnoreCase(o2.name));
                 moduleDocs.add(module);
+                ModuleMetaData moduleMeta = new ModuleMetaData();
+                moduleMeta.id = module.id;
+                moduleMeta.orgName = module.orgName;
+                moduleMeta.summary = module.summary;
+                moduleMeta.version = module.version;
+                relatedModules.add(moduleMeta);
             }
+
         }
         moduleDocs.sort((module1, module2) -> module1.id.compareToIgnoreCase(module2.id));
-        docPackage.modules = moduleDocs;
-        return docPackage;
+        if (relatedModules.size() > 1) {
+            relatedModules.sort((mod1, mod2) -> mod1.id.compareToIgnoreCase(mod2.id));
+            moduleDocs.forEach(module -> module.relatedModules = relatedModules);
+        }
+        return moduleDocs;
     }
 
     private static List<Path> getResourcePaths(Path absolutePkgPath) throws IOException {

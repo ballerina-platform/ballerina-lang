@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.query;
 
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.model.values.BValueArray;
 import org.ballerinalang.test.BCompileUtil;
@@ -83,10 +82,7 @@ public class QueryExpressionIterableObjectTest {
 
     @Test
     public void testIterableWithError() {
-        BValue[] returnValues = BRunUtil.invoke(program, "testIterableWithError");
-        Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(returnValues[0] instanceof BError, "Expected BErrorType type value");
+        BRunUtil.invoke(program, "testIterableWithError");
     }
 
     @Test
@@ -121,6 +117,11 @@ public class QueryExpressionIterableObjectTest {
     }
 
     @Test
+    public void testObjectIterator() {
+        BRunUtil.invoke(program, "testObjectIterator");
+    }
+
+    @Test
     public void testIterableObjectQueryNegative() {
         CompileResult negativeResult =
                 BCompileUtil.compile("test-src/query/query_exp_iterable_objects_negative.bal");
@@ -131,7 +132,7 @@ public class QueryExpressionIterableObjectTest {
         validateError(negativeResult, index++, "invalid iterable type 'IterableObject': an iterable object must be" +
                         " a subtype of 'ballerina/lang.object:1.0.0:Iterable'", 73, 39);
         validateError(negativeResult, index++, "mismatched function signatures: expected 'public function iterator()" +
-                        " returns object { public isolated function next () returns ((record {| (any|error) value; " +
+                        " returns object { public function next () returns ((record {| (any|error) value; " +
                 "|}|error)?); }', found 'public function iterator() returns _Iterator'", 90, 9);
     }
 

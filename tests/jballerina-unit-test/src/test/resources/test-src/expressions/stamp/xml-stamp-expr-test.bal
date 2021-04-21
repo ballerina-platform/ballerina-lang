@@ -16,10 +16,12 @@
 
 //----------------------------XML Stamp -------------------------------------------------------------
 
+type XmlType xml;
+
 function stampXMLToXML() returns xml|error {
     xml xmlValue = xml `<book>The Lost World</book>`;
 
-    xml|error returnValue = xmlValue.cloneWithType(xml);
+    xml|error returnValue = xmlValue.cloneWithType(XmlType);
     return returnValue;
 }
 

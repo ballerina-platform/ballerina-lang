@@ -23,6 +23,7 @@ import io.ballerina.projects.JvmTarget;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.model.PackageSearchResult;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -122,7 +123,13 @@ public class SearchCommand implements BLauncherCmd {
      */
     private void searchInCentral(String query) {
         try {
-            Settings settings = readSettings();
+            Settings settings;
+            try {
+                settings = readSettings();
+            } catch (SettingsTomlException e) {
+                // Ignore 'Settings.toml' parsing errors
+                settings = new Settings();
+            }
             Proxy proxy = initializeProxy(settings.getProxy());
             CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
             PackageSearchResult packageSearchResult = client.searchPackage(query,
