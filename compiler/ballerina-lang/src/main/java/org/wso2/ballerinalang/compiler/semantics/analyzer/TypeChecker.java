@@ -2190,9 +2190,13 @@ public class TypeChecker extends BLangNodeVisitor {
         if (expType.tag == TypeTags.ARRAY && isArrayOpenSealedType((BArrayType) expType)) {
             dlog.error(varRefExpr.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_CAN_NOT_INFER_SIZE);
             return;
-
         }
         resultType = types.checkType(varRefExpr, actualType, expType);
+
+        if (varRefExpr.lhsVar && actualType.tag == TypeTags.TYPEDESC && resultType.tag == TypeTags.TYPEDESC &&
+                ((BTypedescType) actualType).constraint == ((BTypedescType) resultType).constraint) {
+            dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_VARIABLE_REFERENCE);
+        }
     }
 
     @Override
