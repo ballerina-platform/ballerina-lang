@@ -3991,42 +3991,42 @@ public class Types {
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (isBuiltinUnionType(type) && lhsType.tag == TypeTags.RECORD) {
+        } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.RECORD) {
             BType intersectionType = createRecordIntersection(intersectionContext, (BRecordType) lhsType,
-                    getEquivalentRecordType(getMapTypeForBuiltinUnion(type)), env);
+                    getEquivalentRecordType(getMapTypeForAnydataOrJson(type)), env);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (type.tag == TypeTags.RECORD && isBuiltinUnionType(lhsType)) {
+        } else if (type.tag == TypeTags.RECORD && isAnydataOrJson(lhsType)) {
             BType intersectionType = createRecordIntersection(intersectionContext,
-                    getEquivalentRecordType(getMapTypeForBuiltinUnion(lhsType)), (BRecordType) type, env);
+                    getEquivalentRecordType(getMapTypeForAnydataOrJson(lhsType)), (BRecordType) type, env);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (isBuiltinUnionType(type) && lhsType.tag == TypeTags.MAP) {
-            return getIntersection(intersectionContext, lhsType, env, getMapTypeForBuiltinUnion(type));
-        } else if (type.tag == TypeTags.MAP && isBuiltinUnionType(lhsType)) {
-            return getIntersection(intersectionContext, getMapTypeForBuiltinUnion(lhsType), env, type);
-        } else if (isBuiltinUnionType(type) && lhsType.tag == TypeTags.TUPLE) {
+        } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.MAP) {
+            return getIntersection(intersectionContext, lhsType, env, getMapTypeForAnydataOrJson(type));
+        } else if (type.tag == TypeTags.MAP && isAnydataOrJson(lhsType)) {
+            return getIntersection(intersectionContext, getMapTypeForAnydataOrJson(lhsType), env, type);
+        } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.TUPLE) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
-                    getArrayTypeForBuiltinUnion(type), (BTupleType) lhsType, env);
+                    getArrayTypeForAnydataOrJson(type), (BTupleType) lhsType, env);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (type.tag == TypeTags.TUPLE && isBuiltinUnionType(lhsType)) {
+        } else if (type.tag == TypeTags.TUPLE && isAnydataOrJson(lhsType)) {
             BType intersectionType = createArrayAndTupleIntersection(intersectionContext,
-                    getArrayTypeForBuiltinUnion(lhsType), (BTupleType) type, env);
+                    getArrayTypeForAnydataOrJson(lhsType), (BTupleType) type, env);
             if (intersectionType != symTable.semanticError) {
                 return intersectionType;
             }
-        } else if (isBuiltinUnionType(type) && lhsType.tag == TypeTags.ARRAY) {
+        } else if (isAnydataOrJson(type) && lhsType.tag == TypeTags.ARRAY) {
             BType elementIntersection = getIntersection(intersectionContext, ((BArrayType) lhsType).eType, env,
                                                         type);
             if (elementIntersection == null) {
                 return elementIntersection;
             }
             return new BArrayType(elementIntersection);
-        } else if (type.tag == TypeTags.ARRAY && isBuiltinUnionType(lhsType)) {
+        } else if (type.tag == TypeTags.ARRAY && isAnydataOrJson(lhsType)) {
             BType elementIntersection = getIntersection(intersectionContext, lhsType, env, ((BArrayType) type).eType);
             if (elementIntersection == null) {
                 return elementIntersection;
@@ -4038,9 +4038,8 @@ public class Types {
         return null;
     }
 
-    private boolean isBuiltinUnionType(BType type) {
+    private boolean isAnydataOrJson(BType type) {
         switch (type.tag) {
-            case TypeTags.ANY:
             case TypeTags.ANYDATA:
             case TypeTags.JSON:
                 return true;
@@ -4048,50 +4047,24 @@ public class Types {
         return false;
     }
 
-    private BMapType getMapTypeForBuiltinUnion(BType type) {
-        switch (type.tag) {
-            case TypeTags.ANY:
-                if (isImmutable(type)) {
-                    return (BMapType) ImmutableTypeCloner.getEffectiveImmutableType(null, this, symTable.mapType,
-                            env, symTable, anonymousModelHelper, names);
-                }
-                return symTable.mapType;
-            case TypeTags.ANYDATA:
-                if (isImmutable(type)) {
-                    return (BMapType) ImmutableTypeCloner.getEffectiveImmutableType(null, this,
-                            symTable.mapAnydataType, env, symTable, anonymousModelHelper, names);
-                }
-                return symTable.mapAnydataType;
-            default:
-                if (isImmutable(type)) {
-                    return (BMapType) ImmutableTypeCloner.getEffectiveImmutableType(null, this, symTable.mapJsonType,
-                            env, symTable, anonymousModelHelper, names);
-                }
-                return symTable.mapJsonType;
+    private BMapType getMapTypeForAnydataOrJson(BType type) {
+        BMapType mapType = type.tag == TypeTags.ANYDATA ? symTable.mapAnydataType : symTable.mapJsonType;
+
+        if (isImmutable(type)) {
+            return (BMapType) ImmutableTypeCloner.getEffectiveImmutableType(null, this, mapType, env, symTable,
+                    anonymousModelHelper, names);
         }
+        return mapType;
     }
 
-    private BArrayType getArrayTypeForBuiltinUnion(BType type) {
-        switch (type.tag) {
-            case TypeTags.ANY:
-                if (isImmutable(type)) {
-                    return (BArrayType) ImmutableTypeCloner.getEffectiveImmutableType(null, this,
-                            symTable.arrayType, env, symTable, anonymousModelHelper, names);
-                }
-                return symTable.arrayType;
-            case TypeTags.ANYDATA:
-                if (isImmutable(type)) {
-                    return (BArrayType) ImmutableTypeCloner.getEffectiveImmutableType(null, this,
-                            symTable.arrayAnydataType, env, symTable, anonymousModelHelper, names);
-                }
-                return symTable.arrayAnydataType;
-            default:
-                if (isImmutable(type)) {
-                    return (BArrayType) ImmutableTypeCloner.getEffectiveImmutableType(null, this,
-                            symTable.arrayJsonType, env, symTable, anonymousModelHelper, names);
-                }
-                return symTable.arrayJsonType;
+    private BArrayType getArrayTypeForAnydataOrJson(BType type) {
+        BArrayType arrayType = type.tag == TypeTags.ANYDATA ? symTable.arrayAnydataType : symTable.arrayJsonType;
+
+        if (isImmutable(type)) {
+            return (BArrayType) ImmutableTypeCloner.getEffectiveImmutableType(null, this, arrayType, env, symTable,
+                    anonymousModelHelper, names);
         }
+        return arrayType;
     }
 
     private BType createArrayAndTupleIntersection(IntersectionContext intersectionContext,
