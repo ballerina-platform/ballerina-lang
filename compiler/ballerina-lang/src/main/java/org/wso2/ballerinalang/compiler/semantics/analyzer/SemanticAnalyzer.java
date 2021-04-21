@@ -174,12 +174,16 @@ import org.wso2.ballerinalang.compiler.tree.statements.BLangTupleVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWhile;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangWorkerSend;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangXMLNSStatement;
+import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
+import org.wso2.ballerinalang.compiler.tree.types.BLangUnionTypeNode;
 import org.wso2.ballerinalang.compiler.util.BArrayState;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.compiler.util.ImmutableTypeCloner;
@@ -837,6 +841,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (lhsType.tag == TypeTags.ARRAY && typeChecker.isArrayOpenSealedType((BArrayType) lhsType)) {
                 dlog.error(varNode.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_NOT_INITIALIZED);
             }
+
+            if (varNode.typeNode != null) {
+                analyzeTypeNode(varNode.typeNode, env);
+            }
             return;
         }
 
@@ -854,6 +862,43 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         transferForkFlag(varNode);
+    }
+
+    private void analyzeTypeNode(BLangType typeNode, SymbolEnv env) {
+        if (typeNode.getKind() == NodeKind.RECORD_TYPE && !((BLangRecordTypeNode) typeNode).analyzed) {
+            analyzeDef(typeNode, env);
+        }
+        switch (typeNode.type.tag) {
+            case TypeTags.ARRAY:
+                analyzeTypeNode(((BLangArrayType) typeNode).elemtype, env);
+                break;
+            case TypeTags.TUPLE:
+                BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) typeNode;
+                List<BLangType> memberTypeNodes = tupleTypeNode.memberTypeNodes;
+                for (BLangType memType : memberTypeNodes) {
+                    analyzeTypeNode(memType, env);
+                }
+                if (tupleTypeNode.restParamType != null) {
+                    analyzeTypeNode(tupleTypeNode.restParamType, env);
+                }
+                break;
+            case TypeTags.MAP:
+                BLangType constraintTypeNode = ((BLangConstrainedType) typeNode).constraint;
+                analyzeTypeNode(constraintTypeNode, env);
+                break;
+            case TypeTags.TABLE:
+                BLangType tableConstraintTypeNode = ((BLangTableTypeNode) typeNode).constraint;
+                analyzeTypeNode(tableConstraintTypeNode, env);
+                break;
+            default:
+                if (typeNode.type.tag == TypeTags.UNION &&
+                        typeNode.getKind() != NodeKind.USER_DEFINED_TYPE) {
+                    List<BLangType> unionMemberTypes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
+                    for (BLangType memType : unionMemberTypes) {
+                        analyzeTypeNode(memType, env);
+                    }
+                }
+        }
     }
 
     private void validateListenerCompatibility(BLangSimpleVariable varNode, BType rhsType) {
