@@ -175,6 +175,11 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
+    public void testMappingMatchPattern26() {
+        BRunUtil.invoke(result, "testMappingMatchPattern26");
+    }
+
+    @Test
     public void testMappingMatchPatternWithRestPattern1() {
         BRunUtil.invoke(resultRestPattern, "testMappingMatchPattern1");
     }
@@ -220,6 +225,11 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
+    public void testMappingMatchPatternWithRestPattern11() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPatternWithRestPattern11");
+    }
+
+    @Test
     public void testMappingMatchPatternNegative() {
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);
@@ -250,6 +260,11 @@ public class MatchStmtMappingMatchPatternTest {
                 20, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<map<int>>', found 'map<map<" +
                 "(int|error)>>'", 21, 31);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 29, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', found " +
+                "'map<json>'", 29, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 32, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'json'", 32, 28);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

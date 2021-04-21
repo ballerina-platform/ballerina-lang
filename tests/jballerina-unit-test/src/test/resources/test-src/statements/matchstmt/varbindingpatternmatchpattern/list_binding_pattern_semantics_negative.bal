@@ -1,4 +1,5 @@
 // Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+//
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
 // in compliance with the License.
@@ -13,24 +14,31 @@
 // specific language governing permissions and limitations
 // under the License.
 
+function testSimilarVariables() {
+    any v = [2, 3];
+    match v {
+        var [a, a] => {}
+        var [a, [a]] => {}
+    }
+}
 
-function testInvalidTypes(map<map<int|error>> a) {
+function testInvalidTypes((int|error)[][] a) {
     match a {
-        {x: var p, ...var oth} if p is anydata => {
-            map<error> m = p;
-            map<map<int>> n = oth;
+        var [p, ...oth] if p is anydata => {
+            string[] m = p;
+            (int)[][] n = oth;
         }
     }
 }
 
-function testInvalidTypesWithJson(json j) returns [int, map<boolean>] {
+function testInvalidTypesWithJson(json j) returns [int, boolean[]] {
     match j {
-        {x: var x, ...var y} => {
+        var [x, ...y] => {
             return [x, y];
         }
-        {a: var z} => {
-            return [z, {a: z}];
+        var [z] => {
+            return [z, [z]];
         }
     }
-    return [0, {}];
+    return [0, []];
 }

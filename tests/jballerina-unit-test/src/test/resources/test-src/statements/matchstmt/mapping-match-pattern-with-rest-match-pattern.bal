@@ -195,6 +195,25 @@ function testMappingMatchPatternWithMapAndAnydataIntersection() {
     assertEquals("other", <string> mappingMatchPattern10({}));
 }
 
+function mappingMatchPatternWithRestPattern11(json j) returns map<json> {
+    match j {
+        {x: var x, ...var y} => {
+            y["val"] = x;
+            return y;
+        }
+    }
+    return {};
+}
+
+function testMappingMatchPatternWithRestPattern11() {
+    assertEquals({val: "hello"}, mappingMatchPatternWithRestPattern11({x: "hello"}));
+    assertEquals({val: 1, y: "hello world"}, mappingMatchPatternWithRestPattern11({y: "hello world", x: 1}));
+    assertEquals({y: "hello world", val: ()}, mappingMatchPatternWithRestPattern11({y: "hello world", x: ()}));
+    assertEquals({}, mappingMatchPatternWithRestPattern11({a: "hello world", x1: 1}));
+    assertEquals({}, mappingMatchPatternWithRestPattern11({}));
+    assertEquals({}, mappingMatchPatternWithRestPattern11(1));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

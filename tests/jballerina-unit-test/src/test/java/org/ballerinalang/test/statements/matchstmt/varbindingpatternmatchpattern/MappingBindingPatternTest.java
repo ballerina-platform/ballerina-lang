@@ -128,6 +128,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testMappingBindingPattern17() {
+        BRunUtil.invoke(result, "testMappingBindingPattern17");
+    }
+
+    @Test
     public void testMappingBindingPatternWithRest1() {
         BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest1");
     }
@@ -148,6 +153,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testMappingBindingPatternWithRest5() {
+        BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest5");
+    }
+
+    @Test
     public void testMappingBindingPatternNegative() {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 20, 9);
@@ -158,6 +168,24 @@ public class MappingBindingPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 54, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 61, 9);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    }
+
+    @Test
+    public void testMappingBindingPatternSemanticNegative() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/statements/matchstmt/varbindingpatternmatchpattern" +
+                        "/mapping_binding_pattern_semantics_negative.bal");
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<error>', found 'map<int>'",
+                20, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<map<int>>', found 'map<map<" +
+                "(int|error)>>'", 21, 31);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 29, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', found " +
+                "'map<json>'", 29, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 32, 21);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'json'", 32, 28);
+        Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
     @AfterClass

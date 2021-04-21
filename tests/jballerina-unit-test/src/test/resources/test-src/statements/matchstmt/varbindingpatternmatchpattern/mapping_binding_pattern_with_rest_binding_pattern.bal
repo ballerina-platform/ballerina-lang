@@ -82,6 +82,25 @@ function testMappingBindingPatternWithRest4() {
     assertEquals("z", mappingBindingPatternRest4({x: {y: 1, z: "z" }}));
 }
 
+function mappingBindingPatternRest5(json j) returns map<json> {
+    match j {
+        var {x: x, ...y} => {
+            y["val"] = x;
+            return y;
+        }
+    }
+    return {};
+}
+
+function testMappingBindingPatternWithRest5() {
+    assertEquals({val: "hello"}, mappingBindingPatternRest5({x: "hello"}));
+    assertEquals({val: 1, y: "hello world"}, mappingBindingPatternRest5({y: "hello world", x: 1}));
+    assertEquals({y: "hello world", val: ()}, mappingBindingPatternRest5({y: "hello world", x: ()}));
+    assertEquals({}, mappingBindingPatternRest5({a: "hello world", x1: 1}));
+    assertEquals({}, mappingBindingPatternRest5({}));
+    assertEquals({}, mappingBindingPatternRest5(1));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

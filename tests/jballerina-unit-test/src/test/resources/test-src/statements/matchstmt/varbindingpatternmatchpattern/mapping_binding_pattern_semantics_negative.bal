@@ -16,7 +16,7 @@
 
 function testInvalidTypes(map<map<int|error>> a) {
     match a {
-        {x: var p, ...var oth} if p is anydata => {
+        var {x: p, ...oth} if p is anydata => {
             map<error> m = p;
             map<map<int>> n = oth;
         }
@@ -25,10 +25,10 @@ function testInvalidTypes(map<map<int|error>> a) {
 
 function testInvalidTypesWithJson(json j) returns [int, map<boolean>] {
     match j {
-        {x: var x, ...var y} => {
+        var {x, ...y} => {
             return [x, y];
         }
-        {a: var z} => {
+        var {a: z} => {
             return [z, {a: z}];
         }
     }
