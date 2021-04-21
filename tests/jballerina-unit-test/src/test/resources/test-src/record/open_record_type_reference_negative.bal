@@ -80,3 +80,18 @@ type UserData2 record {
     int index;
     *Data;
 };
+
+type PersonOne record {
+    *PersonOne;
+    string name;
+};
+
+type PersonTwo record {
+    string name;
+    *Employee;
+};
+
+type Employee record {
+    *PersonTwo;
+    int age;
+};
