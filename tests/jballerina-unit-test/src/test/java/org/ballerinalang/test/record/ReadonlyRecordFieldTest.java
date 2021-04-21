@@ -59,7 +59,8 @@ public class ReadonlyRecordFieldTest {
                 {"testSubTypingMapAsRecordWithReadOnlyFields"},
                 {"testReadOnlyFieldsOfClassTypes"},
                 {"testTypeReadOnlynessNegativeWithNonReadOnlyFieldsViaInclusion"},
-                {"testTypeReadOnlynessWithReadOnlyFieldsViaInclusion"}
+                {"testTypeReadOnlynessWithReadOnlyFieldsViaInclusion"},
+                {"testRecordWithFunctionTypeField"}
         };
     }
 

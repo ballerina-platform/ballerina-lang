@@ -504,16 +504,21 @@ public class ImmutableTypeCloner {
                                                         unresolvedTypes);
 
             Name origFieldName = origField.name;
-            BVarSymbol immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | flag,
-                                                             origFieldName, pkgID, immutableFieldType,
-                                                             immutableStructureSymbol, origField.pos, SOURCE);
+            BVarSymbol immutableFieldSymbol;
             if (immutableFieldType.tag == TypeTags.INVOKABLE && immutableFieldType.tsymbol != null) {
+                immutableFieldSymbol = new BInvokableSymbol(origField.symbol.tag, origField.symbol.flags | flag,
+                                                            origFieldName, pkgID, immutableFieldType,
+                                                            immutableStructureSymbol, origField.pos, SOURCE);
                 BInvokableTypeSymbol tsymbol = (BInvokableTypeSymbol) immutableFieldType.tsymbol;
                 BInvokableSymbol invokableSymbol = (BInvokableSymbol) immutableFieldSymbol;
                 invokableSymbol.params = tsymbol.params;
                 invokableSymbol.restParam = tsymbol.restParam;
                 invokableSymbol.retType = tsymbol.returnType;
                 invokableSymbol.flags = tsymbol.flags;
+            } else {
+                immutableFieldSymbol = new BVarSymbol(origField.symbol.flags | flag, origFieldName, pkgID,
+                                                      immutableFieldType, immutableStructureSymbol, origField.pos,
+                                                      SOURCE);
             }
             String nameString = origFieldName.value;
             fields.put(nameString, new BField(origFieldName, null, immutableFieldSymbol));
