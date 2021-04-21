@@ -267,7 +267,7 @@ public class ClosureTest {
     }
 
     @Test
-    public void errorConstructorReferenceTest() {
-        BRunUtil.invoke(compileResult, "errorConstructorReferenceTest");
+    public void errorConstructorInClosureTest() {
+        BRunUtil.invoke(compileResult, "errorConstructorInClosureTest");
     }
 }

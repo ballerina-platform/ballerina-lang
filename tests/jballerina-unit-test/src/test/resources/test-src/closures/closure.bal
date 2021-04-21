@@ -752,9 +752,43 @@ function funcAcceptingIntArgs(int... scores) returns int {
     return fn();
 }
 
-function errorConstructorReferenceTest() returns error? {
+string moduleLevel = "module text";
+
+function errorConstructorReferenceTest1() returns error? {
+    string temp = "text";
+    var process = function() returns error? {
+        moduleLevel = "module text1";
+        return error("An Error", tempString = temp, moduleString = moduleLevel);
+    };
+    return process();
+}
+
+function errorConstructorReferenceTest2() returns function() returns error? {
     string temp = "text";
     var process = function() returns error? {
         return error("An Error", tempString = temp);
     };
+    return process;
+}
+
+function errorConstructorInClosureTest() {
+     var temp = errorConstructorReferenceTest1();
+     error err = <error>temp;
+     assert(err.detail().toString(), "{\"tempString\":\"text\",\"moduleString\":\"module text1\"}");
+
+     var tempfunc = errorConstructorReferenceTest2();
+     var tempErr = tempfunc();
+     err = <error>tempErr;
+     assert(err.detail().toString(), "{\"tempString\":\"text\"}");
+}
+
+function assert(anydata actual, anydata expected) {
+    if (expected != actual) {
+        typedesc<anydata> expT = typeof expected;
+        typedesc<anydata> actT = typeof actual;
+        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+        error e = error(reason);
+        panic e;
+    }
 }
