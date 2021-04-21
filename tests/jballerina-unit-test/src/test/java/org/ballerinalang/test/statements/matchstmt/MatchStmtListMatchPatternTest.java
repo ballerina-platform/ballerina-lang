@@ -294,8 +294,8 @@ public class MatchStmtListMatchPatternTest {
                 "(int|error)[][]'", 29, 27);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
                 37, 21);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean[]', found 'json[]'",
-                37, 24);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean[]', found " +
+                        "'json[]'", 37, 24);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
                 40, 21);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean', found 'json'",
