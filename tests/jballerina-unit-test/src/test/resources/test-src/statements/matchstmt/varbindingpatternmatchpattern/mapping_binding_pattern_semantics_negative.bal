@@ -34,3 +34,13 @@ function testInvalidTypesWithJson(json j) returns [int, map<boolean>] {
     }
     return [0, {}];
 }
+
+type RecOne record {| int a; boolean b; string c; |};
+
+function testInvalidTypesWithEmptyRestPattern(RecOne rec) {
+    match rec {
+        var {a, b, c, ...d} => {
+            int x = d;
+        }
+    }
+}

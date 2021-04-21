@@ -2726,17 +2726,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     }
                 }
 
-                if (constraintTypes.isEmpty()) {
-                    return;
-                }
-
                 BType restConstraintType;
-                if (constraintTypes.size() == 1) {
+                if (constraintTypes.isEmpty()) {
+                    restConstraintType = symTable.neverType;
+                } else if (constraintTypes.size() == 1) {
                     restConstraintType = constraintTypes.iterator().next();
                 } else {
                     restConstraintType = BUnionType.create(null, constraintTypes);
                 }
-
 
                 BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
                 BMapType restPatternMapType = (BMapType) restBindingPattern.type;

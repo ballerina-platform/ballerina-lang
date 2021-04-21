@@ -101,6 +101,100 @@ function testMappingBindingPatternWithRest5() {
     assertEquals({}, mappingBindingPatternRest5(1));
 }
 
+type RecOne record {| int a; boolean b; string c; |};
+type RecTwo record {| int m; string...; |};
+type RecThree record { int n?; };
+
+function mappingBindingPatternRest6(RecOne rec) returns [int, boolean, string, map<never>]? {
+    match rec {
+        var {a, b, c, ...d} => {
+            int a2 = a;
+            boolean b2 = b;
+            string c2 = c;
+            map<never> d2 = d;
+            return [a2, b2, c2, d2];
+        }
+    }
+}
+
+function mappingBindingPatternRest7(RecOne rec) returns [int, map<boolean|string>]? {
+    match rec {
+        var {a, ...d} => {
+            return [a, d];
+        }
+    }
+}
+
+function mappingBindingPatternRest8(RecTwo rec) returns [string, map<int|string>]? {
+    match rec {
+        var {p, ...q} => {
+            return [p, q];
+        }
+    }
+}
+
+function mappingBindingPatternRest9(RecThree rec) returns int|[anydata, map<anydata>]? {
+    match rec {
+        var {p, ...q} => {
+            return [p, q];
+        }
+
+        var {n, ...q} => {
+            map<anydata> mp = q;
+            return n + q.length();
+        }
+    }
+}
+
+function testMappingBindingPatternWithRest6() {
+    RecOne rec1 = {a: 123, b: true, c: "hello"};
+    [int, boolean, string, map<never>]? r1 = mappingBindingPatternRest6(rec1);
+    assertEquals(true, r1 is [int, boolean, string, map<never>]);
+    var v1 = <[int, boolean, string, map<never>]> r1;
+    assertEquals(123, v1[0]);
+    assertEquals(true, v1[1]);
+    assertEquals("hello", v1[2]);
+    assertEquals(0, v1[3].length());
+
+    [int, map<boolean|string>]? r2 = mappingBindingPatternRest7(rec1);
+    assertEquals(true, r2 is [int, map<boolean|string>]);
+    var v2 = <[int, map<boolean|string>]> r2;
+    assertEquals(123, v2[0]);
+    map<boolean|string> m2 = v2[1];
+    assertEquals(true, m2["b"]);
+    assertEquals("hello", m2["c"]);
+    assertEquals(2, m2.length());
+
+    [string, map<int|string>]? r3 = mappingBindingPatternRest8({m: 0});
+    assertEquals((), r3);
+
+    [string, map<int|string>]? r4 = mappingBindingPatternRest8({m: 0, "p": "hello", "q": "world"});
+    assertEquals(true, r4 is [string, map<int|string>]);
+    var v4 = <[string, map<int|string>]> r4;
+    assertEquals("hello", v4[0]);
+    map<int|string> m4 = v4[1];
+    // https://github.com/ballerina-platform/ballerina-lang/issues/30140
+    // assertEquals(0, m4["m"]);
+    assertEquals("world", m4["q"]);
+    assertEquals(2, m4.length());
+
+    int|[anydata, map<anydata>]? r5 = mappingBindingPatternRest9({"m": 0});
+    assertEquals((), r5);
+
+    int|[anydata, map<anydata>]? r6 = mappingBindingPatternRest9({"m": 10, "p": "hello", "q": "world"});
+    assertEquals(true, r6 is [anydata, map<anydata>]);
+    var v6 = <[anydata, map<anydata>]> r6;
+    assertEquals("hello", v6[0]);
+    map<anydata> m6 = v6[1];
+    assertEquals(10, m6["m"]);
+    assertEquals("world", m6["q"]);
+    // https://github.com/ballerina-platform/ballerina-lang/issues/30140
+    // assertEquals(2, m6.length());
+
+    int|[anydata, map<anydata>]? r7 = mappingBindingPatternRest9({n: 120, "q": "world"});
+    assertEquals(121, r7);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

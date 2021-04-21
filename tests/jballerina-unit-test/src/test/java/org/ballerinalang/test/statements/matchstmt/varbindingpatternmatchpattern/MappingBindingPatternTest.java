@@ -158,6 +158,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testMappingBindingPatternWithRest6() {
+        BRunUtil.invoke(restMatchPatternResult, "testMappingBindingPatternWithRest6");
+    }
+
+    @Test
     public void testMappingBindingPatternNegative() {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 20, 9);
@@ -185,6 +190,8 @@ public class MappingBindingPatternTest {
                 "'map<json>'", 29, 24);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'json'", 32, 21);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'json'", 32, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'map<never>'", 43,
+                21);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 
