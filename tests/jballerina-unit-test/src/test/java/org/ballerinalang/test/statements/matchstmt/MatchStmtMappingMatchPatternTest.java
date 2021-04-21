@@ -246,8 +246,8 @@ public class MatchStmtMappingMatchPatternTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/statements/matchstmt/mapping_match_pattern_semantic_negative.bal");
         int i = 0;
-        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<error>', found 'record {| " +
-                "int...; |}'", 20, 28);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<error>', found 'map<int>'",
+                20, 28);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<map<int>>', found 'map<map<" +
                 "(int|error)>>'", 21, 31);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
