@@ -114,16 +114,15 @@ public class ConditionalBreakpointTest extends BaseTestCase {
         debugHitInfo = debugTestRunner.waitForDebugHit(10000);
         Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(11));
 
-        // Todo - enable after fixing https://github.com/ballerina-platform/ballerina-lang/issues/30086
-        // // debug hit for condition logical AND `&&`
-        // debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-        // debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        // Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(12));
-        //
-        // // debug hit for condition logical OR `||`
-        // debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
-        // debugHitInfo = debugTestRunner.waitForDebugHit(10000);
-        // Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(13));
+        // debug hit for condition logical AND `&&`
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(12));
+
+        // debug hit for condition logical OR `||`
+        debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);
+        debugHitInfo = debugTestRunner.waitForDebugHit(10000);
+        Assert.assertEquals(debugHitInfo.getLeft(), debugTestRunner.testBreakpoints.get(13));
 
         // debug hit for condition type test expression `x is int`
         debugTestRunner.resumeProgram(debugHitInfo.getRight(), DebugTestRunner.DebugResumeKind.NEXT_BREAKPOINT);

@@ -54,21 +54,13 @@ public class LangLibUtils {
     }
 
     public static GeneratedStaticMethod loadLangLibMethod(SuspendedContext context, BExpressionValue result,
-                                                          String langLibCls, String methodName)
-            throws EvaluationException {
-
-        GeneratedStaticMethod generatedMethod = null;
+                                                          String langLibCls, String method) throws EvaluationException {
         try {
-            generatedMethod = getGeneratedMethod(context, langLibCls, methodName);
-        } catch (EvaluationException ignored) {
-        }
-
-        if (generatedMethod == null) {
+            return getGeneratedMethod(context, langLibCls, method);
+        } catch (EvaluationException e) {
             throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND.getString(),
-                    methodName, result.getType().getString()));
+                    method, result.getType().getString()));
         }
-
-        return generatedMethod;
     }
 
     public static String getQualifiedLangLibClassName(ModuleSymbol moduleSymbol, String langLibName)
