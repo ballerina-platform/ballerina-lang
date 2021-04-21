@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function mappingBindingPatternRest1(any v) returns anydata {
+function mappingBindingPatternRest1(any v) returns any|error {
     match v {
         var {w: a, x: b, y: c,  ...r} => {
             return r["z"];
@@ -29,9 +29,9 @@ function mappingBindingPatternRest1(any v) returns anydata {
 }
 
 function testMappingBindingPatternWithRest1() {
-    assertEquals(3, mappingBindingPatternRest1({x: 2, y: 3, z: 3, w: 4}));
-    assertEquals(1, mappingBindingPatternRest1({d: 1, x: 2, y: 3, z: "3"}));
-    assertEquals("No match", mappingBindingPatternRest1({d: 3, y: 3, z: 3, w: 4}));
+    assertEquals(3, <anydata> checkpanic mappingBindingPatternRest1({x: 2, y: 3, z: 3, w: 4}));
+    assertEquals(1, <anydata> checkpanic mappingBindingPatternRest1({d: 1, x: 2, y: 3, z: "3"}));
+    assertEquals("No match", <anydata> checkpanic mappingBindingPatternRest1({d: 3, y: 3, z: 3, w: 4}));
 }
 
 function mappingBindingPatternRest2(record { int x; int y; int z1; int z2; } v) returns anydata {
@@ -69,7 +69,7 @@ function testMappingBindingPatternWithRest3() {
     assertEquals("No match", mappingBindingPatternRest3({w: 2, y: 2, z1: 6, z2: 22}));
 }
 
-function mappingBindingPatternRest4(any v) returns anydata {
+function mappingBindingPatternRest4(anydata v) returns anydata {
     match v {
         var {x: {y: a, ...r}} => {
             return r["z"];

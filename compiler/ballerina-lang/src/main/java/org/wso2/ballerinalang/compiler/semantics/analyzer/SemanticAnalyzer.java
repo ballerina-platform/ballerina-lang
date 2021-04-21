@@ -2551,10 +2551,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         BRecordType recordVarType = new BRecordType(recordSymbol);
         recordVarType.fields = fields;
-        recordVarType.restFieldType = symTable.anydataType;
+        recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingBindingPattern.restBindingPattern != null) {
             BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
-            restBindingPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            restBindingPattern.type = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
             restBindingPattern.accept(this);
             mappingBindingPattern.declaredVars.put(restBindingPattern.variableName.value, restBindingPattern.symbol);
         }
@@ -2704,22 +2704,47 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BRecordType recordType = (BRecordType) bindingPatternType;
-                LinkedHashMap<String, BField> fields = recordType.fields;
+                LinkedHashMap<String, BField> fields = new LinkedHashMap<>(recordType.fields);
                 for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
                     assignTypesToMemberPatterns(fieldBindingPattern.bindingPattern,
-                            fields.get(fieldBindingPattern.fieldName.value).type);
+                            fields.remove(fieldBindingPattern.fieldName.value).type);
                 }
 
                 if (mappingBindingPattern.restBindingPattern == null) {
                     return;
                 }
+
+                LinkedHashSet<BType> constraintTypes = new LinkedHashSet<>();
+                for (BField field : fields.values()) {
+                    constraintTypes.add(field.type);
+                }
+
+                if (!recordType.sealed) {
+                    BType restFieldType = recordType.restFieldType;
+                    if (!this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(restFieldType)) {
+                        constraintTypes.add(restFieldType);
+                    }
+                }
+
+                if (constraintTypes.isEmpty()) {
+                    return;
+                }
+
+                BType restConstraintType;
+                if (constraintTypes.size() == 1) {
+                    restConstraintType = constraintTypes.iterator().next();
+                } else {
+                    restConstraintType = BUnionType.create(null, constraintTypes);
+                }
+
+
                 BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
                 BMapType restPatternMapType = (BMapType) restBindingPattern.type;
                 BVarSymbol restVarSymbol =
                         restBindingPattern.declaredVars.get(restBindingPattern.getIdentifier().getValue());
                 BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
                 restPatternMapType.constraint = restVarSymbolMapType.constraint =
-                        this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
+                        this.types.mergeTypes(restVarSymbolMapType.constraint, restConstraintType);
                 return;
             default:
         }
