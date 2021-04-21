@@ -23,15 +23,7 @@ hs_err_pid*
 
 # generated files
 target
-results
-.ballerina
-/gen
-/compiler/ballerina-lang/src/main/resources/grammar/BallerinaLexer.tokens
-/composer/modules/web/dist-electron/
-velocity.log
-/composer/modules/web/dist-electron
-extractedDistribution
-misc/testerina/modules/report-tools/node_modules/
+
 
 # gradle
 .gradle
