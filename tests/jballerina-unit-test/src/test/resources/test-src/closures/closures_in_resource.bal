@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/lang.test;
+import ballerina/jballerina.java;
 
 public type TLift record {|
     readonly string id;
@@ -36,12 +36,10 @@ public type TTrail record {|
     boolean night;
 |};
 
-listener test:MockListener echoEP = new(9090);
-
-service /testService on echoEP {
+service class TestService {
 
     resource function get closureTest1(string status) returns string {
-        var addFunc = function (int funcInt) returns (string) {
+        var addFunc = function (int funcInt) returns string {
             return status;
         };
         return addFunc(1);
@@ -71,4 +69,34 @@ service /testService on echoEP {
         return tLifts;
     }
 
+}
+
+public function testClosureWithinResource() {
+    TestService t = new;
+    string str = <string> (checkpanic (wait callMethodWithParams(t, "$get$closureTest1", ["foobar"])));
+    TLift[] tLifts = <TLift[]> (checkpanic (wait callMethodWithParams(t, "$get$closureTest2", ["OPEN"])));
+    assertEquality(str, "foobar");
+    assertEquality(tLifts.length(), 1);
+    assertEquality(tLifts[0]["name"], "Lift1");
+}
+
+public function callMethodWithParams(service object {} s, string name, (any|error)[] ar)
+    returns future<any|error>  = @java:Method {
+        'class:"org/ballerinalang/nativeimpl/jvm/servicetests/ServiceValue",
+        name:"callMethodWithParams"
+    } external;
+
+function assertEquality(any|error actual, any|error expected) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("AssertionError",
+            message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
 }

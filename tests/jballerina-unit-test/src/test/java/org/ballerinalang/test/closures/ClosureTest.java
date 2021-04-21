@@ -268,8 +268,9 @@ public class ClosureTest {
 
     @Test(description = "Test closure within resource function")
     public void testClosureWithinResource() {
-        CompileResult result = BCompileUtil.compile("test-src/closures/closures-in-resource.bal");
+        CompileResult result = BCompileUtil.compile("test-src/closures/closures_in_resource.bal");
         Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testClosureWithinResource");
     }
 
 }
