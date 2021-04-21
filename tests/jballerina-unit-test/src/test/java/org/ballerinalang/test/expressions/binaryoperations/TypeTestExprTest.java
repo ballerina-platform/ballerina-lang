@@ -764,4 +764,9 @@ public class TypeTestExprTest {
     public void testRecordIntersectionWithEffectivelyNeverFields() {
         BRunUtil.invoke(result, "testRecordIntersectionWithEffectivelyNeverFields");
     }
+
+    @Test
+    public void testRecordIntersectionWithFunctionFields() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithFunctionFields");
+    }
 }
