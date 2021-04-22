@@ -402,4 +402,70 @@ public class TomlProviderNegativeTest {
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: value not provided for " +
                 "required configurable variable 'stringVar'");
     }
+
+    @Test
+    public void testUnusedTomlParts() {
+        VariableKey intVar = new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey stringVar = new VariableKey(ROOT_MODULE, "stringVar", PredefinedTypes.TYPE_STRING, true);
+
+        Field name = TypeCreator.createField(PredefinedTypes.TYPE_STRING, "name", SymbolFlags.REQUIRED);
+        RecordType type = TypeCreator.createRecordType("Person", ROOT_MODULE, SymbolFlags.READONLY,
+                        Map.ofEntries(Map.entry("name", name)), null, true, 6);
+
+        VariableKey recordVar = new VariableKey(ROOT_MODULE, "recordVar", type, true);
+
+        TableType tableType = TypeCreator.createTableType(type, new String[]{"name"}, true);
+        IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{tableType,
+                PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
+
+        VariableKey tableVar = new VariableKey(ROOT_MODULE, "tableVar", intersectionType, true);
+        VariableKey[] rootVariableKeys = new VariableKey[] {intVar, stringVar, recordVar, tableVar};
+
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, rootVariableKeys),
+                Map.entry(subModule, getSimpleVariableKeys(subModule)),
+                Map.entry(importedModule, getSimpleVariableKeys(importedModule)));
+
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPathForNegativeCases("UnusedTomlParts.toml"),
+                        configVarMap.keySet())));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 1);
+        String warningMsg = "warning: \n" +
+                "[UnusedTomlParts.toml:(3:1,3:20)] undefined variable 'undefinedVar1' found\n" +
+                "[UnusedTomlParts.toml:(11:1,11:20)] undefined variable 'undefinedVar2' found\n" +
+                "[UnusedTomlParts.toml:(16:1,16:20)] undefined variable 'undefinedVar3' found\n" +
+                "[UnusedTomlParts.toml:(18:1,19:20)] undefined module 'undefined_Module' found\n" +
+                "[UnusedTomlParts.toml:(19:1,19:20)] undefined variable 'undefinedVar4' found\n" +
+                "[UnusedTomlParts.toml:(21:1,22:20)] undefined table 'undefined_Table' found\n" +
+                "[UnusedTomlParts.toml:(22:1,22:20)] undefined variable 'undefinedVar5' found\n";
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), warningMsg);
+    }
+
+    @Test
+    public void testOptionalImportedModuleWarning() {
+        VariableKey intVar = new VariableKey(importedModule, "intVar", PredefinedTypes.TYPE_INT, false);
+        VariableKey stringVar = new VariableKey(importedModule, "stringVar", PredefinedTypes.TYPE_STRING, false);
+        VariableKey[] variableKeys = new VariableKey[] {intVar, stringVar};
+
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(importedModule, variableKeys));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(ROOT_MODULE, getConfigPathForNegativeCases("OptionalImportedModule.toml"),
+                        configVarMap.keySet())));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 1);
+        String warningMsg = "warning: \n" +
+                "[OptionalImportedModule.toml:(1:1,3:18)] invalid module structure found for module 'mod'. " +
+                "Please provide the module name as '[myOrg.mod]'\n" +
+                "[OptionalImportedModule.toml:(2:1,2:13)] undefined variable 'intVar' found\n" +
+                "[OptionalImportedModule.toml:(3:1,3:18)] undefined variable 'stringVar' found\n";
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), warningMsg);
+    }
+
+    private VariableKey[] getSimpleVariableKeys(Module module) {
+        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
+        return new VariableKey[]{intVar, stringVar};
+    }
 }
