@@ -176,4 +176,39 @@ public class SymbolAtCursorTest {
                 {23, 3},
         };
     }
+
+    @Test(dataProvider = "QuotedIdentifierProvider")
+    public void testQuotedIdentifiers(int line, int column, String expSymbolName) {
+        Project project = BCompileUtil.loadProject("test-src/symbol_at_cursor_quoted_identifiers_test.bal");
+        SemanticModel model = getDefaultModulesSemanticModel(project);
+        Document srcFile = getDocumentForSingleSource(project);
+
+        Optional<Symbol> symbol = model.symbol(srcFile, LinePosition.from(line, column));
+        symbol.ifPresent(value -> assertEquals(value.getName().get(), expSymbolName));
+
+        if (symbol.isEmpty()) {
+            assertNull(expSymbolName);
+        }
+    }
+
+    // Note: Need to re-evaluate the quoted identifier types of record, function, and worker when they are reserved
+    // keywords.
+    @DataProvider(name = "QuotedIdentifierProvider")
+    public Object[][]  getQuotedIdentifierPositions() {
+        return new Object[][]{
+                {18, 5, "string"},
+                {22, 23, "'from"},
+                {23, 28, "'from"},
+                {26, 9, "function"},
+                {30, 11, "function"},
+                {31, 7, "'if"},
+                {32, 11, "'if"},
+                {33, 7, "nonReservedVar"},
+                {39, 4, "'int"},
+                {40, 13, "'int"},
+                {43, 11, "w1"},
+                {45, 19, "worker"},
+                {52, 11, "worker"}
+        };
+    }
 }
