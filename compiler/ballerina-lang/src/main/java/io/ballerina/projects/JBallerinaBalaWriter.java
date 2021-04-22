@@ -26,6 +26,7 @@ import io.ballerina.projects.internal.bala.CompilerPluginJson;
 import io.ballerina.projects.internal.bala.adaptors.JsonCollectionsAdaptor;
 import io.ballerina.projects.internal.bala.adaptors.JsonStringsAdaptor;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import org.wso2.ballerinalang.compiler.util.Names;
 
 import java.io.ByteArrayInputStream;
 import java.io.FileInputStream;
@@ -168,8 +169,8 @@ public class JBallerinaBalaWriter extends BalaWriter {
 
         // 1) Check direct dependencies of imports in the package have any `ballerina/java` dependency
         for (ResolvedPackageDependency dependency : resolvedPackageDependencies) {
-            if (dependency.packageInstance().packageOrg().value().equals("ballerina") && dependency.packageInstance()
-                    .packageName().value().equals("jballerina.java")) {
+            if (dependency.packageInstance().packageOrg().value().equals(Names.BALLERINA_ORG.value) &&
+                    dependency.packageInstance().packageName().value().equals(Names.JAVA.value)) {
                 return this.backend.targetPlatform();
             }
         }
