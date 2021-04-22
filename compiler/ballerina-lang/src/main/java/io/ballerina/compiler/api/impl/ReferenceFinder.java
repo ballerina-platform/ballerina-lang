@@ -249,7 +249,13 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-        addIfSameSymbol(importPkgNode.symbol, importPkgNode.alias.pos);
+        if (importPkgNode.symbol != null
+                && this.targetSymbol.name.equals(importPkgNode.symbol.name)
+                && this.targetSymbol.pkgID.equals(importPkgNode.symbol.pkgID)
+                && this.targetSymbol.pos.equals(importPkgNode.symbol.pos)
+                && this.withDefinition) {
+            this.referenceLocations.add(importPkgNode.alias.pos);
+        }
     }
 
     @Override
