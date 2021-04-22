@@ -176,7 +176,7 @@ public class JoinClauseNodeContext extends IntermediateClauseNodeContext<JoinCla
              */
             if (nodeAtCursor.kind() == SyntaxKind.SIMPLE_NAME_REFERENCE) {
                 SimpleNameReferenceNode nameReferenceNode = (SimpleNameReferenceNode) nodeAtCursor;
-                return node.expression().textRange().endOffset() == cursor &&
+                return node.expression().textRange().endOffset() <= cursor &&
                         nameReferenceNode.textRange().endOffset() == cursor;
             }
         }
