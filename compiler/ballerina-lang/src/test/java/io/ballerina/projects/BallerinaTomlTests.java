@@ -27,6 +27,7 @@ import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -308,7 +309,7 @@ public class BallerinaTomlTests {
     }
 
     private PackageManifest getPackageManifest(Path ballerinaTomlPath, Path dependenciesTomlPath) throws IOException {
-        String ballerinaTomlContent = Files.readString(ballerinaTomlPath);
+        String ballerinaTomlContent = Files.readString(ballerinaTomlPath, Charset.defaultCharset());
         ballerinaTomlContent = ballerinaTomlContent.replace("<USER_DIR>", System.getProperty("user.dir"));
         String dependenciesTomlContent = Files.readString(dependenciesTomlPath);
 
