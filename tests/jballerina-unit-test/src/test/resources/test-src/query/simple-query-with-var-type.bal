@@ -354,3 +354,24 @@ function testVariableShadowingWithQueryExpressions2() returns boolean {
     testPassed = testPassed && lname == 5;
     return testPassed;
 }
+
+type Student record {
+    readonly string name;
+    int id;
+};
+
+function testSimpleSelectQueryWithTable() {
+    table<Student> key(name) t = table [
+        {name: "Amy", id: 1234},
+        {name: "John", id: 4567}
+    ];
+    var ids = from var { id } in t select {id};
+    assertEquality(2, ids.length());
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}
