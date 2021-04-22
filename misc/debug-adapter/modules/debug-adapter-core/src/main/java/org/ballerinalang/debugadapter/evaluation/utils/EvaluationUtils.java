@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.utils;
 
+import com.sun.jdi.BooleanValue;
 import com.sun.jdi.ClassObjectReference;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.DoubleValue;
@@ -292,10 +293,14 @@ public class EvaluationUtils {
         Value jvmValue = variable.getJvmValue();
         switch (variable.getBType()) {
             case BOOLEAN:
-                methodArgTypeNames.add(JVMValueType.BOOLEAN.getString());
-                method = getRuntimeMethod(context, JAVA_BOOLEAN_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
-                method.setArgValues(Collections.singletonList(jvmValue));
-                return method.invoke();
+                if (jvmValue instanceof BooleanValue) {
+                    methodArgTypeNames.add(JVMValueType.BOOLEAN.getString());
+                    method = getRuntimeMethod(context, JAVA_BOOLEAN_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
+                    method.setArgValues(Collections.singletonList(jvmValue));
+                    return method.invoke();
+                } else {
+                    return jvmValue;
+                }
             case INT:
                 if (jvmValue instanceof IntegerValue) {
                     methodArgTypeNames.add(JVMValueType.INT.getString());
