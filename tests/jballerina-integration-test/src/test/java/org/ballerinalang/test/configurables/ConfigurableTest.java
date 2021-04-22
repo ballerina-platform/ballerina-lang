@@ -103,8 +103,8 @@ public class ConfigurableTest extends BaseTest {
     public void testEnvironmentVariableBasedConfigurable() throws BallerinaTestException {
 
         // test config file location through `BAL_CONFIG_FILES` env variable
-        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml").toString() +
-                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml").toString();
+        String configFilePaths = Paths.get(testFileLocation, "config_files", "Config-A.toml") +
+                File.pathSeparator + Paths.get(testFileLocation, "config_files", "Config-B.toml");
         executeBalCommand("", "envVarPkg",
                           addEnvironmentVariables(Map.ofEntries(Map.entry(CONFIG_FILES_ENV_VARIABLE,
                                                                           configFilePaths))));
@@ -242,6 +242,13 @@ public class ConfigurableTest extends BaseTest {
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
                 new LogLeecher[]{errorLog, errorLocationLog}, testFileLocation + "/invalidDefaultable");
         errorLog.waitForText(5000);
+    }
+
+    @Test
+    public void testSchedulerThreadPoolSize() throws BallerinaTestException {
+        String configFilePath = Paths.get(testFileLocation, "schedulerTest", "Config.toml").toString();
+        executeBalCommand("", "schedulerTest",
+                addEnvironmentVariables(Map.of(CONFIG_FILES_ENV_VARIABLE, configFilePath)));
     }
 
     private void executeBalCommand(String projectPath, String packageName,

@@ -31,7 +31,6 @@ import io.ballerina.runtime.internal.util.exceptions.BallerinaErrorReasons;
 import io.ballerina.runtime.internal.values.ChannelDetails;
 import io.ballerina.runtime.internal.values.FutureValue;
 
-import java.io.PrintStream;
 import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
@@ -56,7 +55,6 @@ import static java.util.Objects.isNull;
  */
 public class Scheduler {
 
-    private PrintStream err = System.err;
     /**
      * Scheduler does not get killed if the immortal value is true. Specific to services.
      */

@@ -1,0 +1,10 @@
+[package]
+org= "testOrg"
+name= "schedulerTest"
+version= "0.1.0"
+
+[build-options]
+observabilityIncluded=true
+
+[[platform.java11.dependency]]
+path = "./lib.jar"

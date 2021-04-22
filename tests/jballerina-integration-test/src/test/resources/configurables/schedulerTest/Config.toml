@@ -1,0 +1,2 @@
+[ballerina.lang.runtime]
+poolSize = 24
