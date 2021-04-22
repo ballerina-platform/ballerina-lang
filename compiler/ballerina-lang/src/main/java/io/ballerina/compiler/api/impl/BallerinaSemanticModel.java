@@ -40,6 +40,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.tree.BLangCompilationUnit;
 import org.wso2.ballerinalang.compiler.tree.BLangNode;
@@ -366,8 +367,15 @@ public class BallerinaSemanticModel implements SemanticModel {
         BSymbol symbol = scopeEntry.symbol;
         if ((hasCursorPosPassedSymbolPos(symbol, cursorPos) || isImportedSymbol(symbol))
                 && !isServiceDeclSymbol(symbol)) {
-            Symbol compiledSymbol = symbolFactory.getBCompiledSymbol(symbol,
-                    symbolFactory.escapeReservedKeyword(name.getValue()));
+            String nameValue;
+            if (symbol instanceof BVarSymbol) {
+                nameValue = symbolFactory.escapeReservedKeyword(name.getValue());
+            } else {
+                nameValue = name.getValue();
+            }
+
+            Symbol compiledSymbol = symbolFactory.getBCompiledSymbol(symbol, nameValue);
+
             if (compiledSymbol == null || compiledSymbols.contains(compiledSymbol)) {
                 return;
             }
