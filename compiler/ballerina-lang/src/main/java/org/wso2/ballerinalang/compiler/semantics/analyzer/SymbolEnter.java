@@ -816,7 +816,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
                                                                             annotationNode.getAttachPoints(),
                                                                             annotName, env.enclPkg.symbol.pkgID, null,
-                                                                            env.scope.owner, annotationNode.pos,
+                                                                            env.scope.owner, annotationNode.name.pos,
                                                                             getOrigin(annotName));
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
