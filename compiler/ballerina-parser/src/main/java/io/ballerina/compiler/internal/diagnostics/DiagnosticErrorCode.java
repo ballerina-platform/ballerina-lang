@@ -237,6 +237,11 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0519", "error.missing.positional.arg.in.error.constructor"),
     ERROR_MISSING_ARG_WITHIN_PARENTHESIS("BCE0520", "error.missing.arg.within.parenthesis"),
     ERROR_MISSING_VARIABLE_NAME("BCE0521", "error.missing.variable.name"),
+    ERROR_MISSING_FIELD_NAME("BCE0522", "error.missing.field.name"),
+    ERROR_MISSING_BUILTIN_TYPE("BCE0523", "error.missing.builtin.type"),
+    ERROR_METADATA_NOT_ATTACHED_TO_A_TOP_LEVEL_CONSTRUCT("BCE0524",
+            "error.metadata.not.attached.to.a.top.level.construct"),
+    ERROR_METADATA_NOT_ATTACHED_TO_A_OBJECT_MEMBER("BCE0525", "error.metadata.not.attached.to.a.object.member"),
 
     // Invalid nodes
     ERROR_INVALID_TOKEN("BCE0600", "error.invalid.token"),
@@ -317,7 +322,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_DEFAULTABLE_PARAMETER_CANNOT_BE_INCLUDED_RECORD_PARAMETER("BCE664",
             "error.defaultable.parameter.cannot.be.included.record.parameter"),
     ERROR_INCOMPLETE_QUOTED_IDENTIFIER("BCE665", "error.incomplete.quoted.identifier"),
-    ERROR_OPEN_RECORD_CANNOT_CONTAIN_REST_FIELD("BCE666", "error.open.record.cannot.contain.rest.field"),
+    ERROR_INCLUSIVE_RECORD_TYPE_CANNOT_CONTAIN_REST_FIELD("BCE666",
+            "error.inclusive.record.type.cannot.contain.rest.field"),
     ERROR_COMPLEX_VARIABLE_MUST_BE_INITIALIZED("BCE667", "error.complex.variable.must.be.initialized"),
     ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC("BCE668", "error.isolated.var.cannot.be.declared.as.public"),
     ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC("BCE669", "error.variable.declared.with.var.cannot.be.public"),

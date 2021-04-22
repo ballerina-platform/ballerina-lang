@@ -1878,9 +1878,10 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(UnaryExpressionNode unaryExprNode) {
         Location pos = getPosition(unaryExprNode);
         SyntaxKind expressionKind = unaryExprNode.expression().kind();
-        if (expressionKind == SyntaxKind.NUMERIC_LITERAL) {
-            BLangNumericLiteral numericLiteral = (BLangNumericLiteral) createSimpleLiteral(unaryExprNode);
-            return numericLiteral;
+        SyntaxKind unaryOperatorKind = unaryExprNode.unaryOperator().kind();
+        if (expressionKind == SyntaxKind.NUMERIC_LITERAL &&
+                         (unaryOperatorKind == SyntaxKind.MINUS_TOKEN || unaryOperatorKind == SyntaxKind.PLUS_TOKEN)) {
+            return createSimpleLiteral(unaryExprNode);
         }
         OperatorKind operator = OperatorKind.valueFrom(unaryExprNode.unaryOperator().text());
         BLangExpression expr = createExpression(unaryExprNode.expression());
@@ -2666,13 +2667,14 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
     public BLangNode transform(TypedescTypeDescriptorNode typedescTypeDescriptorNode) {
         BLangBuiltInRefTypeNode refType = (BLangBuiltInRefTypeNode) TreeBuilder.createBuiltInReferenceTypeNode();
         refType.typeKind = TypeKind.TYPEDESC;
+        refType.pos = getPosition(typedescTypeDescriptorNode);
 
         Optional<TypeParameterNode> node = typedescTypeDescriptorNode.typedescTypeParamsNode();
         if (node.isPresent()) {
             BLangConstrainedType constrainedType = (BLangConstrainedType) TreeBuilder.createConstrainedTypeNode();
             constrainedType.type = refType;
             constrainedType.constraint = createTypeNode(node.get().typeNode());
-            constrainedType.pos = getPosition(typedescTypeDescriptorNode);
+            constrainedType.pos = refType.pos;
             return constrainedType;
         }
 
@@ -4026,6 +4028,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 matchGuardAvailable = true;
                 BLangMatchGuard bLangMatchGuard = (BLangMatchGuard) TreeBuilder.createMatchGuard();
                 bLangMatchGuard.expr = createExpression(matchClauseNode.matchGuard().get().expression());
+                bLangMatchGuard.pos = getPosition(matchClauseNode.matchGuard().get());
                 bLangMatchClause.setMatchGuard(bLangMatchGuard);
             }
 

@@ -214,8 +214,7 @@ public class ClosedRecordTest {
         Assert.assertEquals(returns[3].stringValue(), "{}");
     }
 
-    @Test(description = "Test white space between the type name and ellipsis in rest descriptor",
-            groups = { "disableOnOldParser" })
+    @Test(description = "Test white space between the type name and ellipsis in rest descriptor")
     public void testRestDescriptorSyntax() {
         CompileResult result = BCompileUtil.compile("test-src/record/closed_record_invalid_delimiter.bal");
         int i = 0;
@@ -262,7 +261,7 @@ public class ClosedRecordTest {
         BAssertUtil.validateError(result, indx++, "missing error detail arg for error detail field 'message'",
                 18, 27);
         BAssertUtil.validateError(result, indx, "unknown error detail arg 'bar' passed to closed error " +
-                "detail type 'FooErrData'", 18, 27);
+                "detail type 'FooErrData'", 18, 53);
     }
 
     @Test

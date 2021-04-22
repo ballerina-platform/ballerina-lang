@@ -323,3 +323,38 @@ type Quux record {|
 type ClosedRecordWithIntField record {|
     int i;
 |};
+
+function testAnydataAgainstInvalidArray() {
+    object {}[] arr1 = [];
+
+    if arr1 is anydata {
+        anydata[] p = arr1;
+    }
+
+    anydata arr2 = [];
+
+    if arr2 is object {}[] {
+        object {}[] p = arr2;
+    }
+}
+
+type RecordWithIntFieldAndNeverRestField record {|
+    int i;
+    never...;
+|};
+
+type RecordWithIntFieldAndEffectivelyNeverRestField record {|
+    int i;
+    [never, int]...;
+|};
+
+type Record record {|
+    int i;
+    string s;
+|};
+
+function testRecordNegative2() {
+    Record rec = {i: 1, s: ""};
+    boolean b2 = rec is RecordWithIntFieldAndNeverRestField;
+    boolean b3 = rec is RecordWithIntFieldAndEffectivelyNeverRestField;
+}

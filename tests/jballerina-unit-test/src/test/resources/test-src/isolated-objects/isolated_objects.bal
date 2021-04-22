@@ -41,13 +41,12 @@ final readonly & string[] immutableStringArray = ["hello", "world"];
 
 type IsolatedObjectType isolated object {
     int a;
-    string[] b;
 };
 
 isolated class IsolatedClassOverridingMutableFieldsInIncludedIsolatedObject {
     *IsolatedObjectType;
 
-    final int a = 100;
+    final byte a = 100;
     private string[] b;
 
     function init() {
@@ -67,7 +66,7 @@ isolated class IsolatedClassOverridingMutableFieldsInIncludedIsolatedObject {
 function testIsolatedObjectOverridingMutableFieldsInIncludedIsolatedObject() {
     isolated object {} isolatedObjectOverridingMutableFieldsInIncludedIsolatedObject = isolated object IsolatedObjectType {
 
-        final int a = 100;
+        final byte a = 100;
         private string[] b = [];
 
         function accessImmutableField() returns int => self.a + 1;
@@ -594,6 +593,41 @@ public class Listener {
     public function detach(service object {} s) returns error? {}
 
     public function attach(service object {} s, string[]? name = ()) returns error? {}
+}
+
+isolated class IsolatedClassUsingSelf {
+    private int[][] arr = [[], []];
+
+    isolated function getMember(boolean bool) returns int[] {
+        lock {
+            if bool {
+                return getMember(self);
+            }
+
+            return self.getMemberInternal();
+        }
+    }
+
+    private isolated function getMemberInternal() returns int[] {
+        lock {
+            return self.arr[0].clone();
+        }
+    }
+}
+
+isolated function getMember(IsolatedClassUsingSelf foo) returns int[] {
+    return foo.getMember(false);
+}
+
+isolated class IsolatedClassWithBoundMethodAccess {
+    public isolated function bar() {
+        lock {
+            isolated function () fn = self.baz;
+        }
+    }
+
+    isolated function baz() {
+    }
 }
 
 function assertTrue(any|error actual) {

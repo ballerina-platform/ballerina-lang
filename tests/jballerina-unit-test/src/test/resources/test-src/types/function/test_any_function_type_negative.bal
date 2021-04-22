@@ -48,3 +48,11 @@ function functionPointerInvocation() {
 function testFunctionTypedesc1() {
     function f = (i, j) => i + j;
 }
+
+function testFunctionWithNeverOrNeverEqualReturnType() {
+    function () returns string x2 = blowUp1;
+}
+
+function blowUp1() returns int|never {
+    panic error("Error!");
+}

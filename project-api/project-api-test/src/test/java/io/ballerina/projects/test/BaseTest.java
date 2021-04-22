@@ -52,11 +52,6 @@ public class BaseTest {
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_c");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_b");
         BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_e");
-
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_alpha");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_beta");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_unstable_k_GA");
-        BCompileUtil.compileAndCacheBala("projects_for_resolution_tests/package_l_with_unstable_dep");
     }
 
     protected void cacheDependencyToLocalRepo(Path dependency) throws IOException {

@@ -20,6 +20,7 @@ package org.ballerinalang.test.annotations;
 
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -82,5 +83,15 @@ public class DeprecationAnnotationTest {
         Assert.assertEquals(compileResult.getWarnCount(), 1);
 
         BAssertUtil.validateWarning(compileResult, 0, "usage of construct 'CONST1' is deprecated", 10, 30);
+    }
+
+    @Test
+    public void testDeprecatedConstructUsageAtRuntimeWithWarning() {
+        CompileResult result = BCompileUtil.compile("test-src/annotations/deprecated_construct_usage_with_warning.bal");
+
+        Assert.assertEquals(result.getWarnCount(), 1);
+        BAssertUtil.validateWarning(result, 0, "usage of construct 'Foo' is deprecated", 23, 1);
+
+        BRunUtil.invoke(result, "testDeprecatedConstructUsageAtRuntimeWithWarning");
     }
 }

@@ -17,7 +17,14 @@ import endpointproject.mod.ab;
 
 function testCheck () returns error? {
     var a = testCheckFunction();
-    return a;
+
+    if (a is error) {
+        if (a.message() == "i1") {
+            return;
+        }
+        panic error("Expected error message: , found: i1" + a.message());
+    }
+    panic error("Expected error, found: " + (typeof a).toString());
 }
 
 function testCheckFunction () returns error? {
@@ -26,8 +33,11 @@ function testCheckFunction () returns error? {
     return ();
 }
 
-function testNewEP(string a) returns string {
+function testNewEP(string a) {
     ab:DummyEndpoint ep1 = new;
     string r = ep1->invoke2(a);
-    return r;
+
+    if (r != "donedone") {
+        panic error("Expected: donedone, found: " + r);
+    }
 }

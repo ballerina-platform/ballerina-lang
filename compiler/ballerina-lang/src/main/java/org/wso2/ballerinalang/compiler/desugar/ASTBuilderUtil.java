@@ -885,8 +885,10 @@ public class ASTBuilderUtil {
         dupFuncSymbol.markdownDocumentation = invokableSymbol.markdownDocumentation;
 
         BInvokableType prevFuncType = (BInvokableType) invokableSymbol.type;
-        dupFuncSymbol.type = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.restType,
-                prevFuncType.retType, prevFuncType.tsymbol);
+        BType newFuncType = new BInvokableType(new ArrayList<>(prevFuncType.paramTypes), prevFuncType.restType,
+                                               prevFuncType.retType, prevFuncType.tsymbol);
+        newFuncType.flags |= prevFuncType.flags;
+        dupFuncSymbol.type = newFuncType;
         return dupFuncSymbol;
     }
 

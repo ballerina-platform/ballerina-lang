@@ -77,6 +77,13 @@ public class PackageDescriptor {
                 (org().isBallerinaOrg() && packageName.value().equals(Names.JAVA.getValue()));
     }
 
+    public boolean isBuiltInPackage() {
+        return (org().isBallerinaOrg() && packageName.value().startsWith(LANG_LIB_PACKAGE_NAME_PREFIX)) ||
+                (org().value().equals(Names.BALLERINA_INTERNAL_ORG.getValue())) ||
+                (org().isBallerinaOrg() && packageName.value().equals(Names.JAVA.getValue())) ||
+                (org().isBallerinaOrg() && packageName.value().equals(Names.TEST.getValue()));
+    }
+
     @Override
     public boolean equals(Object other) {
         if (this == other) {

@@ -14,12 +14,12 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function main(int i, string s, boolean b1, boolean b2) {
+public function main(int i, string s, float b1, float b2) {
     bar(i, s);
 
     bar(i, s, b1, b2);
 
-    boolean[] bArr = [b1, b2];
+    float[] bArr = [b1, b2];
     bar(i, s, ...bArr);
 
     bar(i, s, b1, ...bArr);
@@ -27,10 +27,10 @@ public function main(int i, string s, boolean b1, boolean b2) {
     var w = [s, b1, b2];
     bar(i, ...w);
 
-    [int, string, boolean] x = [i, s, b1];
+    [int, string, float] x = [i, s, b1];
     bar(...x);
 
-    [int, string, boolean, boolean] y = [i, s, b1, b2];
+    [int, string, float, float] y = [i, s, b1, b2];
     bar(...y);
 
     [int, string] z = [i, s];
@@ -38,7 +38,7 @@ public function main(int i, string s, boolean b1, boolean b2) {
     baz(...z);
 }
 
-function bar(@untainted int i, @untainted string s, @untainted boolean... b) {
+function bar(@untainted int i, @untainted string s, @untainted float... b) {
 }
 
 function baz(@untainted int i, @untainted string s) {

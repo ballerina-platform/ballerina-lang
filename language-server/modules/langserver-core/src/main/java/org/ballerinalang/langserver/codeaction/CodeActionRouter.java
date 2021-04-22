@@ -29,6 +29,7 @@ import org.ballerinalang.langserver.commons.CodeActionContext;
 import org.ballerinalang.langserver.commons.codeaction.CodeActionNodeType;
 import org.ballerinalang.langserver.commons.codeaction.spi.DiagBasedPositionDetails;
 import org.ballerinalang.langserver.commons.codeaction.spi.NodeBasedPositionDetails;
+import org.ballerinalang.langserver.telemetry.TelemetryUtil;
 import org.eclipse.lsp4j.CodeAction;
 import org.eclipse.lsp4j.Position;
 import org.eclipse.lsp4j.Range;
@@ -76,6 +77,8 @@ public class CodeActionRouter {
                 try {
                     List<CodeAction> codeActionsOut = provider.getNodeBasedCodeActions(ctx, posDetails);
                     if (codeActionsOut != null) {
+                        codeActionsOut.forEach(codeAction -> 
+                                TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction, provider));
                         codeActions.addAll(codeActionsOut);
                     }
                 } catch (Exception e) {
@@ -96,6 +99,8 @@ public class CodeActionRouter {
                             List<CodeAction> codeActionsOut = provider.getDiagBasedCodeActions(diagnostic,
                                                                                                positionDetails, ctx);
                             if (codeActionsOut != null) {
+                                codeActionsOut.forEach(codeAction ->
+                                        TelemetryUtil.addReportFeatureUsageCommandToCodeAction(codeAction, provider));
                                 codeActions.addAll(codeActionsOut);
                             }
                         } catch (Exception e) {

@@ -42,6 +42,9 @@ import java.util.regex.Matcher;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class PullModuleCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "Pull Module";
+
     private static final String UNRESOLVED_MODULE = "cannot resolve module";
 
     @Override
@@ -81,6 +84,11 @@ public class PullModuleCodeAction extends AbstractCodeActionProvider {
             return Collections.singletonList(action);
         }
         return Collections.emptyList();
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private static String getVersion(CodeActionContext context, String pkgName, Matcher matcher) {

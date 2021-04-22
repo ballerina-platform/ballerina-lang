@@ -24,6 +24,7 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.environment.ResolutionRequest;
 import io.ballerina.projects.environment.ResolutionResponse;
 import io.ballerina.projects.environment.ResolutionResponse.ResolutionStatus;
+import io.ballerina.projects.internal.DependencyVersionKind;
 import io.ballerina.projects.internal.ImportModuleRequest;
 import io.ballerina.projects.internal.ImportModuleResponse;
 import io.ballerina.projects.internal.PackageDependencyGraphBuilder;
@@ -228,7 +229,8 @@ public class PackageResolution {
             }
         }
 
-        depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph(), PackageDependencyScope.DEFAULT);
+        depGraphBuilder.mergeGraph(rootPackageContext.dependencyGraph(), PackageDependencyScope.DEFAULT,
+                DependencyVersionKind.USER_SPECIFIED);
     }
 
     private void createDependencyGraphFromSources() {
@@ -428,6 +430,8 @@ public class PackageResolution {
                             packageOrg, possiblePkgName);
                     PackageVersion packageVersion = dependency != null ? dependency.version() : null;
                     String repository = dependency != null ? dependency.repository() : null;
+                    DependencyVersionKind dependencyVersionKind = packageVersion != null ?
+                            DependencyVersionKind.USER_SPECIFIED : DependencyVersionKind.LATEST;
 
                     // Try to resolve the package via repositories
                     PackageDescriptor pkgDesc = PackageDescriptor.from(
@@ -450,7 +454,7 @@ public class PackageResolution {
 
                     // The requested module is available in the resolvedPackage
                     // Let's add it to the dependency graph.
-                    addPackageToGraph(resolutionResponse, dependencyResolvedType);
+                    addPackageToDependencyGraph(resolutionResponse, dependencyResolvedType, dependencyVersionKind);
                 }
                 responseMap.put(importModuleRequest, new ImportModuleResponse(packageOrg, possiblePkgName));
                 return;
@@ -466,25 +470,26 @@ public class PackageResolution {
                     List.of(resolutionRequest), rootPkgContext.project()).get(0);
         }
 
-        private void addPackageToGraph(ResolutionResponse resolutionResponse,
-                DependencyResolutionType dependencyResolvedType) {
+        private void addPackageToDependencyGraph(ResolutionResponse resolutionResponse,
+                                                 DependencyResolutionType dependencyResolvedType,
+                                                 DependencyVersionKind dependencyVersionKind) {
             // Adding the resolved package to the graph and merge its dependencies
             Package resolvedPackage = resolutionResponse.resolvedPackage();
             ResolutionRequest resolutionRequest = resolutionResponse.packageLoadRequest();
             if (resolutionRequest.scope() == PackageDependencyScope.DEFAULT) {
-                depGraphBuilder.addDependency(rootPkgContext.descriptor(),
-                        resolvedPackage.descriptor(), PackageDependencyScope.DEFAULT, dependencyResolvedType);
+                depGraphBuilder.addDependency(rootPkgContext.descriptor(), resolvedPackage.descriptor(),
+                        PackageDependencyScope.DEFAULT, dependencyResolvedType, dependencyVersionKind);
 
                 // Merge direct dependency's dependency graph with the current one.
                 depGraphBuilder.mergeGraph(resolvedPackage.packageContext().dependencyGraph(),
-                        PackageDependencyScope.DEFAULT);
+                        PackageDependencyScope.DEFAULT, dependencyVersionKind);
             } else if (resolutionRequest.scope() == PackageDependencyScope.TEST_ONLY) {
-                depGraphBuilder.addDependency(rootPkgContext.descriptor(),
-                        resolvedPackage.descriptor(), PackageDependencyScope.TEST_ONLY, dependencyResolvedType);
+                depGraphBuilder.addDependency(rootPkgContext.descriptor(), resolvedPackage.descriptor(),
+                        PackageDependencyScope.TEST_ONLY, dependencyResolvedType, dependencyVersionKind);
 
                 // Merge direct dependency's dependency graph with the current one.
                 depGraphBuilder.mergeGraph(resolvedPackage.packageContext().dependencyGraph(),
-                        PackageDependencyScope.TEST_ONLY);
+                        PackageDependencyScope.TEST_ONLY, dependencyVersionKind);
             }
         }
     }
