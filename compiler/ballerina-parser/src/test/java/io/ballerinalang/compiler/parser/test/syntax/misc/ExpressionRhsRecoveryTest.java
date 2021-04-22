@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -20,23 +20,15 @@ package io.ballerinalang.compiler.parser.test.syntax.misc;
 import org.testng.annotations.Test;
 
 /**
- * Test parsing qualified identifier start with predeclared prefix.
+ * Test recovery of expression rhs.
  * 
  * @since 2.0.0
  */
-public class PreDeclaredModulePrefixTest extends AbstractMiscTest {
+public class ExpressionRhsRecoveryTest extends AbstractMiscTest {
 
     @Test
-    public void testImportWithPredefinedPrefix() {
-        testFile("predeclared-module-prefix/predeclared-module-prefix_01.bal",
-                "predeclared-module-prefix/predeclared-module-prefix_assert_01.json");
-    }
-
-    // Recovery tests
-
-    @Test
-    public void testImportWithPredefinedPrefixNegetive() {
-        testFile("predeclared-module-prefix/predeclared-module-prefix_02.bal",
-                "predeclared-module-prefix/predeclared-module-prefix_assert_02.json");
+    public void testExpressionRhsRecovery() {
+        testFile("expression-rhs-recovery/expression_rhs_recovery_source_01.bal",
+                "expression-rhs-recovery/expression_rhs_recovery_assert_01.json");
     }
 }
