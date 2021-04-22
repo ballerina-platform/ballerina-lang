@@ -22,7 +22,7 @@ import org.testng.annotations.Test;
 /**
  * Test parsing qualified identifier start with predeclared prefix.
  * 
- * @since 2.0
+ * @since 2.0.0
  */
 public class PreDeclaredModulePrefixTest extends AbstractMiscTest {
 

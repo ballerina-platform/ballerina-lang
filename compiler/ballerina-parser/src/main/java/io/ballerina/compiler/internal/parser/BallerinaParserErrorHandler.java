@@ -17,7 +17,7 @@
  */
 package io.ballerina.compiler.internal.parser;
 
-import io.ballerina.compiler.internal.parser.tree.STNodeList;
+import io.ballerina.compiler.internal.parser.tree.STNode;
 import io.ballerina.compiler.internal.parser.tree.STToken;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 
@@ -1164,7 +1164,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                         break;
                     }
 
-                    if (isProductionWithAlternatives(currentCtx)) {
+                    if (hasAlternativePaths(currentCtx)) {
                         return seekMatchInAlternativePaths(currentCtx, lookahead, currentDepth, matchingRulesCount,
                                 isEntryPoint);
                     }
@@ -1282,7 +1282,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     }
 
     @Override
-    protected boolean isProductionWithAlternatives(ParserRuleContext currentCtx) {
+    protected boolean hasAlternativePaths(ParserRuleContext currentCtx) {
         switch (currentCtx) {
             case TOP_LEVEL_NODE:
             case TOP_LEVEL_NODE_WITHOUT_MODIFIER:
@@ -2466,37 +2466,34 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     }
 
     private ParserRuleContext[] getExpressionRhsAlternatives(ParserRuleContext nextContext, int lookahead) {
-        ParserRuleContext[] defaultAlternatives = { ParserRuleContext.BINARY_OPERATOR,
-                ParserRuleContext.IS_KEYWORD, ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
-                ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
-                ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
-                ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN };
-
-        ParserRuleContext[] alternatives = new ParserRuleContext[defaultAlternatives.length + 1];
-
         if (this.tokenReader.getCurrentTokenIndex() > 0) {
             STToken previousToken = this.tokenReader.peek(lookahead - 1);
-            STNodeList trailingTrivia = (STNodeList) previousToken.trailingMinutiae();
+            STNode trailingTrivia = previousToken.trailingMinutiae();
+            int bucketCount = trailingTrivia.bucketCount();
 
-            if (!trailingTrivia.isEmpty() &&
-                    trailingTrivia.get(trailingTrivia.size() - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
+            if (bucketCount > 0 &&
+                    trailingTrivia.childInBucket(bucketCount - 1).kind == SyntaxKind.END_OF_LINE_MINUTIAE) {
                 // Give higher priority to nextContext if previous token contains new line
                 // This is done to improve the recovery for missing semicolon
                 // eg:
                 // case 1 :- int a = expr1 [MISSING binaryOp] expr2;
                 // case 2 :- int a = expr1 [MISSING ;]
                 //           expr2;
-                alternatives[0] = nextContext;
-                System.arraycopy(defaultAlternatives, 0, alternatives, 1, defaultAlternatives.length);
-                return alternatives;
+                return new ParserRuleContext[] { nextContext, ParserRuleContext.BINARY_OPERATOR,
+                        ParserRuleContext.IS_KEYWORD, ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                        ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                        ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
+                        ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN };
             }
         }
 
-        System.arraycopy(defaultAlternatives, 0, alternatives, 0, defaultAlternatives.length);
-        alternatives[alternatives.length - 1] = nextContext;
-
-        return alternatives;
+        return new ParserRuleContext[] { ParserRuleContext.BINARY_OPERATOR, ParserRuleContext.IS_KEYWORD,
+                ParserRuleContext.DOT, ParserRuleContext.ANNOT_CHAINING_TOKEN,
+                ParserRuleContext.OPTIONAL_CHAINING_TOKEN, ParserRuleContext.CONDITIONAL_EXPRESSION,
+                ParserRuleContext.XML_NAVIGATE_EXPR, ParserRuleContext.MEMBER_ACCESS_KEY_EXPR,
+                ParserRuleContext.RIGHT_ARROW, ParserRuleContext.SYNC_SEND_TOKEN, nextContext };
     }
+
     private ParserRuleContext[] modifyAlternativesWithArgListStart(ParserRuleContext[] alternatives) {
         ParserRuleContext[] newAlternatives = new ParserRuleContext[alternatives.length + 1];
         System.arraycopy(alternatives, 0, newAlternatives, 0, alternatives.length);
