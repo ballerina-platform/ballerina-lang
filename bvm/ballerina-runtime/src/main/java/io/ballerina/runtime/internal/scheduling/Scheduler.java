@@ -46,8 +46,6 @@ import java.util.function.Function;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_RUNTIME_PKG_ID;
 import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
 
-import static java.util.Objects.isNull;
-
 /**
  * Strand scheduler for JBallerina.
  *
@@ -87,7 +85,7 @@ public class Scheduler {
     private int getMaxPoolSize() {
         VariableKey poolSizeKey = new VariableKey(BALLERINA_RUNTIME_PKG_ID, "poolSize");
         Object keyVal = ConfigMap.get(poolSizeKey);
-        if (!isNull(keyVal)) {
+        if (keyVal != null) {
             return ((Long) keyVal).intValue();
         } else {
             return Runtime.getRuntime().availableProcessors() * 2;
