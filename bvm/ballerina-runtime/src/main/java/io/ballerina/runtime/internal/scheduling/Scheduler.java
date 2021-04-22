@@ -85,7 +85,6 @@ public class Scheduler {
     }
 
     private int getMaxPoolSize() {
-        //TODO: add test for this configuration
         VariableKey poolSizeKey = new VariableKey(BALLERINA_RUNTIME_PKG_ID, "poolSize");
         Object keyVal = ConfigMap.get(poolSizeKey);
         if (!isNull(keyVal)) {
