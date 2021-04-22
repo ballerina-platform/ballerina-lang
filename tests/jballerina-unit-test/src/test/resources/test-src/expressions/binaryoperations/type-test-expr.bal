@@ -1159,6 +1159,59 @@ type ClosedRecordWithIntField record {|
     int i;
 |};
 
+type RecordWithIntFieldAndNeverField record {|
+    int i;
+    never j?;
+|};
+
+type RecordWithIntFieldAndEffectivelyNeverField record {|
+    int i;
+    [never, int] j?;
+|};
+
+type OpenRecordWithIntFieldAndEffectivelyNeverRestField record {|
+    int i;
+    [never]...;
+|};
+
+function testRecordIntersectionWithEffectivelyNeverFields() {
+    RecordWithIntFieldAndNeverField rec = {i: 1};
+    assertTrue(rec is ClosedRecordWithIntField);
+    assertTrue(rec is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
+
+    RecordWithIntFieldAndEffectivelyNeverField rec2 = {i: 1};
+    assertTrue(rec2 is ClosedRecordWithIntField);
+    assertTrue(rec2 is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
+
+    OpenRecordWithIntFieldAndEffectivelyNeverRestField rec3 = {i: 1};
+    assertTrue(rec3 is record {| int...; |});
+
+    record {| int...; |} rec4 = {"i": 1};
+    assertFalse(rec4 is OpenRecordWithIntFieldAndEffectivelyNeverRestField);
+    assertFalse(rec4 is ClosedRecordWithIntField);
+}
+
+type Foo2 record {|
+    function (int, int) returns int x?;
+    boolean y?;
+|};
+
+function sum(int a, int b) returns int {
+    return a + b;
+} 
+
+function recordIntersectionWithFunctionFields() returns boolean {
+    record {| function (int, int) returns int x; boolean y; int i?; |} rec = {x: sum, y: true};
+    if (rec is Foo2) {
+        return true;
+    }
+    return false;
+}
+
+function testRecordIntersectionWithFunctionFields() {
+    assertFalse(recordIntersectionWithFunctionFields());
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

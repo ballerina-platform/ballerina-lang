@@ -275,7 +275,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
             return CompletableFuture.completedFuture(threadsResponse);
         }
         Thread[] threads = new Thread[threadsMap.size()];
-        threadsMap.values().stream().map(this::toThread).collect(Collectors.toList()).toArray(threads);
+        threadsMap.values().stream().map(this::toDapThread).collect(Collectors.toList()).toArray(threads);
         threadsResponse.setThreads(threads);
         return CompletableFuture.completedFuture(threadsResponse);
     }
@@ -467,7 +467,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         return breakpoint;
     }
 
-    private Thread toThread(ThreadReferenceProxyImpl threadReference) {
+    Thread toDapThread(ThreadReferenceProxyImpl threadReference) {
         Thread thread = new Thread();
         thread.setId(threadReference.uniqueID());
         thread.setName(threadReference.name());
@@ -819,7 +819,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
     /**
      * Returns a map of thread instances which correspond to an active ballerina strand, against their unique ID.
      */
-    private Map<Long, ThreadReferenceProxyImpl> getActiveStrandThreads() {
+    Map<Long, ThreadReferenceProxyImpl> getActiveStrandThreads() {
         Map<Long, ThreadReferenceProxyImpl> allThreads = getAllThreads();
         if (allThreads == null) {
             return null;

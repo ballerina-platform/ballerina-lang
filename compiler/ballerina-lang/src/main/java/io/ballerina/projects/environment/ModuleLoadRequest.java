@@ -46,10 +46,6 @@ public class ModuleLoadRequest {
                              PackageVersion version,
                              PackageDependencyScope scope,
                              DependencyResolutionType dependencyResolvedType) {
-        if (orgName != null && orgName.value().isEmpty()) {
-            throw new IllegalArgumentException("The orgName cannot be an empty string. " +
-                    "It should be either null or a non-empty string value");
-        }
         this.orgName = orgName;
         this.packageName = packageName;
         this.moduleName = moduleName;

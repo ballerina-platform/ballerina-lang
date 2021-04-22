@@ -12,3 +12,5 @@ final 5 configurable isolated int g = h;
 const configurable int i = 6;
 // configurable variable must be initialized
 configurable int j;
+
+configurable // test recovery against EOF token

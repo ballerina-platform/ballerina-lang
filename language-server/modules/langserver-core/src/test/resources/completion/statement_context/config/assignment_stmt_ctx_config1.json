@@ -424,6 +424,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "commit",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "Q",
+      "insertText": "commit;",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -456,6 +464,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "l1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "C",
+      "insertText": "l1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -475,14 +491,6 @@
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "l1",
-      "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "C",
-      "insertText": "l1",
       "insertTextFormat": "Snippet"
     },
     {
