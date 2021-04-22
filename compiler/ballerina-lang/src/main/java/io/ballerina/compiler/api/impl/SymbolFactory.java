@@ -296,7 +296,8 @@ public class SymbolFactory {
      */
     public BallerinaVariableSymbol createVariableSymbol(BVarSymbol symbol, String name) {
         BallerinaVariableSymbol.VariableSymbolBuilder symbolBuilder =
-                new BallerinaVariableSymbol.VariableSymbolBuilder(this.escapeReservedKeyword(name), symbol, this.context);
+                new BallerinaVariableSymbol.VariableSymbolBuilder(this.escapeReservedKeyword(name), symbol,
+                        this.context);
 
         if (isFlagOn(symbol.flags, Flags.FINAL) || isFlagOn(symbol.flags, Flags.FUNCTION_FINAL)) {
             symbolBuilder.withQualifier(Qualifier.FINAL);
