@@ -2192,11 +2192,6 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
         resultType = types.checkType(varRefExpr, actualType, expType);
-
-        if (varRefExpr.lhsVar && actualType.tag == TypeTags.TYPEDESC && resultType.tag == TypeTags.TYPEDESC &&
-                ((BTypedescType) actualType).constraint == ((BTypedescType) resultType).constraint) {
-            dlog.error(varRefExpr.pos, DiagnosticErrorCode.INVALID_VARIABLE_REFERENCE);
-        }
     }
 
     @Override
