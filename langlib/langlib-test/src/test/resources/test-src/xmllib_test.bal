@@ -214,6 +214,35 @@ function testXMLCycleErrorInner() returns xml {
     return cat;
 }
 
+function testXMLStrip() {
+    xml<'xml:Element> x1 = xml `<foo><bar/><?foo?>text1 text2<!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>`;
+    xml x2 = x1.strip();
+    assertEquals(x2.toString(), "<foo><bar/>text1 text2 <bar/></foo><foo>text1</foo>");
+    'xml:Element x7 = xml `<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>`;
+    x2 = x7.strip();
+    assertEquals(x2.toString(), "<foo><bar/>text1 text2<bar/></foo>");
+    'xml:Element x6 = <'xml:Element> x7.strip();
+    assertEquals(x6.toString(), "<foo><bar/>text1 text2<bar/></foo>");
+
+    xml<'xml:Comment> x3 = xml `<!--Comment1--><!--Comment2-->`;
+    x2 = x3.strip();
+    assertEquals(x2.toString(), "");
+    'xml:Comment x8 = xml `<!--Comment1-->`;
+    x2 = x8.strip();
+    assertEquals(x2.toString(), "");
+
+    xml<'xml:ProcessingInstruction> x4 = xml `<?foo?><?fu?>`;
+    x2 = x4.strip();
+    assertEquals(x2.toString(), "");
+    'xml:ProcessingInstruction x9 = xml `<?foo?>`;
+    x2 = x9.strip();
+    assertEquals(x2.toString(), "");
+
+    xml x5 = xml `<foo><!--Comment--></foo>text1 <?foo?>text2<foo><?foo?></foo>text3text4  <foo></foo><!--Comment-->  `;
+    x2 = x5.strip();
+    assertEquals(x2.toString(), "<foo></foo>text1 text2<foo></foo>text3text4  <foo></foo>");
+}
+
 function testXMLCycleInnerNonError() returns xml {
     'xml:Element cat = <'xml:Element> catalog.clone();
     var cds = cat.getChildren().strip();
