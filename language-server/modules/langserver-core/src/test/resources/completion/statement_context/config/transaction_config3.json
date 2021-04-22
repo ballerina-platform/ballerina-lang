@@ -1,16 +1,48 @@
 {
   "position": {
-    "line": 5,
-    "character": 28
+    "line": 8,
+    "character": 18
   },
-  "source": "expression_context/source/member_access_expr_ctx_source2.bal",
+  "source": "statement_context/source/transaction_source3.bal",
   "items": [
     {
-      "label": "module1",
+      "label": "start",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "start ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "wait",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "wait ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "flush",
+      "kind": "Keyword",
+      "detail": "Keyword",
+      "sortText": "P",
+      "insertText": "flush ",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "from clause",
+      "kind": "Snippet",
+      "detail": "Snippet",
+      "sortText": "O",
+      "insertText": "from ${1:var} ${2:item} in ${3}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "mod",
       "kind": "Module",
       "detail": "Module",
       "sortText": "N",
-      "insertText": "module1",
+      "insertText": "mod",
       "insertTextFormat": "Snippet"
     },
     {
@@ -424,14 +456,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "listValue",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "listValue",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -443,7 +467,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
+      "label": "main()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -453,7 +477,21 @@
         }
       },
       "sortText": "C",
-      "insertText": "testFunction()",
+      "insertText": "main()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "getError()(error?)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `error?`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "insertText": "getError()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -465,19 +503,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "indexVal",
+      "label": "res",
       "kind": "Variable",
-      "detail": "int",
+      "detail": "()",
       "sortText": "B",
-      "insertText": "indexVal",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "myList",
-      "kind": "Variable",
-      "detail": "int[]",
-      "sortText": "B",
-      "insertText": "myList",
+      "insertText": "res",
       "insertTextFormat": "Snippet"
     },
     {
@@ -534,6 +564,14 @@
       "detail": "type",
       "sortText": "Q",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "commit",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "commit;",
       "insertTextFormat": "Snippet"
     }
   ]

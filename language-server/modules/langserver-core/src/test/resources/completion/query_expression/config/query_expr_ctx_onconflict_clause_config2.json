@@ -392,14 +392,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -432,25 +424,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testOnConflictClauseWithNonTableTypes()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "testOnConflictClauseWithNonTableTypes()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Person",
+      "label": "Customer",
       "kind": "Struct",
       "detail": "Record",
       "sortText": "L",
-      "insertText": "Person",
+      "insertText": "Customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -462,35 +451,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Customer",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "Customer",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "outputPersonList",
+      "label": "p3",
       "kind": "Variable",
-      "detail": "Person[]",
+      "detail": "Person",
       "sortText": "B",
-      "insertText": "outputPersonList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "onConflictError",
-      "kind": "Variable",
-      "detail": "error",
-      "sortText": "B",
-      "insertText": "onConflictError",
+      "insertText": "p3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -510,22 +475,49 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "p3",
-      "kind": "Variable",
-      "detail": "Person",
-      "sortText": "B",
-      "insertText": "p3",
+      "label": "Person",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Person",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
+      "label": "outputPersonList",
+      "kind": "Variable",
+      "detail": "Person[]",
+      "sortText": "B",
+      "insertText": "outputPersonList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testOnConflictClauseWithNonTableTypes()",
+      "kind": "Function",
+      "detail": "Function",
       "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
       },
-      "sortText": "L",
-      "insertText": "StrandData",
+      "sortText": "C",
+      "insertText": "testOnConflictClauseWithNonTableTypes()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "onConflictError",
+      "kind": "Variable",
+      "detail": "error",
+      "sortText": "B",
+      "insertText": "onConflictError",
       "insertTextFormat": "Snippet"
     },
     {
