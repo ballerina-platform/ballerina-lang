@@ -81,6 +81,10 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
+    public void complete() {
+    }
+
+    @Override
     public boolean hasConfigs() {
         return !cliVarKeyValueMap.isEmpty();
     }

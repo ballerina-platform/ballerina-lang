@@ -36,6 +36,8 @@ public interface ConfigProvider {
 
     void initialize();
 
+    void complete();
+
     boolean hasConfigs();
 
     Optional<Long> getAsIntAndMark(Module module, VariableKey key);

@@ -85,6 +85,13 @@ public class ConfigResolver {
                 configValue.ifPresent(o -> configValueMap.put(varKey, o));
             }
         }
+        for (ConfigProvider provider : supportedConfigProviders) {
+            try {
+                provider.complete();
+            } catch (ConfigException e) {
+                diagnosticLog.warn(e.getMessage());
+            }
+        }
         return configValueMap;
     }
 
