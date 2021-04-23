@@ -102,8 +102,9 @@ public class CodeCoverageUtils {
                     if (entry.isDirectory()) {
                         continue;
                     }
-                    InputStream is = jarFile.getInputStream(entry);
-                    Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    try (InputStream is = jarFile.getInputStream(entry)) {
+                        Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+                    }
                 }
 
             }
