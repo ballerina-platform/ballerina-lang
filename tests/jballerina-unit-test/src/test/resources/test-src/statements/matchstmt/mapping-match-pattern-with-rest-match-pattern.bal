@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function mappingMatchPattern1(any v) returns anydata {
+function mappingMatchPattern1(any v) returns any|error {
     match v {
         {w: 1, x: 2, y: 3,  ...var a} => {
             return a["z"];
@@ -29,9 +29,9 @@ function mappingMatchPattern1(any v) returns anydata {
 }
 
 function testMappingMatchPattern1() {
-    assertEquals(3, mappingMatchPattern1({x: 2, y: 3, "z": 3, w: 4}));
-    assertEquals("3", mappingMatchPattern1({w: 1, x: 2, y: 3, "z": "3"}));
-    assertEquals("No match", mappingMatchPattern1({x: 3, y: 3, "z": 3, w: 4}));
+    assertEquals(3, <anydata> checkpanic mappingMatchPattern1({x: 2, y: 3, "z": 3, w: 4}));
+    assertEquals("3", <anydata> checkpanic mappingMatchPattern1({w: 1, x: 2, y: 3, "z": "3"}));
+    assertEquals("No match", <anydata> checkpanic mappingMatchPattern1({x: 3, y: 3, "z": 3, w: 4}));
 }
 
 function mappingMatchPattern2(record { int x; int y; int z1; int z2; } v) returns anydata {
@@ -143,7 +143,7 @@ function testMappingMatchPattern7() {
 function mappingMatchPattern8(any v) returns anydata {
     match v {
         {x: {y: 1, ...var a}} => {
-            return a["z"];
+            return <anydata> checkpanic a["z"];
         }
     }
     return "";
@@ -212,6 +212,32 @@ function testMappingMatchPatternWithRestPattern11() {
     assertEquals({}, mappingMatchPatternWithRestPattern11({a: "hello world", x1: 1}));
     assertEquals({}, mappingMatchPatternWithRestPattern11({}));
     assertEquals({}, mappingMatchPatternWithRestPattern11(1));
+}
+
+type Person record {|
+    int id;
+    string name;
+    boolean employed;
+|};
+
+function mappingMatchPattern12(Person person) returns anydata {
+    match person {
+        {id: var x, ...var rest} => {
+            return [x, rest];
+        }
+    }
+    return "";
+}
+
+function testMappingMatchPatternWithClosedRecord() {
+    anydata a = mappingMatchPattern12({id: 12, name: "May", employed: true});
+    assertEquals(true, a is anydata[]);
+    anydata[] b = <anydata[]> a;
+    assertEquals(12, b[0]);
+    map<anydata> mp = <map<anydata>> b[1];
+    assertEquals(2, mp.length());
+    assertEquals(true, mp["employed"]);
+    assertEquals("May", mp["name"]);
 }
 
 function assertEquals(anydata expected, anydata actual) {

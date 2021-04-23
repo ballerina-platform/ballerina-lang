@@ -34,3 +34,18 @@ function testInvalidTypesWithJson(json j) returns [int, map<boolean>] {
     }
     return [0, {}];
 }
+
+type Person record {|
+    int id;
+    string name;
+    boolean employed;
+|};
+
+function testInvalidTypewWithClosedRecord(Person person) {
+    match person {
+        var {id, ...rest} => {
+            boolean a = id;
+            map<boolean> b = rest;
+        }
+    }
+}

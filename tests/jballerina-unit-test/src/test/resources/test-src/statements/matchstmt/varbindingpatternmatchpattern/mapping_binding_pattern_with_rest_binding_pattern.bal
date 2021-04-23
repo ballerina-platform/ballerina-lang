@@ -17,10 +17,10 @@
 function mappingBindingPatternRest1(any v) returns any|error {
     match v {
         var {w: a, x: b, y: c,  ...r} => {
-            return r["z"];
+            return <anydata> checkpanic r["z"];
         }
         var {x: a, y: b, ...r} => {
-            return r["d"];
+            return <anydata> checkpanic r["d"];
         }
         var _ => {
             return "No match";
@@ -193,6 +193,32 @@ function testMappingBindingPatternWithRest6() {
 
     int|[anydata, map<anydata>]? r7 = mappingBindingPatternRest9({n: 120, "q": "world"});
     assertEquals(121, r7);
+}
+
+type Person record {|
+    int id;
+    string name;
+    boolean employed;
+|};
+
+function mappingBindingPatternRest10(Person person) returns anydata {
+    match person {
+        {id: var x, ...var rest} => {
+            return [x, rest];
+        }
+    }
+    return "";
+}
+
+function testMappingBindingPatternWithRest7() {
+    anydata a = mappingBindingPatternRest10({id: 12, name: "May", employed: true});
+    assertEquals(true, a is anydata[]);
+    anydata[] b = <anydata[]> a;
+    assertEquals(12, b[0]);
+    map<anydata> mp = <map<anydata>> b[1];
+    assertEquals(2, mp.length());
+    assertEquals(true, mp["employed"]);
+    assertEquals("May", mp["name"]);
 }
 
 function assertEquals(anydata expected, anydata actual) {

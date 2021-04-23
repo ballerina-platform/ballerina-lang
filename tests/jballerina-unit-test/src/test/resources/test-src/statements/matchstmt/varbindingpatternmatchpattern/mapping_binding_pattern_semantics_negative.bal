@@ -44,3 +44,18 @@ function testInvalidTypesWithEmptyRestPattern(RecOne rec) {
         }
     }
 }
+
+type Person record {|
+    int id;
+    string name;
+    boolean employed;
+|};
+
+function testInvalidTypeWithClosedRecord(Person person) {
+    match person {
+        {id: var x, ...var rest} => {
+            boolean a = x;
+            map<boolean> b = rest;
+        }
+    }
+}
