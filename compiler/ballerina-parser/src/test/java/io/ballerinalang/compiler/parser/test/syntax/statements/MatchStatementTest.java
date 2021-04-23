@@ -83,6 +83,7 @@ public class MatchStatementTest extends AbstractStatementTest {
     @Test
     public void testMatchStmtRecoveryMissingSymbolsAdditionalSymbols() {
         testFile("match-stmt/match_stmt_source_07.bal", "match-stmt/match_stmt_assert_07.json");
+        testFile("match-stmt/match_stmt_source_19.bal", "match-stmt/match_stmt_assert_19.json");
     }
 
     @Test
