@@ -2144,7 +2144,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingMatchPattern.restMatchPattern != null) {
             BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
-            restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.mapAllType, null);
             analyzeNode(restMatchPattern, env);
             mappingMatchPattern.declaredVars.put(restMatchPattern.variableName.value, restMatchPattern.symbol);
         }
@@ -2250,8 +2250,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
-                restPatternMapType.constraint = restVarSymbolMapType.constraint =
-                        this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
+                if (recordType.sealed ||
+                        this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(recordType.restFieldType)) {
+                    restPatternMapType.constraint = restVarSymbolMapType.constraint = symTable.neverType;
+                } else {
+                    restPatternMapType.constraint = restVarSymbolMapType.constraint =
+                            this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
+                }
+
                 for (BField remainingField : fields.values()) {
                     restPatternMapType.constraint = this.types.mergeTypes(restPatternMapType.constraint,
                             remainingField.type);
