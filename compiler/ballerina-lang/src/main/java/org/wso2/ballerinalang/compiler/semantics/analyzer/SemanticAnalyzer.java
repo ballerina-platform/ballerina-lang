@@ -2144,7 +2144,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingMatchPattern.restMatchPattern != null) {
             BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
-            restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.mapAllType, null);
+            restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
             analyzeNode(restMatchPattern, env);
             mappingMatchPattern.declaredVars.put(restMatchPattern.variableName.value, restMatchPattern.symbol);
         }
@@ -2250,18 +2250,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
+
                 if (recordType.sealed ||
                         this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(recordType.restFieldType)) {
-                    restPatternMapType.constraint = restVarSymbolMapType.constraint = symTable.neverType;
-                } else {
-                    restPatternMapType.constraint = restVarSymbolMapType.constraint =
-                            this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
-                }
+                    if (fields.isEmpty()) {
+                        restPatternMapType.constraint = symTable.neverType;
+                        restVarSymbolMapType.constraint = symTable.neverType;
+                        return;
+                    }
 
-                for (BField remainingField : fields.values()) {
-                    restPatternMapType.constraint = this.types.mergeTypes(restPatternMapType.constraint,
-                            remainingField.type);
+                    BField[] fieldArray = fields.values().toArray(new BField[0]);
+                    BType effectiveRestType = this.types.mergeTypes(restVarSymbolMapType.constraint,
+                            fieldArray[0].type);
+                    for (int i = 1; i < fieldArray.length; i++) {
+                        effectiveRestType = this.types.mergeTypes(effectiveRestType, fieldArray[i].type);
+                    }
+                    restPatternMapType.constraint = effectiveRestType;
+                    restVarSymbolMapType.constraint = effectiveRestType;
+                    return;
                 }
+                BType effectiveRestType = this.types.mergeTypes(restVarSymbolMapType.constraint,
+                                                                recordType.restFieldType);
+                for (BField remainingField : fields.values()) {
+                    effectiveRestType = this.types.mergeTypes(effectiveRestType, remainingField.type);
+                }
+                restPatternMapType.constraint = effectiveRestType;
+                restVarSymbolMapType.constraint = effectiveRestType;
         }
     }
 
@@ -2719,35 +2733,36 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 if (mappingBindingPattern.restBindingPattern == null) {
                     return;
                 }
-
-                LinkedHashSet<BType> constraintTypes = new LinkedHashSet<>();
-                for (BField field : fields.values()) {
-                    constraintTypes.add(field.type);
-                }
-
-                if (!recordType.sealed) {
-                    BType restFieldType = recordType.restFieldType;
-                    if (!this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(restFieldType)) {
-                        constraintTypes.add(restFieldType);
-                    }
-                }
-
-                BType restConstraintType;
-                if (constraintTypes.isEmpty()) {
-                    restConstraintType = symTable.neverType;
-                } else if (constraintTypes.size() == 1) {
-                    restConstraintType = constraintTypes.iterator().next();
-                } else {
-                    restConstraintType = BUnionType.create(null, constraintTypes);
-                }
-
                 BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
                 BMapType restPatternMapType = (BMapType) restBindingPattern.type;
                 BVarSymbol restVarSymbol =
                         restBindingPattern.declaredVars.get(restBindingPattern.getIdentifier().getValue());
                 BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
-                restPatternMapType.constraint = restVarSymbolMapType.constraint =
-                        this.types.mergeTypes(restVarSymbolMapType.constraint, restConstraintType);
+
+                if (recordType.sealed ||
+                        this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(recordType.restFieldType)) {
+                    if (fields.isEmpty()) {
+                        restPatternMapType.constraint = symTable.neverType;
+                        restVarSymbolMapType.constraint = symTable.neverType;
+                        return;
+                    }
+
+                    BField[] fieldArray = fields.values().toArray(new BField[0]);
+                    BType effectiveType = this.types.mergeTypes(restVarSymbolMapType.constraint,
+                            fieldArray[0].type);
+                    for (int i = 1; i < fieldArray.length; i++) {
+                        effectiveType = this.types.mergeTypes(effectiveType, fieldArray[i].type);
+                    }
+                    restPatternMapType.constraint = effectiveType;
+                    restVarSymbolMapType.constraint = effectiveType;
+                    return;
+                }
+                BType effectiveType = this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
+                for (BField remainingField : fields.values()) {
+                    effectiveType = this.types.mergeTypes(effectiveType, remainingField.type);
+                }
+                restPatternMapType.constraint = effectiveType;
+                restVarSymbolMapType.constraint = effectiveType;
                 return;
             default:
         }
