@@ -28,7 +28,6 @@ import io.ballerina.runtime.internal.TypeChecker;
 import io.ballerina.runtime.internal.XmlFactory;
 import io.ballerina.runtime.internal.util.exceptions.BLangExceptionHelper;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
-import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
 
 import java.util.Arrays;
 

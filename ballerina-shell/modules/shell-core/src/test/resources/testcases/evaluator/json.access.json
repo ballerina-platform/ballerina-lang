@@ -16,7 +16,7 @@
   {
     "description": "Field access of non-existing field.",
     "code": "j1.age.year",
-    "expr": "error {ballerina/lang.map:1.1.0}MapKeyNotFound&{ballerina/lang.runtime:0.0.1}KeyNotFound (\"{ballerina/lang.map}MapKeyNotFound\",message=\"key 'age' not found\")"
+    "expr": "error {ballerina/lang.map}MapKeyNotFound&{ballerina/lang.runtime}KeyNotFound (\"{ballerina/lang.map}MapKeyNotFound\",message=\"key 'age' not found\")"
   },
   {
     "description": "Optional field access.",

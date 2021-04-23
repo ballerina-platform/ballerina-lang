@@ -47,6 +47,7 @@ import static io.ballerina.runtime.api.PredefinedTypes.TYPE_MAP;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BLANG_SRC_FILE_SUFFIX;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.DOT;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.MODULE_INIT_CLASS_NAME;
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
 
 /**
  * <p>
@@ -188,11 +189,12 @@ public class ErrorValue extends BError implements RefValue {
         StringJoiner sj = new StringJoiner("&");
         List<TypeId> typeIds = ((BErrorType) type).typeIdSet.getIds();
         for (TypeId typeId : typeIds) {
-            String pkg = typeId.getPkg().toString();
-            if (DOT.equals(pkg)) {
+            Module module = typeId.getPkg();
+            String moduleId = module.getOrg() + ORG_NAME_SEPARATOR + module.getName();
+            if (DOT.equals(module.toString())) {
                 sj.add(typeId.getName());
             } else {
-                sj.add("{" + pkg + "}" + typeId.getName());
+                sj.add("{" + moduleId + "}" + typeId.getName());
             }
         }
         return " " + sj.toString() + " ";
