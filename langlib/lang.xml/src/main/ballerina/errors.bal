@@ -16,4 +16,8 @@
 
 import ballerina/lang.'runtime as runtime_error;
 
+// IndexOutOfRange
 public type XmlSequenceIndexOutOfRange distinct runtime_error:IndexOutOfRange;
+
+// XmlOperationError
+public type InvalidXmlType distinct runtime_error:XmlOperationError;

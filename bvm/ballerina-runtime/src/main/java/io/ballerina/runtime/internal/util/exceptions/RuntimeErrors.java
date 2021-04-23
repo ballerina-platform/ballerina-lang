@@ -23,7 +23,6 @@ package io.ballerina.runtime.internal.util.exceptions;
  */
 public enum RuntimeErrors {
 
-    INCOMPATIBLE_TYPE("incompatible.types", "RUNTIME_0005"),
     NOT_ENOUGH_FORMAT_ARGUMENTS("not.enough.format.arguments", "RUNTIME_0021"),
     INVALID_FORMAT_SPECIFIER("invalid.format.specifier", "RUNTIME_0022"),
     ILLEGAL_FORMAT_CONVERSION("illegal.format.conversion", "RUNTIME_0028"),

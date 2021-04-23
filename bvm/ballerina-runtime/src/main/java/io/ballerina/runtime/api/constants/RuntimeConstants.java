@@ -70,6 +70,7 @@ public class RuntimeConstants {
     public static final String TABLE_LANG_LIB = "lang.table";
     public static final String INT_LANG_LIB = "lang.int";
     public static final String FLOAT_LANG_LIB = "lang.float";
+    public static final String DECIMAL_LANG_LIB = "lang.decimal";
     public static final String BOOLEAN_LANG_LIB = "lang.boolean";
     public static final String TRANSACTION_LANG_LIB = "lang.transaction";
     public static final String RUNTIME_LANG_LIB = "lang.runtime";
@@ -100,6 +101,13 @@ public class RuntimeConstants {
             VALUE_LANG_LIB, "1.0.0");
     public static final Module BALLERINA_LANG_BOOLEAN_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
             BOOLEAN_LANG_LIB, "1.0.0");
+    public static final Module BALLERINA_LANG_INT_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
+            INT_LANG_LIB, "1.1.0");
+    public static final Module BALLERINA_LANG_FLOAT_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
+            FLOAT_LANG_LIB, "1.0.0");
+    public static final Module BALLERINA_LANG_DECIMAL_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
+            DECIMAL_LANG_LIB, "1.0.0");
+
 
     // Workers
     public static final String DEFAULT_WORKER_NAME = "default";

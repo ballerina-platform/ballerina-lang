@@ -45,13 +45,8 @@ public class BallerinaErrorReasons {
             StringUtils.fromString(BALLERINA_PREFIX.concat("JavaNullReferenceError"));
     public static final String JAVA_CLASS_NOT_FOUND_ERROR = BALLERINA_PREFIX.concat("JavaClassNotFoundError");
 
-    public static final BString BALLERINA_PREFIXED_CONVERSION_ERROR =
-            StringUtils.fromString(BALLERINA_PREFIX.concat("ConversionError"));
-
     public static final String NUMBER_PARSING_ERROR_IDENTIFIER = "NumberParsingError";
     public static final String INVALID_UPDATE_ERROR_IDENTIFIER = "InvalidUpdate";
-    public static final String INDEX_OUT_OF_RANGE_ERROR_IDENTIFIER = "IndexOutOfRange";
-    public static final String INHERENT_TYPE_VIOLATION_ERROR_IDENTIFIER = "InherentTypeViolation";
     public static final String OPERATION_NOT_SUPPORTED_IDENTIFIER = "OperationNotSupported";
     public static final String INVALID_TYPE_TO_SORT = "SortOperationError";
 

@@ -42,11 +42,8 @@ public type IncompatibleTypeForJsonCasting distinct InherentTypeViolation;
 // StringOperationError
 public type StringOperationError distinct error;
 public type InvalidSubstringRange distinct StringOperationError;
-public type NotEnoughFormatArgumentsError distinct StringOperationError;
-public type InvalidFormatSpecifierError distinct StringOperationError;
-public type IllegalFormatConversionError distinct StringOperationError;
 
-public type ArithmeticOperationError distinct error;
+public type ArithmeticError distinct error;
 
 // ConversionError
 public type ConversionError distinct error;
@@ -80,3 +77,6 @@ public type IteratorMutabilityError distinct error;
 // JsonOperationError
 public type JSONOperationError distinct error;
 public type JSONConversionError distinct JSONOperationError;
+
+// XmlOperationError
+public type XmlOperationError distinct error;

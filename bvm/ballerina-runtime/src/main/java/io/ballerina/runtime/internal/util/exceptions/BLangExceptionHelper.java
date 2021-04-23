@@ -39,6 +39,12 @@ public class BLangExceptionHelper {
         return ErrorCreator.createError(errorMsg);
     }
 
+    public static BError getRuntimeException(RuntimeErrorType errorType, Object... params) {
+        BString errorMsg = StringUtils
+                .fromString(MessageFormat.format(messageBundle.getString(errorType.getErrorMsgKey()), params));
+        return ErrorCreator.createError(errorMsg);
+    }
+
     public static BError getRuntimeException(BString reason, RuntimeErrors runtimeErrors, Object... params) {
         BString errorDetail = StringUtils
                 .fromString(MessageFormat.format(messageBundle.getString(runtimeErrors.getErrorMsgKey()), params));

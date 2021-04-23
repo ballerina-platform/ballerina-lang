@@ -19,6 +19,9 @@
 package org.ballerinalang.langlib.test;
 
 
+import io.ballerina.runtime.api.constants.RuntimeConstants;
+import io.ballerina.runtime.internal.ErrorUtils;
+import io.ballerina.runtime.internal.util.exceptions.RuntimeErrorType;
 import org.ballerinalang.core.model.types.TypeTags;
 import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
@@ -69,8 +72,8 @@ public class LangLibIntTest {
         assertEquals(returns[1].getType().getTag(), TypeTags.ERROR_TAG);
 
         BError err = (BError) returns[1];
-        assertEquals(err.getReason(), getModulePrefixedReason(INT_LANG_LIB, NUMBER_PARSING_ERROR_IDENTIFIER)
-                .getValue());
+        assertEquals(err.getMessage(), ErrorUtils.getModulePrefixedErrorName(RuntimeConstants.BALLERINA_LANG_INT_PKG_ID,
+                RuntimeErrorType.NUMBER_PARSING_ERROR).getValue());
         assertEquals(err.getDetails().toString(), "{\"message\":\"'string' value '12invalid34' " +
                 "cannot be converted to 'int'\"}");
     }

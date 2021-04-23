@@ -342,7 +342,7 @@ function testGetJson () returns (json|error) {
 
 function testGetNonExistingElement () {
     json j2 = {age:43};
-    any|error res = trap j2.name;
+    any|error res = j2.name;
 
     error err = <error> res;
     assertEquality("{ballerina/lang.map}MapKeyNotFound", err.message());
@@ -352,7 +352,7 @@ function testGetNonExistingElement () {
     assertEquality("{ballerina/lang.map}MapKeyNotFound", err1.message());
     assertEquality("{\"message\":\"key 'name' not found\"}", err1.detail().toString());
 
-    map:MapKeyNotFound err2 = <map:MapKeyNotFound> res;
+    'map:MapKeyNotFound err2 = <'map:MapKeyNotFound> res;
     assertEquality("{ballerina/lang.map}MapKeyNotFound", err2.message());
     assertEquality("{\"message\":\"key 'name' not found\"}", err2.detail().toString());
 }

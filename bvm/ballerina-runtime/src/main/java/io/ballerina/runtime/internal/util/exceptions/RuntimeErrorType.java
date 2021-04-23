@@ -47,6 +47,7 @@ public enum RuntimeErrorType {
     TUPLE_INDEX_OUT_OF_RANGE("TupleIndexOutOfRange", "tuple.index.out.of.range", "RT-0016"),
     STRING_INDEX_OUT_OF_RANGE("StringIndexOutOfRange", "string.index.out.of.range", "RT-0017"),
     SUBSTRING_INDEX_OUT_OF_RANGE("StringIndexOutOfRange", "substring.index.out.of.range", "RT-0018"),
+    CODE_POINT_INDEX_OUT_OF_RANGE("StringIndexOutOfRange", "codepoint.index.out.of.range", "RT-0018"),
     XML_SEQUENCE_INDEX_OUT_OF_RANGE("XmlSequenceIndexOutOfRange", "xml.index.out.of.range", "RT-0019"),
 
     // StringOperationError
@@ -61,6 +62,7 @@ public enum RuntimeErrorType {
     CYCLIC_VALUE_REFERENCE("CyclicValueReference", "cyclic.value.reference", "RT-0025"),
     INCOMPATIBLE_CONVERT_OPERATION("IncompatibleConvertOperation", "incompatible.convert.operation", "RT-0026"),
     BOOLEAN_PARSING_ERROR("BooleanParsingError", "incompatible.simple.type.convert.operation", "RT-0027"),
+    NUMBER_PARSING_ERROR("NumberParsingError", "incompatible.simple.type.convert.operation", "RT-0028"),
 
     // IllegalListInsertionError
     ILLEGAL_ARRAY_INSERTION("IllegalArrayInsertion", "illegal.array.insertion", "RT-0028"),
@@ -85,6 +87,9 @@ public enum RuntimeErrorType {
     JSON_OPERATION_ERROR("JSONOperationError", "json.value.not.a.mapping", "RT-0039"),
     MERGE_JSON_ERROR("MergeJsonError", "merge.json.values.of.different.types", "RT-0040"),
     MERGE_JSON_WITH_CYCLIC_REFERENCE("MergeJsonError", "merge.json.values.with.cyclic.reference", "RT-0041"),
+
+    // XmlOperationError
+    XML_FUNC_TYPE_ERROR("InvalidXmlType", "unexpected.xml.type", "RT-0042"),
 
     // OperationNotSupportedError
     UNSUPPORTED_COMPARISON_OPERATION("UnsupportedComparisonOperation", "unsupported.comparison.operation", "RT-0042"),
