@@ -31,15 +31,9 @@ import org.testng.annotations.Test;
  */
 public class WaitActionsNegativeTest {
 
-    private CompileResult resultNegative;
-
-    @BeforeClass
-    public void setup() {
-        this.resultNegative = BCompileUtil.compile("test-src/workers/wait-actions-negative.bal");
-    }
-
     @Test(description = "Test negative scenarios of worker actions")
     public void testNegativeWorkerActions() {
+        CompileResult resultNegative = BCompileUtil.compile("test-src/workers/wait-actions-negative.bal");
         int index = 0;
         Assert.assertEquals(resultNegative.getErrorCount(), 20, "Wait actions negative test error count");
         BAssertUtil.validateError(resultNegative, index++,
@@ -90,8 +84,16 @@ public class WaitActionsNegativeTest {
                 "incompatible types: expected 'future<string>', found 'future<int>'", 90, 54);
     }
 
-    @AfterClass
-    public void tearDown() {
-        resultNegative = null;
+    @Test
+    public void testWorkerMessagePassingAfterWaitNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/after-wait-action-negative.bal");
+        int index = 0;
+        String expectedErrMsg = "invalid worker message passing after waiting for the same worker";
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 23, 13);
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 34, 17);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 42, 13);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 45, 13);
+
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 }

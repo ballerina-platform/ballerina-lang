@@ -4050,8 +4050,22 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean isWorkerFromFunction(SymbolEnv functionEnv, BSymbol symbol) {
-        return functionEnv.scope.lookup(symbol.name).symbol != null
-                && !referingForkedWorkerOutOfFork(symbol, functionEnv);
+        if (functionEnv == null) {
+            return false;
+        }
+
+        if (functionEnv.enclInvokable != null) {
+            Set<Flag> flagSet = functionEnv.enclInvokable.flagSet;
+            if (flagSet.contains(Flag.LAMBDA) && !flagSet.contains(Flag.WORKER)) {
+                return false;
+            }
+        }
+
+        if (functionEnv.scope.lookup(symbol.name).symbol != null
+                && !referingForkedWorkerOutOfFork(symbol, functionEnv)) {
+            return true;
+        }
+        return isWorkerFromFunction(functionEnv.enclEnv, symbol);
     }
 
     private boolean isWorkerSymbol(BSymbol symbol) {
