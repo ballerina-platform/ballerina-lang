@@ -449,8 +449,27 @@ public class TomlProvider implements ConfigProvider {
             tomlValue = ((TomlKeyValueNode) tomlValue).value();
             return getPrimitiveArray(tomlValue, variableName, arrayType);
         } else {
-            switch (elementType.getTag()) {
-                case TypeTags.ARRAY_TAG:
+            return getNonPrimitiveArray(tomlValue, variableName, arrayType, elementType);
+        }
+    }
+
+    private BArray getNonPrimitiveArray(TomlNode tomlValue, String variableName, ArrayType arrayType,
+                                        Type elementType) {
+        switch (elementType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                if (tomlValue.kind() != TomlType.KEY_VALUE) {
+                    throw new TomlConfigException(String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE,
+                            variableName, arrayType,
+                                                                getTomlTypeString(tomlValue)), tomlValue);
+                }
+                visitedNodes.add(tomlValue);
+                tomlValue = ((TomlKeyValueNode) tomlValue).value();
+                return getPrimitiveArray(tomlValue, variableName, arrayType);
+            case TypeTags.RECORD_TYPE_TAG:
+                return getRecordArray(tomlValue, variableName, arrayType, elementType);
+            default:
+                Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
+                if (effectiveType.getTag() == TypeTags.ARRAY_TAG) {
                     if (tomlValue.kind() != TomlType.KEY_VALUE) {
                         throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
                                                   arrayType, getTomlTypeString(tomlValue));
@@ -458,22 +477,9 @@ public class TomlProvider implements ConfigProvider {
                     visitedNodes.add(tomlValue);
                     tomlValue = ((TomlKeyValueNode) tomlValue).value();
                     return getPrimitiveArray(tomlValue, variableName, arrayType);
-                case TypeTags.RECORD_TYPE_TAG:
-                    return getRecordArray(tomlValue, variableName, arrayType, elementType);
-                default:
-                    Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
-                    if (effectiveType.getTag() == TypeTags.ARRAY_TAG) {
-                        if (tomlValue.kind() != TomlType.KEY_VALUE) {
-                            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
-                                                      arrayType, getTomlTypeString(tomlValue));
-                        }
-                        visitedNodes.add(tomlValue);
-                        tomlValue = ((TomlKeyValueNode) tomlValue).value();
-                        return getPrimitiveArray(tomlValue, variableName, arrayType);
-                    } else {
-                        return getRecordArray(tomlValue, variableName, arrayType, effectiveType);
-                    }
-            }
+                } else {
+                    return getRecordArray(tomlValue, variableName, arrayType, effectiveType);
+                }
         }
     }
 
@@ -559,25 +565,7 @@ public class TomlProvider implements ConfigProvider {
                 throw new ConfigException(CONFIG_TOML_FIELD_TYPE_NOT_SUPPORTED, getLineRange(value), fieldType,
                                           variableName);
             }
-            Object objectValue;
-            switch (fieldType.getTag()) {
-                case TypeTags.ARRAY_TAG:
-                    objectValue = retrieveArrayValues(value, variableName,  (ArrayType) fieldType);
-                    break;
-                case TypeTags.RECORD_TYPE_TAG:
-                    objectValue = retrieveRecordValues(value, variableName, fieldType);
-                    break;
-                case TypeTags.INTERSECTION_TAG:
-                    Type effectiveType = ((IntersectionType) fieldType).getEffectiveType();
-                    if (effectiveType.getTag() == TypeTags.ARRAY_TAG) {
-                        objectValue = retrieveArrayValues(value, variableName, (ArrayType) effectiveType);
-                    } else {
-                        objectValue = retrieveRecordValues(value, variableName, effectiveType);
-                    }
-                    break;
-                default:
-                    objectValue = retrievePrimitiveValue(value, variableName, fieldType, fieldName);
-            }
+            Object objectValue = getRecordField(variableName, fieldName, value, fieldType);
             initialValueEntries.put(fieldName, objectValue);
         }
         validateRequiredField(initialValueEntries, recordType, variableName, tomlValue);
@@ -585,6 +573,30 @@ public class TomlProvider implements ConfigProvider {
             return createReadOnlyFieldRecord(initialValueEntries, recordType, variableName, tomlValue);
         }
         return ValueCreator.createReadonlyRecordValue(recordType.getPackage(), recordName, initialValueEntries);
+    }
+
+    private Object getRecordField(String variableName, String fieldName, TomlNode value, Type fieldType) {
+        Object objectValue;
+        String errorPrefix = "field '" + fieldName + "' from ";
+        switch (fieldType.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                objectValue = retrieveArrayValues(value, variableName,  (ArrayType) fieldType);
+                break;
+            case TypeTags.RECORD_TYPE_TAG:
+                objectValue = retrieveRecordValues(value, variableName, fieldType);
+                break;
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((IntersectionType) fieldType).getEffectiveType();
+                if (effectiveType.getTag() == TypeTags.ARRAY_TAG) {
+                    objectValue = retrieveArrayValues(value, variableName, (ArrayType) effectiveType);
+                } else {
+                    objectValue = retrieveRecordValues(value, variableName, effectiveType);
+                }
+                break;
+            default:
+                objectValue = retrievePrimitiveValue(value, variableName, fieldType, errorPrefix);
+        }
+        return objectValue;
     }
 
     private BMap<BString, Object> createReadOnlyFieldRecord(Map<String, Object> initialValueEntries,
