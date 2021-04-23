@@ -5786,12 +5786,12 @@ public class BallerinaParser extends AbstractParser {
                 break;
             case NAMED_ARG:
                 arg = SyntaxErrors.addDiagnostic(arg,
-                        DiagnosticErrorCode.ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR);
+                        DiagnosticErrorCode.ERROR_MISSING_ERROR_MESSAGE_IN_ERROR_CONSTRUCTOR);
                 errorArgList.add(arg);
                 break;
             default: // rest arg
                 arg = SyntaxErrors.addDiagnostic(arg,
-                        DiagnosticErrorCode.ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR);
+                        DiagnosticErrorCode.ERROR_MISSING_ERROR_MESSAGE_IN_ERROR_CONSTRUCTOR);
                 arg = SyntaxErrors.addDiagnostic(arg, DiagnosticErrorCode.ERROR_REST_ARG_IN_ERROR_CONSTRUCTOR);
                 errorArgList.add(arg);
                 break;
@@ -10779,10 +10779,8 @@ public class BallerinaParser extends AbstractParser {
             typeDesc = STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
         }
 
-        STToken nextToken;
         // Parse the remaining type descs
-        nextToken = peek();
-        while (!isEndOfTypeList(nextToken.kind)) {
+        while (!isEndOfTypeList(peek().kind)) {
             tupleMemberRhs = parseTupleMemberRhs();
             if (tupleMemberRhs == null) {
                 break;
@@ -10796,7 +10794,6 @@ public class BallerinaParser extends AbstractParser {
             typeDescList.add(typeDesc);
             typeDescList.add(tupleMemberRhs);
             typeDesc = parseMemberDescriptor();
-            nextToken = peek();
         }
 
         typeDescList.add(typeDesc);
