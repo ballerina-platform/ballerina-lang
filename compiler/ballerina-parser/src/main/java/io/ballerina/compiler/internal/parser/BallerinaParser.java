@@ -10774,27 +10774,59 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseTupleTypeMembers(STNode typeDesc, List<STNode> typeDescList) {
+        STNode tupleMemberRhs = parseTypeDescInTupleRhs();
+        if (tupleMemberRhs != null) {
+            typeDesc = STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
+        }
+
         STToken nextToken;
         // Parse the remaining type descs
         nextToken = peek();
-        STNode tupleMemberRhs;
         while (!isEndOfTypeList(nextToken.kind)) {
             tupleMemberRhs = parseTupleMemberRhs();
             if (tupleMemberRhs == null) {
                 break;
             }
-            if (tupleMemberRhs.kind == SyntaxKind.ELLIPSIS_TOKEN) {
-                typeDesc = STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
+
+            if (typeDesc.kind == SyntaxKind.REST_TYPE) {
+                typeDesc = invalidateTypeDescAfterRestDesc(typeDesc);
                 break;
             }
+
             typeDescList.add(typeDesc);
             typeDescList.add(tupleMemberRhs);
-            typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+            typeDesc = parseMemberDescriptor();
             nextToken = peek();
         }
 
         typeDescList.add(typeDesc);
         return STNodeFactory.createNodeList(typeDescList);
+    }
+
+    private STNode parseMemberDescriptor() {
+        STNode typeDesc = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TUPLE);
+        STNode tupleMemberRhs = parseTypeDescInTupleRhs();
+
+        if (tupleMemberRhs != null) {
+            return STNodeFactory.createRestDescriptorNode(typeDesc, tupleMemberRhs);
+        }
+
+        return typeDesc;
+    }
+
+    private STNode invalidateTypeDescAfterRestDesc(STNode restDescriptor) {
+        while (!isEndOfTypeList(peek().kind)) {
+            STNode tupleMemberRhs = parseTupleMemberRhs();
+            if (tupleMemberRhs == null) {
+                break;
+            }
+
+            restDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restDescriptor, tupleMemberRhs, null);
+            restDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restDescriptor, parseMemberDescriptor(),
+                    DiagnosticErrorCode.ERROR_TYPEDESC_AFTER_REST_DESCRIPTOR);
+        }
+
+        return restDescriptor;
     }
 
     private STNode parseTupleMemberRhs() {
@@ -10803,11 +10835,22 @@ public class BallerinaParser extends AbstractParser {
                 return parseComma();
             case CLOSE_BRACKET_TOKEN:
                 return null;
+            default:
+                recover(peek(), ParserRuleContext.TUPLE_TYPE_MEMBER_RHS);
+                return parseTupleMemberRhs();
+        }
+    }
+
+    private STNode parseTypeDescInTupleRhs() {
+        switch (peek().kind) {
+            case COMMA_TOKEN:
+            case CLOSE_BRACKET_TOKEN:
+                return null;
             case ELLIPSIS_TOKEN:
                 return parseEllipsis();
             default:
                 recover(peek(), ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS);
-                return parseTupleMemberRhs();
+                return parseTypeDescInTupleRhs();
         }
     }
 
@@ -16369,10 +16412,8 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseAsTupleTypeDesc(STNode annots, STNode openBracket, List<STNode> memberList, STNode member,
                                         boolean isRoot) {
         memberList = getTypeDescList(memberList);
-        startContext(ParserRuleContext.TYPE_DESC_IN_TUPLE);
         STNode tupleTypeMembers = parseTupleTypeMembers(member, memberList);
         STNode closeBracket = parseCloseBracket();
-        endContext();
 
         STNode tupleType = STNodeFactory.createTupleTypeDescriptorNode(openBracket, tupleTypeMembers, closeBracket);
         STNode typeDesc =
