@@ -253,6 +253,8 @@ public class MatchStmtMappingMatchPatternTest {
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 84, 9);
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 91, 9);
         BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 98, 9);
+        BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 110, 9);
+        BAssertUtil.validateError(resultNegative, i++, unreachablePattern, 112, 9);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 

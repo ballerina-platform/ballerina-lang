@@ -203,8 +203,8 @@ type Person record {|
 
 function mappingBindingPatternRest10(Person person) returns anydata {
     match person {
-        {id: var x, ...var rest} => {
-            return [x, rest];
+        var {id, ...rest} => {
+            return [id, rest];
         }
     }
     return "";

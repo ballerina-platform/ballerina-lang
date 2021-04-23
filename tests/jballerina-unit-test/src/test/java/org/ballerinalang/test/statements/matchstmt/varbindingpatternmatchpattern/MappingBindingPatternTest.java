@@ -177,6 +177,8 @@ public class MappingBindingPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 46, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 54, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 61, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 73, 9);
+        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 75, 9);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 

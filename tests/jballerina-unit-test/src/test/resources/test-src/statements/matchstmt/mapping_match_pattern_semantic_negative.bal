@@ -43,8 +43,8 @@ type Person record {|
 
 function testInvalidTypewWithClosedRecord(Person person) {
     match person {
-        var {id, ...rest} => {
-            boolean a = id;
+        {id: var x, ...var rest} => {
+            boolean a = x;
             map<boolean> b = rest;
         }
     }
