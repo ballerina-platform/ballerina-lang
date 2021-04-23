@@ -109,4 +109,10 @@ public class MatchStatementTest extends AbstractStatementTest {
     public void testMatchStmtRecoveryZeroMatchCluases() {
         testFile("match-stmt/match_stmt_source_16.bal", "match-stmt/match_stmt_assert_16.json");
     }
+
+    @Test
+    public void testIncompleteMatchStmtRecovery() {
+        testFile("match-stmt/match_stmt_source_17.bal", "match-stmt/match_stmt_assert_17.json");
+        testFile("match-stmt/match_stmt_source_18.bal", "match-stmt/match_stmt_assert_18.json");
+    }
 }

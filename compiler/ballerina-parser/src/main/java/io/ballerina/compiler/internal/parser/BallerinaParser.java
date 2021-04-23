@@ -2437,8 +2437,16 @@ public class BallerinaParser extends AbstractParser {
                     reportInvalidQualifierList(qualifiers);
                     return parseSimpleTypeDescriptor();
                 }
+                
+                nextToken = peek();
+                if (isRecoveryAtFuncBodyEnd(nextToken)) {
+                    // Special case the func-body-block end.
+                    STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                            DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
+                    return STNodeFactory.createSimpleNameReferenceNode(identifier);
+                }
 
-                Solution solution = recover(peek(), ParserRuleContext.TYPE_DESCRIPTOR, qualifiers, context,
+                Solution solution = recover(nextToken, ParserRuleContext.TYPE_DESCRIPTOR, qualifiers, context,
                         isInConditionalExpr);
 
                 if (solution.action == Action.KEEP) {
@@ -2748,12 +2756,12 @@ public class BallerinaParser extends AbstractParser {
             case TYPE_KEYWORD:
             case PUBLIC_KEYWORD:
             default:
-                return endOfModuleLevelNode(1);
+                return isEndOfModuleLevelNode(1);
         }
     }
 
     private boolean isEndOfObjectTypeNode() {
-        return endOfModuleLevelNode(1, true);
+        return isEndOfModuleLevelNode(1, true);
     }
 
     private boolean isEndOfStatements() {
@@ -2761,15 +2769,15 @@ public class BallerinaParser extends AbstractParser {
             case RESOURCE_KEYWORD:
                 return true;
             default:
-                return endOfModuleLevelNode(1);
+                return isEndOfModuleLevelNode(1);
         }
     }
 
-    private boolean endOfModuleLevelNode(int peekIndex) {
-        return endOfModuleLevelNode(peekIndex, false);
+    private boolean isEndOfModuleLevelNode(int peekIndex) {
+        return isEndOfModuleLevelNode(peekIndex, false);
     }
 
-    private boolean endOfModuleLevelNode(int peekIndex, boolean isObject) {
+    private boolean isEndOfModuleLevelNode(int peekIndex, boolean isObject) {
         switch (peek(peekIndex).kind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
@@ -2782,7 +2790,7 @@ public class BallerinaParser extends AbstractParser {
             case SERVICE_KEYWORD:
                 return isServiceDeclStart(ParserRuleContext.OBJECT_MEMBER, 1);
             case PUBLIC_KEYWORD:
-                return endOfModuleLevelNode(peekIndex + 1, isObject);
+                return isEndOfModuleLevelNode(peekIndex + 1, isObject);
             case FUNCTION_KEYWORD:
                 if (isObject) {
                     return false;
@@ -2817,7 +2825,7 @@ public class BallerinaParser extends AbstractParser {
             case AT_TOKEN:
                 return true;
             default:
-                return endOfModuleLevelNode(1);
+                return isEndOfModuleLevelNode(1);
         }
     }
 
@@ -2838,7 +2846,7 @@ public class BallerinaParser extends AbstractParser {
             case DO_KEYWORD:
                 return true;
             default:
-                return endOfModuleLevelNode(1);
+                return isEndOfModuleLevelNode(1);
         }
     }
 
@@ -4778,8 +4786,7 @@ public class BallerinaParser extends AbstractParser {
         }
 
         nextToken = peek();
-        if (this.errorHandler.hasAncestorContext(ParserRuleContext.FUNC_BODY_BLOCK) &&
-                isEndOfFuncBodyBlock(nextToken.kind, false)) {
+        if (isRecoveryAtFuncBodyEnd(nextToken)) {
             // Special case the func-body-block end. Refer issue #26317
             STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                     ParserRuleContext.VARIABLE_REF);
@@ -4789,6 +4796,11 @@ public class BallerinaParser extends AbstractParser {
         recover(nextToken, ParserRuleContext.TERMINAL_EXPRESSION, annots, qualifiers, isRhsExpr, allowActions,
                 isInConditionalExpr);
         return parseTerminalExpression(annots, qualifiers, isRhsExpr, allowActions, isInConditionalExpr);
+    }
+
+    private boolean isRecoveryAtFuncBodyEnd(STToken nextToken) {
+        return this.errorHandler.hasAncestorContext(ParserRuleContext.FUNC_BODY_BLOCK) &&
+                isEndOfFuncBodyBlock(nextToken.kind, false);
     }
 
     private STNode parseQualifiedIdentifierOrExpression(boolean isInConditionalExpr, boolean isRhsExpr) {
@@ -13461,9 +13473,10 @@ public class BallerinaParser extends AbstractParser {
         switch (nextTokenKind) {
             case EOF_TOKEN:
             case CLOSE_BRACE_TOKEN:
+            case TYPE_KEYWORD:
                 return true;
             default:
-                return false;
+                return isEndOfStatements();
         }
     }
 
@@ -15213,7 +15226,7 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private boolean isEndOfMappingBindingPattern(SyntaxKind nextTokenKind) {
-        return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN || endOfModuleLevelNode(1);
+        return nextTokenKind == SyntaxKind.CLOSE_BRACE_TOKEN || isEndOfModuleLevelNode(1);
     }
 
     private STNode parseErrorTypeDescOrErrorBP(STNode annots) {
@@ -15532,7 +15545,8 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseTypedBindingPatternTypeRhs(STNode typeDesc, ParserRuleContext context, boolean isRoot) {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case IDENTIFIER_TOKEN: // Capture/error binding pattern: T x, error T(..)
             case OPEN_BRACE_TOKEN: // Map binding pattern: T { }
             case ERROR_KEYWORD: // Error binding pattern: error T(..)
@@ -15552,7 +15566,15 @@ public class BallerinaParser extends AbstractParser {
                 }
                 // fall through
             default:
-                recover(peek(), ParserRuleContext.TYPED_BINDING_PATTERN_TYPE_RHS, typeDesc, context, isRoot);
+                if (isRecoveryAtFuncBodyEnd(nextToken)) {
+                    // Special case the func-body-block end.
+                    STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
+                            DiagnosticErrorCode.ERROR_MISSING_VARIABLE_NAME);
+                    STNode captureBP = STNodeFactory.createCaptureBindingPatternNode(identifier);
+                    return STNodeFactory.createTypedBindingPatternNode(typeDesc, captureBP);
+                }
+                
+                recover(nextToken, ParserRuleContext.TYPED_BINDING_PATTERN_TYPE_RHS, typeDesc, context, isRoot);
                 return parseTypedBindingPatternTypeRhs(typeDesc, context, isRoot);
         }
     }
