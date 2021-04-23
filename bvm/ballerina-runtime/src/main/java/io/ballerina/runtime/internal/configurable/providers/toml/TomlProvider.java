@@ -117,6 +117,7 @@ public class TomlProvider implements ConfigProvider {
             return;
         }
         String error = validateUnusedNodes(tomlNode);
+        visitedNodes.clear();
         if (!error.isEmpty()) {
                 throw new ConfigException("\n" + error);
         }
