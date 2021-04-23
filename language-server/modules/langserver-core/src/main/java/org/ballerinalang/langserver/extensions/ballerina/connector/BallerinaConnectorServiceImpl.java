@@ -37,11 +37,10 @@ import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
+import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.ModuleId;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.ProjectEnvironmentBuilder;
 import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
@@ -112,32 +111,21 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
     }
 
     private Path getBalaPath(String org, String module, String version) throws LSConnectorException, IOException {
-        Path balaPath;
+        Path platformBalaPath;
 
-        Path connectorPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module)
+        Path rootBalaPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module)
                 .resolve(version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
-        String pattern = connectorPath.toFile().getAbsolutePath() + "/*.bala";
-        PathMatcher pathMatcher = FileSystems.getDefault().getPathMatcher("glob:" + pattern);
-        Stream<Path> paths = Files.find(connectorPath, 1, (path, f) -> pathMatcher.matches(path));
-        List<Path> pathList = paths.collect(Collectors.toList());
-
-        if (pathList.isEmpty()) {
-            //check external modules
-            PackageID packageID = new PackageID(new Name(org), new Name(module), new Name(version));
-            HomeBalaRepo homeBalaRepo = new HomeBalaRepo(new HashMap<>());
-            Patten patten = homeBalaRepo.calculate(packageID);
-            Stream<Path> s = patten.convert(new BalaConverter(), packageID);
-            Optional<Path> path = s.reduce(Path::resolve);
-            if (path.isPresent() && Files.exists(path.get().toAbsolutePath())) {
-                balaPath = path.get().toAbsolutePath();
-            } else {
-                throw new LSConnectorException("No file exist in '" + ProjectDirConstants.BLANG_COMPILED_PKG_BINARY_EXT
-                        + path.get().toAbsolutePath() + "'");
-            }
+        Path anyPlatformBala = rootBalaPath.resolve("any");
+        Path jvmBala = rootBalaPath.resolve(JvmTarget.JAVA_11.code());
+        if (Files.exists(anyPlatformBala)) {
+            platformBalaPath = anyPlatformBala;
+        } else if (Files.exists(jvmBala)) {
+            platformBalaPath = jvmBala;
         } else {
-            balaPath = pathList.get(0);
+            throw new LSConnectorException("No bala project found for package at '"
+                    + rootBalaPath.toString() + "'");
         }
-        return balaPath;
+        return platformBalaPath;
     }
 
     @Override
@@ -154,7 +142,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+                Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
                 ModuleId moduleId = balaProject.currentPackage().moduleIds().stream()
                         .filter(modId -> modId.moduleName().equals(request.getModule())).findFirst().get();
                 Module module = balaProject.currentPackage().module(moduleId);
@@ -334,7 +322,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                 Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion());
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
-                BalaProject balaProject = BalaProject.loadProject(defaultBuilder, balaPath);
+                Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
                 ModuleId moduleId = balaProject.currentPackage().moduleIds().stream().findFirst().get();
                 Module module = balaProject.currentPackage().module(moduleId);
                 PackageCompilation packageCompilation = balaProject.currentPackage().getCompilation();
