@@ -233,7 +233,7 @@ org.wso2.transport.http.netty-6.2.34.jar                                        
 lang.object.jar                                                                                     jar            apache2
 netty-codec-http2-4.1.39.Final.jar                                                                  bundle         apache2
 auth.jar                                                                                            jar            apache2
-quartz-2.3.0.jar                                                                                    bundle         apache2
+quartz-2.3.2.jar                                                                                    bundle         apache2
 docker.jar                                                                                          jar            apache2
 time.jar                                                                                            jar            apache2
 prometheus.jar                                                                                      jar            apache2
