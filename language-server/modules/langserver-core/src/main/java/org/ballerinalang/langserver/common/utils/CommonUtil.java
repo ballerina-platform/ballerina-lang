@@ -198,6 +198,37 @@ public class CommonUtil {
     }
 
     /**
+     * Get the text edit for an auto import statement.
+     * Here we do not check whether the package is not already imported or a predeclared lang-lib, Particular
+     * check should be done before usage
+     *
+     * @param orgName package org name
+     * @param pkgName package name
+     * @param alias   import alias
+     * @param context Language server context
+     * @return {@link List}     List of Text Edits to apply
+     */
+    public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName, String alias,
+                                                        DocumentServiceContext context) {
+        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
+        Position start = new Position(0, 0);
+        if (currentDocImports != null && !currentDocImports.isEmpty()) {
+            ImportDeclarationNode last = CommonUtil.getLastItem(currentDocImports);
+            int endLine = last.lineRange().endLine().line();
+            start = new Position(endLine, 0);
+        }
+        StringBuilder builder = new StringBuilder(ItemResolverConstants.IMPORT + " "
+                + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
+                + pkgName);
+        if (!alias.isEmpty()) {
+            builder.append(" as ").append(alias).append(" ");
+        }
+        builder.append(SEMI_COLON_SYMBOL_KEY).append(CommonUtil.LINE_SEPARATOR);
+
+        return Collections.singletonList(new TextEdit(new Range(start, start), builder.toString()));
+    }
+
+    /**
      * Get the default value for the given BType.
      *
      * @param bType Type descriptor to get the default value
