@@ -347,7 +347,7 @@ public class ArrayValueImpl extends AbstractArrayValue {
         if (byteValues != null) {
             return byteValues[(int) index];
         }
-        return ((Integer) refValues[(int) index]).byteValue();
+        return ((Long) refValues[(int) index]).byteValue();
     }
 
     /**

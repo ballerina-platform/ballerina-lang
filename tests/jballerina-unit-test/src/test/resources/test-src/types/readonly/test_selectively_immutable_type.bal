@@ -80,6 +80,12 @@ function testSimpleInitializationForSelectivelyImmutableListTypes() {
     assertTrue(r1 is int[] & readonly);
     assertEquality(<int[]> [1, 2], r1);
 
+    readonly & any x = [1, 2, 3];
+    any xx = x;
+    byte[] y = <byte[]> xx;
+    assertTrue(xx === y);
+    assertEquality(1, y[0]);
+
     Employee & readonly emp = {
         details: {
             name: "Emma",
