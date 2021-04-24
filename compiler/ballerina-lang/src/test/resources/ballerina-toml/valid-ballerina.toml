@@ -8,7 +8,7 @@ keywords= ["toml", "ballerina"]
 repository= "https://github.com/ballerina-platform/ballerina-lang"
 
 [[platform.java11.dependency]]
-path = "<USER_DIR>/src/test/resources/dummy-jars/toml4j.txt"
+path = "../dummy-jars/toml4j.txt"
 artifactId = "toml4j"
 version = "0.7.2"
 groupId = "com.moandjiezana.toml"
