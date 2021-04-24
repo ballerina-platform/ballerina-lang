@@ -142,7 +142,6 @@ public class MyIterableIterator {
         self.i += 1;
         return {value: self.i};
     }
-
 }
 
 public function testIterableIterator() {
