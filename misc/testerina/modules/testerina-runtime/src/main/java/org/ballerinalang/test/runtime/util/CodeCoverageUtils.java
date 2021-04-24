@@ -87,7 +87,8 @@ public class CodeCoverageUtils {
     public static void unzipCompiledSource(Path source, Path destination, String orgName, String moduleName,
                                            String version, boolean enableIncludesFilter,
                                            String includesInCoverage) throws NoSuchFileException {
-        String destJarDir = destination.resolve(source.getFileName()).toString();
+        //String destJarDir = destination.resolve(source.getFileName()).toString();
+        String destJarDir = "target/cache/tests_cache/coverage/bin";
 
         try (JarFile jarFile = new JarFile(source.toFile())) {
             Enumeration<JarEntry> enu = jarFile.entries();
@@ -102,15 +103,15 @@ public class CodeCoverageUtils {
                     if (entry.isDirectory()) {
                         continue;
                     }
-                    try (InputStream is = jarFile.getInputStream(entry)) {
+                    try(InputStream is = jarFile.getInputStream(entry)) {
                         Files.copy(is, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
                     }
                 }
 
             }
 
-            copyClassFilesToBinPath(destination, destJarDir, moduleName, version);
-            deleteDirectory(new File(destJarDir));
+            //copyClassFilesToBinPath(destination, destJarDir, moduleName, version);
+            //deleteDirectory(new File(destJarDir));
         } catch (NoSuchFileException e) {
             String msg = "Unable to generate code coverage for the module " + moduleName + ". Source file does not " +
                     "exist";
