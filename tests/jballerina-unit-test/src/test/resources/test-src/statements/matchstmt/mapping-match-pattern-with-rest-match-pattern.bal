@@ -240,6 +240,38 @@ function testMappingMatchPatternWithClosedRecord() {
     assertEquals("May", mp["name"]);
 }
 
+type ClosedRecordWithOneField record {|
+    int i;
+|};
+
+type EmptyClosedRecord record {|
+|};
+
+function mappingMatchPattern13(ClosedRecordWithOneField|EmptyClosedRecord rec) returns anydata {
+    match rec {
+        {i: var x, ...var rest} => {
+            int m = x;
+            map<never> n = rest;
+            return <int[2]> [m, n.length()];
+        }
+        {...var rest} => {
+            map<int|never> n = rest;
+            return n.length();
+        }
+    }
+}
+
+function testMappingMatchPatternWithClosedRecordUnion() {
+    anydata a = mappingMatchPattern13({i: 12});
+    assertEquals(true, a is int[2]);
+    int[2] b = <int[2]> a;
+    assertEquals(12, b[0]);
+    assertEquals(0, b[1]);
+
+    anydata c = mappingMatchPattern13({});
+    assertEquals(0, c);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

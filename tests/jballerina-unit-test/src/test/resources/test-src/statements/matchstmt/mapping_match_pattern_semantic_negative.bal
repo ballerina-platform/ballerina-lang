@@ -41,11 +41,30 @@ type Person record {|
     boolean employed;
 |};
 
-function testInvalidTypewWithClosedRecord(Person person) {
+function testInvalidTypesWithClosedRecord(Person person) {
     match person {
         {id: var x, ...var rest} => {
             boolean a = x;
             map<boolean> b = rest;
+        }
+    }
+}
+
+type ClosedRecordWithOneField record {|
+    int i;
+|};
+
+type EmptyClosedRecord record {|
+|};
+
+function testInvalidTypesWithClosedRecordUnion(ClosedRecordWithOneField|EmptyClosedRecord rec) {
+    match rec {
+        {i: var x, ...var rest} => {
+            string m = x;
+            boolean n = rest;
+        }
+        {...var rest} => {
+            string n = rest;
         }
     }
 }

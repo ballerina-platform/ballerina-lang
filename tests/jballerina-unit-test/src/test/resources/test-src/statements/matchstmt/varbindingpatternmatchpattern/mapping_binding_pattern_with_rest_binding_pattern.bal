@@ -221,6 +221,38 @@ function testMappingBindingPatternWithRest7() {
     assertEquals("May", mp["name"]);
 }
 
+type ClosedRecordWithOneField record {|
+    int i;
+|};
+
+type EmptyClosedRecord record {|
+|};
+
+function mappingBindingPatternRest11(ClosedRecordWithOneField|EmptyClosedRecord rec) returns anydata {
+    match rec {
+        var {i, ...rest} => {
+            int m = i;
+            map<never> n = rest;
+            return <int[2]> [m, n.length()];
+        }
+        var {...rest} => {
+            map<int|never> n = rest;
+            return n.length();
+        }
+    }
+}
+
+function testMappingBindingPatternWithRest8() {
+    anydata a = mappingBindingPatternRest11({i: 12});
+    assertEquals(true, a is int[2]);
+    int[2] b = <int[2]> a;
+    assertEquals(12, b[0]);
+    assertEquals(0, b[1]);
+
+    anydata c = mappingBindingPatternRest11({});
+    assertEquals(0, c);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

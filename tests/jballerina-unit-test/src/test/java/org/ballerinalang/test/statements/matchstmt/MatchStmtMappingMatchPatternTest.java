@@ -235,6 +235,11 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
+    public void testMappingMatchPatternWithClosedRecordUnion() {
+        BRunUtil.invoke(resultRestPattern, "testMappingMatchPatternWithClosedRecordUnion");
+    }
+
+    @Test
     public void testMappingMatchPatternNegative() {
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);
@@ -275,6 +280,11 @@ public class MatchStmtMappingMatchPatternTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'int'", 47, 25);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<boolean>', found 'map<" +
                 "(string|boolean)>'", 48, 30);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', found 'int'", 63, 24);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean', found 'map<never>'",
+                64, 25);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'string', " +
+                "found 'map<(int|never)>'", 67, 24);
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
 

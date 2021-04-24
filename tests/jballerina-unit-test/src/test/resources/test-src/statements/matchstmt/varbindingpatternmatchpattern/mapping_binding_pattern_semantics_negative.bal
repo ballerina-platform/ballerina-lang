@@ -59,3 +59,22 @@ function testInvalidTypeWithClosedRecord(Person person) {
         }
     }
 }
+
+type ClosedRecordWithOneField record {|
+    int i;
+|};
+
+type EmptyClosedRecord record {|
+|};
+
+function testInvalidTypesWithClosedRecordUnion(ClosedRecordWithOneField|EmptyClosedRecord rec) {
+    match rec {
+        var {i, ...rest} => {
+            string m = i;
+            boolean n = rest;
+        }
+        var {...rest} => {
+            string n = rest;
+        }
+    }
+}
