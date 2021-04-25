@@ -272,6 +272,60 @@ function testMappingMatchPatternWithClosedRecordUnion() {
     assertEquals(0, c);
 }
 
+type RecTwo record {| int m; string...; |};
+
+function mappingMatchPattern14(RecTwo rec)
+        returns [string, map<int|string>]|[string, string, map<int|string>]|[int, map<string>]? {
+    match rec {
+        {p: var p, ...var q} => {
+            return [p, q];
+        }
+        // https://github.com/ballerina-platform/ballerina-lang/issues/30196
+        // {a: var a, b: var b, ...var c} => {
+        //     return [a, b, c];
+        // }
+        {m: var m, ...var n} => {
+            return [m, n];
+        }
+    }
+}
+
+public function testRestMappingAtRuntime() {
+    RecTwo rec = {"p": "hello", m: 101, "q": "world"};
+    var r1 = mappingMatchPattern14(rec);
+    assertEquals(true, r1 is [string, map<int|string>]);
+    var v1 = <[string, map<int|string>]> r1;
+    assertEquals("hello", v1[0]);
+    var m1 = v1[1];
+    assertEquals(101, m1["m"]);
+    assertEquals("world", m1["q"]);
+    assertEquals(2, m1.length());
+    assertEquals(<RecTwo> {m: 101, "p": "hello", "q": "world"}, rec);
+
+    // https://github.com/ballerina-platform/ballerina-lang/issues/30196
+    // RecTwo rec2 = {m: 202, "a": "hello", "b": "world", "c": "ballerina"};
+    // var r2 = mappingMatchPattern14(rec2);
+    // assertEquals(true, r2 is [string, string, map<int|string>]);
+    // var v2 = <[string, string, map<int|string>]> r2;
+    // assertEquals("hello", v2[0]);
+    // assertEquals("world", v2[1]);
+    // var m2 = v2[2];
+    // assertEquals("ballerina", m2["c"]);
+    // assertEquals(202, m2["m"]);
+    // assertEquals(2, m2.length());
+    // assertEquals(<RecTwo> {m: 202, "a": "hello", "b": "world", "c": "ballerina"}, rec2);
+
+    RecTwo rec3 = {m: 303, "b": "ballerina"};
+    var r3 = mappingMatchPattern14(rec3);
+    assertEquals(true, r3 is [int, map<string>]);
+    var v3 = <[int, map<string>]> r3;
+    assertEquals(303, v3[0]);
+    var m3 = v3[1];
+    assertEquals("ballerina", m3["b"]);
+    assertEquals(1, m3.length());
+    assertEquals(<RecTwo> {m: 303, "b": "ballerina"}, rec3);
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

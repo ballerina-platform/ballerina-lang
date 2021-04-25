@@ -173,6 +173,11 @@ public class MappingBindingPatternTest {
     }
 
     @Test
+    public void testRestMappingAtRuntime() {
+        BRunUtil.invoke(restMatchPatternResult, "testRestMappingAtRuntime");
+    }
+
+    @Test
     public void testMappingBindingPatternNegative() {
         int i = -1;
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 20, 9);

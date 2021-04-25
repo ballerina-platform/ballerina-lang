@@ -240,6 +240,11 @@ public class MatchStmtMappingMatchPatternTest {
     }
 
     @Test
+    public void testRestMappingAtRuntime() {
+        BRunUtil.invoke(resultRestPattern, "testRestMappingAtRuntime");
+    }
+
+    @Test
     public void testMappingMatchPatternNegative() {
         int i = 0;
         BAssertUtil.validateError(resultNegative, i++, patternNotMatched, 23, 9);
