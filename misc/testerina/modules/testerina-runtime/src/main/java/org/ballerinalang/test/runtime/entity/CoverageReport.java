@@ -111,7 +111,6 @@ public class CoverageReport {
     public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage) throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
-        String version = this.module.packageInstance().packageVersion().toString();
 
         List<Path> filteredPathList;
 
@@ -124,8 +123,7 @@ public class CoverageReport {
                     jBallerinaBackend, module.packageInstance());
         }
         if (!filteredPathList.isEmpty()) {
-            CoverageBuilder coverageBuilder = generateTesterinaCoverageReport(orgName, packageName, version,
-                    filteredPathList);
+            CoverageBuilder coverageBuilder = generateTesterinaCoverageReport(orgName, packageName, filteredPathList);
             // Add additional dependency jars for Jacoco Coverage XML if included
             if (includesInCoverage != null) {
                 List<Path> dependencyPathList = getDependencyJarList(jBallerinaBackend);
@@ -135,7 +133,7 @@ public class CoverageReport {
                         dependencyPathList.add(otherDependencyPath);
                     }
                 }
-                addCompiledSources(dependencyPathList, orgName, packageName, version, includesInCoverage);
+                addCompiledSources(dependencyPathList, orgName, packageName, includesInCoverage);
                 execFileLoader.load(executionDataFile.toFile());
                 final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
                 updatePackageLevelCoverage(xmlCoverageBuilder);
@@ -149,10 +147,19 @@ public class CoverageReport {
         }
     }
 
-    private CoverageBuilder generateTesterinaCoverageReport(String orgName, String packageName, String version,
-                                                            List<Path> filteredPathList) throws IOException{
+    /**
+     * Generate the json coverage report for Testerina.
+     *
+     * @param orgName package org name
+     * @param packageName package name
+     * @param filteredPathList List of the extracted source path
+     * @return CoverageBuilder
+     * @throws IOException
+     */
+    private CoverageBuilder generateTesterinaCoverageReport(String orgName, String packageName,
+                                                            List<Path> filteredPathList) throws IOException {
         // For the Testerina report only the ballerina specific sources need to be extracted
-        addCompiledSources(filteredPathList, orgName, packageName, version);
+        addCompiledSources(filteredPathList, orgName, packageName);
         execFileLoader.load(executionDataFile.toFile());
         final CoverageBuilder coverageBuilder = analyzeStructure();
         // Create Testerina coverage report
@@ -232,15 +239,15 @@ public class CoverageReport {
         }
     }
 
-    private void addCompiledSources(List<Path> pathList, String orgName, String packageName, String version)
+    private void addCompiledSources(List<Path> pathList, String orgName, String packageName)
             throws IOException {
         if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
             for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
-                    CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir, orgName, packageName, version,
-                            false, null);
+                    CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir.resolve(BIN_DIR),
+                            orgName, packageName, false, null);
                 } catch (NoSuchFileException e) {
                     if (Files.exists(coverageDir.resolve(BIN_DIR))) {
                         CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
@@ -251,14 +258,14 @@ public class CoverageReport {
         }
     }
 
-    private void addCompiledSources(List<Path> pathList, String orgName, String packageName, String version,
+    private void addCompiledSources(List<Path> pathList, String orgName, String packageName,
                                     String includesInCoverage) throws IOException {
         if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
             for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
-                    CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir, orgName, packageName, version,
+                    CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir.resolve(BIN_DIR), orgName, packageName,
                             true, includesInCoverage);
                 } catch (NoSuchFileException e) {
                     if (Files.exists(coverageDir.resolve(BIN_DIR))) {
