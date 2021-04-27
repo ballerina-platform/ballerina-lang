@@ -12,6 +12,7 @@ import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
+import java.nio.file.AccessDeniedException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -36,6 +37,8 @@ public final class BallerinaUserHome {
                 .resolve(ProjectConstants.CENTRAL_REPOSITORY_CACHE_NAME);
         try {
             Files.createDirectories(remotePackageRepositoryPath);
+        } catch (AccessDeniedException ae) {
+            throw new ProjectException("permission denied: " + ae.getMessage());
         } catch (IOException exception) {
             throw new ProjectException("unable to create the file system cache of Ballerina Central repository");
         }
