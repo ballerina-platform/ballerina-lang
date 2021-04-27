@@ -129,13 +129,13 @@ public class SymbolFactory {
                     }
                     return createMethodSymbol((BInvokableSymbol) symbol);
                 }
-                return createFunctionSymbol((BInvokableSymbol) symbol, name);
+                return createFunctionSymbol((BInvokableSymbol) symbol, this.escapeReservedKeyword(name));
             }
             if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol, name);
             }
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
-                return createWorkerSymbol((BVarSymbol) symbol, name);
+                return createWorkerSymbol((BVarSymbol) symbol, this.escapeReservedKeyword(name));
             }
             if (symbol.owner instanceof BRecordTypeSymbol) {
                 return createRecordFieldSymbol((BVarSymbol) symbol);
@@ -392,6 +392,10 @@ public class SymbolFactory {
      * @return {@link}
      */
     public BallerinaTypeDefinitionSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
+        if (typeSymbol instanceof BRecordTypeSymbol) {
+            name = this.escapeReservedKeyword(name);
+        }
+
         BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder symbolBuilder =
                 new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol,
                                                                        this.context);

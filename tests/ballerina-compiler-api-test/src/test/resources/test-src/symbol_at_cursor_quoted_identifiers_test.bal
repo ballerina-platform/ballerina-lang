@@ -17,7 +17,7 @@
 type Currency record {| string x; |};
 
 type 'string record {
-    int 'string;
+    int 'while;
 };
 
 function rate(Currency 'from, string to) {
@@ -40,7 +40,7 @@ function name(int x) returns int {
 int 'int = 5;
 int a = name('int);
 
-function abcd() {
+function workers() {
     worker 'w1 {
         5 -> w2;
         int x = <- 'worker;
