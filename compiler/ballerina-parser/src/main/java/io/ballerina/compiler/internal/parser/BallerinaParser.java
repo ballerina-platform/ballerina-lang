@@ -10781,13 +10781,13 @@ public class BallerinaParser extends AbstractParser {
 
         // Parse the remaining type descs
         while (!isEndOfTypeList(peek().kind)) {
-            tupleMemberRhs = parseTupleMemberRhs();
-            if (tupleMemberRhs == null) {
+            if (typeDesc.kind == SyntaxKind.REST_TYPE) {
+                typeDesc = invalidateTypeDescAfterRestDesc(typeDesc);
                 break;
             }
 
-            if (typeDesc.kind == SyntaxKind.REST_TYPE) {
-                typeDesc = invalidateTypeDescAfterRestDesc(typeDesc);
+            tupleMemberRhs = parseTupleMemberRhs();
+            if (tupleMemberRhs == null) {
                 break;
             }
 
@@ -10820,33 +10820,35 @@ public class BallerinaParser extends AbstractParser {
 
             restDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restDescriptor, tupleMemberRhs, null);
             restDescriptor = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(restDescriptor, parseMemberDescriptor(),
-                    DiagnosticErrorCode.ERROR_TYPEDESC_AFTER_REST_DESCRIPTOR);
+                    DiagnosticErrorCode.ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR);
         }
 
         return restDescriptor;
     }
 
     private STNode parseTupleMemberRhs() {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case COMMA_TOKEN:
                 return parseComma();
             case CLOSE_BRACKET_TOKEN:
                 return null;
             default:
-                recover(peek(), ParserRuleContext.TUPLE_TYPE_MEMBER_RHS);
+                recover(nextToken, ParserRuleContext.TUPLE_TYPE_MEMBER_RHS);
                 return parseTupleMemberRhs();
         }
     }
 
     private STNode parseTypeDescInTupleRhs() {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case COMMA_TOKEN:
             case CLOSE_BRACKET_TOKEN:
                 return null;
             case ELLIPSIS_TOKEN:
                 return parseEllipsis();
             default:
-                recover(peek(), ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS);
+                recover(nextToken, ParserRuleContext.TYPE_DESC_IN_TUPLE_RHS);
                 return parseTypeDescInTupleRhs();
         }
     }

@@ -489,9 +489,24 @@
                                   "kind": "ELLIPSIS_TOKEN",
                                   "hasDiagnostics": true,
                                   "diagnostics": [
-                                    "ERROR_TYPEDESC_AFTER_REST_DESCRIPTOR"
+                                    "ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR"
                                   ],
                                   "trailingMinutiae": [
+                                    {
+                                      "kind": "INVALID_NODE_MINUTIAE",
+                                      "invalidNode": {
+                                        "kind": "INVALID_TOKEN_MINUTIAE_NODE",
+                                        "children": [
+                                          {
+                                            "kind": "COMMA_TOKEN"
+                                          }
+                                        ]
+                                      }
+                                    },
+                                    {
+                                      "kind": "WHITESPACE_MINUTIAE",
+                                      "value": " "
+                                    },
                                     {
                                       "kind": "INVALID_NODE_MINUTIAE",
                                       "invalidNode": {
