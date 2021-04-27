@@ -30,6 +30,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -37,6 +38,7 @@ import java.util.List;
 import java.util.Map;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
  * Validates and processes invocation arguments of ballerina functions and object methods.
@@ -174,7 +176,15 @@ public class InvocationArgProcessor {
                 }
 
                 String parameterName = getParameterName(params.get(i));
-                argValues.put(parameterName, arg.getValue().evaluate().getJdiValue());
+                Value paramValue = arg.getValue().evaluate().getJdiValue();
+                // For the ballerina function parameters with type "any", the generated runtime method accepts
+                // args which are a subtype of "java.lang.Object". Therefore all the primitive typed arguments must be
+                // converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing into the
+                // method.
+                if (getParameterTypeName(params.get(i)).equals(BVariableType.ANY.getString())) {
+                    paramValue = getValueAsObject(context, paramValue);
+                }
+                argValues.put(parameterName, paramValue);
                 remainingParams.remove(parameterName);
             } else if (argType == ArgType.NAMED) {
                 if (restArgsFound) {
@@ -236,6 +246,19 @@ public class InvocationArgProcessor {
                 return ((DefaultableParameterNode) parameterNode).paramName().get().text();
             case REST_PARAM:
                 return ((RestParameterNode) parameterNode).paramName().get().text();
+            default:
+                return "unknown";
+        }
+    }
+
+    private static String getParameterTypeName(ParameterNode parameterNode) {
+        switch (parameterNode.kind()) {
+            case REQUIRED_PARAM:
+                return ((RequiredParameterNode) parameterNode).typeName().toSourceCode().trim();
+            case DEFAULTABLE_PARAM:
+                return ((DefaultableParameterNode) parameterNode).typeName().toSourceCode().trim();
+            case REST_PARAM:
+                return ((RestParameterNode) parameterNode).typeName().toSourceCode().trim();
             default:
                 return "unknown";
         }
