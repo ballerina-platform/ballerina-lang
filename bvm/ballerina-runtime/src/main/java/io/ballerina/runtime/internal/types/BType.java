@@ -136,7 +136,7 @@ public abstract class BType implements Type {
         return typeName == null ? "" : typeName;
     }
 
-    public String getQualifiedName() {
+    public final String getQualifiedName() {
         String name = getName();
         if (name.isEmpty()) {
             return "";
