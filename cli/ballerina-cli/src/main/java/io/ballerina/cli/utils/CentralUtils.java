@@ -40,6 +40,10 @@ import static org.wso2.ballerinalang.util.RepoUtils.SET_BALLERINA_STAGE_CENTRAL;
  */
 public class CentralUtils {
 
+    private static final String BALLERINA_CENTRAL_PRODUCTION_URL = "https://central.ballerina.io";
+    private static final String BALLERINA_CENTRAL_STAGING_URL = "https://staging-central.ballerina.io";
+    private static final String BALLERINA_CENTRAL_DEV_URL = "https://dev-central.ballerina.io";
+
     private CentralUtils() {
     }
 
@@ -155,5 +159,21 @@ public class CentralUtils {
         } else {
             return "https://central.ballerina.io/cli-token";
         }
+    }
+
+    /**
+     * Get the central package URL.
+     *
+     * @param org     package org
+     * @param pkgName package name
+     * @return central package URL
+     */
+    public static String getCentralPackageURL(String org, String pkgName) {
+        if (SET_BALLERINA_STAGE_CENTRAL) {
+            return BALLERINA_CENTRAL_STAGING_URL + "/" + org + "/" + pkgName;
+        } else if (SET_BALLERINA_DEV_CENTRAL) {
+            return BALLERINA_CENTRAL_DEV_URL + "/" + org + "/" + pkgName;
+        }
+        return BALLERINA_CENTRAL_PRODUCTION_URL + "/" + org + "/" + pkgName;
     }
 }
