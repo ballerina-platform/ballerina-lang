@@ -658,6 +658,28 @@ function testStartFunction() {
     int i = 4;
 }
 
+function () returns int sumFunction =
+        function () returns int {
+            worker w1 {
+                1 -> w2;
+            }
+
+            worker w2 returns int {
+                int j = <- w1;
+                return j;
+            }
+
+            int k = wait w2;
+            return k;
+        };
+
+function testLambdaWithWorkerMessagePassing() {
+    int k = sumFunction();
+    if (k != 1) {
+        panic error("Assertion error: expected 1, found: " + k.toString());
+    }
+}
+
 public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
