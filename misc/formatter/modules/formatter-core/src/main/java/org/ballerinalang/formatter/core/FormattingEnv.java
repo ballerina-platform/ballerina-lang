@@ -55,12 +55,6 @@ public class FormattingEnv {
     int lineLength = 0;
 
     /**
-     * Flag indicating whether to preserve the user added newlines. Preserves up to two newlines per each line-of-code.
-     */
-    boolean preserveNewlines = false;
-
-
-    /**
      * Flag indicating whether the annotations should be inline.
      */
     boolean inLineAnnotation = false;

@@ -409,9 +409,8 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public FunctionBodyBlockNode transform(FunctionBodyBlockNode functionBodyBlockNode) {
         Token openBrace = formatToken(functionBodyBlockNode.openBraceToken(), 0, 1);
-        env.preserveNewlines = true;
         indent(); // increase indentation for the statements to follow.
-        NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1, true);
+        NodeList<StatementNode> statements = formatNodeList(functionBodyBlockNode.statements(), 0, 1, 0, 1);
         NamedWorkerDeclarator namedWorkerDeclarator =
                 formatNode(functionBodyBlockNode.namedWorkerDeclarator().orElse(null), 0, 1);
 
@@ -515,9 +514,8 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public BlockStatementNode transform(BlockStatementNode blockStatementNode) {
         Token openBrace = formatToken(blockStatementNode.openBraceToken(), 0, 1);
-        env.preserveNewlines = true;
         indent(); // start an indentation
-        NodeList<StatementNode> statements = formatNodeList(blockStatementNode.statements(), 0, 1, 0, 1, true);
+        NodeList<StatementNode> statements = formatNodeList(blockStatementNode.statements(), 0, 1, 0, 1);
         unindent(); // end the indentation
         Token closeBrace = formatToken(blockStatementNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
@@ -553,7 +551,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), fieldTrailingWS, fieldTrailingNL);
         indent(); // Set indentation for record fields
         NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
-                fieldTrailingWS, fieldTrailingNL, true);
+                fieldTrailingWS, fieldTrailingNL);
         RecordRestDescriptorNode recordRestDescriptor =
                 formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), fieldTrailingWS, fieldTrailingNL);
         unindent(); // Revert indentation for record fields
@@ -660,9 +658,8 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatSeparatedNodeList(serviceDeclarationNode.expressions(), 0, 0, 1, 0);
         Token openBrace = formatToken(serviceDeclarationNode.openBraceToken(), 0, 1);
         indent(); // increase the indentation of the following statements.
-        NodeList<Node> members = formatNodeList(serviceDeclarationNode.members(), 0, 1, 0, 1, true);
+        NodeList<Node> members = formatNodeList(serviceDeclarationNode.members(), 0, 1, 0, 1);
         unindent(); // reset the indentation.
-        env.preserveNewlines = true;
         Token closeBrace = formatToken(serviceDeclarationNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
         return serviceDeclarationNode.modify()
@@ -2188,7 +2185,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBraceToken = formatToken(forkStatementNode.openBraceToken(), 0, 1);
         indent();
         NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
-                formatNodeList(forkStatementNode.namedWorkerDeclarations(), 0, 1, 0, 1, true);
+                formatNodeList(forkStatementNode.namedWorkerDeclarations(), 0, 1, 0, 1);
         unindent();
         Token closeBraceToken = formatToken(forkStatementNode.closeBraceToken(), env.trailingWS, env.trailingNL);
 
@@ -2320,7 +2317,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBrace = formatToken(objectTypeDescriptorNode.openBrace(), 0, fieldTrailingNL);
         indent();
         NodeList<Node> members = formatNodeList(objectTypeDescriptorNode.members(), fieldTrailingWS, fieldTrailingNL,
-                0, fieldTrailingNL, true);
+                0, fieldTrailingNL);
         unindent();
         Token closeBrace = formatToken(objectTypeDescriptorNode.closeBrace(), env.trailingWS, env.trailingNL);
         setIndentation(prevIndentation);  // Revert indentation for braces
@@ -2361,7 +2358,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBraceToken = formatToken(objectConstructorExpressionNode.openBraceToken(), 0, fieldTrailingNL);
         indent();
         NodeList<Node> members = formatNodeList(objectConstructorExpressionNode.members(),
-                fieldTrailingWS, fieldTrailingNL, 0, fieldTrailingNL, true);
+                fieldTrailingWS, fieldTrailingNL, 0, fieldTrailingNL);
         unindent();
         Token closeBraceToken = formatToken(objectConstructorExpressionNode.closeBraceToken(),
                 env.trailingWS, env.trailingNL);
@@ -3355,7 +3352,7 @@ public class FormattingTreeModifier extends TreeModifier {
         Token openBrace = formatToken(classDefinitionNode.openBrace(), 0, 1);
 
         indent();
-        NodeList<Node> members = formatNodeList(classDefinitionNode.members(), 0, 1, 0, 1, true);
+        NodeList<Node> members = formatNodeList(classDefinitionNode.members(), 0, 1, 0, 1);
         unindent();
         Token closeBrace = formatToken(classDefinitionNode.closeBrace(), env.trailingWS, env.trailingNL);
 
@@ -3405,9 +3402,9 @@ public class FormattingTreeModifier extends TreeModifier {
     @Override
     public NamedWorkerDeclarator transform(NamedWorkerDeclarator namedWorkerDeclarator) {
         NodeList<StatementNode> workerInitStatements = formatNodeList(namedWorkerDeclarator.workerInitStatements(), 0,
-                1, 0, 1, true);
+                1, 0, 1);
         NodeList<NamedWorkerDeclarationNode> namedWorkerDeclarations =
-                formatNodeList(namedWorkerDeclarator.namedWorkerDeclarations(), 0, 1, 0, 1, true);
+                formatNodeList(namedWorkerDeclarator.namedWorkerDeclarations(), 0, 1, 0, 1);
         return namedWorkerDeclarator.modify()
                 .withWorkerInitStatements(workerInitStatements)
                 .withNamedWorkerDeclarations(namedWorkerDeclarations)
@@ -3618,7 +3615,6 @@ public class FormattingTreeModifier extends TreeModifier {
             return members;
         }
 
-        boolean prevPreserveNL = env.preserveNewlines;
         boolean nodeModified = false;
         int size = members.size();
         Node[] newNodes = new Node[size];
@@ -3628,8 +3624,6 @@ public class FormattingTreeModifier extends TreeModifier {
             if (index < size - 1) {
                 nextMember = members.get(index + 1);
             }
-
-            env.preserveNewlines = true;
 
             // We need to do this check, because different kinds of children needs
             // different number of newlines in-between.
@@ -3646,7 +3640,6 @@ public class FormattingTreeModifier extends TreeModifier {
             newNodes[index] = newMember;
         }
 
-        env.preserveNewlines = prevPreserveNL;
         if (!nodeModified) {
             return members;
         }
@@ -3687,33 +3680,12 @@ public class FormattingTreeModifier extends TreeModifier {
      * @param listTrailingNL Number of newlines to be added after the last item of the list
      * @return Formatted node list
      */
-    protected <T extends Node> NodeList<T> formatNodeList(NodeList<T> nodeList,
-                                                          int itemTrailingWS,
-                                                          int itemTrailingNL,
-                                                          int listTrailingWS,
-                                                          int listTrailingNL) {
-        return formatNodeList(nodeList, itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, false);
-    }
-
-    /**
-     * Format a list of nodes.
-     *
-     * @param <T> Type of the list item
-     * @param nodeList Node list to be formatted
-     * @param itemTrailingWS Number of single-length spaces to be added after each item of the list
-     * @param itemTrailingNL Number of newlines to be added after each item of the list
-     * @param listTrailingWS Number of single-length spaces to be added after the last item of the list
-     * @param listTrailingNL Number of newlines to be added after the last item of the list
-     * @param preserveNL Flag indicating whether to preserve the user added newlines
-     * @return Formatted node list
-     */
     @SuppressWarnings("unchecked")
     protected <T extends Node> NodeList<T> formatNodeList(NodeList<T> nodeList,
                                                           int itemTrailingWS,
                                                           int itemTrailingNL,
                                                           int listTrailingWS,
-                                                          int listTrailingNL,
-                                                          boolean preserveNL) {
+                                                          int listTrailingNL) {
         if (nodeList.isEmpty()) {
             return nodeList;
         }
@@ -3724,17 +3696,8 @@ public class FormattingTreeModifier extends TreeModifier {
         for (int index = 0; index < size; index++) {
             T oldNode = nodeList.get(index);
             T newNode;
-            if (preserveNL) {
-                boolean prevPreserveNL = env.preserveNewlines;
-                env.preserveNewlines = preserveNL;
-                newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size, index,
-                        oldNode);
-                env.preserveNewlines = prevPreserveNL;
-            } else {
-                // If preserve newlines is false, then honour what is coming from the environment.
-                newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size, index,
-                        oldNode);
-            }
+            newNode = formatListItem(itemTrailingWS, itemTrailingNL, listTrailingWS, listTrailingNL, size, index,
+                    oldNode);
 
             if (oldNode != newNode) {
                 nodeModified = true;
@@ -3854,13 +3817,6 @@ public class FormattingTreeModifier extends TreeModifier {
         env.lineLength += token.text().length();
         MinutiaeList newTrailingMinutiaeList = getTrailingMinutiae(token);
 
-        if (env.preserveNewlines) {
-            // We reach here for the first token in a list item (i.e: first token
-            // after making 'env.preserveNewlines = true').
-            // However, rest of the token in the same item don't need to preserve the newlines.
-            env.preserveNewlines = false;
-        }
-
         if (token.isMissing()) {
             return (T) NodeFactory.createMissingToken(token.kind(), newLeadingMinutiaeList, newTrailingMinutiaeList);
         }
@@ -3911,11 +3867,6 @@ public class FormattingTreeModifier extends TreeModifier {
         for (Minutiae minutiae : token.leadingMinutiae()) {
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
-                    if (!shouldAddLeadingNewline(prevMinutiae)) {
-                        // Shouldn't update the prevMinutiae
-                        continue;
-                    }
-
                     if (consecutiveNewlines <= 1) {
                         consecutiveNewlines++;
                         leadingMinutiae.add(getNewline());
@@ -3975,31 +3926,6 @@ public class FormattingTreeModifier extends TreeModifier {
 
         String wsContent = getWSContent(wsLength);
         minutiaeList.add(NodeFactory.createWhitespaceMinutiae(wsContent));
-    }
-
-    /**
-     * Check whether a leading newline needs to be added.
-     *
-     * @param prevMinutiae Minutiae that precedes the current token
-     * @return <code>true</code> if a leading newline needs to be added. <code>false</code> otherwise
-     */
-    private boolean shouldAddLeadingNewline(Minutiae prevMinutiae) {
-        if (env.preserveNewlines) {
-            return true;
-        }
-
-        if (prevMinutiae == null) {
-            return false;
-        }
-
-        switch (prevMinutiae.kind()) {
-            case COMMENT_MINUTIAE:
-            case INVALID_TOKEN_MINUTIAE_NODE:
-            case INVALID_NODE_MINUTIAE:
-                return true;
-            default:
-                return false;
-        }
     }
 
     /**
