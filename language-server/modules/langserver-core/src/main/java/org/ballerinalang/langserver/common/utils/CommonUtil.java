@@ -1080,6 +1080,42 @@ public class CommonUtil {
         String[] modNameComponents = modName.split("\\.");
         return modNameComponents[modNameComponents.length - 1];
     }
+    /**
+     * Get the validated symbol name against the visible symbols.
+     * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
+     *
+     * @param context completion context
+     * @param symbolName raw symbol name to modify with the numbered suffix
+     * @return {@link String} modified symbol name
+     */
+    public static String getValidatedSymbolName(PositionedOperationContext context, String symbolName) {
+        List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition());
+        List<Integer> variableNumbers = symbols.parallelStream().map(symbol -> {
+            if (symbol.getName().isEmpty()) {
+                return -2;
+            }
+            String sName = symbol.getName().get();
+            if (sName.equals(symbolName)) {
+                return 0;
+            }
+            String modifiedName = sName.replaceFirst(symbolName, "");
+
+            if (!modifiedName.isEmpty() && modifiedName.chars().allMatch(Character::isDigit)) {
+                return Integer.parseInt(modifiedName);
+            }
+
+            return -3;
+        }).filter(integer -> integer >= 0).sorted().collect(Collectors.toList());
+
+        for (int i = 0; i < variableNumbers.size(); i++) {
+            Integer intVal = variableNumbers.get(i);
+            if (i == variableNumbers.size() - 1 || (intVal + 1) != variableNumbers.get(i + 1)) {
+                return symbolName + (intVal + 1);
+            }
+        }
+
+        return symbolName;
+    }
 
     private static String getQualifiedModuleName(Module module) {
         if (module.isDefaultModule()) {

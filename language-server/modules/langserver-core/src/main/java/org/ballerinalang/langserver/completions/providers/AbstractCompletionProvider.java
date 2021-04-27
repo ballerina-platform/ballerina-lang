@@ -287,7 +287,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 String[] pkgNameComps = name.split("\\.");
                 String aliasComponent = pkgNameComps[pkgNameComps.length - 1];
                 // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
-                String insertText = this.getValidatedSymbolName(ctx, aliasComponent);
+                String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
                 String alias = !insertText.equals(aliasComponent) ? insertText : "";
                 List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, alias, ctx);
                 CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits);
@@ -311,7 +311,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             String[] moduleNameComponents = moduleNamePart.split("\\.");
             String aliasComponent = moduleNameComponents[moduleNameComponents.length - 1];
             // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
-            String insertText = this.getValidatedSymbolName(ctx, aliasComponent);
+            String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
             String alias = !insertText.equals(aliasComponent) ? insertText : "";
             String pkgName = module.moduleName().packageName().value();
             String label = pkgName + "." + moduleNamePart;
@@ -384,35 +384,6 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         }
         CompletionItem completionItem = FunctionCompletionItemBuilder.build((FunctionSymbol) symbol, context);
         return new SymbolCompletionItem(context, symbol, completionItem);
-    }
-    
-    private String getValidatedSymbolName(BallerinaCompletionContext context, String symbolName) {
-        List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition());
-        List<Integer> variableNumbers = symbols.parallelStream().map(symbol -> {
-            if (symbol.getName().isEmpty()) {
-                return -2;
-            }
-            String sName = symbol.getName().get();
-            if (sName.equals(symbolName)) {
-                return 0;
-            }
-            String modifiedName = sName.replaceFirst(symbolName, "");
-
-            if (modifiedName.chars().allMatch(Character::isDigit)) {
-                return Integer.parseInt(modifiedName);
-            }
-
-            return -3;
-        }).filter(integer -> integer >= 0).sorted().collect(Collectors.toList());
-
-        for (int i = 0; i < variableNumbers.size(); i++) {
-            Integer intVal = variableNumbers.get(i);
-            if (i == variableNumbers.size() - 1 || (intVal + 1) != variableNumbers.get(i + 1)) {
-                return symbolName + (intVal + 1);
-            }
-        }
-        
-        return symbolName;
     }
 
     protected List<LSCompletionItem> actionKWCompletions(BallerinaCompletionContext context) {
