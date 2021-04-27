@@ -197,7 +197,7 @@ public class SymbolAtCursorTest {
     public Object[][]  getQuotedIdentifierPositions() {
         return new Object[][]{
                 {18, 5, "'string"},
-//                {19, 8, "'while"},
+                {19, 8, "'while"},
                 {22, 23, "'from"},
                 {23, 28, "'from"},
                 {26, 9, "'function"},

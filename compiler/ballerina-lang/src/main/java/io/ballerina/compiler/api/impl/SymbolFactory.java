@@ -129,13 +129,13 @@ public class SymbolFactory {
                     }
                     return createMethodSymbol((BInvokableSymbol) symbol);
                 }
-                return createFunctionSymbol((BInvokableSymbol) symbol, this.escapeReservedKeyword(name));
+                return createFunctionSymbol((BInvokableSymbol) symbol, name);
             }
             if (symbol instanceof BConstantSymbol) {
                 return createConstantSymbol((BConstantSymbol) symbol, name);
             }
             if (symbol.type instanceof BFutureType && ((BFutureType) symbol.type).workerDerivative) {
-                return createWorkerSymbol((BVarSymbol) symbol, this.escapeReservedKeyword(name));
+                return createWorkerSymbol((BVarSymbol) symbol, name);
             }
             if (symbol.owner instanceof BRecordTypeSymbol) {
                 return createRecordFieldSymbol((BVarSymbol) symbol);
@@ -296,8 +296,7 @@ public class SymbolFactory {
      */
     public BallerinaVariableSymbol createVariableSymbol(BVarSymbol symbol, String name) {
         BallerinaVariableSymbol.VariableSymbolBuilder symbolBuilder =
-                new BallerinaVariableSymbol.VariableSymbolBuilder(this.escapeReservedKeyword(name), symbol,
-                        this.context);
+                new BallerinaVariableSymbol.VariableSymbolBuilder(name, symbol, this.context);
 
         if (isFlagOn(symbol.flags, Flags.FINAL) || isFlagOn(symbol.flags, Flags.FUNCTION_FINAL)) {
             symbolBuilder.withQualifier(Qualifier.FINAL);
@@ -361,8 +360,7 @@ public class SymbolFactory {
         if (symbol == null) {
             return null;
         }
-        String name = symbol.getName().getValue().isBlank() ? null :
-                this.escapeReservedKeyword(symbol.getName().getValue());
+        String name = symbol.getName().getValue().isBlank() ? null : symbol.getName().getValue();
         TypeSymbol typeDescriptor = typesFactory.getTypeDescriptor(symbol.getType());
         List<Qualifier> qualifiers = new ArrayList<>();
         if ((symbol.flags & Flags.PUBLIC) == Flags.PUBLIC) {
@@ -392,10 +390,6 @@ public class SymbolFactory {
      * @return {@link}
      */
     public BallerinaTypeDefinitionSymbol createTypeDefinition(BTypeSymbol typeSymbol, String name) {
-        if (typeSymbol instanceof BRecordTypeSymbol) {
-            name = this.escapeReservedKeyword(name);
-        }
-
         BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder symbolBuilder =
                 new BallerinaTypeDefinitionSymbol.TypeDefSymbolBuilder(name, typeSymbol,
                                                                        this.context);
@@ -588,13 +582,5 @@ public class SymbolFactory {
         String fieldName = symbol.name.value;
         BStructureType type = (BStructureType) symbol.owner.type;
         return type.fields.get(fieldName);
-    }
-
-    public String escapeReservedKeyword(String value) {
-        if (BallerinaKeywordsProvider.BALLERINA_KEYWORDS.contains(value)) {
-            return "'" + value;
-        }
-
-        return value;
     }
 }

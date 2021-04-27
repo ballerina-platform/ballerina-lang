@@ -17,6 +17,7 @@
  */
 package io.ballerina.compiler.api.impl.symbols;
 
+import io.ballerina.compiler.api.impl.BallerinaKeywordsProvider;
 import io.ballerina.compiler.api.impl.SymbolFactory;
 import io.ballerina.compiler.api.symbols.Documentation;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
@@ -27,6 +28,7 @@ import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLocation;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BPackageSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
+import org.wso2.ballerinalang.compiler.util.Name;
 
 import java.util.Objects;
 import java.util.Optional;
@@ -65,7 +67,10 @@ public class BallerinaSymbol implements Symbol {
 
     @Override
     public Optional<String> getName() {
-        return Optional.ofNullable(this.name);
+        if (this.module != null && this.module.getName().orElse("").startsWith("lang.")) {
+            return Optional.ofNullable(this.name);
+        }
+        return Optional.ofNullable(escapeReservedKeyword(this.name));
     }
 
     @Override
@@ -164,6 +169,14 @@ public class BallerinaSymbol implements Symbol {
         }
 
         return loc1.get().lineRange().equals(loc2.get().lineRange());
+    }
+
+    public String escapeReservedKeyword(String value) {
+        if (BallerinaKeywordsProvider.BALLERINA_KEYWORDS.contains(value)) {
+            return "'" + value;
+        }
+
+        return value;
     }
 
     /**

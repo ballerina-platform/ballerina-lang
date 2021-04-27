@@ -62,7 +62,7 @@ public class BallerinaRecordFieldSymbol extends BallerinaSymbol implements Recor
 
     @Override
     public Optional<String> getName() {
-        return Optional.of(this.bField.getName().getValue());
+        return Optional.of(escapeReservedKeyword(this.bField.getName().getValue()));
     }
 
     /**

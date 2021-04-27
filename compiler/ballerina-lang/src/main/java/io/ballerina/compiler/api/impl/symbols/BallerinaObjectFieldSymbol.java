@@ -67,7 +67,7 @@ public class BallerinaObjectFieldSymbol extends BallerinaSymbol implements Objec
 
     @Override
     public Optional<String> getName() {
-        return Optional.of(this.bField.getName().getValue());
+        return Optional.of(escapeReservedKeyword(this.bField.getName().getValue()));
     }
 
     @Override
