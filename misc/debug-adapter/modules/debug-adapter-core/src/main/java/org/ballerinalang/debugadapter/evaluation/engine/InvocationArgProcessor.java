@@ -20,6 +20,12 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.RestParameterNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -132,6 +138,107 @@ public class InvocationArgProcessor {
         }
 
         return argValues;
+    }
+
+    static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName, FunctionSignatureNode
+            functionSignature, List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException {
+
+        boolean namedArgsFound = false;
+        boolean restArgsFound = false;
+        List<ParameterNode> params = new ArrayList<>();
+        Map<String, ParameterNode> remainingParams = new HashMap<>();
+
+        if (!functionSignature.parameters().isEmpty()) {
+            for (ParameterNode paramNode : functionSignature.parameters()) {
+                params.add(paramNode);
+                remainingParams.put(getParameterName(paramNode), paramNode);
+            }
+        }
+
+        Map<String, Value> argValues = new HashMap<>();
+        for (int i = 0; i < argEvaluators.size(); i++) {
+            Map.Entry<String, Evaluator> arg = argEvaluators.get(i);
+            ArgType argType = getArgType(arg);
+            if (argType == ArgType.POSITIONAL) {
+                if (namedArgsFound) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "positional args are not allowed after named args."));
+                } else if (restArgsFound) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "positional args are not allowed after rest args."));
+                }
+
+                if (remainingParams.isEmpty()) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "too many arguments in call to '" + functionName + "'."));
+                }
+
+                String parameterName = getParameterName(params.get(i));
+                argValues.put(parameterName, arg.getValue().evaluate().getJdiValue());
+                remainingParams.remove(parameterName);
+            } else if (argType == ArgType.NAMED) {
+                if (restArgsFound) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "named args are not allowed after rest args."));
+                }
+
+                String argName = arg.getKey();
+                if (!remainingParams.containsKey(argName)) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "undefined defaultable parameter '" + argName + "'."));
+                }
+                namedArgsFound = true;
+                argValues.put(argName, arg.getValue().evaluate().getJdiValue());
+                remainingParams.remove(argName);
+            } else if (argType == ArgType.REST) {
+                if (namedArgsFound) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "rest args are not allowed after named args."));
+                }
+
+                String restParamName = null;
+                for (Map.Entry<String, ParameterNode> entry : remainingParams.entrySet()) {
+                    SyntaxKind parameterType = entry.getValue().kind();
+                    if (parameterType == SyntaxKind.REST_PARAM) {
+                        restParamName = entry.getKey();
+                        break;
+                    }
+                }
+                if (restParamName == null) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "undefined rest parameter."));
+                }
+                restArgsFound = true;
+                argValues.put(restParamName, arg.getValue().evaluate().getJdiValue());
+                remainingParams.remove(restParamName);
+            }
+        }
+
+        for (Map.Entry<String, ParameterNode> entry : remainingParams.entrySet()) {
+            String paramName = entry.getKey();
+            SyntaxKind parameterType = entry.getValue().kind();
+            if (parameterType == SyntaxKind.REQUIRED_PARAM) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                        "missing required parameter '" + paramName + "'."));
+            } else if (parameterType == SyntaxKind.DEFAULTABLE_PARAM) {
+                argValues.put(paramName + DEFAULTABLE_PARAM_SUFFIX, VMUtils.make(context, 0).getJdiValue());
+            }
+        }
+
+        return argValues;
+    }
+
+    private static String getParameterName(ParameterNode parameterNode) {
+        switch (parameterNode.kind()) {
+            case REQUIRED_PARAM:
+                return ((RequiredParameterNode) parameterNode).paramName().get().text();
+            case DEFAULTABLE_PARAM:
+                return ((DefaultableParameterNode) parameterNode).paramName().get().text();
+            case REST_PARAM:
+                return ((RestParameterNode) parameterNode).paramName().get().text();
+            default:
+                return "unknown";
+        }
     }
 
     private static ArgType getArgType(Map.Entry<String, Evaluator> arg) {
