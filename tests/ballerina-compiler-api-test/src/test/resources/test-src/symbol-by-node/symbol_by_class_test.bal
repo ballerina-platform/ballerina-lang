@@ -32,4 +32,10 @@ function test() {
     Person p = new("John Doe", 25);
     string s = p.getName();
     int a = p->getAge();
+
+    Employee|error e = new Employee();
+}
+
+class Employee {
+    function init() returns error? {}
 }

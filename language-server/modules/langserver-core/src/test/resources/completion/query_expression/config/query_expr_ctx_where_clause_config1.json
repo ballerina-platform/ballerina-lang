@@ -407,14 +407,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -447,27 +439,25 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Customer",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "Customer",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "customer",
       "kind": "Variable",
       "detail": "Customer",
       "sortText": "B",
       "insertText": "customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testIterableOperation()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "insertText": "testIterableOperation()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -495,11 +485,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "customerList",
-      "kind": "Variable",
-      "detail": "Customer[]",
-      "sortText": "B",
-      "insertText": "customerList",
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Customer",
       "insertTextFormat": "Snippet"
     },
     {
@@ -514,17 +504,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testIterableOperation()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "testIterableOperation()",
+      "label": "customerList",
+      "kind": "Variable",
+      "detail": "Customer[]",
+      "sortText": "B",
+      "insertText": "customerList",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

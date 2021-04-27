@@ -4317,14 +4317,8 @@ public class BallerinaParser extends AbstractParser {
         }
 
         if (isConfigurable) {
-            // Configurable variable must have an initialization.
-            assign = SyntaxErrors.createMissingToken(SyntaxKind.EQUAL_TOKEN);
-            assign = SyntaxErrors.addDiagnostic(assign,
-                    DiagnosticErrorCode.ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED_OR_REQUIRED);
-            STToken questionMarkToken = SyntaxErrors.createMissingToken(SyntaxKind.QUESTION_MARK_TOKEN);
-            expr = STNodeFactory.createRequiredExpressionNode(questionMarkToken);
-            return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign,
-                    expr, semicolon);
+            return createConfigurableModuleVarDeclWithMissingInitializer(metadata, publicQualifier, varDeclQuals,
+                    typedBindingPattern, semicolon);
         }
 
         // If following 3 conditions are satisfied, we should let isolated qualifier to be a part of the type.
@@ -4338,6 +4332,19 @@ public class BallerinaParser extends AbstractParser {
                     modifyTypedBindingPatternWithIsolatedQualifier(typedBindingPattern, lastQualifier);
         }
 
+        return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign, expr,
+                semicolon);
+    }
+
+    private STNode createConfigurableModuleVarDeclWithMissingInitializer(STNode metadata, STNode publicQualifier,
+                                                                         List<STNode> varDeclQuals,
+                                                                         STNode typedBindingPattern, STNode semicolon) {
+        // Configurable variable must have an initialization.
+        STNode assign = SyntaxErrors.createMissingToken(SyntaxKind.EQUAL_TOKEN);
+        assign = SyntaxErrors.addDiagnostic(assign,
+                DiagnosticErrorCode.ERROR_CONFIGURABLE_VARIABLE_MUST_BE_INITIALIZED_OR_REQUIRED);
+        STToken questionMarkToken = SyntaxErrors.createMissingToken(SyntaxKind.QUESTION_MARK_TOKEN);
+        STNode expr = STNodeFactory.createRequiredExpressionNode(questionMarkToken);
         return createModuleVarDeclaration(metadata, publicQualifier, varDeclQuals, typedBindingPattern, assign, expr,
                 semicolon);
     }
@@ -4391,10 +4398,14 @@ public class BallerinaParser extends AbstractParser {
         
         if (isModuleVar) {
             List<STNode> varDeclQuals = extractVarDeclQualifiers(qualifiers);
-            STNode varDeclQualNodeList = STNodeFactory.createNodeList(varDeclQuals);
-
             typedBindingPattern = modifyNodeWithInvalidTokenList(qualifiers, typedBindingPattern);
 
+            if (isSyntaxKindInList(varDeclQuals, SyntaxKind.CONFIGURABLE_KEYWORD)) {
+                return createConfigurableModuleVarDeclWithMissingInitializer(metadata, publicQualifier, varDeclQuals,
+                        typedBindingPattern, semicolon);
+            }
+
+            STNode varDeclQualNodeList = STNodeFactory.createNodeList(varDeclQuals);
             return STNodeFactory.createModuleVariableDeclarationNode(metadata, publicQualifier, varDeclQualNodeList,
                     typedBindingPattern, emptyNode, emptyNode, semicolon);
         }

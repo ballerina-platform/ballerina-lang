@@ -258,8 +258,6 @@ public enum Snippet {
 
     KW_TYPEOF(SnippetGenerator.getTypeofKeywordSnippet()),
 
-    KW_COMMIT(SnippetGenerator.getCommitKeywordSnippet()),
-
     KW_IS(SnippetGenerator.getIsKeywordSnippet()),
 
     KW_ASCENDING(SnippetGenerator.getAscendingKeywordSnippet()),
@@ -302,6 +300,8 @@ public enum Snippet {
     STMT_BREAK(SnippetGenerator.getBreakSnippet()),
 
     STMT_ROLLBACK(SnippetGenerator.getRollbackStatementSnippet()),
+
+    STMT_COMMIT(SnippetGenerator.getCommitStatementSnippet()),
 
     STMT_CONTINUE(SnippetGenerator.getContinueStatmentSnippet()),
 
