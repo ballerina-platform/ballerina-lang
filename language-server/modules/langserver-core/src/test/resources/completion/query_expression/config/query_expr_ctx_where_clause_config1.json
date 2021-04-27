@@ -439,19 +439,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "customerList",
+      "label": "customer",
       "kind": "Variable",
-      "detail": "Customer[]",
+      "detail": "Customer",
       "sortText": "B",
-      "insertText": "customerList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
+      "insertText": "customer",
       "insertTextFormat": "Snippet"
     },
     {
@@ -469,6 +461,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "c3",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "c3",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "c1",
       "kind": "Variable",
       "detail": "Customer",
@@ -477,19 +477,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "c2",
+      "kind": "Variable",
+      "detail": "Customer",
+      "sortText": "B",
+      "insertText": "c2",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Customer",
       "kind": "Struct",
       "detail": "Record",
       "sortText": "L",
       "insertText": "Customer",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "c3",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "c3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -504,19 +504,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "c2",
+      "label": "customerList",
       "kind": "Variable",
-      "detail": "Customer",
+      "detail": "Customer[]",
       "sortText": "B",
-      "insertText": "c2",
+      "insertText": "customerList",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "customer",
-      "kind": "Variable",
-      "detail": "Customer",
-      "sortText": "B",
-      "insertText": "customer",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

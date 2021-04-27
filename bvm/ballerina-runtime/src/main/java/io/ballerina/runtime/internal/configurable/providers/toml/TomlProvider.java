@@ -477,8 +477,8 @@ public class TomlProvider implements ConfigProvider {
             recordName = type.getName();
             recordType = (RecordType) type;
         } else {
-            recordName = ((BIntersectionType) type).getEffectiveType().getName();
-            recordType = (RecordType) ((BIntersectionType) type).getEffectiveType();
+            recordType = (RecordType) ((BIntersectionType) type).getConstituentTypes().get(0);
+            recordName = recordType.getName();
         }
         if (tomlNode.kind() != getEffectiveTomlType(recordType, variableName)) {
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlNode), variableName, recordType,

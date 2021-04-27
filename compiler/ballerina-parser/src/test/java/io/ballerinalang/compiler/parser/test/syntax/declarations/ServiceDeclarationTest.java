@@ -87,6 +87,7 @@ public class ServiceDeclarationTest extends AbstractDeclarationTest {
     @Test
     public void testMissingListener() {
         test("service-decl/service_decl_source_06.bal", "service-decl/service_decl_assert_06.json");
+        testFile("service-decl/service_decl_source_20.bal", "service-decl/service_decl_assert_20.json");
     }
 
     @Test

@@ -17,7 +17,7 @@
  */
 package org.ballerinalang.toml;
 
-import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.testng.annotations.Test;
 
@@ -32,12 +32,11 @@ import java.util.Objects;
  */
 public class InvalidSettingsTomlTest {
 
-    private final String expMsg =
-            ".*invalid Settings.toml due to Key is not followed by an equals sign on line 2: 2223,,,,.*";
+    private final String expMsg = ".*invalid 'Settings.toml' file.*";
 
-    @Test(description = "Test invalid Settings.toml", expectedExceptions = BLangCompilerException.class,
+    @Test(description = "Test invalid Settings.toml", expectedExceptions = SettingsTomlException.class,
             expectedExceptionsMessageRegExp = expMsg)
-    public void testParseTomlContentFromFile() throws IOException, URISyntaxException {
+    public void testParseTomlContentFromFile() throws IOException, URISyntaxException, SettingsTomlException {
         URI settingsTomlURI =
                 Objects.requireNonNull(getClass().getClassLoader().getResource("invalid-settings.toml")).toURI();
         SettingsProcessor.parseTomlContentFromFile(Paths.get(settingsTomlURI));

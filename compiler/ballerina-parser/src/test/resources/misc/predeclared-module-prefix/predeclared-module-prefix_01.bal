@@ -53,3 +53,5 @@ public function bar() {
 
 // Predeclared module prefix in array length
 int[int:SIGNED8_MAX_VALUE] x = [];
+
+xmlns boolean:qux as ns1;

@@ -1287,7 +1287,17 @@ public class TypeChecker {
         }
 
         if (targetType.sealed) {
-            return targetFieldNames.containsAll(sourceFields.keySet());
+            for (String sourceFieldName : sourceFields.keySet()) {
+                if (targetFieldNames.contains(sourceFieldName)) {
+                    continue;
+                }
+
+                if (!checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
+                        sourceFields.get(sourceFieldName).getFieldType())) {
+                    return false;
+                }
+            }
+            return true;
         }
 
         for (Map.Entry<String, Field> targetFieldEntry : sourceFields.entrySet()) {

@@ -131,16 +131,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get commit keyword Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getCommitKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.COMMIT, "commit;", ItemResolverConstants.KEYWORD_TYPE,
-                Kind.KEYWORD);
-    }
-
-    /**
      * Get is keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1372,13 +1362,23 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Rollback Keyword Snippet Block.
+     * Get Rollback Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getRollbackStatementSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ROLLBACK_KEYWORD, "rollback", ItemResolverConstants.KEYWORD_TYPE,
-                Kind.KEYWORD);
+        return new SnippetBlock(ItemResolverConstants.ROLLBACK, "rollback;", ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
+    }
+
+    /**
+     * Get commit statement Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getCommitStatementSnippet() {
+        return new SnippetBlock(ItemResolverConstants.COMMIT, "commit;", ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
     }
 
     /**

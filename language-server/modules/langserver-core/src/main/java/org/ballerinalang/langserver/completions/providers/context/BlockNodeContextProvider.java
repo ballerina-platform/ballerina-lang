@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -39,7 +40,9 @@ import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -82,7 +85,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         } else {
             /*
             Covers the following
-            Ex: function test() {
+            Ex: if (true) {
                     <cursor>
                     i<cursor>
                 }
@@ -94,7 +97,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.addAll(this.getSymbolCompletions(context));
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
@@ -134,6 +137,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         }
         if (this.withinTransactionStatement(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_COMMIT.get()));
         }
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY.get()));
@@ -168,7 +172,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_CONTINUE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_BREAK.get()));
         }
-        // Todo: Implement rollback statement suggestion
 
         return completionItems;
     }
@@ -308,7 +311,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                     return new SnippetCompletionItem(ctx, cItemSnippet);
                 }).collect(Collectors.toList());
     }
-    
+
     private boolean onSuggestFork(Node node) {
         Node parent = node.parent();
         while (parent != null) {
@@ -318,7 +321,53 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             }
             parent = parent.parent();
         }
-        
+
         return false;
+    }
+
+    boolean withinFunctionOrWorkerWithReturn(Node node) {
+        NonTerminalNode parent = node.parent();
+        while (parent != null) {
+            if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION
+                    || parent.kind() == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                break;
+            }
+            parent = parent.parent();
+        }
+
+        if (parent == null) {
+            return false;
+        }
+
+        if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+            FunctionDefinitionNode functionDef = (FunctionDefinitionNode) parent;
+            return functionDef.functionSignature().returnTypeDesc().isPresent();
+        }
+
+        if (parent.kind() == SyntaxKind.NAMED_WORKER_DECLARATION) {
+            NamedWorkerDeclarationNode workerDeclarationNode = (NamedWorkerDeclarationNode) parent;
+            return workerDeclarationNode.returnTypeDesc().isPresent();
+        }
+
+        return false;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, T node,
+                     List<LSCompletionItem> completionItems) {
+        if (!this.withinFunctionOrWorkerWithReturn(node)) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+
+        for (LSCompletionItem lsCompletionItem : completionItems) {
+            if (lsCompletionItem.getCompletionItem().getLabel().equals(ItemResolverConstants.RETURN)) {
+                lsCompletionItem.getCompletionItem().setSortText(SortingUtil.genSortText(1));
+                continue;
+            }
+
+            int rank = SortingUtil.toRank(lsCompletionItem, 1);
+            lsCompletionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        }
     }
 }

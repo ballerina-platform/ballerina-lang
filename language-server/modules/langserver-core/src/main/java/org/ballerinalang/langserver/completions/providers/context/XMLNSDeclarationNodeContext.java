@@ -15,10 +15,18 @@
  */
 package org.ballerinalang.langserver.completions.providers.context;
 
+import io.ballerina.compiler.api.symbols.ConstantSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.compiler.syntax.tree.XMLNamespaceDeclarationNode;
 import org.ballerinalang.annotation.JavaSPIService;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
-import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
@@ -26,7 +34,9 @@ import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
+import java.util.Optional;
+import java.util.function.Predicate;
+import java.util.stream.Collectors;
 
 /**
  * Completion provider for {@link XMLNamespaceDeclarationNode} context.
@@ -41,15 +51,51 @@ public class XMLNSDeclarationNodeContext extends AbstractCompletionProvider<XMLN
     }
 
     @Override
-    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, XMLNamespaceDeclarationNode node)
-            throws LSCompletionException {
+    public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context,
+                                                 XMLNamespaceDeclarationNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (node.asKeyword().isEmpty() || Objects.requireNonNull(node.asKeyword().orElse(null)).isMissing()) {
+
+        if (this.onSuggestConstants(context, node)) {
+            Predicate<Symbol> predicate = symbol -> symbol.kind() == SymbolKind.CONSTANT
+                    && ((ConstantSymbol) symbol).broaderTypeDescriptor().typeKind() == TypeDescKind.STRING;
+            NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+                QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+                List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, qNameRef, predicate);
+                completionItems.addAll(this.getCompletionItemList(moduleContent, context));
+            } else {
+                List<Symbol> constants = context.visibleSymbols(context.getCursorPosition()).stream()
+                        .filter(predicate)
+                        .collect(Collectors.toList());
+                completionItems.addAll(this.getCompletionItemList(constants, context));
+                completionItems.addAll(this.getModuleCompletionItems(context));
+            }
+        } else if (this.onSuggestAsKeyword(context, node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_AS.get()));
         }
-        // Sorting is added to maintain consistency and to avoid missing the phase in the future changes 
         this.sort(context, node, completionItems);
 
         return completionItems;
+    }
+
+    private boolean onSuggestConstants(BallerinaCompletionContext context, XMLNamespaceDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        Token xmlnsKeyword = node.xmlnsKeyword();
+        Optional<Token> asKeyword = node.asKeyword();
+        ExpressionNode namespaceuri = node.namespaceuri();
+
+        return xmlnsKeyword.textRange().endOffset() < cursor
+                && (asKeyword.isEmpty() || asKeyword.get().textRange().startOffset() > cursor)
+                && (namespaceuri.isMissing() || cursor < namespaceuri.textRange().endOffset() + 1);
+    }
+
+    private boolean onSuggestAsKeyword(BallerinaCompletionContext context, XMLNamespaceDeclarationNode node) {
+        int cursor = context.getCursorPositionInTree();
+        ExpressionNode namespaceuri = node.namespaceuri();
+        Optional<Token> asKeyword = node.asKeyword();
+
+        return !namespaceuri.isMissing() && cursor >= namespaceuri.textRange().endOffset() + 1
+                && (asKeyword.isEmpty() || asKeyword.get().isMissing());
     }
 }
