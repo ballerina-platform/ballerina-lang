@@ -151,11 +151,11 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
         // Tries to use the dedicated lang library functions.
         String langLibName = getAssociatedLangLibName(resultVar.getType());
-        Optional<Package> langLibModule = getLangLibPackage(context, langLibName);
-        if (langLibModule.isPresent()) {
-            Optional<FunctionDefinitionNode> functionDef = getLangLibFunctionDefinition(langLibModule.get(), methodName);
+        Optional<Package> langLibPkg = getLangLibPackage(context, langLibName);
+        if (langLibPkg.isPresent()) {
+            Optional<FunctionDefinitionNode> functionDef = getLangLibFunctionDefinition(langLibPkg.get(), methodName);
             if (functionDef.isPresent()) {
-                String langLibCls = getQualifiedLangLibClassName(langLibModule.get(), langLibName);
+                String langLibCls = getQualifiedLangLibClassName(langLibPkg.get(), langLibName);
                 langLibFunctionDef = functionDef.get();
                 langLibMethod = loadLangLibMethod(context, resultVar, langLibCls, methodName);
             }
@@ -163,19 +163,19 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
         // Tries to use "value" lang library functions.
         if (langLibMethod == null) {
-            Optional<Package> valueLibModule = getLangLibPackage(context, LANG_LIB_VALUE);
-            if (valueLibModule.isEmpty()) {
+            Optional<Package> valueLibPkg = getLangLibPackage(context, LANG_LIB_VALUE);
+            if (valueLibPkg.isEmpty()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_NOT_FOUND.getString(),
                         LANG_LIB_PACKAGE_PREFIX + langLibName + ", " + LANG_LIB_PACKAGE_PREFIX + LANG_LIB_VALUE));
             }
 
-            Optional<FunctionDefinitionNode> functionDef = getLangLibFunctionDefinition(valueLibModule.get(), methodName);
+            Optional<FunctionDefinitionNode> functionDef = getLangLibFunctionDefinition(valueLibPkg.get(), methodName);
             if (functionDef.isEmpty()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND.
                         getString(), methodName, langLibName));
             }
 
-            String langLibCls = getQualifiedLangLibClassName(valueLibModule.get(), LANG_LIB_VALUE);
+            String langLibCls = getQualifiedLangLibClassName(valueLibPkg.get(), LANG_LIB_VALUE);
             langLibFunctionDef = functionDef.get();
             langLibMethod = loadLangLibMethod(context, resultVar, langLibCls, methodName);
         }

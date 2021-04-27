@@ -18,11 +18,8 @@ package org.ballerinalang.debugadapter.evaluation.utils;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
-import io.ballerina.projects.Document;
-import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PackageOrg;
@@ -33,7 +30,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.FunctionDefinitionFinder;
+import org.ballerinalang.debugadapter.evaluation.engine.FunctionNodeFinder;
 import org.ballerinalang.debugadapter.evaluation.engine.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariableType;
 
@@ -43,7 +40,6 @@ import java.util.StringJoiner;
 
 import static io.ballerina.compiler.api.symbols.SymbolKind.MODULE;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
-import static org.ballerinalang.debugadapter.evaluation.engine.FunctionInvocationExpressionEvaluator.modifyName;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getGeneratedMethod;
 import static org.ballerinalang.debugadapter.variable.BVariableType.ARRAY;
 import static org.ballerinalang.debugadapter.variable.BVariableType.INT;
@@ -120,17 +116,9 @@ public class LangLibUtils {
                 .map(symbol -> (ModuleSymbol) symbol);
     }
 
-    public static Optional<FunctionDefinitionNode> getLangLibFunctionDefinition(Package langLibDef, String functionName) {
-        for (DocumentId docId : langLibDef.getDefaultModule().documentIds()) {
-            FunctionDefinitionFinder functionDefFinder = new FunctionDefinitionFinder(functionName);
-            Document document = langLibDef.getDefaultModule().document(docId);
-            document.syntaxTree().rootNode().accept(functionDefFinder);
-            if (functionDefFinder.isFound()) {
-                return Optional.ofNullable(functionDefFinder.getResult());
-            }
-        }
-
-        return Optional.empty();
+    public static Optional<FunctionDefinitionNode> getLangLibFunctionDefinition(Package langLib, String functionName) {
+        FunctionNodeFinder functionFinder = new FunctionNodeFinder(functionName);
+        return functionFinder.searchInModule(langLib.getDefaultModule());
     }
 
     public static String getAssociatedLangLibName(BVariableType bVarType) {

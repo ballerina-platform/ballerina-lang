@@ -76,12 +76,11 @@ public abstract class GeneratedMethod extends JvmMethod {
 
             List<Value> argValueList = new ArrayList<>();
             if (argValues != null) {
-                for (int i = 0, argValuesSize = argValues.size(); i < argValuesSize; i++) {
-                    Value value = argValues.get(i);
+                argValues.forEach(value -> {
                     argValueList.add(value);
                     // Assuming all the arguments are positional args.
                     argValueList.add(VMUtils.make(context, true).getJdiValue());
-                }
+                });
                 // Here we use the existing strand instance to execute the function invocation expression.
                 Value strand = getCurrentStrand();
                 argValueList.add(0, strand);

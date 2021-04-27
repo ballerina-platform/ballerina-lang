@@ -88,7 +88,15 @@ public class InvocationArgProcessor {
                 }
 
                 String parameterName = params.get(i).getName().get();
-                argValues.put(parameterName, arg.getValue().evaluate().getJdiValue());
+                Value argValue = arg.getValue().evaluate().getJdiValue();
+                // For the ballerina function parameters with type "any", the generated runtime method will only accept
+                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
+                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
+                // into the method.
+                if (params.get(i).typeDescriptor().typeKind().getName().equals(BVariableType.ANY.getString())) {
+                    argValue = getValueAsObject(context, argValue);
+                }
+                argValues.put(parameterName, argValue);
                 remainingParams.remove(parameterName);
             } else if (argType == ArgType.NAMED) {
                 if (restArgsFound) {
@@ -102,7 +110,15 @@ public class InvocationArgProcessor {
                             "undefined defaultable parameter '" + argName + "'."));
                 }
                 namedArgsFound = true;
-                argValues.put(argName, arg.getValue().evaluate().getJdiValue());
+                Value argValue = arg.getValue().evaluate().getJdiValue();
+                // For the ballerina function parameters with type "any", the generated runtime method will only accept
+                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
+                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
+                // into the method.
+                if (params.get(i).typeDescriptor().typeKind().getName().equals(BVariableType.ANY.getString())) {
+                    argValue = getValueAsObject(context, argValue);
+                }
+                argValues.put(argName, argValue);
                 remainingParams.remove(argName);
             } else if (argType == ArgType.REST) {
                 if (namedArgsFound) {
@@ -176,15 +192,15 @@ public class InvocationArgProcessor {
                 }
 
                 String parameterName = getParameterName(params.get(i));
-                Value paramValue = arg.getValue().evaluate().getJdiValue();
-                // For the ballerina function parameters with type "any", the generated runtime method accepts
-                // args which are a subtype of "java.lang.Object". Therefore all the primitive typed arguments must be
-                // converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing into the
-                // method.
+                Value argValue = arg.getValue().evaluate().getJdiValue();
+                // For the ballerina function parameters with type "any", the generated runtime method will only accept
+                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
+                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
+                // into the method.
                 if (getParameterTypeName(params.get(i)).equals(BVariableType.ANY.getString())) {
-                    paramValue = getValueAsObject(context, paramValue);
+                    argValue = getValueAsObject(context, argValue);
                 }
-                argValues.put(parameterName, paramValue);
+                argValues.put(parameterName, argValue);
                 remainingParams.remove(parameterName);
             } else if (argType == ArgType.NAMED) {
                 if (restArgsFound) {
@@ -198,7 +214,15 @@ public class InvocationArgProcessor {
                             "undefined defaultable parameter '" + argName + "'."));
                 }
                 namedArgsFound = true;
-                argValues.put(argName, arg.getValue().evaluate().getJdiValue());
+                Value argValue = arg.getValue().evaluate().getJdiValue();
+                // For the ballerina function parameters with type "any", the generated runtime method will only accept
+                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
+                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
+                // into the method.
+                if (getParameterTypeName(params.get(i)).equals(BVariableType.ANY.getString())) {
+                    argValue = getValueAsObject(context, argValue);
+                }
+                argValues.put(argName, argValue);
                 remainingParams.remove(argName);
             } else if (argType == ArgType.REST) {
                 if (namedArgsFound) {
