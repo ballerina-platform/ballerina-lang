@@ -37,22 +37,22 @@ public class RuntimeDiagnostic extends Diagnostic {
 
     private Object[] args;
 
-    private String location;
+    private RuntimeDiagnosticLocation location;
 
     public RuntimeDiagnostic(DiagnosticInfo diagnosticInfo, String location, Object[] args) {
         this.diagnosticInfo = diagnosticInfo;
         this.args = args;
-        this.location = location;
+        this.location = new RuntimeDiagnosticLocation(location);
     }
 
     @Override
     public Location location() {
-        return null;
+        return location;
     }
 
     @Override
     public DiagnosticInfo diagnosticInfo() {
-        return null;
+        return diagnosticInfo;
     }
 
     @Override
@@ -71,9 +71,9 @@ public class RuntimeDiagnostic extends Diagnostic {
         if (diagnosticInfo.severity().equals(DiagnosticSeverity.WARNING)) {
             prefix = "warning";
         }
-        if (location == null) {
+        if (location.getLocation() == null) {
             return String.format("%s: %s", prefix, message());
         }
-        return String.format("%s: %s\n\tat %s", prefix, message(), location);
+        return String.format("%s: %s\n\tat %s", prefix, message(), location.getLocation());
     }
 }
