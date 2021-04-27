@@ -241,6 +241,14 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXMLCloneReadOnlyNegative() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLCloneReadOnlyNegative");
+        assertEquals(returns[0].stringValue(),
+                "{ballerina/lang.xml}XMLOperationError " +
+                        "{\"message\":\"Failed to strip xml: modification not allowed on readonly value\"}");
+    }
+
+    @Test
     public void testGet() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGet");
         assertEquals(returns[0].stringValue(), "<elem/>");
@@ -323,7 +331,7 @@ public class LangLibXMLTest {
                 75, 27);
         validateError(negativeResult, i++, "cannot update 'readonly' value of type " +
                         "'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) & readonly)> & readonly'",
-                77, 27);
+                77, 13);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 

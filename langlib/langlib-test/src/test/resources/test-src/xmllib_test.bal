@@ -203,6 +203,17 @@ function testSlice() returns [xml, xml, xml] {
     return [elem.slice(0, 2), elem.slice(1), 'xml:slice(elem, 1)];
 }
 
+function testXMLCloneReadOnlyNegative() returns xml|error {
+    return trap testXMLCloneReadOnly();
+}
+
+function testXMLCloneReadOnly() returns xml {
+    xml x3 = xml `<foo><bar/><?foo?>text1 text2<!--Com1--> <bar/></foo>`;
+    xml x4 = x3.cloneReadOnly();
+    x3 = x4.strip();
+    return x3;
+}
+
 function testXMLCycleError() returns [error|xml, error|xml] {
      return [trap testXMLCycleErrorInner(), trap testXMLCycleInnerNonError()];
 }

@@ -316,12 +316,16 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         this.type = PredefinedTypes.TYPE_XML;;
     }
 
+    private boolean isSingleTextInXMLElement() {
+        return children.size() == 1 && this.children.get(0).getType().getTag() == TypeTags.XML_TEXT_TAG;
+    }
+
     /**
      * {@inheritDoc}
      */
     @Override
     public XmlValue strip() {
-        if (this.isFrozen()) {
+        if (this.isFrozen() && !isSingleTextInXMLElement()) {
             ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
         List<BXml> elementsSeq = new ArrayList<>();
