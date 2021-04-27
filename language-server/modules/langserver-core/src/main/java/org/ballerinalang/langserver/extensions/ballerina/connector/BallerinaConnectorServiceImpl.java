@@ -123,7 +123,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         return platformBalaPath;
     }
 
-    private Package getPackage(String org, String pkgName, String version) {
+    private Path resolveBalaPath(String org, String pkgName, String version) throws LSConnectorException {
         Environment environment = EnvironmentBuilder.buildDefault();
 
         PackageDescriptor packageDescriptor = PackageDescriptor.from(
@@ -134,7 +134,15 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
             Collections.singletonList(resolutionRequest));
         ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().get();
-        return resolutionResponse.resolvedPackage();
+
+        if (resolutionResponse.resolutionStatus().equals(ResolutionResponse.ResolutionStatus.RESOLVED)) {
+            Package resolvedPackage = resolutionResponse.resolvedPackage();
+            if (resolvedPackage != null) {
+                return resolvedPackage.project().sourceRoot();
+            }
+        }
+        throw new LSConnectorException("No bala project found for package '"
+                    + packageDescriptor.toString() + "'");
     }
 
     @Override
@@ -147,7 +155,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         String error = "";
         if (st == null) {
             try {
-                Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion());
+                Path balaPath = resolveBalaPath(request.getOrg(), request.getModule(), request.getVersion());
 
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
@@ -328,7 +336,7 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
         String error = "";
         if (ast == null) {
             try {
-                Path balaPath = getBalaPath(request.getOrg(), request.getModule(), request.getVersion());
+                Path balaPath = resolveBalaPath(request.getOrg(), request.getModule(), request.getVersion());
                 ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
                 defaultBuilder.addCompilationCacheFactory(TempDirCompilationCache::from);
                 Project balaProject = ProjectLoader.loadProject(balaPath, defaultBuilder);
