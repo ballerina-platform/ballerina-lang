@@ -3953,6 +3953,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     }
 
     private boolean validateWorkerInteractionsAfterWaitAction(WorkerActionSystem workerActionSystem) {
+        boolean isValid = true;
         for (WorkerActionStateMachine worker : workerActionSystem.finshedWorkers) {
             Set<String> waitingOnWorkerSet = new HashSet<>();
             for (BLangNode action : worker.actions) {
@@ -3972,31 +3973,28 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                             waitingOnWorkerSet.add(workerName);
                         }
                     }
-                }
-                if (isWorkerSend(action)) {
+                } else  if (isWorkerSend(action)) {
                     BLangWorkerSend send = (BLangWorkerSend) action;
                     if (waitingOnWorkerSet.contains(send.workerIdentifier.value)) {
                         dlog.error(action.pos, DiagnosticErrorCode.WORKER_INTERACTION_AFTER_WAIT_ACTION, action);
-                        return false;
+                        isValid = false;
                     }
-                }
-                if (isWorkerSyncSend(action)) {
+                } else if (isWorkerSyncSend(action)) {
                     BLangWorkerSyncSendExpr syncSend = (BLangWorkerSyncSendExpr) action;
                     if (waitingOnWorkerSet.contains(syncSend.workerIdentifier.value)) {
                         dlog.error(action.pos, DiagnosticErrorCode.WORKER_INTERACTION_AFTER_WAIT_ACTION, action);
-                        return false;
+                        isValid = false;
                     }
-                }
-                if (action.getKind() == NodeKind.WORKER_RECEIVE) {
+                } else if (action.getKind() == NodeKind.WORKER_RECEIVE) {
                     BLangWorkerReceive receive = (BLangWorkerReceive) action;
                     if (waitingOnWorkerSet.contains(receive.workerIdentifier.value)) {
                         dlog.error(action.pos, DiagnosticErrorCode.WORKER_INTERACTION_AFTER_WAIT_ACTION, action);
-                        return false;
+                        isValid = false;
                     }
                 }
             }
         }
-        return true;
+        return isValid;
     }
 
     private void handleWaitAction(WorkerActionSystem workerActionSystem, BLangNode currentAction,

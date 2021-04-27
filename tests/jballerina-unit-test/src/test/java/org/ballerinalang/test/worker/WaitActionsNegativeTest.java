@@ -87,10 +87,13 @@ public class WaitActionsNegativeTest {
         CompileResult result = BCompileUtil.compile("test-src/workers/after-wait-action-negative.bal");
         int index = 0;
         String expectedErrMsg = "invalid worker message passing after waiting for the same worker";
-        BAssertUtil.validateError(result, index++, expectedErrMsg, 23, 13);
-        BAssertUtil.validateError(result, index++, expectedErrMsg, 34, 17);
-        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 42, 13);
-        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 45, 13);
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 22, 13);
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 33, 17);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 41, 13);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 44, 13);
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 50, 17);
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 51, 13);
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 61, 25);
 
         Assert.assertEquals(result.getErrorCount(), index);
     }
