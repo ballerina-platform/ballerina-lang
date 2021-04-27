@@ -397,17 +397,24 @@ public class QueryDesugar extends BLangNodeVisitor {
         BLangSimpleVariableDef dataVarDef = ASTBuilderUtil.createVariableDef(pos, dataVariable);
         BLangVariableReference valueVarRef = ASTBuilderUtil.createVariableRef(pos, dataSymbol);
         blockStmt.addStatement(dataVarDef);
+        BType constraintType = resultType;
+        BType completionType = symTable.nilType;
         if (resultType.tag == TypeTags.ARRAY) {
-            resultType = ((BArrayType) resultType).eType;
+            constraintType = ((BArrayType) resultType).eType;
         } else if (resultType.tag == TypeTags.STREAM) {
-            resultType = ((BStreamType) resultType).constraint;
+            constraintType = ((BStreamType) resultType).constraint;
+            completionType = ((BStreamType) resultType).completionType;
         }
-        BType typedescType = new BTypedescType(resultType, symTable.typeDesc.tsymbol);
-        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
-        typedescExpr.resolvedType = resultType;
-        typedescExpr.type = typedescType;
+        BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
+        constraintTdExpr.resolvedType = constraintType;
+        constraintTdExpr.type = constraintTdType;
+        BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
+        completionTdExpr.resolvedType = completionType;
+        completionTdExpr.type = completionTdType;
         return getStreamFunctionVariableRef(blockStmt, QUERY_CREATE_PIPELINE_FUNCTION,
-                Lists.of(valueVarRef, typedescExpr), pos);
+                Lists.of(valueVarRef, constraintTdExpr, completionTdExpr), pos);
     }
 
     /**

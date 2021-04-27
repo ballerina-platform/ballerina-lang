@@ -38,11 +38,11 @@ public type Person readonly & record {
 
 public type Address  record {
     string city;
-    County country;
+    County country = {};
 };
 
 public type County  record {
-    string name;
+    string name = "SL";
 };
 
 public type PersonArray Person;

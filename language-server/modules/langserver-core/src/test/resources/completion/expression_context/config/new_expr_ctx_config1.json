@@ -439,14 +439,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -479,11 +471,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "A",
-      "insertText": "TestObject1",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -495,33 +490,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "createObject1()(TestObject1)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `TestObject1`   \n  \n"
-        }
-      },
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Class",
       "sortText": "A",
-      "insertText": "createObject1()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "obj1",
-      "kind": "Variable",
-      "detail": "TestObject1",
-      "sortText": "C",
-      "insertText": "obj1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
+      "insertText": "TestObject1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -539,14 +512,33 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
+      "label": "createObject1()(TestObject1)",
+      "kind": "Function",
+      "detail": "Function",
       "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `TestObject1`   \n  \n"
+        }
       },
-      "sortText": "M",
-      "insertText": "StrandData",
+      "sortText": "A",
+      "insertText": "createObject1()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "obj1",
+      "kind": "Variable",
+      "detail": "TestObject1",
+      "sortText": "C",
+      "insertText": "obj1",
       "insertTextFormat": "Snippet"
     },
     {
