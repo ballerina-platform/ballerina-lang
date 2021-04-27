@@ -39,8 +39,9 @@ import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.projects.*;
 import io.ballerina.projects.Module;
-import io.ballerina.projects.bala.BalaProject;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.environment.*;
 import io.ballerina.projects.repos.TempDirCompilationCache;
 import org.ballerinalang.compiler.BLangCompilerException;
 import org.ballerinalang.diagramutil.DiagramUtil;
@@ -48,30 +49,19 @@ import org.ballerinalang.langserver.LSClientLogger;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.exception.LSConnectorException;
-import org.ballerinalang.model.elements.PackageID;
 import org.eclipse.lsp4j.Position;
-import org.wso2.ballerinalang.compiler.packaging.Patten;
-import org.wso2.ballerinalang.compiler.packaging.repo.HomeBalaRepo;
-import org.wso2.ballerinalang.compiler.util.Name;
 import org.wso2.ballerinalang.compiler.util.ProjectDirConstants;
+import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 /**
  * Implementation of the BallerinaConnectorService.
@@ -115,6 +105,11 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
 
         Path rootBalaPath = STD_LIB_SOURCE_ROOT.resolve(org).resolve(module)
                 .resolve(version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
+        if (!Files.exists(rootBalaPath)) {
+            Path homeRepoPath = RepoUtils.createAndGetHomeReposPath().resolve(ProjectDirConstants.BALA_CACHE_DIR_NAME);
+            rootBalaPath = homeRepoPath.resolve(org).resolve(module)
+                    .resolve(version.isEmpty() ? ProjectDirConstants.BLANG_PKG_DEFAULT_VERSION : version);
+        }
         Path anyPlatformBala = rootBalaPath.resolve("any");
         Path jvmBala = rootBalaPath.resolve(JvmTarget.JAVA_11.code());
         if (Files.exists(anyPlatformBala)) {
@@ -126,6 +121,20 @@ public class BallerinaConnectorServiceImpl implements BallerinaConnectorService 
                     + rootBalaPath.toString() + "'");
         }
         return platformBalaPath;
+    }
+
+    private Package getPackage(String org, String pkgName, String version) {
+        Environment environment = EnvironmentBuilder.buildDefault();
+
+        PackageDescriptor packageDescriptor = PackageDescriptor.from(
+        PackageOrg.from(org), PackageName.from(pkgName), PackageVersion.from(version));
+        ResolutionRequest resolutionRequest = ResolutionRequest.from(packageDescriptor, PackageDependencyScope.DEFAULT);
+
+        PackageResolver packageResolver = environment.getService(PackageResolver.class);
+        List<ResolutionResponse> resolutionResponses = packageResolver.resolvePackages(
+            Collections.singletonList(resolutionRequest));
+        ResolutionResponse resolutionResponse = resolutionResponses.stream().findFirst().get();
+        return resolutionResponse.resolvedPackage();
     }
 
     @Override
