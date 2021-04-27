@@ -67,7 +67,7 @@ public class ClosureNegativeTest {
     public void testRecordWithClosureTypeMutabilityNegative() {
         CompileResult compileResult = BCompileUtil.compile("test-src/closures/" +
                 "record_with_closure_mutability_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 12);
+        Assert.assertEquals(compileResult.getErrorCount(), 25);
         int index = 0;
         BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 20, 23);
@@ -93,5 +93,31 @@ public class ClosureNegativeTest {
                 "of a record field", 27, 55);
         BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 27, 83);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 28, 27);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 34, 23);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 35, 23);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 36, 24);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 37, 29);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 38, 23);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 38, 47);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 39, 23);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 39, 47);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 40, 23);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 41, 28);
+        BAssertUtil.validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 41, 55);
+        BAssertUtil.validateError(compileResult, index, "invalid access of mutable storage in the default value " +
+                "of a record field", 41, 83);
     }
 }

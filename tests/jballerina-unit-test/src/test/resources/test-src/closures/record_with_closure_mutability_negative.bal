@@ -25,4 +25,18 @@ function testRecordWithClosureTypeMutabilityNegative() {
     record {| int i = j; record {| string m = n; |}[] k;|}[] a6 = [];
     record {| int i = j; |}|string a7 = {};
     [map<record {| int i = j; |}|record {| string m = n; |}[]>, record {| int i = j; |}...] a8 = [];
+    map<record {| int i = j; |}> a9;
+}
+
+function testRecordWithClosureTypeMutabilityNegative2() {
+    int j = 9;
+    string n = "A";
+    record {| int i = j; |} a1;
+    record {| int i = j; |}[] a2;
+    [record {| int i = j; |}] a3;
+    table<record {| int i = j; |}> a4;
+    record {| int i = j; record {| string m = n; |} k;|}[] a5;
+    record {| int i = j; record {| string m = n; |}[] k;|}[] a6;
+    record {| int i = j; |}|string a7;
+    [map<record {| int i = j; |}|record {| string m = n; |}[]>, record {| int i = j; |}...] a8;
 }
