@@ -570,6 +570,21 @@ public class BuildCommandTest extends BaseCommandTest {
         }
     }
 
+    @Test(description = "Compile a package with platform libs")
+    public void testPackageWithPlatformLibs() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithPlatformLibs");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                            getOutput("build-project-with-platform-libs.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("sameera-myproject-java11-0.1.0.bala")
+                                  .toFile().exists());
+    }
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;
