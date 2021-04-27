@@ -54,8 +54,6 @@ public class RepoUtils {
     private static final String STAGING_URL = "https://api.staging-central.ballerina.io/2.0/registry";
     private static final String DEV_URL = "https://api.dev-central.ballerina.io/2.0/registry";
 
-    private static final String BALLERINA_CENTRAL_URL = "https://central.ballerina.io";
-
     private static final String BALLERINA_ORG = "ballerina";
     private static final String BALLERINAX_ORG = "ballerinax";
 
@@ -151,10 +149,6 @@ public class RepoUtils {
             return DEV_URL;
         }
         return PRODUCTION_URL;
-    }
-
-    public static String getCentralPackageURL(String org, String pkgName) {
-        return BALLERINA_CENTRAL_URL + "/" + org + "/" + pkgName;
     }
 
     /**
