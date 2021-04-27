@@ -40,9 +40,10 @@ import java.util.UUID;
  */
 public class StreamValue implements RefValue, BStream {
 
-    private Type  type;
-    private Type  constraintType;
-    private Type  iteratorNextReturnType;
+    private Type type;
+    private Type constraintType;
+    private Type completionType;
+    private Type iteratorNextReturnType;
     private BObject iteratorObj;
 
 
@@ -52,16 +53,18 @@ public class StreamValue implements RefValue, BStream {
     public String streamId;
 
     @Deprecated
-    public StreamValue(Type  type) {
+    public StreamValue(Type type) {
         this.constraintType = ((BStreamType) type).getConstrainedType();
-        this.type = new BStreamType(constraintType);
+        this.completionType = ((BStreamType) type).getCompletionType();
+        this.type = new BStreamType(constraintType, completionType);
         this.streamId = UUID.randomUUID().toString();
         this.iteratorObj = null;
     }
 
-    public StreamValue(Type  type, BObject iteratorObj) {
+    public StreamValue(Type type, BObject iteratorObj) {
         this.constraintType = ((BStreamType) type).getConstrainedType();
-        this.type = new BStreamType(constraintType);
+        this.completionType = ((BStreamType) type).getCompletionType();
+        this.type = new BStreamType(constraintType, completionType);
         this.streamId = UUID.randomUUID().toString();
         this.iteratorObj = iteratorObj;
     }
@@ -117,6 +120,10 @@ public class StreamValue implements RefValue, BStream {
 
     public Type getConstraintType() {
         return constraintType;
+    }
+
+    public Type getCompletionType() {
+        return completionType;
     }
 
     @Override

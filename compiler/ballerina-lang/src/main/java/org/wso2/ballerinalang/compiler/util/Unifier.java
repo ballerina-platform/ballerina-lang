@@ -286,12 +286,12 @@ public class Unifier implements BTypeVisitor<BType, BType> {
         BType newConstraint = originalType.constraint.accept(this, expConstraint);
 
         BType newError = null;
-        if (originalType.error != null) {
-            BType expError = hasMatchedStreamType ? matchingType.error : null;
-            newError = originalType.error.accept(this, expError);
+        if (originalType.completionType != null) {
+            BType expError = hasMatchedStreamType ? matchingType.completionType : null;
+            newError = originalType.completionType.accept(this, expError);
         }
 
-        if (isSameType(newConstraint, originalType.constraint) && isSameType(newError, originalType.error)) {
+        if (isSameType(newConstraint, originalType.constraint) && isSameType(newError, originalType.completionType)) {
             return originalType;
         }
 
@@ -994,11 +994,11 @@ public class Unifier implements BTypeVisitor<BType, BType> {
                     return true;
                 }
 
-                BType streamErrorType = streamType.error;
-                if (streamErrorType == null) {
+                BType completionType = streamType.completionType;
+                if (completionType == null) {
                     return false;
                 }
-                return refersInferableParamName(paramsWithInferredTypedescDefault, streamErrorType, unresolvedTypes);
+                return refersInferableParamName(paramsWithInferredTypedescDefault, completionType, unresolvedTypes);
             case TypeTags.INVOKABLE:
                 if (Symbols.isFlagOn(type.flags, Flags.ANY_FUNCTION)) {
                     return false;

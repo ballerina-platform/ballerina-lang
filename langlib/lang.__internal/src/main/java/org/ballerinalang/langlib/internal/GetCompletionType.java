@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2020, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+ * Copyright (c) 2021, WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
  *
  * WSO2 Inc. licenses this file to you under the Apache License,
  * Version 2.0 (the "License"); you may not use this file except
@@ -18,21 +18,26 @@
 
 package org.ballerinalang.langlib.internal;
 
-import io.ballerina.runtime.api.creators.TypeCreator;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ValueCreator;
-import io.ballerina.runtime.api.values.BObject;
-import io.ballerina.runtime.api.values.BStream;
+import io.ballerina.runtime.api.types.StreamType;
+import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BTypedesc;
 
 /**
- * Native implementation of lang.internal:construct(typeDesc, typeDesc, iterator).
+ * Native implementation of lang.internal:getCompletionType(typedesc).
  *
- * @since 1.2.0
+ * @since 2.0.0
  */
-public class Construct {
+public class GetCompletionType {
 
-    public static BStream construct(BTypedesc constraintTd, BTypedesc completionTd, BObject iteratorObj) {
-        return ValueCreator.createStreamValue(TypeCreator.createStreamType(
-                constraintTd.getDescribingType(), completionTd.getDescribingType()), iteratorObj);
+    public static BTypedesc getCompletionType(BTypedesc td) {
+        Type type = td.getDescribingType();
+        if (type.getTag() == TypeTags.STREAM_TAG) {
+            return ValueCreator.createTypedescValue(((StreamType) type).getCompletionType());
+        }
+        return ValueCreator.createTypedescValue(PredefinedTypes.TYPE_NULL);
     }
+
 }
