@@ -148,7 +148,7 @@ public class ConfigNegativeTest {
                                                                               PredefinedTypes.TYPE_INT), 0, false),
                                                 null, true)}, 0, 1,
                         new String[]{
-                                "warning: [org.mod1.intArr=1234] value for configurable variable 'intArr' with type " +
+                                "warning: value for configurable variable 'intArr' with type " +
                                         "'" + "()' is not supported as a cli arg"}},
                 // not supported both toml type and not cli type
                 {new String[]{"-Corg.mod1.intArr=1234"}, "MatchedTypeValues.toml",

@@ -20,6 +20,7 @@ package io.ballerina.runtime.test.config.negative;
 
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -90,7 +91,19 @@ public class CliProviderNegativeTest {
                 // Config byte value with invalid byte range
                 {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x", PredefinedTypes.TYPE_BYTE,
                         "error: [myorg.mod.x=345] value provided for byte variable 'x' is out of range. Expected " +
-                                "range is (0-255), found '345'"}
+                                "range is (0-255), found '345'"},
+                // Config array value which is not supported as cli arg
+                {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x",
+                        TypeCreator.createArrayType(PredefinedTypes.TYPE_INT),
+                        "error: configurable variable 'x' with type 'int[]' is not supported"},
+                // Config record value which is not supported as cli arg
+                {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x",
+                        TypeCreator.createRecordType("customType", ROOT_MODULE, 0, false, 0), "error: value for " +
+                        "configurable variable 'x' with type 'rootMod:customType' is not supported as a cli arg"},
+                // Config table value which is not supported as cli arg
+                {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x",
+                        TypeCreator.createTableType(PredefinedTypes.TYPE_STRING, false),
+                        "error: configurable variable 'x' with type 'table<string>' is not supported"}
         };
     }
 }

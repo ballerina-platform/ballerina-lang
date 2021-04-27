@@ -35,7 +35,7 @@ public class RuntimeDiagnosisTests {
     public void testDiagnosisLog() {
         RuntimeDiagnosticLog runtimeDiagnosticLog = new RuntimeDiagnosticLog();
         runtimeDiagnosticLog.error(RuntimeErrors.TYPE_CAST_ERROR, "testOrg/main:0.1.0(main.bal:25)", "string", "int");
-        runtimeDiagnosticLog.warn(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, "testOrg/main:0.1.0(main.bal:27)",5, 4);
+        runtimeDiagnosticLog.warn(RuntimeErrors.ARRAY_INDEX_OUT_OF_RANGE, "testOrg/main:0.1.0(main.bal:27)", 5, 4);
         Assert.assertEquals(runtimeDiagnosticLog.getErrorCount(), 1);
         Assert.assertEquals(runtimeDiagnosticLog.getWarningCount(), 1);
         List<RuntimeDiagnostic> diagnosticList = runtimeDiagnosticLog.getDiagnosticList();

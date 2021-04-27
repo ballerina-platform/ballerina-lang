@@ -164,29 +164,17 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<BArray> getAsArrayAndMark(Module module, VariableKey key) {
-        CliArg cliArg = getCliArg(module, key);
-        if (cliArg.value == null) {
-            return Optional.empty();
-        }
-        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, cliArg, key.variable, key.type);
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, key.type);
     }
 
     @Override
     public Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key) {
-        CliArg cliArg = getCliArg(module, key);
-        if (cliArg.value == null) {
-            return Optional.empty();
-        }
-        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, cliArg, key.variable, key.type);
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, key.type);
     }
 
     @Override
     public Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key) {
-        CliArg cliArg = getCliArg(module, key);
-        if (cliArg.value == null) {
-            return Optional.empty();
-        }
-        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, cliArg, key.variable, key.type);
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, key.type);
     }
 
     @Override
