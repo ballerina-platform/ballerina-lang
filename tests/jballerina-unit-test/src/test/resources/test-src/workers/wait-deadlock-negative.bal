@@ -13,24 +13,45 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
+//
 
-function workerMessagePassingAfterWait() {
+function waiter1() {
     worker w {
-        5 -> function;
+        wait v;
     }
-    wait w;
-    int i = <- w;
+
+    worker v {
+        wait w;
+    }
+}
+
+function waiter2() {
+    worker w {
+        wait v;
+    }
+
+    worker x {
+        wait w;
+    }
+
+    worker v {
+        wait x;
+    }
 }
 
 function workerWaitsForWorker() {
     worker w {
         int j = 0;
+        wait w2;
         j -> w1;
     }
 
     worker w1 {
-        wait w;
         int j = <- w;
+    }
+
+    worker w2 {
+        wait w1;
     }
 }
 
@@ -38,27 +59,32 @@ function workerWaitsForWorker() {
 public function forkTest() {
     fork {
         worker w {
-            1 -> w2;
+            wait v;
         }
-        worker w1 {
-            2 -> w2;
-        }
-    }
-    worker w2 {
-        wait w;
-        wait w1;
-        int i = <- w;
-        i = <- w1;
-    }
 
+        worker x {
+            wait w;
+        }
+
+        worker v {
+            wait x;
+        }
+    }
+}
+
+public function testForkWithinWorker() {
     worker wi {
         fork {
-            worker wii {
-                2 -> wij;
+            worker wi {
+                wait vi;
             }
-            worker wij {
-                wait wii;
-                int i = <- wii;
+
+            worker xi {
+                wait wi;
+            }
+
+            worker vi {
+                wait xi;
             }
         }
     }

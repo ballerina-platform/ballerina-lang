@@ -96,4 +96,18 @@ public class WaitActionsNegativeTest {
 
         Assert.assertEquals(result.getErrorCount(), index);
     }
+
+    @Test
+    public void testWaitCausingADeadlockNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/wait-deadlock-negative.bal");
+        int index = 0;
+        String msg = "worker send/receive interactions are invalid; worker(s) cannot move onwards from the state: '%s'";
+        BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, FINISHED]"), 19, 14);
+        BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, wait x, FINISHED]"), 29, 14);
+        BAssertUtil.validateError(result, index++, String.format(msg, "[wait w2,  <- w, wait w1, FINISHED]"), 43, 14);
+        BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, wait x, FINISHED]"), 61, 18);
+        BAssertUtil.validateError(result, index++,
+                String.format(msg, "[wait vi, wait wi, wait xi, FINISHED, FINISHED]"), 78, 23);
+        Assert.assertEquals(result.getErrorCount(), index);
+    }
 }

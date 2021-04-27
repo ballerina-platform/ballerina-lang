@@ -313,6 +313,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
     private int rollbackCountWithinBlock;
     private boolean queryToTableWithKey;
     private final Map<BSymbol, Set<BLangNode>> workerReferences = new HashMap<>();
+    private int workerSystemMovementSequence;
 
     public static CodeAnalyzer getInstance(CompilerContext context) {
         CodeAnalyzer codeGenerator = context.get(CODE_ANALYZER_KEY);
@@ -2360,12 +2361,6 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return false;
     }
 
-    private boolean referingForkedWorkerOutOfFork(BSymbol symbol, SymbolEnv env) {
-        return (symbol.flags & Flags.FORKED) == Flags.FORKED
-                && env.enclInvokable.getKind() == NodeKind.FUNCTION
-                && ((BLangFunction) env.enclInvokable).anonForkName == null;
-    }
-
     @Override
     public void visit(BLangTupleVariable bLangTupleVariable) {
 
@@ -3894,8 +3889,12 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
         BLangNode currentAction;
         boolean systemRunning;
+        this.workerSystemMovementSequence = 0;
+        int systemIterationCount = 0;
+        int prevWorkerSystemMovementSequence = this.workerSystemMovementSequence;
         do {
             systemRunning = false;
+            systemIterationCount++;
             for (WorkerActionStateMachine worker : workerActionSystem.finshedWorkers) {
                 if (worker.done()) {
                     continue;
@@ -3912,6 +3911,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 }
                 WorkerActionStateMachine otherSM = workerActionSystem.find(this.extractWorkerId(currentAction));
                 if (isWaitAction(otherSM.currentAction())) {
+                    systemRunning = false;
                     continue;
                 }
                 if (!otherSM.currentIsReceive(worker.workerId)) {
@@ -3924,7 +3924,10 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                     this.validateWorkerActionParameters((BLangWorkerSend) currentAction, receive);
                 }
                 otherSM.next();
+                this.workerSystemMovementSequence++;
                 worker.next();
+                this.workerSystemMovementSequence++;
+
 
                 systemRunning = true;
                 String channelName = generateChannelName(worker.workerId, otherSM.workerId);
@@ -3932,7 +3935,18 @@ public class CodeAnalyzer extends BLangNodeVisitor {
 
                 worker.node.sendsToThis.add(channelName);
             }
+
+            // If we iterated move than the number of workers in the system and did not progress,
+            // this means we are in a deadlock.
+            if (systemIterationCount > workerActionSystem.finshedWorkers.size()) {
+                systemIterationCount = 0;
+                if (prevWorkerSystemMovementSequence == this.workerSystemMovementSequence) {
+                    systemRunning = false;
+                }
+                prevWorkerSystemMovementSequence = this.workerSystemMovementSequence;
+            }
         } while (systemRunning);
+
         if (!workerActionSystem.everyoneDone()) {
             this.reportInvalidWorkerInteractionDiagnostics(workerActionSystem);
         }
@@ -4000,6 +4014,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
             if (allWorkersAreDone) {
                 worker.next();
+                this.workerSystemMovementSequence++;
             }
         } else {
             BLangWaitExpr wait = (BLangWaitExpr) currentAction;
@@ -4008,12 +4023,14 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             if (workerNameList.isEmpty()) {
                 // No workers found, there must be only future references in the waiting list, we can move to next state
                 worker.next();
+                this.workerSystemMovementSequence++;
             }
             for (String workerName : workerNameList) {
                 // If any worker in wait is done, we can continue.
                 var otherSM = workerActionSystem.find(workerName);
                 if (otherSM.done()) {
                     worker.next();
+                    this.workerSystemMovementSequence++;
                     break;
                 }
             }
@@ -4061,8 +4078,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             }
         }
 
-        if (functionEnv.scope.lookup(symbol.name).symbol != null
-                && !referingForkedWorkerOutOfFork(symbol, functionEnv)) {
+        if (functionEnv.scope.lookup(symbol.name).symbol != null) {
             return true;
         }
         return isWorkerFromFunction(functionEnv.enclEnv, symbol);
