@@ -126,13 +126,7 @@ public class CoverageReport {
             CoverageBuilder coverageBuilder = generateTesterinaCoverageReport(orgName, packageName, filteredPathList);
             // Add additional dependency jars for Jacoco Coverage XML if included
             if (includesInCoverage != null) {
-                List<Path> dependencyPathList = getDependencyJarList(jBallerinaBackend);
-                List<Path> platformLibsList = getPlatformLibsList(jBallerinaBackend, module.packageInstance());
-                for (Path otherDependencyPath : platformLibsList) {
-                    if (!dependencyPathList.contains(otherDependencyPath)) {
-                        dependencyPathList.add(otherDependencyPath);
-                    }
-                }
+                List<Path> dependencyPathList = getDependenciesForJacocoXML(jBallerinaBackend);
                 addCompiledSources(dependencyPathList, orgName, packageName, includesInCoverage);
                 execFileLoader.load(executionDataFile.toFile());
                 final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
@@ -145,6 +139,23 @@ public class CoverageReport {
             String msg = "Unable to generate code coverage for the module " + packageName + ". Jar files dont exist.";
             throw new NoSuchFileException(msg);
         }
+    }
+
+    /**
+     * Return the required dependencies for Jacoco XML creation.
+     *
+     * @param jBallerinaBackend JBallerinaBackend
+     * @return List of Path
+     */
+    private List<Path> getDependenciesForJacocoXML(JBallerinaBackend jBallerinaBackend) {
+        List<Path> dependencyPathList = getDependencyJarList(jBallerinaBackend);
+        List<Path> platformLibsList = getPlatformLibsList(jBallerinaBackend, module.packageInstance());
+        for (Path otherDependencyPath : platformLibsList) {
+            if (!dependencyPathList.contains(otherDependencyPath)) {
+                dependencyPathList.add(otherDependencyPath);
+            }
+        }
+        return dependencyPathList;
     }
 
     /**
@@ -431,24 +442,6 @@ public class CoverageReport {
         // Add platform libs of this package to exclusion jar list
         exclusionPathList.addAll(getPlatformLibsList(jBallerinaBackend, pkg));
         return exclusionPathList;
-    }
-
-    private List<Path> getCodeGeneratedJarList(JBallerinaBackend jBallerinaBackend) {
-        List<Path> dependencyPathList = new ArrayList<>();
-        module.packageInstance().getResolution().allDependencies()
-                .stream()
-                .map(ResolvedPackageDependency::packageInstance)
-                .forEach(pkg -> {
-                    for (ModuleId dependencyModuleId : pkg.moduleIds()) {
-                        Module dependencyModule = pkg.module(dependencyModuleId);
-                        PlatformLibrary generatedJarLibrary = jBallerinaBackend.codeGeneratedLibrary(
-                                pkg.packageId(), dependencyModule.moduleName());
-                        if (!dependencyPathList.contains(generatedJarLibrary.path())) {
-                            dependencyPathList.add(generatedJarLibrary.path());
-                        }
-                    }
-                });
-        return dependencyPathList;
     }
 
     private List<Path> getPlatformLibsList(JBallerinaBackend jBallerinaBackend, Package pkg) {
