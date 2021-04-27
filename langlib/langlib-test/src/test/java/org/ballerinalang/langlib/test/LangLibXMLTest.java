@@ -321,6 +321,9 @@ public class LangLibXMLTest {
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 69, 13);
         validateError(negativeResult, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml'",
                 75, 27);
+        validateError(negativeResult, i++, "cannot update 'readonly' value of type " +
+                        "'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) & readonly)> & readonly'",
+                77, 27);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 

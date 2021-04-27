@@ -321,6 +321,9 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
      */
     @Override
     public XmlValue strip() {
+        if (this.isFrozen()) {
+            ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
+        }
         List<BXml> elementsSeq = new ArrayList<>();
         boolean prevChildWasATextNode = false;
         String prevConsecutiveText = null;
@@ -348,7 +351,6 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         if (prevChildWasATextNode && !prevConsecutiveText.trim().isEmpty()) {
             elementsSeq.add(new XmlText(prevConsecutiveText));
         }
-
         return new XmlSequence(elementsSeq);
     }
 
