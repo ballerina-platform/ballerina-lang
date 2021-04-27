@@ -1325,8 +1325,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol typeSymbol = type.tsymbol;
         constrainedType.tsymbol = Symbols.createTypeSymbol(typeSymbol.tag, typeSymbol.flags, typeSymbol.name,
-                                                           typeSymbol.pkgID, constrainedType, typeSymbol.owner,
-                                                           constrainedTypeNode.pos, SOURCE);
+                env.enclPkg.symbol.pkgID, constrainedType, env.scope.owner, constrainedTypeNode.pos, SOURCE);
         markParameterizedType(constrainedType, constraintType);
         resultType = constrainedType;
     }
