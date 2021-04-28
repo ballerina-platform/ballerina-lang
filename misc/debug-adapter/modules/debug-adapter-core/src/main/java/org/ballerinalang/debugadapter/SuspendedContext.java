@@ -31,10 +31,13 @@ import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.nio.file.Path;
+import java.util.Map;
 import java.util.Optional;
 
+import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
 import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.DebugSourceType.SINGLE_FILE;
+import static org.ballerinalang.debugadapter.utils.PackageUtils.computeProjectKindAndRoot;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
@@ -42,11 +45,12 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
  */
 public class SuspendedContext {
 
+    private final ExecutionContext executionContext;
     private final VirtualMachineProxyImpl attachedVm;
     private final ThreadReferenceProxyImpl owningThread;
     private final StackFrameProxyImpl frame;
-    private final Project project;
-    private final DebugSourceType sourceType;
+    private Project project;
+    private DebugSourceType sourceType;
 
     private Path breakPointSourcePath;
     private String fileName;
@@ -55,19 +59,24 @@ public class SuspendedContext {
     private ClassLoaderReference classLoader;
     private DebugExpressionCompiler debugCompiler;
 
-    SuspendedContext(Project project, VirtualMachineProxyImpl vm, ThreadReferenceProxyImpl threadRef,
-                     StackFrameProxyImpl frame) {
-        this.attachedVm = vm;
+    SuspendedContext(ExecutionContext executionContext, ThreadReferenceProxyImpl threadRef, StackFrameProxyImpl frame) {
+        this.executionContext = executionContext;
+        this.attachedVm = executionContext.getDebuggeeVM();
         this.owningThread = threadRef;
         this.frame = frame;
-        this.project = project;
-        this.sourceType = (project.kind() == ProjectKind.SINGLE_FILE_PROJECT) ? SINGLE_FILE : PACKAGE;
         this.lineNumber = -1;
-        this.fileName = null;
-        this.breakPointSourcePath = null;
     }
 
     public Project getProject() {
+        if (project == null) {
+            Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
+            if (breakPointSourcePath.isEmpty()) {
+                return null;
+            }
+            Map.Entry<ProjectKind, Path> projectInfo = computeProjectKindAndRoot(breakPointSourcePath.get());
+            Path projectRoot = projectInfo.getValue();
+            project = executionContext.getProjectCache().getProjectWithPath(projectRoot);
+        }
         return project;
     }
 
@@ -95,6 +104,22 @@ public class SuspendedContext {
     }
 
     public DebugSourceType getSourceType() {
+        if (sourceType == null) {
+            Project project = getProject();
+            switch (project.kind()) {
+                case BUILD_PROJECT:
+                    sourceType = PACKAGE;
+                    break;
+                case SINGLE_FILE_PROJECT:
+                    sourceType = SINGLE_FILE;
+                    break;
+                case BALA_PROJECT:
+                default:
+                    sourceType = DEPENDENCY;
+                    break;
+            }
+        }
+
         return sourceType;
     }
 
