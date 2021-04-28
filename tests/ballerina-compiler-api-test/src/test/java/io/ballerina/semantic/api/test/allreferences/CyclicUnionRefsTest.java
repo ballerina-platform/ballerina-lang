@@ -18,6 +18,7 @@
 
 package io.ballerina.semantic.api.test.allreferences;
 
+import io.ballerina.tools.diagnostics.Location;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
@@ -33,34 +34,35 @@ public class CyclicUnionRefsTest extends FindAllReferencesTest {
 
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
+        Location defLocation = location(16, 5, 16);
         return new Object[][]{
-                {16, 13, List.of(
-                        location(16, 21, 32),
-                        location(16, 5, 16),
-                        location(17, 21, 32),
-                        location(19, 14, 25),
-                        location(20, 4, 15))
+                {16, 13, defLocation,
+                        List.of(location(16, 21, 32),
+                                defLocation,
+                                location(17, 21, 32),
+                                location(19, 14, 25),
+                                location(20, 4, 15))
                 },
-                {17,  30, List.of(
-                        location(16, 21, 32),
-                        location(16, 5, 16),
-                        location(17, 21, 32),
-                        location(19, 14, 25),
-                        location(20, 4, 15))
+                {17, 30, defLocation,
+                        List.of(location(16, 21, 32),
+                                defLocation,
+                                location(17, 21, 32),
+                                location(19, 14, 25),
+                                location(20, 4, 15))
                 },
-                {19, 21, List.of(
-                        location(16, 21, 32),
-                        location(16, 5, 16),
-                        location(17, 21, 32),
-                        location(19, 14, 25),
-                        location(20, 4, 15))
+                {19, 21, defLocation,
+                        List.of(location(16, 21, 32),
+                                defLocation,
+                                location(17, 21, 32),
+                                location(19, 14, 25),
+                                location(20, 4, 15))
                 },
-                {20, 11, List.of(
-                        location(16, 21, 32),
-                        location(16, 5, 16),
-                        location(17, 21, 32),
-                        location(19, 14, 25),
-                        location(20, 4, 15))
+                {20, 11, defLocation,
+                        List.of(location(16, 21, 32),
+                                defLocation,
+                                location(17, 21, 32),
+                                location(19, 14, 25),
+                                location(20, 4, 15))
                 },
         };
     }

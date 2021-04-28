@@ -234,7 +234,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.missing.resource.path.in.resource.accessor.definition"),
     ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE0518",
             "error.missing.resource.path.in.resource.accessor.declaration"),
-    ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0519", "error.missing.positional.arg.in.error.constructor"),
+    ERROR_MISSING_ERROR_MESSAGE_IN_ERROR_CONSTRUCTOR("BCE0519", "error.missing.error.message.in.error.constructor"),
     ERROR_MISSING_ARG_WITHIN_PARENTHESIS("BCE0520", "error.missing.arg.within.parenthesis"),
     ERROR_MISSING_VARIABLE_NAME("BCE0521", "error.missing.variable.name"),
     ERROR_MISSING_FIELD_NAME("BCE0522", "error.missing.field.name"),
@@ -328,7 +328,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC("BCE668", "error.isolated.var.cannot.be.declared.as.public"),
     ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC("BCE669", "error.variable.declared.with.var.cannot.be.public"),
     ERROR_FIELD_BP_INSIDE_LIST_BP("BCE670", "error.field.binding.pattern.inside.list.binding.pattern"),
-    ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.invalid.expression.expected.a.call.expression")
+    ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.invalid.expression.expected.a.call.expression"),
+    ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR("BCE672", "error.type.desc.after.rest.descriptor")
     ;
 
     String diagnosticId;

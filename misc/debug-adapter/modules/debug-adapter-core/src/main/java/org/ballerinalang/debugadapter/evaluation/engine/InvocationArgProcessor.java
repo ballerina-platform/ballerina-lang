@@ -20,17 +20,27 @@ import com.sun.jdi.Value;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.syntax.tree.DefaultableParameterNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
+import io.ballerina.compiler.syntax.tree.ParameterNode;
+import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
+import io.ballerina.compiler.syntax.tree.RestParameterNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
+import org.ballerinalang.debugadapter.variable.BVariableType;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
 
 /**
  * Validates and processes invocation arguments of ballerina functions and object methods.
@@ -80,7 +90,15 @@ public class InvocationArgProcessor {
                 }
 
                 String parameterName = params.get(i).getName().get();
-                argValues.put(parameterName, arg.getValue().evaluate().getJdiValue());
+                Value argValue = arg.getValue().evaluate().getJdiValue();
+                // For the ballerina function parameters with type "any", the generated runtime method will only accept
+                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
+                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
+                // into the method.
+                if (params.get(i).typeDescriptor().typeKind().getName().equals(BVariableType.ANY.getString())) {
+                    argValue = getValueAsObject(context, argValue);
+                }
+                argValues.put(parameterName, argValue);
                 remainingParams.remove(parameterName);
             } else if (argType == ArgType.NAMED) {
                 if (restArgsFound) {
@@ -94,7 +112,15 @@ public class InvocationArgProcessor {
                             "undefined defaultable parameter '" + argName + "'."));
                 }
                 namedArgsFound = true;
-                argValues.put(argName, arg.getValue().evaluate().getJdiValue());
+                Value argValue = arg.getValue().evaluate().getJdiValue();
+                // For the ballerina function parameters with type "any", the generated runtime method will only accept
+                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
+                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
+                // into the method.
+                if (params.get(i).typeDescriptor().typeKind().getName().equals(BVariableType.ANY.getString())) {
+                    argValue = getValueAsObject(context, argValue);
+                }
+                argValues.put(argName, argValue);
                 remainingParams.remove(argName);
             } else if (argType == ArgType.REST) {
                 if (namedArgsFound) {
@@ -132,6 +158,143 @@ public class InvocationArgProcessor {
         }
 
         return argValues;
+    }
+
+    static Map<String, Value> generateNamedArgs(SuspendedContext context, String functionName, FunctionSignatureNode
+            functionSignature, List<Map.Entry<String, Evaluator>> argEvaluators) throws EvaluationException {
+
+        boolean namedArgsFound = false;
+        boolean restArgsFound = false;
+        List<ParameterNode> params = new ArrayList<>();
+        Map<String, ParameterNode> remainingParams = new HashMap<>();
+
+        if (!functionSignature.parameters().isEmpty()) {
+            for (ParameterNode paramNode : functionSignature.parameters()) {
+                params.add(paramNode);
+                remainingParams.put(getParameterName(paramNode), paramNode);
+            }
+        }
+
+        Map<String, Value> argValues = new HashMap<>();
+        for (int i = 0; i < argEvaluators.size(); i++) {
+            Map.Entry<String, Evaluator> arg = argEvaluators.get(i);
+            ArgType argType = getArgType(arg);
+            if (argType == ArgType.POSITIONAL) {
+                if (namedArgsFound) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "positional args are not allowed after named args."));
+                } else if (restArgsFound) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "positional args are not allowed after rest args."));
+                }
+
+                if (remainingParams.isEmpty()) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "too many arguments in call to '" + functionName + "'."));
+                }
+
+                String parameterName = getParameterName(params.get(i));
+                Value argValue = arg.getValue().evaluate().getJdiValue();
+                // For the ballerina function parameters with type "any", the generated runtime method will only accept
+                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
+                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
+                // into the method.
+                if (getParameterTypeName(params.get(i)).equals(BVariableType.ANY.getString())) {
+                    argValue = getValueAsObject(context, argValue);
+                }
+                argValues.put(parameterName, argValue);
+                remainingParams.remove(parameterName);
+            } else if (argType == ArgType.NAMED) {
+                if (restArgsFound) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "named args are not allowed after rest args."));
+                }
+
+                String argName = arg.getKey();
+                if (!remainingParams.containsKey(argName)) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "undefined defaultable parameter '" + argName + "'."));
+                }
+                namedArgsFound = true;
+                Value argValue = arg.getValue().evaluate().getJdiValue();
+                // For the ballerina function parameters with type "any", the generated runtime method will only accept
+                // the args which are subtypes of "java.lang.Object". Therefore all the primitive typed arguments
+                // must be converted into their wrapper implementations (i.e. 'int' -> 'Integer'), before passing
+                // into the method.
+                if (getParameterTypeName(params.get(i)).equals(BVariableType.ANY.getString())) {
+                    argValue = getValueAsObject(context, argValue);
+                }
+                argValues.put(argName, argValue);
+                remainingParams.remove(argName);
+            } else if (argType == ArgType.REST) {
+                if (namedArgsFound) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "rest args are not allowed after named args."));
+                }
+
+                String restParamName = null;
+                for (Map.Entry<String, ParameterNode> entry : remainingParams.entrySet()) {
+                    SyntaxKind parameterType = entry.getValue().kind();
+                    if (parameterType == SyntaxKind.REST_PARAM) {
+                        restParamName = entry.getKey();
+                        break;
+                    }
+                }
+                if (restParamName == null) {
+                    throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                            "undefined rest parameter."));
+                }
+                restArgsFound = true;
+                argValues.put(restParamName, arg.getValue().evaluate().getJdiValue());
+                remainingParams.remove(restParamName);
+            }
+        }
+
+        for (Map.Entry<String, ParameterNode> entry : remainingParams.entrySet()) {
+            String paramName = entry.getKey();
+            SyntaxKind parameterType = entry.getValue().kind();
+            if (parameterType == SyntaxKind.REQUIRED_PARAM) {
+                throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(),
+                        "missing required parameter '" + paramName + "'."));
+            } else if (parameterType == SyntaxKind.DEFAULTABLE_PARAM) {
+                argValues.put(paramName + DEFAULTABLE_PARAM_SUFFIX, VMUtils.make(context, 0).getJdiValue());
+            }
+        }
+
+        return argValues;
+    }
+
+    private static String getParameterName(ParameterNode parameterNode) {
+        Optional<Token> paramNameToken;
+        switch (parameterNode.kind()) {
+            case REQUIRED_PARAM:
+                paramNameToken = ((RequiredParameterNode) parameterNode).paramName();
+                break;
+            case DEFAULTABLE_PARAM:
+                paramNameToken = ((DefaultableParameterNode) parameterNode).paramName();
+                break;
+            case REST_PARAM:
+                paramNameToken = ((RestParameterNode) parameterNode).paramName();
+                break;
+            default:
+                paramNameToken = Optional.empty();
+                break;
+        }
+
+        return paramNameToken.isPresent() ? paramNameToken.get().text() : "unknown";
+    }
+
+    private static String getParameterTypeName(ParameterNode parameterNode) {
+        switch (parameterNode.kind()) {
+            case REQUIRED_PARAM:
+                return ((RequiredParameterNode) parameterNode).typeName().toSourceCode().trim();
+            case DEFAULTABLE_PARAM:
+                return ((DefaultableParameterNode) parameterNode).typeName().toSourceCode().trim();
+            case REST_PARAM:
+                return ((RestParameterNode) parameterNode).typeName().toSourceCode().trim();
+            default:
+                return "unknown";
+        }
     }
 
     private static ArgType getArgType(Map.Entry<String, Evaluator> arg) {
