@@ -425,6 +425,25 @@ function bar() returns record {| never x; |} {
     panic error("error!");
 }
 
+function testNeverWithAnydata() {
+    map<never> a = {};
+    never[] b = [];
+
+    anydata m = a;
+    anydata n = b;
+
+    anydata x1 = baz1();
+    anydata x2 = baz2();
+}
+
+function baz1() returns map<never> {
+    return {};
+}
+
+function baz2() returns never[] {
+    return [];
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";

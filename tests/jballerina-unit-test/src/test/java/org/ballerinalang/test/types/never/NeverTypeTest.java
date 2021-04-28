@@ -212,6 +212,7 @@ public class NeverTypeTest {
                 "testNeverWithTrapExpr2",
                 "testValidNeverReturnFuncAssignment",
                 "testValidNeverReturnFuncAssignment2",
+                "testNeverWithAnydata"
         };
     }
 
