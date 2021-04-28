@@ -128,11 +128,15 @@ public class TypesFactory {
      * @return {@link TypeSymbol} generated
      */
     public TypeSymbol getTypeDescriptor(BType bType, boolean rawTypeOnly) {
+        return getTypeDescriptor(bType, rawTypeOnly, true);
+    }
+
+    TypeSymbol getTypeDescriptor(BType bType, boolean rawTypeOnly, boolean getOriginalType) {
         if (bType == null || bType.tag == NONE) {
             return null;
         }
 
-        if (bType instanceof IntersectableReferenceType) {
+        if (getOriginalType && bType instanceof IntersectableReferenceType) {
             Optional<BIntersectionType> intersectionType = ((IntersectableReferenceType) bType).getIntersectionType();
             if (intersectionType.isPresent()) {
                 bType = intersectionType.get();
