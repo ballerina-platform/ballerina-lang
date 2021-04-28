@@ -188,9 +188,11 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
@@ -3630,16 +3632,30 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
                                              SymbolEnv invokableEnv) {
         boolean foundDefaultableParam = false;
+        boolean foundIncludedRecordParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
         Set<String> requiredParamNames = new HashSet<>();
         invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
+            boolean isDefaultableParam = varNode.expr != null;
+            boolean isIncludedRecordParam = varNode.flagSet.contains(Flag.INCLUDED);
             defineNode(varNode, invokableEnv);
-            if (varNode.expr != null) {
+            if (isDefaultableParam) {
                 foundDefaultableParam = true;
+            } else if (isIncludedRecordParam) {
+                foundIncludedRecordParam = true;
             }
-            if (varNode.expr == null && foundDefaultableParam) {
-                dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+
+            if (isDefaultableParam) {
+                if (foundIncludedRecordParam) {
+                    dlog.error(varNode.pos, DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM);
+                }
+            } else if (!isIncludedRecordParam) {
+                if (foundDefaultableParam) {
+                    dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+                } else if (foundIncludedRecordParam) {
+                    dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM);
+                }
             }
             BVarSymbol symbol = varNode.symbol;
             if (varNode.expr != null) {
