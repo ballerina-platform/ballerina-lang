@@ -17,15 +17,18 @@
 package org.ballerinalang.debugadapter;
 
 import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 
 import java.nio.file.Path;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
+import static org.ballerinalang.debugadapter.utils.PackageUtils.computeProjectKindAndRoot;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
 
 /**
- * A cache of Ballerina project instances, which are loaded when processing the user debug points.
+ * A cache of Ballerina project instances (against their source roots), which are loaded during the user
+ * breakpoints resolving.
  *
  * @since 2.0.0
  */
@@ -37,13 +40,26 @@ public class DebugProjectCache {
         this.projects = new ConcurrentHashMap<>();
     }
 
-    public Project getProjectWithPath(Path projectRoot) {
+    /**
+     * Returns the project instance which contains the given file path, from the project cache.
+     *
+     * @param filePath source root of the Ballerina project that need to be retrieved.
+     * @return project instance.
+     */
+    public Project getProjectFor(Path filePath) {
+        Map.Entry<ProjectKind, Path> projectKindAndRoot = computeProjectKindAndRoot(filePath);
+        Path projectRoot = projectKindAndRoot.getValue();
         if (!projects.containsKey(projectRoot)) {
-            addProject(loadProject(projectRoot.toAbsolutePath().toString()));
+            addProject(loadProject(filePath.toAbsolutePath().toString()));
         }
         return projects.get(projectRoot);
     }
 
+    /**
+     * Adds the given project instance into the cache.
+     *
+     * @param project project instance.
+     */
     public void addProject(Project project) {
         Path projectSourceRoot = project.sourceRoot().toAbsolutePath();
         projects.put(projectSourceRoot, project);

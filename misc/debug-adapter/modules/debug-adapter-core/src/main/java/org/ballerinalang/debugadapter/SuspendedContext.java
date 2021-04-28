@@ -59,8 +59,10 @@ public class SuspendedContext {
     private ClassLoaderReference classLoader;
     private DebugExpressionCompiler debugCompiler;
 
-    SuspendedContext(ExecutionContext executionContext, ThreadReferenceProxyImpl threadRef, StackFrameProxyImpl frame) {
+    SuspendedContext(ExecutionContext executionContext, ThreadReferenceProxyImpl threadRef,
+                     StackFrameProxyImpl frame) {
         this.executionContext = executionContext;
+        this.project = executionContext.getSourceProject();
         this.attachedVm = executionContext.getDebuggeeVM();
         this.owningThread = threadRef;
         this.frame = frame;
@@ -68,15 +70,6 @@ public class SuspendedContext {
     }
 
     public Project getProject() {
-        if (project == null) {
-            Optional<Path> breakPointSourcePath = getBreakPointSourcePath();
-            if (breakPointSourcePath.isEmpty()) {
-                return null;
-            }
-            Map.Entry<ProjectKind, Path> projectInfo = computeProjectKindAndRoot(breakPointSourcePath.get());
-            Path projectRoot = projectInfo.getValue();
-            project = executionContext.getProjectCache().getProjectWithPath(projectRoot);
-        }
         return project;
     }
 

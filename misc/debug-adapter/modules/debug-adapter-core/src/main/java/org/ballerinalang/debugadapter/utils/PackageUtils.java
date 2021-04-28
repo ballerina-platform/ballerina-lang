@@ -110,6 +110,12 @@ public class PackageUtils {
         }
     }
 
+    /**
+     * Computes the source root and the shape(kind) of the enclosing Ballerina project, using the given file path.
+     *
+     * @param path file path
+     * @return A pair of project kind and the project root.
+     */
     public static Map.Entry<ProjectKind, Path> computeProjectKindAndRoot(Path path) {
         if (ProjectPaths.isStandaloneBalFile(path)) {
             return new AbstractMap.SimpleEntry<>(ProjectKind.SINGLE_FILE_PROJECT, path);
@@ -186,9 +192,9 @@ public class PackageUtils {
      * @param filePath file path
      * @return full-qualified class name
      */
-    public static String getQualifiedClassName(String filePath) {
+    public static String getQualifiedClassName(ExecutionContext context, String filePath) {
         Path path = Paths.get(filePath);
-        Project project = ProjectLoader.loadProject(path);
+        Project project = context.getProjectCache().getProjectFor(path);
         if (project instanceof SingleFileProject) {
             DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
             String docName = project.currentPackage().getDefaultModule().document(documentId).name();
@@ -207,6 +213,7 @@ public class PackageUtils {
                 .add(encodeModuleName(document.module().moduleName().toString()))
                 .add(document.module().packageInstance().packageVersion().toString().replace(".", "_"))
                 .add(document.name().replace(BAL_FILE_EXT, "").replace(SEPARATOR_REGEX, ".").replace("/", "."));
+
         return classNameJoiner.toString();
     }
 
