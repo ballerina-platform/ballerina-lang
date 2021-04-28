@@ -169,7 +169,7 @@ public class ErrorUtils {
     }
 
     private static BMap<BString, Object> getErrorDetail(BString errMessage) {
-        BMap<BString, Object> errDetail = ValueCreator.createRecordValue(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID,
+        BMap<BString, Object> errDetail = ValueCreator.createRecordValue(RuntimeConstants.BALLERINA_LANG_ERROR_PKG_ID,
                 RECORD_TYPE_NAME);
         errDetail.put(ERROR_MESSAGE_FIELD, errMessage);
         return errDetail;

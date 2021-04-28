@@ -14,14 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-# Type for value that can be cloned.
-# This is the same as in lang.value, but is copied here to avoid a dependency.
-type Cloneable readonly|xml|Cloneable[]|map<Cloneable>|table<map<Cloneable>>;
-
-# Error Detail Record
-public type Detail record {|
-   Cloneable...;
-|};
 
 // TypeCastError
 public type TypeCastError distinct error;
