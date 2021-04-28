@@ -3867,7 +3867,7 @@ public class FormattingTreeModifier extends TreeModifier {
         for (Minutiae minutiae : token.leadingMinutiae()) {
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
-                    if (consecutiveNewlines <= 1) {
+                    if (consecutiveNewlines <= 1 && shouldAddTrailingNewline(prevMinutiae)) {
                         consecutiveNewlines++;
                         leadingMinutiae.add(getNewline());
                         break;
@@ -4010,17 +4010,10 @@ public class FormattingTreeModifier extends TreeModifier {
      */
     private boolean shouldAddTrailingNewline(Minutiae prevMinutiae) {
         if (prevMinutiae == null) {
-            return false;
+            return true;
         }
 
-        switch (prevMinutiae.kind()) {
-            case COMMENT_MINUTIAE:
-            case INVALID_TOKEN_MINUTIAE_NODE:
-            case INVALID_NODE_MINUTIAE:
-                return true;
-            default:
-                return false;
-        }
+        return prevMinutiae.kind() != SyntaxKind.END_OF_LINE_MINUTIAE;
     }
 
     private Minutiae getNewline() {
