@@ -40,3 +40,20 @@ function testRecordWithClosureTypeMutabilityNegative2() {
     record {| int i = j; |}|string a7;
     [map<record {| int i = j; |}|record {| string m = n; |}[]>, record {| int i = j; |}...] a8;
 }
+
+int x = 12;
+
+function foo() returns record {| int i = x; |}[] {
+    panic error("Bad Sad!");
+}
+
+type AA record {
+    string a;
+    int b;
+    record {| int i = x; |} c;
+};
+
+class BB {
+    public string a = "Ballerina";
+    record {| int i = x; |} c = {};
+}
