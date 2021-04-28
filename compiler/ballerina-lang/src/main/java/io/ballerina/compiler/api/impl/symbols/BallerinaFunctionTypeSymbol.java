@@ -162,8 +162,9 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
 
         AnnotatableReturnType annotatableReturnType = new AnnotatableReturnType();
         annotatableReturnType.setAnnotations(Collections.unmodifiableList(annots));
+        this.returnTypeAnnots = annotatableReturnType;
 
-        return Optional.of(annotatableReturnType);
+        return Optional.of(this.returnTypeAnnots);
     }
 
     @Override
