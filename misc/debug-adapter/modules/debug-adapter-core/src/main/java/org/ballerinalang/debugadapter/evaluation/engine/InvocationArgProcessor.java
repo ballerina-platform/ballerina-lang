@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.ParameterNode;
 import io.ballerina.compiler.syntax.tree.RequiredParameterNode;
 import io.ballerina.compiler.syntax.tree.RestParameterNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
+import io.ballerina.compiler.syntax.tree.Token;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
@@ -36,6 +37,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.REST_ARG_IDENTIFIER;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.getValueAsObject;
@@ -263,16 +265,23 @@ public class InvocationArgProcessor {
     }
 
     private static String getParameterName(ParameterNode parameterNode) {
+        Optional<Token> paramNameToken;
         switch (parameterNode.kind()) {
             case REQUIRED_PARAM:
-                return ((RequiredParameterNode) parameterNode).paramName().get().text();
+                paramNameToken = ((RequiredParameterNode) parameterNode).paramName();
+                break;
             case DEFAULTABLE_PARAM:
-                return ((DefaultableParameterNode) parameterNode).paramName().get().text();
+                paramNameToken = ((DefaultableParameterNode) parameterNode).paramName();
+                break;
             case REST_PARAM:
-                return ((RestParameterNode) parameterNode).paramName().get().text();
+                paramNameToken = ((RestParameterNode) parameterNode).paramName();
+                break;
             default:
-                return "unknown";
+                paramNameToken = Optional.empty();
+                break;
         }
+
+        return paramNameToken.isPresent() ? paramNameToken.get().text() : "unknown";
     }
 
     private static String getParameterTypeName(ParameterNode parameterNode) {

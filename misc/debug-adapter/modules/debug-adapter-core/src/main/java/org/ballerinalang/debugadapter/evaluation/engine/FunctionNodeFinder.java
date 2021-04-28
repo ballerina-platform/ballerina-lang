@@ -53,7 +53,10 @@ public class FunctionNodeFinder extends NodeVisitor {
             if (result != null) {
                 break;
             }
-            searchInFile(module.document(documentId));
+            Optional<FunctionDefinitionNode> result = searchInFile(module.document(documentId));
+            if (result.isPresent()) {
+                return result;
+            }
         }
         return Optional.ofNullable(result);
     }
