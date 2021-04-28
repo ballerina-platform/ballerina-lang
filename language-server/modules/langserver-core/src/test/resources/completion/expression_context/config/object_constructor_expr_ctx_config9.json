@@ -424,33 +424,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "constructor",
-      "kind": "Variable",
-      "detail": "object {public int field1;}",
-      "sortText": "B",
-      "insertText": "constructor",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunctionWithReturn()(int)",
-      "kind": "Function",
-      "detail": "Function",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
       "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
+        "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "C",
-      "insertText": "testFunctionWithReturn()",
+      "sortText": "L",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -468,22 +457,33 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
+      "label": "constructor",
+      "kind": "Variable",
+      "detail": "object {public int field1;}",
+      "sortText": "B",
+      "insertText": "constructor",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value1",
+      "label": "testFunctionWithReturn()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "insertText": "testFunctionWithReturn()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

@@ -214,6 +214,7 @@ public enum ParserRuleContext {
     WORKER_NAME_OR_METHOD_NAME("worker-name-or-method-name"),
     PEER_WORKER_NAME("peer-worker-name"),
     TYPE_DESC_IN_TUPLE_RHS("type-desc-in-tuple-rhs"),
+    TUPLE_TYPE_MEMBER_RHS("tuple-type-member-rhs"),
     NIL_OR_PARENTHESISED_TYPE_DESC_RHS("nil-or-parenthesised-tpe-desc-rhs"),
     REMOTE_CALL_OR_ASYNC_SEND_RHS("remote-call-or-async-send-rhs"),
     REMOTE_CALL_OR_ASYNC_SEND_END("remote-call-or-async-send-end"),

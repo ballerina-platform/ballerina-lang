@@ -30,14 +30,6 @@ import java.util.ArrayList;
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.__internal",
-//        functionName = "getElements",
-//        args = {@Argument(name = "BXML", type = TypeKind.XML),
-//                @Argument(name = "elemNames", type = TypeKind.ARRAY)},
-//        returnType = {@ReturnType(type = TypeKind.XML)},
-//        isPublic = true
-//)
 public class GetElements {
 
 

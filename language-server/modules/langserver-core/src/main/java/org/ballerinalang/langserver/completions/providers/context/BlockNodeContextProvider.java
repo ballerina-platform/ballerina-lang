@@ -137,6 +137,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         }
         if (this.withinTransactionStatement(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_COMMIT.get()));
         }
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY.get()));
@@ -171,7 +172,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_CONTINUE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_BREAK.get()));
         }
-        // Todo: Implement rollback statement suggestion
 
         return completionItems;
     }
