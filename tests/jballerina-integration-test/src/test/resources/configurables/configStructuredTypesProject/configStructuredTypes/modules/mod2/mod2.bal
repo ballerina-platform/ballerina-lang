@@ -84,8 +84,8 @@ public function testTables() {
     test:assertEquals(teacherTable.toString(), "[{\"name\":\"gabilan\",\"id\":66},{\"name\":\"riyafa\",\"id\":77}]");
     test:assertEquals(farmerTable.toString(), "[{\"name\":\"riyafa\",\"id\":555},{\"name\":\"hinduja\",\"id\":666}]");
     test:assertEquals(personTable.toString(), "[{\"name\":\"gabilan\",\"id\":133," +
-        "\"address\":{\"country\":{\"name\":\"Germany\"},\"city\":\"Berlin\"}},{\"name\":\"riyafa\"," +
-        "\"id\":144,\"address\":{\"country\":{\"name\":\"Spain\"},\"city\":\"Madrid\"}}]");
+        "\"address\":{\"city\":\"Berlin\",\"country\":{\"name\":\"Germany\"}}},{\"name\":\"riyafa\"," +
+        "\"id\":144,\"address\":{\"city\":\"Madrid\",\"country\":{\"name\":\"Spain\"}}}]");
 }
 
 public function testArrays() {

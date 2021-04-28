@@ -287,7 +287,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "value3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -301,7 +301,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
+          "newText": "import ballerina/lang.value as value3 ;\n"
         }
       ]
     },
@@ -464,14 +464,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -480,6 +472,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -531,19 +531,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
       "sortText": "Q",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
@@ -595,22 +595,36 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lambda(int a, int b)(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "lambda(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
+      "label": "a",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "a",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "b",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "b",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "value2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value2",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "testFunction()",
@@ -624,22 +638,6 @@
       },
       "sortText": "C",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -661,20 +659,22 @@
       }
     },
     {
-      "label": "a",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "a",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "b",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "b",
-      "insertTextFormat": "Snippet"
+      "label": "lambda(int a, int b)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "insertText": "lambda(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "value4",

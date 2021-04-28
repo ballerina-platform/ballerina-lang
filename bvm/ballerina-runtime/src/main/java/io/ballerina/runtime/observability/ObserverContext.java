@@ -72,6 +72,8 @@ public class ObserverContext {
 
     private boolean isSystemSpan;
 
+    private boolean manuallyClosed;
+
     public ObserverContext() {
         this.properties = new HashMap<>();
         this.tags = new HashMap<>();
@@ -193,6 +195,14 @@ public class ObserverContext {
 
     public void setSystemSpan(boolean userSpan) {
         isSystemSpan = userSpan;
+    }
+
+    public boolean isManuallyClosed() {
+        return manuallyClosed;
+    }
+
+    public void setManuallyClosed(boolean manuallyClosed) {
+        this.manuallyClosed = manuallyClosed;
     }
 
     @Deprecated

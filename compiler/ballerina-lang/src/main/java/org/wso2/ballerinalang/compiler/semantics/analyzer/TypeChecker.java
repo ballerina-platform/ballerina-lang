@@ -3281,10 +3281,10 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
 
                 BStreamType actualStreamType = (BStreamType) actualType;
-                if (actualStreamType.error != null) {
-                    BType error = actualStreamType.error;
-                    if (error.tag != symTable.nilType.tag && !types.containsErrorType(error)) {
-                        dlog.error(cIExpr.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, error.toString());
+                if (actualStreamType.completionType != null) {
+                    BType completionType = actualStreamType.completionType;
+                    if (completionType.tag != symTable.nilType.tag && !types.containsErrorType(completionType)) {
+                        dlog.error(cIExpr.pos, DiagnosticErrorCode.ERROR_TYPE_EXPECTED, completionType.toString());
                         resultType = symTable.semanticError;
                         return;
                     }
@@ -3391,7 +3391,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
         LinkedHashSet<BType> retTypeMembers = new LinkedHashSet<>();
         retTypeMembers.add(recordType);
-        retTypeMembers.addAll(types.getAllTypes(streamType.error));
+        retTypeMembers.addAll(types.getAllTypes(streamType.completionType));
         retTypeMembers.add(symTable.nilType);
 
         BUnionType unionType = BUnionType.create(null);
@@ -4811,7 +4811,7 @@ public class TypeChecker extends BLangNodeVisitor {
         BType returnType = null, errorType = null;
         switch (collectionType.tag) {
             case TypeTags.STREAM:
-                errorType = ((BStreamType) collectionType).error;
+                errorType = ((BStreamType) collectionType).completionType;
                 break;
             case TypeTags.OBJECT:
                 returnType = types.getVarTypeFromIterableObject((BObjectType) collectionType);

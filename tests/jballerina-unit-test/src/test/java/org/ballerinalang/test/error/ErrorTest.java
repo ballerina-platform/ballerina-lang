@@ -242,10 +242,10 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++, "missing arg within parenthesis", 57, 32);
         BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
                 "args 'other' when error detail type 'Bee' contains individual field descriptors", 95, 53);
-        BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 96, 32);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing error message in error constructor", 96, 32);
         BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
                 "args 'other' when error detail type 'Bee' contains individual field descriptors", 96, 60);
-        BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 97, 38);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing error message in error constructor", 97, 38);
         BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
                 "args 'other' when error detail type 'Bee' contains individual field descriptors", 97, 66);
         BAssertUtil.validateError(negativeCompileResult, i++,
