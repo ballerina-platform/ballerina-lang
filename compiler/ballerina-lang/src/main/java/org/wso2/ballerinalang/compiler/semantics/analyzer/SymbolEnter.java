@@ -3240,6 +3240,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        // analyze restFieldType for open records
         for (BLangType typeRef : recordTypeNode.typeRefs) {
             if (typeRef.type.tag != TypeTags.RECORD) {
                 continue;
@@ -3276,23 +3277,29 @@ public class SymbolEnter extends BLangNodeVisitor {
                 })
                 .collect(getFieldCollector());
 
-        List<BType> list = new ArrayList<>();
-        for (BLangType tRef : structureTypeNode.typeRefs) {
-            BType type = tRef.type;
-            list.add(type);
-        }
-        structureType.typeInclusions = list;
-
-        // Resolve and add the fields of the referenced types to this object.
+        // Resolve referenced types and their fields of structural type
         resolveReferencedFields(structureTypeNode, typeDefEnv);
 
+        // collect resolved type refs from structural type
+        structureType.typeInclusions = new ArrayList<>();
+        for (BLangType tRef : structureTypeNode.typeRefs) {
+            BType type = tRef.type;
+            structureType.typeInclusions.add(type);
+        }
+
+        // Add referenced fields of structural type
+        defineReferencedFields(structureType, structureTypeNode, typeDefEnv);
+    }
+
+    private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
+                                        SymbolEnv typeDefEnv) {
         for (BLangSimpleVariable field : structureTypeNode.referencedFields) {
             defineNode(field, typeDefEnv);
             if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
             structureType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos,
-                                                                  field.symbol));
+                    field.symbol));
         }
     }
 
