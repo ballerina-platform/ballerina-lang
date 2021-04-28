@@ -100,6 +100,7 @@ public abstract class AbstractCodeActionTest {
             JsonObject responseJson = this.getResponseJson(res);
             for (JsonElement jsonElement : responseJson.getAsJsonArray("result")) {
                 JsonObject right = jsonElement.getAsJsonObject().get("right").getAsJsonObject();
+                System.out.println(right);
                 if (right == null) {
                     continue;
                 }

@@ -17,9 +17,6 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
@@ -32,8 +29,6 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import org.ballerinalang.langserver.SnippetBlock;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
@@ -49,7 +44,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Generic completion resolver for the Block Nodes.
@@ -185,7 +179,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         symbol.kind() == SymbolKind.PARAMETER)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        completionItems.addAll(this.getTypeguardDestructedItems(visibleSymbols, context));
         return completionItems;
     }
 
@@ -245,71 +238,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         }
 
         return Optional.empty();
-    }
-
-    private List<LSCompletionItem> getTypeguardDestructedItems(List<Symbol> scopeEntries,
-                                                               BallerinaCompletionContext ctx) {
-        List<String> capturedSymbols = new ArrayList<>();
-        // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
-        return scopeEntries.stream()
-                .filter(symbol -> {
-                    if (symbol.kind() != SymbolKind.VARIABLE) {
-                        return false;
-                    }
-                    TypeSymbol typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-                    return typeDesc.typeKind() == TypeDescKind.UNION
-                            && !capturedSymbols.contains(symbol.getName().get());
-                })
-                .map(symbol -> {
-                    String symbolName = symbol.getName().get();
-                    capturedSymbols.add(symbolName);
-                    List<TypeSymbol> errorTypes = new ArrayList<>();
-                    List<TypeSymbol> resultTypes = new ArrayList<>();
-                    List<TypeSymbol> members
-                            = new ArrayList<>(((UnionTypeSymbol) ((VariableSymbol) symbol).typeDescriptor())
-                            .memberTypeDescriptors());
-                    members.forEach(bType -> {
-                        if (bType.typeKind() == TypeDescKind.ERROR) {
-                            errorTypes.add(bType);
-                        } else {
-                            resultTypes.add(bType);
-                        }
-                    });
-                    if (errorTypes.size() == 1) {
-                        resultTypes.addAll(errorTypes);
-                    }
-                    String label = symbolName + " - typeguard " + symbolName;
-                    String detail = "Destructure the variable " + symbolName + " with typeguard";
-                    StringBuilder snippet = new StringBuilder();
-                    int paramCounter = 1;
-                    if (errorTypes.size() > 1) {
-                        snippet.append("if (").append(symbolName).append(" is ").append("error) {")
-                                .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
-                                .append("}");
-                        paramCounter++;
-                    } else if (errorTypes.size() == 1) {
-                        snippet.append("if (").append(symbolName).append(" is ")
-                                .append(CommonUtil.getModifiedTypeName(ctx, errorTypes.get(0))).append(") {")
-                                .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
-                                .append("}");
-                        paramCounter++;
-                    }
-                    int finalParamCounter = paramCounter;
-                    String restSnippet = (!snippet.toString().isEmpty() && resultTypes.size() > 2) ? " else " : "";
-                    restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
-                        TypeSymbol bType = members.get(value);
-                        String placeHolder = "\t${" + (value + finalParamCounter) + "}";
-                        return "if (" + symbolName + " is " + CommonUtil.getModifiedTypeName(ctx, bType) + ") {"
-                                + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";
-                    }).collect(Collectors.joining(" else ")) + " else {" + CommonUtil.LINE_SEPARATOR + "\t${"
-                            + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";
-
-                    snippet.append(restSnippet);
-
-                    SnippetBlock cItemSnippet = new SnippetBlock(label, snippet.toString(), detail,
-                            SnippetBlock.Kind.SNIPPET);
-                    return new SnippetCompletionItem(ctx, cItemSnippet);
-                }).collect(Collectors.toList());
     }
 
     private boolean onSuggestFork(Node node) {
