@@ -831,6 +831,11 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
             }
         }
+
+        if (varNode.typeNode != null) {
+            analyzeTypeNode(varNode.typeNode, env);
+        }
+
         // Analyze the init expression
         BLangExpression rhsExpr = varNode.expr;
         if (rhsExpr == null) {
@@ -841,15 +846,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             if (lhsType.tag == TypeTags.ARRAY && typeChecker.isArrayOpenSealedType((BArrayType) lhsType)) {
                 dlog.error(varNode.pos, DiagnosticErrorCode.CLOSED_ARRAY_TYPE_NOT_INITIALIZED);
             }
-
-            if (varNode.typeNode != null) {
-                analyzeTypeNode(varNode.typeNode, env);
-            }
             return;
-        }
-
-        if (varNode.typeNode != null) {
-            analyzeTypeNode(varNode.typeNode, env);
         }
 
         // Here we create a new symbol environment to catch self references by keep the current

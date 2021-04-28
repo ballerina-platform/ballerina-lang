@@ -34,3 +34,18 @@ function testAnonOpenRecordNegative2() {
     record {| int i = 1; string j = 2; record { int x = "foo"; } k; |}[] a6;
     record {| int i = 1; record { int x = "foo"; }[] j; |}[] a7;
 }
+
+function foo() returns record {| int i = "ABC"; |}[] {
+    panic error("Bad Sad!");
+}
+
+type AA record {
+    string a;
+    int b;
+    record {| int i = "ABC"; |} c;
+};
+
+class BB {
+    public string a = "Ballerina";
+    record {| int i = "ABC"; |} c = {};
+}

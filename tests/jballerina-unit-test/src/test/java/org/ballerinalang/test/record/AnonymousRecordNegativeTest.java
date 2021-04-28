@@ -33,8 +33,9 @@ public class AnonymousRecordNegativeTest {
 
     @Test(description = "Test local anonymous records that are part of another type")
     public void testAnonRecordsNegativeScenarios() {
-        CompileResult negativeResult = BCompileUtil.compile("test-src/record/anon_record_negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 19);
+        CompileResult negativeResult = BCompileUtil.compile(
+                "test-src/record/anon_record_semantic_analysis_negative.bal");
+        Assert.assertEquals(negativeResult.getErrorCount(), 22);
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 18, 23);
@@ -55,6 +56,73 @@ public class AnonymousRecordNegativeTest {
         validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 33, 28);
         validateError(negativeResult, index++, "incompatible types: expected 'string', found 'int'", 34, 37);
         validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 34, 57);
-        validateError(negativeResult, index, "incompatible types: expected 'int', found 'string'", 35, 43);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 35, 43);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 38, 42);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 45, 23);
+        validateError(negativeResult, index, "incompatible types: expected 'int', found 'string'", 50, 23);
+    }
+
+    @Test(description = "Test record with closure type mutability negative scenarios")
+    public void testRecordWithClosureTypeMutabilityNegative() {
+        CompileResult compileResult = BCompileUtil.compile(
+                "test-src/record/anon_record_isolation_analysis_negative.bal");
+        Assert.assertEquals(compileResult.getErrorCount(), 28);
+        int index = 0;
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 20, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 21, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 22, 24);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 23, 29);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 24, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 24, 47);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 25, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 25, 47);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 26, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 27, 28);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 27, 55);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 27, 83);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 28, 27);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 34, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 35, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 36, 24);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 37, 29);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 38, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 38, 47);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 39, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 39, 47);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 40, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 41, 28);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 41, 55);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 41, 83);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 46, 42);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 53, 23);
+        validateError(compileResult, index, "invalid access of mutable storage in the default value " +
+                "of a record field", 58, 23);
     }
 }
