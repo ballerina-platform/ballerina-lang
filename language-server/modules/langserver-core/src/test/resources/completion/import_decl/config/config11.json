@@ -310,7 +310,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module1",
+      "insertText": "module11",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -324,7 +324,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/module1;\n"
+          "newText": "import ballerina/module1 as module11 ;\n"
         }
       ]
     },
@@ -533,14 +533,6 @@
       ]
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -549,6 +541,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -600,19 +600,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
       "sortText": "Q",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
@@ -664,7 +664,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testImports()",
+      "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -674,7 +674,7 @@
         }
       },
       "sortText": "C",
-      "insertText": "testImports()",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -692,7 +692,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
+      "label": "testImports()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -702,7 +702,7 @@
         }
       },
       "sortText": "C",
-      "insertText": "testFunction()",
+      "insertText": "testImports()",
       "insertTextFormat": "Snippet"
     },
     {

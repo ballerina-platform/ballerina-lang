@@ -45,10 +45,6 @@ public class ErrorTest {
     private CompileResult distinctErrorTestResult;
     private CompileResult negativeDistinctErrorRes;
 
-    private static final String ERROR1 = "error1";
-    private static final String ERROR2 = "error2";
-    private static final String ERROR3 = "error3";
-    private static final String EMPTY_CURLY_BRACE = "{}";
     private static final String CONST_ERROR_REASON = "reason one";
 
     @BeforeClass
