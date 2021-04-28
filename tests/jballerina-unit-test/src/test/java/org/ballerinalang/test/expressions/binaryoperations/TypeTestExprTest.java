@@ -167,9 +167,11 @@ public class TypeTestExprTest {
                 "'anydata'", 330, 8);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'anydata' will not be matched to 'object " +
                 "{ }[]'", 336, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'Record' will not be matched to " +
+                "'RecordWithIntFieldAndNeverRestField'", 358, 18);
         BAssertUtil.validateError(negativeResult, i, "incompatible types: 'Record' will not be matched to " +
-                "'RecordWithIntFieldAndNeverRestField'", 353, 18);
-        Assert.assertEquals(negativeResult.getErrorCount(), 25);
+                "'RecordWithIntFieldAndEffectivelyNeverRestField'", 359, 18);
+        Assert.assertEquals(negativeResult.getErrorCount(), 26);
     }
 
     @Test
@@ -756,5 +758,15 @@ public class TypeTestExprTest {
     @Test
     public void testRecordIntersections() {
         BRunUtil.invoke(result, "testRecordIntersections");
+    }
+
+    @Test
+    public void testRecordIntersectionWithEffectivelyNeverFields() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithEffectivelyNeverFields");
+    }
+
+    @Test
+    public void testRecordIntersectionWithFunctionFields() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithFunctionFields");
     }
 }

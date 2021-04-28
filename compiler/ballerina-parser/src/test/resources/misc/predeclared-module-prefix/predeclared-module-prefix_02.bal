@@ -33,6 +33,8 @@ public function foo() returns map: {
     int:
 }
 
+xmlns boolean:
+
 public function main(transaction) {
     // missing colon in var decl
     transaction Info info;

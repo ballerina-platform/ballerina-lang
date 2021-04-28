@@ -43,7 +43,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_CLOSE_BRACKET_TOKEN("BCE0009", "error.missing.close.bracket.token"),
     ERROR_MISSING_EQUAL_TOKEN("BCE0010", "error.missing.equal.token"),
     ERROR_MISSING_COMMA_TOKEN("BCE0011", "error.missing.comma.token"),
-    ERROR_MISSING_PLUS_TOKEN("BCE0012", "error.missing.plus.token"),
+    ERROR_MISSING_BINARY_OPERATOR("BCE0012", "error.missing.binary.operator"),
     ERROR_MISSING_SLASH_TOKEN("BCE0013", "error.missing.slash.token"),
     ERROR_MISSING_AT_TOKEN("BCE0014", "error.missing.at.token"),
     ERROR_MISSING_QUESTION_MARK_TOKEN("BCE0015", "error.missing.question.mark.token"),
