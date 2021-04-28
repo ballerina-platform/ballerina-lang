@@ -144,6 +144,10 @@ public class JBallerinaBackend extends CompilerBackend {
 
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : pkgResolution.topologicallySortedModuleList()) {
+            // We can't generate backend code when one of its dependencies have errors.
+            if (!diagnostics.isEmpty()) {
+                break;
+            }
             moduleContext.generatePlatformSpecificCode(compilerContext, this);
             moduleContext.diagnostics().forEach(diagnostic ->
                     diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
