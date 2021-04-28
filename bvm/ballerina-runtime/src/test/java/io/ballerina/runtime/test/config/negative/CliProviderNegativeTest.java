@@ -26,6 +26,7 @@ import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
+import io.ballerina.runtime.internal.types.BIntersectionType;
 import org.testng.Assert;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -94,16 +95,27 @@ public class CliProviderNegativeTest {
                                 "range is (0-255), found '345'"},
                 // Config array value which is not supported as cli arg
                 {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x",
-                        TypeCreator.createArrayType(PredefinedTypes.TYPE_INT),
-                        "error: configurable variable 'x' with type 'int[]' is not supported"},
+                        new BIntersectionType(ROOT_MODULE, new Type[]{},
+                                              TypeCreator.createArrayType(PredefinedTypes.TYPE_INT), 0, true),
+                        "error: value for configurable variable 'x' with type 'int[]' is not supported as a cli arg"},
                 // Config record value which is not supported as cli arg
                 {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x",
-                        TypeCreator.createRecordType("customType", ROOT_MODULE, 0, false, 0), "error: value for " +
-                        "configurable variable 'x' with type 'rootMod:customType' is not supported as a cli arg"},
+                        new BIntersectionType(ROOT_MODULE, new Type[]{},
+                                              TypeCreator.createRecordType("customType", ROOT_MODULE, 0, false, 0), 0,
+                                              true),
+                        "error: value for configurable variable 'x' with type 'rootMod:customType' is not supported " +
+                                "as a cli arg"},
                 // Config table value which is not supported as cli arg
                 {new String[]{"-Cmyorg.mod.x=345"}, "myorg", "mod", "x",
-                        TypeCreator.createTableType(PredefinedTypes.TYPE_STRING, false),
-                        "error: configurable variable 'x' with type 'table<string>' is not supported"}
+                        new BIntersectionType(ROOT_MODULE, new Type[]{},
+                                              TypeCreator.createTableType(PredefinedTypes.TYPE_STRING, false), 0, true),
+                        "error: value for configurable variable 'x' with type 'table<string>' is not supported as a " +
+                                "cli arg"},
+                {new String[]{"-CxmlVar=<book"}, "rootOrg", "rootMod", "xmlVar",
+                        new BIntersectionType(ROOT_MODULE, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true),
+                        "error: [xmlVar=<book] configurable variable 'xmlVar' is expected to be of type 'xml<(lang" +
+                                ".xml:Element|lang.xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)>', but " +
+                                "found '<book'"}
         };
     }
 }

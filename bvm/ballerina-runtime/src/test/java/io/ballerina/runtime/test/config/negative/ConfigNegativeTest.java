@@ -149,12 +149,17 @@ public class ConfigNegativeTest {
                                                 null, true)}, 0, 1,
                         new String[]{
                                 "warning: value for configurable variable 'intArr' with type " +
-                                        "'" + "()' is not supported as a cli arg"}},
+                                        "'" + "int[]' is not supported as a cli arg"}},
                 // not supported both toml type and not cli type
                 {new String[]{"-Corg.mod1.intArr=1234"}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_MAP, null, true)}, 1
-                        , 0, new String[]{"error: configurable variable 'intVar' with type 'map' is not " +
-                                "supported"}},
+                        , 0, new String[]{"error: configurable variable 'intVar' with type 'map' is not supported"}},
+                {new String[]{"-Corg.mod1.myMap=1234"}, null,
+                        new VariableKey[]{
+                                new VariableKey(module, "myMap",
+                                                new BIntersectionType(module, new BType[]{}, PredefinedTypes.TYPE_MAP
+                                                        , 0, true), null, true)}, 1
+                        , 0, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported"}},
         };
     }
 }

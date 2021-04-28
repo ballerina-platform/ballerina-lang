@@ -164,17 +164,20 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<BArray> getAsArrayAndMark(Module module, VariableKey key) {
-        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, key.type);
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
     @Override
     public Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key) {
-        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, key.type);
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
     @Override
     public Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key) {
-        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, key.type);
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
     @Override
@@ -187,7 +190,7 @@ public class CliProvider implements ConfigProvider {
         try {
             return Optional.of(TypeConverter.stringToXml(cliArg.value));
         } catch (BError e) {
-            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, effectiveType, key.type);
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, effectiveType, cliArg.value);
         }
     }
 
