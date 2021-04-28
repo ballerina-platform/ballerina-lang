@@ -51,8 +51,9 @@ public class TestCaseVisitor extends NodeVisitor {
                         JsonObject testCase = new JsonObject();
                         testCase.addProperty(ExecutorPositionsUtil.KIND, ExecutorPositionsUtil.TEST);
                         testCase.addProperty(ExecutorPositionsUtil.NAME, functionDefinitionNode.functionName().text());
-                        ExecutorPositionsUtil.setRange(functionDefinitionNode.location(), testCase,
-                                this.filePath.toString());
+                        testCase.add(ExecutorPositionsUtil.RANGE,
+                                ExecutorPositionsUtil.GSON.toJsonTree(functionDefinitionNode.location().lineRange()));
+                        testCase.addProperty(ExecutorPositionsUtil.FILE_PATH, this.filePath.toString());
                         this.execPositions.add(testCase);
                     });
         }

@@ -15,6 +15,7 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document;
 
+import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.symbols.AbsResourcePathAttachPoint;
@@ -29,7 +30,6 @@ import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
 import io.ballerina.tools.diagnostics.Location;
-import io.ballerina.tools.text.LineRange;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -40,22 +40,22 @@ import java.util.stream.Collectors;
 
 /**
  * Executor positions evaluation utilities.
+ *
+ * @since 2.0.0
  */
 public class ExecutorPositionsUtil {
 
-    protected static final String CHARACTER = "character";
-    protected static final String END = "end";
     protected static final String FILE_PATH = "filePath";
     protected static final String KIND = "kind";
-    protected static final String LINE = "line";
     protected static final String FUNC_MAIN = "main";
     protected static final String MODULES = "modules";
     protected static final String NAME = "name";
     protected static final String RANGE = "range";
     protected static final String SOURCE = "source";
-    protected static final String START = "start";
     protected static final String TEST = "test";
     protected static final String TEST_CONFIG = "test:Config";
+
+    protected static final Gson GSON = new Gson();
 
     private ExecutorPositionsUtil() {
     }
@@ -92,7 +92,8 @@ public class ExecutorPositionsUtil {
                     mainFunctionObject.addProperty(NAME, FUNC_MAIN);
                     if (defaultModuleFunctionList.get(0).getLocation().isPresent()) {
                         Location location = defaultModuleFunctionList.get(0).getLocation().get();
-                        setRange(location, mainFunctionObject, location.lineRange().filePath());
+                        mainFunctionObject.add(RANGE, GSON.toJsonTree(location.lineRange()));
+                        mainFunctionObject.addProperty(FILE_PATH, location.lineRange().filePath());
                     }
                     execPositions.add(mainFunctionObject);
                 }
@@ -118,7 +119,8 @@ public class ExecutorPositionsUtil {
                             serviceObject.addProperty(KIND, SOURCE);
                             if (serviceSymbol.getLocation().isPresent()) {
                                 Location location = serviceSymbol.getLocation().get();
-                                setRange(location, serviceObject, location.lineRange().filePath());
+                                serviceObject.add(RANGE, GSON.toJsonTree(location.lineRange()));
+                                serviceObject.addProperty(FILE_PATH, location.lineRange().filePath());
                             }
                             Optional<ServiceAttachPoint> serviceAttachPoint = serviceSymbol.attachPoint();
                             if (serviceAttachPoint.isPresent()) {
@@ -138,21 +140,6 @@ public class ExecutorPositionsUtil {
             getTestCasePositions(execPositions, project, filePath, module);
         });
         return execPositions;
-    }
-
-    protected static void setRange(Location location, JsonObject jsonObject, String filePath) {
-        JsonObject rangeObject = new JsonObject();
-        JsonObject startObject = new JsonObject();
-        JsonObject endObject = new JsonObject();
-        LineRange lineRange = location.lineRange();
-        startObject.addProperty(LINE, lineRange.startLine().line());
-        startObject.addProperty(CHARACTER, lineRange.startLine().offset());
-        endObject.addProperty(LINE, lineRange.endLine().line());
-        endObject.addProperty(CHARACTER, lineRange.endLine().offset());
-        jsonObject.addProperty(FILE_PATH, filePath);
-        rangeObject.add(START, startObject);
-        rangeObject.add(END, endObject);
-        jsonObject.add(RANGE, rangeObject);
     }
 
     private static void getTestCasePositions(JsonArray execPositions, Project project, Path filePath, Module module) {
