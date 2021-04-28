@@ -219,9 +219,7 @@ public class ConfigurableTest extends BaseTest {
         LogLeecher errorLeecher5 = new LogLeecher("error: [xmlVar=123<?????] configurable variable 'xmlVar' is " +
                                                           "expected to be of type 'xml<((lang.xml:Element|lang" +
                                                           ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)" +
-                                                          " & readonly)>', but found '(xml<(lang.xml:Element|lang" +
-                                                          ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)" +
-                                                          "> & readonly)'", ERROR);
+                                                          " & readonly)>', but found '123<?????", ERROR);
 
         bMainInstance.runMain("run", new String[]{"main", "--", "-CintVar=waruna", "-CbyteVar=2200", "-CbooleanVar" +
                 "=true", "-CxmlVar=123<?????", "-CtestOrg.main.floatVar=eee",
