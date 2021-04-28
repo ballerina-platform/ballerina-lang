@@ -31,6 +31,7 @@ import java.util.Set;
 public class BTypeIdSet {
     public final Set<BTypeId> primary;
     public final Set<BTypeId> secondary;
+    private Set<BTypeId> all = null;
 
     private static final Set<BTypeId> emptySet = Collections.unmodifiableSet(new HashSet<>());
     private static final BTypeIdSet empty = new BTypeIdSet(emptySet);
@@ -97,13 +98,19 @@ public class BTypeIdSet {
             return true;
         }
 
-        HashSet<BTypeId> myTypeIds = new HashSet<>(primary);
-        myTypeIds.addAll(secondary);
+        if (all == null) {
+            HashSet<BTypeId> tAll = new HashSet<>(primary);
+            tAll.addAll(secondary);
+            all = tAll;
+        }
 
-        HashSet<BTypeId> sourceTypeIds = new HashSet<>(sourceTypeIdSet.primary);
-        sourceTypeIds.addAll(sourceTypeIdSet.secondary);
+        if (sourceTypeIdSet.all == null) {
+            HashSet<BTypeId> tAll = new HashSet<>(sourceTypeIdSet.primary);
+            tAll.addAll(sourceTypeIdSet.secondary);
+            sourceTypeIdSet.all = tAll;
+        }
 
-        return sourceTypeIds.containsAll(myTypeIds);
+        return sourceTypeIdSet.all.containsAll(all);
     }
 
     @Override
