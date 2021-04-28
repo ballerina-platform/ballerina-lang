@@ -19,7 +19,6 @@ package org.ballerinalang.debugadapter;
 import com.sun.jdi.request.EventRequestManager;
 import io.ballerina.projects.Project;
 import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
-import org.eclipse.lsp4j.debug.StackFrame;
 import org.eclipse.lsp4j.debug.services.IDebugProtocolClient;
 
 import java.io.BufferedReader;
@@ -38,7 +37,6 @@ public class ExecutionContext {
     private Project sourceProject;
     private Process launchedProcess;
     private DebugInstruction lastInstruction;
-    private StackFrame lastDebugHitFrame;
 
     ExecutionContext(JBallerinaDebugServer adapter) {
         this.adapter = adapter;
@@ -107,13 +105,5 @@ public class ExecutionContext {
 
     public void setLastInstruction(DebugInstruction lastInstruction) {
         this.lastInstruction = lastInstruction;
-    }
-
-    public StackFrame getLastDebugHitFrame() {
-        return lastDebugHitFrame;
-    }
-
-    public void setLastDebugHitFrame(StackFrame lastDebugHitFrame) {
-        this.lastDebugHitFrame = lastDebugHitFrame;
     }
 }

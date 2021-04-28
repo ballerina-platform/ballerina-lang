@@ -73,6 +73,7 @@ public class JDIEventProcessor {
     private final List<EventRequest> stepEventRequests = new ArrayList<>();
     private static final Logger LOGGER = LoggerFactory.getLogger(JBallerinaDebugServer.class);
     private static final String CONDITION_TRUE = "true";
+    private Location debugHitLocation;
 
     JDIEventProcessor(ExecutionContext context) {
         this.context = context;
@@ -114,10 +115,11 @@ public class JDIEventProcessor {
             eventSet.resume();
         } else if (event instanceof BreakpointEvent) {
             BreakpointEvent bpEvent = (BreakpointEvent) event;
-            ReferenceType bpReference = bpEvent.location().declaringType();
+            debugHitLocation = bpEvent.location();
+            ReferenceType bpReference = debugHitLocation.declaringType();
             String qualifiedClassName = getQualifiedClassName(context, bpReference);
             Map<Integer, BalBreakpoint> fileBreakpoints = this.breakpoints.get(qualifiedClassName);
-            int lineNumber = bpEvent.location().lineNumber();
+            int lineNumber = debugHitLocation.lineNumber();
 
             if (context.getLastInstruction() != DebugInstruction.CONTINUE) {
                 notifyStopEvent(event);
@@ -158,7 +160,8 @@ public class JDIEventProcessor {
         } else if (event instanceof StepEvent) {
             StepEvent stepEvent = (StepEvent) event;
             long threadId = stepEvent.thread().uniqueID();
-            if (isBallerinaSource(stepEvent.location())) {
+            if (isBallerinaSource(stepEvent.location())
+                && !stepEvent.location().toString().equals(debugHitLocation.toString())) {
                 notifyStopEvent(event);
             } else {
                 int stepType = ((StepRequest) event.request()).depth();
