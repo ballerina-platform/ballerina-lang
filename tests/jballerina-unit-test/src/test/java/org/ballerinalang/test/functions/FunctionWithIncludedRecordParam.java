@@ -71,6 +71,10 @@ public class FunctionWithIncludedRecordParam {
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'boolean', found 'string'", 166, 49);
         BAssertUtil.validateError(result, i++, "expected a record type as an included parameter", 169, 15);
         BAssertUtil.validateError(result, i++, "incompatible types: expected 'int[]', found 'int'", 179, 36);
+        BAssertUtil.validateError(result, i++,
+                "required parameter not allowed after included record parameters", 182, 62);
+        BAssertUtil.validateError(result, i++,
+                "defaultable parameter not allowed after included record parameters", 186, 62);
 
         Assert.assertEquals(i, result.getErrorCount());
     }

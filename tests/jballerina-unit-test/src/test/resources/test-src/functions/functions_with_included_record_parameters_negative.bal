@@ -178,3 +178,11 @@ function bal(*KeyValues baz) returns string {
 function testfunctionWithIncludedRecordParam9() {
     string result = bal(username = 2);
 }
+
+function functionWithIncludedRecordParam12(*Options options, int a) {
+    string? name = options?.name;
+}
+
+function functionWithIncludedRecordParam13(*Options options, int a = 10) {
+    string? name = options?.name;
+}

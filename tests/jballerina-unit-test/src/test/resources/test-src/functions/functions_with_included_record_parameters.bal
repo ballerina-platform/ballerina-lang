@@ -93,6 +93,10 @@ function functionOfFunctionTypedParamWithIncludedRecordParam(*NewPerson person) 
     return person.firstName + " " + person.secondName;
 }
 
+function functionWithIncludedRecordParamAfterDefaultParam(string middleName = " ", *NewPerson person) returns string {
+    return person.firstName + middleName + person.secondName;
+}
+
 function functionOfFunctionTypedParamWithIncludedRecordParam2(*NewStudent person) returns [string, int] {
     return [person.firstName + " " + person.secondName, person.age];
 }
@@ -117,12 +121,21 @@ function functionOfFunctionTypedParamWithIncludedRecordParam7(int a, int b, *Foo
     return a + b + <int> foo["value"];
 }
 
+function functionWithIncludedRecordParamAfterDefaultParam2(int a = 10, int b = 15, *Foo foo) returns int {
+    return a + b + <int> foo["value"];
+}
+
 function functionOfFunctionTypedParamWithIncludedRecordParam8(int c, int d, *Foo4 foo, *Bar bar) returns int {
     anydata value = foo["value"];
     return bar.a + bar.b + c+ d + <int> value;
 }
 
-function functionOfFunctionTypedParamWithIncludedRecordParam9(string message, string level, *KVPairs pairs) returns string {
+function functionWithIncludedRecordParamAfterDefaultParam3(int c, int d = 10, *Foo4 foo, *Bar bar) returns int {
+    anydata value = foo["value"];
+    return bar.a + bar.b + c+ d + <int> value;
+}
+
+function functionOfFunctionTypedParamWithIncludedRecordParam9(string message, string level = "abc", *KVPairs pairs) returns string {
     return message + level + <string> pairs["path"] + <string> pairs["filename"];
 }
 
@@ -133,7 +146,7 @@ function functionOfFunctionTypedParamWithIncludedRecordParam10(*Address address)
 function functionOfFunctionTypedParamWithIncludedRecordParam11(*Foo2 foo2) {
 }
 
-function functionOfFunctionTypedParamWithIncludedRecordParam12(*NewStudent student, *Grades grades, string email, int tel) returns string {
+function functionOfFunctionTypedParamWithIncludedRecordParam12(string email, int tel, *NewStudent student, *Grades grades) returns string {
     return email;
 }
 
@@ -141,7 +154,7 @@ function functionOfFunctionTypedParamWithIncludedRecordParam13(*Grades grades) r
     return grades.chemistry + grades.physics + grades.maths;
 }
 
-function functionOfFunctionTypedParamWithIncludedRecordParam14(int a, int b, *Foo3 foo, *Foo4 foo2) returns int {
+function functionOfFunctionTypedParamWithIncludedRecordParam14(int a, int b = 5, *Foo3 foo, *Foo4 foo2) returns int {
     return a + b;
 }
 
@@ -179,7 +192,12 @@ function functionOfFunctionTypedParamWithIncludedRecordParam22(*Pairs values) re
 
 function testFuctionWithIncludedRecordParameters() {
     string fullName = functionOfFunctionTypedParamWithIncludedRecordParam(firstName = "chiran", secondName = "sachintha");
+    string fullName2 = functionWithIncludedRecordParamAfterDefaultParam(firstName = "chiran", secondName = "sachintha");
+    string fullName3 = functionWithIncludedRecordParamAfterDefaultParam(middleName = " Peter ", firstName = "Steven", secondName = "Smith");
+
     assertEquality("chiran sachintha", fullName);
+    assertEquality("chiran sachintha", fullName2);
+    assertEquality("Steven Peter Smith", fullName3);
 }
 
 function testFuctionWithIncludedRecordParameters2() {
@@ -216,17 +234,32 @@ function testFuctionWithIncludedRecordParameters6() {
 
 function testFuctionWithIncludedRecordParameters7() {
     anydata value = functionOfFunctionTypedParamWithIncludedRecordParam7(a = 3, b = 4, value = 13);
+    anydata value2 = functionWithIncludedRecordParamAfterDefaultParam2(value = 5);
+    anydata value3 = functionWithIncludedRecordParamAfterDefaultParam2(a = 5, b = 5, value = 5);
+    anydata value4 = functionWithIncludedRecordParamAfterDefaultParam2(b = 15,value = 5, a = 50);
     assertEquality(20, value);
+    assertEquality(30, value2);
+    assertEquality(15, value3);
+    assertEquality(70, value4);
 }
 
 function testFuctionWithIncludedRecordParameters8() {
     anydata value = functionOfFunctionTypedParamWithIncludedRecordParam8(a = 5, b = 3, c = 3, d = 4, value = 10);
+    anydata value2 = functionWithIncludedRecordParamAfterDefaultParam3(a = 5, b = 3, c = 3, value = 10);
+    anydata value3 = functionWithIncludedRecordParamAfterDefaultParam3(a = 5, b = 3, c = 3, value = 10, d = 4);
     assertEquality(25, value);
+    assertEquality(31, value2);
+    assertEquality(25, value3);
 }
 
 function testFuctionWithIncludedRecordParameters9() {
     anydata path = functionOfFunctionTypedParamWithIncludedRecordParam9("x", "y", filename = "xyz.abc", path = "a/b/c");
+    anydata path2 = functionOfFunctionTypedParamWithIncludedRecordParam9("x", filename = "xyz.abc", path = "a/b/c");
+    anydata path3 = functionOfFunctionTypedParamWithIncludedRecordParam9("x", filename = "xyz.abc", path = "a/b/c", level = "y");
+
     assertEquality("xya/b/cxyz.abc", path);
+    assertEquality("xabca/b/cxyz.abc", path2);
+    assertEquality("xya/b/cxyz.abc", path3);
 }
 
 function testFuctionWithIncludedRecordParameters10() {
@@ -250,7 +283,10 @@ function testFuctionWithIncludedRecordParameters13() {
 
 function testFuctionWithIncludedRecordParameters14() {
     int sum = functionOfFunctionTypedParamWithIncludedRecordParam14(10, 25);
+    int sum2 = functionOfFunctionTypedParamWithIncludedRecordParam14(5);
+
     assertEquality(35, sum);
+    assertEquality(10, sum2);
 }
 
 function testFuctionWithIncludedRecordParameters15() {
