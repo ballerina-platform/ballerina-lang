@@ -67,9 +67,6 @@ public class BallerinaSymbol implements Symbol {
 
     @Override
     public Optional<String> getName() {
-        if (this.module != null && this.module.getName().orElse("").startsWith("lang.")) {
-            return Optional.ofNullable(this.name);
-        }
         return Optional.ofNullable(escapeReservedKeyword(this.name));
     }
 
