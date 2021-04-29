@@ -2,9 +2,7 @@ type Person record {
    int age;
 };
 
-function getPerson() returns Person => {
-   age: 31
-};
+function getPerson() returns Person => {    age: 31   };
 
 public function foo() {
    int a =    let    int b = 1 in b * 2;
