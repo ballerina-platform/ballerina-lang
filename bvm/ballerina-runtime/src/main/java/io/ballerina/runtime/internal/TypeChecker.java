@@ -557,9 +557,7 @@ public class TypeChecker {
             return true;
         }
 
-        Set<Type> visitedTypeSet = new HashSet<>();
-        visitedTypeSet.add(sourceType);
-        if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(sourceType, visitedTypeSet)) {
+        if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(sourceType)) {
             return true;
         }
 
@@ -687,12 +685,6 @@ public class TypeChecker {
 
         if (targetType.isReadOnly() && !sourceType.isReadOnly()) {
             return false;
-        }
-
-        Set<Type> visitedTypeSet = new HashSet<>();
-        visitedTypeSet.add(sourceType);
-        if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(sourceType, visitedTypeSet)) {
-            return true;
         }
 
         switch (targetTypeTag) {
@@ -1291,15 +1283,13 @@ public class TypeChecker {
         }
 
         if (targetType.sealed) {
-            Set<Type> visitedTypeSet = new HashSet<>();
-            visitedTypeSet.add(sourceRecordType);
             for (String sourceFieldName : sourceFields.keySet()) {
                 if (targetFieldNames.contains(sourceFieldName)) {
                     continue;
                 }
 
                 if (!checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(
-                        sourceFields.get(sourceFieldName).getFieldType(), visitedTypeSet)) {
+                        sourceFields.get(sourceFieldName).getFieldType())) {
                     return false;
                 }
             }
@@ -1938,6 +1928,12 @@ public class TypeChecker {
         }
         // Now one or both types are not array types and they have to be equal
         return expType == actualType;
+    }
+
+    private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
+        Set<Type> visitedTypeSet = new HashSet<>();
+        visitedTypeSet.add(type);
+        return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
     }
 
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type,

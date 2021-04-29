@@ -95,7 +95,7 @@ function testNeverRuntime11() {
 }
 
 function testNeverRuntime12() {
-    Record x = { i: 1, j: [] };
+    Record x = {i: 1, j: []};
     boolean b = x is Record2;
     assertEquality(false, b);
 }

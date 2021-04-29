@@ -1953,10 +1953,8 @@ public class SymbolEnter extends BLangNodeVisitor {
             symbol.retType = tsymbol.returnType;
         }
 
-        Set<BType> visitedTypeSet = new HashSet<>();
-        visitedTypeSet.add(varSymbol.type);
         if ((env.scope.owner.tag & SymTag.RECORD) != SymTag.RECORD && !varNode.flagSet.contains(Flag.NEVER_ALLOWED) &&
-                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(varSymbol.type, visitedTypeSet)) {
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(varSymbol.type)) {
             // check if the variable is defined as a 'never' type or equivalent to 'never'
             // (except inside a record type or iterative use (followed by in) in typed binding pattern)
             // if so, log an error

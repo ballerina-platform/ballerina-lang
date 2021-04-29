@@ -1906,11 +1906,9 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         SymbolEnv stmtEnv = new SymbolEnv(exprStmtNode, this.env.scope);
         this.env.copyTo(stmtEnv);
         BType bType = typeChecker.checkExpr(exprStmtNode.expr, stmtEnv, symTable.noType);
-        Set<BType> visitedTypeSet = new HashSet<>();
-        visitedTypeSet.add(bType);
         if (bType != symTable.nilType && bType != symTable.semanticError &&
                 exprStmtNode.expr.getKind() != NodeKind.FAIL &&
-                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType, visitedTypeSet)) {
+                !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(bType)) {
             dlog.error(exprStmtNode.pos, DiagnosticErrorCode.ASSIGNMENT_REQUIRED, bType);
         }
         validateWorkerAnnAttachments(exprStmtNode.expr);

@@ -101,7 +101,6 @@ import org.wso2.ballerinalang.util.Lists;
 import java.math.BigDecimal;
 import java.math.MathContext;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.EnumSet;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -638,9 +637,7 @@ public class Types {
         int sourceTag = source.tag;
         int targetTag = target.tag;
 
-        Set<BType> visitedTypeSet = new HashSet<>();
-        visitedTypeSet.add(source);
-        if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source, visitedTypeSet)) {
+        if (isNeverTypeOrStructureTypeWithARequiredNeverMember(source)) {
             return true;
         }
 
@@ -2937,9 +2934,7 @@ public class Types {
 
         if (lhsType.sealed) {
             for (BField field : rhsFields.values()) {
-                Set<BType> visitedTypeSet = new HashSet<>();
-                visitedTypeSet.add(field.type);
-                if (!isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type, visitedTypeSet)) {
+                if (!isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type)) {
                     return false;
                 }
             }
@@ -4203,10 +4198,8 @@ public class Types {
                     continue;
                 }
 
-                if (isNeverTypeOrStructureTypeWithARequiredNeverMember(effectiveRhsRecordRestFieldType,
-                        new HashSet<>(Arrays.asList(effectiveRhsRecordRestFieldType)))
-                        && !isNeverTypeOrStructureTypeWithARequiredNeverMember(recordOneFieldType,
-                        new HashSet<>(Arrays.asList(recordOneFieldType)))) {
+                if (isNeverTypeOrStructureTypeWithARequiredNeverMember(effectiveRhsRecordRestFieldType)
+                        && !isNeverTypeOrStructureTypeWithARequiredNeverMember(recordOneFieldType)) {
                     return false;
                 }
 
@@ -5123,6 +5116,12 @@ public class Types {
         }
 
         return BUnionType.create(null, new LinkedHashSet<>(nonNilTypes));
+    }
+
+    boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+        Set<BType> visitedTypeSet = new HashSet<>();
+        visitedTypeSet.add(type);
+        return isNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
     }
 
     boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type, Set<BType> visitedTypeSet) {
