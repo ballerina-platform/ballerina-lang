@@ -125,9 +125,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         }
 
         final SignatureHelpOptions signatureHelpOptions = new SignatureHelpOptions(Arrays.asList("(", ","));
-        final List<String> commandList = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
-                .getCommandsList();
-        final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
         final CompletionOptions completionOptions = new CompletionOptions();
         completionOptions.setTriggerCharacters(Arrays.asList(":", ".", ">", "@"));
 
@@ -138,7 +135,6 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setDefinitionProvider(true);
         res.getCapabilities().setReferencesProvider(true);
         res.getCapabilities().setCodeActionProvider(true);
-        res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
         res.getCapabilities().setDocumentFormattingProvider(true);
         res.getCapabilities().setDocumentRangeFormattingProvider(true);
         res.getCapabilities().setRenameProvider(true);
@@ -146,6 +142,15 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         res.getCapabilities().setImplementationProvider(false);
         res.getCapabilities().setFoldingRangeProvider(true);
         res.getCapabilities().setCodeLensProvider(new CodeLensOptions());
+
+        // We are not registering commands here because they need to be registered/unregistered dynamically.
+        // Only if the client doesn't support dynamic command registration, we do registration here
+        if (!params.getCapabilities().getWorkspace().getExecuteCommand().getDynamicRegistration()) {
+            final List<String> commandList = LSCommandExecutorProvidersHolder.getInstance(this.serverContext)
+                    .getCommandsList();
+            final ExecuteCommandOptions executeCommandOptions = new ExecuteCommandOptions(commandList);
+            res.getCapabilities().setExecuteCommandProvider(executeCommandOptions);
+        }
 
         HashMap experimentalClientCapabilities = null;
         if (params.getCapabilities().getExperimental() != null) {
@@ -174,6 +179,8 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
         LSClientCapabilities capabilities = new LSClientCapabilitiesImpl(textDocClientCapabilities,
                                                                          workspaceClientCapabilities,
                                                                          experimentalClientCapabilities);
+        this.serverContext.put(LSClientCapabilities.class, capabilities);
+        this.serverContext.put(ServerCapabilities.class, res.getCapabilities());
         ((BallerinaTextDocumentService) textService).setClientCapabilities(capabilities);
         ((BallerinaWorkspaceService) workspaceService).setClientCapabilities(capabilities);
         return CompletableFuture.supplyAsync(() -> res);
@@ -182,6 +189,12 @@ public class BallerinaLanguageServer extends AbstractExtendedLanguageServer
     @Override
     public void initialized(InitializedParams params) {
         startListeningFileChanges();
+
+        // If the client support dynamic registration of commands, we register the capability here
+        LSClientCapabilities clientCapabilities = serverContext.get(LSClientCapabilities.class);
+        if (clientCapabilities.getWorkspaceCapabilities().getExecuteCommand().getDynamicRegistration()) {
+            ((BallerinaWorkspaceService) workspaceService).registerCommands(client);
+        }
     }
 
     public CompletableFuture<Object> shutdown() {

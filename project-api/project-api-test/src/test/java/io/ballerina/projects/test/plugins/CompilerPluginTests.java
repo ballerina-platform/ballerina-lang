@@ -57,7 +57,9 @@ public class CompilerPluginTests {
         BCompileUtil.compileAndCacheBala(
                 "compiler_plugin_tests/package_comp_plugin_with_func_node_analyzer");
         BCompileUtil.compileAndCacheBala(
-                "compiler_plugin_tests/package_comp_plugin_lifecycle_listener");
+                "compiler_plugin_tests/package_comp_plugin_lifecycle_listener");   
+        BCompileUtil.compileAndCacheBala(
+                "compiler_plugin_tests/package_comp_plugin_with_codeactions");
     }
 
     @Test
@@ -124,6 +126,15 @@ public class CompilerPluginTests {
         CompileResult result = BCompileUtil.compileAndCacheBala(path);
         Assert.assertEquals(result.getWarnCount(), 1);
         BAssertUtil.validateWarning(result, 0, "End of codegen", 1, 1);
+    }
+    
+    @Test
+    public void testCodeActions() {
+        String path = RESOURCE_DIRECTORY.resolve("package_plugin_user_with_codeactions_1").toString();
+        CompileResult result = BCompileUtil.compileAndCacheBala(path);
+        PackageCompilation packageCompilation = result.getPackageCompilation();
+//        packageCompilation.getToolingManager().
+        // TODO Check if code actions available?
     }
 
     public void assertDiagnostics(Package currentPackage) {

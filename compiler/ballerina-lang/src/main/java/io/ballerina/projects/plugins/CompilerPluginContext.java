@@ -17,6 +17,9 @@
  */
 package io.ballerina.projects.plugins;
 
+import io.ballerina.projects.plugins.codeaction.CodeActionExecutor;
+import io.ballerina.projects.plugins.codeaction.CodeActionProvider;
+
 /**
  * This class can be used to add various compiler plugin tasks to the current compilation.
  *
@@ -37,4 +40,8 @@ public interface CompilerPluginContext {
      * @param lifecycleListener the {@code CompilerLifecycleListener} instance
      */
     void addCompilerLifecycleListener(CompilerLifecycleListener lifecycleListener);
+
+    void addCodeActionProvider(CodeActionProvider provider);
+
+    void addCodeActionExecutor(CodeActionExecutor executor);
 }

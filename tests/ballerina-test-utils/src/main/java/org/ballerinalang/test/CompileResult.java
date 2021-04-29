@@ -106,4 +106,8 @@ public class CompileResult {
     public DiagnosticResult getDiagnosticResult() {
         return diagnosticResult;
     }
+
+    public PackageCompilation getPackageCompilation() {
+        return packageCompilation;
+    }
 }
