@@ -234,7 +234,7 @@ public class SyntaxErrors {
             case UNARY_EXPRESSION:
             case EXPRESSION_RHS:
             case PLUS_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_PLUS_TOKEN;
+                return DiagnosticErrorCode.ERROR_MISSING_BINARY_OPERATOR;
             case CLOSE_BRACE:
             case RECORD_BODY_END:
             case RECORD_FIELD_OR_RECORD_END:

@@ -55,12 +55,12 @@ import java.util.zip.ZipInputStream;
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
 import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
+import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
-import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 
 /**
  * This class represents the "bal push" command.
@@ -209,9 +209,10 @@ public class PushCommand implements BLauncherCmd {
                     + pkgAsDependency.name().toString() + ":"
                     + pkgAsDependency.version().toString();
             throw new ProjectException(
-                    "package '" + pkg + "' already exists in " + "remote repository("
-                            + getRemoteRepoURL() + "). build and push after "
-                            + "updating the version in the Ballerina.toml.");
+                    "package '" + pkg + "' already exists in " + "remote repository :"
+                            + getCentralPackageURL(project.currentPackage().packageOrg().value(),
+                                                   project.currentPackage().packageName().value())
+                            + ". build and push after updating the version in the Ballerina.toml.");
         }
 
         // bala file path

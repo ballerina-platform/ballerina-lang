@@ -16,7 +16,7 @@
           "kind": "NAMED_ARG",
           "hasDiagnostics": true,
           "diagnostics": [
-            "ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR"
+            "ERROR_MISSING_ERROR_MESSAGE_IN_ERROR_CONSTRUCTOR"
           ],
           "children": [
             {

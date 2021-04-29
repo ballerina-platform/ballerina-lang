@@ -193,7 +193,13 @@ public class DefaultPackageResolver implements PackageResolver {
         ResolutionRequest newResolutionReq = ResolutionRequest.from(
                 PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
                         latestVersion), resolutionRequest.scope());
-        Optional<Package> packageOptional = pkgRepoThatContainsLatestVersion.getPackage(newResolutionReq);
+
+        // Check if the package is already in cache to avoid
+        // duplicating package instances in the WritablePackageCache.
+        Optional<Package> packageOptional = Optional.ofNullable(loadFromCache(newResolutionReq));
+        if (packageOptional.isEmpty()) {
+            packageOptional = pkgRepoThatContainsLatestVersion.getPackage(newResolutionReq);
+        }
         return packageOptional.orElse(null);
     }
 

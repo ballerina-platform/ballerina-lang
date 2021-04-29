@@ -57,7 +57,7 @@ public abstract class AbstractParserErrorHandler {
     /*
      * Abstract methods, to be implemented by the classes that extends this abstract error handler
      */
-    protected abstract boolean isProductionWithAlternatives(ParserRuleContext context);
+    protected abstract boolean hasAlternativePaths(ParserRuleContext context);
 
     protected abstract Result seekMatch(ParserRuleContext context, int lookahead, int currentDepth,
                                         boolean isEntryPoint);

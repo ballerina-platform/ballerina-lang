@@ -26,6 +26,8 @@ import io.ballerina.runtime.api.types.StreamType;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.values.StreamValue;
 
+import java.util.Objects;
+
 /**
  * {@link BStreamType} represents streaming data in Ballerina.
  *
@@ -34,6 +36,31 @@ import io.ballerina.runtime.internal.values.StreamValue;
 public class BStreamType extends BType implements StreamType {
 
     private Type constraint;
+    private Type completionType;
+
+    /**
+     * Creates a {@link BStreamType} which represents the stream type.
+     *
+     * @param typeName   string name of the type
+     * @param constraint the type by which this stream is constrained
+     * @param completionType the type which indicates the completion of the stream
+     * @param pkgPath    package path
+     */
+    public BStreamType(String typeName, Type constraint, Type completionType, Module pkgPath) {
+        super(typeName, pkgPath, StreamValue.class);
+        this.constraint = constraint;
+        this.completionType = completionType;
+    }
+
+    /**
+     * Creates a {@link BStreamType} which represents the stream type.
+     *
+     * @param constraint     the type by which this stream is constrained
+     * @param completionType the type which indicates the completion of the stream
+     */
+    public BStreamType(Type constraint, Type completionType) {
+        this(TypeConstants.STREAM_TNAME, constraint, completionType, null);
+    }
 
     /**
      * Creates a {@link BStreamType} which represents the stream type.
@@ -41,19 +68,30 @@ public class BStreamType extends BType implements StreamType {
      * @param typeName   string name of the type
      * @param constraint the type by which this stream is constrained
      * @param pkgPath    package path
+     * @deprecated use {@link #BStreamType(String, Type, Type, Module)} instead.
      */
+    @Deprecated
     public BStreamType(String typeName, Type constraint, Module pkgPath) {
-        super(typeName, pkgPath, StreamValue.class);
-        this.constraint = constraint;
+        this(typeName, constraint, PredefinedTypes.TYPE_NULL, pkgPath);
     }
 
+    /**
+     * Creates a {@link BStreamType} which represents the stream type.
+     *
+     * @param constraint the type by which this stream is constrained
+     * @deprecated use {@link #BStreamType(Type, Type)} instead.
+     */
+    @Deprecated
     public BStreamType(Type constraint) {
-        super(TypeConstants.STREAM_TNAME, null, StreamValue.class);
-        this.constraint = constraint;
+        this(TypeConstants.STREAM_TNAME, constraint, null);
     }
 
     public Type getConstrainedType() {
         return constraint;
+    }
+
+    public Type getCompletionType() {
+        return completionType;
     }
 
     @Override
@@ -73,11 +111,9 @@ public class BStreamType extends BType implements StreamType {
 
     @Override
     public String toString() {
-        if (constraint == PredefinedTypes.TYPE_ANY) {
-            return super.toString();
-        } else {
-            return "stream" + "<" + constraint.getName() + ">";
-        }
+        return super.toString() + "<" + constraint.toString() +
+                ((completionType != null && completionType.getTag() != TypeTags.NULL_TAG)
+                        ? "," + completionType.toString() : "") + ">";
     }
 
     @Override
@@ -87,7 +123,7 @@ public class BStreamType extends BType implements StreamType {
         }
 
         BStreamType other = (BStreamType) obj;
-        if (constraint == other.constraint) {
+        if (constraint == other.constraint && completionType == other.completionType) {
             return true;
         }
 
@@ -95,6 +131,7 @@ public class BStreamType extends BType implements StreamType {
             return false;
         }
 
-        return constraint.equals(other.constraint);
+        return Objects.equals(constraint, other.constraint)
+                && Objects.equals(completionType, other.completionType);
     }
 }

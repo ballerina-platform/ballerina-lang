@@ -261,7 +261,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), visit(type.constraint), visit(type.error));
+        Integer hash = hash(baseHash(type), visit(type.constraint), visit(type.completionType));
         return addToVisited(type, hash);
     }
 

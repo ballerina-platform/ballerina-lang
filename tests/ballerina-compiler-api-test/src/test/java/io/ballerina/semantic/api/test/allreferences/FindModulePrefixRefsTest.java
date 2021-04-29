@@ -49,19 +49,22 @@ public class FindModulePrefixRefsTest extends FindAllReferencesTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {16, 15, List.of(location(16, 15, 26),
-                                 location(19, 0, 11),
-                                 location(44, 1, 12),
-                                 location(22, 4, 15),
-                                 location(36, 27, 38),
-                                 location(39, 28, 39),
-                                 location(40, 18, 29))
+                {16, 15, location(16, 15, 26),
+                        List.of(location(16, 15, 26),
+                                location(19, 0, 11),
+                                location(44, 1, 12),
+                                location(22, 4, 15),
+                                location(36, 27, 38),
+                                location(39, 28, 39),
+                                location(40, 18, 29))
                 },
-                {25, 16, List.of(location(25, 16, 20),
-                                 location(31, 24, 28)),
+                {25, 16, null,
+                        List.of(location(25, 16, 20),
+                                location(31, 24, 28)),
                 },
-                {35, 27, List.of(location(17, 33, 36),
-                                 location(35, 27, 30)),
+                {35, 27, location(17, 33, 36),
+                        List.of(location(17, 33, 36),
+                                location(35, 27, 30)),
                 }
         };
     }
