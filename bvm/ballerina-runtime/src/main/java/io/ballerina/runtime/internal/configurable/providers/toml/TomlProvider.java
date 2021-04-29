@@ -57,6 +57,7 @@ import io.ballerina.toml.semantic.ast.TomlTableArrayNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
 import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
+import io.ballerina.tools.text.LineRange;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -95,6 +96,7 @@ public class TomlProvider implements ConfigProvider {
 
     private final Module rootModule;
     private final Set<TomlNode> visitedNodes = new HashSet<>();
+    private final Set<LineRange> invalidTomlLines = new HashSet<>();
     private final ModuleInfo moduleInfo;
 
     Map<Module, TomlTableNode> moduleTomlNodeMap = new HashMap<>();
@@ -129,9 +131,10 @@ public class TomlProvider implements ConfigProvider {
             TomlNode node = nodeEntry.getValue();
             String lineRange = getLineRange(node);
             String entryKey = nodeEntry.getKey();
+            boolean isInvalidNode = invalidTomlLines.contains(node.location().lineRange());
             switch (node.kind()) {
                 case KEY_VALUE:
-                    if (!visitedNodes.contains(node)) {
+                    if (!visitedNodes.contains(node) && !isInvalidNode) {
                         exceptionList
                                 .add(new ConfigException(CONFIG_TOML_UNUSED_VALUE, lineRange, moduleHeader + entryKey));
                     }
@@ -140,7 +143,7 @@ public class TomlProvider implements ConfigProvider {
                     validateUnusedTableNodes((TomlTableNode) node, exceptionList, moduleHeader, entryKey);
                     break;
                 case TABLE_ARRAY:
-                    if (!visitedNodes.contains(node)) {
+                    if (!visitedNodes.contains(node) && !isInvalidNode) {
                         exceptionList.add(new ConfigException(CONFIG_TOML_UNUSED_VALUE, lineRange,
                                 moduleHeader + entryKey));
                     }
@@ -169,7 +172,7 @@ public class TomlProvider implements ConfigProvider {
                             getModuleKey(module)));
                 }
             }
-            if (!(containsOrg || containsModule)) {
+            if (!(containsOrg || containsModule) && !invalidTomlLines.contains(node.location().lineRange())) {
                 exceptionList.add(new ConfigException(CONFIG_TOML_UNUSED_VALUE, lineRange, moduleHeader + nodeName));
             }
         }
@@ -199,6 +202,7 @@ public class TomlProvider implements ConfigProvider {
             TomlNode valueNode = getTomlNode(tomlValue, key.variable, key.type);
             int byteValue = ((Long) (((TomlBasicValueNode<?>) valueNode).getValue())).intValue();
             if (!isByteLiteral(byteValue)) {
+                invalidTomlLines.add(valueNode.location().lineRange());
                 throw new ConfigException(RuntimeErrors.CONFIG_INVALID_BYTE_RANGE, getLineRange(valueNode),
                                           key.variable, byteValue);
             }
@@ -297,6 +301,7 @@ public class TomlProvider implements ConfigProvider {
     private TomlNode getTomlNode(TomlNode tomlValue, String variableName, Type type) {
         TomlType tomlType = tomlValue.kind();
         if (tomlType != TomlType.KEY_VALUE) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, type,
                                       getTomlTypeString(tomlValue));
         }
@@ -304,6 +309,7 @@ public class TomlProvider implements ConfigProvider {
         tomlValue = ((TomlKeyValueNode) tomlValue).value();
         tomlType = tomlValue.kind();
         if (tomlType != getEffectiveTomlType(type, variableName)) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, type,
                                       getTomlTypeString(tomlValue));
         }
@@ -335,17 +341,30 @@ public class TomlProvider implements ConfigProvider {
 
     private void throwInvalidImportedModuleError(Toml toml, Module module) {
         String moduleKey = getModuleKey(module);
-        TomlNode errorNode = toml.rootNode();
+        TomlNode errorNode = null;
+        Optional<TomlValueNode> valueNode =  toml.get(moduleKey);
+        List<Toml> tomlTables = toml.getTables(moduleKey);
         String moduleName = module.getName();
-        Optional<TomlValueNode> valueNode =  toml.get(moduleName);
-        List<Toml> tomlTables = toml.getTables(moduleName);
-        if (valueNode.isPresent()) {
+        if (valueNode.isEmpty()) {
+            valueNode =  toml.get(moduleName);
+        }
+        if (tomlTables.isEmpty()) {
+            tomlTables = toml.getTables(moduleName);
+        }
+        Optional<Toml> tableNode = toml.getTable(moduleName);
+        if (tableNode.isPresent()) {
+            errorNode = tableNode.get().rootNode();
+        } else if (valueNode.isPresent()) {
             errorNode = valueNode.get();
         } else if (!tomlTables.isEmpty()) {
             errorNode = tomlTables.get(0).rootNode();
         }
-        invalidRequiredModuleSet.add(module.toString());
-        throw new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE, getLineRange(errorNode), moduleKey, moduleKey);
+        if (errorNode != null) {
+            invalidRequiredModuleSet.add(module.toString());
+            invalidTomlLines.add(errorNode.location().lineRange());
+            throw new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE, getLineRange(errorNode), moduleKey,
+                    moduleKey);
+        }
     }
 
     private TomlTableNode getNonDefaultModuleNode(Toml baseToml, Module module, boolean hasRequired) {
@@ -381,7 +400,7 @@ public class TomlProvider implements ConfigProvider {
 
     private void throwInvalidSubModuleError(Toml toml, Module module) {
         String moduleName = module.getName();
-        TomlNode errorNode = toml.rootNode();
+        TomlNode errorNode = null;
         Optional<TomlValueNode> valueNode = toml.get(moduleName);
         List<Toml> tomlTables = toml.getTables(moduleName);
         if (valueNode.isEmpty()) {
@@ -396,11 +415,16 @@ public class TomlProvider implements ConfigProvider {
             errorNode = tomlTables.get(0).rootNode();
         } else {
             Optional<Toml> tomlValueNode = toml.getTable(moduleName.replaceFirst(rootModule.getName() + ".", ""));
-            errorNode = tomlValueNode.isPresent() ? tomlValueNode.get().rootNode() : errorNode;
+            if (tomlValueNode.isPresent()) {
+                errorNode = tomlValueNode.get().rootNode();
+            }
         }
-        invalidRequiredModuleSet.add(module.toString());
-                throw new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE, getLineRange(errorNode), moduleName,
-                                          moduleName);
+        if (errorNode != null) {
+            invalidRequiredModuleSet.add(module.toString());
+            invalidTomlLines.add(errorNode.location().lineRange());
+            throw new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE, getLineRange(errorNode), moduleName,
+                    moduleName);
+        }
     }
 
     private TomlTableNode getRootModuleNode(Toml baseToml) {
@@ -424,12 +448,14 @@ public class TomlProvider implements ConfigProvider {
     private Object retrievePrimitiveValue(TomlNode tomlValue, String variableName, Type type, String fieldName) {
         TomlType tomlType = tomlValue.kind();
         if (tomlType != TomlType.KEY_VALUE) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_TOML_FIELD_INCOMPATIBLE_TYPE, getLineRange(tomlValue), fieldName,
                                       variableName, type, getTomlTypeString(tomlValue));
         }
         TomlValueNode value = ((TomlKeyValueNode) tomlValue).value();
         tomlType = value.kind();
         if (tomlType != getEffectiveTomlType(type, variableName)) {
+            invalidTomlLines.add(value.location().lineRange());
             throw new ConfigException(CONFIG_TOML_FIELD_INCOMPATIBLE_TYPE, getLineRange(value), fieldName, variableName,
                                       type, getTomlTypeString(tomlValue));
         }
@@ -441,11 +467,13 @@ public class TomlProvider implements ConfigProvider {
     private BArray retrieveArrayValues(TomlNode tomlValue, String variableName, ArrayType arrayType) {
         Type elementType = arrayType.getElementType();
         if (!isSupportedType(elementType)) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, getLineRange(tomlValue), variableName,
                                       arrayType.toString());
         }
         if (isPrimitiveType(elementType.getTag())) {
             if (tomlValue.kind() != TomlType.KEY_VALUE) {
+                invalidTomlLines.add(tomlValue.location().lineRange());
                 throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
                                           arrayType, getTomlTypeString(tomlValue));
             }
@@ -462,6 +490,7 @@ public class TomlProvider implements ConfigProvider {
         switch (elementType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 if (tomlValue.kind() != TomlType.KEY_VALUE) {
+                    invalidTomlLines.add(tomlValue.location().lineRange());
                     throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
                             arrayType, getTomlTypeString(tomlValue));
                 }
@@ -474,6 +503,7 @@ public class TomlProvider implements ConfigProvider {
                 Type effectiveType = ((IntersectionType) elementType).getEffectiveType();
                 if (effectiveType.getTag() == TypeTags.ARRAY_TAG) {
                     if (tomlValue.kind() != TomlType.KEY_VALUE) {
+                        invalidTomlLines.add(tomlValue.location().lineRange());
                         throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
                                                   arrayType, getTomlTypeString(tomlValue));
                     }
@@ -489,6 +519,7 @@ public class TomlProvider implements ConfigProvider {
     private BArray getPrimitiveArray(TomlNode tomlValue, String variableName, ArrayType arrayType) {
         ListInitialValueEntry.ExpressionEntry[] expressionEntries;
         if (tomlValue.kind() != getEffectiveTomlType(arrayType, variableName)) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, arrayType,
                                       getTomlTypeString(tomlValue));
         }
@@ -499,6 +530,7 @@ public class TomlProvider implements ConfigProvider {
 
     private BArray getRecordArray(TomlNode tomlValue, String variableName, ArrayType arrayType, Type elementType) {
         if (tomlValue.kind() != TomlType.TABLE_ARRAY) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, arrayType,
                                       getTomlTypeString(tomlValue));
         }
@@ -523,6 +555,7 @@ public class TomlProvider implements ConfigProvider {
             Object balValue;
             TomlNode tomlValueNode = arrayList.get(i);
             if (tomlValueNode.kind() != getEffectiveTomlType(elementType, elementName)) {
+                invalidTomlLines.add(tomlValueNode.location().lineRange());
                 throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValueNode), elementName,
                                           elementType, getTomlTypeString(tomlValueNode));
             }
@@ -548,6 +581,7 @@ public class TomlProvider implements ConfigProvider {
             recordName = recordType.getName();
         }
         if (tomlNode.kind() != getEffectiveTomlType(recordType, variableName)) {
+            invalidTomlLines.add(tomlNode.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlNode), variableName, recordType,
                                       getTomlTypeString(tomlNode));
         }
@@ -560,11 +594,13 @@ public class TomlProvider implements ConfigProvider {
             Field field = recordType.getFields().get(fieldName);
             TomlNode value = tomlField.getValue();
             if (field == null) {
+                invalidTomlLines.add(value.location().lineRange());
                 throw new ConfigException(CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD, getLineRange(value), fieldName,
                                           variableName, recordType.toString());
             }
             Type fieldType = field.getFieldType();
             if (!isSupportedType(fieldType)) {
+                invalidTomlLines.add(value.location().lineRange());
                 throw new ConfigException(CONFIG_TOML_FIELD_TYPE_NOT_SUPPORTED, getLineRange(value), fieldType,
                                           variableName);
             }
@@ -610,6 +646,7 @@ public class TomlProvider implements ConfigProvider {
             // remove after fixing #28966
             if (!SymbolFlags.isFlagOn(flag, SymbolFlags.OPTIONAL) && !SymbolFlags.isFlagOn(flag,
                     SymbolFlags.REQUIRED) && initialValueEntries.get(fieldName) == null) {
+                invalidTomlLines.add(tomlValue.location().lineRange());
                 throw new ConfigException(CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED, getLineRange(tomlValue), fieldName
                         , variableName);
             }
@@ -626,12 +663,13 @@ public class TomlProvider implements ConfigProvider {
         return ValueCreator.createMapValue(recordType, initialValues);
     }
 
-    private static void validateRequiredField(Map<String, Object> initialValueEntries, RecordType recordType,
+    private void validateRequiredField(Map<String, Object> initialValueEntries, RecordType recordType,
                                               String variableName, TomlNode tomlNode) {
         for (Map.Entry<String, Field> field : recordType.getFields().entrySet()) {
             String fieldName = field.getKey();
             if (SymbolFlags.isFlagOn(field.getValue().getFlags(), SymbolFlags.REQUIRED) &&
                     initialValueEntries.get(fieldName) == null) {
+                invalidTomlLines.add(tomlNode.location().lineRange());
                 throw new ConfigException(CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED, getLineRange(tomlNode), fieldName,
                                           recordType.toString(), variableName);
             }
@@ -662,15 +700,18 @@ public class TomlProvider implements ConfigProvider {
         Type constraintType = tableType.getConstrainedType();
         int tag = constraintType.getTag();
         if (tag != TypeTags.INTERSECTION_TAG && tag != TypeTags.RECORD_TYPE_TAG) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_TOML_CONSTRAINT_TYPE_NOT_SUPPORTED, getLineRange(tomlValue),
                                       constraintType, variableName);
         }
         if (tag == TypeTags.INTERSECTION_TAG &&
                 ((BIntersectionType) constraintType).getEffectiveType().getTag() != TypeTags.RECORD_TYPE_TAG) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_TOML_CONSTRAINT_TYPE_NOT_SUPPORTED, getLineRange(tomlValue),
                                       constraintType, variableName);
         }
         if (tomlValue.kind() != getEffectiveTomlType(tableType, variableName)) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
             throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, tableType,
                                       getTomlTypeString(tomlValue));
         }
@@ -697,10 +738,11 @@ public class TomlProvider implements ConfigProvider {
         return new TableValueImpl<>((BTableType) type, tableData, keyNames);
     }
 
-    private static void validateKeyField(TomlTableNode recordTable, String[] fieldNames, Type tableType,
+    private void validateKeyField(TomlTableNode recordTable, String[] fieldNames, Type tableType,
                                          String variableName) {
         for (String key : fieldNames) {
             if (recordTable.entries().get(key) == null) {
+                invalidTomlLines.add(recordTable.location().lineRange());
                 throw new ConfigException(CONFIG_TOML_TABLE_KEY__NOT_PROVIDED, getLineRange(recordTable), key,
                                           tableType.toString()
                         , variableName);
@@ -708,11 +750,12 @@ public class TomlProvider implements ConfigProvider {
         }
     }
 
-    private static Object getBalValue(String variableName, int typeTag, TomlValueNode tomlValueNode) {
+    private Object getBalValue(String variableName, int typeTag, TomlValueNode tomlValueNode) {
         Object tomlValue = ((TomlBasicValueNode<?>) tomlValueNode).getValue();
         if (typeTag == TypeTags.BYTE_TAG) {
             int value = ((Long) tomlValue).intValue();
             if (!isByteLiteral(value)) {
+                invalidTomlLines.add(tomlValueNode.location().lineRange());
                 throw new ConfigException(CONFIG_INVALID_BYTE_RANGE, getLineRange(tomlValueNode), variableName, value);
             }
             return value;

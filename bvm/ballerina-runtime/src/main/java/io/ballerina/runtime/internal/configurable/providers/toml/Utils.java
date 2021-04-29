@@ -120,11 +120,14 @@ public class Utils {
         if (node.location() == null) {
             return CONFIG_FILE_NAME;
         }
-        LineRange lineRange = node.location().lineRange();
-        LineRange oneBasedLineRange = LineRange.from(
+        LineRange oneBasedLineRange = getOneBasedLineRange(node.location().lineRange());
+        return oneBasedLineRange.filePath() + ":" + oneBasedLineRange;
+    }
+
+    static LineRange getOneBasedLineRange(LineRange lineRange) {
+        return LineRange.from(
                 lineRange.filePath(),
                 LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
                 LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
-        return oneBasedLineRange.filePath() + ":" + oneBasedLineRange;
     }
 }

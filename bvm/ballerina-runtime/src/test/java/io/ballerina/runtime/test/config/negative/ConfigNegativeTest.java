@@ -124,11 +124,11 @@ public class ConfigNegativeTest {
                         }},
                 // invalid toml but valid cli
                 {new String[]{"-Corg.mod1.intVar=1234"}, "Invalid.toml",
-                        new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, null, true)}, 0
-                        , 1, new String[]{
+                        new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true)}, 0, 1,
+                        new String[]{
                                 "warning: invalid toml file : \n" +
-                                        "[Invalid.toml:(2:0,2:0)] missing equal token\n" +
-                                        "[Invalid.toml:(2:0,2:0)] missing value\n"}},
+                                        "[Invalid.toml:(3:1,3:1)] missing equal token\n" +
+                                        "[Invalid.toml:(3:1,3:1)] missing value\n"}},
                 // supported cli type but not toml type
                 {new String[]{"-Corg.mod1.xmlVar=<book/>"}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(module, "xmlVar",

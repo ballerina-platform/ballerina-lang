@@ -46,7 +46,6 @@ import java.util.Set;
 
 import static io.ballerina.runtime.test.TestUtils.getConfigPath;
 import static io.ballerina.runtime.test.TestUtils.getConfigPathForNegativeCases;
-import static io.ballerina.runtime.test.TestUtils.getSimpleVariableKeys;
 
 /**
  * Test cases specific for configuration provided via TOML files/content.
@@ -76,14 +75,11 @@ public class TomlProviderNegativeTest {
                 {"NoConfig.toml",
                         "warning: configuration file is not found in path '" +
                                 getConfigPathForNegativeCases("NoConfig.toml") + "'", 1},
-                {"Empty.toml",
-                        "warning: an empty configuration file is found in path '" +
-                                getConfigPathForNegativeCases("Empty.toml") + "'. Please provide values " +
-                                "for configurable variables", 1},
+                {"Empty.toml", "error: value not provided for required configurable variable 'byteVar'", 0},
                 {"InvalidConfig.toml", "warning: invalid toml file : \n" +
-                        "[InvalidConfig.toml:(0:7,0:7)] missing identifier\n" +
-                        "[InvalidConfig.toml:(0:25,0:25)] missing identifier\n" +
-                        "[InvalidConfig.toml:(0:26,0:26)] missing identifier\n", 1},
+                        "[InvalidConfig.toml:(1:8,1:8)] missing identifier\n" +
+                        "[InvalidConfig.toml:(1:26,1:26)] missing identifier\n" +
+                        "[InvalidConfig.toml:(1:27,1:27)] missing identifier\n", 1},
                 {"InvalidByteRange.toml", "error: [InvalidByteRange.toml:(2:11,2:14)] value provided for byte " +
                         "variable 'byteVar' is out of range. Expected range is (0-255), found '355'", 0}
         };
@@ -101,23 +97,38 @@ public class TomlProviderNegativeTest {
     @DataProvider(name = "simple-negative-tests")
     public Object[][] getSimpleNegativeTests() {
         return new Object[][]{
-                {"NoModuleConfig", "[NoModuleConfig.toml:(1:1,2:12)] invalid module structure found for module 'myOrg" +
-                        ".mod'. Please provide the module name as '[myOrg.mod]'", 2, 2},
-                {"InvalidOrgName", "[InvalidOrgName.toml:(1:1,3:21)] invalid module structure found for module 'myOrg" +
-                        ".mod'. Please provide the module name as '[myOrg.mod]'", 2, 4},
-                {"InvalidOrgStructure1", "[InvalidOrgStructure1.toml:(1:1,1:11)] invalid module structure found for " +
-                        "module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2, 1},
-                {"InvalidOrgStructure2", "[InvalidOrgStructure2.toml:(1:1,4:1)] invalid module structure found for " +
-                        "module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2, 2},
-                {"InvalidModuleStructure", "[InvalidModuleStructure.toml:(1:7,1:16)] invalid module structure found " +
+                {"InvalidModuleStructure1", "[InvalidModuleStructure1.toml:(1:13,1:22)] invalid toml structure " +
+                        "found for module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2, 1},
+                {"InvalidModuleStructure2", "[InvalidModuleStructure2.toml:(1:1,2:7)] invalid toml structure found " +
                         "for module 'myOrg.mod'. Please provide the module name as '[myOrg.mod]'", 2, 1},
                 {"RequiredNegative",
                         "value not provided for required configurable variable 'stringVar'", 1, 0},
                 {"PrimitiveTypeError", "[PrimitiveTypeError.toml:(2:10,2:14)] configurable variable 'intVar' is " +
                         "expected to be of type 'int', but found 'float'", 2, 0},
                 {"PrimitiveStructureError", "[PrimitiveStructureError.toml:(2:1,2:24)] configurable variable " +
-                        "'intVar' is expected to be of type 'int', but found 'record'", 2, 2},
+                        "'intVar' is expected to be of type 'int', but found 'record'", 2, 0},
         };
+    }
+
+    @Test
+    public void testNoModuleInformation() {
+        VariableKey[] variableKeys = getSimpleVariableKeys(importedModule);
+        Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(importedModule, variableKeys));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+                List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,
+                        getConfigPathForNegativeCases("NoModuleConfig.toml"), configVarMap.keySet())));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 2);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
+                "error: value not provided for required configurable variable 'intVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(),
+                "error: value not provided for required configurable variable 'stringVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(2).toString(), "warning: [NoModuleConfig.toml:(1:1," +
+                "1:15)] unused configuration value 'intInMain'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(3).toString(), "warning: [NoModuleConfig.toml:(2:1," +
+                "2:12)] unused configuration value 'intVar'");
     }
 
     @Test()
@@ -126,13 +137,13 @@ public class TomlProviderNegativeTest {
         VariableKey stringVar = new VariableKey(subModule, "stringVar", PredefinedTypes.TYPE_STRING, true);
         Map<Module, VariableKey[]> configVarMap =
                 Map.ofEntries(Map.entry(subModule, new VariableKey[]{intVar, stringVar}));
-        String errorMsg = "[InvalidSubModuleStructure1.toml:(3:12,3:14)] invalid module structure found for module " +
+        String errorMsg = "[InvalidSubModuleStructure1.toml:(2:12,2:14)] invalid toml structure found for module " +
                 "'test_module.util.foo'. Please provide the module name as '[test_module.util.foo]'";
-        validateTomlProviderErrors("InvalidSubModuleStructure1", errorMsg, configVarMap, 2, 2);
+        validateTomlProviderErrors("InvalidSubModuleStructure1", errorMsg, configVarMap, 2, 1);
 
-        errorMsg = "[InvalidSubModuleStructure2.toml:(1:1,2:23)] invalid module structure found for module " +
+        errorMsg = "[InvalidSubModuleStructure2.toml:(1:1,2:23)] invalid toml structure found for module " +
                 "'test_module.util.foo'. Please provide the module name as '[test_module.util.foo]'";
-        validateTomlProviderErrors("InvalidSubModuleStructure2", errorMsg, configVarMap, 2, 2);
+        validateTomlProviderErrors("InvalidSubModuleStructure2", errorMsg, configVarMap, 2, 1);
     }
 
     @Test(dataProvider = "array-negative-tests")
@@ -152,7 +163,7 @@ public class TomlProviderNegativeTest {
                 {"ArrayTypeError", "[ArrayTypeError.toml:(1:10,1:17)] configurable variable 'intArr'" +
                         " is expected to be of type 'int[] & readonly', but found 'string'", 0},
                 {"ArrayStructureError", "[ArrayStructureError.toml:(1:1,1:32)] configurable variable" +
-                        " 'intArr' is expected to be of type 'int[] & readonly', but found 'record'", 2},
+                        " 'intArr' is expected to be of type 'int[] & readonly', but found 'record'", 0},
                 {"ArrayElementStructure", "[ArrayElementStructure.toml:(1:19,1:26)] configurable variable " +
                         "'intArr[2]' is expected to be of type 'int', but found 'array'", 0},
                 {"ArrayMultiType", "[ArrayMultiType.toml:(1:15,1:21)] configurable variable " +
@@ -175,7 +186,7 @@ public class TomlProviderNegativeTest {
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tableVar}));
         String errorMsg = "[InvalidTableField.toml:(3:1,3:27)] additional field 'invalidMap' provided for " +
                 "configurable variable 'tableVar' of record 'test_module:Person' is not supported";
-        validateTomlProviderErrors("InvalidTableField", errorMsg, configVarMap, 1, 2);
+        validateTomlProviderErrors("InvalidTableField", errorMsg, configVarMap, 1, 0);
     }
 
     @Test(dataProvider = "record-negative-tests")
@@ -196,15 +207,15 @@ public class TomlProviderNegativeTest {
     public Object[][] getRecordNegativeTests() {
         return new Object[][]{
                 {"RecordTypeError", "[RecordTypeError.toml:(2:1,2:40)] configurable variable 'recordVar' " +
-                        "is expected to be of type 'test_module:Person', but found 'string'", 1},
+                        "is expected to be of type 'test_module:Person', but found 'string'", 0},
                 {"RecordFieldTypeError", "[RecordFieldTypeError.toml:(2:8,2:12)] field 'name' from configurable " +
                         "variable 'recordVar' is expected to be of type 'string', but found 'int'", 1},
                 {"RecordFieldStructureError", "[RecordFieldStructureError.toml:(2:1,2:24)] field 'name' from " +
                         "configurable variable 'recordVar' is expected to be of type 'string', but found " +
-                        "'record'", 2},
+                        "'record'", 0},
                 {"AdditionalFieldRecord", "[AdditionalFieldRecord.toml:(3:1,3:9)] additional field 'age' provided for" +
                         " configurable variable 'recordVar' of record 'test_module:Person' is not " +
-                        "supported", 1},
+                        "supported", 0},
                 {"MissingRecordField", "[MissingRecordField.toml:(1:1,1:24)] value not provided for non-defaultable " +
                         "required field 'name' of record 'test_module:Person' in configurable variable " +
                         "'recordVar'", 0},
@@ -247,16 +258,16 @@ public class TomlProviderNegativeTest {
                         " 'tableVar'", 2},
                 {"TableTypeError", "[TableTypeError.toml:(1:1,3:9)] configurable variable 'tableVar'" +
                         " is expected to be of type 'table<test_module:Person> key(name) & readonly'," +
-                        " but found 'record'", 3},
+                        " but found 'record'", 2},
                 {"TableFieldTypeError", "[TableFieldTypeError.toml:(2:8,2:11)] field 'name' " +
                         "from configurable variable 'tableVar' is expected to be of type 'string'," +
                         " but found 'int'", 2},
                 {"TableFieldStructureError", "[TableFieldStructureError.toml:(2:1,2:24)] field 'name' " +
                         "from configurable variable 'tableVar' is expected to be of type 'string'," +
-                        " but found 'record'", 3},
+                        " but found 'record'", 1},
                 {"AdditionalField", "[AdditionalField.toml:(4:1,4:17)] additional field 'city' provided for" +
                         " configurable variable 'tableVar' of record 'test_module:Person'" +
-                        " is not supported", 1},
+                        " is not supported", 0},
                 {"MissingTableField", "[MissingTableField.toml:(1:1,3:9)] value not provided for " +
                         "non-defaultable required field 'id' of record 'test_module:Person' in configurable" +
                         " variable 'tableVar'", 0},
@@ -275,7 +286,7 @@ public class TomlProviderNegativeTest {
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tableVar}));
         String errorMsg = "[InvalidTableConstraint.toml:(1:1,2:16)] table constraint type 'map<string> & readonly'" +
                 " in configurable variable 'tableVar' is not supported";
-        validateTomlProviderErrors("InvalidTableConstraint", errorMsg, configVarMap, 1, 2);
+        validateTomlProviderErrors("InvalidTableConstraint", errorMsg, configVarMap, 1, 1);
     }
 
     @Test(dataProvider = "multi-module-data-provider")
@@ -303,30 +314,22 @@ public class TomlProviderNegativeTest {
         VariableKey[] clashingVariableKeys4 = getSimpleVariableKeys(clashingModule4);
 
         return new Object[][]{
-                {Map.ofEntries(Map.entry(subModule, subVariableKeys)), "[SubModuleError1.toml:(1:1,2:21)] invalid " +
-                        "module structure found for module 'test_module.util.foo'. Please provide the module name as " +
-                        "'[test_module.util.foo]'", "SubModuleError1"},
-                {Map.ofEntries(Map.entry(subModule, subVariableKeys)), "[SubModuleError2.toml:(1:1,3:21)] invalid " +
-                        "module structure found for module 'test_module.util.foo'. Please provide the module name as " +
-                        "'[test_module.util.foo]'", "SubModuleError2"},
+                {Map.ofEntries(Map.entry(subModule, subVariableKeys)), "[SubModuleError.toml:(1:1,3:21)] invalid " +
+                        "toml structure found for module 'test_module.util.foo'. Please provide the module name as " +
+                        "'[test_module.util.foo]'", "SubModuleError"},
                 {Map.ofEntries(Map.entry(importedModule, importedVariableKeys)),
-                        "[ImportedModuleError1.toml:(1:1,2:21)] invalid module structure found for module 'myOrg.mod'" +
+                        "[ImportedModuleError.toml:(1:1,3:21)] invalid toml structure found for module 'myOrg.mod'" +
                                 ". Please provide the module name as '[myOrg.mod]'",
-                        "ImportedModuleError1"},
-                {Map.ofEntries(Map.entry(importedModule, importedVariableKeys)),
-                        "[ImportedModuleError2.toml:(1:1,3:21)] invalid module structure found for module 'myOrg.mod'" +
-                                ". Please provide the module name as '[myOrg.mod]'",
-                        "ImportedModuleError2"},
+                        "ImportedModuleError"},
                 {Map.ofEntries(Map.entry(ROOT_MODULE, variableKeys), Map.entry(clashingModule1, clashingVariableKeys1)),
-                        "[ClashingModuleError1.toml:(1:1,7:21)] invalid module structure found for module 'myOrg" +
+                        "[ClashingModuleError1.toml:(5:1,7:21)] invalid toml structure found for module 'myOrg" +
                                 ".test_module'. Please provide the module name as '[myOrg.test_module]'",
                         "ClashingModuleError1"},
                 {Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule2,
                         clashingVariableKeys2)),
-                        "[ClashingModuleError2.toml:(1:1,7:21)] invalid module structure found for module 'myOrg" +
+                        "[ClashingModuleError2.toml:(5:1,7:21)] invalid toml structure found for module 'myOrg" +
                                 ".test_module.util.foo'. Please provide the module name as '[myOrg.test_module.util" +
-                                ".foo]'",
-                        "ClashingModuleError2"},
+                                ".foo]'", "ClashingModuleError2"},
                 //TODO: Should be removed after fixing #29989
                 {Map.ofEntries(Map.entry(ROOT_MODULE, variableKeys), Map.entry(clashingModule3,
                         clashingVariableKeys3)),
@@ -341,6 +344,24 @@ public class TomlProviderNegativeTest {
     }
 
     @Test
+    public void testSubModuleValueNotProvided() {
+        Map<Module, VariableKey[]> variableMap =
+                Map.ofEntries(Map.entry(ROOT_MODULE, getSimpleVariableKeys(ROOT_MODULE)),
+                Map.entry(subModule, getSimpleVariableKeys(subModule)));
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog,
+                List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,
+                        getConfigPathForNegativeCases("ValueNotProvidedSubModule.toml"), variableMap.keySet())));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: value not provided for " +
+                "required configurable variable 'intVar'");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(), "error: value not provided for " +
+                "required configurable variable 'stringVar'");
+    }
+
+    @Test
     public void testClashingOrgSubModules() {
         VariableKey[] subVariableKeys = getSimpleVariableKeys(subModule);
         Module clashingModule = new Module("test_module", "util.foo", "1.0.0");
@@ -348,7 +369,7 @@ public class TomlProviderNegativeTest {
         Map<Module, VariableKey[]> variableMap =
                 Map.ofEntries(Map.entry(subModule, subVariableKeys), Map.entry(clashingModule, clashingVariableKeys));
         String errorMsg = "warning: invalid toml file : \n" +
-                "[ClashingOrgModuleError1.toml:(4:0,6:18)] existing node 'foo'\n";
+                    "[ClashingOrgModuleError1.toml:(5:1,7:19)] existing node 'foo'\n";
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog,
                 List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,
@@ -462,7 +483,7 @@ public class TomlProviderNegativeTest {
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getWarningCount(), 3);
         String[] warnings = new String[] {
-                "warning: [OptionalImportedModule.toml:(1:1,3:18)] invalid module structure found for module 'mod'. " +
+                "warning: [OptionalImportedModule.toml:(1:1,3:18)] invalid toml structure found for module 'mod'. " +
                         "Please provide the module name as '[myOrg.mod]'",
                 "warning: [OptionalImportedModule.toml:(2:1,2:13)] unused configuration value 'mod.intVar'",
                 "warning: [OptionalImportedModule.toml:(3:1,3:18)] unused configuration value 'mod.stringVar'"
