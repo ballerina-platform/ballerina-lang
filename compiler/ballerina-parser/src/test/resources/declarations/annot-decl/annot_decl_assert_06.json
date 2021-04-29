@@ -213,7 +213,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_SYNTAX_ERROR"
+                            "ERROR_MISSING_REMOTE_KEYWORD"
                           ]
                         },
                         {
@@ -245,7 +245,7 @@
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
-                            "ERROR_SYNTAX_ERROR"
+                            "ERROR_MISSING_SERVICE_KEYWORD"
                           ]
                         },
                         {
