@@ -56,4 +56,12 @@ public interface FunctionTypeSymbol extends TypeSymbol {
      * @return {@link Optional} return type
      */
     Optional<TypeSymbol> returnTypeDescriptor();
+
+    /**
+     * Retrieves an instance which captures the info regarding the annotations attached to the return type descriptor.
+     * Returns empty if there aren't any annotations attached to the return type descriptor.
+     *
+     * @return An {@link Annotatable} instance representing the annotations attached to the return type
+     */
+    Optional<Annotatable> returnTypeAnnotations();
 }

@@ -965,13 +965,15 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
             } else {
                 errorType.detailType = createTypeNode(typeNode);
             }
-            NonTerminalNode parent = errorTypeDescriptorNode.parent();
-            if (parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC) {
-                parent = parent.parent();
-            }
-            if (parent.kind() != SyntaxKind.TYPE_DEFINITION) {
-                return deSugarTypeAsUserDefType(errorType);
-            }
+        }
+
+        NonTerminalNode parent = errorTypeDescriptorNode.parent();
+        boolean isDistinctError = parent.kind() == SyntaxKind.DISTINCT_TYPE_DESC;
+        if (isDistinctError) {
+            parent = parent.parent();
+        }
+        if ((typeParam.isPresent() || isDistinctError) && parent.kind() != SyntaxKind.TYPE_DEFINITION) {
+            return deSugarTypeAsUserDefType(errorType);
         }
 
         return errorType;
