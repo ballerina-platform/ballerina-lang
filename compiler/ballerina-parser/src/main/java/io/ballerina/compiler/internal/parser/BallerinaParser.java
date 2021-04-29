@@ -15191,13 +15191,14 @@ public class BallerinaParser extends AbstractParser {
     }
 
     private STNode parseMappingBindingPatternEnd() {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case COMMA_TOKEN:
                 return parseComma();
             case CLOSE_BRACE_TOKEN:
                 return null;
             default:
-                recover(peek(), ParserRuleContext.MAPPING_BINDING_PATTERN_END);
+                recover(nextToken, ParserRuleContext.MAPPING_BINDING_PATTERN_END);
                 return parseMappingBindingPatternEnd();
         }
     }
@@ -15209,27 +15210,32 @@ public class BallerinaParser extends AbstractParser {
      * @return field-binding-pattern node
      */
     private STNode parseFieldBindingPattern() {
-        switch (peek().kind) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
             case IDENTIFIER_TOKEN:
                 STNode identifier = parseIdentifier(ParserRuleContext.FIELD_BINDING_PATTERN_NAME);
-                STNode fieldBindingPattern = parseFieldBindingPattern(identifier);
-                return fieldBindingPattern;
+                STNode simpleNameReference = STNodeFactory.createSimpleNameReferenceNode(identifier);
+                return parseFieldBindingPattern(simpleNameReference);
             default:
-                recover(peek(), ParserRuleContext.FIELD_BINDING_PATTERN_NAME);
+                recover(nextToken, ParserRuleContext.FIELD_BINDING_PATTERN_NAME);
                 return parseFieldBindingPattern();
         }
     }
 
-    private STNode parseFieldBindingPattern(STNode identifier) {
-        STNode simpleNameReference = STNodeFactory.createSimpleNameReferenceNode(identifier);
-
-        if (peek().kind != SyntaxKind.COLON_TOKEN) {
-            return STNodeFactory.createFieldBindingPatternVarnameNode(simpleNameReference);
+    private STNode parseFieldBindingPattern(STNode simpleNameReference) {
+        STToken nextToken = peek();
+        switch (nextToken.kind) {
+            case COMMA_TOKEN:
+            case CLOSE_BRACE_TOKEN:
+                return STNodeFactory.createFieldBindingPatternVarnameNode(simpleNameReference);
+            case COLON_TOKEN:
+                STNode colon = parseColon();
+                STNode bindingPattern = parseBindingPattern();
+                return STNodeFactory.createFieldBindingPatternFullNode(simpleNameReference, colon, bindingPattern);
+            default:
+                recover(nextToken, ParserRuleContext.FIELD_BINDING_PATTERN_END);
+                return parseFieldBindingPattern(simpleNameReference);
         }
-
-        STNode colon = parseColon();
-        STNode bindingPattern = parseBindingPattern();
-        return STNodeFactory.createFieldBindingPatternFullNode(simpleNameReference, colon, bindingPattern);
     }
 
     private boolean isEndOfMappingBindingPattern(SyntaxKind nextTokenKind) {
