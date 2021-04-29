@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/lang.'string as strings;
+import ballerina/lang.'value;
 
 int globalA = 5;
 
@@ -752,18 +753,18 @@ function funcAcceptingIntArgs(int... scores) returns int {
     return fn();
 }
 
-string moduleLevel = "module text";
+string moduleLevel = "moduleText1 ";
 
-function errorConstructorReferenceTest1() returns error? {
-    string temp = "text";
-    var process = function() returns error? {
-        moduleLevel = "module text1";
+function errorConstructorReference1(string param1) returns error? {
+    string temp = "text " + param1;
+    var process = function(string param2) returns error? {
+        moduleLevel = moduleLevel + param2;
         return error("An Error", tempString = temp, moduleString = moduleLevel);
     };
-    return process();
+    return process("tempParam2");
 }
 
-function errorConstructorReferenceTest2() returns function() returns error? {
+function errorConstructorReference2() returns function() returns error? {
     string temp = "text";
     var process = function() returns error? {
         return error("An Error", tempString = temp);
@@ -771,24 +772,27 @@ function errorConstructorReferenceTest2() returns function() returns error? {
     return process;
 }
 
-function errorConstructorInClosureTest() {
-     var temp = errorConstructorReferenceTest1();
+function errorConstructorWithClosureTest() {
+     var temp = errorConstructorReference1("tempParam1");
      error err = <error>temp;
-     assert(err.detail().toString(), "{\"tempString\":\"text\",\"moduleString\":\"module text1\"}");
+     map<value:Cloneable> errorDetail = err.detail();
+     assert("text tempParam1", <string> checkpanic errorDetail["tempString"]);
+     assert("moduleText1 tempParam2", <string> checkpanic errorDetail["moduleString"]);
 
-     var tempfunc = errorConstructorReferenceTest2();
+     var tempfunc = errorConstructorReference2();
      var tempErr = tempfunc();
      err = <error>tempErr;
-     assert(err.detail().toString(), "{\"tempString\":\"text\"}");
+     errorDetail = err.detail();
+     assert("text", <string> checkpanic errorDetail["tempString"]);
 }
 
 function assert(anydata actual, anydata expected) {
-    if (expected != actual) {
-        typedesc<anydata> expT = typeof expected;
-        typedesc<anydata> actT = typeof actual;
-        string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
-                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
-        error e = error(reason);
-        panic e;
+    if (expected == actual) {
+            return;
     }
+    typedesc<anydata> expT = typeof expected;
+    typedesc<anydata> actT = typeof actual;
+    string reason = "expected [" + expected.toString() + "] of type [" + expT.toString()
+                            + "], but found [" + actual.toString() + "] of type [" + actT.toString() + "]";
+    panic error(reason);
 }

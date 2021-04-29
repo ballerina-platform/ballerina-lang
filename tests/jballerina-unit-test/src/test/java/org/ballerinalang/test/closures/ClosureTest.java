@@ -273,8 +273,8 @@ public class ClosureTest {
         BRunUtil.invoke(result, "testClosureWithinResource");
     }
 
-    @Test(description = "Test error constructor within closure")
-    public void errorConstructorInClosureTest() {
-        BRunUtil.invoke(compileResult, "errorConstructorInClosureTest");
+    @Test(description = "Test error constructor with closure")
+    public void errorConstructorWithClosureTest() {
+        BRunUtil.invoke(compileResult, "errorConstructorWithClosureTest");
     }
 }
