@@ -1152,6 +1152,10 @@ class SymbolFinder extends BaseVisitor {
     public void visit(BLangStreamType streamType) {
         lookupNode(streamType.constraint);
         lookupNode(streamType.error);
+
+        if (symbolAtCursor == null) {
+            this.symbolAtCursor = streamType.type.type.tsymbol;
+        }
     }
 
     @Override
