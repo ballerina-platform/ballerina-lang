@@ -4198,8 +4198,8 @@ public class Types {
                     continue;
                 }
 
-                if (isNeverTypeOrStructureTypeWithARequiredNeverMember(effectiveRhsRecordRestFieldType)
-                        && !isNeverTypeOrStructureTypeWithARequiredNeverMember(recordOneFieldType)) {
+                if (isNeverTypeOrStructureTypeWithARequiredNeverMember(effectiveRhsRecordRestFieldType) &&
+                        !isNeverTypeOrStructureTypeWithARequiredNeverMember(recordOneFieldType)) {
                     return false;
                 }
 

@@ -5530,10 +5530,10 @@ public class TypeChecker extends BLangNodeVisitor {
             this.resultType = symTable.semanticError;
             return;
         }
-        BType returnType = (BType) ((InvokableSymbol) remoteFuncSymbol).getReturnType();
         if (Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) &&
                 Symbols.isFlagOn(expType.flags, Flags.CLIENT) &&
-                types.isNeverTypeOrStructureTypeWithARequiredNeverMember(returnType)) {
+                types.isNeverTypeOrStructureTypeWithARequiredNeverMember
+                        ((BType) ((InvokableSymbol) remoteFuncSymbol).getReturnType())) {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_CLIENT_REMOTE_METHOD_CALL);
         }
 
