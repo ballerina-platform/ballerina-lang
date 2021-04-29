@@ -131,6 +131,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
 
     private final AtomicLong nextVarReference = new AtomicLong();
     private final Map<Long, StackFrameProxyImpl> stackFramesMap = new ConcurrentHashMap<>();
+    private final Map<Long, StackFrame[]> loadedThreadFrames = new ConcurrentHashMap<>();
     private final Map<Long, BCompoundVariable> loadedVariables = new ConcurrentHashMap<>();
     private final Map<Long, Long> variableToStackFrameMap = new ConcurrentHashMap<>();
     private final Map<Long, Long> scopeIdToFrameIdMap = new ConcurrentHashMap<>();
@@ -280,12 +281,16 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         stackTraceResponse.setStackFrames(new StackFrame[0]);
         try {
             activeThread = getAllThreads().get(args.getThreadId());
-            StackFrame[] validFrames = activeThread.frames().stream()
-                    .map(this::toDapStackFrame)
-                    .filter(JBallerinaDebugServer::isValidFrame)
-                    .toArray(StackFrame[]::new);
-
-            stackTraceResponse.setStackFrames(validFrames);
+            if (loadedThreadFrames.containsKey(activeThread.uniqueID())) {
+                stackTraceResponse.setStackFrames(loadedThreadFrames.get(activeThread.uniqueID()));
+            } else {
+                StackFrame[] validFrames = activeThread.frames().stream()
+                        .map(this::toDapStackFrame)
+                        .filter(JBallerinaDebugServer::isValidFrame)
+                        .toArray(StackFrame[]::new);
+                stackTraceResponse.setStackFrames(validFrames);
+                loadedThreadFrames.put(activeThread.uniqueID(), validFrames);
+            }
             return CompletableFuture.completedFuture(stackTraceResponse);
         } catch (JdiProxyException e) {
             LOGGER.error(e.getMessage(), e);
@@ -929,6 +934,7 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         stackFramesMap.clear();
         loadedVariables.clear();
         variableToStackFrameMap.clear();
+        loadedThreadFrames.clear();
         nextVarReference.set(1);
     }
 }
