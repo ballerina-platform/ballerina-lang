@@ -1,7 +1,4 @@
-function getFunctionPointer()   returns   (
-   function   (  int
-       )   returns   float  )
-       {
+function getFunctionPointer()   returns   (  function   (  int  )   returns   float  )  {
    return   test  ;
 }
 
