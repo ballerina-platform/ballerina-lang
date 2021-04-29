@@ -17,13 +17,17 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
+import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.FieldAccessCompletionResolver;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
+import org.ballerinalang.langserver.completions.util.TypeGuardUtil;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -50,10 +54,16 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
     protected List<LSCompletionItem> getEntries(BallerinaCompletionContext ctx,
                                                 ExpressionNode expr,
                                                 boolean optionalFieldAccess) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
         FieldAccessCompletionResolver resolver = new FieldAccessCompletionResolver(ctx, optionalFieldAccess);
         List<Symbol> symbolList = resolver.getVisibleEntries(expr);
-
-        return this.getCompletionItemList(symbolList, ctx);
+        //Add typegurad snippet for the resolved type.
+        if (expr.parent().kind() == SyntaxKind.FIELD_ACCESS) {
+            completionItems.addAll(TypeGuardUtil.getTypeGuardDestructedItems(
+                    ctx, (FieldAccessExpressionNode) expr.parent(), resolver.getTypeSymbol(expr)));
+        }
+        completionItems.addAll(this.getCompletionItemList(symbolList, ctx));
+        return completionItems;
     }
 
     @Override

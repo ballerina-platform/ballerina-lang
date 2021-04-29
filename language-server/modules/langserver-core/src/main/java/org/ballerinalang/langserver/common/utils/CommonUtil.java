@@ -198,6 +198,37 @@ public class CommonUtil {
     }
 
     /**
+     * Get the text edit for an auto import statement.
+     * Here we do not check whether the package is not already imported or a predeclared lang-lib, Particular
+     * check should be done before usage
+     *
+     * @param orgName package org name
+     * @param pkgName package name
+     * @param alias   import alias
+     * @param context Language server context
+     * @return {@link List}     List of Text Edits to apply
+     */
+    public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName, String alias,
+                                                        DocumentServiceContext context) {
+        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
+        Position start = new Position(0, 0);
+        if (currentDocImports != null && !currentDocImports.isEmpty()) {
+            ImportDeclarationNode last = CommonUtil.getLastItem(currentDocImports);
+            int endLine = last.lineRange().endLine().line();
+            start = new Position(endLine, 0);
+        }
+        StringBuilder builder = new StringBuilder(ItemResolverConstants.IMPORT + " "
+                + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
+                + pkgName);
+        if (!alias.isEmpty()) {
+            builder.append(" as ").append(alias).append(" ");
+        }
+        builder.append(SEMI_COLON_SYMBOL_KEY).append(CommonUtil.LINE_SEPARATOR);
+
+        return Collections.singletonList(new TextEdit(new Range(start, start), builder.toString()));
+    }
+
+    /**
      * Get the default value for the given BType.
      *
      * @param bType Type descriptor to get the default value
@@ -1048,6 +1079,42 @@ public class CommonUtil {
 
         String[] modNameComponents = modName.split("\\.");
         return modNameComponents[modNameComponents.length - 1];
+    }
+    /**
+     * Get the validated symbol name against the visible symbols.
+     * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
+     *
+     * @param context completion context
+     * @param symbolName raw symbol name to modify with the numbered suffix
+     * @return {@link String} modified symbol name
+     */
+    public static String getValidatedSymbolName(PositionedOperationContext context, String symbolName) {
+        List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition());
+        List<Integer> variableNumbers = symbols.parallelStream().map(symbol -> {
+            if (symbol.getName().isEmpty()) {
+                return -2;
+            }
+            String sName = symbol.getName().get();
+            if (sName.equals(symbolName)) {
+                return 0;
+            }
+            String modifiedName = sName.replaceFirst(symbolName, "");
+
+            if (!modifiedName.isEmpty() && modifiedName.chars().allMatch(Character::isDigit)) {
+                return Integer.parseInt(modifiedName);
+            }
+
+            return -3;
+        }).filter(integer -> integer >= 0).sorted().collect(Collectors.toList());
+
+        for (int i = 0; i < variableNumbers.size(); i++) {
+            Integer intVal = variableNumbers.get(i);
+            if (i == variableNumbers.size() - 1 || (intVal + 1) != variableNumbers.get(i + 1)) {
+                return symbolName + (intVal + 1);
+            }
+        }
+
+        return symbolName;
     }
 
     private static String getQualifiedModuleName(Module module) {

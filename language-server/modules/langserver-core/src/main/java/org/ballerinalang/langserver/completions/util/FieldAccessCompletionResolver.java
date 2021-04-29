@@ -198,8 +198,18 @@ public class FieldAccessCompletionResolver extends NodeTransformer<Optional<Type
      * @return {@link List}
      */
     public List<Symbol> getVisibleEntries(Node node) {
-        Optional<TypeSymbol> typeSymbol = node.apply(this);
+        Optional<TypeSymbol> typeSymbol = getTypeSymbol(node);
         return typeSymbol.map(tSymbol -> this.getVisibleEntries(tSymbol, node)).orElse(Collections.emptyList());
+    }
+
+    /**
+     * returns the TypeSymbol given the node.
+     *
+     * @param node Node of which the TypeSymbol should be resolved
+     * @return {@link TypeSymbol}
+     */
+    public Optional<TypeSymbol> getTypeSymbol(Node node) {
+        return node.apply(this);
     }
 
     private Optional<Symbol> getSymbolByName(List<Symbol> visibleSymbols, String name) {

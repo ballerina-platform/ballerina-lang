@@ -18,6 +18,8 @@ package io.ballerina.compiler.api.impl.symbols;
 
 import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.impl.SymbolFactory;
+import io.ballerina.compiler.api.symbols.Annotatable;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ParameterKind;
 import io.ballerina.compiler.api.symbols.ParameterSymbol;
@@ -28,6 +30,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableTypeSym
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
+import org.wso2.ballerinalang.compiler.tree.BLangAnnotationAttachment;
 import org.wso2.ballerinalang.compiler.util.CompilerContext;
 import org.wso2.ballerinalang.util.Flags;
 
@@ -55,6 +58,7 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     private List<ParameterSymbol> params;
     private ParameterSymbol restParam;
     private TypeSymbol returnType;
+    private Annotatable returnTypeAnnots;
     private final BInvokableTypeSymbol typeSymbol;
     private String signature;
 
@@ -140,6 +144,30 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
     }
 
     @Override
+    public Optional<Annotatable> returnTypeAnnotations() {
+        if (this.returnTypeAnnots != null) {
+            return Optional.of(this.returnTypeAnnots);
+        }
+
+        if (this.typeSymbol.returnTypeAnnots.isEmpty()) {
+            return Optional.empty();
+        }
+
+        SymbolFactory symbolFactory = SymbolFactory.getInstance(this.context);
+        List<AnnotationSymbol> annots = new ArrayList<>();
+
+        for (BLangAnnotationAttachment annot : this.typeSymbol.returnTypeAnnots) {
+            annots.add(symbolFactory.createAnnotationSymbol(annot.annotationSymbol));
+        }
+
+        AnnotatableReturnType annotatableReturnType = new AnnotatableReturnType();
+        annotatableReturnType.setAnnotations(Collections.unmodifiableList(annots));
+        this.returnTypeAnnots = annotatableReturnType;
+
+        return Optional.of(this.returnTypeAnnots);
+    }
+
+    @Override
     public String signature() {
         if (this.signature != null) {
             return this.signature;
@@ -161,5 +189,19 @@ public class BallerinaFunctionTypeSymbol extends AbstractTypeSymbol implements F
         this.returnTypeDescriptor().ifPresent(typeDescriptor -> signature.append(" returns ")
                 .append(typeDescriptor.signature()));
         return signature.toString();
+    }
+
+    private static class AnnotatableReturnType implements Annotatable {
+
+        private List<AnnotationSymbol> annots;
+
+        @Override
+        public List<AnnotationSymbol> annotations() {
+            return this.annots;
+        }
+
+        void setAnnotations(List<AnnotationSymbol> annots) {
+            this.annots = annots;
+        }
     }
 }

@@ -19,9 +19,9 @@ import ballerina/jballerina.java;
 
 function createPipeline(
         Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type, CompletionType>|_Iterable collection,
-        typedesc<Type> resType)
+        typedesc<Type> constraintTd, typedesc<CompletionType> completionTd)
             returns _StreamPipeline {
-    return new _StreamPipeline(collection, resType);
+    return new _StreamPipeline(collection, constraintTd, completionTd);
 }
 
 function createInputFunction(function(_Frame _frame) returns _Frame|error? inputFunc)

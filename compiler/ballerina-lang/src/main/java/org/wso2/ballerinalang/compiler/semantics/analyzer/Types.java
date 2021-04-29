@@ -862,7 +862,7 @@ public class Types {
     private boolean isAssignableStreamType(BStreamType sourceStreamType, BStreamType targetStreamType,
                                            Set<TypePair> unresolvedTypes) {
         return isAssignable(sourceStreamType.constraint, targetStreamType.constraint, unresolvedTypes)
-                && isAssignable(sourceStreamType.error, targetStreamType.error, unresolvedTypes);
+                && isAssignable(sourceStreamType.completionType, targetStreamType.completionType, unresolvedTypes);
     }
 
     private boolean recordFieldsAssignableToType(BRecordType recordType, BType targetType,
@@ -1429,7 +1429,7 @@ public class Types {
         BStreamType lhsStreamType = (BStreamType) target;
         BStreamType rhsStreamType = (BStreamType) source;
         return isSameType(lhsStreamType.constraint, rhsStreamType.constraint, unresolvedTypes)
-                && isSameType(lhsStreamType.error, rhsStreamType.error, unresolvedTypes);
+                && isSameType(lhsStreamType.completionType, rhsStreamType.completionType, unresolvedTypes);
     }
 
     public boolean checkSealedArraySizeEquality(BArrayType rhsArrayType, BArrayType lhsArrayType) {
@@ -1648,9 +1648,9 @@ public class Types {
                     break;
                 }
                 varType = streamType.constraint;
-                List<BType> completionType = getAllTypes(streamType.error);
+                List<BType> completionType = getAllTypes(streamType.completionType);
                 if (completionType.stream().anyMatch(type -> type.tag != TypeTags.NIL)) {
-                    BType actualType = BUnionType.create(null, varType, streamType.error);
+                    BType actualType = BUnionType.create(null, varType, streamType.completionType);
                     dlog.error(foreachNode.collection.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES,
                             varType, actualType);
                 }
