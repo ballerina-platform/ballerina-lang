@@ -34,10 +34,11 @@ class CompilationOptions {
     private String cloud;
     private Boolean taintCheck;
     private Boolean listConflictedClasses;
+    private Boolean showAllWarnings;
 
     public CompilationOptions(Boolean skipTests, Boolean offlineBuild, Boolean experimental,
                               Boolean observabilityIncluded, Boolean dumpBir, String dumpBirFile,
-                              String cloud, Boolean taintCheck, Boolean listConflictedClasses) {
+                              String cloud, Boolean taintCheck, Boolean listConflictedClasses, Boolean showAllWarnings) {
         this.skipTests = skipTests;
         this.offlineBuild = offlineBuild;
         this.experimental = experimental;
@@ -47,6 +48,7 @@ class CompilationOptions {
         this.cloud = cloud;
         this.taintCheck = taintCheck;
         this.listConflictedClasses = listConflictedClasses;
+        this.showAllWarnings = showAllWarnings;
     }
 
     boolean skipTests() {
@@ -85,6 +87,10 @@ class CompilationOptions {
         return toBooleanDefaultIfNull(listConflictedClasses);
     }
 
+    public boolean showAllWarnings() {
+        return toBooleanDefaultIfNull(showAllWarnings);
+    }
+
     /**
      * Merge the given compilation options by favoring theirs if there are conflicts.
      *
@@ -108,6 +114,8 @@ class CompilationOptions {
                 () -> toBooleanDefaultIfNull(this.taintCheck));
         this.listConflictedClasses = Objects.requireNonNullElseGet(
                 theirOptions.listConflictedClasses, () -> toBooleanDefaultIfNull(this.listConflictedClasses));
+        this.showAllWarnings = Objects.requireNonNullElseGet(
+                theirOptions.showAllWarnings, () -> toBooleanDefaultIfNull(this.showAllWarnings));
         return this;
     }
 
