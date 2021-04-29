@@ -48,3 +48,13 @@ function addIncompatibleTypes3() {
     int i2 = c + b;
     int i3 = d + b;
 }
+
+function testImplicitConversion() {
+    float a = 1;
+    decimal b = 1;
+    var i1 = a + b;
+
+    C d = 10;
+    float e = 12.25;
+    var i2 = d + e;
+}

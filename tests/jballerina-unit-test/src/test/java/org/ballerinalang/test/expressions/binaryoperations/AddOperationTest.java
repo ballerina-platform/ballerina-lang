@@ -167,7 +167,7 @@ public class AddOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 8);
+        Assert.assertEquals(resultNegative.getErrorCount(), 10);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json' and 'json'", 8, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '+' not defined for 'int' and 'string'", 14, 9);
         BAssertUtil.validateError(resultNegative, 2, "operator '+' not defined for 'C' and 'string'", 28, 14);
@@ -176,5 +176,9 @@ public class AddOperationTest {
         BAssertUtil.validateError(resultNegative, 5, "operator '+' not defined for 'D' and 'int'", 47, 14);
         BAssertUtil.validateError(resultNegative, 6, "operator '+' not defined for 'ABC|CDE' and 'int'", 48, 14);
         BAssertUtil.validateError(resultNegative, 7, "operator '+' not defined for 'ABC|10' and 'int'", 49, 14);
+        BAssertUtil.validateError(resultNegative, 8, "implicit numeric conversion between 'float' and " +
+                "'decimal' is not allowed", 55, 14);
+        BAssertUtil.validateError(resultNegative, 9, "implicit numeric conversion between 'C' and " +
+                "'float' is not allowed", 59, 14);
     }
 }

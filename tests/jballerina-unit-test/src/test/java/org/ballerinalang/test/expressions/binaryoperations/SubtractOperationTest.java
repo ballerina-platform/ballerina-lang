@@ -115,12 +115,16 @@ public class SubtractOperationTest {
 
     @Test(description = "Test substract statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 5);
+        Assert.assertEquals(resultNegative.getErrorCount(), 7);
         BAssertUtil.validateError(resultNegative, 0, "operator '-' not defined for 'int' and 'string'", 4, 9);
         BAssertUtil.validateError(resultNegative, 1, "operator '-' not defined for 'json' and 'json'", 14, 10);
         BAssertUtil.validateError(resultNegative, 2, "operator '-' not defined for 'C' and 'string'", 28, 14);
         BAssertUtil.validateError(resultNegative, 3, "operator '-' not defined for 'C' and '(float|int)'", 29, 14);
         BAssertUtil.validateError(resultNegative, 4, "operator '-' not defined for 'string' and " +
                 "'(string|string:Char)'", 30, 17);
+        BAssertUtil.validateError(resultNegative, 5, "implicit numeric conversion between 'float' and " +
+                "'decimal' is not allowed", 36, 14);
+        BAssertUtil.validateError(resultNegative, 6, "implicit numeric conversion between 'C' and " +
+                "'float' is not allowed", 40, 14);
     }
 }
