@@ -46,7 +46,7 @@ public class DebugProjectCache {
      * @param filePath source root of the Ballerina project that need to be retrieved.
      * @return project instance.
      */
-    public Project getProjectFor(Path filePath) {
+    public Project getProject(Path filePath) {
         Map.Entry<ProjectKind, Path> projectKindAndRoot = computeProjectKindAndRoot(filePath);
         Path projectRoot = projectKindAndRoot.getValue();
         if (!loadedProjects.containsKey(projectRoot)) {

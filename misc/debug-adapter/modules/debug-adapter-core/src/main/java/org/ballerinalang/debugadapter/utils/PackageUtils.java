@@ -194,7 +194,7 @@ public class PackageUtils {
      */
     public static String getQualifiedClassName(ExecutionContext context, String filePath) {
         Path path = Paths.get(filePath);
-        Project project = context.getProjectCache().getProjectFor(path);
+        Project project = context.getProjectCache().getProject(path);
         if (project instanceof SingleFileProject) {
             DocumentId documentId = project.currentPackage().getDefaultModule().documentIds().iterator().next();
             String docName = project.currentPackage().getDefaultModule().document(documentId).name();

@@ -22,7 +22,6 @@ import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.debugadapter.evaluation.DebugExpressionCompiler;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 import org.ballerinalang.debugadapter.jdi.StackFrameProxyImpl;
@@ -31,13 +30,11 @@ import org.ballerinalang.debugadapter.jdi.VirtualMachineProxyImpl;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.nio.file.Path;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.ballerinalang.debugadapter.DebugSourceType.DEPENDENCY;
 import static org.ballerinalang.debugadapter.DebugSourceType.PACKAGE;
 import static org.ballerinalang.debugadapter.DebugSourceType.SINGLE_FILE;
-import static org.ballerinalang.debugadapter.utils.PackageUtils.computeProjectKindAndRoot;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
 
 /**
@@ -45,11 +42,10 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.getFileNameFrom;
  */
 public class SuspendedContext {
 
-    private final ExecutionContext executionContext;
     private final VirtualMachineProxyImpl attachedVm;
     private final ThreadReferenceProxyImpl owningThread;
     private final StackFrameProxyImpl frame;
-    private Project project;
+    private final Project project;
     private DebugSourceType sourceType;
 
     private Path breakPointSourcePath;
@@ -61,7 +57,6 @@ public class SuspendedContext {
 
     SuspendedContext(ExecutionContext executionContext, ThreadReferenceProxyImpl threadRef,
                      StackFrameProxyImpl frame) {
-        this.executionContext = executionContext;
         this.project = executionContext.getSourceProject();
         this.attachedVm = executionContext.getDebuggeeVM();
         this.owningThread = threadRef;
