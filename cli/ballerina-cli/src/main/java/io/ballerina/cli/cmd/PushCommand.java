@@ -58,6 +58,7 @@ import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl
 import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
@@ -140,8 +141,9 @@ public class PushCommand implements BLauncherCmd {
                     pushPackage(project);
                 } else {
                     Settings settings = readSettings();
-                    Proxy proxy = initializeProxy(settings.getProxy());
-                    CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
+                    CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                                                                   initializeProxy(settings.getProxy()),
+                                                                   getAccessTokenOfCLI(settings));
 
                     try {
                         pushPackage(project, client, settings);
@@ -325,14 +327,14 @@ public class PushCommand implements BLauncherCmd {
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
             String accessToken;
             try {
-                accessToken = authenticate(errStream, getBallerinaCentralCliTokenUrl(), settings, settingsTomlFilePath);
+                accessToken = authenticate(errStream, getBallerinaCentralCliTokenUrl(), settings, settingsTomlFilePath, client);
             } catch (SettingsTomlException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 return;
             }
 
             try {
-                client.pushPackage(balaPath, org, name, version, accessToken, JvmTarget.JAVA_11.code(),
+                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_11.code(),
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();
