@@ -30,7 +30,7 @@ import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
-import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import org.testng.Assert;
@@ -57,7 +57,7 @@ public class ConfigTest {
     @Test(dataProvider = "simple-type-values-data-provider")
     public void testTomlConfigProviderWithSimpleTypes(VariableKey key, Class<?> expectedJClass,
                                                       Object expectedValue, ConfigProvider... configProvider) {
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {key};
         configVarMap.put(module, keys);
@@ -114,7 +114,8 @@ public class ConfigTest {
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.decimalVar=876.54")},
                 // Xml value given only with cli
                 {new VariableKey(module, "xmlVar",
-                                 new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true), true),
+                                 new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true),
+                                 true),
                         BXml.class, XmlUtils.parse("<book>The Lost World</book>\n<!--I am a comment-->"),
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.xmlVar=<book>The Lost World</book>\n<!--I " +
                                 "am a comment-->")},
@@ -128,5 +129,4 @@ public class ConfigTest {
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.intVar=13579")}
         };
     }
-
 }

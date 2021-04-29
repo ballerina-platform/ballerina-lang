@@ -33,30 +33,26 @@ public class VariableKey {
     public final Module module;
     public final String variable;
     public final Type type;
-    boolean isRequired;
+    public final boolean isRequired;
+    public final String location;
 
     public VariableKey(String org, String module, String version, String variable) {
-        this.module = new Module(org, module, version);
-        this.variable = variable;
-        this.type = PredefinedTypes.TYPE_ANYDATA;
+        this(new Module(org, module, version), variable, PredefinedTypes.TYPE_ANYDATA, null, false);
     }
 
     public VariableKey(Module module, String variable) {
-        this.module = module;
-        this.variable = variable;
-        this.type = PredefinedTypes.TYPE_ANYDATA;
-    }
-
-    public VariableKey(String org, String module, String version, String variable, Type type) {
-        this.module = new Module(org, module, version);
-        this.variable = variable;
-        this.type = type;
+        this(module, variable, PredefinedTypes.TYPE_ANYDATA, null, false);
     }
 
     public VariableKey(Module module, String variable, Type type, boolean isRequired) {
+        this(module, variable, type, null, isRequired);
+    }
+
+    public VariableKey(Module module, String variable, Type type, String location, boolean isRequired) {
         this.module = module;
         this.variable = variable;
         this.type = type;
+        this.location = location;
         this.isRequired = isRequired;
     }
 

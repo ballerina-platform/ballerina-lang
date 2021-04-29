@@ -208,6 +208,9 @@ public class BIRBinaryWriter {
         // Store annotations here...
         writeAnnotAttachments(buf, birFunction.annotAttachments);
 
+        // Store return type annotations
+        writeAnnotAttachments(buf, birFunction.returnTypeAnnots);
+
         buf.writeInt(birFunction.requiredParams.size());
         for (BIRParameter parameter : birFunction.requiredParams) {
             buf.writeInt(addStringCPEntry(parameter.name.value));
