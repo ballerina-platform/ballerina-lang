@@ -84,12 +84,13 @@ public abstract class CompletionTest {
 //            obj.add("position", configJsonObject.get("position"));
 //            obj.add("source", configJsonObject.get("source"));
 //            obj.add("items", resultList);
+//            String newObjStr = obj.toString().concat(System.lineSeparator());
 //            java.nio.file.Files.write(FileUtils.RES_DIR.resolve(configJsonPath),
-//                                      obj.toString().getBytes(java.nio.charset.StandardCharsets.UTF_8));
+//                    newObjStr.getBytes(java.nio.charset.StandardCharsets.UTF_8));
 //
-//             //This will print nice comparable text in IDE
+//            //This will print nice comparable text in IDE
 //            Assert.assertEquals(responseItemList.toString(), expectedList.toString(),
-//                        "Failed Test for: " + configJsonPath);
+//                    "Failed Test for: " + configJsonPath);
             Assert.fail("Failed Test for: " + configJsonPath);
         }
     }
