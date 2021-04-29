@@ -3875,12 +3875,15 @@ public class FormattingTreeModifier extends TreeModifier {
 
                     continue;
                 case WHITESPACE_MINUTIAE:
-                    if (!shouldAddWS(prevMinutiae)) {
+                    if (!shouldAddWS(prevMinutiae) && !env.preserveIndentation) {
                         // Shouldn't update the prevMinutiae
                         continue;
                     }
-
-                    addWhitespace(1, leadingMinutiae);
+                    if (env.preserveIndentation) {
+                        addWhitespace(getPreservedIndentation(token), leadingMinutiae);
+                    } else {
+                        addWhitespace(1, leadingMinutiae);
+                    }
                     break;
                 case COMMENT_MINUTIAE:
                     if (consecutiveNewlines == 0) {
@@ -3905,11 +3908,12 @@ public class FormattingTreeModifier extends TreeModifier {
             prevMinutiae = minutiae;
         }
 
-        if (consecutiveNewlines > 0) {
+        if (consecutiveNewlines > 0 && !env.preserveIndentation) {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
         MinutiaeList newLeadingMinutiaeList = NodeFactory.createMinutiaeList(leadingMinutiae);
+        preserveIndentation(false);
         return newLeadingMinutiaeList;
     }
 
@@ -3968,6 +3972,7 @@ public class FormattingTreeModifier extends TreeModifier {
                         continue;
                     }
 
+                    preserveIndentation(true);
                     trailingMinutiae.add(minutiae);
                     consecutiveNewlines++;
                     break;
@@ -4048,6 +4053,39 @@ public class FormattingTreeModifier extends TreeModifier {
      */
     private void setIndentation(int value) {
         env.currentIndentation = value;
+    }
+
+    /**
+     * Set the flag for setting preserve indentations.
+     *
+     * @param value boolean true for setting preserve indentations.
+     */
+    private void preserveIndentation(boolean value) {
+        if (value) {
+            if (env.trailingNL < 1) {
+                env.preserveIndentation = value;
+            }
+        } else {
+            env.preserveIndentation = value;
+        }
+    }
+
+    /**
+     * Get the user defined indentation of a position aligned to the closest tab.
+     *
+     * @param token token of which the indentation is required.
+     */
+    private int getPreservedIndentation(Token token) {
+        int position = token.lineRange().startLine().offset();
+        int offset = position % 4;
+        if (offset != 0) {
+            if (offset > 2) {
+                position = position + 4 - offset;
+            } else {
+                position = position - offset;
+            }
+        }
+        return position;
     }
 
     /**

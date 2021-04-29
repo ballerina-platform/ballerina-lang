@@ -63,4 +63,9 @@ public class FormattingEnv {
      * Previous token's trailing whitespaces.
      */
     int prevTokensTrailingWS = 0;
+
+    /**
+     * Flag indicating whether the currently formatting token should preserve its user defined indentation.
+     */
+    boolean preserveIndentation = false;
 }
