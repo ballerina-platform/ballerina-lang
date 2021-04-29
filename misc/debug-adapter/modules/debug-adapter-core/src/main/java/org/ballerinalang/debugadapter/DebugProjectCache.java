@@ -34,10 +34,10 @@ import static org.ballerinalang.debugadapter.utils.PackageUtils.loadProject;
  */
 public class DebugProjectCache {
 
-    private final Map<Path, Project> projects;
+    private final Map<Path, Project> loadedProjects;
 
     public DebugProjectCache() {
-        this.projects = new ConcurrentHashMap<>();
+        this.loadedProjects = new ConcurrentHashMap<>();
     }
 
     /**
@@ -49,10 +49,10 @@ public class DebugProjectCache {
     public Project getProjectFor(Path filePath) {
         Map.Entry<ProjectKind, Path> projectKindAndRoot = computeProjectKindAndRoot(filePath);
         Path projectRoot = projectKindAndRoot.getValue();
-        if (!projects.containsKey(projectRoot)) {
+        if (!loadedProjects.containsKey(projectRoot)) {
             addProject(loadProject(filePath.toAbsolutePath().toString()));
         }
-        return projects.get(projectRoot);
+        return loadedProjects.get(projectRoot);
     }
 
     /**
@@ -62,6 +62,6 @@ public class DebugProjectCache {
      */
     public void addProject(Project project) {
         Path projectSourceRoot = project.sourceRoot().toAbsolutePath();
-        projects.put(projectSourceRoot, project);
+        loadedProjects.put(projectSourceRoot, project);
     }
 }

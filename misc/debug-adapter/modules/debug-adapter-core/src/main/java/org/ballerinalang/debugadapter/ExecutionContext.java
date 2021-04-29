@@ -146,6 +146,9 @@ public class ExecutionContext {
         this.sourceProjectRoot = sourceProjectRoot;
     }
 
+    /**
+     * Currently supported debug configuration modes.
+     */
     public enum DebugMode {
         LAUNCH,
         ATTACH
