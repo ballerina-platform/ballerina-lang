@@ -122,9 +122,7 @@ public class SubtractOperationTest {
         BAssertUtil.validateError(resultNegative, 3, "operator '-' not defined for 'C' and '(float|int)'", 29, 14);
         BAssertUtil.validateError(resultNegative, 4, "operator '-' not defined for 'string' and " +
                 "'(string|string:Char)'", 30, 17);
-        BAssertUtil.validateError(resultNegative, 5, "implicit numeric conversion between 'float' and " +
-                "'decimal' is not allowed", 36, 14);
-        BAssertUtil.validateError(resultNegative, 6, "implicit numeric conversion between 'C' and " +
-                "'float' is not allowed", 40, 14);
+        BAssertUtil.validateError(resultNegative, 5, "implicit type conversion not allowed here", 36, 14);
+        BAssertUtil.validateError(resultNegative, 6, "implicit type conversion not allowed here", 40, 14);
     }
 }

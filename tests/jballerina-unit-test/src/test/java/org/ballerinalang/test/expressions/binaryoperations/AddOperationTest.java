@@ -176,9 +176,7 @@ public class AddOperationTest {
         BAssertUtil.validateError(resultNegative, 5, "operator '+' not defined for 'D' and 'int'", 47, 14);
         BAssertUtil.validateError(resultNegative, 6, "operator '+' not defined for 'ABC|CDE' and 'int'", 48, 14);
         BAssertUtil.validateError(resultNegative, 7, "operator '+' not defined for 'ABC|10' and 'int'", 49, 14);
-        BAssertUtil.validateError(resultNegative, 8, "implicit numeric conversion between 'float' and " +
-                "'decimal' is not allowed", 55, 14);
-        BAssertUtil.validateError(resultNegative, 9, "implicit numeric conversion between 'C' and " +
-                "'float' is not allowed", 59, 14);
+        BAssertUtil.validateError(resultNegative, 8, "implicit type conversion not allowed here", 55, 14);
+        BAssertUtil.validateError(resultNegative, 9, "implicit type conversion not allowed here", 59, 14);
     }
 }

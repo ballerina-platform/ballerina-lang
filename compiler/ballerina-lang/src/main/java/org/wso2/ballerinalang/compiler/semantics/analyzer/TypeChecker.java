@@ -3908,12 +3908,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
         }
 
-        if (symResolver.isArithmeticOperator(binaryExpr.opKind) && expType.tag == TypeTags.NONE &&
-                !types.validStringOrXmlTypeExists(lhsType) && !types.validStringOrXmlTypeExists(rhsType) &&
-                !types.isSameOrderedType(lhsType, rhsType)) {
-            dlog.error(binaryExpr.pos, DiagnosticErrorCode.IMPLICIT_NUMERIC_CONVERSIONS_NOT_ALLOWED, lhsType, rhsType);
-        }
-
         resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
