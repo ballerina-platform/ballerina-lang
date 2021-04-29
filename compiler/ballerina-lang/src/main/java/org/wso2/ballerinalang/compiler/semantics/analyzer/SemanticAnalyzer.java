@@ -3253,8 +3253,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             dlog.error(constant.name.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
         }
         if (constant.typeNode != null && !types.isAllowedConstantType(constant.typeNode.type)) {
-            if (TypeTags.isIntegerTypeTag(constant.typeNode.type.tag) ||
-                    TypeTags.isStringTypeTag(constant.typeNode.type.tag)) {
+            if (types.isAssignable(constant.typeNode.type, symTable.anydataType) &&
+                    !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(constant.typeNode.type)) {
                 dlog.error(constant.typeNode.pos, DiagnosticErrorCode.CONSTANT_DECLARATION_NOT_YET_SUPPORTED,
                         constant.typeNode);
             } else {

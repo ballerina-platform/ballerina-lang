@@ -3524,18 +3524,24 @@ public class Types {
                 BUnionType unionType = (BUnionType) type;
                 Set<BType> memberTypes = unionType.getMemberTypes();
                 BType firstTypeInUnion = memberTypes.iterator().next();
-                for (BType memType : memberTypes) {
-                    if (memType.tag == TypeTags.FINITE && firstTypeInUnion.tag == TypeTags.FINITE) {
-                        Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
-                        BType baseExprType = valSpace.iterator().next().type;
-                        if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                if (firstTypeInUnion.tag == TypeTags.FINITE) {
+                    Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
+                    BType baseExprType = valSpace.iterator().next().type;
+                    for (BType memType : memberTypes) {
+                        if (memType.tag == TypeTags.FINITE) {
+                            if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                                return false;
+                            }
+                        }
+                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
                             return false;
                         }
-                    } else if (memType.tag != firstTypeInUnion.tag && !isIntType(memType.tag, firstTypeInUnion.tag)) {
-                        return false;
                     }
-                    if (!validNumericTypeExists(memType)) {
-                        return false;
+                } else {
+                    for (BType memType : memberTypes) {
+                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
                     }
                 }
                 return true;
@@ -3556,7 +3562,14 @@ public class Types {
         }
     }
 
-    private boolean isIntType(int firstTypeTag, int secondTypeTag) {
+    private boolean checkValidNumericTypesInUnion(BType memType, int firstTypeTag) {
+        if (memType.tag != firstTypeTag && !checkTypesBelongToInt(memType.tag, firstTypeTag)) {
+            return false;
+        }
+        return validNumericTypeExists(memType);
+    }
+
+    private boolean checkTypesBelongToInt(int firstTypeTag, int secondTypeTag) {
         return ((TypeTags.isIntegerTypeTag(firstTypeTag) || firstTypeTag == TypeTags.BYTE) &&
                 (TypeTags.isIntegerTypeTag(secondTypeTag) || secondTypeTag == TypeTags.BYTE));
     }
@@ -3589,7 +3602,7 @@ public class Types {
         }
     }
 
-    boolean validStringTypeExists(BType type) {
+    boolean validStringOrXmlTypeExists(BType type) {
         if (TypeTags.isStringTypeTag(type.tag)) {
             return true;
         }
@@ -3598,17 +3611,75 @@ public class Types {
             case TypeTags.XML_TEXT:
                 return true;
             case TypeTags.UNION:
-                LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-                for (BType memberType : memberTypes) {
-                    if (!validStringTypeExists(memberType)) {
+                BUnionType unionType = (BUnionType) type;
+                Set<BType> memberTypes = unionType.getMemberTypes();
+                BType firstTypeInUnion = memberTypes.iterator().next();
+                if (firstTypeInUnion.tag == TypeTags.FINITE) {
+                    Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
+                    BType baseExprType = valSpace.iterator().next().type;
+                    for (BType memType : memberTypes) {
+                        if (memType.tag == TypeTags.FINITE) {
+                            if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                                return false;
+                            }
+                        }
+                        if (!checkValidStringOrXmlTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
+                    }
+                } else {
+                    for (BType memType : memberTypes) {
+                        if (!checkValidStringOrXmlTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
+                BType baseExprType = valSpace.iterator().next().type;
+                for (BLangExpression expr : valSpace) {
+                    if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
+                        return false;
+                    }
+                    if (!validStringOrXmlTypeExists(expr.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean checkValidStringOrXmlTypesInUnion(BType memType, int firstTypeTag) {
+        if (memType.tag != firstTypeTag && !checkTypesBelongToStringOrXml(memType.tag, firstTypeTag)) {
+            return false;
+        }
+        return validStringOrXmlTypeExists(memType);
+    }
+
+    private boolean checkTypesBelongToStringOrXml(int firstTypeTag, int secondTypeTag) {
+        return (TypeTags.isStringTypeTag(firstTypeTag) && TypeTags.isStringTypeTag(secondTypeTag)) ||
+                (TypeTags.isXMLTypeTag(firstTypeTag) && TypeTags.isXMLTypeTag(secondTypeTag));
+    }
+
+    public boolean checkTypeContainString(BType type) {
+        if (TypeTags.isStringTypeTag(type.tag)) {
+            return true;
+        }
+        switch (type.tag) {
+            case TypeTags.UNION:
+                for (BType memType : ((BUnionType) type).getMemberTypes()) {
+                    if (!checkTypeContainString(memType)) {
                         return false;
                     }
                 }
                 return true;
             case TypeTags.FINITE:
-                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
-                for (BLangExpression expr : valueSpace) {
-                    if (!validStringTypeExists(expr.type)) {
+                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
+                for (BLangExpression expr : valSpace) {
+                    if (!checkTypeContainString(expr.type)) {
                         return false;
                     }
                 }
@@ -5177,26 +5248,10 @@ public class Types {
                 return symTable.stringType;
             case TypeTags.UNION:
                 LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
-                BType baseType = findCompatibleType(memberTypes.iterator().next());
-                for (BType memberType : memberTypes) {
-                    BType foundType = findCompatibleType(memberType);
-                    if (baseType.tag < foundType.tag) {
-                        baseType = foundType;
-                    }
-                }
-                return baseType;
-            case TypeTags.FINITE:
-                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
-                BType baseTypeInValSp = findCompatibleType(valueSpace.iterator().next().type);
-                for (BLangExpression expr : valueSpace) {
-                    BType foundType = findCompatibleType(expr.type);
-                    if (baseTypeInValSp.tag < foundType.tag) {
-                        baseTypeInValSp = foundType;
-                    }
-                }
-                return baseTypeInValSp;
+                return findCompatibleType(memberTypes.iterator().next());
             default:
-                return null;
+                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
+                return findCompatibleType(valueSpace.iterator().next().type);
         }
     }
 

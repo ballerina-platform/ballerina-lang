@@ -6498,12 +6498,8 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
-        boolean isBinaryShiftOperator = binaryOpKind == OperatorKind.BITWISE_LEFT_SHIFT ||
-                binaryOpKind == OperatorKind.BITWISE_RIGHT_SHIFT ||
-                binaryOpKind == OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
-        boolean isArithmeticOperator = binaryOpKind == OperatorKind.ADD || binaryOpKind == OperatorKind.SUB ||
-                binaryOpKind == OperatorKind.DIV || binaryOpKind == OperatorKind.MUL ||
-                binaryOpKind == OperatorKind.MOD;
+        boolean isBinaryShiftOperator = symResolver.isBinaryShiftOperator(binaryOpKind);
+        boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryOpKind);
 
         // Check lhs and rhs type compatibility
         if (lhsExprTypeTag == rhsExprTypeTag) {
@@ -6548,23 +6544,7 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         if (isArithmeticOperator) {
-            if ((TypeTags.isIntegerTypeTag(lhsExprTypeTag) && TypeTags.isIntegerTypeTag(rhsExprTypeTag)) ||
-                    (TypeTags.isStringTypeTag(lhsExprTypeTag) && TypeTags.isStringTypeTag(rhsExprTypeTag))) {
-                return;
-            }
-            if (TypeTags.isXMLTypeTag(lhsExprTypeTag) && !TypeTags.isXMLTypeTag(rhsExprTypeTag)) {
-                binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
-                        binaryExpr.rhsExpr.pos, symTable.xmlType);
-                return;
-            }
-            if (TypeTags.isXMLTypeTag(rhsExprTypeTag) && !TypeTags.isXMLTypeTag(lhsExprTypeTag)) {
-                binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
-                        binaryExpr.lhsExpr.pos, symTable.xmlType);
-                return;
-            }
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.type);
-            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.type);
-            return;
+            createTypeCastExprForArithmeticExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
         }
 
         if (lhsExprTypeTag == TypeTags.FLOAT) {
@@ -6577,60 +6557,94 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        if (isBinaryShiftOperator) {
+            createTypeCastExprForBinaryShiftExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+        }
+
+        if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
+            createTypeCastExprForRelationalExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+        }
+    }
+
+    private void createTypeCastExprForArithmeticExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
+                                                     int rhsExprTypeTag) {
+        if ((TypeTags.isIntegerTypeTag(lhsExprTypeTag) && TypeTags.isIntegerTypeTag(rhsExprTypeTag)) ||
+                (TypeTags.isStringTypeTag(lhsExprTypeTag) && TypeTags.isStringTypeTag(rhsExprTypeTag))) {
+            return;
+        }
+        if (TypeTags.isXMLTypeTag(lhsExprTypeTag) && !TypeTags.isXMLTypeTag(rhsExprTypeTag)) {
+            if (types.checkTypeContainString(binaryExpr.rhsExpr.type)) {
+                binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
+                        binaryExpr.rhsExpr.pos, symTable.xmlType);
+                return;
+            }
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.xmlType);
+            return;
+        }
+        if (TypeTags.isXMLTypeTag(rhsExprTypeTag) && !TypeTags.isXMLTypeTag(lhsExprTypeTag)) {
+            if (types.checkTypeContainString(binaryExpr.lhsExpr.type)) {
+                binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
+                        binaryExpr.rhsExpr.pos, symTable.xmlType);
+                return;
+            }
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.xmlType);
+            return;
+        }
+        binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.type);
+        binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.type);
+    }
+
+    private void createTypeCastExprForBinaryShiftExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
+                                                      int rhsExprTypeTag) {
         boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
         boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
-
-        if (isBinaryShiftOperator) {
-            if (isLhsIntegerType || lhsExprTypeTag == TypeTags.BYTE) {
-                if (isRhsIntegerType || rhsExprTypeTag == TypeTags.BYTE) {
-                    return;
-                }
-                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
-                return;
-            }
-
+        if (isLhsIntegerType || lhsExprTypeTag == TypeTags.BYTE) {
             if (isRhsIntegerType || rhsExprTypeTag == TypeTags.BYTE) {
-                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
                 return;
             }
-
-            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
             return;
         }
 
-        boolean isBinaryComparisonOperator = binaryOpKind == OperatorKind.LESS_THAN ||
-                binaryOpKind == OperatorKind.LESS_EQUAL || binaryOpKind == OperatorKind.GREATER_THAN ||
-                binaryOpKind == OperatorKind.GREATER_EQUAL;
+        if (isRhsIntegerType || rhsExprTypeTag == TypeTags.BYTE) {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            return;
+        }
 
-        if (isBinaryComparisonOperator) {
-            if (isLhsIntegerType && !isRhsIntegerType) {
-                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
-                return;
-            }
+        binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+        binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+    }
 
-            if (!isLhsIntegerType && isRhsIntegerType) {
-                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
-                return;
-            }
+    private void createTypeCastExprForRelationalExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
+                                                                int rhsExprTypeTag) {
+        boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
+        boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
+        if (isLhsIntegerType && !isRhsIntegerType) {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            return;
+        }
 
-            if (lhsExprTypeTag == TypeTags.BYTE || rhsExprTypeTag == TypeTags.BYTE) {
-                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
-                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
-                return;
-            }
+        if (!isLhsIntegerType && isRhsIntegerType) {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            return;
+        }
 
-            boolean isLhsStringType = TypeTags.isStringTypeTag(lhsExprTypeTag);
-            boolean isRhsStringType = TypeTags.isStringTypeTag(rhsExprTypeTag);
+        if (lhsExprTypeTag == TypeTags.BYTE || rhsExprTypeTag == TypeTags.BYTE) {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            return;
+        }
 
-            if (isLhsStringType && !isRhsStringType) {
-                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
-                return;
-            }
+        boolean isLhsStringType = TypeTags.isStringTypeTag(lhsExprTypeTag);
+        boolean isRhsStringType = TypeTags.isStringTypeTag(rhsExprTypeTag);
 
-            if (!isLhsStringType && isRhsStringType) {
-                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
-            }
+        if (isLhsStringType && !isRhsStringType) {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
+            return;
+        }
+
+        if (!isLhsStringType && isRhsStringType) {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
         }
     }
 

@@ -3908,12 +3908,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
         }
 
-        resultType = types.checkType(binaryExpr, actualType, expType);
-    }
+        if (symResolver.isArithmeticOperator(binaryExpr.opKind) && expType.tag == TypeTags.NONE &&
+                !types.validStringOrXmlTypeExists(lhsType) && !types.validStringOrXmlTypeExists(rhsType) &&
+                !types.isSameOrderedType(lhsType, rhsType)) {
+            dlog.error(binaryExpr.pos, DiagnosticErrorCode.IMPLICIT_NUMERIC_CONVERSIONS_NOT_ALLOWED, lhsType, rhsType);
+        }
 
-    private boolean isBinaryComparisonOperator(OperatorKind operatorKind) {
-        return operatorKind == OperatorKind.LESS_THAN || operatorKind == OperatorKind.LESS_EQUAL
-                || operatorKind == OperatorKind.GREATER_THAN || operatorKind == OperatorKind.GREATER_EQUAL;
+        resultType = types.checkType(binaryExpr, actualType, expType);
     }
 
     private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {

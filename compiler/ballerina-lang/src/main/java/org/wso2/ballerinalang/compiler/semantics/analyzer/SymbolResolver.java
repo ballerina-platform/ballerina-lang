@@ -1697,8 +1697,8 @@ public class SymbolResolver extends BLangNodeVisitor {
         switch (opKind) {
             case ADD:
                 validNumericOrStringTypeExists = (types.validNumericTypeExists(lhsType) &&
-                        types.validNumericTypeExists(rhsType)) || (types.validStringTypeExists(lhsType) &&
-                        types.validStringTypeExists(rhsType));
+                        types.validNumericTypeExists(rhsType)) || (types.validStringOrXmlTypeExists(lhsType) &&
+                        types.validStringOrXmlTypeExists(rhsType));
                 break;
             case SUB:
             case DIV:
@@ -1760,6 +1760,24 @@ public class SymbolResolver extends BLangNodeVisitor {
             }
         }
         return symTable.notFoundSymbol;
+    }
+
+    public boolean isBinaryShiftOperator(OperatorKind binaryOpKind) {
+        return binaryOpKind == OperatorKind.BITWISE_LEFT_SHIFT ||
+                binaryOpKind == OperatorKind.BITWISE_RIGHT_SHIFT ||
+                binaryOpKind == OperatorKind.BITWISE_UNSIGNED_RIGHT_SHIFT;
+    }
+
+    public boolean isArithmeticOperator(OperatorKind binaryOpKind) {
+        return binaryOpKind == OperatorKind.ADD || binaryOpKind == OperatorKind.SUB ||
+                binaryOpKind == OperatorKind.DIV || binaryOpKind == OperatorKind.MUL ||
+                binaryOpKind == OperatorKind.MOD;
+    }
+
+    public boolean isBinaryComparisonOperator(OperatorKind binaryOpKind) {
+        return binaryOpKind == OperatorKind.LESS_THAN ||
+                binaryOpKind == OperatorKind.LESS_EQUAL || binaryOpKind == OperatorKind.GREATER_THAN ||
+                binaryOpKind == OperatorKind.GREATER_EQUAL;
     }
 
     public boolean markParameterizedType(BType type, BType constituentType) {
