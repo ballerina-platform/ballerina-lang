@@ -29,3 +29,22 @@ function addIncompatibleTypes2() {
     int i2 = a + c;
     xml i3 = a + e;
 }
+
+const E = "ABC";
+
+type D A|E;
+
+type F "ABC"|"CDE";
+
+type G "ABC"|10;
+
+function addIncompatibleTypes3() {
+    D a = 10;
+    int b = 12;
+    F c = "ABC";
+    G d = 10;
+
+    int i1 = a + b;
+    int i2 = c + b;
+    int i3 = d + b;
+}

@@ -81,6 +81,7 @@ function testAdditionWithTypes() {
     L a10 = 10.5;
 
     assertEqual(a1 + a2, 30);
+    assertEqual(a2 + a1, 30);
     assertEqual(a2 + a3, 50);
     assertEqual(a3 + a4, 55);
     assertEqual(a1 + a5, 25);
@@ -117,6 +118,7 @@ function testAdditionWithTypes() {
     O a14 = "N";
     P a15 = "Cat";
     xml a16 = xml `abc`;
+    xml:Text|xml a17 = xml `abdef`;
 
     assertEqual(a11 + a12, "abcM");
     assertEqual(a12 + a13, "MEFG");
@@ -124,9 +126,12 @@ function testAdditionWithTypes() {
     assertEqual(a12 + a1.toString(), "M10");
     assertEqual(a12 + a15, "MCat");
     assertEqual(a12 + a16, xml `Mabc`);
+    assertEqual(a16 + a12, xml `abcM`);
     assertEqual(a13 + a16, xml `EFGabc`);
     assertEqual(a14 + a16, xml `Nabc`);
     assertEqual(a15 + a16, xml `Catabc`);
+    assertEqual(a16 + a17, xml `abcabdef`);
+    assertEqual(a17 + a16, xml `abdefabc`);
 }
 
 function assertEqual(any actual, any expected) {
