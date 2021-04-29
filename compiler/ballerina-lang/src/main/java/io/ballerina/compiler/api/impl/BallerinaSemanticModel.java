@@ -332,7 +332,7 @@ public class BallerinaSemanticModel implements SemanticModel {
     }
 
     private boolean isTypeSymbol(BSymbol symbol) {
-        return symbol instanceof org.ballerinalang.model.symbols.TypeSymbol && !Symbols.isTagOn(symbol, PACKAGE)
+        return symbol instanceof BTypeSymbol && !Symbols.isTagOn(symbol, PACKAGE)
                 && !Symbols.isTagOn(symbol, ANNOTATION);
     }
 
