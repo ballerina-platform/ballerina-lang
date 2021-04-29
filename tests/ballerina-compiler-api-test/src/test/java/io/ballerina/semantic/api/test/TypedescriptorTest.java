@@ -322,12 +322,17 @@ public class TypedescriptorTest {
     }
 
     @Test(dataProvider = "FiniteTypeDataProvider")
-    public void testFiniteType(int line, int column, List<String> expSignatures) {
+    public void testFiniteType(int line, int column, String typeName, List<String> expSignatures) {
         Symbol symbol = getSymbol(line, column);
-        UnionTypeSymbol union = (UnionTypeSymbol) ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(union.typeKind(), UNION);
 
+        TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), typeName);
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), UNION);
+
+        UnionTypeSymbol union = (UnionTypeSymbol) ((TypeReferenceTypeSymbol) type).typeDescriptor();
         List<TypeSymbol> members = union.memberTypeDescriptors();
+
         for (int i = 0; i < members.size(); i++) {
             TypeSymbol member = members.get(i);
             assertEquals(member.typeKind(), SINGLETON);
@@ -341,8 +346,8 @@ public class TypedescriptorTest {
     @DataProvider(name = "FiniteTypeDataProvider")
     public Object[][] getFiniteTypePos() {
         return new Object[][]{
-                {60, 10, List.of("0", "1", "2", "3")},
-                {62, 11, List.of("default", "csv", "tdf")}
+                {60, 10, "Digit", List.of("0", "1", "2", "3")},
+                {62, 11, "Format", List.of("default", "csv", "tdf")}
         };
     }
 
@@ -661,6 +666,64 @@ public class TypedescriptorTest {
         assertEquals(members.size(), 2);
         assertEquals(members.get(0).typeKind(), ERROR);
         assertEquals(members.get(1).signature(), "td");
+    }
+
+    @Test(dataProvider = "CursorPosProvider")
+    public void testSymbolAtCursor(int line, int col, TypeDescKind typeKind) {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+
+        if (typeKind == null) {
+            assertTrue(symbol.isEmpty());
+            return;
+        }
+
+        assertEquals(symbol.get().kind(), TYPE);
+        assertEquals(((TypeSymbol) symbol.get()).typeKind(), typeKind);
+    }
+
+    @DataProvider(name = "CursorPosProvider")
+    public Object[][] getCursorPos() {
+        return new Object[][]{
+                {24, 58, INT},
+                {29, 4, STRING},
+                {45, 4, FUTURE},
+                {49, 4, MAP},
+                {51, 4, null},
+                {54, 4, TYPEDESC},
+                {64, 4, JSON},
+                {66, 4, XML},
+                {68, 4, READONLY},
+                {70, 4, ANY},
+                {71, 4, ANYDATA},
+//                {73, 4, TABLE},
+                {93, 4, STREAM},
+
+        };
+    }
+
+    @Test(dataProvider = "TypeRefPosProvider")
+    public void testSymbolAtCursorForTypeRefs(int line, int col, String name, TypeDescKind typeKind) {
+        Optional<Symbol> symbol = model.symbol(srcFile, from(line, col));
+
+        assertEquals(symbol.get().kind(), TYPE);
+        assertEquals(((TypeSymbol) symbol.get()).typeKind(), TYPE_REFERENCE);
+
+        TypeReferenceTypeSymbol type = (TypeReferenceTypeSymbol) symbol.get();
+        assertEquals(type.getName().get(), name);
+        assertEquals(type.typeDescriptor().typeKind(), typeKind);
+    }
+
+    @DataProvider(name = "TypeRefPosProvider")
+    public Object[][] getTypeRefPos() {
+        return new Object[][]{
+                {47, 4, "PersonObj", OBJECT},
+                {58, 4, "Number", UNION},
+                {60, 4, "Digit", UNION},
+                {62, 4, "Format", UNION},
+                {77, 9, "Unsigned32", INT_UNSIGNED32},
+                {84, 12, "Char", STRING_CHAR},
+                {86, 9, "Element", XML_ELEMENT},
+        };
     }
 
     private Symbol getSymbol(int line, int column) {
