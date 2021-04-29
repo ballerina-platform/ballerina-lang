@@ -997,6 +997,10 @@ public class TypeChecker {
                 if (fields.stream().allMatch(field -> isSameType(field.getFieldType(), fields.get(0).getFieldType()))) {
                     return fields.get(0);
                 }
+                break;
+            case TypeTags.INTERSECTION_TAG:
+                return getTableConstraintField(((BIntersectionType) constraintType).getEffectiveType(), fieldName);
+
         }
 
         return null;
@@ -1896,6 +1900,8 @@ public class TypeChecker {
                     }
                 }
                 return readonlyIntersectionExists;
+            case TypeTags.INTERSECTION_TAG:
+                return isSelectivelyImmutableType(((BIntersectionType) type).getEffectiveType(), unresolvedTypes);
         }
         return false;
     }

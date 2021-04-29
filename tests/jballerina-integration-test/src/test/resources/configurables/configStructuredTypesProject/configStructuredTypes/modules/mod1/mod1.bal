@@ -47,3 +47,20 @@ public type County  record {
 
 public type PersonArray Person;
 
+public type Lecturer record {|
+    string name;
+    Department department;
+|};
+
+public type Department readonly & record {|
+    string name;
+|};
+
+public type Lawyer readonly & record {|
+    string name;
+    Place place;
+|};
+
+public type Place record {|
+    string city;
+|};
