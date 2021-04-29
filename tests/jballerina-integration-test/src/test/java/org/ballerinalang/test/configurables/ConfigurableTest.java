@@ -30,6 +30,7 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.Map;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.SECRET_DATA_ENV_VARIABLE;
@@ -249,6 +250,15 @@ public class ConfigurableTest extends BaseTest {
         String configFilePath = Paths.get(testFileLocation, "schedulerTest", "Config.toml").toString();
         executeBalCommand("", "schedulerTest",
                 addEnvironmentVariables(Map.of(CONFIG_FILES_ENV_VARIABLE, configFilePath)));
+
+        LogLeecher errorLog = new LogLeecher("warning: 'BALLERINA_MAX_POOL_SIZE' environment variable is deprecated. " +
+                "Please provide the configuration through configurable variable 'lang.runtime.poolSize'", ERROR);
+        LogLeecher log = new LogLeecher(testsPassed);
+        bMainInstance.runMain("run", new String[]{testFileLocation + "/SingleBalFile/configTest.bal"},
+                addEnvironmentVariables(Map.of(BALLERINA_MAX_POOL_SIZE_ENV_VAR, "16")),
+                new String[]{}, new LogLeecher[]{errorLog, log}, testFileLocation + "/SingleBalFile");
+        errorLog.waitForText(5000);
+        log.waitForText(5000);
     }
 
     private void executeBalCommand(String projectPath, String packageName,

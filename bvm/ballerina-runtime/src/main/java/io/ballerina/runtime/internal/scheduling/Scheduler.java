@@ -46,7 +46,6 @@ import java.util.function.Function;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_RUNTIME_PKG_ID;
 import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
-
 import static java.lang.System.err;
 
 /**
@@ -70,7 +69,6 @@ public class Scheduler {
 
     private AtomicInteger totalStrands = new AtomicInteger();
     private static String poolSizeConf = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
-
 
     /**
      * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
