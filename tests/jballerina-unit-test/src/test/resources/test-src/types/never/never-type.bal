@@ -430,10 +430,24 @@ function testNeverWithAnydata() {
     never[] b = [];
 
     anydata m = a;
+    assertEquality(true, m is map<anydata>);
+    map<anydata> mp = <map<anydata>> m;
+    assertEquality(0, mp.length());
+
     anydata n = b;
+    assertEquality(true, n is anydata[]);
+    anydata[] np = <anydata[]> n;
+    assertEquality(0, np.length());
 
     anydata x1 = baz1();
+    assertEquality(true, x1 is map<anydata>);
+    map<anydata> xp = <map<anydata>> x1;
+    assertEquality(0, xp.length());
+
     anydata x2 = baz2();
+    assertEquality(true, x2 is anydata[]);
+    anydata[] xxp = <anydata[]> x2;
+    assertEquality(0, xxp.length());
 }
 
 function baz1() returns map<never> {

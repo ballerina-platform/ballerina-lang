@@ -78,6 +78,39 @@ function test6() {
     panic error("Error value is:" + string `${b}`);
 }
 
+function testNeverWithAnyAndAnydataRuntime() {
+    map<never> a = {};
+    never[] b = [];
+
+    anydata m = a;
+    assertEquality(true, m is map<any>);
+    assertEquality(true, m is any);
+
+    anydata n = b;
+    assertEquality(true, n is any[]);
+    assertEquality(true, n is any);
+
+    boolean c1 = baz1 is function () returns map<anydata>;
+    assertEquality(true, c1);
+
+    boolean c2 = baz2 is function () returns anydata[];
+    assertEquality(true, c2);
+
+    boolean c3 = baz1 is function () returns map<any>;
+    assertEquality(true, c3);
+
+    boolean c4 = baz2 is function () returns any[];
+    assertEquality(true, c4);
+}
+
+function baz1() returns map<never> {
+    return {};
+}
+
+function baz2() returns never[] {
+    return [];
+}
+
 type AssertionError distinct error;
 
 const ASSERTION_ERROR_REASON = "AssertionError";
