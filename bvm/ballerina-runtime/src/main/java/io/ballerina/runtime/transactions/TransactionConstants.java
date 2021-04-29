@@ -69,4 +69,5 @@ public class TransactionConstants {
     public static final BString PREVIOUS_ATTEMPT = StringUtils.fromString("prevAttempt");
 
     public static final String ANN_NAME_TRX_PARTICIPANT_CONFIG = "Participant";
+    public static final String TIMESTAMP_OBJECT_VALUE_FIELD = "timeValue";
 }
