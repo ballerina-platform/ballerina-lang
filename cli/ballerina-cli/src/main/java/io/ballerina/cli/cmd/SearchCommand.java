@@ -29,7 +29,6 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
-import java.net.Proxy;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.SEARCH_COMMAND;

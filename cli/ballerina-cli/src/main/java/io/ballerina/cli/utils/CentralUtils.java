@@ -51,11 +51,9 @@ public class CentralUtils {
 
     /**
      * Checks if the access token is available in Settings.toml or not.
-     *
-     * @return access token if its present
      */
-    public static String authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl, Settings settings,
-                                      Path settingsTomlFilePath, CentralAPIClient client) throws SettingsTomlException {
+    public static void authenticate(PrintStream errStream, String ballerinaCentralCliTokenUrl,
+                                    Path settingsTomlFilePath, CentralAPIClient client) throws SettingsTomlException {
         String accessToken = client.accessToken();
 
         if (accessToken.isEmpty()) {
@@ -78,7 +76,7 @@ public class CentralUtils {
                 long modifiedTimeOfFileAfter = getLastModifiedTimeOfFile(settingsTomlFilePath);
                 if (modifiedTimeOfFileAtStart != modifiedTimeOfFileAfter) {
                     // read updated Settings.toml file to get the token
-                    settings = readSettings();
+                    Settings settings = readSettings();
                     accessToken = getAccessTokenOfCLI(settings);
                     if (accessToken.isEmpty()) {
                         throw createLauncherException(
@@ -92,7 +90,6 @@ public class CentralUtils {
                 }
             }
         }
-        return accessToken;
     }
 
     /**
