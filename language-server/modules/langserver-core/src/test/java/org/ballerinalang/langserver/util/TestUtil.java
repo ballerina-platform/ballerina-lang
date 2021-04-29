@@ -30,6 +30,7 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaProjectParams;
 import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxTreeNodeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
@@ -118,6 +119,8 @@ public class TestUtil {
     private static final String PACKAGE_COMPONENTS = "ballerinaPackage/components";
 
     private static final String DOCUMENT_SYNTAX_TREE_NODE = "ballerinaDocument/syntaxTreeNode";
+
+    private static final String DOCUMENT_EXEC_POSITIONS = "ballerinaDocument/executorPositions";
 
     private static final Gson GSON = new Gson();
 
@@ -357,6 +360,19 @@ public class TestUtil {
         request.setDocumentIdentifiers(getTextDocumentIdentifier(filePath));
         request.setRange(range);
         return getResponseString(serviceEndpoint.request(DOCUMENT_SYNTAX_TREE_NODE, request));
+    }
+
+    /**
+     * Returns executorPositions API response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path to evaluate
+     * @return {@link String} Document executor positions response
+     */
+    public static String getExecutorPositionsResponse(Endpoint serviceEndpoint, String filePath) {
+        BallerinaProjectParams executorPositionsRequest = new BallerinaProjectParams();
+        executorPositionsRequest.setDocumentIdentifier(getTextDocumentIdentifier(filePath));
+        return getResponseString(serviceEndpoint.request(DOCUMENT_EXEC_POSITIONS, executorPositionsRequest));
     }
 
     /**
