@@ -1741,8 +1741,13 @@ public class FormattingTreeModifier extends TreeModifier {
     public MarkdownCodeLineNode transform(MarkdownCodeLineNode markdownCodeLineNode) {
         Token codeDescription = markdownCodeLineNode.codeDescription();
         boolean hasDescription = !codeDescription.text().isEmpty();
-        Token hashToken = formatToken(markdownCodeLineNode.hashToken(), hasDescription ? 1 : 0, 0);
-        codeDescription = formatToken(codeDescription, env.trailingWS, env.trailingNL);
+        Token hashToken;
+        if (hasDescription) {
+            hashToken = formatToken(markdownCodeLineNode.hashToken(), 1, 0);
+            codeDescription = formatToken(codeDescription, env.trailingWS, env.trailingNL);
+        } else {
+            hashToken = formatToken(markdownCodeLineNode.hashToken(), env.trailingWS, env.trailingNL);
+        }
 
         return markdownCodeLineNode.modify()
                 .withHashToken(hashToken)
@@ -3596,7 +3601,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
             // If this node has a trailing new line, then the next immediate token
             // will become the first token the the next line
-            env.hasNewline = trailingNL > 0;
+            env.hasNewline = trailingNL > 0 || hasTrailingNL(token);
             env.trailingNL = prevTrailingNL;
             env.trailingWS = prevTrailingWS;
             env.prevTokensTrailingWS = trailingWS;
@@ -3867,7 +3872,7 @@ public class FormattingTreeModifier extends TreeModifier {
         for (Minutiae minutiae : token.leadingMinutiae()) {
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
-                    if (consecutiveNewlines <= 1 && shouldAddTrailingNewline(prevMinutiae)) {
+                    if (consecutiveNewlines <= 1) {
                         consecutiveNewlines++;
                         leadingMinutiae.add(getNewline());
                         break;
@@ -3967,11 +3972,6 @@ public class FormattingTreeModifier extends TreeModifier {
         for (Minutiae minutiae : token.trailingMinutiae()) {
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
-                    if (!shouldAddTrailingNewline(prevMinutiae)) {
-                        // Shouldn't update the prevMinutiae
-                        continue;
-                    }
-
                     preserveIndentation(true);
                     trailingMinutiae.add(minutiae);
                     consecutiveNewlines++;
@@ -4000,25 +4000,11 @@ public class FormattingTreeModifier extends TreeModifier {
             prevMinutiae = minutiae;
         }
 
-        if (consecutiveNewlines == 0 && env.trailingNL > 0) {
+        if (consecutiveNewlines == 0 && env.trailingNL > 0 && !token.isMissing()) {
             trailingMinutiae.add(getNewline());
         }
         MinutiaeList newTrailingMinutiaeList = NodeFactory.createMinutiaeList(trailingMinutiae);
         return newTrailingMinutiaeList;
-    }
-
-    /**
-     * Check whether a trailing newline needs to be added.
-     *
-     * @param prevMinutiae Minutiae that precedes the current token
-     * @return <code>true</code> if a trailing newline needs to be added. <code>false</code> otherwise
-     */
-    private boolean shouldAddTrailingNewline(Minutiae prevMinutiae) {
-        if (prevMinutiae == null) {
-            return true;
-        }
-
-        return prevMinutiae.kind() != SyntaxKind.END_OF_LINE_MINUTIAE;
     }
 
     private Minutiae getNewline() {
@@ -4216,6 +4202,21 @@ public class FormattingTreeModifier extends TreeModifier {
             }
         }
 
+        return false;
+    }
+
+    /**
+     * Check whether a token has trailing newlines.
+     *
+     * @param token The token
+     * @return <code>true</code> if a trailing newline is present. <code>false</code> otherwise
+     */
+    private boolean hasTrailingNL(Token token) {
+        for (Minutiae minutiae : token.trailingMinutiae()) {
+            if (minutiae.kind() == SyntaxKind.END_OF_LINE_MINUTIAE) {
+                return true;
+            }
+        }
         return false;
     }
 }
