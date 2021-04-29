@@ -25,7 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -92,7 +92,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         boolean additionalProperties = parseOptionalBooleanFromJson(jsonObj, ADDITIONAL_PROPERTIES);
         JsonObject properties = jsonObj.get(PROPERTIES).getAsJsonObject();
         Set<Map.Entry<String, JsonElement>> entries = properties.entrySet();
-        Map<String, AbstractSchema> propertiesList = new HashMap<>();
+        Map<String, AbstractSchema> propertiesList = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : entries) {
             String key = entry.getKey();
             AbstractSchema
@@ -181,10 +181,10 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     }
 
     private Map<String, String> parseOptionalMapFromMessageJson(JsonObject jsonObject) {
-        Map<String, String> customMessages = new HashMap<>();
+        Map<String, String> customMessages = new LinkedHashMap<>();
         JsonObject customMessageJson = jsonObject.getAsJsonObject(SchemaDeserializer.MESSAGE);
         if (customMessageJson == null) {
-            return new HashMap<>();
+            return new LinkedHashMap<>();
         }
 
         addFieldToCustomMessagesMap(customMessages, customMessageJson, TYPE);
