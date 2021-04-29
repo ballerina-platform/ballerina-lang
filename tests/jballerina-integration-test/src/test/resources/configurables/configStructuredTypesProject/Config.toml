@@ -310,7 +310,9 @@ address.city="New York"
 address.country.name="USA"
 
 [[configStructuredTypes.mod2.personArray2]]
-name = "waruna"
+name = "waruna"[[person]]
+name = "Hinduja"
+address.city = "Colombo"
 id = 1001
 address.city="London"
 address.country.name="UK"
