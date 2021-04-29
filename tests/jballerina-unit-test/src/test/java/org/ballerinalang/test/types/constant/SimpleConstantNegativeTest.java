@@ -129,10 +129,10 @@ public class SimpleConstantNegativeTest {
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", 255, 33);
         BAssertUtil.validateError(compileResult, index++, "expression is not a constant expression", 256, 33);
         BAssertUtil.validateError(compileResult, index++, "cannot update constant value", 268, 5);
-        BAssertUtil.validateError(compileResult, index++, "constant cannot be defined with type 'Foo', expected a " +
-                "simple basic types or a map of a simple basic type", 278, 7);
-        BAssertUtil.validateError(compileResult, index++, "constant cannot be defined with type 'json', expected a " +
-                "simple basic types or a map of a simple basic type", 280, 7);
+        BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for type 'Foo'",
+                278, 7);
+        BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for type 'json'",
+                280, 7);
         BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for " +
                 "type 'int:Signed32'", 282, 14);
         BAssertUtil.validateError(compileResult, index++, "constant declaration not yet supported for " +
