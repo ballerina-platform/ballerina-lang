@@ -2428,7 +2428,7 @@ public class BallerinaParser extends AbstractParser {
                 reportInvalidQualifierList(qualifiers);
                 return parseQualifiedIdentWithTransactionPrefix(context);
             default:
-                if (isSingletonTypeDescStart(nextToken.kind, true)) {
+                if (isSingletonTypeDescStart(nextToken.kind)) {
                     reportInvalidQualifierList(qualifiers);
                     return parseSingletonTypeDesc();
                 }
@@ -6167,7 +6167,13 @@ public class BallerinaParser extends AbstractParser {
                     recoveryCtx = ParserRuleContext.CLASS_MEMBER_START;
                 }
 
-                recover(peek(), recoveryCtx);
+                Solution solution = recover(peek(), recoveryCtx);
+
+                if (solution.action == Action.KEEP) {
+                    metadata = STNodeFactory.createEmptyNode();
+                    break;
+                }
+                
                 return parseObjectMember(context);
         }
 
@@ -6226,7 +6232,12 @@ public class BallerinaParser extends AbstractParser {
                     return parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
                 }
 
-                recover(peek(), recoveryCtx, metadata, qualifiers, recoveryCtx, isObjectTypeDesc);
+                Solution solution = recover(peek(), recoveryCtx);
+
+                if (solution.action == Action.KEEP) {
+                    return parseObjectField(metadata, STNodeFactory.createEmptyNode(), qualifiers, isObjectTypeDesc);
+                }
+                
                 return parseObjectMemberWithoutMeta(metadata, qualifiers, recoveryCtx, isObjectTypeDesc);
         }
     }
@@ -9324,7 +9335,7 @@ public class BallerinaParser extends AbstractParser {
             case TRANSACTION_KEYWORD:
                 return true;
             default:
-                if (isSingletonTypeDescStart(nodeKind, true)) {
+                if (isSingletonTypeDescStart(nodeKind)) {
                     return true;
                 }
                 return isSimpleType(nodeKind);
@@ -11666,7 +11677,7 @@ public class BallerinaParser extends AbstractParser {
         return STNodeFactory.createUnaryExpressionNode(operator, literal);
     }
 
-    private boolean isSingletonTypeDescStart(SyntaxKind tokenKind, boolean inTypeDescCtx) {
+    private boolean isSingletonTypeDescStart(SyntaxKind tokenKind) {
         STToken nextNextToken = getNextNextToken();
         switch (tokenKind) {
             case STRING_LITERAL_TOKEN:
@@ -11677,10 +11688,7 @@ public class BallerinaParser extends AbstractParser {
             case TRUE_KEYWORD:
             case FALSE_KEYWORD:
             case NULL_KEYWORD:
-                if (inTypeDescCtx || isValidTypeDescRHSOutSideTypeDescCtx(nextNextToken)) {
-                    return true;
-                }
-                return false;
+                return true;
             case PLUS_TOKEN:
             case MINUS_TOKEN:
                 return isIntOrFloat(nextNextToken);
@@ -11695,22 +11703,6 @@ public class BallerinaParser extends AbstractParser {
             case HEX_INTEGER_LITERAL_TOKEN:
             case DECIMAL_FLOATING_POINT_LITERAL_TOKEN:
             case HEX_FLOATING_POINT_LITERAL_TOKEN:
-                return true;
-            default:
-                return false;
-        }
-    }
-
-    private boolean isValidTypeDescRHSOutSideTypeDescCtx(STToken token) {
-        switch (token.kind) {
-            case IDENTIFIER_TOKEN:
-            case QUESTION_MARK_TOKEN:
-            case OPEN_PAREN_TOKEN:
-            case OPEN_BRACKET_TOKEN:
-            case PIPE_TOKEN:
-            case BITWISE_AND_TOKEN:
-            case OPEN_BRACE_TOKEN:
-            case ERROR_KEYWORD:
                 return true;
             default:
                 return false;
