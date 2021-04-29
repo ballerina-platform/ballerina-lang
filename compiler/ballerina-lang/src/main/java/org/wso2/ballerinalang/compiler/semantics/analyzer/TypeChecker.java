@@ -2008,7 +2008,7 @@ public class TypeChecker extends BLangNodeVisitor {
         syncSendExpr.env = this.env;
         checkExpr(syncSendExpr.expr, this.env);
 
-        // Validate if the send expression type is anydata
+        // Validate if the send expression type is cloneableType
         if (!types.isAssignable(syncSendExpr.expr.type, symTable.cloneableType)) {
             this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.INVALID_TYPE_FOR_SEND,
                     syncSendExpr.expr.type);

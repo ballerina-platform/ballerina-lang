@@ -27,6 +27,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -95,8 +96,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat sync-send:$lambda$_15(sync-send.bal:295)\n" +
-                "\t   sync-send:$lambda$_15$lambda15$(sync-send.bal:283)";
+        String result = "error: error3 {\"message\":\"msg3\"}\n" + "\tat sync-send:$lambda$_15(sync-send.bal:296)\n" +
+                "\t   sync-send:$lambda$_15$lambda15$(sync-send.bal:284)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -115,8 +116,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w2\n\tat sync-send:$lambda$_19(sync-send.bal:348)\n" +
-                "\t   sync-send:$lambda$_19$lambda19$(sync-send.bal:345)";
+        String result = "error: err from panic from w2\n\tat sync-send:$lambda$_19(sync-send.bal:349)\n" +
+                "\t   sync-send:$lambda$_19$lambda19$(sync-send.bal:346)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -129,8 +130,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w1 w1\n\tat sync-send:$lambda$_20(sync-send.bal:364)\n" +
-                "\t   sync-send:$lambda$_20$lambda20$(sync-send.bal:360)";
+        String result = "error: err from panic from w1 w1\n\tat sync-send:$lambda$_20(sync-send.bal:365)\n" +
+                "\t   sync-send:$lambda$_20$lambda20$(sync-send.bal:361)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -143,8 +144,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w2\n\tat sync-send:$lambda$_23(sync-send.bal:396)\n" +
-                "\t   sync-send:$lambda$_23$lambda23$(sync-send.bal:393)";
+        String result = "error: err from panic from w2\n\tat sync-send:$lambda$_23(sync-send.bal:397)\n" +
+                "\t   sync-send:$lambda$_23$lambda23$(sync-send.bal:394)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -157,8 +158,8 @@ public class WorkerSyncSendTest {
             expectedException = e;
         }
         Assert.assertNotNull(expectedException);
-        String result = "error: err from panic from w3w3\n\tat sync-send:$lambda$_26(sync-send.bal:436)\n" +
-                "\t   sync-send:$lambda$_26$lambda26$(sync-send.bal:425)";
+        String result = "error: err from panic from w3w3\n\tat sync-send:$lambda$_26(sync-send.bal:437)\n" +
+                "\t   sync-send:$lambda$_26$lambda26$(sync-send.bal:426)";
         Assert.assertEquals(expectedException.getMessage().trim(), result.trim());
     }
 
@@ -197,6 +198,21 @@ public class WorkerSyncSendTest {
         BValue[] returns = BRunUtil.invoke(result, "testFailureForReceiveWithError");
         Assert.assertEquals(returns.length, 1);
         Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
+    @Test(dataProvider = "FunctionList")
+    public void testSimpleSyncSendFunctions(String funcName) {
+        BRunUtil.invoke(result, funcName);
+    }
+
+    @DataProvider(name = "FunctionList")
+    public Object[] testFunctions() {
+        return new Object[]{
+                "testSimpleSyncSendWithCloneableExpression",
+                "testSimpleSyncSendWithErrorType",
+                "testSimpleSyncSendWithXMLType",
+                "testSimpleSyncSendWithReadonlyRecord",
+        };
     }
 
     @AfterClass
