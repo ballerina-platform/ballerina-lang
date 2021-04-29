@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.DebugSourceType;
@@ -39,6 +38,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
@@ -91,7 +91,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
         List<Symbol> functionMatches = semanticContext.moduleSymbols()
                 .stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
+                .filter(symbol -> symbol.kind() == FUNCTION && symbol.getName().isPresent()
                         && modifyName(symbol.getName().get()).equals(functionName))
                 .collect(Collectors.toList());
         if (functionMatches.isEmpty()) {

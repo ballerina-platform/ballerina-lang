@@ -1191,6 +1191,27 @@ function testRecordIntersectionWithEffectivelyNeverFields() {
     assertFalse(rec4 is ClosedRecordWithIntField);
 }
 
+type Foo2 record {|
+    function (int, int) returns int x?;
+    boolean y?;
+|};
+
+function sum(int a, int b) returns int {
+    return a + b;
+} 
+
+function recordIntersectionWithFunctionFields() returns boolean {
+    record {| function (int, int) returns int x; boolean y; int i?; |} rec = {x: sum, y: true};
+    if (rec is Foo2) {
+        return true;
+    }
+    return false;
+}
+
+function testRecordIntersectionWithFunctionFields() {
+    assertFalse(recordIntersectionWithFunctionFields());
+}
+
 function assertTrue(anydata actual) {
     assertEquality(true, actual);
 }

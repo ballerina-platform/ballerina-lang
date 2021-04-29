@@ -6,31 +6,29 @@
  * in compliance with the License.
  * You may obtain a copy of the License at
  *
- *     http://www.apache.org/licenses/LICENSE-2.0
+ *   http://www.apache.org/licenses/LICENSE-2.0
  *
  * Unless required by applicable law or agreed to in writing,
  * software distributed under the License is distributed on an
  * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
- * KIND, either express or implied. See the License for the
+ * KIND, either express or implied.  See the License for the
  * specific language governing permissions and limitations
  * under the License.
  */
+package io.ballerinalang.compiler.parser.test.syntax.misc;
 
-package io.ballerina.runtime.internal.configurable;
+import org.testng.annotations.Test;
 
 /**
- * Constants used by configs.
- *
+ * Test recovery of expression rhs.
+ * 
  * @since 2.0.0
  */
-public class ConfigConstants {
+public class ExpressionRhsRecoveryTest extends AbstractMiscTest {
 
-    public static final String CONFIGURATION_NOT_SUPPORTED = "configurable variable '%s' with type '%s' is not " +
-            "supported";
-
-    public static final String INCOMPATIBLE_TYPE_ERROR_MESSAGE = "configurable variable '%s' is expected to be " +
-            "of type '%s', but found '%s'";
-
-    private ConfigConstants() {
+    @Test
+    public void testExpressionRhsRecovery() {
+        testFile("expression-rhs-recovery/expression_rhs_recovery_source_01.bal",
+                "expression-rhs-recovery/expression_rhs_recovery_assert_01.json");
     }
 }
