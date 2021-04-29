@@ -918,6 +918,10 @@ public class MethodGen {
         // Add strand variable to LVT
         mv.visitLocalVariable("__strand", String.format("L%s;", STRAND_CLASS), null, methodStartLabel, methodEndLabel,
                               localVarOffset);
+        // Add self to the LVT
+        if (func.receiver != null) {
+            mv.visitLocalVariable("self", String.format("L%s;", B_OBJECT), null, methodStartLabel, methodEndLabel, 0);
+        }
         BIRBasicBlock endBB = func.basicBlocks.get(func.basicBlocks.size() - 1);
         for (int i = localVarOffset; i < func.localVars.size(); i++) {
             BIRVariableDcl localVar = func.localVars.get(i);
