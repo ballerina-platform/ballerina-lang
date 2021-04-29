@@ -29,12 +29,12 @@ import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
-import java.net.Proxy;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.SEARCH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.cli.utils.PrintUtils.printPackages;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
@@ -138,8 +138,9 @@ public class SearchCommand implements BLauncherCmd {
                 // Ignore 'Settings.toml' parsing errors
                 settings = new Settings();
             }
-            Proxy proxy = initializeProxy(settings.getProxy());
-            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
+            CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                                                           initializeProxy(settings.getProxy()),
+                                                           getAccessTokenOfCLI(settings));
             PackageSearchResult packageSearchResult = client.searchPackage(query,
                                                                            JvmTarget.JAVA_11.code(),
                                                                            RepoUtils.getBallerinaVersion());

@@ -41,7 +41,6 @@ import picocli.CommandLine;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -58,6 +57,7 @@ import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl
 import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
@@ -147,11 +147,12 @@ public class PushCommand implements BLauncherCmd {
                     pushPackage(project);
                 } else {
                     Settings settings = readSettings();
-                    Proxy proxy = initializeProxy(settings.getProxy());
-                    CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
+                    CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                                                                   initializeProxy(settings.getProxy()),
+                                                                   getAccessTokenOfCLI(settings));
 
                     try {
-                        pushPackage(project, client, settings);
+                        pushPackage(project, client);
                     } catch (ProjectException | CentralClientException e) {
                         CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                         CommandUtil.exitError(this.exitWhenFinish);
@@ -200,10 +201,10 @@ public class PushCommand implements BLauncherCmd {
                 + " to '" + repositoryName + "' repository.");
     }
 
-    private void pushPackage(BuildProject project, CentralAPIClient client, Settings settings)
+    private void pushPackage(BuildProject project, CentralAPIClient client)
             throws CentralClientException {
         Path balaFilePath = validateBala(project, client);
-        pushBalaToRemote(balaFilePath, client, settings);
+        pushBalaToRemote(balaFilePath, client);
     }
 
     private static Path validateBala(BuildProject project, CentralAPIClient client) throws CentralClientException {
@@ -321,7 +322,7 @@ public class PushCommand implements BLauncherCmd {
      *
      * @param balaPath Path to the bala file.
      */
-    private void pushBalaToRemote(Path balaPath, CentralAPIClient client, Settings settings) {
+    private void pushBalaToRemote(Path balaPath, CentralAPIClient client) {
         Path balaFileName = balaPath.getFileName();
         if (null != balaFileName) {
             ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
@@ -334,16 +335,16 @@ public class PushCommand implements BLauncherCmd {
 
             Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
-            String accessToken;
+
             try {
-                accessToken = authenticate(errStream, getBallerinaCentralCliTokenUrl(), settings, settingsTomlFilePath);
+                authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
             } catch (SettingsTomlException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
                 return;
             }
 
             try {
-                client.pushPackage(balaPath, org, name, version, accessToken, JvmTarget.JAVA_11.code(),
+                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_11.code(),
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();

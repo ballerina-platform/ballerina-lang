@@ -34,13 +34,13 @@ import picocli.CommandLine;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.Proxy;
 import java.nio.file.Path;
 import java.util.List;
 
 import static io.ballerina.cli.cmd.Constants.PULL_COMMAND;
 import static io.ballerina.cli.launcher.LauncherUtils.createLauncherException;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.projects.util.ProjectUtils.validateOrgName;
 import static io.ballerina.projects.util.ProjectUtils.validatePackageName;
@@ -184,8 +184,9 @@ public class PullCommand implements BLauncherCmd {
                     // Ignore 'Settings.toml' parsing errors
                     settings = new Settings();
                 }
-                Proxy proxy = initializeProxy(settings.getProxy());
-                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
+                CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                                                               initializeProxy(settings.getProxy()),
+                                                               getAccessTokenOfCLI(settings));
                 client.pullPackage(orgName, packageName, version, packagePathInBalaCache, supportedPlatform,
                                    RepoUtils.getBallerinaVersion(), false);
             } catch (PackageAlreadyExistsException e) {
