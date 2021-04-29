@@ -401,11 +401,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define error details.
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
-        // Define type def members (if any)
-        defineMembers(typeAndClassDefs, pkgEnv);
-
         // Add distinct type information
         defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
+
+        // Define type def members (if any)
+        defineMembers(typeAndClassDefs, pkgEnv);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate

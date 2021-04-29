@@ -1971,7 +1971,9 @@ public class JvmTypeGen {
      * @return name of the field that holds the type instance
      */
     private static String getTypeFieldName(String typeName) {
-
+        if (typeName.isEmpty()) {
+            throw new AssertionError("Could not resolve the field for type");
+        }
         return String.format("$type$%s", typeName);
     }
 

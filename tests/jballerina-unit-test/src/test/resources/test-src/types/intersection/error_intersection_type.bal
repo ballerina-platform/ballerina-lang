@@ -164,6 +164,19 @@ function getAnonymousRecord(IntersectionErrorThree err) returns record {Intersec
     return errRec;
 }
 
+type JsonParseDetail record {
+    string s;
+};
+
+type JsonParseError error<JsonParseDetail> & distinct error;
+
+function testAnonDistinctError() {
+    error e = error JsonParseError("msg", s = "the ling info");
+    if !(e is JsonParseError) {
+        panic error("Assertion error");
+    }
+}
+
 function assertEquality(any|error actual, any|error expected) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

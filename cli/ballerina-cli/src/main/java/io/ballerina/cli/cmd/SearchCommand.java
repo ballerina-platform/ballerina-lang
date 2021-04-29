@@ -48,6 +48,7 @@ public class SearchCommand implements BLauncherCmd {
 
     private PrintStream outStream;
     private PrintStream errStream;
+    private boolean exitWhenFinish;
 
     @CommandLine.Parameters
     private List<String> argList;
@@ -61,11 +62,13 @@ public class SearchCommand implements BLauncherCmd {
     public SearchCommand() {
         this.outStream = System.out;
         this.errStream = System.err;
+        this.exitWhenFinish = true;
     }
 
-    public SearchCommand(PrintStream outStream, PrintStream errStream) {
+    public SearchCommand(PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.outStream = outStream;
         this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
     }
 
     @Override
@@ -83,18 +86,23 @@ public class SearchCommand implements BLauncherCmd {
         if (argList == null || argList.isEmpty()) {
             CommandUtil.printError(this.errStream, "no keyword given", "bal search [<org>|<package>|<text>] ",
                                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         if (argList.size() > 1) {
             CommandUtil.printError(this.errStream, "too many arguments", "bal search [<org>|<package>|<text>] ",
                                    false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
         String searchArgs = argList.get(0);
         searchInCentral(searchArgs);
-        Runtime.getRuntime().exit(0);
+
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
     }
 
     @Override
@@ -150,6 +158,7 @@ public class SearchCommand implements BLauncherCmd {
                     errorMessage = errorMessage.substring(0, errorMessage.indexOf("\n\tat"));
                 }
                 CommandUtil.printError(this.errStream, errorMessage, null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
             }
         }
     }
