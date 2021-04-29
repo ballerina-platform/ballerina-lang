@@ -19,6 +19,7 @@ package io.ballerina.runtime.internal.scheduling;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.async.StrandMetadata;
+import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.creators.ErrorCreator;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.values.BError;
@@ -46,6 +47,8 @@ import java.util.function.Function;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_RUNTIME_PKG_ID;
 import static io.ballerina.runtime.internal.scheduling.ItemGroup.POISON_PILL;
 
+import static java.lang.System.err;
+
 /**
  * Strand scheduler for JBallerina.
  *
@@ -66,6 +69,8 @@ public class Scheduler {
     private static final ThreadLocal<StrandHolder> strandHolder = ThreadLocal.withInitial(StrandHolder::new);
 
     private AtomicInteger totalStrands = new AtomicInteger();
+    private static String poolSizeConf = System.getenv(RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR);
+
 
     /**
      * This can be changed by setting the BALLERINA_MAX_POOL_SIZE system variable.
@@ -87,9 +92,18 @@ public class Scheduler {
         Object keyVal = ConfigMap.get(poolSizeKey);
         if (keyVal != null) {
             return ((Long) keyVal).intValue();
-        } else {
-            return Runtime.getRuntime().availableProcessors() * 2;
+        } else if (poolSizeConf != null) {
+            err.println("warning: 'BALLERINA_MAX_POOL_SIZE' environment variable is deprecated. Please provide the " +
+                    "configuration through configurable variable 'lang.runtime.poolSize'");
+            try {
+                return Integer.parseInt(poolSizeConf);
+            } catch (Throwable t) {
+                // Log and continue with default
+                err.println("ballerina: error occurred in scheduler while reading system variable:" +
+                        RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR + ", " + t.getMessage());
+            }
         }
+        return Runtime.getRuntime().availableProcessors() * 2;
     }
 
     public Scheduler(int numThreads, boolean immortal) {
