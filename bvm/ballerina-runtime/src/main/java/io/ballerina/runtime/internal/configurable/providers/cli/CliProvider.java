@@ -32,15 +32,17 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.ballerina.runtime.internal.configurable.ConfigConstants.INCOMPATIBLE_TYPE_ERROR_MESSAGE;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_ARG_REGEX;
 import static io.ballerina.runtime.internal.configurable.providers.cli.CliConstants.CLI_PREFIX;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.INVALID_BYTE_RANGE;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_CLI_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INCOMPATIBLE_TYPE;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
 
 /**
  * This class implements @{@link ConfigProvider} tp provide values for configurable variables through cli args.
@@ -92,8 +94,7 @@ public class CliProvider implements ConfigProvider {
         try {
             return Optional.of(TypeConverter.stringToInt(cliArg.value));
         } catch (NumberFormatException e) {
-            throw new CliConfigException(cliArg, String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, key.variable,
-                                                               key.type, cliArg.value));
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type, cliArg.value);
         }
     }
 
@@ -106,10 +107,10 @@ public class CliProvider implements ConfigProvider {
         try {
             return Optional.of(TypeConverter.stringToByte(cliArg.value));
         } catch (NumberFormatException e) {
-            throw new CliConfigException(cliArg, String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, key.variable,
-                                                               key.type, cliArg.value));
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type,
+                                      cliArg.value);
         } catch (BError e) {
-            throw new CliConfigException(cliArg, String.format(INVALID_BYTE_RANGE, key.variable, cliArg.value));
+            throw new ConfigException(CONFIG_INVALID_BYTE_RANGE, cliArg, key.variable, cliArg.value);
         }
     }
 
@@ -122,8 +123,7 @@ public class CliProvider implements ConfigProvider {
         try {
             return Optional.of(TypeConverter.stringToBoolean(cliArg.value));
         } catch (NumberFormatException e) {
-            throw new CliConfigException(cliArg, String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, key.variable,
-                                                               key.type, cliArg.value));
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type, cliArg.value);
         }
     }
 
@@ -136,8 +136,7 @@ public class CliProvider implements ConfigProvider {
         try {
             return Optional.of(TypeConverter.stringToFloat(cliArg.value));
         } catch (NumberFormatException e) {
-            throw new CliConfigException(cliArg, String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, key.variable,
-                                                               key.type, cliArg.value));
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type, cliArg.value);
         }
     }
 
@@ -150,8 +149,7 @@ public class CliProvider implements ConfigProvider {
         try {
             return Optional.of(TypeConverter.stringToDecimal(cliArg.value));
         } catch (NumberFormatException e) {
-            throw new CliConfigException(cliArg, String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, key.variable,
-                                                               key.type, cliArg.value));
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, key.type, cliArg.value);
         }
     }
 
@@ -166,32 +164,20 @@ public class CliProvider implements ConfigProvider {
 
     @Override
     public Optional<BArray> getAsArrayAndMark(Module module, VariableKey key) {
-        CliArg cliArg = getCliArg(module, key);
-        if (cliArg.value == null) {
-            return Optional.empty();
-        }
-        throw new CliConfigException(cliArg, String.format(CliConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
-                                                           key.variable, key.type));
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
     @Override
     public Optional<BMap<BString, Object>> getAsRecordAndMark(Module module, VariableKey key) {
-        CliArg cliArg = getCliArg(module, key);
-        if (cliArg.value == null) {
-            return Optional.empty();
-        }
-        throw new CliConfigException(cliArg, String.format(CliConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
-                key.variable, key.type));
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
     @Override
     public Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key) {
-        CliArg cliArg = getCliArg(module, key);
-        if (cliArg.value == null) {
-            return Optional.empty();
-        }
-        throw new CliConfigException(cliArg, String.format(CliConstants.CONFIGURATION_NOT_SUPPORTED_FOR_CLI,
-                                                           key.variable, key.type));
+        Type effectiveType = ((IntersectionType) key.type).getEffectiveType();
+        throw new ConfigException(CONFIG_CLI_TYPE_NOT_SUPPORTED, key.variable, effectiveType);
     }
 
     @Override
@@ -204,8 +190,7 @@ public class CliProvider implements ConfigProvider {
         try {
             return Optional.of(TypeConverter.stringToXml(cliArg.value));
         } catch (BError e) {
-            throw new CliConfigException(cliArg, String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE, key.variable,
-                                                               effectiveType, cliArg.value));
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, cliArg, key.variable, effectiveType, cliArg.value);
         }
     }
 
