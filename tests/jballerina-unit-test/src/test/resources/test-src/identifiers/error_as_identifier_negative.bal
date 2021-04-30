@@ -34,6 +34,13 @@ function getError() returns error {
     return error("Generated Error");
 }
 
-function functionWithErrorNamedDefaultArgument(error 'error = getError(), error 'error = getError()) {}
+function funcErrorNamedDefaultArgument(error 'error = getError(), error 'error = getError()) {}
 
-function functionWithErrorNamedIncludedParam(*ErrorDataWithErrorField 'error, *ErrorDataWithErrorField 'error) {}
+function funcErrorNamedIncludedParam(*ErrorDataWithErrorField 'error, *ErrorDataWithErrorField 'error) {}
+
+function funcErrorNamedRequiredParam(ErrorDataWithErrorField 'error, ErrorDataWithErrorField 'error) {}
+
+function funcErrorNamedRestParam(ErrorDataWithErrorField 'error, ErrorDataWithErrorField... 'error) {}
+
+function funcErrorNamedIncludedAndRequiredParam(*ErrorDataWithErrorField 'error, ErrorDataWithErrorField 'error) {}
+

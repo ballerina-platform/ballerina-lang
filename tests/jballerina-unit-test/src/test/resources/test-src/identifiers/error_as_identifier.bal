@@ -42,6 +42,18 @@ function functionWithErrorNamedIncludedParam(*ErrorDataWithErrorField 'error) {
     assertEquality('error.'error.message(), "Generated Error");
 }
 
+function functionWithErrorNamedRequiredParam(ErrorDataWithErrorField 'error) {
+    assertEquality('error.'error.message(), "Generated Error");
+}
+
+function functionWithErrorNamedRestParam(ErrorDataWithErrorField... 'error) {
+    assertEquality('error[0].'error.message(), "Generated Error");
+}
+
+type ErrorDataWithRestError record {|
+    error...;
+|};
+
 // test cases
 
 function testErrorAsObjectField() {
@@ -76,6 +88,18 @@ function testErrorNamedIncludedParam() {
     error newError = getError();
     ErrorDataWithErrorField er = {'error: newError};
     functionWithErrorNamedIncludedParam(er);
+}
+
+function testErrorNamedRequiredParam() {
+    error newError = getError();
+    ErrorDataWithErrorField er = {'error: newError};
+    functionWithErrorNamedRequiredParam(er);
+}
+
+function testErrorNamedRestParam() {
+    error newError = getError();
+    ErrorDataWithErrorField er = {'error: newError};
+    functionWithErrorNamedRestParam(er);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

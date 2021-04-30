@@ -41,11 +41,13 @@ public class QuotedIdentifierTest {
     @DataProvider(name = "errorAsIdentifierFunctions")
     public Object[][] errorAsIdentifierFunctions() {
         return new Object[][] {
-                { "testErrorNamedIncludedParam" },
                 { "testErrorNamedDefaultArgument" },
                 { "testErrorAsObjectField" },
                 { "testErrorDataWithErrorField" },
                 { "testErrorConstructorWithErrorField" },
+                { "testErrorNamedIncludedParam" },
+                { "testErrorNamedRequiredParam" },
+                { "testErrorNamedRestParam" },
         };
     }
 
@@ -61,9 +63,12 @@ public class QuotedIdentifierTest {
         int index = 0;
         validateError(result, index++, "redeclared symbol 'error'", 19, 18);
         validateError(result, index++, "redeclared symbol 'error'", 30, 11);
-        validateError(result, index++, "redeclared symbol 'error'", 37, 81);
-        validateError(result, index++, "redeclared symbol 'error'", 39, 80);
-        validateError(result, index++, "redeclared symbol 'error'", 39, 104);
+        validateError(result, index++, "redeclared symbol 'error'", 37, 73);
+        validateError(result, index++, "redeclared symbol 'error'", 39, 72);
+        validateError(result, index++, "redeclared symbol 'error'", 39, 96);
+        validateError(result, index++, "redeclared symbol 'error'", 41, 94);
+        validateError(result, index++, "redeclared symbol 'error'", 43, 93);
+        validateError(result, index++, "redeclared symbol 'error'", 45, 106);
         assertEquals(result.getErrorCount(), index);
     }
 }
