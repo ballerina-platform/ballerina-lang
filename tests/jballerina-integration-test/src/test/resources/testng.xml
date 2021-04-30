@@ -287,6 +287,13 @@
         </classes>
     </test>
 
+    <test name="ballerina-runtime-tests" parallel="false">
+        <parameter name="enableJBallerinaTests" value="true" />
+        <classes>
+            <class name="org.ballerinalang.test.runtime.SchedulerConfigTest"/>
+        </classes>
+    </test>
+
     <test name="ballerina-bindgen-tests" parallel="false">
         <parameter name="enableJBallerinaTests" value="true" />
         <classes>

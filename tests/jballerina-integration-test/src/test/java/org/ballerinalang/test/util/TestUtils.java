@@ -20,6 +20,7 @@ package org.ballerinalang.test.util;
 
 import io.netty.handler.codec.http.FullHttpResponse;
 import org.ballerinalang.core.util.BLangConstants;
+import org.ballerinalang.test.packaging.PackerinaTestUtils;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -33,6 +34,7 @@ import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertificateException;
+import java.util.Map;
 
 /**
  * A utility class for integration tests.
@@ -185,5 +187,18 @@ public class TestUtils {
         }
 
         return ks;
+    }
+
+    /**
+     * Add data as an environment variables.
+     *
+     * @return env directory variable array
+     */
+    public static Map<String, String> addEnvironmentVariables(Map<String, String> newVariables) {
+        Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
+        for (Map.Entry<String, String> pathVariable :newVariables.entrySet()) {
+            envVariables.put(pathVariable.getKey(), pathVariable.getValue());
+        }
+        return envVariables;
     }
 }

@@ -22,7 +22,6 @@ import org.ballerinalang.test.BaseTest;
 import org.ballerinalang.test.context.BMainInstance;
 import org.ballerinalang.test.context.BallerinaTestException;
 import org.ballerinalang.test.context.LogLeecher;
-import org.ballerinalang.test.packaging.PackerinaTestUtils;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
@@ -30,12 +29,12 @@ import java.io.File;
 import java.nio.file.Paths;
 import java.util.Map;
 
-import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_MAX_POOL_SIZE_ENV_VAR;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILES_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.SECRET_DATA_ENV_VARIABLE;
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.SECRET_FILE_ENV_VARIABLE;
 import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
+import static org.ballerinalang.test.util.TestUtils.addEnvironmentVariables;
 
 /**
  * Test cases for checking configurable variables in Ballerina.
@@ -62,7 +61,7 @@ public class ConfigurableTest extends BaseTest {
 
         // bal run single bal file with configurables
         LogLeecher logLeecher2 = new LogLeecher(testsPassed);
-        bMainInstance.runMain("run", new String[]{testFileLocation + "/SingleBalFile/configTest.bal"}, null,
+        bMainInstance.runMain("run", new String[]{testFileLocation + "/SingleBalFile/test.bal"}, null,
                 new String[]{}, new LogLeecher[]{logLeecher2}, testFileLocation + "/SingleBalFile");
         logLeecher2.waitForText(5000);
     }
@@ -245,22 +244,6 @@ public class ConfigurableTest extends BaseTest {
         errorLog.waitForText(5000);
     }
 
-    @Test
-    public void testSchedulerThreadPoolSize() throws BallerinaTestException {
-        String configFilePath = Paths.get(testFileLocation, "schedulerTest", "Config.toml").toString();
-        executeBalCommand("", "schedulerTest",
-                addEnvironmentVariables(Map.of(CONFIG_FILES_ENV_VARIABLE, configFilePath)));
-
-        LogLeecher errorLog = new LogLeecher("warning: 'BALLERINA_MAX_POOL_SIZE' environment variable is deprecated. " +
-                "Please provide the configuration through configurable variable 'lang.runtime.poolSize'", ERROR);
-        LogLeecher log = new LogLeecher(testsPassed);
-        bMainInstance.runMain("run", new String[]{testFileLocation + "/SingleBalFile/configTest.bal"},
-                addEnvironmentVariables(Map.of(BALLERINA_MAX_POOL_SIZE_ENV_VAR, "16")),
-                new String[]{}, new LogLeecher[]{errorLog, log}, testFileLocation + "/SingleBalFile");
-        errorLog.waitForText(5000);
-        log.waitForText(5000);
-    }
-
     private void executeBalCommand(String projectPath, String packageName,
                                    Map<String, String> envProperties) throws BallerinaTestException {
         LogLeecher logLeecher = new LogLeecher(testsPassed);
@@ -269,16 +252,4 @@ public class ConfigurableTest extends BaseTest {
         logLeecher.waitForText(5000);
     }
 
-    /**
-     * Get environment variables and add config file path, data as an env variable.
-     *
-     * @return env directory variable array
-     */
-    private Map<String, String> addEnvironmentVariables(Map<String, String> pathVariables) {
-        Map<String, String> envVariables = PackerinaTestUtils.getEnvVariables();
-        for (Map.Entry<String, String> pathVariable :pathVariables.entrySet()) {
-            envVariables.put(pathVariable.getKey(), pathVariable.getValue());
-        }
-        return envVariables;
-    }
 }
