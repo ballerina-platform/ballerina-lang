@@ -424,11 +424,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "indexVal",
+      "label": "listValue",
       "kind": "Variable",
       "detail": "int",
       "sortText": "B",
-      "insertText": "indexVal",
+      "insertText": "listValue",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -454,30 +465,19 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "indexVal",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "indexVal",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "myList",
       "kind": "Variable",
       "detail": "int[]",
       "sortText": "B",
       "insertText": "myList",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "listValue",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "listValue",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {

@@ -78,6 +78,18 @@ public class TypeGuardTest {
                 "incompatible types: '(Baz|int)' will not be matched to 'Bar'", 150, 15);
         BAssertUtil.validateError(negativeResult, i++,
                 "incompatible types: '(Baz|int)' will not be matched to 'Qux'", 156, 15);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'record {| int i; boolean b; |}' will not be matched to 'ClosedRec'", 187, 8);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'record {| int i; boolean s; boolean...; |}' will not be matched to 'ClosedRec'",
+                191, 8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'RecordWithDefaultValue' will not be " +
+                        "matched to 'RecordWithNoDefaultValue'", 207, 8);
+        BAssertUtil.validateError(negativeResult, i++,
+                "incompatible types: 'map<(int|string)>' will not be matched to 'record {| int i; float f; |}'", 214,
+                8);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: 'map<(int|string)>' will not be matched " +
+                        "to 'map<boolean>'", 221, 8);
 
         Assert.assertEquals(negativeResult.getDiagnostics().length, i);
     }
@@ -173,6 +185,27 @@ public class TypeGuardTest {
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 343, 22);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'int?'", 355, 22);
         BAssertUtil.validateError(negativeResult, i++, "undefined symbol 'j'", 377, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 398, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 403, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i; boolean b; |}'", 407, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 411, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i?; boolean b; |}'", 416, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte...; |}', found " +
+                "'record {| byte i; boolean b; |}'", 420, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'int', found 'record {| byte i?;" +
+                " boolean b; |}'", 429, 17);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected " +
+                "'RecordWithReadOnlyFieldAndNonReadOnlyField', found 'record {| readonly int i; |} & readonly'", 452,
+                56);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'readonly', found 'record {| " +
+                "readonly int i; string s; |}'", 456, 22);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte i; |}', found " +
+                "'record {| byte i; boolean b?; |}'", 474, 37);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
@@ -628,6 +661,36 @@ public class TypeGuardTest {
     public void testTypetestForTypedefs2() {
         BValue[] returns = BRunUtil.invoke(result, "testTypeDescTypeTest2");
         Assert.assertEquals(BBoolean.TRUE, returns[0]);
+    }
+
+    @Test
+    public void testRecordIntersectionWithClosedRecordAndRecordWithOptionalField() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField");
+    }
+
+    @Test
+    public void testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2");
+    }
+
+    @Test
+    public void testRecordIntersectionWithDefaultValues() {
+        BRunUtil.invoke(result, "testRecordIntersectionWithDefaultValues");
+    }
+
+    @Test
+    public void testClosedRecordAndMapIntersection() {
+        BRunUtil.invoke(result, "testClosedRecordAndMapIntersection");
+    }
+
+    @Test
+    public void testIntersectionReadOnlyness() {
+        BRunUtil.invoke(result, "testIntersectionReadOnlyness");
+    }
+
+    @Test
+    public void testMapIntersection() {
+        BRunUtil.invoke(result, "testMapIntersection");
     }
 
     @Test

@@ -6299,19 +6299,26 @@ public class Desugar extends BLangNodeVisitor {
     private BLangInvocation desugarStreamTypeInit(BLangTypeInit typeInitExpr) {
         BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
                 .lookup(Names.CONSTRUCT_STREAM).symbol;
-        BType targetType = ((BStreamType) typeInitExpr.type).constraint;
-        BType errorType = ((BStreamType) typeInitExpr.type).error;
-        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
-        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
-        typedescExpr.resolvedType = targetType;
-        typedescExpr.type = typedescType;
-        List<BLangExpression> args = new ArrayList<>(Lists.of(typedescExpr));
+
+        BType constraintType = ((BStreamType) typeInitExpr.type).constraint;
+        BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
+        constraintTdExpr.resolvedType = constraintType;
+        constraintTdExpr.type = constraintTdType;
+
+        BType completionType = ((BStreamType) typeInitExpr.type).completionType;
+        BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
+        completionTdExpr.resolvedType = completionType;
+        completionTdExpr.type = completionTdType;
+
+        List<BLangExpression> args = new ArrayList<>(Lists.of(constraintTdExpr, completionTdExpr));
         if (!typeInitExpr.argsExpr.isEmpty()) {
             args.add(typeInitExpr.argsExpr.get(0));
         }
         BLangInvocation streamConstructInvocation = ASTBuilderUtil.createInvocationExprForMethod(
                 typeInitExpr.pos, symbol, args, symResolver);
-        streamConstructInvocation.type = new BStreamType(TypeTags.STREAM, targetType, errorType, null);
+        streamConstructInvocation.type = new BStreamType(TypeTags.STREAM, constraintType, completionType, null);
         return streamConstructInvocation;
     }
 

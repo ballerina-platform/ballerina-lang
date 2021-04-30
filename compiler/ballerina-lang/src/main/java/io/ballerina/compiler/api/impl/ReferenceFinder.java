@@ -197,8 +197,13 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
  */
 public class ReferenceFinder extends BaseVisitor {
 
+    private final boolean withDefinition;
     private List<Location> referenceLocations;
     private BSymbol targetSymbol;
+
+    public ReferenceFinder(boolean withDefinition) {
+        this.withDefinition = withDefinition;
+    }
 
     public List<Location> findReferences(BLangNode node, BSymbol symbol) {
         this.referenceLocations = new ArrayList<>();
@@ -244,7 +249,13 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangImportPackage importPkgNode) {
-        addIfSameSymbol(importPkgNode.symbol, importPkgNode.alias.pos);
+        if (importPkgNode.symbol != null
+                && this.targetSymbol.name.equals(importPkgNode.symbol.name)
+                && this.targetSymbol.pkgID.equals(importPkgNode.symbol.pkgID)
+                && this.targetSymbol.pos.equals(importPkgNode.symbol.pos)
+                && this.withDefinition) {
+            this.referenceLocations.add(importPkgNode.alias.pos);
+        }
     }
 
     @Override
@@ -1262,7 +1273,8 @@ public class ReferenceFinder extends BaseVisitor {
         if (symbol != null
                 && this.targetSymbol.name.equals(symbol.name)
                 && this.targetSymbol.pkgID.equals(symbol.pkgID)
-                && this.targetSymbol.pos.equals(symbol.pos)) {
+                && this.targetSymbol.pos.equals(symbol.pos)
+                && (this.withDefinition || !symbol.pos.equals(location))) {
             this.referenceLocations.add(location);
             return true;
         }

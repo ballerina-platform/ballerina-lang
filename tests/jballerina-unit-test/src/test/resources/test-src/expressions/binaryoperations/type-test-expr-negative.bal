@@ -343,6 +343,11 @@ type RecordWithIntFieldAndNeverRestField record {|
     never...;
 |};
 
+type RecordWithIntFieldAndEffectivelyNeverRestField record {|
+    int i;
+    [never, int]...;
+|};
+
 type Record record {|
     int i;
     string s;
@@ -351,4 +356,5 @@ type Record record {|
 function testRecordNegative2() {
     Record rec = {i: 1, s: ""};
     boolean b2 = rec is RecordWithIntFieldAndNeverRestField;
+    boolean b3 = rec is RecordWithIntFieldAndEffectivelyNeverRestField;
 }

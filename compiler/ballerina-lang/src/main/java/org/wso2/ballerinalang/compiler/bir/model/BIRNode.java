@@ -326,6 +326,8 @@ public abstract class BIRNode {
 
         public List<BIRAnnotationAttachment> annotAttachments;
 
+        public List<BIRAnnotationAttachment> returnTypeAnnots;
+
         public Set<BIRGlobalVariableDcl> dependentGlobalVars = new TreeSet<>();
 
         public BIRFunction(Location pos, Name name, long flags, SymbolOrigin origin, BInvokableType type,
@@ -335,6 +337,7 @@ public abstract class BIRNode {
                            List<BIRBasicBlock> basicBlocks, List<BIRErrorEntry> errorTable, Name workerName,
                            ChannelDetails[] workerChannels, TaintTable taintTable,
                            List<BIRAnnotationAttachment> annotAttachments,
+                           List<BIRAnnotationAttachment> returnTypeAnnots,
                            Set<BIRGlobalVariableDcl> dependentGlobalVars) {
             super(pos);
             this.name = name;
@@ -354,6 +357,7 @@ public abstract class BIRNode {
             this.workerChannels = workerChannels;
             this.taintTable = taintTable;
             this.annotAttachments = annotAttachments;
+            this.returnTypeAnnots = returnTypeAnnots;
             this.dependentGlobalVars = dependentGlobalVars;
         }
 
@@ -372,6 +376,7 @@ public abstract class BIRNode {
             this.workerChannels = new ChannelDetails[sendInsCount];
             this.taintTable = taintTable;
             this.annotAttachments = new ArrayList<>();
+            this.returnTypeAnnots = new ArrayList<>();
             this.origin = origin;
         }
 
@@ -389,6 +394,7 @@ public abstract class BIRNode {
             f.errorTable = errorTable;
             f.workerChannels = workerChannels;
             f.annotAttachments = annotAttachments;
+            f.returnTypeAnnots = returnTypeAnnots;
             return f;
 
         }

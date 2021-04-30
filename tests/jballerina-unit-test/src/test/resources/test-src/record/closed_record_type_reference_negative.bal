@@ -159,3 +159,18 @@ type Baz record {| // // cannot use type inclusion with more than one open recor
   *Rec9;
   *Rec10;
 |};
+
+type PersonOne record {|
+    *PersonOne;
+    string name;
+|};
+
+type PersonTwo record {|
+    string name;
+    *Employee;
+|};
+
+type Employee record {|
+    *PersonTwo;
+    int age;
+|};

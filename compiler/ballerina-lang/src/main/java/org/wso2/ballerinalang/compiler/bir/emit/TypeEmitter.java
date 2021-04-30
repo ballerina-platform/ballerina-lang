@@ -406,10 +406,10 @@ class TypeEmitter {
         str.append("stream");
         str.append("<");
         str.append(emitTypeRef(bType.constraint, 0));
-        if (bType.error.tag != TypeTags.NEVER) {
+        if (bType.completionType.tag != TypeTags.NIL) {
             str.append(",");
             str.append(emitSpaces(1));
-            str.append(emitTypeRef(bType.error, 0));
+            str.append(emitTypeRef(bType.completionType, 0));
         }
         str.append(">");
         return str.toString();

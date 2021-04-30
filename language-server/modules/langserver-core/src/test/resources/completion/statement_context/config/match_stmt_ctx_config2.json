@@ -456,19 +456,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "var2",
-      "kind": "Variable",
-      "detail": "[string, int, boolean]",
-      "sortText": "B",
-      "insertText": "var2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var1",
+      "label": "i",
       "kind": "Variable",
       "detail": "string|int|boolean",
       "sortText": "B",
-      "insertText": "var1",
+      "insertText": "i",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -480,35 +483,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "p",
       "kind": "Variable",
       "detail": "$CompilationError$",
       "sortText": "B",
       "insertText": "p",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "var5",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "var5",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "i",
-      "kind": "Variable",
-      "detail": "string|int|boolean",
-      "sortText": "B",
-      "insertText": "i",
       "insertTextFormat": "Snippet"
     },
     {
@@ -530,14 +509,35 @@
       }
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "L",
-      "insertText": "StrandData",
+      "label": "var5",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "B",
+      "insertText": "var5",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var2",
+      "kind": "Variable",
+      "detail": "[string, int, boolean]",
+      "sortText": "B",
+      "insertText": "var2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "var1",
+      "kind": "Variable",
+      "detail": "string|int|boolean",
+      "sortText": "B",
+      "insertText": "var1",
       "insertTextFormat": "Snippet"
     },
     {

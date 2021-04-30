@@ -428,6 +428,9 @@ public class BIRPackageSymbolEnter {
         // Skip annotation attachments for now
         dataInStream.skip(dataInStream.readLong());
 
+        // Skip return type annotations
+        dataInStream.skip(dataInStream.readLong());
+
         // set parameter symbols to the function symbol
         setParamSymbols(invokableSymbol, dataInStream);
 
@@ -877,7 +880,7 @@ public class BIRPackageSymbolEnter {
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) type;
                 populateParameterizedType(streamType.constraint, paramsMap, invSymbol);
-                populateParameterizedType(streamType.error, paramsMap, invSymbol);
+                populateParameterizedType(streamType.completionType, paramsMap, invSymbol);
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) type;
@@ -1175,11 +1178,8 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();
+                    bStreamType.completionType = readTypeFromCp();
                     bStreamType.flags = flags;
-                    boolean hasError = inputStream.readByte() == 1;
-                    if (hasError) {
-                        bStreamType.error = readTypeFromCp();
-                    }
                     return bStreamType;
                 case TypeTags.TABLE:
                     BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol, flags);

@@ -33,6 +33,7 @@ import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
+import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.util.Lists;
@@ -493,6 +494,24 @@ public class ProjectUtils {
         return null;
     }
 
+    /**
+     * Read the access token generated for the CLI.
+     *
+     * @return access token for generated for the CLI
+     */
+    public static String getAccessTokenOfCLI(Settings settings) {
+        // The access token can be specified as an environment variable or in 'Settings.toml'. First we would check if
+        // the access token was specified as an environment variable. If not we would read it from 'Settings.toml'
+        String tokenAsEnvVar = System.getenv(ProjectConstants.BALLERINA_CENTRAL_ACCESS_TOKEN);
+        if (tokenAsEnvVar != null) {
+            return tokenAsEnvVar;
+        }
+        if (settings.getCentral() != null) {
+            return settings.getCentral().getAccessToken();
+        }
+        return "";
+    }
+
     public static void checkWritePermission(Path path) {
         if (!path.toFile().canWrite()) {
             throw new ProjectException("'" + path + "' does not have write permissions");
@@ -542,12 +561,15 @@ public class ProjectUtils {
             PackageDescriptor descriptor = graphDependency.packageInstance().descriptor();
 
             // ignore lang libs & ballerina internal packages
-            if (!descriptor.isLangLibPackage() && !graphDependency.injected()) {
+            if (!descriptor.isBuiltInPackage() && !graphDependency.injected()) {
                 // write dependency, if it not already exists in `Dependencies.toml`
                 if (!isPkgManifestDependency(graphDependency, pkgManifestDependencies)) {
-                    addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
-                                         descriptor.version().value().toString());
-                    content.append("\n");
+                    // write dependencies only with stable versions
+                    if (!descriptor.version().value().isPreReleaseVersion()) {
+                        addDependencyContent(content, descriptor.org().value(), descriptor.name().value(),
+                                             descriptor.version().value().toString());
+                        content.append("\n");
+                    }
                 }
             }
         });

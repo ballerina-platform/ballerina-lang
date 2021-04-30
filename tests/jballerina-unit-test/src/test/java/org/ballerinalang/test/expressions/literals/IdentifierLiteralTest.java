@@ -174,8 +174,8 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 3, "missing type desc", 18, 14);
         BAssertUtil.validateError(resultNeg, 4, "missing equal token", 18, 33);
         BAssertUtil.validateError(resultNeg, 5, "undefined symbol 'value'", 18, 33);
-        BAssertUtil.validateError(resultNeg, 6, "missing double quote", 18, 38);
-        BAssertUtil.validateError(resultNeg, 7, "missing plus token", 18, 38);
+        BAssertUtil.validateError(resultNeg, 6, "missing binary operator", 18, 38);
+        BAssertUtil.validateError(resultNeg, 7, "missing double quote", 18, 38);
         BAssertUtil.validateError(resultNeg, 8, "missing semicolon token", 19, 1);
         BAssertUtil.validateError(resultNeg, 9, "underscore is not allowed here", 19, 12);
         BAssertUtil.validateError(resultNeg, 10, "missing double quote", 19, 15);
@@ -211,7 +211,7 @@ public class IdentifierLiteralTest {
         BAssertUtil.validateError(resultNeg, 2, "undefined symbol 'whiteSpace'", 18, 17);
         BAssertUtil.validateError(resultNeg, 3, "incomplete quoted identifier", 19, 12);
         BAssertUtil.validateError(resultNeg, 4, "undefined symbol ''", 19, 12);
-        BAssertUtil.validateError(resultNeg, 5, "missing plus token", 19, 17);
+        BAssertUtil.validateError(resultNeg, 5, "missing binary operator", 19, 17);
         BAssertUtil.validateError(resultNeg, 6, "undefined symbol 'whiteSpace'", 19, 17);
     }
 

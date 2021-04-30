@@ -261,7 +261,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), visit(type.constraint), visit(type.error));
+        Integer hash = hash(baseHash(type), visit(type.constraint), visit(type.completionType));
         return addToVisited(type, hash);
     }
 
@@ -432,7 +432,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         }
         List<Integer> valueSpaceHashes = type.getValueSpace().stream().map(Object::toString)
                 .sorted().map(String::hashCode).collect(Collectors.toList());
-        Integer hash = hash(baseHash(type), type.isAnyData, valueSpaceHashes);
+        Integer hash = hash(baseHash(type), valueSpaceHashes);
         return addToVisited(type, hash);
     }
 
@@ -460,10 +460,8 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         }
         List<Integer> fieldsHashes = getFieldsHashes(type.fields);
         List<Integer> typeInclHashes = getTypesHashes(type.typeInclusions);
-        final int initFunctionHash = getFunctionHash(((BObjectTypeSymbol) type.tsymbol).initializerFunc);
         List<Integer> attachedFunctionsHashes = getFunctionsHashes(((BObjectTypeSymbol) type.tsymbol).attachedFuncs);
-        Integer hash = hash(baseHash(type), fieldsHashes, typeInclHashes, initFunctionHash,
-                attachedFunctionsHashes, type.typeIdSet);
+        Integer hash = hash(baseHash(type), fieldsHashes, typeInclHashes, attachedFunctionsHashes, type.typeIdSet);
         return addToVisited(type, hash);
     }
 
@@ -477,8 +475,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         }
         List<Integer> fieldsHashes = getFieldsHashes(type.fields);
         List<Integer> typeInclHashes = getTypesHashes(type.typeInclusions);
-        Integer hash = hash(baseHash(type), type.sealed, fieldsHashes,
-                visit(type.restFieldType), typeInclHashes);
+        Integer hash = hash(baseHash(type), type.sealed, fieldsHashes, typeInclHashes, visit(type.restFieldType));
         return addToVisited(type, hash);
     }
 
@@ -490,8 +487,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         if (isCyclic(type)) {
             return 0;
         }
-        Integer hash = hash(baseHash(type), type.isAnyData, type.isPureType, type.isCyclic,
-                getTypesHashes(type.getMemberTypes()));
+        Integer hash = hash(baseHash(type), type.isCyclic, getTypesHashes(type.getMemberTypes()));
         return addToVisited(type, hash);
     }
 
@@ -540,7 +536,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
     }
 
     private Integer baseHash(BType type) {
-        return hash(type.tag, type.flags, type.isNullable());
+        return hash(type.tag, type.flags);
     }
 
     private List<Integer> getTypesHashes(Collection<BType> types) {

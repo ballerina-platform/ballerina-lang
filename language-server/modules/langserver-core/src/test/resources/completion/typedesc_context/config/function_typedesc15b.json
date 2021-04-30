@@ -456,30 +456,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestRecord1",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRecord1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestMap3",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap3",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "getInt()(int)",
       "kind": "Function",
       "detail": "Function",
@@ -494,14 +470,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap2",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -510,6 +478,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap3",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "M",
+      "insertText": "TestMap3",
       "insertTextFormat": "Snippet"
     },
     {
@@ -527,11 +503,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestMap1",
-      "kind": "TypeParameter",
-      "detail": "Map",
-      "sortText": "M",
-      "insertText": "TestMap1",
+      "label": "TestRecord1",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "TestRecord1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -546,6 +522,30 @@
       },
       "sortText": "C",
       "insertText": "main()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap2",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "M",
+      "insertText": "TestMap2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestMap1",
+      "kind": "TypeParameter",
+      "detail": "Map",
+      "sortText": "M",
+      "insertText": "TestMap1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
