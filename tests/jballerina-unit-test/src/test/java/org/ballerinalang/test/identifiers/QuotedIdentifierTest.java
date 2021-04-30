@@ -19,49 +19,30 @@ package org.ballerinalang.test.identifiers;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
  * Test Quoted identifiers.
+ *
+ * @since slalpha6
  */
 public class QuotedIdentifierTest {
 
-    private CompileResult errorTestCompileResult;
-
-    @BeforeClass
-    public void setup() {
-        errorTestCompileResult = BCompileUtil.compile("test-src/identifiers/field_named_as_error.bal");
+    @Test(dataProvider = "errorAsIdentifierFunctions")
+    public void testErrorAsIdentifier(String function) {
+        CompileResult errorTestCompileResult = BCompileUtil.compile("test-src/identifiers/error_as_identifier.bal");
+        BRunUtil.invoke(errorTestCompileResult, function);
     }
 
-    @Test
-    public void testErrorConstructorWithErrorField() {
-        BRunUtil.invoke(errorTestCompileResult, "testErrorConstructorWithErrorField");
-    }
-
-    @Test
-    public void testErrorDataWithErrorField() {
-        BRunUtil.invoke(errorTestCompileResult, "testErrorDataWithErrorField");
-    }
-
-    @Test
-    public void testErrorAsObjectField() {
-        BRunUtil.invoke(errorTestCompileResult, "testErrorAsObjectField");
-    }
-
-    @Test
-    public void testErrorNamedDefaultArgument() {
-        BRunUtil.invoke(errorTestCompileResult, "testErrorNamedDefaultArgument");
-    }
-
-    @Test
-    public void testErrorNamedIncludedParam() {
-        BRunUtil.invoke(errorTestCompileResult, "testErrorNamedIncludedParam");
-    }
-
-    @AfterClass
-    public void cleanup() {
-        errorTestCompileResult = null;
+    @DataProvider(name = "errorAsIdentifierFunctions")
+    public Object[][] errorAsIdentifierFunctions() {
+        return new Object[][] {
+                { "testErrorNamedIncludedParam" },
+                { "testErrorNamedDefaultArgument" },
+                { "testErrorAsObjectField" },
+                { "testErrorDataWithErrorField" },
+                { "testErrorConstructorWithErrorField" },
+        };
     }
 }

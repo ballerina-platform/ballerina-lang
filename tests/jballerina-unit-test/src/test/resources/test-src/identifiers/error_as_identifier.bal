@@ -14,6 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
+// helpers
+
 class ErrorField {
     public error 'error;
     public int 'int;
@@ -24,7 +26,25 @@ class ErrorField {
     }
 }
 
-public function testErrorAsObjectField() {
+type ErrorDataWithErrorField record {
+    error 'error;
+};
+
+function getError() returns error {
+    return error("Generated Error");
+}
+
+function functionWithErrorNamedDefaultArgument(error 'error = getError()) {
+    assertEquality('error.message(), "Generated Error");
+}
+
+function functionWithErrorNamedIncludedParam(*ErrorDataWithErrorField 'error) {
+    assertEquality('error.'error.message(), "Generated Error");
+}
+
+// test cases
+
+function testErrorAsObjectField() {
     error newError = error("bam", message = "new error");
     ErrorField p = new ErrorField(newError);
     assertEquality(p.'error.toString(), "error(\"bam\",message=\"new error\")");
@@ -32,10 +52,6 @@ public function testErrorAsObjectField() {
     assertEquality(p.'error.detail()["message"], "new error");
     assertEquality(p.'int, 20);
 }
-
-public type ErrorDataWithErrorField record {
-    error 'error;
-};
 
 function testErrorDataWithErrorField() {
     error newError = error("bam", message = "new error");
@@ -52,23 +68,11 @@ function testErrorConstructorWithErrorField() {
     assertEquality(errorInCtor.message(), "error as a detail");
 }
 
-function getError() returns error {
-    return error("Generated Error");
-}
-
-public function functionWithErrorNamedDefaultArgument(error 'error = getError()) {
-    assertEquality('error.message(), "Generated Error");
-}
-
-public function functionWithErrorNamedIncludedParam(*ErrorDataWithErrorField 'error) {
-    assertEquality('error.'error.message(), "Generated Error");
-}
-
-public function testErrorNamedDefaultArgument() {
+function testErrorNamedDefaultArgument() {
     functionWithErrorNamedDefaultArgument();
 }
 
-public function testErrorNamedIncludedParam() {
+function testErrorNamedIncludedParam() {
     error newError = getError();
     ErrorDataWithErrorField er = {'error: newError};
     functionWithErrorNamedIncludedParam(er);

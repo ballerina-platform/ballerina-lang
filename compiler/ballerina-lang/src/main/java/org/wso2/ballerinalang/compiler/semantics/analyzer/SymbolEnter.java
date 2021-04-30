@@ -3774,9 +3774,7 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
-        }
-
-        if (!considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+        } else if (!considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
         }
 
