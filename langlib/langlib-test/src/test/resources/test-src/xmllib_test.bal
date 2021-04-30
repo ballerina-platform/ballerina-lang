@@ -226,14 +226,14 @@ function testXMLCycleErrorInner() returns xml {
 }
 
 function testXMLStrip() {
-    xml<'xml:Element> x1 = xml `<foo><bar/><?foo?>text1 text2<!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>`;
+    xml<'xml:Element> x1 = xml `<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>`;
     xml x2 = x1.strip();
-    assertEquals(x2.toString(), "<foo><bar/>text1 text2 <bar/></foo><foo>text1</foo>");
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>");
     'xml:Element x7 = xml `<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>`;
     x2 = x7.strip();
-    assertEquals(x2.toString(), "<foo><bar/>text1 text2<bar/></foo>");
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
     'xml:Element x6 = <'xml:Element> x7.strip();
-    assertEquals(x6.toString(), "<foo><bar/>text1 text2<bar/></foo>");
+    assertEquals(x6.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
 
     xml<'xml:Comment> x3 = xml `<!--Comment1--><!--Comment2-->`;
     x2 = x3.strip();
@@ -251,7 +251,7 @@ function testXMLStrip() {
 
     xml x5 = xml `<foo><!--Comment--></foo>text1 <?foo?>text2<foo><?foo?></foo>text3text4  <foo></foo><!--Comment-->  `;
     x2 = x5.strip();
-    assertEquals(x2.toString(), "<foo></foo>text1 text2<foo></foo>text3text4  <foo></foo>");
+    assertEquals(x2.toString(), "<foo><!--Comment--></foo>text1 text2<foo><?foo?></foo>text3text4  <foo></foo>");
 }
 
 function testXMLCycleInnerNonError() returns xml {

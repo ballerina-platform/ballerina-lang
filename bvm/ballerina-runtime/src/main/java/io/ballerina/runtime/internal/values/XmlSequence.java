@@ -316,16 +316,12 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
         this.type = PredefinedTypes.TYPE_XML;;
     }
 
-    private boolean isSingleTextInXMLElement() {
-        return children.size() == 1 && this.children.get(0).getType().getTag() == TypeTags.XML_TEXT_TAG;
-    }
-
     /**
      * {@inheritDoc}
      */
     @Override
     public XmlValue strip() {
-        if (this.isFrozen() && !isSingleTextInXMLElement()) {
+        if (this.isFrozen()) {
             ReadOnlyUtils.handleInvalidUpdate(XML_LANG_LIB);
         }
         List<BXml> elementsSeq = new ArrayList<>();
@@ -348,8 +344,7 @@ public final class XmlSequence extends XmlValue implements BXmlSequence {
                     prevConsecutiveText = null;
                 }
                 prevChildWasATextNode = false;
-                BXml tempXml = x.children().isEmpty() ? x : x.strip();
-                elementsSeq.add(tempXml);
+                elementsSeq.add(x);
             }
         }
         if (prevChildWasATextNode && !prevConsecutiveText.trim().isEmpty()) {
