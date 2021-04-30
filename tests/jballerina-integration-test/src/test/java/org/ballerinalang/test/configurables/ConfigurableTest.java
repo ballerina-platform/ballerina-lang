@@ -61,7 +61,7 @@ public class ConfigurableTest extends BaseTest {
 
         // bal run single bal file with configurables
         LogLeecher logLeecher2 = new LogLeecher(testsPassed);
-        bMainInstance.runMain("run", new String[]{testFileLocation + "/SingleBalFile/test.bal"}, null,
+        bMainInstance.runMain("run", new String[]{testFileLocation + "/SingleBalFile/configTest.bal"}, null,
                 new String[]{}, new LogLeecher[]{logLeecher2}, testFileLocation + "/SingleBalFile");
         logLeecher2.waitForText(5000);
     }

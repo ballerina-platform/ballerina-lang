@@ -1,0 +1,2 @@
+[ballerina.lang.runtime]
+STRAND_THREAD_POOL_SIZE = 24
