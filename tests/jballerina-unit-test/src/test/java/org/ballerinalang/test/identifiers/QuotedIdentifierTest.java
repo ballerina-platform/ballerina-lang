@@ -22,6 +22,9 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static org.ballerinalang.test.BAssertUtil.validateError;
+import static org.testng.Assert.assertEquals;
+
 /**
  * Test Quoted identifiers.
  *
@@ -44,5 +47,23 @@ public class QuotedIdentifierTest {
                 { "testErrorDataWithErrorField" },
                 { "testErrorConstructorWithErrorField" },
         };
+    }
+
+    @Test(dataProvider = "errorAsIdentifierFunctions")
+    public void testErrorAsIdentifierNegative(String function) {
+        CompileResult errorTestCompileResult = BCompileUtil.compile("test-src/identifiers/error_as_identifier.bal");
+        BRunUtil.invoke(errorTestCompileResult, function);
+    }
+
+    @Test(description = "Test error as a identifier negative cases")
+    public void testInvalidImportOnMultipleFiles() {
+        CompileResult result = BCompileUtil.compile("test-src/identifiers/error_as_identifier_negative.bal");
+        int index = 0;
+        validateError(result, index++, "redeclared symbol 'error'", 19, 18);
+        validateError(result, index++, "redeclared symbol 'error'", 30, 11);
+        validateError(result, index++, "redeclared symbol 'error'", 37, 81);
+        validateError(result, index++, "redeclared symbol 'error'", 39, 80);
+        validateError(result, index++, "redeclared symbol 'error'", 39, 104);
+        assertEquals(result.getErrorCount(), index);
     }
 }
