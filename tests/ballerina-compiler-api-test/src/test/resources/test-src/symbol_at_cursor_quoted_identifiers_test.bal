@@ -16,8 +16,8 @@
 
 type Currency record {| string x; |};
 
-type 'string record {
-    int 'while;
+type 'record record {
+    int 'float;
 };
 
 function rate(Currency 'from, string to) {
@@ -31,14 +31,14 @@ function 'function() returns string {
 string a = 'function();
 string 'if = "if";
 string b = 'if;
-string 'nonReservedVar = "The variable name is not a reserved keyword";
+string 'nonReservedVar = "The variable name is not a reserved keyword.";
 
 function name(int x) returns int {
     return x * 10;
 }
 
-int 'int = 5;
-int a = name('int);
+int 'any = 5;
+int a = name('any);
 
 function workers() {
     worker 'w1 {
@@ -53,4 +53,39 @@ function workers() {
     worker 'worker {
         6 -> w1;
     }
+}
+
+public class Keywords {
+    public string 'string;
+    public int 'int;
+    float 'floatNum = 0.5;
+
+    function init(string 'foreach, int 'int) {
+        self.'string = 'foreach;
+        self.'int = 'int;
+
+    }
+
+    function getString() returns string => self.'string;
+
+    function 'from() returns int => self.'int;
+}
+
+class 'Example {
+    string 'anydata = "anydata";
+}
+
+function example() returns 'Example {
+    'Example 'check = new();
+    return 'check;
+}
+
+public function main() {
+    Keywords k1 = new("abc", 123);
+    k1.'int = 87;
+    int 'from = k1.'from();
+
+    'Example 'new = new;
+    'new.'anydata = "new anydata";
+
 }

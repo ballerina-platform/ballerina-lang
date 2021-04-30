@@ -67,6 +67,15 @@ public class BallerinaSymbol implements Symbol {
 
     @Override
     public Optional<String> getName() {
+        // In the langlib context, reserved keywords can be used as regular identifiers. Therefore, they will not be
+        // escaped.
+        if (getModule().isPresent() && getModule().get().id() != null &&
+                !getModule().get().id().moduleName().isEmpty() &&
+                getModule().get().id().moduleName().startsWith("lang.") &&
+                !getModule().get().id().orgName().isEmpty() &&
+                getModule().get().id().orgName().startsWith("ballerina")) {
+            return Optional.ofNullable(this.name);
+        }
         return Optional.ofNullable(escapeReservedKeyword(this.name));
     }
 
