@@ -666,6 +666,47 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "incompatible types: 'string' cannot be cast to 'map'");
     }
 
+    @Test(description = "Test any boolean to int with errors.")
+    public void testAnyBooleanToIntWithErrors() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnyBooleanToIntWithErrors", new BValue[]{});
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
+                            "incompatible types: 'boolean' cannot be cast to 'int'");
+    }
+
+    @Test(description = "Test any boolean to float with errors.")
+    public void testAnyBooleanToFloatWithErrors() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnyBooleanToFloatWithErrors", new BValue[]{});
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
+                            "incompatible types: 'boolean' cannot be cast to 'float'");
+    }
+
+
+    @Test(description = "Test any boolean to decimal with errors.")
+    public void testAnyBooleanToDecimalWithErrors() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnyBooleanToDecimalWithErrors", new BValue[]{});
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
+                            "incompatible types: 'boolean' cannot be cast to 'decimal'");
+    }
+
+    @Test(description = "Test any boolean to string with errors.")
+    public void testAnyBooleanToStringWithErrors() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnyBooleanToStringWithErrors", new BValue[]{});
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
+                            "incompatible types: 'boolean' cannot be cast to 'string'");
+    }
+
+    @Test(description = "Test any boolean to byte with errors.")
+    public void testAnyBooleanToByteWithErrors() {
+        BValue[] returns = BRunUtil.invoke(result, "testAnyBooleanToByteWithErrors", new BValue[]{});
+        Assert.assertSame(returns[0].getClass(), BError.class);
+        Assert.assertEquals(((BMap<String, BValue>) ((BError) returns[0]).getDetails()).get("message").stringValue(),
+                            "incompatible types: 'boolean' cannot be cast to 'byte'");
+    }
+
     // TODO:
 /*    @Test
     public void testErrorInForceCasting() {

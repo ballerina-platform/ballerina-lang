@@ -465,6 +465,31 @@ function testAnyNullToString() returns string {
     return s;
 }
 
+function testAnyBooleanToIntWithErrors() returns int|error {
+    any a = true;
+    return check trap <int> a;
+}
+
+function testAnyBooleanToFloatWithErrors() returns float|error {
+    any a = true;
+    return check trap <float> a;
+}
+
+function testAnyBooleanToDecimalWithErrors() returns decimal|error {
+    any a = true;
+    return check trap <decimal> a;
+}
+
+function testAnyBooleanToStringWithErrors() returns string|error {
+    any a = true;
+    return check trap <string> a;
+}
+
+function testAnyBooleanToByteWithErrors() returns byte|error {
+    any a = true;
+    return check trap <byte> a;
+}
+
 function testSameTypeCast() returns int {
     int a = 10;
 
