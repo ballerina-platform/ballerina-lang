@@ -86,9 +86,17 @@ function testNeverWithAnyAndAnydataRuntime() {
     assertEquality(true, m is map<any>);
     assertEquality(true, m is any);
 
+    any y1 = a;
+    assertEquality(true, y1 is map<anydata>);
+    assertEquality(true, y1 is anydata);
+
     anydata n = b;
     assertEquality(true, n is any[]);
     assertEquality(true, n is any);
+
+    any y2 = b;
+    assertEquality(true, y2 is anydata[]);
+    assertEquality(true, y2 is anydata);
 
     boolean c1 = baz1 is function () returns map<anydata>;
     assertEquality(true, c1);
