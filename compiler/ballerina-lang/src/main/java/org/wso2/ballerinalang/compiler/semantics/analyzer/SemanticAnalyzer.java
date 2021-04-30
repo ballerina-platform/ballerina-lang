@@ -431,6 +431,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         funcNode.symbol.annAttachments.addAll(funcNode.annAttachments);
+        ((BInvokableTypeSymbol) funcNode.symbol.type.tsymbol)
+                .returnTypeAnnots.addAll(funcNode.returnTypeAnnAttachments);
 
         this.processWorkers(funcNode, funcEnv);
     }

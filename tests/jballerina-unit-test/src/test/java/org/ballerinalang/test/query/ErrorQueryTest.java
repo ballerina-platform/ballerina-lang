@@ -15,26 +15,37 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package io.ballerina.runtime.internal.diagnostics;
+
+package org.ballerinalang.test.query;
+
+import org.ballerinalang.test.BCompileUtil;
+import org.ballerinalang.test.BRunUtil;
+import org.ballerinalang.test.CompileResult;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.Test;
 
 /**
- * A diagnostic represents a error, a warning or a message related to runtime .
+ * This contains methods to test query actions with records.
  *
  * @since 2.0.0
  */
-public class Diagnostic {
+public class ErrorQueryTest {
 
-    DiagnosticSeverity severity;
+    private CompileResult result;
 
-    String message;
-
-    public Diagnostic(DiagnosticSeverity severity, String message) {
-        this.severity = severity;
-        this.message = message;
+    @BeforeClass
+    public void setup() {
+        result = BCompileUtil.compile("test-src/query/query_expr_with_errors.bal");
     }
 
-    @Override
-    public String toString() {
-        return severity + ": " + message;
+    @Test
+    public void queryAnErrorStream() {
+        BRunUtil.invoke(result, "queryAnErrorStream");
+    }
+
+    @AfterClass
+    public void tearDown() {
+        result = null;
     }
 }
