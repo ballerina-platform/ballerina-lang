@@ -722,8 +722,6 @@ public class TypeConverter {
             return DecimalValue.valueOf((Boolean) sourceVal);
         } else if (sourceVal instanceof DecimalValue) {
             return (DecimalValue) sourceVal;
-        } else if (sourceVal instanceof String) {
-            return new DecimalValue((String) sourceVal);
         }
         throw errorFunc.get();
     }
@@ -742,7 +740,6 @@ public class TypeConverter {
         }
         throw errorFunc.get();
     }
-
 
     // JBallerina related casts
 
