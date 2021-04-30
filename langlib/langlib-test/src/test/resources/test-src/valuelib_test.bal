@@ -842,6 +842,10 @@ function testCloneWithTypeWithImmutableTypes() {
    var o = checkpanic n.cloneWithType(Map);
    assert(o["m"] === m, false);
    assert(o["m"].isReadOnly(), false);
+   anydata p = o["m"];
+   assert(p is map<anydata>, true);
+   map<anydata> q = <map<anydata>>p;
+   q["c"] = "foo";
 
    int[] & readonly array = [3, 4];
    map<int[]> n2 = {array};
