@@ -829,12 +829,12 @@ public class TypeConverter {
     public static Type resolveMatchingTypeForUnion(Object value, Type type) {
         if (value instanceof ArrayValue && ((ArrayValue) value).getType().getTag() == TypeTags.ARRAY_TAG &&
                 !isDeepConversionRequiredForArray(((ArrayValue) value).getType())) {
-            return TypeCreator.createArrayType(((BArrayType) ((ArrayValue) value).getType()).getElementType());
+            return TypeCreator.createArrayType(type);
         }
 
         if (value instanceof MapValue && ((MapValue) value).getType().getTag() == TypeTags.MAP_TAG &&
                 !isDeepConversionRequiredForMap(((MapValue) value).getType())) {
-            return TypeCreator.createMapType(((BMapType) ((MapValue) value).getType()).getConstrainedType());
+            return TypeCreator.createMapType(type);
         }
 
         if (value == null && type.isNilable()) {
