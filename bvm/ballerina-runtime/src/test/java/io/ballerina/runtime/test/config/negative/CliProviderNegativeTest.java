@@ -21,6 +21,7 @@ package io.ballerina.runtime.test.config.negative;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
@@ -92,5 +93,74 @@ public class CliProviderNegativeTest {
                         "error: [myorg.mod.x=345] value provided for byte variable 'x' is out of range. Expected " +
                                 "range is (0-255), found '345'"}
         };
+    }
+
+    @Test
+    public void testUnusedCliArgs() {
+        Module module = new Module("myorg", "mod", "1.0.0");
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(module, "x", PredefinedTypes.TYPE_INT, true),
+        };
+        configVarMap.put(module, keys);
+        String[] args = {"-Cmyorg.mod.x=123", "-Cmyorg.mod.y=apple", "-Cmyorg.mod.z=27.5"};
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
+                                                           diagnosticLog,
+                                                           List.of(new CliProvider(ROOT_MODULE, args)));
+        Map<VariableKey, Object> varKeyValueMap =  configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 1);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
+                            "warning: unused command line arguments found \n" +
+                                    "\tmyorg.mod.z=27.5\n" +
+                                    "\tmyorg.mod.y=apple");
+        Assert.assertEquals(varKeyValueMap.get(new VariableKey(module, "x")), 123L);
+    }
+
+    @Test
+    public void testAmbiguityWithModuleImportsCliArgs() {
+        Module importedModule = new Module("a", "b", "1.0.0");
+        Module rootModule = new Module("testOrg", "a.b", "1.0.0");
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(importedModule, "c", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(rootModule, "c", PredefinedTypes.TYPE_INT, true),
+                new VariableKey(rootModule, "y", PredefinedTypes.TYPE_STRING, true),
+        };
+        configVarMap.put(rootModule, keys);
+        String[] args = {"-Ca.b.c=123", "-Ca.b.y=apple",};
+        ConfigResolver configResolver = new ConfigResolver(rootModule, configVarMap,
+                                                           diagnosticLog,
+                                                           List.of(new CliProvider(rootModule, args)));
+        Map<VariableKey, Object> varKeyValueMap = configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable value for " +
+                "variable 'testOrg/a.b:c' clashes with variable 'a/b:c'. Please provide the command line argument as " +
+                "'[-CtestOrg.a.b.c=<value>]'");
+        Assert.assertEquals(varKeyValueMap.get(new VariableKey(rootModule, "y")), StringUtils.fromString("apple"));
+    }
+
+
+    @Test
+    public void testAmbiguityWithRootModuleCliArgs() {
+
+        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        Map<Module, VariableKey[]> configVarMap = new HashMap<>();
+        VariableKey[] keys = {
+                new VariableKey(ROOT_MODULE, "intVar", PredefinedTypes.TYPE_INT, true)
+        };
+        configVarMap.put(ROOT_MODULE, keys);
+        String[] args = {"-CrootMod.intVar=123", "-CintVar=321",};
+        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
+                                                           diagnosticLog,
+                                                           List.of(new CliProvider(ROOT_MODULE, args)));
+        configResolver.resolveConfigs();
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 0);
+        Assert.assertEquals(diagnosticLog.getErrorCount(), 1);
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(), "error: configurable value for " +
+                "variable 'intVar' clashes with multiple command line arguments [intVar=321, rootMod.intVar=123]");
     }
 }

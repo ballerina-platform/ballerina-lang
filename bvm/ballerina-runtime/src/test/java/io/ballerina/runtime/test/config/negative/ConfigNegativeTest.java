@@ -146,10 +146,10 @@ public class ConfigNegativeTest {
                                                 true)}, 0, 1,
                         new String[]{
                                 "warning: [org.mod1.intArr=1234] value for configurable variable 'intArr' with type '" +
-                                        "()' is not supported as a cli arg"}},
+                                        "()' is not supported as a command line argument"}},
                 // not supported both toml type and not cli type
                 {new String[]{"-Corg.mod1.intArr=1234"}, "MatchedTypeValues.toml",
-                        new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_MAP, true)}, 1, 0,
+                        new VariableKey[]{new VariableKey(module, "intVar", PredefinedTypes.TYPE_MAP, true)}, 1, 1,
                         new String[]{"error: configurable variable 'mod1:intVar' with type 'map' is not " +
                                 "supported"}},
         };
