@@ -20,14 +20,16 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.DocumentNode;
+
 /**
  * Represents A Long Value in Toml AST.
  *
  * @since 2.0.0
  */
 public class TomlLongValueNode extends TomlBasicValueNode<Long> {
-    public TomlLongValueNode(Long value, TomlNodeLocation location) {
-        super(value, TomlType.INTEGER, location);
+    public TomlLongValueNode(DocumentNode documentNode, Long value, TomlNodeLocation location) {
+        super(documentNode, value, TomlType.INTEGER, location);
     }
 
     @Override
