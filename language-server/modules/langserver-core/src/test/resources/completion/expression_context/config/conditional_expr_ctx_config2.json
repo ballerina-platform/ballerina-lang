@@ -355,13 +355,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -390,6 +383,16 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "flag",
       "kind": "Variable",
       "detail": "boolean",
@@ -401,13 +404,6 @@
       "kind": "Variable",
       "detail": "int",
       "insertText": "n",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -424,13 +420,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "insertText": "StrandData",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {

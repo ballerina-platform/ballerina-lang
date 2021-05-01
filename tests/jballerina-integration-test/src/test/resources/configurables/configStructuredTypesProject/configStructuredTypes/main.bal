@@ -49,6 +49,12 @@ configurable table<mod1:Employee & readonly> & readonly employeeTable1 = ?;
 
 // Complex records
 configurable mod1:Person person = ?;
+configurable mod1:Person person2 = ?;
+configurable readonly & record {
+    string name;
+    int id;
+    mod1:Address address = { city:"Galle" };
+} person3 = ?;
 configurable table<mod1:Person> & readonly personTable = ?;
 configurable mod1:Person[] & readonly personArray = ?;
 configurable (mod1:Person & readonly)[] & readonly personArray1 = ?;
@@ -81,8 +87,16 @@ public function testRecords() {
     test:assertEquals(farmer.id, 999);
     test:assertEquals(person.name, "waruna");
     test:assertEquals(person.id, 10);
-    test:assertEquals(person.address.city, "Colombo");
-    test:assertEquals(person.address.country.name, "Sri Lanka");
+    test:assertEquals(person.address.city, "San Francisco");
+    test:assertEquals(person.address.country.name, "USA");
+    test:assertEquals(person2.name, "manu");
+    test:assertEquals(person2.id, 11);
+    test:assertEquals(person2.address.city, "Nugegoda");
+    test:assertEquals(person2.address.country.name, "SL");
+    test:assertEquals(person3.name, "riyafa");
+    test:assertEquals(person3.id, 12);
+    test:assertEquals(person3.address.city, "Galle");
+    test:assertEquals(person3.address.country.name, "SL");
 }
 
 public function testTables() {
@@ -96,8 +110,8 @@ public function testTables() {
     test:assertEquals(teacherTable.toString(), "[{\"name\":\"manu\",\"id\":77},{\"name\":\"riyafa\",\"id\":88}]");
     test:assertEquals(farmerTable.toString(), "[{\"name\":\"waruna\",\"id\":444},{\"name\":\"hinduja\",\"id\":888}]");
     test:assertEquals(personTable.toString(), "[{\"name\":\"riyafa\",\"id\":13," +
-        "\"address\":{\"country\":{\"name\":\"Australia\"},\"city\":\"Canberra\"}},{\"name\":\"gabilan\"," +
-        "\"id\":14,\"address\":{\"country\":{\"name\":\"France\"},\"city\":\"Paris\"}}]");
+        "\"address\":{\"city\":\"Canberra\",\"country\":{\"name\":\"Australia\"}}},{\"name\":\"gabilan\"," +
+        "\"id\":14,\"address\":{\"city\":\"Paris\",\"country\":{\"name\":\"France\"}}}]");
 }
 
 public function testArrays() {

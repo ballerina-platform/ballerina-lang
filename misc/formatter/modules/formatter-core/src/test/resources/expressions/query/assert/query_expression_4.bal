@@ -18,8 +18,7 @@ public function main() {
                                     // When the `where` condition evaluates to false, the current iteration is skipped.
                                     where student.gpa >= 2.0
                                     // The `let` clause binds the variables.
-                                    let string degreeName = "Bachelor of Medicine", int graduationYear = 
-                                    calGraduationYear(student.intakeYear)
+                                    let string degreeName = "Bachelor of Medicine", int graduationYear = calGraduationYear(student.intakeYear)
                                     // The `limit` clause limits the number of output items.
                                     limit 2
                                     // The `select` clause is evaluated for each iteration.

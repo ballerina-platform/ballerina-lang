@@ -27,6 +27,7 @@ import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
+import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -74,8 +75,7 @@ public class BallerinaTomlTests {
         List<Map<String, Object>> platformDependencies = platform.dependencies();
         Assert.assertEquals(platformDependencies.size(), 2);
         for (Map<String, Object> library : platformDependencies) {
-            Assert.assertTrue(library.get("path").equals(
-                    System.getProperty("user.dir") + "/src/test/resources/dummy-jars/toml4j.txt")
+            Assert.assertTrue(library.get("path").equals("../dummy-jars/toml4j.txt")
                                       || library.get("path").equals("../dummy-jars/swagger.txt"));
             Assert.assertTrue(library.get("artifactId").equals("toml4j")
                                       || library.get("artifactId").equals("swagger"));
@@ -308,8 +308,9 @@ public class BallerinaTomlTests {
     }
 
     private PackageManifest getPackageManifest(Path ballerinaTomlPath, Path dependenciesTomlPath) throws IOException {
-        String ballerinaTomlContent = Files.readString(ballerinaTomlPath);
-        ballerinaTomlContent = ballerinaTomlContent.replace("<USER_DIR>", System.getProperty("user.dir"));
+        String ballerinaTomlContent = Files.readString(ballerinaTomlPath, Charset.defaultCharset());
+        Path absLibPath = Paths.get(System.getProperty("user.dir")).resolve("src/test/resources/dummy-jars/toml4j.txt");
+        ballerinaTomlContent = ballerinaTomlContent.replace("<ABS_LIB_PATH>", absLibPath.toString());
         String dependenciesTomlContent = Files.readString(dependenciesTomlPath);
 
         TomlDocument ballerinaToml = TomlDocument.from(ProjectConstants.BALLERINA_TOML, ballerinaTomlContent);

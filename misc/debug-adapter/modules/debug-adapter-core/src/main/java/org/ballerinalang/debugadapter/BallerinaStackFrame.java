@@ -71,7 +71,7 @@ public class BallerinaStackFrame {
      */
     public Optional<StackFrame> getAsDAPStackFrame() {
         dapStackFrame = Objects.requireNonNullElse(dapStackFrame, computeDapStackFrame());
-        return Optional.ofNullable(dapStackFrame);
+        return Optional.of(dapStackFrame);
     }
 
     private StackFrame computeDapStackFrame() {

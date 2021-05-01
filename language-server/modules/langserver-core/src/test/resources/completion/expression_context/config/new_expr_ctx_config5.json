@@ -424,14 +424,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "Q",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -464,19 +456,22 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "obj1",
-      "kind": "Variable",
-      "detail": "module1:TestClass1",
-      "sortText": "C",
-      "insertText": "obj1",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
+      "label": "TestObject2",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "L",
+      "insertText": "TestObject2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -488,11 +483,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject2",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "L",
-      "insertText": "TestObject2",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -510,14 +505,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "M",
-      "insertText": "StrandData",
+      "label": "obj1",
+      "kind": "Variable",
+      "detail": "module1:TestClass1",
+      "sortText": "C",
+      "insertText": "obj1",
       "insertTextFormat": "Snippet"
     },
     {
