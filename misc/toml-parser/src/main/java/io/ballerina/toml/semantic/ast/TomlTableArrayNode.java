@@ -20,6 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.ArrayList;
@@ -33,12 +34,13 @@ import java.util.Set;
  */
 public class TomlTableArrayNode extends TopLevelNode {
     private final List<TomlTableNode> children;
-    public TomlTableArrayNode(TomlKeyNode key, TomlNodeLocation location) {
-        super(key, TomlType.TABLE_ARRAY, location);
+    public TomlTableArrayNode(DocumentNode documentNode, TomlKeyNode key, TomlNodeLocation location) {
+        super(documentNode, key, TomlType.TABLE_ARRAY, location);
         this.children = new ArrayList<>();
     }
-    public TomlTableArrayNode(TomlKeyNode key, TomlNodeLocation location, List<TomlTableNode> children) {
-        super(key, TomlType.TABLE_ARRAY, location);
+    public TomlTableArrayNode(DocumentNode documentNode, TomlKeyNode key, TomlNodeLocation location,
+                              List<TomlTableNode> children) {
+        super(documentNode, key, TomlType.TABLE_ARRAY, location);
         this.children = children;
     }
 
