@@ -21,7 +21,7 @@ import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.constants.RuntimeConstants;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.internal.TypeConverter;
-import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.ArrayValueImpl;
@@ -150,7 +150,7 @@ public class RuntimeUtils {
         }
     }
 
-    public static void handleDiagnosticErrors(DiagnosticLog diagnosticLog) {
+    public static void handleDiagnosticErrors(RuntimeDiagnosticLog diagnosticLog) {
         diagnosticLog.getDiagnosticList().forEach(diagnostic -> {
             errStream.println(diagnostic.toString());
         });

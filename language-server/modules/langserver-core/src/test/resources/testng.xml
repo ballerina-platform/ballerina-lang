@@ -49,6 +49,7 @@ under the License.
             <package name="org.ballerinalang.langserver.common.utils.*" />
             <package name="org.ballerinalang.langserver.packages.*" />
             <package name="org.ballerinalang.langserver.stnode.*" />
+            <package name="org.ballerinalang.langserver.execpositions.*" />
         </packages>
         <classes>
             <class name="org.ballerinalang.langserver.workspace.TestWorkspaceManager" />

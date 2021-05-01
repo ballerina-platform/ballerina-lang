@@ -1723,11 +1723,13 @@ public class JvmTypeGen {
         mv.visitTypeInsn(NEW, STREAM_TYPE_IMPL);
         mv.visitInsn(DUP);
 
-        // Load the constraint type
+        // Load constraint type and completion type
         loadType(mv, bType.constraint);
+        loadType(mv, bType.completionType);
 
         // invoke the constructor
-        mv.visitMethodInsn(INVOKESPECIAL, STREAM_TYPE_IMPL, JVM_INIT_METHOD, String.format("(L%s;)V", TYPE), false);
+        mv.visitMethodInsn(INVOKESPECIAL, STREAM_TYPE_IMPL, JVM_INIT_METHOD,
+                String.format("(L%s;L%s;)V", TYPE, TYPE), false);
     }
 
     /**
@@ -1969,7 +1971,9 @@ public class JvmTypeGen {
      * @return name of the field that holds the type instance
      */
     private static String getTypeFieldName(String typeName) {
-
+        if (typeName.isEmpty()) {
+            throw new AssertionError("Could not resolve the field for type");
+        }
         return String.format("$type$%s", typeName);
     }
 

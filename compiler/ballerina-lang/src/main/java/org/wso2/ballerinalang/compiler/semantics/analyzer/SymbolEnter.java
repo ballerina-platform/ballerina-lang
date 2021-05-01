@@ -401,11 +401,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define error details.
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
-        // Define type def members (if any)
-        defineMembers(typeAndClassDefs, pkgEnv);
-
         // Add distinct type information
         defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
+
+        // Define type def members (if any)
+        defineMembers(typeAndClassDefs, pkgEnv);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
@@ -816,7 +816,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
                                                                             annotationNode.getAttachPoints(),
                                                                             annotName, env.enclPkg.symbol.pkgID, null,
-                                                                            env.scope.owner, annotationNode.pos,
+                                                                            env.scope.owner, annotationNode.name.pos,
                                                                             getOrigin(annotName));
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
@@ -1061,8 +1061,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         Name prefix = names.fromIdNode(xmlnsNode.prefix);
+        Location nsSymbolPos = prefix.value.isEmpty() ? xmlnsNode.pos : xmlnsNode.prefix.pos;
         BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(prefix, nsURI, env.enclPkg.symbol.pkgID, env.scope.owner,
-                                                             xmlnsNode.pos, getOrigin(prefix));
+                                                             nsSymbolPos, getOrigin(prefix));
         xmlnsNode.symbol = xmlnsSymbol;
 
         // First check for package-imports with the same alias.
