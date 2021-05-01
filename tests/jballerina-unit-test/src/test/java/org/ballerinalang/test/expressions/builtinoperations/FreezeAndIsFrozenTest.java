@@ -15,7 +15,7 @@
  * under the License.
  */
 
-package org.ballerinalang.test.expressions.builtinfunctions;
+package org.ballerinalang.test.expressions.builtinoperations;
 
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BByte;
@@ -332,15 +332,15 @@ public class FreezeAndIsFrozenTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table}InvalidUpdate message=Failed to add " +
-                    "data to the table: modification not allowed on readonly value.*", enabled = false)
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table}InvalidUpdate " +
+                    "\\{\"message\":\"modification not allowed on readonly value\"}.*")
     public void testFrozenTableAddition() {
         BRunUtil.invoke(result, "testFrozenTableAddition", new BValue[0]);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table}InvalidUpdate message=Failed to " +
-                    "remove data from the table: modification not allowed on readonly value.*", enabled = false)
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.table}InvalidUpdate " +
+                    "\\{\"message\":\"modification not allowed on readonly value\"}.*")
     public void testFrozenTableRemoval() {
         BRunUtil.invoke(result, "testFrozenTableRemoval", new BValue[0]);
     }
