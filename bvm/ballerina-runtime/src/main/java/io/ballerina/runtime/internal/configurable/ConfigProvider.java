@@ -58,4 +58,6 @@ public interface ConfigProvider {
 
     Optional<BXml> getAsXmlAndMark(Module module, VariableKey key);
 
+    void complete();
+
 }

@@ -30,7 +30,14 @@ public class CliConstants {
     static final String CLI_ARG_REGEX = "(?<!\\\\)=";
 
     static final String CONFIGURATION_NOT_SUPPORTED_FOR_CLI = "value for configurable variable '%s' with type " +
-            "'%s' is not supported as a cli arg";
+            "'%s' is not supported as a command line argument";
+
+    static final String CONFIG_CLI_VARIABLE_AMBIGUITY = "configurable value for variable '%s' clashes with variable " +
+            "'%s'. Please provide the command line argument as '[%s]'";
+
+    static final String CONFIG_CLI_ARG_AMBIGUITY = "configurable value for variable '%s' clashes with multiple " +
+            "command line arguments %s";
+    static final String UNUSED_CLI_ARGS = "unused command line arguments found %s";
 
     private CliConstants() {
     }
