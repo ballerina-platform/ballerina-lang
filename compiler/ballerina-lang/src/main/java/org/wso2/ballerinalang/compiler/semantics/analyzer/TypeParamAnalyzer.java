@@ -763,15 +763,16 @@ public class TypeParamAnalyzer {
         boolean hasDifferentType = false;
         Set<BType> constituentTypes = intersectionType.getConstituentTypes();
 
-        LinkedHashSet<BType> boundTypes = new LinkedHashSet<>(constituentTypes.size());
+        BType matchingBoundNonReadOnlyType = symTable.semanticError;
+
         for (BType type : constituentTypes) {
             if (type == symTable.readonlyType) {
                 continue;
             }
-            BType matchingBoundType = getMatchingBoundType(type, env, resolvedTypes);
-            boundTypes.add(matchingBoundType);
 
-            if (!hasDifferentType && type != matchingBoundType) {
+            matchingBoundNonReadOnlyType = getMatchingBoundType(type, env, resolvedTypes);
+
+            if (!hasDifferentType && type != matchingBoundNonReadOnlyType) {
                 hasDifferentType = true;
             }
         }
@@ -780,27 +781,19 @@ public class TypeParamAnalyzer {
             return intersectionType;
         }
 
-        SelectivelyImmutableReferenceType nonReadOnlyType;
+        if (types.isInherentlyImmutableType(matchingBoundNonReadOnlyType) ||
+                Symbols.isFlagOn(matchingBoundNonReadOnlyType.flags, Flags.READONLY)) {
+            return matchingBoundNonReadOnlyType;
+        }
 
-        if (boundTypes.size() == 1) {
-            BType type = boundTypes.iterator().next();
-            if (types.isInherentlyImmutableType(type) || Symbols.isFlagOn(type.flags, Flags.READONLY)) {
-                return type;
-            }
-
-            if (!types.isSelectivelyImmutableType(type)) {
-                return symTable.semanticError;
-            }
-
-            nonReadOnlyType = (SelectivelyImmutableReferenceType) type;
-        } else {
-            nonReadOnlyType = BUnionType.create(null, boundTypes);
+        if (!types.isSelectivelyImmutableType(matchingBoundNonReadOnlyType)) {
+            return symTable.semanticError;
         }
 
         BIntersectionType boundIntersectionType =
                 ImmutableTypeCloner.getImmutableIntersectionType(intersectionType.tsymbol.pos, types,
-                        nonReadOnlyType, env, symTable, anonymousModelHelper, names,
-                        new HashSet<>());
+                        (SelectivelyImmutableReferenceType) matchingBoundNonReadOnlyType, env, symTable,
+                        anonymousModelHelper, names, new HashSet<>());
 
         return boundIntersectionType.effectiveType;
     }

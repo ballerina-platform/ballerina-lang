@@ -133,7 +133,8 @@ public class TypeParamTest {
         return new Object[]{
                 "test-src/type-param/type_param_resolution_with_exprs_one.bal",
                 "test-src/type-param/type_param_resolution_with_exprs_two.bal",
-                "test-src/type-param/type_param_resolution_with_exprs_three.bal"
+                "test-src/type-param/type_param_resolution_with_exprs_three.bal",
+                "test-src/type-param/type_param_resolution_with_exprs_four.bal"
         };
     }
 }
