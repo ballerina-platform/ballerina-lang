@@ -440,7 +440,8 @@ public class TomlProviderNegativeTest {
                 "warning: [UnusedTomlParts.toml:(19:1,19:20)] unused configuration value 'undefined_Module" +
                         ".undefinedVar4'",
                 "warning: [UnusedTomlParts.toml:(21:1,22:20)] unused configuration value 'undefined_Table'",
-                "warning: [UnusedTomlParts.toml:(22:1,22:20)] unused configuration value 'undefined_Table.undefinedVar5'"
+                "warning: [UnusedTomlParts.toml:(22:1,22:20)] unused configuration value 'undefined_Table" +
+                        ".undefinedVar5'"
         };
         for (int i = 0; i < warnings.length; i++) {
             Assert.assertEquals(diagnosticLog.getDiagnosticList().get(i).toString(), warnings[i]);
