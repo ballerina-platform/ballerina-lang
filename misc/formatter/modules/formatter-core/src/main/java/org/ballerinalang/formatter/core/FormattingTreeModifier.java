@@ -1659,12 +1659,12 @@ public class FormattingTreeModifier extends TreeModifier {
         Token minusToken = markdownParameterDocumentationLineNode.minusToken();
         NodeList<Node> documentElements = markdownParameterDocumentationLineNode.documentElements();
 
-        if (parameterName == null && minusToken == null && documentElements.isEmpty()) {
+        if (parameterName.isMissing() && minusToken.isMissing() && documentElements.isEmpty()) {
             // handle a scenario when the plus token is the last token in the documentation line
             plusToken = formatToken(plusToken, env.trailingWS, env.trailingNL);
         } else {
             plusToken = formatToken(plusToken, 1, 0);
-            if (minusToken == null && documentElements.isEmpty()) {
+            if (minusToken.isMissing() && documentElements.isEmpty()) {
                 // handle a scenario when the parameter name is the last token in the documentation line
                 parameterName = formatToken(parameterName, env.trailingWS, env.trailingNL);
             } else {
@@ -3913,12 +3913,13 @@ public class FormattingTreeModifier extends TreeModifier {
             prevMinutiae = minutiae;
         }
 
-        if (consecutiveNewlines > 0 && !env.preserveIndentation) {
+        if (consecutiveNewlines > 0 && !env.preserveIndentation && !token.isMissing()) {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
         MinutiaeList newLeadingMinutiaeList = NodeFactory.createMinutiaeList(leadingMinutiae);
         preserveIndentation(false);
+        env.hasPreservedNewline = false;
         return newLeadingMinutiaeList;
     }
 
@@ -3961,9 +3962,10 @@ public class FormattingTreeModifier extends TreeModifier {
         List<Minutiae> trailingMinutiae = new ArrayList<>();
         Minutiae prevMinutiae = null;
 
-        // If the token is a missing token and if the previous token has trailing whitespaces,
+        // If the token is a missing token and if the previous token has trailing whitespaces or new lines,
         // new whitespaces are not added.
-        if (env.trailingWS > 0 && !(token.isMissing() && env.prevTokensTrailingWS > 0)) {
+        if (env.trailingWS > 0 && !(token.isMissing() && (env.prevTokensTrailingWS > 0 ||
+                env.prevTokensTrailingNL > 0))) {
             addWhitespace(env.trailingWS, trailingMinutiae);
         }
 
@@ -4000,9 +4002,10 @@ public class FormattingTreeModifier extends TreeModifier {
             prevMinutiae = minutiae;
         }
 
-        if (consecutiveNewlines == 0 && env.trailingNL > 0 && !token.isMissing()) {
+        if (consecutiveNewlines == 0 && env.trailingNL > 0 && !token.isMissing() && !env.hasPreservedNewline) {
             trailingMinutiae.add(getNewline());
         }
+        env.prevTokensTrailingNL = consecutiveNewlines;
         MinutiaeList newTrailingMinutiaeList = NodeFactory.createMinutiaeList(trailingMinutiae);
         return newTrailingMinutiaeList;
     }
