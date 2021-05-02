@@ -51,7 +51,7 @@ public class ConfigResolver {
 
     private final Module rootModule;
 
-    private RuntimeDiagnosticLog diagnosticLog;
+    private final RuntimeDiagnosticLog diagnosticLog;
 
     public ConfigResolver(Module rootModule, Map<Module, VariableKey[]> configVarMap,
                           RuntimeDiagnosticLog diagnosticLog, List<ConfigProvider> supportedConfigProviders) {
@@ -86,10 +86,9 @@ public class ConfigResolver {
             }
         }
         for (ConfigProvider provider : supportedConfigProviders) {
-            try {
-                provider.complete();
-            } catch (ConfigException e) {
-                diagnosticLog.warn(e.getMessage());
+            List<ConfigException> exceptionList = provider.complete();
+            if (exceptionList != null) {
+                exceptionList.forEach(e -> diagnosticLog.warn(e.getErrorCode(), null, e.getArgs()));
             }
         }
         return configValueMap;

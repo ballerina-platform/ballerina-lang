@@ -34,7 +34,9 @@ import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -53,9 +55,9 @@ public class CliProvider implements ConfigProvider {
 
     String[] cliConfigArgs;
 
-    private Map<String, String> cliVarKeyValueMap;
+    private final Map<String, String> cliVarKeyValueMap;
 
-    private Module rootModule;
+    private final Module rootModule;
 
     public CliProvider(Module rootModule, String... cliConfigArgs) {
         this.rootModule = rootModule;
@@ -81,7 +83,8 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
-    public void complete() {
+    public List<ConfigException> complete() {
+        return new ArrayList<>();
     }
 
     @Override

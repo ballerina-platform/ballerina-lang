@@ -59,6 +59,7 @@ import io.ballerina.toml.semantic.ast.TomlValueNode;
 import io.ballerina.toml.semantic.ast.TopLevelNode;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -82,6 +83,7 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_MODULE_STRUCTURE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_REQUIRED_FILED_NOT_PROVIDED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TABLE_KEY__NOT_PROVIDED;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_UNUSED_VALUE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
 
 /**
@@ -112,48 +114,49 @@ public class TomlProvider implements ConfigProvider {
     }
 
     @Override
-    public void complete() {
+    public List<ConfigException> complete() {
         if (tomlNode == null) {
-            return;
+            return new ArrayList<>();
         }
-        String error = validateUnusedNodes(tomlNode);
+        List<ConfigException> exceptionList = validateUnusedNodes(tomlNode, "");
         visitedNodes.clear();
-        if (!error.isEmpty()) {
-                throw new ConfigException("\n" + error);
-        }
+        return exceptionList;
     }
 
-    private String validateUnusedNodes(TomlTableNode baseNode) {
-        StringBuilder errorMessage = new StringBuilder();
+    private List<ConfigException> validateUnusedNodes(TomlTableNode baseNode, String moduleHeader) {
+        List<ConfigException> exceptionList = new ArrayList<>();
         for (Map.Entry<String, TopLevelNode> nodeEntry : baseNode.entries().entrySet()) {
             TomlNode node = nodeEntry.getValue();
             String lineRange = getLineRange(node);
+            String entryKey = nodeEntry.getKey();
             switch (node.kind()) {
                 case KEY_VALUE:
                     if (!visitedNodes.contains(node)) {
-                        errorMessage.append(lineRange).append(String.format(UNDEFINED_VARIABLE,
-                                nodeEntry.getKey()));
+                        exceptionList
+                                .add(new ConfigException(CONFIG_TOML_UNUSED_VALUE, lineRange, moduleHeader + entryKey));
                     }
                     break;
                 case TABLE:
-                    validateUnusedTableNodes((TomlTableNode) node, errorMessage, nodeEntry.getKey());
+                    validateUnusedTableNodes((TomlTableNode) node, exceptionList, moduleHeader, entryKey);
                     break;
                 case TABLE_ARRAY:
                     if (!visitedNodes.contains(node)) {
-                        errorMessage.append(lineRange).append(String.format(UNDEFINED_TABLE, nodeEntry.getKey()));
+                        exceptionList.add(new ConfigException(CONFIG_TOML_UNUSED_VALUE, lineRange,
+                                moduleHeader + entryKey));
                     }
                     for (TomlTableNode tableNode : ((TomlTableArrayNode) node).children()) {
-                        errorMessage.append(validateUnusedNodes(tableNode));
+                        exceptionList.addAll(validateUnusedNodes(tableNode, entryKey + "."));
                     }
                     break;
                 default:
             }
 
         }
-        return errorMessage.toString();
+        return exceptionList;
     }
 
-    private void validateUnusedTableNodes(TomlTableNode node, StringBuilder errorMessage, String nodeName) {
+    private void validateUnusedTableNodes(TomlTableNode node, List<ConfigException> exceptionList, String moduleHeader,
+                                          String nodeName) {
         if (!visitedNodes.contains(node)) {
             String lineRange = getLineRange(node);
             boolean containsOrg = moduleInfo.containsOrg(nodeName);
@@ -162,15 +165,15 @@ public class TomlProvider implements ConfigProvider {
                 Module module = moduleInfo.getModuleFromName(nodeName);
                 if (module != null && !invalidRequiredModuleSet.contains(module.toString()) &&
                         !rootModule.getOrg().equals(module.getOrg())) {
-                    errorMessage.append(lineRange).append(String.format(INVALID_MODULE_STRUCTURE,
-                            nodeName, getModuleKey(module))).append("\n");
+                    exceptionList.add(new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE, lineRange, nodeName,
+                            getModuleKey(module)));
                 }
             }
             if (!(containsOrg || containsModule)) {
-                errorMessage.append(lineRange).append(String.format(UNDEFINED_MODULE, nodeName));
+                exceptionList.add(new ConfigException(CONFIG_TOML_UNUSED_VALUE, lineRange, moduleHeader + nodeName));
             }
         }
-        errorMessage.append(validateUnusedNodes(node));
+        exceptionList.addAll(validateUnusedNodes(node, moduleHeader + nodeName + "."));
     }
 
     @Override
@@ -193,10 +196,10 @@ public class TomlProvider implements ConfigProvider {
         TomlTableNode moduleNode = getModuleTomlNode(module, key);
         if (moduleNode != null && moduleNode.entries().containsKey(variableName)) {
             TomlNode tomlValue = moduleNode.entries().get(variableName);
-            TomlNode tomlNode = getTomlNode(tomlValue, key.variable, key.type);
-            int byteValue = ((Long) (((TomlBasicValueNode<?>) tomlNode).getValue())).intValue();
+            TomlNode valueNode = getTomlNode(tomlValue, key.variable, key.type);
+            int byteValue = ((Long) (((TomlBasicValueNode<?>) valueNode).getValue())).intValue();
             if (!isByteLiteral(byteValue)) {
-                throw new ConfigException(RuntimeErrors.CONFIG_INVALID_BYTE_RANGE, getLineRange(tomlNode),
+                throw new ConfigException(RuntimeErrors.CONFIG_INVALID_BYTE_RANGE, getLineRange(valueNode),
                                           key.variable, byteValue);
             }
             return Optional.of(byteValue);
@@ -459,9 +462,8 @@ public class TomlProvider implements ConfigProvider {
         switch (elementType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 if (tomlValue.kind() != TomlType.KEY_VALUE) {
-                    throw new TomlConfigException(String.format(INCOMPATIBLE_TYPE_ERROR_MESSAGE,
-                            variableName, arrayType,
-                                                                getTomlTypeString(tomlValue)), tomlValue);
+                    throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName,
+                            arrayType, getTomlTypeString(tomlValue));
                 }
                 visitedNodes.add(tomlValue);
                 tomlValue = ((TomlKeyValueNode) tomlValue).value();
@@ -578,7 +580,6 @@ public class TomlProvider implements ConfigProvider {
 
     private Object getRecordField(String variableName, String fieldName, TomlNode value, Type fieldType) {
         Object objectValue;
-        String errorPrefix = "field '" + fieldName + "' from ";
         switch (fieldType.getTag()) {
             case TypeTags.ARRAY_TAG:
                 objectValue = retrieveArrayValues(value, variableName,  (ArrayType) fieldType);
@@ -595,7 +596,7 @@ public class TomlProvider implements ConfigProvider {
                 }
                 break;
             default:
-                objectValue = retrievePrimitiveValue(value, variableName, fieldType, errorPrefix);
+                objectValue = retrievePrimitiveValue(value, variableName, fieldType, fieldName);
         }
         return objectValue;
     }
