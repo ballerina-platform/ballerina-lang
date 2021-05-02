@@ -14,8 +14,8 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import ballerina/math;
+import ballerina/lang.'float;
 
 function getStringValueOfPI() returns string {
-    return math:PI.toString();
+    return float:PI.toString();
 }
