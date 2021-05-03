@@ -51,7 +51,7 @@ public class ConfigResolver {
 
     private final Module rootModule;
 
-    private RuntimeDiagnosticLog diagnosticLog;
+    private final RuntimeDiagnosticLog diagnosticLog;
 
     public ConfigResolver(Module rootModule, Map<Module, VariableKey[]> configVarMap,
                           RuntimeDiagnosticLog diagnosticLog, List<ConfigProvider> supportedConfigProviders) {
@@ -84,6 +84,9 @@ public class ConfigResolver {
                 Optional<?> configValue = getConfigValue(module, varKey);
                 configValue.ifPresent(o -> configValueMap.put(varKey, o));
             }
+        }
+        for (ConfigProvider provider : runtimeConfigProviders) {
+            provider.complete(diagnosticLog);
         }
         return configValueMap;
     }

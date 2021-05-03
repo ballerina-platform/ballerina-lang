@@ -3011,6 +3011,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (funcName.equals("mergeJson") && varRefType.tag != TypeTags.MAP) {
             return false;
         }
+        if (funcName.equals("strip") && TypeTags.isXMLTypeTag(varRefType.tag)) {
+            return false;
+        }
 
         dlog.error(iExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE, varRefType);
         resultType = symTable.semanticError;

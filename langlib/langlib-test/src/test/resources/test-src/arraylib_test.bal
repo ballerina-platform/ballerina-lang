@@ -575,7 +575,7 @@ function testShiftOnTupleWithoutValuesForRestParameter() {
     var message = err.detail()["message"];
     string detailMessage = message is error? message.toString() : message.toString();
     assertValueEquality("{ballerina/lang.array}OperationNotSupported", err.message());
-    assertValueEquality("shift() not supported on type 'null'", detailMessage);
+    assertValueEquality("shift() not supported on type '[int,int...]'", detailMessage);
 }
 
 type Student record {|

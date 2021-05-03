@@ -400,8 +400,7 @@ public class BallerinaDocGenerator {
     public static Map<String, ModuleDoc> generateModuleDocMap(io.ballerina.projects.Project project)
             throws IOException {
         Map<String, ModuleDoc> moduleDocMap = new HashMap<>();
-        for (io.ballerina.projects.ModuleId moduleId : project.currentPackage().moduleIds()) {
-            io.ballerina.projects.Module module = project.currentPackage().module(moduleId);
+        for (io.ballerina.projects.Module module : project.currentPackage().modules()) {
             String moduleName;
             // Temporarily append package.md to module.md
             String moduleMdText = project.currentPackage().packageMd().map(d -> d.content()).orElse("");
@@ -411,9 +410,13 @@ public class BallerinaDocGenerator {
                 moduleName = module.moduleName().packageName().toString();
                 modulePath = project.sourceRoot();
             } else {
-                moduleName = module.moduleName().packageName() + "." + module.moduleName().moduleNamePart();
+                moduleName = module.moduleName().toString();
                 modulePath = project.sourceRoot().resolve(ProjectConstants.MODULES_ROOT).resolve(module.moduleName()
                         .moduleNamePart());
+            }
+            // Skip modules that are not exported
+            if (!project.currentPackage().manifest().exportedModules().contains(moduleName)) {
+                continue;
             }
             // find the resources of the package
             List<Path> resources = getResourcePaths(modulePath);
