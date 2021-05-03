@@ -25,6 +25,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.XMLTypeSymbol;
 import org.ballerinalang.model.symbols.SymbolKind;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolTable;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BClassSymbol;
@@ -64,6 +65,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
 
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
@@ -126,8 +128,19 @@ public class TypesFactory {
      * @return {@link TypeSymbol} generated
      */
     public TypeSymbol getTypeDescriptor(BType bType, boolean rawTypeOnly) {
+        return getTypeDescriptor(bType, rawTypeOnly, true);
+    }
+
+    TypeSymbol getTypeDescriptor(BType bType, boolean rawTypeOnly, boolean getOriginalType) {
         if (bType == null || bType.tag == NONE) {
             return null;
+        }
+
+        if (getOriginalType && bType instanceof IntersectableReferenceType) {
+            Optional<BIntersectionType> intersectionType = ((IntersectableReferenceType) bType).getIntersectionType();
+            if (intersectionType.isPresent()) {
+                bType = intersectionType.get();
+            }
         }
 
         ModuleID moduleID = bType.tsymbol == null ? null : new BallerinaModuleID(bType.tsymbol.pkgID);
