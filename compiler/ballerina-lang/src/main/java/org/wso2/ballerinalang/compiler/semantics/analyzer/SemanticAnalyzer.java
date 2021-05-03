@@ -178,6 +178,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
@@ -896,13 +897,18 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BLangType tableConstraintTypeNode = ((BLangTableTypeNode) typeNode).constraint;
                 analyzeTypeNode(tableConstraintTypeNode, env);
                 break;
-            default:
-                if (typeNode.type.tag == TypeTags.UNION) {
-                    List<BLangType> unionMemberTypes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
-                    for (BLangType memType : unionMemberTypes) {
-                        analyzeTypeNode(memType, env);
-                    }
+            case TypeTags.INTERSECTION:
+                List<BLangType> constituentTypeNodes = ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes;
+                for (BLangType constType : constituentTypeNodes) {
+                    analyzeTypeNode(constType, env);
                 }
+                break;
+            case TypeTags.UNION:
+                List<BLangType> unionMemberTypes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
+                for (BLangType memType : unionMemberTypes) {
+                    analyzeTypeNode(memType, env);
+                }
+                break;
         }
     }
 
