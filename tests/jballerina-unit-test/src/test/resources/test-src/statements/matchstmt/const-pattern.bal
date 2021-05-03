@@ -600,6 +600,31 @@ function testConstPattern18() {
     assertEquals("Default", result);
 }
 
+function constPatternWithNegativeLiteral(any x) returns string {
+    match x {
+        -1 => {
+            return "-1";
+        }
+        -12.3 => {
+            return "-12.3";
+        }
+        1 => {
+            return "1";
+        }
+        _ => {
+            return "other";
+        }
+    }
+}
+
+function testConstPatternWithNegativeLiteral() {
+    assertEquals("-1", constPatternWithNegativeLiteral(-1));
+    assertEquals("-12.3", constPatternWithNegativeLiteral(-12.3f));
+    assertEquals("1", constPatternWithNegativeLiteral(1));
+    assertEquals("other", constPatternWithNegativeLiteral(0));
+    assertEquals("other", constPatternWithNegativeLiteral(-123.4));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

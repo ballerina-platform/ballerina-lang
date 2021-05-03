@@ -4080,10 +4080,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private List<String> getKeysToRemove(BLangMappingBindingPattern mappingBindingPattern) {
-        List<String> allKeys = new ArrayList<>(((BRecordType) mappingBindingPattern.type).fields.keySet());
         List<String> keysToRemove = new ArrayList<>();
-        for (int i = 0; i < mappingBindingPattern.fieldBindingPatterns.size(); i++) {
-            keysToRemove.add(allKeys.get(i));
+        List<BLangFieldBindingPattern> fieldBindingPatterns = mappingBindingPattern.fieldBindingPatterns;
+        for (int i = 0; i < fieldBindingPatterns.size(); i++) {
+            keysToRemove.add(fieldBindingPatterns.get(i).fieldName.value);
         }
         return keysToRemove;
     }
