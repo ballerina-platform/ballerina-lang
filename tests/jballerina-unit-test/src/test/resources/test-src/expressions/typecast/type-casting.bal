@@ -465,29 +465,52 @@ function testAnyNullToString() returns string {
     return s;
 }
 
-function testAnyBooleanToIntWithErrors() returns int|error {
+function testAnyBooleanToIntWithErrors() {
     any a = true;
-    return check trap <int> a;
+    var result =  trap <int> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to 'int'");
 }
 
-function testAnyBooleanToFloatWithErrors() returns float|error {
+function testAnyBooleanToFloatWithErrors() {
     any a = true;
-    return check trap <float> a;
+    var result = trap <float> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to 'float'");
 }
 
-function testAnyBooleanToDecimalWithErrors() returns decimal|error {
+function testAnyBooleanToDecimalWithErrors() {
     any a = true;
-    return check trap <decimal> a;
+    var result =  trap <decimal> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to 'decimal'");
 }
 
-function testAnyBooleanToStringWithErrors() returns string|error {
+function testAnyBooleanToStringWithErrors() {
     any a = true;
-    return check trap <string> a;
+    var result =  trap <string> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to 'string'");
 }
 
-function testAnyBooleanToByteWithErrors() returns byte|error {
+function testAnyBooleanToByteWithErrors() {
     any a = true;
-    return check trap <byte> a;
+    var result =  trap <byte> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to 'byte'");
+}
+
+function testAnyBooleanToUnionWithErrors() {
+    any a = true;
+    var result =  trap <int|string> a;
+    assertEquality(result is error , true);
+    error e = <error>result;
+    assertEquality(e.detail()["message"], "incompatible types: 'boolean' cannot be cast to '(int|string)'");
 }
 
 function testSameTypeCast() returns int {

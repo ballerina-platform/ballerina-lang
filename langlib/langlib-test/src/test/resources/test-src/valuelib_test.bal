@@ -1385,6 +1385,11 @@ function testEnsureTypeWithInt2() returns int|error {
     return height;
 }
 
+function testEnsureTypeWithInt3() returns int|error {
+    int married = check p.married;
+    return married;
+}
+
 function testEnsureTypeWithDecimal() returns decimal|error {
     decimal height = check p.height;
     return height;
@@ -1503,6 +1508,7 @@ function testEnsureType() {
     float|string name2 = "Chiran";
     assert(<int>(checkpanic testEnsureTypeWithInt()), 24);
     assert(<int>(checkpanic testEnsureTypeWithInt2()), 178);
+    assert(testEnsureTypeWithInt3() is error, true);
     assert(<decimal>(checkpanic testEnsureTypeWithDecimal()), h);
     assert(<decimal>(checkpanic testEnsureTypeWithDecimal2()), 24);
     assert(<()>(checkpanic testEnsureTypeWithNil()), ());
