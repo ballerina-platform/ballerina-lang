@@ -57,7 +57,7 @@ public class CliProviderNegativeTest {
                 new VariableKey(module, variableName, type, null, true),
         };
         configVarMap.put(module, keys);
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(ROOT_MODULE, args)));
         configResolver.resolveConfigs();
@@ -131,16 +131,16 @@ public class CliProviderNegativeTest {
         };
         configVarMap.put(module, keys);
         String[] args = {"-Cmyorg.mod.x=123", "-Cmyorg.mod.y=apple", "-Cmyorg.mod.z=27.5"};
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(ROOT_MODULE, args)));
         Map<VariableKey, Object> varKeyValueMap =  configResolver.resolveConfigs();
-        Assert.assertEquals(diagnosticLog.getWarningCount(), 1);
+        Assert.assertEquals(diagnosticLog.getWarningCount(), 2);
         Assert.assertEquals(diagnosticLog.getErrorCount(), 0);
         Assert.assertEquals(diagnosticLog.getDiagnosticList().get(0).toString(),
-                            "warning: unused command line arguments found \n" +
-                                    "\tmyorg.mod.z=27.5\n" +
-                                    "\tmyorg.mod.y=apple");
+                            "warning: [myorg.mod.z=27.5] unused command line argument");
+        Assert.assertEquals(diagnosticLog.getDiagnosticList().get(1).toString(),
+                            "warning: [myorg.mod.y=apple] unused command line argument");
         Assert.assertEquals(varKeyValueMap.get(new VariableKey(module, "x")), 123L);
     }
 
@@ -157,7 +157,7 @@ public class CliProviderNegativeTest {
         };
         configVarMap.put(rootModule, keys);
         String[] args = {"-Ca.b.c=123", "-Ca.b.y=apple"};
-        ConfigResolver configResolver = new ConfigResolver(rootModule, configVarMap,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(rootModule, args)));
         Map<VariableKey, Object> varKeyValueMap = configResolver.resolveConfigs();
@@ -180,7 +180,7 @@ public class CliProviderNegativeTest {
         };
         configVarMap.put(ROOT_MODULE, keys);
         String[] args = {"-CrootMod.intVar=123", "-CintVar=321"};
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(ROOT_MODULE, args)));
         configResolver.resolveConfigs();

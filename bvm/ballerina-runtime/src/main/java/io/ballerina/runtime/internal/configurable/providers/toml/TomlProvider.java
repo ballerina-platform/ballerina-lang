@@ -39,6 +39,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
@@ -220,7 +221,7 @@ public class TomlProvider implements ConfigProvider {
     }
 
     @Override
-    public void complete() {
+    public void complete(RuntimeDiagnosticLog diagnosticLog) {
 
     }
 

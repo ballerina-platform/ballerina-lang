@@ -49,13 +49,10 @@ public class ConfigResolver {
 
     private final List<ConfigProvider> runtimeConfigProviders;
 
-    private final Module rootModule;
-
     private RuntimeDiagnosticLog diagnosticLog;
 
-    public ConfigResolver(Module rootModule, Map<Module, VariableKey[]> configVarMap,
-                          RuntimeDiagnosticLog diagnosticLog, List<ConfigProvider> supportedConfigProviders) {
-        this.rootModule = rootModule;
+    public ConfigResolver(Map<Module, VariableKey[]> configVarMap, RuntimeDiagnosticLog diagnosticLog,
+                          List<ConfigProvider> supportedConfigProviders) {
         this.configVarMap = configVarMap;
         this.supportedConfigProviders = supportedConfigProviders;
         this.runtimeConfigProviders = new LinkedList<>();
@@ -86,11 +83,7 @@ public class ConfigResolver {
             }
         }
         for (ConfigProvider provider : runtimeConfigProviders) {
-            try {
-                provider.complete();
-            } catch (ConfigException e) {
-                diagnosticLog.warn(e.getErrorCode(), e.getMessage(), e.getArgs());
-            }
+            provider.complete(diagnosticLog);
         }
         return configValueMap;
     }

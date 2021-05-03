@@ -56,14 +56,14 @@ public class ConfigNegativeTest {
         configVarMap.put(module, varKeys);
         ConfigResolver configResolver;
         if (tomlFilePath != null) {
-            configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
+            configResolver = new ConfigResolver(configVarMap,
                                                 diagnosticLog, List.of(
                                                 new CliProvider(ROOT_MODULE, args),
                                                 new TomlFileProvider(ROOT_MODULE,
                                                         getConfigPathForNegativeCases(tomlFilePath), Set.of(module))));
 
         } else {
-            configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
+            configResolver = new ConfigResolver(configVarMap,
                                                 diagnosticLog, List.of(new CliProvider(ROOT_MODULE, args)));
         }
         configResolver.resolveConfigs();
@@ -148,12 +148,12 @@ public class ConfigNegativeTest {
                         new String[]{
                                 "warning: value for configurable variable 'intArr' with type '" +
                                         "int[]' is not supported as a command line argument",
-                                "warning: unused command line arguments found \n\torg.mod1.intArr=3"}},
+                                "warning: [org.mod1.intArr=3] unused command line argument"}},
                 // not supported both toml type and cli type
                 {new String[]{"-Corg.mod1.myMap=4"}, "MatchedTypeValues.toml",
                         new VariableKey[]{new VariableKey(module, "myMap", PredefinedTypes.TYPE_MAP, null, true)}, 1
                         , 1, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported",
-                        "warning: unused command line arguments found \n\torg.mod1.myMap=4"}}
+                        "warning: [org.mod1.myMap=4] unused command line argument"}}
         };
     }
 }

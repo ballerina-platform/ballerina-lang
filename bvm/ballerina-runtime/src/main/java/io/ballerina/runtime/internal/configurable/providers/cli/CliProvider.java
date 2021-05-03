@@ -33,6 +33,7 @@ import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -202,17 +203,15 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
-    public void complete() {
+    public void complete(RuntimeDiagnosticLog diagnosticLog) {
         Set<String> varKeySet = cliVarKeyValueMap.keySet();
         varKeySet.removeAll(markedCliKeyVariableMap.keySet());
         if (varKeySet.isEmpty()) {
             return;
         }
-        StringBuilder errorString = new StringBuilder();
         for (String key : varKeySet) {
-            errorString.append("\n\t").append(key).append("=").append(cliVarKeyValueMap.get(key));
+            diagnosticLog.warn(CONFIG_CLI_UNUSED_CLI_ARGS, null, key + "=" + cliVarKeyValueMap.get(key));
         }
-        throw new ConfigException(CONFIG_CLI_UNUSED_CLI_ARGS, errorString);
     }
 
     private CliArg getCliArg(Module module, VariableKey variableKey) {
@@ -233,22 +232,31 @@ public class CliProvider implements ConfigProvider {
         rootModuleValue = cliVarKeyValueMap.get(moduleKey);
 
         // Handle Cli args ambiguities.
-        if (rootOrgValue != null) {
-            if (rootModuleValue == null) {
-                return markAndGetCliArg(variableKey.variable, variableKey, rootOrgValue);
-            }
-            StringBuilder errorString = new StringBuilder();
-            errorString.append("[").append(variableKey.variable).append("=").append(rootOrgValue);
-            markedCliKeyVariableMap.put(variableKey.variable, variableKey);
-            markedCliKeyVariableMap.put(moduleKey, variableKey);
-            errorString.append(", ").append(moduleKey).append("=").append(rootModuleValue);
-            errorString.append("]");
-            throw new ConfigException(CONFIG_CLI_ARGS_AMBIGUITY, variableKey.variable, errorString);
+        return checkAmbiguitiesAndGetCliArg(variableKey, key, moduleKey, rootOrgValue, rootModuleValue);
+    }
+
+    private CliArg checkAmbiguitiesAndGetCliArg(VariableKey variableKey, String key, String moduleKey,
+                                                String rootOrgValue, String rootModuleValue) {
+        if (rootOrgValue == null && rootModuleValue == null) {
+            return markAndGetCliArg(key, variableKey, null);
         }
-        if (rootModuleValue != null) {
+        if (rootOrgValue != null && rootModuleValue == null) {
+           return markAndGetCliArg(variableKey.variable, variableKey, rootOrgValue);
+
+        }
+        if (rootOrgValue == null) {
             return markAndGetCliArg(moduleKey, variableKey, rootModuleValue);
         }
-        return markAndGetCliArg(key, variableKey, null);
+
+        // This means multiple command line values are matched for same variable, hence exception.
+        StringBuilder errorString = new StringBuilder();
+        errorString.append("[").append(variableKey.variable).append("=").append(rootOrgValue);
+        markedCliKeyVariableMap.put(variableKey.variable, variableKey);
+        markedCliKeyVariableMap.put(moduleKey, variableKey);
+        errorString.append(", ").append(moduleKey).append("=").append(rootModuleValue);
+        errorString.append("]");
+        throw new ConfigException(CONFIG_CLI_ARGS_AMBIGUITY, variableKey.variable, errorString);
+
     }
 
     private CliArg markAndGetCliArg(String key, VariableKey variableKey, String value) {
