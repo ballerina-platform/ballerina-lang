@@ -788,7 +788,7 @@ function errorConstructorWithClosureTest() {
      err = <error>tempErr;
      errorDetail = err.detail();
      assert("text", <string> checkpanic errorDetail["tempString"]);
-     assert("[\"array\",\"text\"]",  (checkpanic errorDetail["arrayParam"]).toString());
+     assert(<string[]>["array","text"],  <anydata>checkpanic errorDetail["arrayParam"]);
 }
 
 function assert(anydata actual, anydata expected) {
