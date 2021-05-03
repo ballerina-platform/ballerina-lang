@@ -26,6 +26,28 @@ public type Engineer record {|
     int id = 555;
 |};
 
+type Lecturer record {|
+    string name;
+    Department department1;
+    Department department2?;
+    readonly Department department3;
+|};
+
+type Department readonly & record {|
+    string name;
+|};
+
+type Lawyer readonly & record {|
+    string name;
+    Address address1;
+    Address address2?;
+    readonly Address address3;
+|};
+
+type Address record {|
+    string city;
+|};
+
 configurable Engineer & readonly 'engineer = ?;
 configurable configLib:Manager & readonly manager = ?;
 configurable configLib:Teacher & readonly teacher = ?;
@@ -58,7 +80,18 @@ configurable readonly & record {
 configurable table<mod1:Person> & readonly personTable = ?;
 configurable mod1:Person[] & readonly personArray = ?;
 configurable (mod1:Person & readonly)[] & readonly personArray1 = ?;
+
+configurable Lecturer & readonly lecturer = ?;
+configurable Lawyer lawyer = ?;
+configurable mod1:Lecturer & readonly lecturer2 = ?;
+configurable mod1:Lawyer lawyer2 = ?;
+configurable table<Lecturer> & readonly lecturerTable = ?;
+configurable table<Lawyer> & readonly lawyerTable = ?;
+configurable table<mod1:Lecturer> & readonly lecturerTable2 = ?;
+configurable table<mod1:Lawyer> & readonly lawyerTable2 = ?;
+
 type PersonArray mod1:Person;
+
 configurable PersonArray[] & readonly personArray2 = ?;
 
 public function main() {
@@ -68,8 +101,10 @@ public function main() {
     mod2:testRecords();
     mod2:testTables();
     mod2:testArrays();
+    testComplexRecords();
     print("Tests passed");
 }
+
 public function testRecords() {
     test:assertEquals(engineer.name, "waruna");
     test:assertEquals(engineer.id, 555);
@@ -97,6 +132,29 @@ public function testRecords() {
     test:assertEquals(person3.id, 12);
     test:assertEquals(person3.address.city, "Galle");
     test:assertEquals(person3.address.country.name, "SL");
+}
+
+public function testComplexRecords() {
+    test:assertEquals(lecturer.toString(), "{\"name\":\"hinduja\",\"department1\":{\"name\":\"IT\"}," +
+    "\"department2\":{\"name\":\"Finance\"},\"department3\":{\"name\":\"HR\"}}");
+    test:assertEquals(lawyer.toString(), "{\"name\":\"riyafa\",\"address1\":{\"city\":\"Colombo\"}," +
+    "\"address2\":{\"city\":\"Kandy\"},\"address3\":{\"city\":\"Galle\"}}");
+    test:assertEquals(lecturerTable.toString(), "[{\"name\":\"manu\",\"department1\":{\"name\":\"IT\"}," +
+    "\"department2\":{\"name\":\"Sales\"},\"department3\":{\"name\":\"HR\"}}," +
+    "{\"name\":\"waruna\",\"department1\":{\"name\":\"IT\"},\"department3\":{\"name\":\"HR\"}}]");
+    test:assertEquals(lawyerTable.toString(), "[{\"name\":\"gabilan\",\"address1\":{\"city\":\"Colombo\"}," +
+    "\"address2\":{\"city\":\"Kandy\"},\"address3\":{\"city\":\"Galle\"}}," +
+     "{\"name\":\"riyafa\",\"address1\":{\"city\":\"Matara\"},\"address3\":{\"city\":\"Gampaha\"}}]");
+    test:assertEquals(lecturer2.toString(), "{\"name\":\"hinduja\",\"department1\":{\"name\":\"IT\"}," +
+    "\"department2\":{\"name\":\"Finance\"},\"department3\":{\"name\":\"HR\"}}");
+    test:assertEquals(lawyer2.toString(), "{\"name\":\"riyafa\",\"place1\":{\"city\":\"Colombo\"}," +
+    "\"place2\":{\"city\":\"Kandy\"},\"place3\":{\"city\":\"Galle\"}}");
+    test:assertEquals(lecturerTable2.toString(), "[{\"name\":\"manu\",\"department1\":{\"name\":\"IT\"}," +
+    "\"department2\":{\"name\":\"Sales\"},\"department3\":{\"name\":\"HR\"}}," +
+    "{\"name\":\"waruna\",\"department1\":{\"name\":\"IT\"},\"department3\":{\"name\":\"HR\"}}]");
+    test:assertEquals(lawyerTable2.toString(), "[{\"name\":\"gabilan\",\"place1\":{\"city\":\"Colombo\"}," +
+    "\"place2\":{\"city\":\"Kandy\"},\"place3\":{\"city\":\"Galle\"}},{\"name\":\"riyafa\"," +
+    "\"place1\":{\"city\":\"Matara\"},\"place3\":{\"city\":\"Jaffna\"}}]");
 }
 
 public function testTables() {

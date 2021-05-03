@@ -71,24 +71,31 @@ public class BasicWorkerActionsNegativeTest {
                 "top level statement in a worker", 83, 19);
         BAssertUtil.validateError(resultNegative, index++, "invalid worker flush expression for 'w2', there are no " +
                 "worker send statements to 'w2' from 'w1'", 93, 25);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wy'", 144, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wiy'", 155, 28);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wix'", 161, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 162, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 168, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 169, 21);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'lw1'", 174, 22);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wy'", 198, 30);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wy'", 200, 26);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wiy'", 212, 32);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wix'", 218, 30);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 219, 30);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 220, 75);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 228, 30);
-        BAssertUtil.validateError(resultNegative, index++, "unsupported worker reference 'wx'", 229, 25);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 144, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 161, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 162, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 166, 29);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 167, 25);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 168, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 169, 21);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 190, 17);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 198, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 200, 26);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 218, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 219, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 220, 75);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 226, 33);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wix"), 227, 29);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 228, 30);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wx"), 229, 25);
+        BAssertUtil.validateError(resultNegative, index++, formatMessage("wy"), 231, 21);
 
         Assert.assertEquals(resultNegative.getErrorCount(), index, "Worker actions negative test error count");
+    }
 
+    private String formatMessage(String workerName) {
+        return String.format(
+                "multiple references to a named worker '%s' as a variable reference is not allowed", workerName);
     }
 
     @Test

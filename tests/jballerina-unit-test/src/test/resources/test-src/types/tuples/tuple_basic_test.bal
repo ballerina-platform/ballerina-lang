@@ -320,7 +320,7 @@ function testTupleDeclaredWithVar3() {
     assertEquality(321, c1[1]);
     assertEquality(32.56, c1[2]);
     assertEquality(100.4, c1[3]);
-    assertEquality(5, c1[4]);
+    assertEquality(5.0, c1[4]);
     assertEquality("Anne", c1[5]);
 
     var [a2, ...b2] = getData3();

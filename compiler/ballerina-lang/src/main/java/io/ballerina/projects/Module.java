@@ -77,16 +77,8 @@ public class Module {
         return this.moduleContext.srcDocumentIds();
     }
 
-    public Iterable<Document> documents() {
-        return new DocumentIterable(this.srcDocs.values());
-    }
-
     public Collection<DocumentId> testDocumentIds() {
         return this.moduleContext.testSrcDocumentIds();
-    }
-
-    public Iterable<Document> testDocuments() {
-        return new DocumentIterable(this.testSrcDocs.values());
     }
 
     public Document document(DocumentId documentId) {

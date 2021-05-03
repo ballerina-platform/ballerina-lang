@@ -137,6 +137,7 @@ public class FunctionDefinitionTest extends AbstractDeclarationTest {
     public void testIncompleteFunctionBodyStatement() {
         testFile("func-definition/func_def_source_20.bal", "func-definition/func_def_assert_20.json");
     }
+    
     @Test
     public void testOnlyPublicKeyword() {
         testFile("func-definition/func_def_source_21.bal", "func-definition/func_def_assert_21.json");

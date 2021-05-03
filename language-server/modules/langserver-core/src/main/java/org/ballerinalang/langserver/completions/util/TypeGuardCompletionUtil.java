@@ -25,6 +25,7 @@ import io.ballerina.compiler.syntax.tree.ExpressionStatementNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -37,18 +38,19 @@ import org.eclipse.lsp4j.TextEdit;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 /**
  * Dynamic snippet constructs for typeguards.
+ *
+ * @since 2.0.0
  */
-public class TypeGuardUtil {
+public class TypeGuardCompletionUtil {
 
     private static final String TYPE_GUARD_LABEL = "typeguard";
 
-    private TypeGuardUtil() {
+    private TypeGuardCompletionUtil() {
     }
 
     /**
@@ -62,7 +64,13 @@ public class TypeGuardUtil {
     public static LSCompletionItem getTypeGuardDestructedItem(UnionTypeSymbol symbol,
                                                               BallerinaCompletionContext ctx,
                                                               FieldAccessExpressionNode expr) {
-        String symbolName = ((SimpleNameReferenceNode) expr.expression()).name().text();
+        String symbolName;
+        if (expr.expression().kind() == SyntaxKind.FUNCTION_CALL) {
+            symbolName = expr.expression().toSourceCode().trim();
+            //todo: Trim for argument names as well
+        } else {
+            symbolName = ((SimpleNameReferenceNode) expr.expression()).name().text();
+        }
         List<TypeSymbol> members = new ArrayList<>(symbol.memberTypeDescriptors());
         String detail = "Destructure the variable " + symbolName + " with typeguard";
         String snippet = "";
@@ -97,14 +105,14 @@ public class TypeGuardUtil {
      */
     public static List<LSCompletionItem> getTypeGuardDestructedItems(BallerinaCompletionContext ctx,
                                                                      FieldAccessExpressionNode expr,
-                                                                     Optional<TypeSymbol> typeSymbol) {
+                                                                     TypeSymbol typeSymbol) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        if (TypeGuardUtil.isInFunctionBlockBodyContext(expr)) {
-            completionItems.addAll(typeSymbol.stream().filter(tSymbol -> tSymbol.typeKind() == TypeDescKind.UNION).map(
-                    tSymbol -> TypeGuardUtil.getTypeGuardDestructedItem((UnionTypeSymbol) tSymbol,
-                            ctx, expr)).collect(Collectors.toList()));
+        if (TypeGuardCompletionUtil.isInFunctionBlockBodyContext(expr)
+                && typeSymbol.typeKind() == TypeDescKind.UNION
+                && (expr.expression().kind() == SyntaxKind.SIMPLE_NAME_REFERENCE ||
+                expr.expression().kind() == SyntaxKind.FUNCTION_CALL)) {
+            completionItems.add(getTypeGuardDestructedItem((UnionTypeSymbol) typeSymbol, ctx, expr));
         }
-
         return completionItems;
     }
 

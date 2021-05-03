@@ -14,6 +14,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Person",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Person",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Customer",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",

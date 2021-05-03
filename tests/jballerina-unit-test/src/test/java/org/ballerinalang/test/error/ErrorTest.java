@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -367,8 +368,10 @@ public class ErrorTest {
         BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
     }
 
-    @Test
-    public void testErrorDataWithErrorField() {
-        BRunUtil.invoke(errorTestResult, "testErrorDataWithErrorField");
+    @AfterClass
+    public void cleanup() {
+        errorTestResult = null;
+        distinctErrorTestResult = null;
+        negativeDistinctErrorRes = null;
     }
 }
