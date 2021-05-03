@@ -37,6 +37,8 @@ public interface ConfigProvider {
 
     void initialize();
 
+    void complete(RuntimeDiagnosticLog diagnosticLog);
+
     boolean hasConfigs();
 
     Optional<Long> getAsIntAndMark(Module module, VariableKey key);
@@ -58,7 +60,5 @@ public interface ConfigProvider {
     Optional<BTable<BString, Object>> getAsTableAndMark(Module module, VariableKey key);
 
     Optional<BXml> getAsXmlAndMark(Module module, VariableKey key);
-
-    void complete(RuntimeDiagnosticLog diagnosticLog);
 
 }

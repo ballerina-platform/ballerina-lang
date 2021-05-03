@@ -179,8 +179,7 @@ public class LaunchUtils {
         if (envVars.containsKey(CONFIG_FILES_ENV_VARIABLE)) {
             String[] configPathList = envVars.get(CONFIG_FILES_ENV_VARIABLE).split(File.pathSeparator);
             for (String pathString : configPathList) {
-                Path path = Paths.get(pathString);
-                paths.add(path);
+                paths.add(Paths.get(pathString));
             }
         } else if (envVars.containsKey(CONFIG_DATA_ENV_VARIABLE)) {
             return envVars.get(CONFIG_DATA_ENV_VARIABLE);

@@ -58,11 +58,11 @@ public class CliProvider implements ConfigProvider {
 
     private String[] cliConfigArgs;
 
-    private Map<String, String> cliVarKeyValueMap;
+    private final Map<String, String> cliVarKeyValueMap;
 
-    private Map<String, VariableKey> markedCliKeyVariableMap;
+    private final Map<String, VariableKey> markedCliKeyVariableMap;
 
-    private Module rootModule;
+    private final Module rootModule;
 
     public CliProvider(Module rootModule, String... cliConfigArgs) {
         this.rootModule = rootModule;

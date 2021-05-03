@@ -49,7 +49,7 @@ public class ConfigResolver {
 
     private final List<ConfigProvider> runtimeConfigProviders;
 
-    private RuntimeDiagnosticLog diagnosticLog;
+    private final RuntimeDiagnosticLog diagnosticLog;
 
     public ConfigResolver(Map<Module, VariableKey[]> configVarMap, RuntimeDiagnosticLog diagnosticLog,
                           List<ConfigProvider> supportedConfigProviders) {
