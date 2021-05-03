@@ -22,3 +22,49 @@ function testInvalidTypes(map<map<int|error>> a) {
         }
     }
 }
+
+function testInvalidTypesWithJson(json j) returns [int, map<boolean>] {
+    match j {
+        {x: var x, ...var y} => {
+            return [x, y];
+        }
+        {a: var z} => {
+            return [z, {a: z}];
+        }
+    }
+    return [0, {}];
+}
+
+type Person record {|
+    int id;
+    string name;
+    boolean employed;
+|};
+
+function testInvalidTypesWithClosedRecord(Person person) {
+    match person {
+        {id: var x, ...var rest} => {
+            boolean a = x;
+            map<boolean> b = rest;
+        }
+    }
+}
+
+type ClosedRecordWithOneField record {|
+    int i;
+|};
+
+type EmptyClosedRecord record {|
+|};
+
+function testInvalidTypesWithClosedRecordUnion(ClosedRecordWithOneField|EmptyClosedRecord rec) {
+    match rec {
+        {i: var x, ...var rest} => {
+            string m = x;
+            boolean n = rest;
+        }
+        {...var rest} => {
+            string n = rest;
+        }
+    }
+}

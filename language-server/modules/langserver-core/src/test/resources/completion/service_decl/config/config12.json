@@ -18,7 +18,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "test1",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,7 +32,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.test as test1 ;\n"
         }
       ]
     },
@@ -392,14 +392,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "commit",
-      "kind": "Keyword",
-      "detail": "Keyword",
-      "sortText": "P",
-      "insertText": "commit;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
@@ -432,17 +424,14 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()(int)",
-      "kind": "Function",
-      "detail": "Function",
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
       "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
+        "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "C",
-      "insertText": "testFunction()",
+      "sortText": "L",
+      "insertText": "StrandData",
       "insertTextFormat": "Snippet"
     },
     {
@@ -470,14 +459,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
+      "label": "testFunction()(int)",
+      "kind": "Function",
+      "detail": "Function",
       "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
       },
-      "sortText": "L",
-      "insertText": "StrandData",
+      "sortText": "C",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {

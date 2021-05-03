@@ -567,6 +567,24 @@ function testMappingMatchPatternWithWildCard() {
     assertEquals("Not Matched", result);
 }
 
+function mappingMatchPattern26(json j) returns json {
+    match j {
+        {x: var x} => {
+            return x;
+        }
+    }
+    return ();
+}
+
+function testMappingMatchPattern26() {
+    assertEquals("hello", mappingMatchPattern26({x: "hello"}));
+    assertEquals(1, mappingMatchPattern26({y: "hello world", x: 1}));
+    assertEquals((), mappingMatchPattern26({y: "hello world", x: ()}));
+    assertEquals((), mappingMatchPattern26({a: "hello world", x1: 1}));
+    assertEquals((), mappingMatchPattern26({}));
+    assertEquals((), mappingMatchPattern26(1));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

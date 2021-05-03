@@ -89,11 +89,13 @@ public class ConfigurableTest extends BaseTest {
                               new LogLeecher[]{testLog}, testFileLocation + "/testProject");
         testLog.waitForText(5000);
 
-        String errorMsg = "error: configurable variable 'configPkg:invalidMap' with type 'map<(anydata & readonly)> &" +
+        String errorMsg = "error: configurable variable 'invalidMap' with type 'map<(anydata & readonly)> &" +
                 " readonly' is not supported";
+        String errorLocationMsg = "\tat testOrg/configPkg:0.1.0(tests/main_test.bal:19)";
         LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
+        LogLeecher errorLocationLog = new LogLeecher(errorLocationMsg, ERROR);
         bMainInstance.runMain("test", new String[]{"configPkg"}, null, new String[]{},
-                new LogLeecher[]{errorLog}, testFileLocation + "/testErrorProject");
+                              new LogLeecher[]{errorLog, errorLocationLog}, testFileLocation + "/testErrorProject");
         errorLog.waitForText(5000);
     }
 
@@ -217,7 +219,8 @@ public class ConfigurableTest extends BaseTest {
         LogLeecher errorLeecher5 = new LogLeecher("error: [xmlVar=123<?????] configurable variable 'xmlVar' is " +
                                                           "expected to be of type 'xml<((lang.xml:Element|lang" +
                                                           ".xml:Comment|lang.xml:ProcessingInstruction|lang.xml:Text)" +
-                                                          " & readonly)>', but found '123<?????'", ERROR);
+                                                          " & readonly)>', but found '123<?????", ERROR);
+
         bMainInstance.runMain("run", new String[]{"main", "--", "-CintVar=waruna", "-CbyteVar=2200", "-CbooleanVar" +
                 "=true", "-CxmlVar=123<?????", "-CtestOrg.main.floatVar=eee",
                 "-Cmain.decimalVar=24.87"}, null, new String[]{}, new LogLeecher[]{errorLeecher1,
@@ -232,11 +235,12 @@ public class ConfigurableTest extends BaseTest {
 
     @Test
     public void testInvalidDefaultableField() throws BallerinaTestException {
-        String errorMsg = "[Config.toml:(1:1,3:17)] defaultable readonly record field 'name' in configurable variable" +
-                " 'main:employees' is not supported";
-        LogLeecher errorLog = new LogLeecher(errorMsg, ERROR);
+        LogLeecher errorLog = new LogLeecher("error: [Config.toml:(1:1,3:17)] defaultable readonly record field " +
+                                                     "'name' in configurable variable'employees' is not supported",
+                                             ERROR);
+        LogLeecher errorLocationLog = new LogLeecher("\tat testOrg/main:0.1.0(main.bal:25)", ERROR);
         bMainInstance.runMain("run", new String[]{"main"}, null, new String[]{},
-                new LogLeecher[]{errorLog}, testFileLocation + "/invalidDefaultable");
+                new LogLeecher[]{errorLog, errorLocationLog}, testFileLocation + "/invalidDefaultable");
         errorLog.waitForText(5000);
     }
 

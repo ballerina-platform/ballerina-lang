@@ -309,7 +309,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void methodCallEvaluationTest() throws BallerinaTestException {
 
         // 1. object methods
@@ -318,9 +318,8 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // 2. lang library methods
 
         // array
-        // Todo - Enable after semantic API fixes (https://github.com/ballerina-platform/ballerina-lang/issues/27520)
-        // debugTestRunner.assertExpression(context, ARRAY_VAR + ".length()", "4", "int");
-        // debugTestRunner.assertExpression(context, ARRAY_VAR + ".slice(1,3)", "any[2]", "array");
+        debugTestRunner.assertExpression(context, ARRAY_VAR + ".length()", "4", "int");
+        debugTestRunner.assertExpression(context, ARRAY_VAR + ".slice(1,3)", "any[2]", "array");
 
         // Todo - boolean
         // decimal
@@ -347,8 +346,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
         // Todo - typedesc
 
         // value
-        // Todo - Enable after semantic API fixes (https://github.com/ballerina-platform/ballerina-lang/issues/27520)
-        // debugTestRunner.assertExpression(context, TYPEDESC_VAR + ".toBalString()", "typedesc int", "string");
+        debugTestRunner.assertExpression(context, TYPEDESC_VAR + ".toBalString()", "typedesc int", "string");
 
         // xml
         debugTestRunner.assertExpression(context, XML_VAR + ".getName()", "person", "string");
