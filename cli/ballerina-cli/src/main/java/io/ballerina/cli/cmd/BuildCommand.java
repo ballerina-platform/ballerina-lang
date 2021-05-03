@@ -255,7 +255,7 @@ public class BuildCommand implements BLauncherCmd {
         }
 
         // Skip --jacoco-xml flag if it is set without code coverage
-        if (!project.buildOptions().codeCoverage() && enableJacocoXML == true) {
+        if (!project.buildOptions().codeCoverage() && enableJacocoXML) {
             this.outStream.println("warning: ignoring --jacoco-xml flag since code coverage is not enabled");
         }
 
