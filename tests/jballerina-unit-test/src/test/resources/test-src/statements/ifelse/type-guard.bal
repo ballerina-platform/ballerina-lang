@@ -1487,6 +1487,28 @@ function testMapIntersection() {
     }
 }
 
+function jsonIntersection(json j) returns int {
+    if j is map<int|stream<int>> {
+        map<int> m = j;
+        return m.length();
+    }
+
+    if j is (int|stream<int>|boolean)[] {
+        (int|boolean)[] a = j;
+        return a.length();
+    }
+
+    return -1;
+}
+
+function testJsonIntersection() {
+    assertEquality(-1, jsonIntersection({a: 1, b: 2}));
+    assertEquality(2, jsonIntersection(<map<byte>> {a: 1, b: 2}));
+    assertEquality(-1, jsonIntersection(1));
+    assertEquality(-1, jsonIntersection([1, 2, 3]));
+    assertEquality(4, jsonIntersection(<int[]> [1, 2, 3, 4]));
+}
+
 function assertEquality(anydata expected, anydata actual) {
     if expected == actual {
         return;

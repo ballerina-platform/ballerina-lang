@@ -1531,6 +1531,7 @@ function testEnsureTypeFunction3() returns int|error {
 
 function testEnsureType() {
     decimal h = 178.5;
+    decimal d = 24.0;
     float h1 = 178.5;
     decimal w = 72.5;
     json name = "Chiran";
@@ -1541,7 +1542,7 @@ function testEnsureType() {
     assert(<int>(checkpanic testEnsureTypeWithInt2()), 178);
     assert(<int>(checkpanic testEnsureTypeWithInt3()), 0);
     assert(<decimal>(checkpanic testEnsureTypeWithDecimal()), h);
-    assert(<decimal>(checkpanic testEnsureTypeWithDecimal2()), 24);
+    assert(<decimal>(checkpanic testEnsureTypeWithDecimal2()), d);
     assert(<()>(checkpanic testEnsureTypeWithNil()), ());
     assert( <string>(checkpanic testEnsureTypeWithString()), "Chiran");
     assert(<float>(checkpanic testEnsureTypeWithFloat()), w1);

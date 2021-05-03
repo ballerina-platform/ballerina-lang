@@ -132,6 +132,14 @@ class BIRTestUtils {
             // assert markdown document
             assertMarkdownDocument(actualFunction.doc(), expectedFunction.markdownDocAttachment, constantPoolEntries);
 
+            // assert annotation attachments
+            assertAnnotationAttachments(actualFunction.annotationAttachmentsContent(),
+                                        expectedFunction.annotAttachments, constantPoolEntries);
+
+            // assert return type annotation attachments
+            assertAnnotationAttachments(actualFunction.returnTypeAnnotations(), expectedFunction.returnTypeAnnots,
+                                        constantPoolEntries);
+
             // assert required param count
             Assert.assertEquals(actualFunction.requiredParamCount(), expectedFunction.requiredParams.size());
 
@@ -707,6 +715,22 @@ class BIRTestUtils {
                 break;
             default:
                 Assert.fail(String.format("Unknown constant value type: %s", typeTag.name()));
+        }
+    }
+
+    private static void assertAnnotationAttachments(Bir.AnnotationAttachmentsContent actualAnnots,
+                                                    List<BIRNode.BIRAnnotationAttachment> expAnnots,
+                                                    ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+        Assert.assertEquals(actualAnnots.attachmentsCount(), expAnnots.size());
+
+        for (int i = 0; i < expAnnots.size(); i++) {
+            Bir.AnnotationAttachment actualAnnot = actualAnnots.annotationAttachments().get(i);
+            BIRNode.BIRAnnotationAttachment expAnnot = expAnnots.get(i);
+            Bir.ConstantPoolEntry annotTag = constantPoolEntries.get(actualAnnot.tagReferenceCpIndex());
+
+            assertConstantPoolEntry(annotTag, expAnnot.annotTagRef.value);
+
+            Assert.assertEquals(actualAnnot.attachValuesCount(), expAnnot.annotValues.size());
         }
     }
 

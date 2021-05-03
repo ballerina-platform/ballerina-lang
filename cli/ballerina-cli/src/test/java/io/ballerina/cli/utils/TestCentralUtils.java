@@ -14,6 +14,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 
 /**
  * Test cases to test utilities.
@@ -30,7 +31,7 @@ public class TestCentralUtils extends PowerMockTestCase {
         PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(UTILS_TEST_RESOURCES);
         Settings settings = readSettings();
 
-        Assert.assertEquals(CentralUtils.getAccessTokenOfCLI(settings), "273cc9f6-c333-36ab-aa2q-f08e9513ff5y");
+        Assert.assertEquals(getAccessTokenOfCLI(settings), "273cc9f6-c333-36ab-aa2q-f08e9513ff5y");
     }
 
     @Test(description = "Test read settings")

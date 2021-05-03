@@ -95,7 +95,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "value2",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -109,7 +109,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
+          "newText": "import ballerina/lang.value as value2 ;\n"
         }
       ]
     },

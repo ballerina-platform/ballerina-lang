@@ -23,6 +23,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import java.util.Arrays;
@@ -118,5 +119,22 @@ public class TypeParamTest {
         BRunUtil.invoke(result, "testIntFloatSimpleArrayMapUnion");
         BRunUtil.invoke(result, "testUnionOfRecordTypes");
         BRunUtil.invoke(result, "testUnionOfSimpleTupleTypes");
+    }
+
+    @Test(description = "Tests for type param resolution with non variable reference expressions. Tests that no " +
+            "unnecessary types are created.", dataProvider = "testFileNames")
+    public void testTypeParamResolutionWithExpression(String fileName) {
+        CompileResult result = BCompileUtil.compile(fileName);
+        BRunUtil.invoke(result, "testTypeParamResolutionWithExpression");
+    }
+
+    @DataProvider(name = "testFileNames")
+    public Object[] testFileNames() {
+        return new Object[]{
+                "test-src/type-param/type_param_resolution_with_exprs_one.bal",
+                "test-src/type-param/type_param_resolution_with_exprs_two.bal",
+                "test-src/type-param/type_param_resolution_with_exprs_three.bal",
+                "test-src/type-param/type_param_resolution_with_exprs_four.bal"
+        };
     }
 }
