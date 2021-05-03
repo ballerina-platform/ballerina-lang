@@ -212,6 +212,7 @@ public class NeverTypeTest {
                 "testNeverWithTrapExpr2",
                 "testValidNeverReturnFuncAssignment",
                 "testValidNeverReturnFuncAssignment2",
+                "testNeverWithAnydata"
         };
     }
 
@@ -291,10 +292,18 @@ public class NeverTypeTest {
         BRunUtil.invoke(neverTypeTestResult, "testNeverSubtyping");
     }
 
-    @Test(description = "Test never type in remote method return type of service object")
-    public void testNeverRuntime() {
+    @Test(dataProvider = "dataToTestNeverRuntime", description = "Test never runtime")
+    public void testNeverRuntime(String functionName) {
         runtimeResult = BCompileUtil.compile("test-src/types/never/never-type-runtime.bal");
-        BRunUtil.invoke(runtimeResult, "testNeverRuntime");
+        BRunUtil.invoke(runtimeResult, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestNeverRuntime() {
+        return new Object[]{
+                "testNeverRuntime",
+                "testNeverWithAnyAndAnydataRuntime"
+        };
     }
 
     @AfterClass

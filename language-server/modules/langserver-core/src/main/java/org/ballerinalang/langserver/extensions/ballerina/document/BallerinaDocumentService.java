@@ -55,4 +55,7 @@ public interface BallerinaDocumentService {
 
     @JsonRequest
     CompletableFuture<SyntaxTreeNodeResponse> syntaxTreeNode(SyntaxTreeNodeRequest params);
+
+    @JsonRequest
+    CompletableFuture<ExecutorPositionsResponse> executorPositions(BallerinaProjectParams params);
 }
