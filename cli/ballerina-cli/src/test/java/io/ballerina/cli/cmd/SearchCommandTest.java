@@ -33,7 +33,7 @@ public class SearchCommandTest extends BaseCommandTest {
 
     @Test(description = "Search without keyword")
     public void testSearchWithoutKeyword() throws IOException {
-        SearchCommand searchCommand = new SearchCommand(printStream, printStream);
+        SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
         new CommandLine(searchCommand).parse();
         searchCommand.execute();
 
@@ -45,7 +45,7 @@ public class SearchCommandTest extends BaseCommandTest {
 
     @Test(description = "Search with too many args")
     public void testPullWithTooManyArgs() throws IOException {
-        SearchCommand searchCommand = new SearchCommand(printStream, printStream);
+        SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
         new CommandLine(searchCommand).parse("wso2", "tests");
         searchCommand.execute();
 
@@ -59,7 +59,7 @@ public class SearchCommandTest extends BaseCommandTest {
     public void testSearchCommandArgAndHelp() throws IOException {
         // Test if no arguments was passed in
         String[] args = { "sample2", "--help" };
-        SearchCommand searchCommand = new SearchCommand(printStream, printStream);
+        SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
         new CommandLine(searchCommand).parse(args);
         searchCommand.execute();
 
@@ -70,7 +70,7 @@ public class SearchCommandTest extends BaseCommandTest {
     public void testSearchCommandWithHelp() throws IOException {
         // Test if no arguments was passed in
         String[] args = { "-h" };
-        SearchCommand searchCommand = new SearchCommand(printStream, printStream);
+        SearchCommand searchCommand = new SearchCommand(printStream, printStream, false);
         new CommandLine(searchCommand).parse(args);
         searchCommand.execute();
 

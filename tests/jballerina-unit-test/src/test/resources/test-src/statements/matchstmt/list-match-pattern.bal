@@ -721,6 +721,25 @@ function testListMatchPatternWithArrayAndAnydataIntersection() {
     assertEquals("other", listMatchPattern28("hello"));
 }
 
+function listMatchPattern29(json j) returns json {
+    match j {
+        [var x] => {
+            return x;
+        }
+    }
+    return ();
+}
+
+function testListMatchPattern29() {
+    assertEquals("hello", listMatchPattern29(["hello"]));
+    assertEquals(1, listMatchPattern29([1]));
+    assertEquals((), listMatchPattern29([()]));
+    assertEquals((), listMatchPattern29({a: "hello world", x1: 1}));
+    assertEquals((), listMatchPattern29([]));
+    assertEquals((), listMatchPattern29([1, 2, 3]));
+    assertEquals((), listMatchPattern29(1));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

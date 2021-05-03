@@ -85,6 +85,9 @@
 
             <!--Statements-->
             <class name="io.ballerina.semantic.api.test.statements.SymbolsInMatchStmtTest" />
+
+            <!--Symbols-->
+            <class name="io.ballerina.semantic.api.test.symbols.FunctionSymbolTest" />
         </classes>
     </test>
 </suite>

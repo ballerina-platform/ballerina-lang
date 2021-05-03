@@ -445,6 +445,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
     private static final ParserRuleContext[] TYPE_DESC_IN_TUPLE_RHS =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA, ParserRuleContext.ELLIPSIS };
 
+    private static final ParserRuleContext[] TUPLE_TYPE_MEMBER_RHS =
+            { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
+
     private static final ParserRuleContext[] LIST_CONSTRUCTOR_MEMBER_END =
             { ParserRuleContext.CLOSE_BRACKET, ParserRuleContext.COMMA };
 
@@ -1392,6 +1395,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case ANNOTATION_REF_RHS:
             case INFER_PARAM_END_OR_PARENTHESIS_END:
             case TYPE_DESC_IN_TUPLE_RHS:
+            case TUPLE_TYPE_MEMBER_RHS:
             case LIST_CONSTRUCTOR_MEMBER_END:
             case NIL_OR_PARENTHESISED_TYPE_DESC_RHS:
             case REMOTE_CALL_OR_ASYNC_SEND_RHS:
@@ -1957,6 +1961,9 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 break;
             case TYPE_DESC_IN_TUPLE_RHS:
                 alternativeRules = TYPE_DESC_IN_TUPLE_RHS;
+                break;
+            case TUPLE_TYPE_MEMBER_RHS:
+                alternativeRules = TUPLE_TYPE_MEMBER_RHS;
                 break;
             case LIST_CONSTRUCTOR_MEMBER_END:
                 alternativeRules = LIST_CONSTRUCTOR_MEMBER_END;
@@ -3096,8 +3103,6 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return getNextRuleForExpr();
             case TUPLE_TYPE_DESC_START:
                 return ParserRuleContext.TYPE_DESC_IN_TUPLE;
-            case TYPE_DESC_IN_TUPLE_RHS:
-                return ParserRuleContext.OPEN_BRACKET;
             case WORKER_NAME_OR_METHOD_NAME:
                 return ParserRuleContext.WORKER_NAME_OR_METHOD_NAME;
             case DEFAULT_WORKER_NAME_IN_ASYNC_SEND:
@@ -5065,6 +5070,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case PATH_SEGMENT_IDENT:
             case BINDING_PATTERN_OR_EXPR_RHS:
             case TYPE_DESCRIPTOR:
+            case NAMED_ARG_BINDING_PATTERN:
                 return SyntaxKind.IDENTIFIER_TOKEN;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -5143,6 +5149,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
                 return SyntaxKind.CLOSE_PAREN_TOKEN;
             case COMMA:
             case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
+            case ERROR_MESSAGE_MATCH_PATTERN_END_COMMA:
                 return SyntaxKind.COMMA_TOKEN;
             case OPEN_BRACE:
             case TRANSACTION_STMT_RHS_OR_TYPE_REF:
@@ -5150,6 +5157,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case OPEN_PARENTHESIS:
             case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
+            case ERROR_CONSTRUCTOR_RHS:
                 return SyntaxKind.OPEN_PAREN_TOKEN;
             case SEMICOLON:
                 return SyntaxKind.SEMICOLON_TOKEN;
@@ -5476,6 +5484,7 @@ public class BallerinaParserErrorHandler extends AbstractParserErrorHandler {
             case SERVICE_DECL_QUALIFIER:
                 return SyntaxKind.SERVICE_KEYWORD;
             default:
+                assert false : "Expected token kind not found";
                 return SyntaxKind.NONE;
         }
     }

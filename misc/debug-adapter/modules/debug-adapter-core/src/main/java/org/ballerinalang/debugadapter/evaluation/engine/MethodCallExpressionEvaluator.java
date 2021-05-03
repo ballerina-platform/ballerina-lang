@@ -22,12 +22,12 @@ import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MethodSymbol;
-import io.ballerina.compiler.api.symbols.ModuleSymbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.FunctionSignatureNode;
 import io.ballerina.compiler.syntax.tree.MethodCallExpressionNode;
+import io.ballerina.projects.Package;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
@@ -46,8 +46,8 @@ import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProc
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_PACKAGE_PREFIX;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.LANG_LIB_VALUE;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getAssociatedLangLibName;
-import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getLangLibDefinition;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getLangLibFunctionDefinition;
+import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getLangLibPackage;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.getQualifiedLangLibClassName;
 import static org.ballerinalang.debugadapter.evaluation.utils.LangLibUtils.loadLangLibMethod;
 
@@ -146,16 +146,16 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
     private Value invokeLangLibMethod(BExpressionValue resultVar) throws EvaluationException {
 
-        FunctionSymbol langLibFunctionDef = null;
+        FunctionDefinitionNode langLibFunctionDef = null;
         GeneratedStaticMethod langLibMethod = null;
 
         // Tries to use the dedicated lang library functions.
         String langLibName = getAssociatedLangLibName(resultVar.getType());
-        Optional<ModuleSymbol> langLibDef = getLangLibDefinition(context, langLibName);
-        if (langLibDef.isPresent()) {
-            Optional<FunctionSymbol> functionDef = getLangLibFunctionDefinition(context, langLibDef.get(), methodName);
+        Optional<Package> langLibPkg = getLangLibPackage(context, langLibName);
+        if (langLibPkg.isPresent()) {
+            Optional<FunctionDefinitionNode> functionDef = getLangLibFunctionDefinition(langLibPkg.get(), methodName);
             if (functionDef.isPresent()) {
-                String langLibCls = getQualifiedLangLibClassName(langLibDef.get(), langLibName);
+                String langLibCls = getQualifiedLangLibClassName(langLibPkg.get(), langLibName);
                 langLibFunctionDef = functionDef.get();
                 langLibMethod = loadLangLibMethod(context, resultVar, langLibCls, methodName);
             }
@@ -163,26 +163,26 @@ public class MethodCallExpressionEvaluator extends Evaluator {
 
         // Tries to use "value" lang library functions.
         if (langLibMethod == null) {
-            Optional<ModuleSymbol> valueLibDef = getLangLibDefinition(context, LANG_LIB_VALUE);
-            if (valueLibDef.isEmpty()) {
+            Optional<Package> valueLibPkg = getLangLibPackage(context, LANG_LIB_VALUE);
+            if (valueLibPkg.isEmpty()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_NOT_FOUND.getString(),
                         LANG_LIB_PACKAGE_PREFIX + langLibName + ", " + LANG_LIB_PACKAGE_PREFIX + LANG_LIB_VALUE));
             }
 
-            Optional<FunctionSymbol> functionDef = getLangLibFunctionDefinition(context, valueLibDef.get(), methodName);
+            Optional<FunctionDefinitionNode> functionDef = getLangLibFunctionDefinition(valueLibPkg.get(), methodName);
             if (functionDef.isEmpty()) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.LANG_LIB_METHOD_NOT_FOUND.
                         getString(), methodName, langLibName));
             }
 
-            String langLibCls = getQualifiedLangLibClassName(valueLibDef.get(), LANG_LIB_VALUE);
+            String langLibCls = getQualifiedLangLibClassName(valueLibPkg.get(), LANG_LIB_VALUE);
             langLibFunctionDef = functionDef.get();
             langLibMethod = loadLangLibMethod(context, resultVar, langLibCls, methodName);
         }
 
         argEvaluators.add(0, new AbstractMap.SimpleEntry<>("", objectExpressionEvaluator));
-        FunctionTypeSymbol functionTypeDesc = langLibFunctionDef.typeDescriptor();
-        Map<String, Value> argValueMap = generateNamedArgs(context, methodName, functionTypeDesc, argEvaluators);
+        FunctionSignatureNode functionSignature = langLibFunctionDef.functionSignature();
+        Map<String, Value> argValueMap = generateNamedArgs(context, methodName, functionSignature, argEvaluators);
         langLibMethod.setNamedArgValues(argValueMap);
         return langLibMethod.invoke();
     }
