@@ -112,6 +112,25 @@ function testRestBindingPatternWithClosedArray() {
     assertEquals(6, listBindingPattern7([1, 2, 3]));
 }
 
+function listBindingPattern8(json j) returns json[] {
+    match j {
+        var [x, ...y] => {
+            y.push(x);
+            return y;
+        }
+    }
+    return [];
+}
+
+function testRestBindingPattern8() {
+    assertEquals(["hello"], listBindingPattern8(["hello"]));
+    assertEquals([1, "hello world"], listBindingPattern8(["hello world", 1]));
+    assertEquals(["world", (), "hello"], listBindingPattern8(["hello", "world", ()]));
+    assertEquals([], listBindingPattern8([]));
+    assertEquals([], listBindingPattern8({}));
+    assertEquals([], listBindingPattern8(1));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

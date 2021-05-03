@@ -16,7 +16,7 @@
 
 function testInvalidTypes(map<map<int|error>> a) {
     match a {
-        {x: var p, ...var oth} if p is anydata => {
+        var {x: p, ...oth} if p is anydata => {
             map<error> m = p;
             map<map<int>> n = oth;
         }
@@ -25,14 +25,24 @@ function testInvalidTypes(map<map<int|error>> a) {
 
 function testInvalidTypesWithJson(json j) returns [int, map<boolean>] {
     match j {
-        {x: var x, ...var y} => {
+        var {x, ...y} => {
             return [x, y];
         }
-        {a: var z} => {
+        var {a: z} => {
             return [z, {a: z}];
         }
     }
     return [0, {}];
+}
+
+type RecOne record {| int a; boolean b; string c; |};
+
+function testInvalidTypesWithEmptyRestPattern(RecOne rec) {
+    match rec {
+        var {a, b, c, ...d} => {
+            int x = d;
+        }
+    }
 }
 
 type Person record {|
@@ -41,10 +51,10 @@ type Person record {|
     boolean employed;
 |};
 
-function testInvalidTypesWithClosedRecord(Person person) {
+function testInvalidTypeWithClosedRecord(Person person) {
     match person {
-        {id: var x, ...var rest} => {
-            boolean a = x;
+        var {id, ...rest} => {
+            boolean a = id;
             map<boolean> b = rest;
         }
     }
@@ -59,11 +69,11 @@ type EmptyClosedRecord record {|
 
 function testInvalidTypesWithClosedRecordUnion(ClosedRecordWithOneField|EmptyClosedRecord rec) {
     match rec {
-        {i: var x, ...var rest} => {
-            string m = x;
+        var {i, ...rest} => {
+            string m = i;
             boolean n = rest;
         }
-        {...var rest} => {
+        var {...rest} => {
             string n = rest;
         }
     }
