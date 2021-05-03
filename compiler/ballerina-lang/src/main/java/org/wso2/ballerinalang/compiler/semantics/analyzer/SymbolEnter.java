@@ -1496,8 +1496,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void invalidateAlreadyDefinedErrorType(BLangTypeDefinition typeDefinition) {
         // We need to invalidate the already defined type as we don't have a way to undefine it.
-        BTypeSymbol alreadyDefinedTypeSymbol =
-                (BTypeSymbol) symResolver.lookupSymbolInMainSpace(env, names.fromString(typeDefinition.name.value));
+        BSymbol alreadyDefinedTypeSymbol =
+                                symResolver.lookupSymbolInMainSpace(env, names.fromString(typeDefinition.name.value));
         if (alreadyDefinedTypeSymbol.type.tag == TypeTags.ERROR) {
             alreadyDefinedTypeSymbol.type = symTable.errorType;
         }
