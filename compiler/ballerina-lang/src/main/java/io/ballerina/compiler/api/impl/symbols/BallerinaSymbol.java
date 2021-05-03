@@ -71,8 +71,8 @@ public class BallerinaSymbol implements Symbol {
         // escaped.
         if (getModule().isPresent()) {
             ModuleID moduleID = getModule().get().id();
-            if (moduleID != null && !moduleID.moduleName().isEmpty() && moduleID.moduleName().startsWith("lang.") &&
-                    !moduleID.orgName().isEmpty() && moduleID.orgName().startsWith("ballerina")) {
+            if (moduleID != null && moduleID.moduleName().startsWith("lang")
+                    && moduleID.orgName().startsWith("ballerina")) {
                 return Optional.ofNullable(this.name);
             }
         }
