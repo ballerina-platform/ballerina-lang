@@ -86,7 +86,8 @@ public class BuildCommand implements BLauncherCmd {
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport, Boolean coverage) {
+                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport, Boolean coverage,
+                        boolean enableJacocoXML) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -95,6 +96,7 @@ public class BuildCommand implements BLauncherCmd {
         this.skipTests = skipTests;
         this.testReport = testReport;
         this.coverage = coverage;
+        this.enableJacocoXML = enableJacocoXML;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
@@ -150,6 +152,9 @@ public class BuildCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private Boolean coverage;
 
+    @CommandLine.Option(names = "--jacoco-xml", description = "enable Jacoco XML generation")
+    private boolean enableJacocoXML;
+
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable " +
             "JAR file(s).")
     private Boolean observabilityIncluded;
@@ -189,6 +194,7 @@ public class BuildCommand implements BLauncherCmd {
             }
             coverage = false;
         }
+
         BuildOptions buildOptions = constructBuildOptions();
 
         boolean isSingleFileBuild = false;
@@ -248,6 +254,11 @@ public class BuildCommand implements BLauncherCmd {
             this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
         }
 
+        // Skip --jacoco-xml flag if it is set without code coverage
+        if (!project.buildOptions().codeCoverage() && enableJacocoXML == true) {
+            this.outStream.println("warning: ignoring --jacoco-xml flag since code coverage is not enabled");
+        }
+
         // Validate Settings.toml file
         try {
             readSettings();
@@ -264,7 +275,7 @@ public class BuildCommand implements BLauncherCmd {
                 .addTask(new CompileTask(outStream, errStream))
 //                .addTask(new CopyResourcesTask()) // merged with CreateJarTask
                 // run tests (projects only)
-                .addTask(new RunTestsTask(outStream, errStream, includes),
+                .addTask(new RunTestsTask(outStream, errStream, includes, enableJacocoXML),
                         project.buildOptions().skipTests() || isSingleFileBuild)
                 // create the BALA if -c provided (build projects only)
                 .addTask(new CreateBalaTask(outStream), isSingleFileBuild || !this.compile)

@@ -106,6 +106,9 @@ public class TestCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--code-coverage", description = "enable code coverage")
     private Boolean coverage;
 
+    @CommandLine.Option(names = "--jacoco-xml", description = "enable Jacoco XML generation")
+    private boolean enableJacocoXML;
+
     @CommandLine.Option(names = "--observability-included", description = "package observability in the executable.")
     private Boolean observabilityIncluded;
 
@@ -179,6 +182,11 @@ public class TestCommand implements BLauncherCmd {
             this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
         }
 
+        // Skip --jacoco-xml flag if it is set without code coverage
+        if (!project.buildOptions().codeCoverage() && enableJacocoXML == true) {
+            this.outStream.println("warning: ignoring --jacoco-xml flag since code coverage is not enabled");
+        }
+
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
                 .addTask(new CleanTargetDirTask(), isSingleFile)   // clean the target directory(projects only)
                 .addTask(new ResolveMavenDependenciesTask(outStream)) // resolve maven dependencies in Ballerina.toml
@@ -186,7 +194,7 @@ public class TestCommand implements BLauncherCmd {
 //                .addTask(new CopyResourcesTask(), listGroups) // merged with CreateJarTask
                 .addTask(new ListTestGroupsTask(outStream, displayWarning), !listGroups) // list available test groups
                 .addTask(new RunTestsTask(outStream, errStream, rerunTests, groupList, disableGroupList,
-                        testList, includes), listGroups)
+                        testList, includes, enableJacocoXML), listGroups)
                 .build();
 
         taskExecutor.executeTasks(project);
