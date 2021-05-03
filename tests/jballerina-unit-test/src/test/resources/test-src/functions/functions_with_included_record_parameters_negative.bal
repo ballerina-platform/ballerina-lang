@@ -186,3 +186,11 @@ function functionWithIncludedRecordParam12(*Options options, int a) {
 function functionWithIncludedRecordParam13(*Options options, int a = 10) {
     string? name = options?.name;
 }
+
+function functionWithIncludedRecordParam14(int a, *Options options, int c = 10) {
+    string? name = options?.name;
+}
+
+function functionWithIncludedRecordParam15(int a, int b = 12, *Options options, int c = 10) {
+    string? name = options?.name;
+}

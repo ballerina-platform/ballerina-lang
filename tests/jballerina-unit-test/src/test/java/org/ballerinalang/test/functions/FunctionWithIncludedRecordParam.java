@@ -75,7 +75,10 @@ public class FunctionWithIncludedRecordParam {
                 "required parameter not allowed after included record parameters", 182, 62);
         BAssertUtil.validateError(result, i++,
                 "defaultable parameter not allowed after included record parameters", 186, 62);
-
+        BAssertUtil.validateError(result, i++,
+                "defaultable parameter not allowed after included record parameters", 190, 69);
+        BAssertUtil.validateError(result, i++,
+                "defaultable parameter not allowed after included record parameters", 194, 81);
         Assert.assertEquals(i, result.getErrorCount());
     }
 
