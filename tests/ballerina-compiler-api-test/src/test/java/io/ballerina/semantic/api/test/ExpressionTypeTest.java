@@ -42,6 +42,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
@@ -323,6 +324,26 @@ public class ExpressionTypeTest {
                 {129, 12, 129, 37, INT},
                 {130, 4, 130, 36, BOOLEAN}
         };
+    }
+
+    @Test
+    public void testExpressionsOfIntersectionTypes() {
+        assertType(135, 4, 135, 21, INTERSECTION);
+        assertType(135, 4, 135, 22, INTERSECTION);
+        assertType(137, 4, 137, 24, INTERSECTION);
+        assertType(137, 4, 137, 23, INTERSECTION);
+        assertType(139, 4, 139, 26, UNION);
+        TypeSymbol t1 = getExprType(139, 4, 139, 27);
+        assertEquals(t1.typeKind(), UNION);
+        assertEquals(t1.signature(), "(Foo & readonly)|int|(string[] & readonly)");
+        assertType(141, 4, 141, 26, UNION);
+        TypeSymbol t2 = getExprType(141, 4, 141, 27);
+        assertEquals(t2.typeKind(), UNION);
+        assertEquals(t2.signature(), "(int[] & readonly)?");
+        assertType(143, 4, 143, 26, UNION);
+        TypeSymbol t3 = getExprType(143, 4, 143, 27);
+        assertEquals(t3.typeKind(), UNION);
+        assertEquals(t3.signature(), "(int[] & readonly)?");
     }
 
     @Test

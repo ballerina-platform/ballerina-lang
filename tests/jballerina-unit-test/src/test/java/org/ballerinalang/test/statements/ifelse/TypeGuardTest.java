@@ -206,6 +206,10 @@ public class TypeGuardTest {
                 "readonly int i; string s; |}'", 456, 22);
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'record {| byte i; |}', found " +
                 "'record {| byte i; boolean b?; |}'", 474, 37);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'map<stream<int>>', found " +
+                "'map<int>'", 480, 30);
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'boolean[]', found '" +
+                "(string|boolean)[]'", 484, 23);
 
         Assert.assertEquals(negativeResult.getErrorCount(), i);
     }
@@ -691,6 +695,11 @@ public class TypeGuardTest {
     @Test
     public void testMapIntersection() {
         BRunUtil.invoke(result, "testMapIntersection");
+    }
+
+    @Test
+    public void testJsonIntersection() {
+        BRunUtil.invoke(result, "testJsonIntersection");
     }
 
     @Test
