@@ -31,44 +31,45 @@ public class ObjectEquivalencyNegativeTest {
     @Test(description = "Test equivalence of objects that are in the same package")
     public void testEquivalenceOfObjectsInSamePackage() {
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-01-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 11);
+        Assert.assertEquals(compileResult.getErrorCount(), 12);
         BAssertUtil.validateError(compileResult, 0,
                                   "incompatible types: 'employee01' cannot be cast to 'person01'", 24, 18);
         BAssertUtil.validateError(compileResult, 1,
                                   "incompatible types: 'employee02' cannot be cast to 'person02'", 51, 18);
-//        BAssertUtil.validateError(compileResult, 2,
-//                "incompatible types: 'employee04' cannot be cast to 'person04'", 108, 18);
         BAssertUtil.validateError(compileResult, 2,
-                                  "incompatible types: 'employee05' cannot be cast to 'person05'", 145, 18);
+                "incompatible types: 'employee04' cannot be cast to 'person04'", 108, 18);
         BAssertUtil.validateError(compileResult, 3,
-                                  "incompatible types: 'employee06' cannot be cast to 'person06'", 175, 18);
+                                  "incompatible types: 'employee05' cannot be cast to 'person05'", 145, 18);
         BAssertUtil.validateError(compileResult, 4,
-                                  "incompatible types: 'employee08' cannot be cast to 'person08'", 284, 18);
+                                  "incompatible types: 'employee06' cannot be cast to 'person06'", 175, 18);
         BAssertUtil.validateError(compileResult, 5,
-                                  "incompatible types: 'employee09' cannot be cast to 'person09'", 341, 18);
+                                  "incompatible types: 'employee08' cannot be cast to 'person08'", 284, 18);
         BAssertUtil.validateError(compileResult, 6,
-                "incompatible types: expected 'ObjWithRemoteMethod', found 'NonClientObj'", 460, 29);
+                                  "incompatible types: 'employee09' cannot be cast to 'person09'", 341, 18);
         BAssertUtil.validateError(compileResult, 7,
-                "incompatible types: expected 'ObjWithRemoteMethod', found 'ClientObjWithoutRemoteMethod'", 465, 29);
+                "incompatible types: expected 'ObjWithRemoteMethod', found 'NonClientObj'", 460, 29);
         BAssertUtil.validateError(compileResult, 8,
+                "incompatible types: expected 'ObjWithRemoteMethod', found 'ClientObjWithoutRemoteMethod'", 465, 29);
+        BAssertUtil.validateError(compileResult, 9,
                 "incompatible types: expected 'ObjWithOnlyRemoteMethod', " +
                         "found 'ClientObjWithoutRemoteMethod'", 470, 33);
-        BAssertUtil.validateError(compileResult, 9,
-                "incompatible types: expected 'ObjWithOnlyRemoteMethod', found 'NonClientObj'", 475, 33);
         BAssertUtil.validateError(compileResult, 10,
+                "incompatible types: expected 'ObjWithOnlyRemoteMethod', found 'NonClientObj'", 475, 33);
+        BAssertUtil.validateError(compileResult, 11,
                 "incompatible types: expected 'NonClientObj', found 'ObjWithRemoteMethod'", 480, 22);
     }
 
-    // TODO: 5/23/19 enabled this after ballerina-lang/issues/15384 is fixed
-    @Test(description = "Test equivalence of objects that are in the same package from a third package",
-          enabled = false)
+    @Test(description = "Test equivalence of objects that are in the same package from a third package")
     public void testEquivalenceOfObjectsInSamePackageFromDifferentPackage() {
+        BCompileUtil.compileAndCacheBala("test-src/object/ObjectProject");
         CompileResult compileResult = BCompileUtil.compile("test-src/object/object-equivalency-02-negative.bal");
 
         Assert.assertEquals(compileResult.getErrorCount(), 2);
         BAssertUtil.validateError(compileResult, 0,
-                "incompatible types: 'org.foo.bar:userBar' cannot be cast to 'org.foo:userFoo'", 11, 23);
+                "incompatible types: 'testorg/objectpkg.org_foo_bar:1.0.0:userBar' cannot be cast to " +
+                        "'testorg/objectpkg.org_foo:1.0.0:userFoo'", 11, 23);
         BAssertUtil.validateError(compileResult, 1,
-                "incompatible types: 'org.foo.bar:BarObj' cannot be cast to 'org.foo:FooObj'", 17, 25);
+                "incompatible types: 'testorg/objectpkg.org_foo_bar:1.0.0:BarObj' cannot be cast to " +
+                        "'testorg/objectpkg.org_foo:1.0.0:FooObj'", 17, 25);
     }
 }
