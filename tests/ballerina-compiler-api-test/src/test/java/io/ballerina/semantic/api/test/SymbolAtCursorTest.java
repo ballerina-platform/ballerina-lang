@@ -191,8 +191,6 @@ public class SymbolAtCursorTest {
         }
     }
 
-    // Note: Need to re-evaluate the quoted identifier types of record fields when they are reserved
-    // keywords.
     @DataProvider(name = "QuotedIdentifierProvider")
     public Object[][]  getQuotedIdentifierPositions() {
         return new Object[][]{
