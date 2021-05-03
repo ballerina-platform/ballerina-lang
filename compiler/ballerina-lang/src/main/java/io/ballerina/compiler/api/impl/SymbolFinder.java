@@ -1163,6 +1163,10 @@ class SymbolFinder extends BaseVisitor {
         lookupNode(tableType.constraint);
         lookupNode(tableType.tableKeySpecifier);
         lookupNode(tableType.tableKeyTypeConstraint);
+
+        if (this.symbolAtCursor == null) {
+            this.symbolAtCursor = tableType.type.type.tsymbol;
+        }
     }
 
     @Override

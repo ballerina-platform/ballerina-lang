@@ -705,7 +705,7 @@ public class TypedescriptorTest {
                 {68, 4, READONLY},
                 {70, 4, ANY},
                 {71, 4, ANYDATA},
-//                {73, 4, TABLE},
+                {73, 4, TABLE},
                 {93, 4, STREAM},
 
         };

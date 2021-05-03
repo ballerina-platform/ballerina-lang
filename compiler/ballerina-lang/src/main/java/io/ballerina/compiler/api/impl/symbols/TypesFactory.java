@@ -328,7 +328,7 @@ public class TypesFactory {
             return false;
         }
 
-        if ((tSymbol.flags & Flags.ANONYMOUS) == Flags.ANONYMOUS) {
+        if (Symbols.isFlagOn(tSymbol.flags, Flags.ANONYMOUS)) {
             return false;
         }
 
