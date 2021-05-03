@@ -203,15 +203,19 @@ function testSlice() returns [xml, xml, xml] {
     return [elem.slice(0, 2), elem.slice(1), 'xml:slice(elem, 1)];
 }
 
-function testXMLReadOnly() {
+function testXMLStrip() {
     xml<'xml:Element> x1 = xml `<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>`;
+    xml x2 = x1.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>");
     xml x21 = x1.cloneReadOnly();
-    xml x2 = x21.strip();
+    x2 = x21.strip();
     assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>");
     x2 = (x1.cloneReadOnly()).strip();
     assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>");
 
     'xml:Element x7 = xml `<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>`;
+    x2 = x7.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
     x21 = x7.cloneReadOnly();
     x2 = x21.strip();
     assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
@@ -223,6 +227,8 @@ function testXMLReadOnly() {
 
     string a = "interpolation";
     xml<'xml:Text> x10 = xml `text1 text2 ${a}`;
+    x2 = x10.strip();
+    assertEquals(x2.toString(), "text1 text2 interpolation");
     x21 = x10.cloneReadOnly();
     x2 = x21.strip();
     assertEquals(x2.toString(), "text1 text2 interpolation");
@@ -230,6 +236,8 @@ function testXMLReadOnly() {
     assertEquals(x2.toString(), "text1 text2 interpolation");
 
     'xml:Text x11 = xml `text1 text2`;
+    x2 = x11.strip();
+    assertEquals(x2.toString(), "text1 text2");
     x21 = x11.cloneReadOnly();
     x2 = x21.strip();
     assertEquals(x2.toString(), "text1 text2");
@@ -237,6 +245,8 @@ function testXMLReadOnly() {
     assertEquals(x2.toString(), "text1 text2");
 
     xml<'xml:Comment> x3 = xml `<!--Comment1--><!--Comment2-->`;
+    x2 = x3.strip();
+    assertEquals(x2.toString(), "");
     x21 = x3.cloneReadOnly();
     x2 = x21.strip();
     assertEquals(x2.toString(), "");
@@ -244,6 +254,8 @@ function testXMLReadOnly() {
     assertEquals(x2.toString(), "");
 
     'xml:Comment x8 = xml `<!--Comment1-->`;
+    x2 = x8.strip();
+    assertEquals(x2.toString(), "");
     x21 = x8.cloneReadOnly();
     x2 = x21.strip();
     assertEquals(x2.toString(), "");
@@ -251,6 +263,8 @@ function testXMLReadOnly() {
     assertEquals(x2.toString(), "");
 
     xml<'xml:ProcessingInstruction> x4 = xml `<?foo?><?fu?>`;
+    x2 = x4.strip();
+    assertEquals(x2.toString(), "");
     x21 = x4.cloneReadOnly();
     x2 = x21.strip();
     assertEquals(x2.toString(), "");
@@ -258,6 +272,8 @@ function testXMLReadOnly() {
     assertEquals(x2.toString(), "");
 
     'xml:ProcessingInstruction x9 = xml `<?foo?>`;
+    x2 = x9.strip();
+    assertEquals(x2.toString(), "");
     x21 = x9.cloneReadOnly();
     x2 = x21.strip();
     assertEquals(x2.toString(), "");
@@ -265,6 +281,8 @@ function testXMLReadOnly() {
     assertEquals(x2.toString(), "");
 
     xml x5 = xml `<foo><bar/><?foo?></foo><?foo?>text1 text2<!--Com1--> <foo><bar/></foo>`;
+    x2 = x5.strip();
+    assertEquals(x2.toString(), "<foo><bar/><?foo?></foo>text1 text2 <foo><bar/></foo>");
     x21 = x5.cloneReadOnly();
     x2 = x21.strip();
     assertEquals(x2.toString(), "<foo><bar/><?foo?></foo>text1 text2 <foo><bar/></foo>");
@@ -348,43 +366,6 @@ function testXMLCycleErrorInner() returns xml {
     'xml:Element fc = <'xml:Element> cat.getChildren().strip()[0];
     fc.setChildren(cat);
     return cat;
-}
-
-function testXMLStrip() {
-    xml<'xml:Element> x1 = xml `<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>`;
-    xml x2 = x1.strip();
-    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 <!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>");
-    'xml:Element x7 = xml `<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>`;
-    x2 = x7.strip();
-    assertEquals(x2.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
-    'xml:Element x6 = <'xml:Element> x7.strip();
-    assertEquals(x6.toString(), "<foo><bar/><?foo?>text1 text2<!--Comment--><bar/>  </foo>");
-
-    string a = "interpolation";
-    xml<'xml:Text> x10 = xml `text1 text2 ${a}`;
-    x2 = x10.strip();
-    assertEquals(x2.toString(), "text1 text2 interpolation");
-    'xml:Text x11 = xml `text1 text2`;
-    x2 = x11.strip();
-    assertEquals(x2.toString(), "text1 text2");
-
-    xml<'xml:Comment> x3 = xml `<!--Comment1--><!--Comment2-->`;
-    x2 = x3.strip();
-    assertEquals(x2.toString(), "");
-    'xml:Comment x8 = xml `<!--Comment1-->`;
-    x2 = x8.strip();
-    assertEquals(x2.toString(), "");
-
-    xml<'xml:ProcessingInstruction> x4 = xml `<?foo?><?fu?>`;
-    x2 = x4.strip();
-    assertEquals(x2.toString(), "");
-    'xml:ProcessingInstruction x9 = xml `<?foo?>`;
-    x2 = x9.strip();
-    assertEquals(x2.toString(), "");
-
-    xml x5 = xml `<foo><!--Comment--></foo>text1 <?foo?>text2<foo><?foo?></foo>text3text4  <foo></foo><!--Comment-->  `;
-    x2 = x5.strip();
-    assertEquals(x2.toString(), "<foo><!--Comment--></foo>text1 text2<foo><?foo?></foo>text3text4  <foo></foo>");
 }
 
 function testXMLCycleInnerNonError() returns xml {

@@ -241,8 +241,8 @@ public class LangLibXMLTest {
     }
 
     @Test
-    public void testXMLReadOnly() {
-        BRunUtil.invoke(compileResult, "testXMLReadOnly");
+    public void testXMLStrip() {
+        BRunUtil.invoke(compileResult, "testXMLStrip");
     }
 
     @Test
