@@ -61,7 +61,7 @@ function testNestedCallsWithAllTraps(int y) {
 
 function validateError(int y, int|error x) {
     if (x is error) {
-        string expMessage = "reason foo " + y.toString();
+        var expMessage = "reason foo " + y.toString();
         if (!(x.message() == expMessage)) {
             panic error("Expected:" + expMessage + ", found: " + x.message());
         }
