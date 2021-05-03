@@ -365,8 +365,10 @@ function testSimpleSelectQueryWithTable() {
         {name: "Amy", id: 1234},
         {name: "John", id: 4567}
     ];
-    var ids = from var { id } in t select {id};
+    var ids = from var {id} in t select {id};
+    table<record {|int id;|}> t2 = ids;
     assertEquality(2, ids.length());
+    assertEquality((table [{"id":1234},{"id":4567}]).toString(), t2.toString());
 }
 
 function assertEquality(anydata expected, anydata actual) {
