@@ -49,3 +49,20 @@ class BB {
     public string a = "Ballerina";
     record {| int i = "ABC"; |} c = {};
 }
+
+function testIntersectionTypeNegative() {
+    record {| int i = "foo"; |} & readonly a1;
+    (record {| int i = "foo"; |} & readonly)[] a2;
+    [record {| int i = "foo"; |} & readonly] a3;
+    (record {| int i = "foo"; |} & readonly)|string a4 = {};
+    map<record {| int i = "foo"; |} & readonly> a5 = {};
+    table<record {| int i = "foo"; |} & readonly> a6;
+    record {| int i = 1; record {| int x = "foo"; |} & readonly k; |}[] a7 = [];
+    record {| int i = 1; (record {| int x = "foo"; |} & readonly)[] j; |}[] a8;
+    [map<record {| int i = "foo"; |} & readonly>, record {| int j = "foo"; |} & readonly...] a9;
+}
+
+type CC record {
+    string a;
+    map<record {| int i = "foo"; |} & readonly> b = {};
+};

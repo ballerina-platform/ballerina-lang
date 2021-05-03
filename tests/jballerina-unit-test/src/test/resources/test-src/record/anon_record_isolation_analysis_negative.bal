@@ -57,3 +57,21 @@ class BB {
     public string a = "Ballerina";
     record {| int i = x; |} c = {};
 }
+
+function testIntersectionTypeNegative() {
+    int j = 9;
+    record {| int i = j; |} & readonly a1;
+    (record {| int i = j; |} & readonly)[] a2;
+    [record {| int i = j; |} & readonly] a3;
+    (record {| int i = j; |} & readonly)|string a4;
+    map<record {| int i = j; |} & readonly> a5;
+    table<record {| int i = j; |} & readonly> a6;
+    record {| int i = 1; record {| int x = j; |} & readonly k; |}[] a7;
+    record {| int i = 1; (record {| int x = j; |} & readonly)[] j; |}[] a8;
+    [map<record {| int i = j; |} & readonly>, record {| int i = j; |} & readonly...] a9;
+}
+
+type CC record {
+    string a;
+    map<record {| int i = x; |} & readonly> b = {};
+};

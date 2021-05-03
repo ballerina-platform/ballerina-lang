@@ -35,7 +35,7 @@ public class AnonymousRecordNegativeTest {
     public void testAnonRecordsNegativeScenarios() {
         CompileResult negativeResult = BCompileUtil.compile(
                 "test-src/record/anon_record_semantic_analysis_negative.bal");
-        Assert.assertEquals(negativeResult.getErrorCount(), 22);
+        Assert.assertEquals(negativeResult.getErrorCount(), 33);
         int index = 0;
 
         validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 18, 23);
@@ -59,14 +59,25 @@ public class AnonymousRecordNegativeTest {
         validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 35, 43);
         validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 38, 42);
         validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 45, 23);
-        validateError(negativeResult, index, "incompatible types: expected 'int', found 'string'", 50, 23);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 50, 23);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 54, 23);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 55, 24);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 56, 24);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 57, 24);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 58, 27);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 59, 29);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 60, 44);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 61, 45);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 62, 28);
+        validateError(negativeResult, index++, "incompatible types: expected 'int', found 'string'", 62, 69);
+        validateError(negativeResult, index, "incompatible types: expected 'int', found 'string'", 67, 27);
     }
 
     @Test(description = "Test record with closure type mutability negative scenarios")
     public void testRecordWithClosureTypeMutabilityNegative() {
         CompileResult compileResult = BCompileUtil.compile(
                 "test-src/record/anon_record_isolation_analysis_negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 28);
+        Assert.assertEquals(compileResult.getErrorCount(), 39);
         int index = 0;
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 20, 23);
@@ -122,7 +133,29 @@ public class AnonymousRecordNegativeTest {
                 "of a record field", 46, 42);
         validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 53, 23);
-        validateError(compileResult, index, "invalid access of mutable storage in the default value " +
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
                 "of a record field", 58, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 63, 23);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 64, 24);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 65, 24);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 66, 24);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 67, 27);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 68, 29);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 69, 44);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 70, 45);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 71, 28);
+        validateError(compileResult, index++, "invalid access of mutable storage in the default value " +
+                "of a record field", 71, 65);
+        validateError(compileResult, index, "invalid access of mutable storage in the default value " +
+                "of a record field", 76, 27);
     }
 }
