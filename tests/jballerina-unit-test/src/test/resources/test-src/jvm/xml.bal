@@ -26,7 +26,7 @@ function testXML() returns [xml, map<string>, (string|error), xml] {
     return [x, x.getAttributes(), x.ns0:b, x/*];
 }
 
-function testFieldBasedAccess() returns [xml, xml, xml, xml, xml, xml, xml, xml] {
+function testXmlNavigation() returns [xml, xml, xml, xml, xml, xml, xml, xml] {
     xml x1 = xml `<name1><fname><foo>1</foo><bar>2</bar></fname><lname1><foo>3</foo><bar>4</bar></lname1></name1>`;
     xml x2 = xml `<name2><fname><foo>5</foo><bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2></name2>`;
     xml x3 = x1 + x2 + xml `<foo>apple</foo>`;

@@ -175,8 +175,8 @@ public class XMLTest {
     }
 
     @Test
-    public void testFieldBasedAccess() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testFieldBasedAccess");
+    public void testXmlNavigation() {
+        BValue[] returns = BRunUtil.invoke(compileResult, "testXmlNavigation");
         Assert.assertEquals(returns[0].stringValue(),
                 "<fname><foo>1</foo><bar>2</bar></fname><lname1><foo>3</foo><bar>4</bar></lname1><fname><foo>5</foo>" +
                         "<bar>6</bar></fname><lname2><foo>7</foo><bar>8</bar></lname2>apple");
