@@ -666,6 +666,36 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "incompatible types: 'string' cannot be cast to 'map'");
     }
 
+    @Test(description = "Test any boolean to int with errors.")
+    public void testAnyBooleanToIntWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToIntWithErrors");
+    }
+
+    @Test(description = "Test any boolean to float with errors.")
+    public void testAnyBooleanToFloatWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToFloatWithErrors");
+    }
+
+    @Test(description = "Test any boolean to decimal with errors.")
+    public void testAnyBooleanToDecimalWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToDecimalWithErrors");
+    }
+
+    @Test(description = "Test any boolean to string with errors.")
+    public void testAnyBooleanToStringWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToStringWithErrors");
+    }
+
+    @Test(description = "Test any boolean to byte with errors.")
+    public void testAnyBooleanToByteWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToByteWithErrors");
+    }
+
+    @Test(description = "Test any boolean to union with errors.")
+    public void testAnyBooleanToUnionWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToUnionWithErrors");
+    }
+
     // TODO:
 /*    @Test
     public void testErrorInForceCasting() {

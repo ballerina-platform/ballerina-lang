@@ -1509,7 +1509,7 @@ function testEnsureType() {
     float|string name2 = "Chiran";
     assert(<int>(checkpanic testEnsureTypeWithInt()), 24);
     assert(<int>(checkpanic testEnsureTypeWithInt2()), 178);
-    assert(<int>(checkpanic testEnsureTypeWithInt3()), 0);
+    assert(testEnsureTypeWithInt3() is error, true);
     assert(<decimal>(checkpanic testEnsureTypeWithDecimal()), h);
     assert(<decimal>(checkpanic testEnsureTypeWithDecimal2()), d);
     assert(<()>(checkpanic testEnsureTypeWithNil()), ());

@@ -206,7 +206,7 @@ public class TypeChecker {
     }
 
     public static DecimalValue anyToDecimal(Object sourceVal) {
-        return TypeConverter.anyToDecimal(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
+        return TypeConverter.anyToDecimalCast(sourceVal, () -> ErrorUtils.createTypeCastError(sourceVal,
                                                                                           TYPE_DECIMAL));
     }
 
