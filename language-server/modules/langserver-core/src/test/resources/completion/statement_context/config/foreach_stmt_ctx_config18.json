@@ -10,7 +10,7 @@
       "kind": "Snippet",
       "detail": "foreach snippet for iterable variable - employeeTab",
       "sortText": "Q",
-      "insertText": "foreach Employee item in employeeTab {\n\t${1:}\n}",
+      "insertText": "foreach Employee item in employeeTab {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

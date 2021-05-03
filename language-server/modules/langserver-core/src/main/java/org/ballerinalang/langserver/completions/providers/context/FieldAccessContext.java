@@ -25,9 +25,9 @@ import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
 import org.ballerinalang.langserver.completions.util.FieldAccessCompletionResolver;
-import org.ballerinalang.langserver.completions.util.ForeachUtil;
+import org.ballerinalang.langserver.completions.util.ForeachCompletionUtil;
 import org.ballerinalang.langserver.completions.util.SortingUtil;
-import org.ballerinalang.langserver.completions.util.TypeGuardUtil;
+import org.ballerinalang.langserver.completions.util.TypeGuardCompletionUtil;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -63,10 +63,11 @@ public abstract class FieldAccessContext<T extends Node> extends AbstractComplet
         //Add typegurad and foreach snippets.
         if (expr.parent().kind() == SyntaxKind.FIELD_ACCESS) {
             Optional<TypeSymbol> typeSymbol = resolver.getTypeSymbol(expr);
-            completionItems.addAll(TypeGuardUtil.getTypeGuardDestructedItems(
-                    ctx, (FieldAccessExpressionNode) expr.parent(), typeSymbol));
-            completionItems.addAll(ForeachUtil.getForeachCompletionItemForIterable(ctx,
-                    (FieldAccessExpressionNode) expr.parent(), typeSymbol));
+            FieldAccessExpressionNode fieldAccessExpr = (FieldAccessExpressionNode) expr.parent();
+            completionItems.addAll(TypeGuardCompletionUtil.getTypeGuardDestructedItems(
+                    ctx, fieldAccessExpr, typeSymbol.get()));
+            completionItems.addAll(ForeachCompletionUtil.getForeachCompletionItemsForIterable(ctx,
+                    fieldAccessExpr, typeSymbol.get()));
         }
         completionItems.addAll(this.getCompletionItemList(symbolList, ctx));
         return completionItems;

@@ -10,7 +10,7 @@
       "kind": "Snippet",
       "detail": "foreach snippet for iterable variable - myTuple",
       "sortText": "Q",
-      "insertText": "foreach string item in myTuple {\n\t${1:}\n}",
+      "insertText": "foreach string item in myTuple {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

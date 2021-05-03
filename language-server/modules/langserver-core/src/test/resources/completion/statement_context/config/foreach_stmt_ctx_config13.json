@@ -10,7 +10,7 @@
       "kind": "Snippet",
       "detail": "foreach snippet for iterable variable - myStr",
       "sortText": "Q",
-      "insertText": "foreach string item in myStr {\n\t${1:}\n}",
+      "insertText": "foreach string item in myStr {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
