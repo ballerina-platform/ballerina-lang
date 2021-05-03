@@ -1896,6 +1896,8 @@ public class TypeChecker {
                     }
                 }
                 return readonlyIntersectionExists;
+            case TypeTags.INTERSECTION_TAG:
+                return isSelectivelyImmutableType(((BIntersectionType) type).getEffectiveType(), unresolvedTypes);
         }
         return false;
     }
