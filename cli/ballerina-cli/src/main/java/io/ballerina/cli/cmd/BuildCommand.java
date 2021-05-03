@@ -168,7 +168,7 @@ public class BuildCommand implements BLauncherCmd {
             description = "list conflicted classes when generating executable")
     private Boolean listConflictedClasses;
 
-    @CommandLine.Option(names = "--show-all-warnings", description = "show warnings of dependencies")
+//    @CommandLine.Option(names = "--show-all-warnings", description = "show warnings of dependencies")
     private Boolean showAllWarnings;
 
     public void execute() {
