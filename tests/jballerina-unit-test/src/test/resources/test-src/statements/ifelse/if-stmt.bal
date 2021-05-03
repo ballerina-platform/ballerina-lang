@@ -127,3 +127,39 @@ function testConditionScope(int b) returns (int) {
     }
     return output;
 }
+
+const ONE = 1;
+
+function testTypeNarrowing(string? s) returns string {
+    int|boolean a = 5;
+    if a == ONE {
+        ONE b = a;
+    } else {
+        int|boolean c = a;
+    }
+
+    if a == 5 {
+        5 b = a;
+    } else {
+        int|boolean c = a;
+    }
+
+    if () == s {
+        () t = s;
+    } else {
+        string u = s;
+    }
+
+    // Narrow type for !=
+    if s != () {
+        string u = s;
+    } else {
+        () t = s;
+    }
+
+    if s == () {
+        return "";
+    } else {
+        return s;
+    }
+}
