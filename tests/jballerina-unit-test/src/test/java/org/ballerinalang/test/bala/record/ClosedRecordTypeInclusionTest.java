@@ -188,6 +188,11 @@ public class ClosedRecordTypeInclusionTest {
         BRunUtil.invoke(compileResult, "testRestTypeOverriding");
     }
 
+    @Test
+    public void testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
+        BRunUtil.invoke(compileResult, "testOutOfOrderFieldOverridingFieldFromTypeInclusion");
+    }
+
     @AfterClass
     public void tearDown() {
         BalaCreator.clearPackageFromRepository("test-src/bala/test_projects/test_project", "testorg", "foo");

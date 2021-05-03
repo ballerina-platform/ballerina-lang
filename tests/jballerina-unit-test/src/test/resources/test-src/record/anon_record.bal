@@ -95,7 +95,7 @@ type Foo record {
 
 public function anonymousRecordWithTypeInclusion() {
     var rec = <record { *Foo; }>{
-        x : 3
+        x: 3
     };
     assertEquality(3, rec.x);
 }
