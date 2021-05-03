@@ -237,7 +237,6 @@ import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1183,7 +1182,7 @@ public class FormattingTreeModifier extends TreeModifier {
             MappingConstructorExpressionNode mappingConstructorExpressionNode) {
         int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
-        if (shouldExpand(mappingConstructorExpressionNode.fields())) {
+        if (shouldExpand(mappingConstructorExpressionNode)) {
             fieldTrailingNL++;
         } else {
             fieldTrailingWS++;
@@ -2345,7 +2344,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
-        if (shouldExpandObjectMembers(objectConstructorExpressionNode.members())) {
+        if (shouldExpand(objectConstructorExpressionNode)) {
             fieldTrailingNL++;
         } else {
             fieldTrailingWS++;
@@ -4156,31 +4155,12 @@ public class FormattingTreeModifier extends TreeModifier {
     /**
      * Check whether a node list needs to be expanded into multiple lines.
      *
-     * @param nodeList node list
+     * @param node node to be expanded
      * @return <code>true</code> If the node list needs to be expanded into multiple lines.
      *         <code>false</code> otherwise
      */
-    private <T extends Node> boolean shouldExpand(NodeList<T> nodeList) {
-        int fieldCount = nodeList.size();
-        if (fieldCount <= 1) {
-            return false;
-        }
-
-        if (fieldCount > 3) {
-            return true;
-        }
-
-        for (Node field : nodeList) {
-            TextRange textRange = field.textRange();
-            if ((textRange.endOffset() - textRange.startOffset()) > 15) {
-                return true;
-            }
-
-            if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())) {
-                return true;
-            }
-        }
-        return false;
+    private boolean shouldExpand(Node node) {
+        return node.toSourceCode().trim().contains(System.lineSeparator());
     }
 
     /**
@@ -4195,31 +4175,41 @@ public class FormattingTreeModifier extends TreeModifier {
             return true;
         }
 
+        if (hasNonWSMinutiae(objectTypeDesc.openBrace().trailingMinutiae())
+                || hasNonWSMinutiae(objectTypeDesc.closeBrace().leadingMinutiae())) {
+            return true;
+        }
+
         NodeList<Node> members = objectTypeDesc.members();
         return shouldExpandObjectMembers(members);
     }
 
-    private boolean shouldExpandObjectMembers(NodeList<Node> members) {
-        int fieldCount = members.size();
-        if (fieldCount > 3) {
+    /**
+     * Check whether an object constructor expression node needs to be expanded in to multiple lines.
+     *
+     * @param objectConstructor Object constructor expression node
+     * @return <code>true</code> If the object constructor expression node needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(ObjectConstructorExpressionNode objectConstructor) {
+        if (hasNonWSMinutiae(objectConstructor.openBraceToken().trailingMinutiae())
+                || hasNonWSMinutiae(objectConstructor.closeBraceToken().leadingMinutiae())) {
             return true;
         }
 
+        NodeList<Node> members = objectConstructor.members();
+        return shouldExpandObjectMembers(members);
+    }
+
+    private boolean shouldExpandObjectMembers(NodeList<Node> members) {
         for (Node member : members) {
-            if (member.kind() == SyntaxKind.METHOD_DECLARATION) {
-                return true;
-            }
-
-            TextRange textRange = member.textRange();
-            if ((textRange.endOffset() - textRange.startOffset()) > 15) {
-                return true;
-            }
-
-            if (hasNonWSMinutiae(member.leadingMinutiae()) || hasNonWSMinutiae(member.trailingMinutiae())) {
+            if (member.kind() == SyntaxKind.METHOD_DECLARATION
+                    || hasNonWSMinutiae(member.leadingMinutiae())
+                    || hasNonWSMinutiae(member.trailingMinutiae())
+                    || member.toSourceCode().contains(System.lineSeparator())) {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -4235,19 +4225,14 @@ public class FormattingTreeModifier extends TreeModifier {
             return true;
         }
 
-        int fieldCount = recordTypeDesc.fields().size();
-        fieldCount += recordTypeDesc.recordRestDescriptor().isPresent() ? 1 : 0;
-        if (fieldCount > 3) {
+        if (hasNonWSMinutiae(recordTypeDesc.bodyStartDelimiter().trailingMinutiae())
+                || hasNonWSMinutiae(recordTypeDesc.bodyEndDelimiter().leadingMinutiae())) {
             return true;
         }
 
         for (Node field : recordTypeDesc.fields()) {
-            TextRange textRange = field.textRange();
-            if ((textRange.endOffset() - textRange.startOffset()) > 15) {
-                return true;
-            }
-
-            if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())) {
+            if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())
+                    || field.toSourceCode().contains(System.lineSeparator())) {
                 return true;
             }
         }

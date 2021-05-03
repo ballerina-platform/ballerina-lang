@@ -1,11 +1,7 @@
 public function foo() {
 
 
-    @someAnnotate  {
-
-
-
-    }
+    @someAnnotate  {  }
 
 
 
