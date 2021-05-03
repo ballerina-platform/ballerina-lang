@@ -656,10 +656,6 @@ public class TypeChecker {
         int sourceTypeTag = sourceType.getTag();
         int targetTypeTag = targetType.getTag();
 
-        if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(sourceType)) {
-            return true;
-        }
-
         // If the source type is neither a record type nor an object type, check `is` type by looking only at the types.
         // Else, since records and objects may have `readonly` or `final` fields, need to use the value also.
         // e.g.,
@@ -1937,15 +1933,24 @@ public class TypeChecker {
     }
 
     private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type) {
+        Set<Type> visitedTypeSet = new HashSet<>();
+        visitedTypeSet.add(type);
+        return checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
+    }
+
+    private static boolean checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(Type type,
+                                                                                   Set<Type> visitedTypeSet) {
         switch (type.getTag()) {
             case TypeTags.NEVER_TAG:
                 return true;
             case TypeTags.RECORD_TYPE_TAG:
                 for (Field field : ((BRecordType) type).getFields().values()) {
                     // skip check for fields with self referencing type and not required fields.
-                    if (SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED) &&
-                            !isSameType(type, field.getFieldType()) &&
-                            checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(field.getFieldType())) {
+                    if ((SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.REQUIRED) ||
+                            !SymbolFlags.isFlagOn(field.getFlags(), SymbolFlags.OPTIONAL)) &&
+                            !visitedTypeSet.contains(field.getFieldType()) &&
+                            checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(field.getFieldType(),
+                                    visitedTypeSet)) {
                         return true;
                     }
                 }
@@ -1954,11 +1959,18 @@ public class TypeChecker {
                 BTupleType tupleType = (BTupleType) type;
                 List<Type> tupleTypes = tupleType.getTupleTypes();
                 for (Type mem : tupleTypes) {
-                    if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(mem)) {
+                    visitedTypeSet.add(mem);
+                    if (checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(mem, visitedTypeSet)) {
                         return true;
                     }
                 }
                 return false;
+            case TypeTags.ARRAY_TAG:
+                BArrayType arrayType = (BArrayType) type;
+                Type elemType = arrayType.getElementType();
+                visitedTypeSet.add(elemType);
+                return arrayType.getState() != ArrayState.OPEN &&
+                        checkIsNeverTypeOrStructureTypeWithARequiredNeverMember(elemType, visitedTypeSet);
             default:
                 return false;
         }
