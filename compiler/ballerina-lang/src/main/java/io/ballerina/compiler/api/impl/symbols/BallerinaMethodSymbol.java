@@ -60,7 +60,7 @@ public class BallerinaMethodSymbol extends BallerinaSymbol implements MethodSymb
 
     @Override
     public Optional<String> getName() {
-        return this.functionSymbol.getName().map(this::escapeReservedKeyword);
+        return this.functionSymbol.getName();
     }
 
     @Override
