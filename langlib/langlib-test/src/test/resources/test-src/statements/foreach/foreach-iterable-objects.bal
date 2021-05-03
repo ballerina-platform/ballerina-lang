@@ -129,6 +129,33 @@ public function testIterableDistinctObjectReturnedByRangeExpression() {
     assert(integers, [1, 2, 3]);
 }
 
+public class MyIterableIterator {
+    *object:Iterable;
+    int i = 0;
+    public function iterator() returns MyIterableIterator {
+        return new;
+    }
+    public function next() returns record {| int value; |}? {
+        if (self.i == 3) {
+            return ();
+        }
+        self.i += 1;
+        return {value: self.i};
+    }
+}
+
+public function testIterableIterator() {
+    int[] intArr = [];
+
+    foreach var i in new MyIterableIterator() {
+        intArr.push(i);
+    }
+
+    assert(intArr[0], 1);
+    assert(intArr[1], 2);
+    assert(intArr[2], 3);
+}
+
 function assert(anydata actual, anydata expected) {
     if (expected != actual) {
         typedesc<anydata> expT = typeof expected;

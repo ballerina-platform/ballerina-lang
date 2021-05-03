@@ -81,6 +81,11 @@ public class ForeachIterableObjectTest {
     }
 
     @Test
+    public void testIterableIterator() {
+        BRunUtil.invoke(program, "testIterableIterator");
+    }
+
+    @Test
     public void testIterableObjectErrors() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'object { public isolated " +
