@@ -154,6 +154,11 @@ public class ListBindingPatternTest {
     }
 
     @Test
+    public void testListBindingPattern22() {
+        BRunUtil.invoke(result, "testListBindingPattern22");
+    }
+
+    @Test
     public void testRestBindingPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListBindingPatternWithRest1");
     }
@@ -186,6 +191,11 @@ public class ListBindingPatternTest {
     @Test
     public void testRestBindingPatternWithClosedArray() {
         BRunUtil.invoke(restMatchPatternResult, "testRestBindingPatternWithClosedArray");
+    }
+
+    @Test
+    public void testRestBindingPattern8() {
+        BRunUtil.invoke(restMatchPatternResult, "testRestBindingPattern8");
     }
 
     @Test
@@ -231,6 +241,28 @@ public class ListBindingPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 176, 9);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
+    }
+
+    @Test
+    public void testNegativeSemantics() {
+        CompileResult resultSemanticsNegative = BCompileUtil.compile("test-src/statements/matchstmt/" +
+                "varbindingpatternmatchpattern/list_binding_pattern_semantics_negative.bal");
+        int i = -1;
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 20, 17);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 21, 18);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'string[]', found " +
+                "'int[]'", 28, 26);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[][]', found '" +
+                "(int|error)[][]'", 29, 27);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                37, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean[]', found " +
+                        "'json[]'", 37, 24);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                40, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean', found 'json'",
+                40, 25);
+        Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 
     @AfterClass
