@@ -33,10 +33,9 @@ import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 
-import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
@@ -83,8 +82,7 @@ public class CliProvider implements ConfigProvider {
     }
 
     @Override
-    public List<ConfigException> complete() {
-        return new ArrayList<>();
+    public void complete(RuntimeDiagnosticLog diagnosticLog) {
     }
 
     @Override

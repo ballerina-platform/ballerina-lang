@@ -24,9 +24,8 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BTable;
 import io.ballerina.runtime.api.values.BXml;
-import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 
-import java.util.List;
 import java.util.Optional;
 
 /**
@@ -38,7 +37,7 @@ public interface ConfigProvider {
 
     void initialize();
 
-    List<ConfigException> complete();
+    void complete(RuntimeDiagnosticLog diagnosticLog);
 
     boolean hasConfigs();
 

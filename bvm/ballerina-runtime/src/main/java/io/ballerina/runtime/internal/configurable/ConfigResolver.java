@@ -85,11 +85,8 @@ public class ConfigResolver {
                 configValue.ifPresent(o -> configValueMap.put(varKey, o));
             }
         }
-        for (ConfigProvider provider : supportedConfigProviders) {
-            List<ConfigException> exceptionList = provider.complete();
-            if (exceptionList != null) {
-                exceptionList.forEach(e -> diagnosticLog.warn(e.getErrorCode(), null, e.getArgs()));
-            }
+        for (ConfigProvider provider : runtimeConfigProviders) {
+            provider.complete(diagnosticLog);
         }
         return configValueMap;
     }

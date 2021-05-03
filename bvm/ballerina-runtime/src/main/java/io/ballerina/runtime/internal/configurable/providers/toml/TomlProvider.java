@@ -39,6 +39,7 @@ import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.types.BIntersectionType;
 import io.ballerina.runtime.internal.types.BTableType;
 import io.ballerina.runtime.internal.util.exceptions.RuntimeErrors;
@@ -60,7 +61,6 @@ import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.tools.text.LineRange;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -116,17 +116,15 @@ public class TomlProvider implements ConfigProvider {
     }
 
     @Override
-    public List<ConfigException> complete() {
+    public void complete(RuntimeDiagnosticLog diagnosticLog) {
         if (tomlNode == null) {
-            return new ArrayList<>();
+            return;
         }
-        List<ConfigException> exceptionList = validateUnusedNodes(tomlNode, "");
+        validateUnusedNodes(tomlNode, "", diagnosticLog);
         visitedNodes.clear();
-        return exceptionList;
     }
 
-    private List<ConfigException> validateUnusedNodes(TomlTableNode baseNode, String moduleHeader) {
-        List<ConfigException> exceptionList = new ArrayList<>();
+    private void validateUnusedNodes(TomlTableNode baseNode, String moduleHeader, RuntimeDiagnosticLog diagnosticLog) {
         for (Map.Entry<String, TopLevelNode> nodeEntry : baseNode.entries().entrySet()) {
             TomlNode node = nodeEntry.getValue();
             String lineRange = getLineRange(node);
@@ -135,30 +133,27 @@ public class TomlProvider implements ConfigProvider {
             switch (node.kind()) {
                 case KEY_VALUE:
                     if (!visitedNodes.contains(node) && !isInvalidNode) {
-                        exceptionList
-                                .add(new ConfigException(CONFIG_TOML_UNUSED_VALUE, lineRange, moduleHeader + entryKey));
+                        diagnosticLog.warn(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + entryKey);
                     }
                     break;
                 case TABLE:
-                    validateUnusedTableNodes((TomlTableNode) node, exceptionList, moduleHeader, entryKey);
+                    validateUnusedTableNodes((TomlTableNode) node, diagnosticLog, moduleHeader, entryKey);
                     break;
                 case TABLE_ARRAY:
                     if (!visitedNodes.contains(node) && !isInvalidNode) {
-                        exceptionList.add(new ConfigException(CONFIG_TOML_UNUSED_VALUE, lineRange,
-                                moduleHeader + entryKey));
+                        diagnosticLog.warn(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + entryKey);
                     }
                     for (TomlTableNode tableNode : ((TomlTableArrayNode) node).children()) {
-                        exceptionList.addAll(validateUnusedNodes(tableNode, entryKey + "."));
+                        validateUnusedNodes(tableNode, entryKey + ".", diagnosticLog);
                     }
                     break;
                 default:
             }
 
         }
-        return exceptionList;
     }
 
-    private void validateUnusedTableNodes(TomlTableNode node, List<ConfigException> exceptionList, String moduleHeader,
+    private void validateUnusedTableNodes(TomlTableNode node, RuntimeDiagnosticLog diagnosticLog, String moduleHeader,
                                           String nodeName) {
         if (!visitedNodes.contains(node)) {
             String lineRange = getLineRange(node);
@@ -168,15 +163,15 @@ public class TomlProvider implements ConfigProvider {
                 Module module = moduleInfo.getModuleFromName(nodeName);
                 if (module != null && !invalidRequiredModuleSet.contains(module.toString()) &&
                         !rootModule.getOrg().equals(module.getOrg())) {
-                    exceptionList.add(new ConfigException(CONFIG_TOML_INVALID_MODULE_STRUCTURE, lineRange, nodeName,
-                            getModuleKey(module)));
+                    diagnosticLog.warn(CONFIG_TOML_INVALID_MODULE_STRUCTURE, null, lineRange, nodeName,
+                            getModuleKey(module));
                 }
             }
             if (!(containsOrg || containsModule) && !invalidTomlLines.contains(node.location().lineRange())) {
-                exceptionList.add(new ConfigException(CONFIG_TOML_UNUSED_VALUE, lineRange, moduleHeader + nodeName));
+                diagnosticLog.warn(CONFIG_TOML_UNUSED_VALUE, null, lineRange, moduleHeader + nodeName);
             }
         }
-        exceptionList.addAll(validateUnusedNodes(node, moduleHeader + nodeName + "."));
+        validateUnusedNodes(node, moduleHeader + nodeName + ".", diagnosticLog);
     }
 
     @Override
