@@ -19,6 +19,7 @@ package org.ballerinalang.test.expressions.binaryoperations;
 import org.ballerinalang.core.model.util.JsonParser;
 import org.ballerinalang.core.model.values.BBoolean;
 import org.ballerinalang.core.model.values.BByte;
+import org.ballerinalang.core.model.values.BDecimal;
 import org.ballerinalang.core.model.values.BFloat;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
@@ -162,6 +163,22 @@ public class EqualAndNotEqualOperationsTest {
         Assert.assertSame(returns[0].getClass(), BBoolean.class);
         Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected value to be identified as not equal to " +
                 "nil");
+    }
+
+    @Test(description = "Test equals/unequals operation with equal any values", dataProvider = "anyDataValues")
+    public void checkAnyDataEqualityPositive(BValue a, BValue b) {
+        BValue[] returns = BRunUtil.invoke(result, "checkAnyDataEqualityPositive", new BValue[]{a, b});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as equal");
+    }
+
+    @Test(description = "Test equals/unequals operation with not equal any values", dataProvider = "nonAnyDataValues")
+    public void checkAnyDataEqualityNegative(BValue a, BValue b) {
+        BValue[] returns = BRunUtil.invoke(result, "checkAnyDataEqualityNegative", new BValue[]{a, b});
+        Assert.assertEquals(returns.length, 1);
+        Assert.assertSame(returns[0].getClass(), BBoolean.class);
+        Assert.assertFalse(((BBoolean) returns[0]).booleanValue(), "Expected values to be identified as not equal");
     }
 
     @Test(description = "Test equals/unequals operation with two equal open records")
@@ -980,6 +997,30 @@ public class EqualAndNotEqualOperationsTest {
                 {new BFloat(5.0)},
                 {new BString("Hi from Ballerina!")},
                 {new BMap<String, BInteger>()}
+        };
+    }
+
+    @DataProvider(name = "anyDataValues")
+    public Object[][] anydataValues() {
+        return new Object[][]{
+                {new BInteger(10), new BInteger(10)},
+                {new BInteger(10), new BByte(10)},
+                {new BByte(5), new BByte(5)},
+                {new BByte(24), new BInteger(24)}
+        };
+    }
+
+    @DataProvider(name = "nonAnyDataValues")
+    public Object[][] nonAnyDataValues() {
+        return new Object[][]{
+                {new BInteger(10), new BInteger(12)},
+                {new BInteger(10), new BByte(12)},
+                {new BInteger(10), new BFloat(10)},
+                {new BInteger(10), new BDecimal("10")},
+                {new BByte(16), new BByte(8)},
+                {new BByte(8), new BInteger(4)},
+                {new BByte(10), new BFloat(10)},
+                {new BByte(10), new BDecimal("10")}
         };
     }
 

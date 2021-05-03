@@ -2600,25 +2600,15 @@ public class TypeChecker {
             case TypeTags.BOOLEAN_TAG:
                 return lhsValue.equals(rhsValue);
             case TypeTags.INT_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return lhsValue.equals(((Number) rhsValue).longValue());
+                if (rhsValTypeTag != TypeTags.BYTE_TAG && rhsValTypeTag != TypeTags.INT_TAG) {
+                    return false;
                 }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return DecimalValue.valueOf((long) lhsValue).equals(rhsValue);
-                }
-
-                return false;
+                return lhsValue.equals(((Number) rhsValue).longValue());
             case TypeTags.BYTE_TAG:
-                if (rhsValTypeTag <= TypeTags.FLOAT_TAG) {
-                    return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
+                if (rhsValTypeTag != TypeTags.BYTE_TAG && rhsValTypeTag != TypeTags.INT_TAG) {
+                    return false;
                 }
-
-                if (rhsValTypeTag == TypeTags.DECIMAL_TAG) {
-                    return DecimalValue.valueOf((int) lhsValue).equals(rhsValue);
-                }
-
-                return false;
+                return ((Number) lhsValue).byteValue() == ((Number) rhsValue).byteValue();
             case TypeTags.XML_TAG:
             case TypeTags.XML_ELEMENT_TAG:
             case TypeTags.XML_COMMENT_TAG:
