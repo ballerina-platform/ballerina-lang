@@ -50,7 +50,7 @@ public class XMLParserErrorHandler extends AbstractParserErrorHandler {
     }
 
     @Override
-    protected boolean isProductionWithAlternatives(ParserRuleContext currentCtx) {
+    protected boolean hasAlternativePaths(ParserRuleContext currentCtx) {
         return false;
     }
 

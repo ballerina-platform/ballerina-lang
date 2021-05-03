@@ -477,27 +477,27 @@ public class TypeParamAnalyzer {
     private void findTypeParamInStream(Location loc, BStreamType expType, BStreamType actualType,
                                        SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
         findTypeParam(loc, expType.constraint, actualType.constraint, env, resolvedTypes, result);
-        findTypeParam(loc, expType.error, actualType.error, env, resolvedTypes, result);
+        findTypeParam(loc, expType.completionType, actualType.completionType, env, resolvedTypes, result);
     }
 
     private void findTypeParamInStreamForUnion(Location loc, BStreamType expType, BUnionType actualType,
                                        SymbolEnv env, HashSet<BType> resolvedTypes, FindTypeParamResult result) {
-        LinkedHashSet<BType> constraints = new LinkedHashSet<>();
-        LinkedHashSet<BType> errors = new LinkedHashSet<>();
+        LinkedHashSet<BType> constraintTypes = new LinkedHashSet<>();
+        LinkedHashSet<BType> completionTypes = new LinkedHashSet<>();
         for (BType type : actualType.getMemberTypes()) {
             if (type.tag == TypeTags.STREAM) {
-                constraints.add(((BStreamType) type).constraint);
-                errors.add(((BStreamType) type).error);
+                constraintTypes.add(((BStreamType) type).constraint);
+                completionTypes.add(((BStreamType) type).completionType);
             }
         }
 
-        BUnionType cUnionType = BUnionType.create(null, constraints);
+        BUnionType cUnionType = BUnionType.create(null, constraintTypes);
         findTypeParam(loc, expType.constraint, cUnionType, env, resolvedTypes, result);
-        if (!errors.isEmpty()) {
-            BUnionType eUnionType = BUnionType.create(null, errors);
-            findTypeParam(loc, expType.error, eUnionType, env, resolvedTypes, result);
+        if (!completionTypes.isEmpty()) {
+            BUnionType eUnionType = BUnionType.create(null, completionTypes);
+            findTypeParam(loc, expType.completionType, eUnionType, env, resolvedTypes, result);
         } else {
-            findTypeParam(loc, expType.error, symTable.nilType, env, resolvedTypes, result);
+            findTypeParam(loc, expType.completionType, symTable.nilType, env, resolvedTypes, result);
         }
     }
 
@@ -686,13 +686,13 @@ public class TypeParamAnalyzer {
                 return new BMapType(TypeTags.MAP, getMatchingBoundType(constraint, env, resolvedTypes),
                         symTable.mapType.tsymbol);
             case TypeTags.STREAM:
-                BType streamConstraint = getMatchingBoundType(((BStreamType) expType).constraint, env, resolvedTypes);
-                BType streamError = getMatchingBoundType(((BStreamType) expType).error , env, resolvedTypes);
-                if (streamError.tag == TypeTags.NONE) {
+                BType constraintType = getMatchingBoundType(((BStreamType) expType).constraint, env, resolvedTypes);
+                BType completionType = getMatchingBoundType(((BStreamType) expType).completionType, env, resolvedTypes);
+                if (completionType.tag == TypeTags.NONE) {
                     //setting nil type the completion type if not resolved
-                    streamError = symTable.nilType;
+                    completionType = symTable.nilType;
                 }
-                return new BStreamType(TypeTags.STREAM, streamConstraint, streamError, symTable.streamType.tsymbol);
+                return new BStreamType(TypeTags.STREAM, constraintType, completionType, symTable.streamType.tsymbol);
             case TypeTags.TABLE:
                 BType tableConstraint = getMatchingBoundType(((BTableType) expType).constraint, env, resolvedTypes);
                 BTableType tableType = new BTableType(TypeTags.TABLE, tableConstraint, symTable.tableType.tsymbol);

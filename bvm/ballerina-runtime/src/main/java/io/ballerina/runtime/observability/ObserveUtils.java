@@ -267,12 +267,23 @@ public class ObserveUtils {
             return;
         }
 
+        if (!observerContext.isManuallyClosed()) {
+            stopObservationWithContext(observerContext);
+        }
+        setObserverContextToCurrentFrame(env, observerContext.getParent());
+    }
+
+    /**
+     * Notify observers to stop observations and set finished to observer context.
+     *
+     * @param observerContext Observer context
+     */
+    public static void stopObservationWithContext(ObserverContext observerContext) {
         if (observerContext.isServer()) {
             observers.forEach(observer -> observer.stopServerObservation(observerContext));
         } else {
             observers.forEach(observer -> observer.stopClientObservation(observerContext));
         }
-        setObserverContextToCurrentFrame(env, observerContext.getParent());
         observerContext.setFinished();
     }
 
@@ -356,8 +367,14 @@ public class ObserveUtils {
         if (newObContext.getEntrypointFunctionModule() != null) {
             newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_MODULE, newObContext.getEntrypointFunctionModule());
         }
+        if (newObContext.getEntrypointServiceName() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_SERVICE_NAME, newObContext.getEntrypointServiceName());
+        }
         if (newObContext.getEntrypointFunctionName() != null) {
             newObContext.addTag(TAG_KEY_ENTRYPOINT_FUNCTION_NAME, newObContext.getEntrypointFunctionName());
+        }
+        if (newObContext.getEntrypointResourceAccessor() != null) {
+            newObContext.addTag(TAG_KEY_ENTRYPOINT_RESOURCE_ACCESSOR, newObContext.getEntrypointResourceAccessor());
         }
 
         newObContext.setStarted();

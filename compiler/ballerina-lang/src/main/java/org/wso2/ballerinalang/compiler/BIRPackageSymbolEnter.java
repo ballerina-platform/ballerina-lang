@@ -28,6 +28,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.symbols.SymbolOrigin;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.types.ConstrainedType;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry;
 import org.wso2.ballerinalang.compiler.bir.writer.CPEntry.ByteCPEntry;
@@ -426,6 +427,9 @@ public class BIRPackageSymbolEnter {
 
         // Read annotation attachments
         // Skip annotation attachments for now
+        dataInStream.skip(dataInStream.readLong());
+
+        // Skip return type annotations
         dataInStream.skip(dataInStream.readLong());
 
         // set parameter symbols to the function symbol
@@ -877,7 +881,7 @@ public class BIRPackageSymbolEnter {
             case TypeTags.STREAM:
                 BStreamType streamType = (BStreamType) type;
                 populateParameterizedType(streamType.constraint, paramsMap, invSymbol);
-                populateParameterizedType(streamType.error, paramsMap, invSymbol);
+                populateParameterizedType(streamType.completionType, paramsMap, invSymbol);
                 break;
             case TypeTags.TABLE:
                 BTableType tableType = (BTableType) type;
@@ -1175,11 +1179,8 @@ public class BIRPackageSymbolEnter {
                 case TypeTags.STREAM:
                     BStreamType bStreamType = new BStreamType(TypeTags.STREAM, null, null, symTable.streamType.tsymbol);
                     bStreamType.constraint = readTypeFromCp();
+                    bStreamType.completionType = readTypeFromCp();
                     bStreamType.flags = flags;
-                    boolean hasError = inputStream.readByte() == 1;
-                    if (hasError) {
-                        bStreamType.error = readTypeFromCp();
-                    }
                     return bStreamType;
                 case TypeTags.TABLE:
                     BTableType bTableType = new BTableType(TypeTags.TABLE, null, symTable.tableType.tsymbol, flags);
@@ -1324,7 +1325,7 @@ public class BIRPackageSymbolEnter {
                         constituentTypes.add(readTypeFromCp());
                     }
 
-                    BType effectiveType = readTypeFromCp();
+                    IntersectableReferenceType effectiveType = (IntersectableReferenceType) readTypeFromCp();
                     return new BIntersectionType(intersectionTypeSymbol, constituentTypes, effectiveType, flags);
                 case TypeTags.PACKAGE:
                     // TODO fix

@@ -4080,10 +4080,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private List<String> getKeysToRemove(BLangMappingBindingPattern mappingBindingPattern) {
-        List<String> allKeys = new ArrayList<>(((BRecordType) mappingBindingPattern.type).fields.keySet());
         List<String> keysToRemove = new ArrayList<>();
-        for (int i = 0; i < mappingBindingPattern.fieldBindingPatterns.size(); i++) {
-            keysToRemove.add(allKeys.get(i));
+        List<BLangFieldBindingPattern> fieldBindingPatterns = mappingBindingPattern.fieldBindingPatterns;
+        for (int i = 0; i < fieldBindingPatterns.size(); i++) {
+            keysToRemove.add(fieldBindingPatterns.get(i).fieldName.value);
         }
         return keysToRemove;
     }
@@ -6299,19 +6299,26 @@ public class Desugar extends BLangNodeVisitor {
     private BLangInvocation desugarStreamTypeInit(BLangTypeInit typeInitExpr) {
         BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
                 .lookup(Names.CONSTRUCT_STREAM).symbol;
-        BType targetType = ((BStreamType) typeInitExpr.type).constraint;
-        BType errorType = ((BStreamType) typeInitExpr.type).error;
-        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
-        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
-        typedescExpr.resolvedType = targetType;
-        typedescExpr.type = typedescType;
-        List<BLangExpression> args = new ArrayList<>(Lists.of(typedescExpr));
+
+        BType constraintType = ((BStreamType) typeInitExpr.type).constraint;
+        BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
+        constraintTdExpr.resolvedType = constraintType;
+        constraintTdExpr.type = constraintTdType;
+
+        BType completionType = ((BStreamType) typeInitExpr.type).completionType;
+        BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
+        completionTdExpr.resolvedType = completionType;
+        completionTdExpr.type = completionTdType;
+
+        List<BLangExpression> args = new ArrayList<>(Lists.of(constraintTdExpr, completionTdExpr));
         if (!typeInitExpr.argsExpr.isEmpty()) {
             args.add(typeInitExpr.argsExpr.get(0));
         }
         BLangInvocation streamConstructInvocation = ASTBuilderUtil.createInvocationExprForMethod(
                 typeInitExpr.pos, symbol, args, symResolver);
-        streamConstructInvocation.type = new BStreamType(TypeTags.STREAM, targetType, errorType, null);
+        streamConstructInvocation.type = new BStreamType(TypeTags.STREAM, constraintType, completionType, null);
         return streamConstructInvocation;
     }
 

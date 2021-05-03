@@ -43,7 +43,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_MISSING_CLOSE_BRACKET_TOKEN("BCE0009", "error.missing.close.bracket.token"),
     ERROR_MISSING_EQUAL_TOKEN("BCE0010", "error.missing.equal.token"),
     ERROR_MISSING_COMMA_TOKEN("BCE0011", "error.missing.comma.token"),
-    ERROR_MISSING_PLUS_TOKEN("BCE0012", "error.missing.plus.token"),
+    ERROR_MISSING_BINARY_OPERATOR("BCE0012", "error.missing.binary.operator"),
     ERROR_MISSING_SLASH_TOKEN("BCE0013", "error.missing.slash.token"),
     ERROR_MISSING_AT_TOKEN("BCE0014", "error.missing.at.token"),
     ERROR_MISSING_QUESTION_MARK_TOKEN("BCE0015", "error.missing.question.mark.token"),
@@ -234,7 +234,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "error.missing.resource.path.in.resource.accessor.definition"),
     ERROR_MISSING_RESOURCE_PATH_IN_RESOURCE_ACCESSOR_DECLARATION("BCE0518",
             "error.missing.resource.path.in.resource.accessor.declaration"),
-    ERROR_MISSING_POSITIONAL_ARG_IN_ERROR_CONSTRUCTOR("BCE0519", "error.missing.positional.arg.in.error.constructor"),
+    ERROR_MISSING_ERROR_MESSAGE_IN_ERROR_CONSTRUCTOR("BCE0519", "error.missing.error.message.in.error.constructor"),
     ERROR_MISSING_ARG_WITHIN_PARENTHESIS("BCE0520", "error.missing.arg.within.parenthesis"),
     ERROR_MISSING_VARIABLE_NAME("BCE0521", "error.missing.variable.name"),
     ERROR_MISSING_FIELD_NAME("BCE0522", "error.missing.field.name"),
@@ -328,7 +328,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     ERROR_ISOLATED_VAR_CANNOT_BE_DECLARED_AS_PUBLIC("BCE668", "error.isolated.var.cannot.be.declared.as.public"),
     ERROR_VARIABLE_DECLARED_WITH_VAR_CANNOT_BE_PUBLIC("BCE669", "error.variable.declared.with.var.cannot.be.public"),
     ERROR_FIELD_BP_INSIDE_LIST_BP("BCE670", "error.field.binding.pattern.inside.list.binding.pattern"),
-    ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.invalid.expression.expected.a.call.expression")
+    ERROR_INVALID_EXPRESSION_EXPECTED_CALL_EXPRESSION("BCE671", "error.invalid.expression.expected.a.call.expression"),
+    ERROR_TYPE_DESC_AFTER_REST_DESCRIPTOR("BCE672", "error.type.desc.after.rest.descriptor")
     ;
 
     String diagnosticId;
