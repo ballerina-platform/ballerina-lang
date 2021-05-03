@@ -181,6 +181,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangStreamType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTableTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangTupleTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -902,6 +903,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 for (BLangType constType : constituentTypeNodes) {
                     analyzeTypeNode(constType, env);
                 }
+                break;
+            case TypeTags.STREAM:
+                BLangType streamConstraintType = ((BLangStreamType) typeNode).constraint;
+                analyzeTypeNode(streamConstraintType, env);
                 break;
             case TypeTags.UNION:
                 List<BLangType> unionMemberTypes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
