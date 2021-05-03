@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.analyzer;
 
+import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.Name;
@@ -5345,14 +5346,22 @@ public class Types {
     }
 
     boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type) {
+        Set<BType> visitedTypeSet = new HashSet<>();
+        visitedTypeSet.add(type);
+        return isNeverTypeOrStructureTypeWithARequiredNeverMember(type, visitedTypeSet);
+    }
+
+    boolean isNeverTypeOrStructureTypeWithARequiredNeverMember(BType type, Set<BType> visitedTypeSet) {
         switch (type.tag) {
             case TypeTags.NEVER:
                 return true;
             case TypeTags.RECORD:
                 for (BField field : ((BRecordType) type).fields.values()) {
                     // skip check for fields with self referencing type and not required fields.
-                    if (!isSameType(type, field.type) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED) &&
-                            isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type)) {
+                    if ((SymbolFlags.isFlagOn(field.symbol.flags, SymbolFlags.REQUIRED) ||
+                            !SymbolFlags.isFlagOn(field.symbol.flags, SymbolFlags.OPTIONAL)) &&
+                            !visitedTypeSet.contains(field.type) &&
+                            isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type, visitedTypeSet)) {
                         return true;
                     }
                 }
@@ -5361,11 +5370,17 @@ public class Types {
                 BTupleType tupleType = (BTupleType) type;
                 List<BType> tupleTypes = tupleType.tupleTypes;
                 for (BType mem : tupleTypes) {
-                    if (isNeverTypeOrStructureTypeWithARequiredNeverMember(mem)) {
+                    visitedTypeSet.add(tupleType);
+                    if (isNeverTypeOrStructureTypeWithARequiredNeverMember(mem, visitedTypeSet)) {
                         return true;
                     }
                 }
                 return false;
+            case TypeTags.ARRAY:
+                BArrayType arrayType = (BArrayType) type;
+                visitedTypeSet.add(arrayType.eType);
+                return arrayType.state != BArrayState.OPEN &&
+                        isNeverTypeOrStructureTypeWithARequiredNeverMember(arrayType.eType, visitedTypeSet);
             default:
                 return false;
         }

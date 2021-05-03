@@ -1946,9 +1946,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (BField field : type.fields.values()) {
             String fieldName = field.name.value;
-
             if (!specFieldNames.contains(fieldName) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)
-                    && field.type.tag != TypeTags.NEVER) {
+                    && !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type)) {
                 // Check if `field` is explicitly assigned a value in the record literal
                 // If a required field is missing, it's a compile error
                 dlog.error(pos, DiagnosticErrorCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
@@ -5535,11 +5534,10 @@ public class TypeChecker extends BLangNodeVisitor {
             this.resultType = symTable.semanticError;
             return;
         }
-
         if (Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) &&
                 Symbols.isFlagOn(expType.flags, Flags.CLIENT) &&
                 types.isNeverTypeOrStructureTypeWithARequiredNeverMember
-                ((BType) ((InvokableSymbol) remoteFuncSymbol).getReturnType())) {
+                        ((BType) ((InvokableSymbol) remoteFuncSymbol).getReturnType())) {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_CLIENT_REMOTE_METHOD_CALL);
         }
 
