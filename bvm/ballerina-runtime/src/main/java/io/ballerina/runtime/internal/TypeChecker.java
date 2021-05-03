@@ -2352,33 +2352,37 @@ public class TypeChecker {
         if (source.getType().getTag() == TypeTags.ARRAY_TAG) {
             Type sourceElementType = ((BArrayType) source.getType()).getElementType();
             if (isValueType(sourceElementType)) {
-                boolean isType = checkIsType(sourceElementType, targetTypeElementType, new ArrayList<>());
 
-                if (isType || !allowNumericConversion || !isNumericType(sourceElementType)) {
-                    return isType;
-                }
-
-                if (isNumericType(targetTypeElementType)) {
+                if (checkIsType(sourceElementType, targetTypeElementType, new ArrayList<>())) {
                     return true;
                 }
 
-                if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
-                    return false;
+                if (allowNumericConversion && isNumericType(sourceElementType)) {
+                    if (isNumericType(targetTypeElementType)) {
+                        return true;
+                    }
+
+                    if (targetTypeElementType.getTag() != TypeTags.UNION_TAG) {
+                        return false;
+                    }
+
+                    List<Type> targetNumericTypes = new ArrayList<>();
+                    for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
+                        if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
+                            targetNumericTypes.add(memType);
+                        }
+                    }
+                    return targetNumericTypes.size() == 1;
                 }
 
-                List<Type> targetNumericTypes = new ArrayList<>();
-                for (Type memType : ((BUnionType) targetTypeElementType).getMemberTypes()) {
-                    if (isNumericType(memType) && !targetNumericTypes.contains(memType)) {
-                        targetNumericTypes.add(memType);
-                    }
+                if (isNumericType(targetTypeElementType) && targetTypeElementType.getTag() != TypeTags.BYTE_TAG) {
+                    return false;
                 }
-                return targetNumericTypes.size() == 1;
             }
         }
 
-        Object[] arrayValues = source.getValues();
-        for (int i = 0; i < ((ArrayValue) sourceValue).size(); i++) {
-            if (!checkIsLikeType(arrayValues[i], targetTypeElementType, unresolvedValues, allowNumericConversion)) {
+        for (int i = 0; i < source.size(); i++) {
+            if (!checkIsLikeType(source.get(i), targetTypeElementType, unresolvedValues, allowNumericConversion)) {
                 return false;
             }
         }
