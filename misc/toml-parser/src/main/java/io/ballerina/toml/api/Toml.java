@@ -135,7 +135,7 @@ public class Toml {
         TomlTransformer nodeTransformer = new TomlTransformer();
         TomlTableNode
                 transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
-        transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree));
+        transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree.diagnostics()));
         return new Toml(transformedTable);
     }
 
@@ -153,16 +153,16 @@ public class Toml {
         TomlTransformer nodeTransformer = new TomlTransformer();
         TomlTableNode
                 transformedTable = (TomlTableNode) nodeTransformer.transform((DocumentNode) syntaxTree.rootNode());
-        transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree));
+        transformedTable.addSyntaxDiagnostics(reportSyntaxDiagnostics(syntaxTree.diagnostics()));
         Toml toml = new Toml(transformedTable);
         TomlValidator tomlValidator = new TomlValidator(schema);
         tomlValidator.validate(toml);
         return toml;
     }
 
-    private static Set<Diagnostic> reportSyntaxDiagnostics(SyntaxTree tree) {
+    private static Set<Diagnostic> reportSyntaxDiagnostics(Iterable<Diagnostic> syntaxDiagnostics) {
         Set<Diagnostic> diagnostics = new TreeSet<>(new DiagnosticComparator());
-        for (Diagnostic syntaxDiagnostic : tree.diagnostics()) {
+        for (Diagnostic syntaxDiagnostic : syntaxDiagnostics) {
             TomlNodeLocation tomlNodeLocation = new TomlNodeLocation(syntaxDiagnostic.location().lineRange(),
                     syntaxDiagnostic.location().textRange());
             TomlDiagnostic tomlDiagnostic =
