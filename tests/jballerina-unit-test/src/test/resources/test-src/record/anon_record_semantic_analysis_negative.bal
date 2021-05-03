@@ -23,6 +23,9 @@ function testAnonClosedRecordNegative1() {
     record {| int i = 1; string j = 2; record {| int x = "foo"; |} k; |}[] a6;
     record {| int i = 1; record {| int x = "foo"; |}[] j; |}[] a7;
     [map<record {| int i = "foo"; |}|map<record {| int i = "foo"; |}[]>>, record {| int j = "foo"; |}...] a8;
+    stream<record {| int i = "foo"; |}> a9;
+    stream<record {| int i = "foo"; |}[]> a10;
+    stream<record {| int i = "foo"; |}?> a11;
 }
 
 function testAnonOpenRecordNegative2() {
@@ -33,6 +36,9 @@ function testAnonOpenRecordNegative2() {
     table<record { int i = "foo"; }> a5;
     record {| int i = 1; string j = 2; record { int x = "foo"; } k; |}[] a6;
     record {| int i = 1; record { int x = "foo"; }[] j; |}[] a7;
+    stream<record { int i = "foo"; }> a8;
+    stream<record { int i = "foo"; }[]> a9;
+    stream<record { int i = "foo"; }?> a10;
 }
 
 function foo() returns record {| int i = "ABC"; |}[] {
@@ -60,6 +66,9 @@ function testIntersectionTypeNegative() {
     record {| int i = 1; record {| int x = "foo"; |} & readonly k; |}[] a7 = [];
     record {| int i = 1; (record {| int x = "foo"; |} & readonly)[] j; |}[] a8;
     [map<record {| int i = "foo"; |} & readonly>, record {| int j = "foo"; |} & readonly...] a9;
+    stream<record {| int i = "foo"; |} & readonly> a10;
+    stream<(record {| int i = "foo"; |} & readonly)[]> a11;
+    stream<(record {| int i = "foo"; |} & readonly)?> a12;
 }
 
 type CC record {

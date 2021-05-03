@@ -26,6 +26,9 @@ function testRecordWithClosureTypeMutabilityNegative() {
     record {| int i = j; |}|string a7 = {};
     [map<record {| int i = j; |}|record {| string m = n; |}[]>, record {| int i = j; |}...] a8 = [];
     map<record {| int i = j; |}> a9;
+    stream<record {| int i = j; |}> a10;
+    stream<record {| int i = j; |}[]> a11;
+    stream<record {| int i = j; |}?> a12;
 }
 
 function testRecordWithClosureTypeMutabilityNegative2() {
@@ -39,6 +42,9 @@ function testRecordWithClosureTypeMutabilityNegative2() {
     record {| int i = j; record {| string m = n; |}[] k;|}[] a6;
     record {| int i = j; |}|string a7;
     [map<record {| int i = j; |}|record {| string m = n; |}[]>, record {| int i = j; |}...] a8;
+    stream<record { int i = j; }> a9;
+    stream<record { int i = j; }[]> a10;
+    stream<record { int i = j; }?> a11;
 }
 
 int x = 12;
@@ -69,6 +75,9 @@ function testIntersectionTypeNegative() {
     record {| int i = 1; record {| int x = j; |} & readonly k; |}[] a7;
     record {| int i = 1; (record {| int x = j; |} & readonly)[] j; |}[] a8;
     [map<record {| int i = j; |} & readonly>, record {| int i = j; |} & readonly...] a9;
+    stream<record {| int i = j; |} & readonly> a10;
+    stream<(record {| int i = j; |} & readonly)[]> a11;
+    stream<(record {| int i = j; |} & readonly)?> a12;
 }
 
 type CC record {
