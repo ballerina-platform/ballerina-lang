@@ -7,6 +7,7 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
+import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
@@ -38,7 +39,7 @@ public class TestDisplayWarnings {
     public void deleteCache() {
         Path cachePath = Paths.get("build/repo/cache/foo/package_with_warning");
         if (Files.exists(cachePath)) {
-            TestUtils.deleteDirectory(cachePath.toFile());
+            ProjectUtils.deleteDirectory(cachePath);
         }
     }
 
