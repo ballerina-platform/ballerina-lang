@@ -538,16 +538,6 @@ public class FormattingTreeModifier extends TreeModifier {
             fieldTrailingWS++;
         }
 
-        int prevIndentation = env.currentIndentation;
-
-        // Set indentation for braces.
-        // For records inside module-level typ-defs, braces should have the same indentation as the type-keyword.
-        // For records in other places, braces should have the same indentation as the record-keyword.
-        if (recordTypeDesc.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
-            int fieldIndentation = env.lineLength - recordKeyword.text().length() - recordKeywordTrailingWS;
-            setIndentation(fieldIndentation);
-        }
-
         Token bodyStartDelimiter = formatToken(recordTypeDesc.bodyStartDelimiter(), fieldTrailingWS, fieldTrailingNL);
         indent(); // Set indentation for record fields
         NodeList<Node> fields = formatNodeList(recordTypeDesc.fields(), fieldTrailingWS, fieldTrailingNL,
@@ -556,7 +546,7 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNode(recordTypeDesc.recordRestDescriptor().orElse(null), fieldTrailingWS, fieldTrailingNL);
         unindent(); // Revert indentation for record fields
         Token bodyEndDelimiter = formatToken(recordTypeDesc.bodyEndDelimiter(), env.trailingWS, env.trailingNL);
-        setIndentation(prevIndentation);  // Revert indentation for braces
+
         return recordTypeDesc.modify()
                 .withRecordKeyword(recordKeyword)
                 .withBodyStartDelimiter(bodyStartDelimiter)
@@ -2294,19 +2284,6 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public ObjectTypeDescriptorNode transform(ObjectTypeDescriptorNode objectTypeDescriptorNode) {
-        int prevIndentation = env.currentIndentation;
-
-        // Set indentation for braces.
-        if (objectTypeDescriptorNode.parent().kind() != SyntaxKind.TYPE_DEFINITION) {
-            // Set indentation for braces.
-            if (env.lineLength == 0) {
-                // Set the indentation for statements starting with query expression nodes.
-                setIndentation(env.lineLength + prevIndentation);
-            } else {
-                setIndentation(env.lineLength);
-            }
-        }
-
         NodeList<Token> objectTypeQualifiers = formatNodeList(objectTypeDescriptorNode.objectTypeQualifiers(),
                 1, 0, 1, 0);
         Token objectKeyword = formatToken(objectTypeDescriptorNode.objectKeyword(), 1, 0);
@@ -2325,7 +2302,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 0, fieldTrailingNL);
         unindent();
         Token closeBrace = formatToken(objectTypeDescriptorNode.closeBrace(), env.trailingWS, env.trailingNL);
-        setIndentation(prevIndentation);  // Revert indentation for braces
 
         return objectTypeDescriptorNode.modify()
                 .withObjectTypeQualifiers(objectTypeQualifiers)
@@ -2582,14 +2558,12 @@ public class FormattingTreeModifier extends TreeModifier {
     public LetExpressionNode transform(LetExpressionNode letExpressionNode) {
         Token letKeyword = formatToken(letExpressionNode.letKeyword(), 1, 0);
 
-        int prevIndentation = env.currentIndentation;
-        int fieldIndentation = env.lineLength - letKeyword.text().length() - 1;
-        setIndentation(fieldIndentation); // Set indentation for braces
+        indent();
         SeparatedNodeList<LetVariableDeclarationNode> letVarDeclarations =
                 formatSeparatedNodeList(letExpressionNode.letVarDeclarations(), 0, 0, 0, 1);
         Token inKeyword = formatToken(letExpressionNode.inKeyword(), 1, 0);
         ExpressionNode expression = formatNode(letExpressionNode.expression(), env.trailingWS, env.trailingNL);
-        setIndentation(prevIndentation);  // Revert indentation for braces
+        unindent();
 
         return letExpressionNode.modify()
                 .withLetKeyword(letKeyword)
@@ -2636,15 +2610,6 @@ public class FormattingTreeModifier extends TreeModifier {
         NodeList<AnnotationNode> annotations =
                 formatNodeList(explicitAnonymousFunctionExpressionNode.annotations(), 0, 1, 0, 1);
 
-        int prevIndentation = env.currentIndentation;
-        // Set indentation for braces.
-        if (env.lineLength == 0) {
-            // Set the indentation for statements starting with explicit anonymous function expression nodes.
-            setIndentation(env.lineLength + prevIndentation);
-        } else {
-            setIndentation(env.lineLength);
-        }
-
         NodeList<Token> qualifierList = formatNodeList(explicitAnonymousFunctionExpressionNode.qualifierList(),
                 1, 0, 1, 0);
         Token functionKeyword = formatToken(explicitAnonymousFunctionExpressionNode.functionKeyword(), 0, 0);
@@ -2652,7 +2617,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 formatNode(explicitAnonymousFunctionExpressionNode.functionSignature(), 1, 0);
         FunctionBodyNode functionBody = formatNode(explicitAnonymousFunctionExpressionNode.functionBody(),
                 env.trailingWS, env.trailingNL);
-        setIndentation(prevIndentation);
 
         return explicitAnonymousFunctionExpressionNode.modify()
                 .withQualifierList(qualifierList)
@@ -2760,13 +2724,9 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public QueryExpressionNode transform(QueryExpressionNode queryExpressionNode) {
-        int prevIndentation = env.currentIndentation;
-        // Set indentation for braces.
-        if (env.lineLength == 0) {
-            // Set the indentation for statements starting with query expression nodes.
-            setIndentation(env.lineLength + prevIndentation);
-        } else {
-            setIndentation(env.lineLength);
+        int lineLength = env.lineLength;
+        if (lineLength != 0) {
+            indent();
         }
 
         QueryConstructTypeNode queryConstructType =
@@ -2782,7 +2742,9 @@ public class FormattingTreeModifier extends TreeModifier {
 
         OnConflictClauseNode onConflictClause = formatNode(queryExpressionNode.onConflictClause().orElse(null),
                 env.trailingWS, env.trailingNL);
-        setIndentation(prevIndentation);  // Revert indentation for braces
+        if (lineLength != 0) {
+            unindent();
+        }
 
         return queryExpressionNode.modify()
                 .withQueryConstructType(queryConstructType)
@@ -3029,20 +2991,20 @@ public class FormattingTreeModifier extends TreeModifier {
 
     @Override
     public QueryActionNode transform(QueryActionNode queryActionNode) {
-        int prevIndentation = env.currentIndentation;
-        // Set indentation for braces.
-        if (env.lineLength == 0) {
+        int lineLength = env.lineLength;
+        if (lineLength != 0) {
             // Set the indentation for statements starting with query expression nodes.
-            setIndentation(env.lineLength + prevIndentation);
-        } else {
-            setIndentation(env.lineLength);
+            indent();
         }
 
         QueryPipelineNode queryPipeline = formatNode(queryActionNode.queryPipeline(), 0, 1);
         Token doKeyword = formatToken(queryActionNode.doKeyword(), 1, 0);
         BlockStatementNode blockStatement = formatNode(queryActionNode.blockStatement(),
                 env.trailingWS, env.trailingNL);
-        setIndentation(prevIndentation);  // Revert indentation for braces
+        if (lineLength != 0) {
+            // Revert the indentation for statements starting with query expression nodes.
+            unindent();
+        }
 
         return queryActionNode.modify()
                 .withQueryPipeline(queryPipeline)
@@ -3896,8 +3858,10 @@ public class FormattingTreeModifier extends TreeModifier {
                         // by the user. So, it is being honored here.
                         leadingMinutiae.add(getNewline());
                     }
-                    // Then add padding to match the current indentation level
-                    addWhitespace(env.currentIndentation, leadingMinutiae);
+                    if (!env.preserveIndentation) {
+                        // Then add padding to match the current indentation level
+                        addWhitespace(env.currentIndentation, leadingMinutiae);
+                    }
 
                     leadingMinutiae.add(minutiae);
                     consecutiveNewlines = 0;
@@ -3913,7 +3877,7 @@ public class FormattingTreeModifier extends TreeModifier {
             prevMinutiae = minutiae;
         }
 
-        if (consecutiveNewlines > 0 && !env.preserveIndentation && !token.isMissing()) {
+        if (consecutiveNewlines > 0 && !env.preserveIndentation) {
             addWhitespace(env.currentIndentation, leadingMinutiae);
         }
 
@@ -3975,7 +3939,7 @@ public class FormattingTreeModifier extends TreeModifier {
             switch (minutiae.kind()) {
                 case END_OF_LINE_MINUTIAE:
                     preserveIndentation(true);
-                    trailingMinutiae.add(minutiae);
+                    trailingMinutiae.add(getNewline());
                     consecutiveNewlines++;
                     break;
                 case WHITESPACE_MINUTIAE:

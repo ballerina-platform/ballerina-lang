@@ -1,26 +1,52 @@
-import ballerina/io;
+public function foo() {
+    (
+    ) y = ()
+;
+    var x = ();
 
-int a = 4;
+    int 
 
-int b = 3;
+    a = 12;
 
-xmlns "http:ballerina/com" as ns1;
+    string s3 = string 
+    `${string `hello ${string `${s1}${s2}`
+    } world`
+    }`
+    ;
 
-xmlns "http:ballerina/com" as ns2;
+    foreach var i in 1 ..< endValue 
+    {
+        sum = sum + i;
+    }
 
-function foo() {
+    foreach 
+    [country, capital] book in books/<*> 
+        {
+    }
+
+    xmlns "http://ballerinalang.com/ns1";
+    xmlns "http://ballerinalang.com/ns1" 
+    as 
+    ns1;
+
+    while (true) {
+        i = 6;
+    } 
+
+    on fail var e {
+    }
+
+    'object
+    :RawTemplate template = `Hello ${name}!!!`;
+
+    future<()> f2 = 
+    start printSum(40, 50);
+
+    future<int> 
+    f1 = 
+    @strand 
+    {thread: "any"
+    } start 
+    multiply(1, 2)
+    ;
 }
-
-function bar() {
-}
-
-int a = 4;
-
-int b = 3;
-
-class Foo {
-}
-
-const x = 5;
-
-listener T y = 6;
