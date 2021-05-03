@@ -6,14 +6,6 @@ function floatMod(float a, float b) returns (float) {
     return a % b;
 }
 
-function intFloatMod(int a, float b) returns (float) {
-    return a % b;
-}
-
-function floatIntMod(float a, int b) returns (float) {
-    return a % b;
-}
-
 public const A = 10;
 public const B = 20;
 public const C = 30;
@@ -46,6 +38,7 @@ function testModWithTypes() {
     H a8 = 10.0;
     I a9 = 30.0;
     L a10 = 10.0;
+    decimal a11 = 20.0;
 
     assertEqual(a1 % a2, 10);
     assertEqual(a2 % a3, 20);
@@ -54,29 +47,10 @@ function testModWithTypes() {
     assertEqual(a1 % a6, 10);
     assertEqual(a4 % a6, 1);
     assertEqual(a5 % a6, 3);
-    assertEqual(a1 % a7, 0.0);
-    assertEqual(a5 % a7, 5.0);
-    assertEqual(a6 % a7, 2.0);
-    assertEqual(a1 % a8, 0.0);
-    assertEqual(a2 % a8, 0.0);
-    assertEqual(a4 % a8, 5.0);
-    assertEqual(a5 % a8, 5.0);
-    assertEqual(a6 % a8, 2.0);
     assertEqual(a7 % a8, 0.0);
-    assertEqual(a1 % a9, 10.0);
-    assertEqual(a2 % a9, 20.0);
-    assertEqual(a4 % a9, 25.0);
-    assertEqual(a5 % a9, 15.0);
-    assertEqual(a6 % a9, 12.0);
     assertEqual(a7 % a9, 10.0);
     assertEqual(a8 % a9, 10.0);
-    assertEqual(a1 % a10, 0d);
-    assertEqual(a2 % a10, 0d);
-    assertEqual(a4 % a10, 5d);
-    assertEqual(a5 % a10, 5d);
-    assertEqual(a6 % a10, 2d);
-    assertEqual(a7 % a10, 0d);
-    assertEqual(a8 % a10, 0d);
+    assertEqual(a10 % a11, 10d);
 }
 
 function assertEqual(any actual, any expected) {

@@ -111,34 +111,6 @@ public class AddOperationTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    @Test(description = "Test int float add expression")
-    public void testIntFloatAddExpr() {
-        int a = 10;
-        float b = 1.5f;
-        BValue[] args = { new BInteger(a), new BFloat(b)};
-
-        BValue[] returns = BRunUtil.invoke(result, "intFloatAdd", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        double actual = ((BFloat) returns[0]).floatValue();
-        double expected = a + b;
-        Assert.assertEquals(actual, expected);
-    }
-
-    @Test(description = "Test float int add expression")
-    public void testFloatIntAddExpr() {
-        int a = 10;
-        float b = 1.5f;
-        BValue[] args = { new BFloat(b), new BInteger(a)};
-
-        BValue[] returns = BRunUtil.invoke(result, "floatIntAdd", args);
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertSame(returns[0].getClass(), BFloat.class);
-        double actual = ((BFloat) returns[0]).floatValue();
-        double expected = a + b;
-        Assert.assertEquals(actual, expected);
-    }
-
     @Test(description = "Test xml xml add expression")
     public void testXmlXmlAddExpr() {
         BValue[] returns = BRunUtil.invoke(result, "xmlXmlAdd");
@@ -167,7 +139,7 @@ public class AddOperationTest {
 
     @Test(description = "Test binary statement with errors")
     public void testSubtractStmtNegativeCases() {
-        Assert.assertEquals(resultNegative.getErrorCount(), 10);
+        Assert.assertEquals(resultNegative.getErrorCount(), 15);
         BAssertUtil.validateError(resultNegative, 0, "operator '+' not defined for 'json' and 'json'", 8, 10);
         BAssertUtil.validateError(resultNegative, 1, "operator '+' not defined for 'int' and 'string'", 14, 9);
         BAssertUtil.validateError(resultNegative, 2, "operator '+' not defined for 'C' and 'string'", 28, 14);
@@ -176,7 +148,12 @@ public class AddOperationTest {
         BAssertUtil.validateError(resultNegative, 5, "operator '+' not defined for 'D' and 'int'", 47, 14);
         BAssertUtil.validateError(resultNegative, 6, "operator '+' not defined for 'ABC|CDE' and 'int'", 48, 14);
         BAssertUtil.validateError(resultNegative, 7, "operator '+' not defined for 'ABC|10' and 'int'", 49, 14);
-        BAssertUtil.validateError(resultNegative, 8, "implicit type conversion not allowed here", 55, 14);
-        BAssertUtil.validateError(resultNegative, 9, "implicit type conversion not allowed here", 59, 14);
+        BAssertUtil.validateError(resultNegative, 8, "operator '+' not defined for 'float' and 'decimal'", 56, 14);
+        BAssertUtil.validateError(resultNegative, 9, "operator '+' not defined for 'float' and 'decimal'", 57, 14);
+        BAssertUtil.validateError(resultNegative, 10, "operator '+' not defined for 'float' and 'int'", 58, 14);
+        BAssertUtil.validateError(resultNegative, 11, "operator '+' not defined for 'decimal' and 'int'", 59, 14);
+        BAssertUtil.validateError(resultNegative, 12, "operator '+' not defined for 'int' and 'float'", 60, 18);
+        BAssertUtil.validateError(resultNegative, 13, "operator '+' not defined for 'C' and 'float'", 64, 14);
+        BAssertUtil.validateError(resultNegative, 14, "operator '+' not defined for 'C' and 'float'", 65, 14);
     }
 }

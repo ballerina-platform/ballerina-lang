@@ -6,14 +6,6 @@ function floatMultiply(float a, float b) returns (float) {
     return a * b;
 }
 
-function intFloatMultiply(int a, float b) returns (float) {
-    return a * b;
-}
-
-function floatIntMultiply(float a, int b) returns (float) {
-    return a * b;
-}
-
 public const A = 10;
 public const B = 20;
 public const C = 30;
@@ -46,6 +38,7 @@ function testMultiplicationWithTypes() {
     H a8 = 10.5;
     I a9 = 30.5;
     L a10 = 10.5;
+    decimal a11 = 20;
 
     assertEqual(a1 * a2, 200);
     assertEqual(a2 * a3, 600);
@@ -54,29 +47,10 @@ function testMultiplicationWithTypes() {
     assertEqual(a1 * a6, 120);
     assertEqual(a4 * a6, 300);
     assertEqual(a5 * a6, 180);
-    assertEqual(a1 * a7, 105.0);
-    assertEqual(a5 * a7, 157.5);
-    assertEqual(a6 * a7, 126.0);
-    assertEqual(a1 * a8, 105.0);
-    assertEqual(a2 * a8, 210.0);
-    assertEqual(a4 * a8, 262.5);
-    assertEqual(a5 * a8, 157.5);
-    assertEqual(a6 * a8, 126.0);
     assertEqual(a7 * a8, 110.25);
-    assertEqual(a1 * a9, 305.0);
-    assertEqual(a2 * a9, 610.0);
-    assertEqual(a4 * a9, 762.5);
-    assertEqual(a5 * a9, 457.5);
-    assertEqual(a6 * a9, 366.0);
     assertEqual(a7 * a9, 320.25);
     assertEqual(a8 * a9, 320.25);
-    assertEqual(a1 * a10, 105d);
-    assertEqual(a2 * a10, 210d);
-    assertEqual(a4 * a10, 262.5d);
-    assertEqual(a5 * a10, 157.5d);
-    assertEqual(a6 * a10, 126d);
-    assertEqual(a7 * a10, 110.25d);
-    assertEqual(a8 * a10, 110.25d);
+    assertEqual(a10 * a11, 210d);
 }
 
 function assertEqual(any actual, any expected) {

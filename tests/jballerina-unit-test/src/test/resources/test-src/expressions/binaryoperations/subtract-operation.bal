@@ -6,15 +6,6 @@ function floatSubtract(float a, float b) returns (float) {
     return a - b;
 }
 
-
-function intFloatSubtract(int a, float b) returns (float) {
-    return a - b;
-}
-
-function floatIntSubtract(float a, int b) returns (float) {
-    return a - b;
-}
-
 public const A = 10;
 public const B = 20;
 public const C = 30;
@@ -47,6 +38,7 @@ function testSubtractionWithTypes() {
     H a8 = 10.5;
     I a9 = 30.5;
     L a10 = 10.5;
+    decimal a11 = 5.5;
 
     assertEqual(a2 - a1, 10);
     assertEqual(a3 - a2, 10);
@@ -55,29 +47,10 @@ function testSubtractionWithTypes() {
     assertEqual(a1 - a6, -2);
     assertEqual(a4 - a6, 13);
     assertEqual(a5 - a6, 3);
-    assertEqual(a7 - a1, 0.5);
-    assertEqual(a5 - a7, 4.5);
-    assertEqual(a6 - a7, 1.5);
-    assertEqual(a1 - a8, -0.5);
-    assertEqual(a2 - a8, 9.5);
-    assertEqual(a4 - a8, 14.5);
-    assertEqual(a5 - a8, 4.5);
-    assertEqual(a6 - a8, 1.5);
     assertEqual(a7 - a8, 0.0);
-    assertEqual(a1 - a9, -20.5);
-    assertEqual(a2 - a9, -10.5);
-    assertEqual(a4 - a9, -5.5);
-    assertEqual(a5 - a9, -15.5);
-    assertEqual(a6 - a9, -18.5);
     assertEqual(a7 - a9, -20.0);
     assertEqual(a8 - a9, -20.0);
-    assertEqual(a1 - a10, -0.5d);
-    assertEqual(a2 - a10, 9.5d);
-    assertEqual(a4 - a10, 14.5d);
-    assertEqual(a5 - a10, 4.5d);
-    assertEqual(a6 - a10, 1.5d);
-    assertEqual(a7 - a10, 0d);
-    assertEqual(a8 - a10, 0d);
+    assertEqual(a10 - a11, 5d);
 }
 
 function assertEqual(any actual, any expected) {

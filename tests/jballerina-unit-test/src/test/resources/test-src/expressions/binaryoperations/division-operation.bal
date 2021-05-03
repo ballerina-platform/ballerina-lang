@@ -6,14 +6,6 @@ function floatDivide(float a, float b) returns (float) {
     return a / b;
 }
 
-function intDivideByFloat(int a, float b) returns (float) {
-    return a / b;
-}
-
-function floatDivideByInt(float a, int b) returns (float) {
-    return a / b;
-}
-
 public function overflowByDivision() {
  int val = -1;
  int val1 = getPowerof(-2, 63);
@@ -62,6 +54,7 @@ function testDivisionWithTypes() {
     H a8 = 10.0;
     I a9 = 10.0;
     L a10 = 5.0;
+    decimal a11 = 10.0;
 
     assertEqual(a1 / a2, 0);
     assertEqual(a2 / a3, 0);
@@ -70,29 +63,10 @@ function testDivisionWithTypes() {
     assertEqual(a1 / a6, 0);
     assertEqual(a4 / a6, 2);
     assertEqual(a5 / a6, 1);
-    assertEqual(a1 / a7, 0.9523809523809523);
-    assertEqual(a5 / a7, 1.4285714285714286);
-    assertEqual(a6 / a7, 1.1428571428571428);
-    assertEqual(a1 / a8, 1.0);
-    assertEqual(a2 / a8, 2.0);
-    assertEqual(a4 / a8, 2.5);
-    assertEqual(a5 / a8, 1.5);
-    assertEqual(a6 / a8, 1.2);
     assertEqual(a7 / a8, 1.05);
-    assertEqual(a1 / a9, 1.0);
-    assertEqual(a2 / a9, 2.0);
-    assertEqual(a4 / a9, 2.5);
-    assertEqual(a5 / a9, 1.5);
-    assertEqual(a6 / a9, 1.2);
     assertEqual(a7 / a9, 1.05);
     assertEqual(a8 / a9, 1.0);
-    assertEqual(a1 / a10, 2d);
-    assertEqual(a2 / a10, 4d);
-    assertEqual(a4 / a10, 5d);
-    assertEqual(a5 / a10, 3d);
-    assertEqual(a6 / a10, 2.4d);
-    assertEqual(a7 / a10, 2.1d);
-    assertEqual(a8 / a10, 2d);
+    assertEqual(a11 / a10, 2d);
 }
 
 function assertEqual(any actual, any expected) {

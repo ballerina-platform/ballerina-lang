@@ -14,14 +14,6 @@ function stringAndIntAdd(string a, int b) returns (string) {
     return a + b.toString();
 }
 
-function intFloatAdd(int a, float b) returns (float) {
-    return a + b;
-}
-
-function floatIntAdd(float a, int b) returns (float) {
-    return a + b;
-}
-
 function xmlXmlAdd() returns (xml) {
     xml a = xml `abc`;
     xml b = xml `def`;
@@ -79,6 +71,9 @@ function testAdditionWithTypes() {
     H a8 = 10.5;
     I a9 = 30.4;
     L a10 = 10.5;
+    decimal a11 = 20.5;
+    decimal a12 = 30.5;
+    byte a13 = 15;
 
     assertEqual(a1 + a2, 30);
     assertEqual(a2 + a1, 30);
@@ -86,52 +81,36 @@ function testAdditionWithTypes() {
     assertEqual(a3 + a4, 55);
     assertEqual(a1 + a5, 25);
     assertEqual(a1 + a6, 22);
+    assertEqual(a4 + a5, 40);
     assertEqual(a4 + a6, 37);
     assertEqual(a5 + a6, 27);
-    assertEqual(a1 + a7, 20.5);
-    assertEqual(a5 + a7, 25.5);
-    assertEqual(a6 + a7, 22.5);
-    assertEqual(a1 + a8, 20.5);
-    assertEqual(a2 + a8, 30.5);
-    assertEqual(a4 + a8, 35.5);
-    assertEqual(a5 + a8, 25.5);
-    assertEqual(a6 + a8, 22.5);
     assertEqual(a7 + a8, 21.0);
-    assertEqual(a1 + a9, 40.4);
-    assertEqual(a2 + a9, 50.4);
-    assertEqual(a4 + a9, 55.4);
-    assertEqual(a5 + a9, 45.4);
-    assertEqual(a6 + a9, 42.4);
     assertEqual(a7 + a9, 40.9);
     assertEqual(a8 + a9, 40.9);
-    assertEqual(a1 + a10, 20.5d);
-    assertEqual(a2 + a10, 30.5d);
-    assertEqual(a4 + a10, 35.5d);
-    assertEqual(a5 + a10, 25.5d);
-    assertEqual(a6 + a10, 22.5d);
-    assertEqual(a7 + a10, 21d);
-    assertEqual(a8 + a10, 21d);
+    assertEqual(a10 + a11, 31d);
+    assertEqual(a11 + a12, 51d);
+    assertEqual(a4 + a13, 40);
 
-    string a11 = "abc";
-    O a12 = "M";
-    string|string:Char a13 = "EFG";
-    O a14 = "N";
-    P a15 = "Cat";
-    xml a16 = xml `abc`;
-    xml:Text|xml a17 = xml `abdef`;
+    string a14 = "abc";
+    O a15 = "M";
+    string|string:Char a16 = "EFG";
+    O a17 = "N";
+    P a18 = "Cat";
+    xml a19 = xml `abc`;
+    xml:Text|xml a20 = xml `abdef`;
 
-    assertEqual(a11 + a12, "abcM");
-    assertEqual(a12 + a13, "MEFG");
-    assertEqual(a12 + a14, "MN");
-    assertEqual(a12 + a1.toString(), "M10");
-    assertEqual(a12 + a15, "MCat");
-    assertEqual(a12 + a16, xml `Mabc`);
-    assertEqual(a16 + a12, xml `abcM`);
-    assertEqual(a13 + a16, xml `EFGabc`);
-    assertEqual(a14 + a16, xml `Nabc`);
-    assertEqual(a15 + a16, xml `Catabc`);
-    assertEqual(a16 + a17, xml `abcabdef`);
-    assertEqual(a17 + a16, xml `abdefabc`);
+    assertEqual(a14 + a15, "abcM");
+    assertEqual(a15 + a16, "MEFG");
+    assertEqual(a15 + a17, "MN");
+    assertEqual(a15 + a1.toString(), "M10");
+    assertEqual(a15 + a18, "MCat");
+    assertEqual(a15 + a19, xml `Mabc`);
+    assertEqual(a19 + a15, xml `abcM`);
+    assertEqual(a16 + a19, xml `EFGabc`);
+    assertEqual(a17 + a19, xml `Nabc`);
+    assertEqual(a18 + a19, xml `Catabc`);
+    assertEqual(a19 + a20, xml `abcabdef`);
+    assertEqual(a20 + a19, xml `abdefabc`);
 }
 
 function assertEqual(any actual, any expected) {
