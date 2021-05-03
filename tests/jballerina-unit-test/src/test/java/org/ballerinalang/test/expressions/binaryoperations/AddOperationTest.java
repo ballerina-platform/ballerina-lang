@@ -26,6 +26,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -132,9 +133,17 @@ public class AddOperationTest {
         Assert.assertEquals((returns[0]).stringValue(), "defabc");
     }
 
-    @Test(description = "Test addition with types")
-    public void testAdditionWithTypes() {
-        BRunUtil.invoke(result, "testAdditionWithTypes");
+    @Test(dataProvider = "dataToTestAdditionWithTypes", description = "Test addition with types")
+    public void testAdditionWithTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestAdditionWithTypes() {
+        return new Object[]{
+                "testAdditionWithTypes",
+                "testAddSingleton"
+        };
     }
 
     @Test(description = "Test binary statement with errors")

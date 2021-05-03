@@ -113,6 +113,22 @@ function testAdditionWithTypes() {
     assertEqual(a20 + a19, xml `abdefabc`);
 }
 
+function testAddSingleton() {
+    1 a1 = 1;
+    int a2 = 2;
+    20.5 a3 = 20.5;
+    float a4 = 10.5;
+    SomeTypes a5 = 10;
+    int|int:Signed16 a6 = 15;
+    E a7 = 12;
+
+    assertEqual(a1 + a2, 3);
+    assertEqual(a3 + a4, 31.0);
+    assertEqual(a1 + a5, 11);
+    assertEqual(a1 + a6, 16);
+    assertEqual(a1 + a7, 13);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

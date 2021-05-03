@@ -69,6 +69,22 @@ function testDivisionWithTypes() {
     assertEqual(a11 / a10, 2d);
 }
 
+function testDivisionSingleton() {
+    20 a1 = 20;
+    int a2 = 2;
+    20.5 a3 = 20.5;
+    float a4 = 10;
+    SomeTypes a5 = 30;
+    int|int:Signed16 a6 = 5;
+    E a7 = 12;
+
+    assertEqual(a1 / a2, 10);
+    assertEqual(a3 / a4, 2.05);
+    assertEqual(a1 / a5, 0);
+    assertEqual(a1 / a6, 4);
+    assertEqual(a1 / a7, 1);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

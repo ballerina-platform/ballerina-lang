@@ -25,6 +25,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -67,9 +68,17 @@ public class MultiplyOperationTest {
         Assert.assertEquals(actual, expected);
     }
 
-    @Test(description = "Test multiplication with types")
-    public void testMultiplicationWithTypes() {
-        BRunUtil.invoke(result, "testMultiplicationWithTypes");
+    @Test(dataProvider = "dataToTestDivisionWithTypes", description = "Test multiplication with types")
+    public void testDivisionWithTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestDivisionWithTypes() {
+        return new Object[]{
+                "testMultiplicationWithTypes",
+                "testMultiplySingleton"
+        };
     }
 
     @Test(description = "Test binary statement with errors")

@@ -53,6 +53,22 @@ function testSubtractionWithTypes() {
     assertEqual(a10 - a11, 5d);
 }
 
+function testSubtractSingleton() {
+    20 a1 = 20;
+    int a2 = 2;
+    20.5 a3 = 20.5;
+    float a4 = 10.5;
+    SomeTypes a5 = 10;
+    int|int:Signed16 a6 = 15;
+    E a7 = 12;
+
+    assertEqual(a1 - a2, 18);
+    assertEqual(a3 - a4, 10.0);
+    assertEqual(a1 - a5, 10);
+    assertEqual(a1 - a6, 5);
+    assertEqual(a1 - a7, 8);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

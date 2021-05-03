@@ -26,6 +26,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -93,9 +94,17 @@ public class ModOperationTest {
         Assert.assertEquals(returns[0].stringValue(), "NaN");
     }
 
-    @Test(description = "Test mod with types")
-    public void testModWithTypes() {
-        BRunUtil.invoke(result, "testModWithTypes");
+    @Test(dataProvider = "dataToTestModWithTypes", description = "Test mod with types")
+    public void testModWithTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestModWithTypes() {
+        return new Object[]{
+                "testModWithTypes",
+                "testModSingleton"
+        };
     }
 
     @Test(description = "Test mod operation negative scenarios")

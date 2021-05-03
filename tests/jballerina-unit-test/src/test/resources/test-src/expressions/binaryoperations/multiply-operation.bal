@@ -53,6 +53,22 @@ function testMultiplicationWithTypes() {
     assertEqual(a10 * a11, 210d);
 }
 
+function testMultiplySingleton() {
+    20 a1 = 20;
+    int a2 = 2;
+    20.5 a3 = 20.5;
+    float a4 = 10;
+    SomeTypes a5 = 30;
+    int|int:Signed16 a6 = 5;
+    E a7 = 12;
+
+    assertEqual(a1 * a2, 40);
+    assertEqual(a3 * a4, 205.0);
+    assertEqual(a1 * a5, 600);
+    assertEqual(a1 * a6, 100);
+    assertEqual(a1 * a7, 240);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

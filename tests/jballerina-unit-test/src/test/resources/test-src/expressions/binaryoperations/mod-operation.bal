@@ -53,6 +53,22 @@ function testModWithTypes() {
     assertEqual(a10 % a11, 10d);
 }
 
+function testModSingleton() {
+    20 a1 = 20;
+    int a2 = 2;
+    25.0 a3 = 25.0;
+    float a4 = 10;
+    SomeTypes a5 = 30;
+    int|int:Signed16 a6 = 5;
+    E a7 = 12;
+
+    assertEqual(a1 % a2, 0);
+    assertEqual(a3 % a4, 5.0);
+    assertEqual(a1 % a5, 20);
+    assertEqual(a1 % a6, 0);
+    assertEqual(a1 % a7, 8);
+}
+
 function assertEqual(any actual, any expected) {
     if actual is anydata && expected is anydata && actual == expected {
         return;

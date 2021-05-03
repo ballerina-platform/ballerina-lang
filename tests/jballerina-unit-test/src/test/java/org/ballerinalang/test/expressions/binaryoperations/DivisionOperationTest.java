@@ -26,6 +26,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -114,8 +115,16 @@ public class DivisionOperationTest {
         BRunUtil.invoke(result, "overflowByDivision");
     }
 
-    @Test(description = "Test division with types")
-    public void testDivisionWithTypes() {
-        BRunUtil.invoke(result, "testDivisionWithTypes");
+    @Test(dataProvider = "dataToTestDivisionWithTypes", description = "Test division with types")
+    public void testDivisionWithTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestDivisionWithTypes() {
+        return new Object[]{
+                "testDivisionWithTypes",
+                "testDivisionSingleton"
+        };
     }
 }

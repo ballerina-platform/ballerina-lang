@@ -25,6 +25,7 @@ import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -80,9 +81,17 @@ public class SubtractOperationTest {
         Assert.assertEquals(actualResult, expectedResult);
     }
 
-    @Test(description = "Test subtraction with types")
-    public void testSubtractionWithTypes() {
-        BRunUtil.invoke(result, "testSubtractionWithTypes");
+    @Test(dataProvider = "dataToTestSubtractionWithTypes", description = "Test subtraction with types")
+    public void testSubtractionWithTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestSubtractionWithTypes() {
+        return new Object[]{
+                "testSubtractionWithTypes",
+                "testSubtractSingleton"
+        };
     }
 
     @Test(description = "Test substract statement with errors")
