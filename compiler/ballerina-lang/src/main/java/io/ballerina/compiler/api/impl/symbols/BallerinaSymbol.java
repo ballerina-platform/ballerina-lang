@@ -47,6 +47,7 @@ public class BallerinaSymbol implements Symbol {
     private final BSymbol internalSymbol;
     private ModuleSymbol module;
     private boolean moduleEvaluated;
+    private String escapedName;
 
     protected BallerinaSymbol(String name, SymbolKind symbolKind, BSymbol symbol, CompilerContext context) {
         this.name = name;
@@ -69,14 +70,19 @@ public class BallerinaSymbol implements Symbol {
     public Optional<String> getName() {
         // In the langlib context, reserved keywords can be used as regular identifiers. Therefore, they will not be
         // escaped.
+        if (this.escapedName != null) {
+            return Optional.of(this.escapedName);
+        }
         if (getModule().isPresent()) {
             ModuleID moduleID = getModule().get().id();
             if (moduleID != null && moduleID.moduleName().startsWith("lang")
                     && moduleID.orgName().startsWith("ballerina")) {
-                return Optional.ofNullable(this.name);
+                this.escapedName = this.name;
+                return Optional.ofNullable(this.escapedName);
             }
         }
-        return Optional.ofNullable(escapeReservedKeyword(this.name));
+        this.escapedName = escapeReservedKeyword(this.name);
+        return Optional.ofNullable(this.escapedName);
     }
 
     @Override
