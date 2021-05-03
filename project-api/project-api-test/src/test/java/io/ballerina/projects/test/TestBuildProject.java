@@ -117,8 +117,8 @@ public class TestBuildProject {
             for (DocumentId testDocumentId : module.testDocumentIds()) {
                 noOfTestDocuments++;
             }
-            for (Document doc : module.documents()) {
-                Assert.assertNotNull(doc.syntaxTree());
+            for (DocumentId docId : module.documentIds()) {
+                Assert.assertNotNull(module.document(docId).syntaxTree());
             }
         }
 
@@ -792,9 +792,9 @@ public class TestBuildProject {
 
         // 7) Get the document
         Document srcFile = null;
-        for (Document doc : defaultModule.documents()) {
-            if (doc.name().equals("main.bal")) {
-                srcFile = doc;
+        for (DocumentId docId : defaultModule.documentIds()) {
+            if (defaultModule.document(docId).name().equals("main.bal")) {
+                srcFile = defaultModule.document(docId);
                 break;
             }
         }

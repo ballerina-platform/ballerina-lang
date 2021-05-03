@@ -718,6 +718,8 @@ types:
         type: s4
       - id: annotation_attachments_content
         type: annotation_attachments_content
+      - id: return_type_annotations
+        type: annotation_attachments_content
       - id: required_param_count
         type: s4
       - id: required_params

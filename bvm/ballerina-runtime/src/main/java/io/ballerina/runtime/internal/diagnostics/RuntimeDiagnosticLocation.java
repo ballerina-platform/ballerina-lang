@@ -17,24 +17,34 @@
  */
 package io.ballerina.runtime.internal.diagnostics;
 
+import io.ballerina.tools.diagnostics.Location;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextRange;
+
 /**
- * Represents a severity of a {@code Diagnostic}.
+ * Represent the location of a diagnostic at runtime.
  *
  * @since 2.0.0
  */
-public enum DiagnosticSeverity {
+public class RuntimeDiagnosticLocation implements Location {
 
-    WARNING("warning"),
-    ERROR("error");
+    private String location;
 
-    String value;
-
-    DiagnosticSeverity(String value) {
-        this.value = value;
+    public RuntimeDiagnosticLocation(String location) {
+        this.location = location;
     }
 
     @Override
-    public String toString() {
-        return value;
+    public LineRange lineRange() {
+        return null;
+    }
+
+    @Override
+    public TextRange textRange() {
+        return null;
+    }
+
+    public String getLocation() {
+        return location;
     }
 }

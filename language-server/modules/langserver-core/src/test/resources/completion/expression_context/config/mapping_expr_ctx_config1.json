@@ -87,7 +87,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "value3",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -101,7 +101,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
+          "newText": "import ballerina/lang.value as value3 ;\n"
         }
       ]
     },
@@ -449,6 +449,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testMap",
+      "kind": "Variable",
+      "detail": "$CompilationError$",
+      "sortText": "B",
+      "insertText": "testMap",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "value2",
       "kind": "Variable",
       "detail": "int",
@@ -457,11 +473,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value1",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -479,28 +495,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testMap",
-      "kind": "Variable",
-      "detail": "$CompilationError$",
-      "sortText": "B",
-      "insertText": "testMap",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "doTask()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "doTask()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
@@ -515,11 +509,17 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
+      "label": "doTask()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "insertText": "doTask()",
       "insertTextFormat": "Snippet"
     },
     {
