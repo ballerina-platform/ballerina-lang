@@ -122,7 +122,8 @@ function testCombinedExprAsDefaultValue() returns [[int, string, float], [int, s
     return [a, b, c];
 }
 
-function foo2(int a = getInt() + 5 + getInt(), string b = "def" + getString(), float c = getFloat() + getInt()) returns [int, string, float] {
+function foo2(int a = getInt() + 5 + getInt(), string b = "def" + getString(), float c = getFloat() + <float>getInt())
+returns [int, string, float] {
     return [a, b, c];
 }
 
