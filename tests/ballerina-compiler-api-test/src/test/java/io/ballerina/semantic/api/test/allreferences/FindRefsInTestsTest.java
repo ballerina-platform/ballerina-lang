@@ -50,11 +50,13 @@ public class FindRefsInTestsTest extends FindAllReferencesTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {25, 14, List.of(location(16, 16, 19, "functions.bal"),
-                                 location(25, 14, 17, getFileName()))
+                {25, 14, location(16, 16, 19, "functions.bal"),
+                        List.of(location(16, 16, 19, "functions.bal"),
+                                location(25, 14, 17, getFileName()))
                 },
-                {20, 22, List.of(location(16, 13, 15, "constants.bal"),
-                                 location(20, 22, 24, getFileName()))
+                {20, 22, location(16, 13, 15, "constants.bal"),
+                        List.of(location(16, 13, 15, "constants.bal"),
+                                location(20, 22, 24, getFileName()))
                 },
         };
     }

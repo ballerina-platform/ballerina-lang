@@ -285,8 +285,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                     && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)
                     && !CommonUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
                 String[] pkgNameComps = name.split("\\.");
-                String insertText = pkgNameComps[pkgNameComps.length - 1];
-                List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, ctx);
+                String aliasComponent = pkgNameComps[pkgNameComps.length - 1];
+                // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
+                String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
+                String alias = !insertText.equals(aliasComponent) ? insertText : "";
+                List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, alias, ctx);
                 CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits);
                 completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
             }
@@ -306,13 +309,16 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             String moduleNamePart = module.moduleName().moduleNamePart();
             // In order to support the hierarchical module names, split and get the last component as the module name
             String[] moduleNameComponents = moduleNamePart.split("\\.");
-            String insertText = moduleNameComponents[moduleNameComponents.length - 1];
+            String aliasComponent = moduleNameComponents[moduleNameComponents.length - 1];
+            // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
+            String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
+            String alias = !insertText.equals(aliasComponent) ? insertText : "";
             String pkgName = module.moduleName().packageName().value();
             String label = pkgName + "." + moduleNamePart;
             if (module.equals(currentModule.get()) || module.isDefaultModule() || processedList.contains(label)) {
                 return;
             }
-            List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits("", label, ctx);
+            List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits("", label, alias, ctx);
             CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits);
             completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
         });

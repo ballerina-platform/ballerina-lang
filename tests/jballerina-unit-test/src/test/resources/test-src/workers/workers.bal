@@ -1,6 +1,6 @@
 import ballerina/jballerina.java;
 
-function workerReturnTest() returns int{
+function workerReturnTest() returns int {
     @strand{thread:"any"}
     worker wx returns int {
 	    int x = 50;
@@ -221,8 +221,8 @@ public function sendToDefaultWithPanicBeforeSendInWorker() returns int {
         }
         i -> function;
     }
-    wait w1;
     int res = <- w1;
+    wait w1;
     return res;
 }
 
@@ -230,14 +230,14 @@ public function sendToDefaultWithPanicBeforeSendInDefault() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
-        i -> function;
+        i ->> function;
     }
-    wait w1;
     if(true) {
         error err = error("error: err from panic");
         panic err;
     }
     int res = <- w1;
+    wait w1;
     return res;
 }
 
@@ -245,14 +245,16 @@ public function sendToDefaultWithPanicAfterSendInWorker() returns int {
     @strand{thread:"any"}
     worker w1 {
         int i = 2;
+        error err = error("error: err from panic");
         i -> function;
         if(true) {
-            error err = error("error: err from panic");
             panic err;
         }
+        i -> function;
     }
-    wait w1;
+
     int res = <- w1;
+    res = <- w1;
     return res;
 }
 
@@ -654,6 +656,28 @@ function testPanicStartInsideLockWithDepth1() {
 
 function testStartFunction() {
     int i = 4;
+}
+
+function () returns int sumFunction =
+        function () returns int {
+            worker w1 {
+                1 -> w2;
+            }
+
+            worker w2 returns int {
+                int j = <- w1;
+                return j;
+            }
+
+            int k = wait w2;
+            return k;
+        };
+
+function testLambdaWithWorkerMessagePassing() {
+    int k = sumFunction();
+    if (k != 1) {
+        panic error("Assertion error: expected 1, found: " + k.toString());
+    }
 }
 
 public function sleep(int millis) = @java:Method {

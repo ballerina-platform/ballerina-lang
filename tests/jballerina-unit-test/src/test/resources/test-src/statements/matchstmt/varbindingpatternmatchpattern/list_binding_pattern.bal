@@ -482,6 +482,25 @@ function testListBindingPattern21() {
     assertEquals("other", listBindingPattern21({name: "May"}));
 }
 
+function listBindingPattern22(json j) returns json {
+    match j {
+        var [x] => {
+            return x;
+        }
+    }
+    return ();
+}
+
+function testListBindingPattern22() {
+    assertEquals("hello", listBindingPattern22(["hello"]));
+    assertEquals(1, listBindingPattern22([1]));
+    assertEquals((), listBindingPattern22([()]));
+    assertEquals((), listBindingPattern22({a: "hello world", x1: 1}));
+    assertEquals((), listBindingPattern22([]));
+    assertEquals((), listBindingPattern22([1, 2, 3]));
+    assertEquals((), listBindingPattern22(1));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;
