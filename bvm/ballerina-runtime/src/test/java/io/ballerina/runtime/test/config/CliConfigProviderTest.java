@@ -79,7 +79,7 @@ public class CliConfigProviderTest {
                 // module = root Module
                 {"-CintVar=123", "rootOrg", "rootMod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 // module = root Module and full command line argument
-                {"-CrootOrg.mod.intVar=123", "rootOrg", "rootMod", "intVar", PredefinedTypes.TYPE_INT, 123L},
+                {"-CrootOrg.rootMod.intVar=123", "rootOrg", "rootMod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 // module org = root Module org
                 {"-Cmod.intVar=123", "rootOrg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 // Variable with '='
