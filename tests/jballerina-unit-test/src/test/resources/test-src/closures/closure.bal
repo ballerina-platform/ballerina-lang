@@ -759,15 +759,15 @@ function errorConstructorReference1(string param1) returns error? {
     string temp = "text " + param1;
     var process = function(string param2) returns error? {
         moduleLevel = moduleLevel + param2;
-        return error("An Error", tempString = temp, moduleString = moduleLevel);
+        return error("An Error", tempString = temp, moduleString = moduleLevel, param1 = param1, param2 = param2);
     };
     return process("tempParam2");
 }
 
-function errorConstructorReference2() returns function() returns error? {
+function errorConstructorReference2(string[] arr) returns function() returns error? {
     string temp = "text";
     var process = function() returns error? {
-        return error("An Error", tempString = temp);
+        return error("An Error", tempString = temp, arrayParam = arr);
     };
     return process;
 }
@@ -778,12 +778,17 @@ function errorConstructorWithClosureTest() {
      map<value:Cloneable> errorDetail = err.detail();
      assert("text tempParam1", <string> checkpanic errorDetail["tempString"]);
      assert("moduleText1 tempParam2", <string> checkpanic errorDetail["moduleString"]);
+     assert("tempParam1", <string> checkpanic errorDetail["param1"]);
+     assert("tempParam2", <string> checkpanic errorDetail["param2"]);
 
-     var tempfunc = errorConstructorReference2();
+     string[] arr = ["array"];
+     var tempfunc = errorConstructorReference2(arr);
+     arr.push("text");
      var tempErr = tempfunc();
      err = <error>tempErr;
      errorDetail = err.detail();
      assert("text", <string> checkpanic errorDetail["tempString"]);
+     assert("[\"array\",\"text\"]",  (checkpanic errorDetail["arrayParam"]).toString());
 }
 
 function assert(anydata actual, anydata expected) {
