@@ -318,8 +318,6 @@ public class RecordVariableDefinitionTest {
         BAssertUtil.validateError(resultNegative, ++i,
                 "underscore is not allowed here", 157, 19);
         BAssertUtil.validateError(resultNegative, ++i,
-                "underscore is not allowed here", 157, 19);
-        BAssertUtil.validateError(resultNegative, ++i,
                 "no new variables on left side", 158, 19);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
