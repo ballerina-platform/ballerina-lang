@@ -92,20 +92,32 @@ public class BLangDiagnostic extends Diagnostic {
     public int hashCode() {
         int propHash = Arrays.hashCode(properties.toArray());
 
-        return Arrays.hashCode(new int[]{
-                location.hashCode(), msg.hashCode(), diagnosticInfo.hashCode(), diagnosticCode.hashCode(), propHash
-        });
+        if (diagnosticCode != null) {
+            return Arrays.hashCode(new int[]{
+                    location.hashCode(), msg.hashCode(), diagnosticInfo.hashCode(), diagnosticCode.hashCode(),
+                    propHash});
+        }
+        return Arrays.hashCode(new int[]{location.hashCode(), msg.hashCode(), diagnosticInfo.hashCode(), propHash});
     }
 
     @Override
     public boolean equals(Object obj) {
         if (obj instanceof BLangDiagnostic) {
             BLangDiagnostic that = (BLangDiagnostic) obj;
-            return this.location.equals(that.location) && this.msg.equals(that.message())
-                    && this.diagnosticInfo.equals(that.diagnosticInfo)
-                    && this.diagnosticCode.equals(that.diagnosticCode)
-                    && this.properties.equals(that.properties);
-
+            if (this.diagnosticCode != null) {
+                return this.location.equals(that.location) && this.msg.equals(that.message())
+                        && this.diagnosticInfo.equals(that.diagnosticInfo)
+                        && this.properties.equals(that.properties)
+                        && this.diagnosticCode.equals(that.diagnosticCode);
+            } else {
+                if (that.diagnosticCode != null) {
+                    return false;
+                }
+                return this.location.equals(that.location)
+                        && this.msg.equals(that.message())
+                        && this.diagnosticInfo.equals(that.diagnosticInfo)
+                        && this.properties.equals(that.properties);
+            }
         }
         return false;
     }

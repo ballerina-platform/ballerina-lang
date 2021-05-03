@@ -60,6 +60,9 @@ public class DiagnosticInfo {
 
     @Override
     public int hashCode() {
+        if (this.code == null) {
+            return Arrays.hashCode(new int[]{messageFormat.hashCode(), severity.hashCode()});
+        }
         return Arrays.hashCode(new int[]{code.hashCode(), messageFormat.hashCode(), severity.hashCode()});
     }
 
@@ -67,8 +70,13 @@ public class DiagnosticInfo {
     public boolean equals(Object obj) {
         if (obj instanceof DiagnosticInfo) {
             DiagnosticInfo that = (DiagnosticInfo) obj;
-            return this.code.equals(that.code) && this.messageFormat.equals(that.messageFormat)
-                    && this.severity.equals(that.severity);
+            if (this.code != null) {
+                return this.code.equals(that.code) && this.messageFormat.equals(that.messageFormat)
+                        && this.severity.equals(that.severity);
+            } else if (that.code != null) {
+                return false;
+            }
+            return this.messageFormat.equals(that.messageFormat) && this.severity.equals(that.severity);
         }
         return false;
     }
