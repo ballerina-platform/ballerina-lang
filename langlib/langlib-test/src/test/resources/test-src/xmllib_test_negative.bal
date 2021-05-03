@@ -71,8 +71,8 @@ function testGetDescendantsFromSeq() returns xml {
 }
 
 function tesXMLStrip() returns xml {
-   xml<'xml:Element> x1 = xml `<foo><bar/><?foo?>text1 text2<!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>`;
-   xml<'xml:Element> x2 = x1.strip();
-   readonly & xml x3 = xml `<foo><bar/><?foo?>text1 text2<!--Com1--> <bar/></foo>`;
-   xml x4 = x3.strip();
+   xml<'xml:Element> x21 = xml `<foo><bar/><?foo?>text1 text2<!--Com1--> <bar/></foo><foo><?foo?>text1<!--Com2--></foo>`;
+   xml<'xml:Element> x22 = x21.strip();
+
+
 }

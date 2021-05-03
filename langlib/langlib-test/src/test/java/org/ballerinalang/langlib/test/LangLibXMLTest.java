@@ -241,11 +241,8 @@ public class LangLibXMLTest {
     }
 
     @Test
-    public void testXMLCloneReadOnlyNegative() {
-        BValue[] returns = BRunUtil.invoke(compileResult, "testXMLCloneReadOnlyNegative");
-        assertEquals(returns[0].stringValue(),
-                "{ballerina/lang.xml}XMLOperationError " +
-                        "{\"message\":\"Failed to strip xml: modification not allowed on readonly value\"}");
+    public void testXMLReadOnlyTest() {
+        BRunUtil.invoke(compileResult, "testXMLReadOnlyTest");
     }
 
     @Test
@@ -329,9 +326,8 @@ public class LangLibXMLTest {
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 69, 13);
         validateError(negativeResult, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml'",
                 75, 27);
-        validateError(negativeResult, i++, "cannot update 'readonly' value of type " +
-                        "'xml<((xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text) & readonly)> & readonly'",
-                77, 13);
+
+
         assertEquals(negativeResult.getErrorCount(), i);
     }
 
