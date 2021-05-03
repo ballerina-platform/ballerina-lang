@@ -6,52 +6,6 @@
   "source": "query_expression/source/query_expr_ctx_source18.bal",
   "items": [
     {
-      "label": "ballerina/lang.test",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "test",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.test;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.array",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "array",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.array;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/jballerina.java",
       "kind": "Module",
       "detail": "Module",
@@ -71,6 +25,29 @@
             }
           },
           "newText": "import ballerina/jballerina.java;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.test",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "test",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -98,29 +75,6 @@
       ]
     },
     {
-      "label": "ballerina/module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/module1;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.query",
       "kind": "Module",
       "detail": "Module",
@@ -144,6 +98,29 @@
       ]
     },
     {
+      "label": "ballerina/lang.array",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "array",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.array;\n"
+        }
+      ]
+    },
+    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -163,6 +140,29 @@
             }
           },
           "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -279,11 +279,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
+      "label": "Customer",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "Customer",
       "insertTextFormat": "Snippet"
     },
     {
@@ -295,6 +295,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -346,19 +354,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
       "sortText": "Q",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {

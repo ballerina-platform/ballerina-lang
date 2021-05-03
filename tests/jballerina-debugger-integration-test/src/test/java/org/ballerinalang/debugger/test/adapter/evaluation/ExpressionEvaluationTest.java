@@ -309,7 +309,7 @@ public class ExpressionEvaluationTest extends ExpressionEvaluationBaseTest {
     }
 
     @Override
-    @Test
+    @Test(enabled = false)
     public void methodCallEvaluationTest() throws BallerinaTestException {
 
         // 1. object methods

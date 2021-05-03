@@ -19,7 +19,6 @@
 package io.ballerina.projects.test;
 
 import io.ballerina.projects.DependencyGraph;
-import io.ballerina.projects.Document;
 import io.ballerina.projects.DocumentId;
 import io.ballerina.projects.EmitResult;
 import io.ballerina.projects.JBallerinaBackend;
@@ -116,8 +115,8 @@ public class TestBalaProject {
             for (DocumentId testDocumentId : module.testDocumentIds()) {
                 noOfTestDocuments++;
             }
-            for (Document doc : module.documents()) {
-                Assert.assertNotNull(doc.syntaxTree());
+            for (DocumentId docId : module.documentIds()) {
+                Assert.assertNotNull(module.document(docId).syntaxTree());
             }
         }
 

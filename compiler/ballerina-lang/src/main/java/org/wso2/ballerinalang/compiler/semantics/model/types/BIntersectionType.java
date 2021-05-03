@@ -17,6 +17,7 @@
  */
 package org.wso2.ballerinalang.compiler.semantics.model.types;
 
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.IntersectionType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.semantics.model.TypeVisitor;
@@ -27,6 +28,7 @@ import org.wso2.ballerinalang.util.Flags;
 
 import java.util.Collections;
 import java.util.LinkedHashSet;
+import java.util.Optional;
 import java.util.Set;
 import java.util.StringJoiner;
 
@@ -40,11 +42,13 @@ public class BIntersectionType extends BType implements IntersectionType {
     public BType effectiveType;
 
     private LinkedHashSet<BType> constituentTypes;
+    private BIntersectionType intersectionType;
 
-    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types, BType effectiveType) {
+    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types,
+                             IntersectableReferenceType effectiveType) {
         super(TypeTags.INTERSECTION, tsymbol);
         this.constituentTypes = toFlatTypeSet(types);
-        this.effectiveType = effectiveType;
+        this.effectiveType = (BType) effectiveType;
 
         for (BType constituentType : this.constituentTypes) {
             if (constituentType.tag == TypeTags.READONLY) {
@@ -52,12 +56,15 @@ public class BIntersectionType extends BType implements IntersectionType {
                 break;
             }
         }
+        effectiveType.setIntersectionType(this);
     }
 
-    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types, BType effectiveType, long flags) {
+    public BIntersectionType(BTypeSymbol tsymbol, LinkedHashSet<BType> types, IntersectableReferenceType effectiveType,
+                             long flags) {
         super(TypeTags.INTERSECTION, tsymbol, flags);
         this.constituentTypes = toFlatTypeSet(types);
-        this.effectiveType = effectiveType;
+        this.effectiveType = (BType) effectiveType;
+        effectiveType.setIntersectionType(this);
     }
 
     @Override
@@ -123,5 +130,15 @@ public class BIntersectionType extends BType implements IntersectionType {
     @Override
     public BIntersectionType getImmutableType() {
         return Symbols.isFlagOn(this.flags, Flags.READONLY) ? this : null;
+    }
+
+    @Override
+    public Optional<BIntersectionType> getIntersectionType() {
+        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(BIntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

@@ -150,6 +150,8 @@
             <package name="org.ballerinalang.test.klass.*"/>
             <package name="org.ballerinalang.test.services.*"/>
             <package name="org.ballerinalang.test.runtime.api.*"/>
+            <package name="org.ballerinalang.test.identifiers.*"/>
+
         </packages>
 
         <classes>

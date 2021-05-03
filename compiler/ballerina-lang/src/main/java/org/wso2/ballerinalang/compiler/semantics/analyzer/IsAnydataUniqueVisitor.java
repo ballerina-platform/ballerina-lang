@@ -71,6 +71,7 @@ public class IsAnydataUniqueVisitor implements UniqueTypeVisitor<Boolean> {
             case TypeTags.XML:
             case TypeTags.TABLE:
             case TypeTags.NIL:
+            case TypeTags.NEVER:
             case TypeTags.ANYDATA:
             case TypeTags.SIGNED8_INT:
             case TypeTags.SIGNED16_INT:

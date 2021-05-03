@@ -61,3 +61,18 @@ function testSameMatchPatternsNegative3(any v) {
         var {x: a, y: b, ...c} => {} // unreachable pattern
     }
 }
+
+type Person record {|
+    int id;
+    string name;
+    boolean employed;
+|};
+
+function testUnmatchedPatternAgainstClosedRecord(Person person) {
+    match person {
+        var {x, ...rest} => {
+        }
+        var {id, name, ...rest} => {
+        }
+    }
+}

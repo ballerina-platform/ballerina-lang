@@ -38,6 +38,11 @@ public class BNeverType extends BNullType implements NeverType {
     }
 
     @Override
+    public boolean isAnydata() {
+        return true;
+    }
+
+    @Override
     public int getTag() {
         return TypeTags.NEVER_TAG;
     }

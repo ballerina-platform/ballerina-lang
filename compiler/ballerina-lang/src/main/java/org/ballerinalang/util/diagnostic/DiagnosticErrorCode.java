@@ -109,7 +109,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNDEFINED_WORKER("BCE2075", "undefined.worker"),
     INVALID_WORKER_JOIN_RESULT_TYPE("BCE2076", "invalid.worker.join.result.type"),
     INVALID_WORKER_TIMEOUT_RESULT_TYPE("BCE2077", "invalid.worker.timeout.result.type"),
-    INVALID_WORKER_REFERRENCE("BCE2078", "invalid.worker.reference"),
+    ILLEGAL_WORKER_REFERENCE_AS_A_VARIABLE_REFERENCE("BCE2078", "illegal.worker.reference.as.a.variable.reference"),
     INCOMPATIBLE_TYPE_CONSTRAINT("BCE2079", "incompatible.type.constraint"),
     USAGE_OF_WORKER_WITHIN_LOCK_IS_PROHIBITED("BCE2080", "usage.of.worker.within.lock.is.prohibited"),
     USAGE_OF_START_WITHIN_LOCK_IS_PROHIBITED("BCE2081", "usage.of.start.within.lock.is.prohibited"),
@@ -709,8 +709,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
             "invalid.iterable.completion.type.in.foreach.next.function"),
     SAME_ARRAY_TYPE_AS_MAIN_PARAMETER("BCE4001", "same.array.type.as.main.param"),
     VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM("BCE4002", "variable.and.array.type.as.main.param"),
-    INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4003", "invalid.main.option.params.type")
-            ;
+    INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4003", "invalid.main.option.params.type"),
+    WORKER_INTERACTION_AFTER_WAIT_ACTION("BCE4005", "invalid.worker.message.passing.after.wait.action")
     ;
 
     private String diagnosticId;
