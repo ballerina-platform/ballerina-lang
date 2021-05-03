@@ -221,7 +221,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INCOMPATIBLE_TYPES_CONVERSION("BCE2502", "incompatible.types.conversion"),
     INCOMPATIBLE_TYPES_CONVERSION_WITH_SUGGESTION("BCE2503", "incompatible.types.conversion.with.suggestion"),
     UNSAFE_CAST_ATTEMPT("BCE2504", "unsafe.cast.attempt"),
-    IMPLICIT_NUMERIC_CONVERSIONS_NOT_ALLOWED("BCE2505", "implicit.numeric.conversions.not.allowed"),
 
     INVALID_LITERAL_FOR_TYPE("BCE2506", "invalid.literal.for.type"),
     INCOMPATIBLE_MAPPING_CONSTRUCTOR("BCE2507", "incompatible.mapping.constructor.expression"),

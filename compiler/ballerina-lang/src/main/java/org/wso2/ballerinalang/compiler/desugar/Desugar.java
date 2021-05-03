@@ -6543,10 +6543,6 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (isArithmeticOperator) {
-            createTypeCastExprForArithmeticExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
-        }
-
         if (lhsExprTypeTag == TypeTags.FLOAT) {
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.lhsExpr.type);
             return;
@@ -6557,8 +6553,14 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
+        if (isArithmeticOperator) {
+            createTypeCastExprForArithmeticExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+            return;
+        }
+
         if (isBinaryShiftOperator) {
             createTypeCastExprForBinaryShiftExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+            return;
         }
 
         if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
@@ -6569,7 +6571,8 @@ public class Desugar extends BLangNodeVisitor {
     private void createTypeCastExprForArithmeticExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
                                                      int rhsExprTypeTag) {
         if ((TypeTags.isIntegerTypeTag(lhsExprTypeTag) && TypeTags.isIntegerTypeTag(rhsExprTypeTag)) ||
-                (TypeTags.isStringTypeTag(lhsExprTypeTag) && TypeTags.isStringTypeTag(rhsExprTypeTag))) {
+                (TypeTags.isStringTypeTag(lhsExprTypeTag) && TypeTags.isStringTypeTag(rhsExprTypeTag)) ||
+                (TypeTags.isXMLTypeTag(lhsExprTypeTag) && TypeTags.isXMLTypeTag(rhsExprTypeTag))) {
             return;
         }
         if (TypeTags.isXMLTypeTag(lhsExprTypeTag) && !TypeTags.isXMLTypeTag(rhsExprTypeTag)) {
@@ -6619,6 +6622,12 @@ public class Desugar extends BLangNodeVisitor {
                                                                 int rhsExprTypeTag) {
         boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
         boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
+
+        if ((isLhsIntegerType && isRhsIntegerType) || (lhsExprTypeTag == TypeTags.BYTE &&
+                rhsExprTypeTag == TypeTags.BYTE)) {
+            return;
+        }
+
         if (isLhsIntegerType && !isRhsIntegerType) {
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
             return;
@@ -6637,6 +6646,10 @@ public class Desugar extends BLangNodeVisitor {
 
         boolean isLhsStringType = TypeTags.isStringTypeTag(lhsExprTypeTag);
         boolean isRhsStringType = TypeTags.isStringTypeTag(rhsExprTypeTag);
+
+        if (isLhsStringType && isRhsStringType) {
+            return;
+        }
 
         if (isLhsStringType && !isRhsStringType) {
             binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);

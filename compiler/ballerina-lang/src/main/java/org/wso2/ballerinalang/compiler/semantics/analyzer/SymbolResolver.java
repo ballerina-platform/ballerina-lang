@@ -1712,15 +1712,15 @@ public class SymbolResolver extends BLangNodeVisitor {
         }
 
         if (validNumericOrStringTypeExists) {
-            BType retType;
             BType compatibleType1 = types.findCompatibleType(lhsType);
             BType compatibleType2 = types.findCompatibleType(rhsType);
-            if (compatibleType1.tag < compatibleType2.tag) {
-                retType = compatibleType2;
-            } else {
-                retType = compatibleType1;
+            if (types.isBasicNumericType(compatibleType1) && compatibleType1 != compatibleType2) {
+                return symTable.notFoundSymbol;
             }
-            return createBinaryOperator(opKind, lhsType, rhsType, retType);
+            if (compatibleType1.tag < compatibleType2.tag) {
+                return createBinaryOperator(opKind, lhsType, rhsType, compatibleType2);
+            }
+            return createBinaryOperator(opKind, lhsType, rhsType, compatibleType1);
         }
         return symTable.notFoundSymbol;
     }

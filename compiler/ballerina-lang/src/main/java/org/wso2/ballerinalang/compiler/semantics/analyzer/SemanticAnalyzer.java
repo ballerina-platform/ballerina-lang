@@ -1120,10 +1120,6 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             variable.type = symTable.semanticError;
             dlog.error(variable.pos, DiagnosticErrorCode.VARIABLE_DECL_WITH_VAR_WITHOUT_INITIALIZER);
         } else {
-            if (varRefExpr.getKind() == NodeKind.BINARY_EXPR &&
-                    symResolver.isArithmeticOperator(((BLangBinaryExpr) varRefExpr).opKind)) {
-                dlog.error(varRefExpr.pos, DiagnosticErrorCode.IMPLICIT_NUMERIC_CONVERSIONS_NOT_ALLOWED);
-            }
             rhsType = typeChecker.checkExpr(varRefExpr, this.env, expType);
         }
 
