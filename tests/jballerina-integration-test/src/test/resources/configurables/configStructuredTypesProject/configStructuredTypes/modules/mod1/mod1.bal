@@ -49,7 +49,9 @@ public type PersonArray Person;
 
 public type Lecturer record {|
     string name;
-    Department department;
+    Department department1;
+    Department department2?;
+    readonly Department department3;
 |};
 
 public type Department readonly & record {|
@@ -58,7 +60,9 @@ public type Department readonly & record {|
 
 public type Lawyer readonly & record {|
     string name;
-    Place place;
+    Place place1;
+    Place place2?;
+    readonly Place place3;
 |};
 
 public type Place record {|

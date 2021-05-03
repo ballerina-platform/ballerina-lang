@@ -28,7 +28,9 @@ public type Engineer record {|
 
 type Lecturer record {|
     string name;
-    Department department;
+    Department department1;
+    Department department2?;
+    readonly Department department3;
 |};
 
 type Department readonly & record {|
@@ -37,7 +39,9 @@ type Department readonly & record {|
 
 type Lawyer readonly & record {|
     string name;
-    Address address;
+    Address address1;
+    Address address2?;
+    readonly Address address3;
 |};
 
 type Address record {|
@@ -131,18 +135,26 @@ public function testRecords() {
 }
 
 public function testComplexRecords() {
-    test:assertEquals(lecturer.toString(), "{\"name\":\"hinduja\",\"department\":{\"name\":\"IT\"}}");
-    test:assertEquals(lawyer.toString(), "{\"name\":\"riyafa\",\"address\":{\"city\":\"Colombo\"}}");
-    test:assertEquals(lecturerTable.toString(), "[{\"name\":\"manu\",\"department\":{\"name\":\"IT\"}}," +
-    "{\"name\":\"waruna\",\"department\":{\"name\":\"IT\"}}]");
-    test:assertEquals(lawyerTable.toString(), "[{\"name\":\"gabilan\",\"address\":{\"city\":\"Colombo\"}}," +
-    "{\"name\":\"riyafa\",\"address\":{\"city\":\"Kandy\"}}]");
-    test:assertEquals(lecturer2.toString(), "{\"name\":\"hinduja\",\"department\":{\"name\":\"IT\"}}");
-    test:assertEquals(lawyer2.toString(), "{\"name\":\"riyafa\",\"place\":{\"city\":\"Colombo\"}}");
-    test:assertEquals(lecturerTable2.toString(), "[{\"name\":\"manu\",\"department\":{\"name\":\"IT\"}}," +
-    "{\"name\":\"waruna\",\"department\":{\"name\":\"IT\"}}]");
-    test:assertEquals(lawyerTable2.toString(), "[{\"name\":\"gabilan\",\"place\":{\"city\":\"Colombo\"}}," +
-    "{\"name\":\"riyafa\",\"place\":{\"city\":\"Kandy\"}}]");
+    test:assertEquals(lecturer.toString(), "{\"name\":\"hinduja\",\"department1\":{\"name\":\"IT\"}," +
+    "\"department2\":{\"name\":\"Finance\"},\"department3\":{\"name\":\"HR\"}}");
+    test:assertEquals(lawyer.toString(), "{\"name\":\"riyafa\",\"address1\":{\"city\":\"Colombo\"}," +
+    "\"address2\":{\"city\":\"Kandy\"},\"address3\":{\"city\":\"Galle\"}}");
+    test:assertEquals(lecturerTable.toString(), "[{\"name\":\"manu\",\"department1\":{\"name\":\"IT\"}," +
+    "\"department2\":{\"name\":\"Sales\"},\"department3\":{\"name\":\"HR\"}}," +
+    "{\"name\":\"waruna\",\"department1\":{\"name\":\"IT\"},\"department3\":{\"name\":\"HR\"}}]");
+    test:assertEquals(lawyerTable.toString(), "[{\"name\":\"gabilan\",\"address1\":{\"city\":\"Colombo\"}," +
+    "\"address2\":{\"city\":\"Kandy\"},\"address3\":{\"city\":\"Galle\"}}," +
+     "{\"name\":\"riyafa\",\"address1\":{\"city\":\"Matara\"},\"address3\":{\"city\":\"Gampaha\"}}]");
+    test:assertEquals(lecturer2.toString(), "{\"name\":\"hinduja\",\"department1\":{\"name\":\"IT\"}," +
+    "\"department2\":{\"name\":\"Finance\"},\"department3\":{\"name\":\"HR\"}}");
+    test:assertEquals(lawyer2.toString(), "{\"name\":\"riyafa\",\"place1\":{\"city\":\"Colombo\"}," +
+    "\"place2\":{\"city\":\"Kandy\"},\"place3\":{\"city\":\"Galle\"}}");
+    test:assertEquals(lecturerTable2.toString(), "[{\"name\":\"manu\",\"department1\":{\"name\":\"IT\"}," +
+    "\"department2\":{\"name\":\"Sales\"},\"department3\":{\"name\":\"HR\"}}," +
+    "{\"name\":\"waruna\",\"department1\":{\"name\":\"IT\"},\"department3\":{\"name\":\"HR\"}}]");
+    test:assertEquals(lawyerTable2.toString(), "[{\"name\":\"gabilan\",\"place1\":{\"city\":\"Colombo\"}," +
+    "\"place2\":{\"city\":\"Kandy\"},\"place3\":{\"city\":\"Galle\"}},{\"name\":\"riyafa\"," +
+    "\"place1\":{\"city\":\"Matara\"},\"place3\":{\"city\":\"Jaffna\"}}]");
 }
 
 public function testTables() {
