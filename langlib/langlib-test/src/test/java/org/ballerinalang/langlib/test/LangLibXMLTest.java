@@ -241,8 +241,8 @@ public class LangLibXMLTest {
     }
 
     @Test
-    public void testXMLReadOnlyTest() {
-        BRunUtil.invoke(compileResult, "testXMLReadOnlyTest");
+    public void testXMLReadOnly() {
+        BRunUtil.invoke(compileResult, "testXMLReadOnly");
     }
 
     @Test
@@ -325,9 +325,7 @@ public class LangLibXMLTest {
                 "'(xml:ProcessingInstruction|xml:Comment)', found 'xml:Element'", 61, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 69, 13);
         validateError(negativeResult, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml'",
-                75, 27);
-
-
+                75, 28);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 
