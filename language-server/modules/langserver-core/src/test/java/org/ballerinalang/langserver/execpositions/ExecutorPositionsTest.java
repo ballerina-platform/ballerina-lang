@@ -92,20 +92,20 @@ public class ExecutorPositionsTest {
                     .filter(jsonObject -> jsonObject.get(NAME).getAsString().equals(name.getAsString()))
                     .forEach(execObjects::add);
             Assert.assertEquals(execObjects.size(), 1, "Executor position test's object size assert fails with " +
-                    expected + "test case.");
+                    expected + " test case.");
             Assert.assertEquals(name, execObjects.get(0).getAsJsonPrimitive(NAME), "Executor position test's name " +
-                    "assert fails with " + expected + "test case.");
+                    "assert fails with " + expected + " test case.");
             Assert.assertNotNull(jsonExec.getAsJsonObject().getAsJsonPrimitive(FILE_PATH), "Executor position test's" +
-                    " filePath assert fails with " + expected + "test case.");
+                    " filePath assert fails with " + expected + " test case.");
             Assert.assertEquals(jsonExec.getAsJsonObject().getAsJsonPrimitive(KIND),
                     execObjects.get(0).getAsJsonPrimitive(KIND), "Executor position test's kind assert fails with " +
-                            expected + "test case.");
+                            expected + " test case.");
             Assert.assertEquals(jsonExec.getAsJsonObject().getAsJsonObject(RANGE).getAsJsonObject(START_LINE),
                     execObjects.get(0).getAsJsonObject(RANGE).getAsJsonObject(START_LINE), "Executor position test's" +
-                            " start line assert fails with " + expected + "test case.");
+                            " start line assert fails with " + expected + " test case.");
             Assert.assertEquals(jsonExec.getAsJsonObject().getAsJsonObject(RANGE).getAsJsonObject(END_LINE),
                     execObjects.get(0).getAsJsonObject(RANGE).getAsJsonObject(END_LINE), "Executor position test's " +
-                            "end line assert fails with " + expected + "test case.");
+                            "end line assert fails with " + expected + " test case.");
         });
     }
 

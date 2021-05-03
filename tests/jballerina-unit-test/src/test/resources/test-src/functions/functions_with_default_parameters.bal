@@ -240,18 +240,6 @@ public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
 
-function getError() returns error {
-    return error("Generated Error");
-}
-
-public function functionWithErrorNamedDefaultArgument(error 'error = getError()) {
-    assertEquality('error.toString(), "error(\"Generated Error\")");
-}
-
-public function testErrorNamedDefaultArgument() {
-    functionWithErrorNamedDefaultArgument();
-}
-
 const ASSERTION_ERROR_REASON = "AssertionError";
 
 function assertEquality(any|error expected, any|error actual) {

@@ -214,3 +214,18 @@ function testNeverEquivalentRequiredArgInFunc1([never] a = foo()) {
 function testNeverEquivalentRequiredArgInFunc2(record {| never x; |} a, object { never value; } b) {
 
 }
+
+type Record1 record {|
+    int i;
+    record {| never x; |} j;
+|};
+
+type Record2 record {|
+    int i;
+    record {| never x; |} j = {};
+|};
+
+function testNeverEquivRecord() {
+    Record1 a = { i: 1 };
+    Record2 b = { i: 1 };
+}

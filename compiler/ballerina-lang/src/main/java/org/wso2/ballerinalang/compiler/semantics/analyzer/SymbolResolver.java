@@ -25,6 +25,7 @@ import org.ballerinalang.model.symbols.SymbolKind;
 import org.ballerinalang.model.tree.IdentifierNode;
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.OperatorKind;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
@@ -1974,7 +1975,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return detailRecordTypeDefinition;
     }
 
-    private BIntersectionType defineErrorIntersectionType(BErrorType effectiveType,
+    private BIntersectionType defineErrorIntersectionType(IntersectableReferenceType effectiveType,
                                                           LinkedHashSet<BType> constituentBTypes, PackageID pkgId,
                                                           BSymbol owner) {
 

@@ -2146,7 +2146,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingMatchPattern.restMatchPattern != null) {
             BLangRestMatchPattern restMatchPattern = mappingMatchPattern.restMatchPattern;
-            restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            restMatchPattern.type = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
             analyzeNode(restMatchPattern, env);
             mappingMatchPattern.declaredVars.put(restMatchPattern.variableName.value, restMatchPattern.symbol);
         }
@@ -2252,12 +2252,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
-                restPatternMapType.constraint = restVarSymbolMapType.constraint =
-                        this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
-                for (BField remainingField : fields.values()) {
-                    restPatternMapType.constraint = this.types.mergeTypes(restPatternMapType.constraint,
-                            remainingField.type);
-                }
+                setRestMatchPatternConstraintType(recordType, fields, restPatternMapType, restVarSymbolMapType);
         }
     }
 
@@ -2554,10 +2549,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
         BRecordType recordVarType = new BRecordType(recordSymbol);
         recordVarType.fields = fields;
-        recordVarType.restFieldType = symTable.anydataType;
+        recordVarType.restFieldType = symTable.anyOrErrorType;
         if (mappingBindingPattern.restBindingPattern != null) {
             BLangRestBindingPattern restBindingPattern = mappingBindingPattern.restBindingPattern;
-            restBindingPattern.type = new BMapType(TypeTags.MAP, symTable.anydataType, null);
+            restBindingPattern.type = new BMapType(TypeTags.MAP, symTable.anyOrErrorType, null);
             restBindingPattern.accept(this);
             mappingBindingPattern.declaredVars.put(restBindingPattern.variableName.value, restBindingPattern.symbol);
         }
@@ -2707,10 +2702,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     return;
                 }
                 BRecordType recordType = (BRecordType) bindingPatternType;
-                LinkedHashMap<String, BField> fields = recordType.fields;
+                LinkedHashMap<String, BField> fields = new LinkedHashMap<>(recordType.fields);
                 for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
                     assignTypesToMemberPatterns(fieldBindingPattern.bindingPattern,
-                            fields.get(fieldBindingPattern.fieldName.value).type);
+                            fields.remove(fieldBindingPattern.fieldName.value).type);
                 }
 
                 if (mappingBindingPattern.restBindingPattern == null) {
@@ -2721,8 +2716,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 BVarSymbol restVarSymbol =
                         restBindingPattern.declaredVars.get(restBindingPattern.getIdentifier().getValue());
                 BMapType restVarSymbolMapType = (BMapType) restVarSymbol.type;
-                restPatternMapType.constraint = restVarSymbolMapType.constraint =
-                        this.types.mergeTypes(restVarSymbolMapType.constraint, recordType.restFieldType);
+                setRestMatchPatternConstraintType(recordType, fields, restPatternMapType, restVarSymbolMapType);
                 return;
             default:
         }
@@ -3853,5 +3847,32 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         return ImmutableTypeCloner.getImmutableIntersectionType(pos, types,
                                                                 (SelectivelyImmutableReferenceType) fieldType, env,
                                                                 symTable, anonModelHelper, names, new HashSet<>());
+    }
+
+    private void setRestMatchPatternConstraintType(BRecordType recordType,
+                                                   LinkedHashMap<String, BField> remainingFields,
+                                                   BMapType restPatternMapType, BMapType restVarSymbolMapType) {
+        LinkedHashSet<BType> constraintTypes = new LinkedHashSet<>();
+        for (BField field : remainingFields.values()) {
+            constraintTypes.add(field.type);
+        }
+
+        if (!recordType.sealed) {
+            BType restFieldType = recordType.restFieldType;
+            if (!this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(restFieldType)) {
+                constraintTypes.add(restFieldType);
+            }
+        }
+
+        BType restConstraintType;
+        if (constraintTypes.isEmpty()) {
+            restConstraintType = symTable.neverType;
+        } else if (constraintTypes.size() == 1) {
+            restConstraintType = constraintTypes.iterator().next();
+        } else {
+            restConstraintType = BUnionType.create(null, constraintTypes);
+        }
+        restPatternMapType.constraint = restVarSymbolMapType.constraint =
+                this.types.mergeTypes(restVarSymbolMapType.constraint, restConstraintType);
     }
 }

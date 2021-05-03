@@ -14,32 +14,6 @@
 // specific language governing permissions and limitations
 // under the License.
 
-function testNeverRuntime() {
-    error? e1 = trap test1();
-    assertEquality(true, e1 is error);
-    assertEquality("Error value is:true", (<error>e1).message());
-
-    error? e2 = trap test2();
-    assertEquality(true, e2 is error);
-    assertEquality("Error value is:true", (<error>e2).message());
-
-    error? e3 = trap test3();
-    assertEquality(true, e3 is error);
-    assertEquality("Error value is:true", (<error>e3).message());
-
-    error? e4 = trap test4();
-    assertEquality(true, e4 is error);
-    assertEquality("Error value is:true", (<error>e4).message());
-
-    error? e5 = trap test5();
-    assertEquality(true, e5 is error);
-    assertEquality("Error value is:true", (<error>e5).message());
-
-    error? e6 = trap test6();
-    assertEquality(true, e6 is error);
-    assertEquality("Error value is:true", (<error>e6).message());
-}
-
 function func1() returns never {
     panic error("error!");
 }
@@ -48,34 +22,82 @@ function func2() returns record {| never x; |} {
     panic error("error!");
 }
 
-function test1() {
-    boolean b = <any> func1 is function () returns record {| never x; |};
-    panic error("Error value is:" + string `${b}`);
+function func3() returns int {
+    panic error("error!");
 }
 
-function test2() {
-    boolean b = <any> func1 is function () returns never;
-    panic error("Error value is:" + string `${b}`);
+function testNeverRuntime1() {
+    boolean b = func1 is function () returns record {| never x; |};
+    assertEquality(true, b);
 }
 
-function test3() {
-    boolean b = <any> func1 is function () returns int;
-    panic error("Error value is:" + string `${b}`);
+function testNeverRuntime2() {
+    boolean b = func1 is function () returns never;
+    assertEquality(true, b);
 }
 
-function test4() {
-    boolean b = <any> func2 is function () returns never;
-    panic error("Error value is:" + string `${b}`);
+function testNeverRuntime3() {
+    boolean b = func1 is function () returns int;
+    assertEquality(true, b);
 }
 
-function test5() {
-    boolean b = <any> func2 is function () returns [never];
-    panic error("Error value is:" + string `${b}`);
+function testNeverRuntime4() {
+    boolean b = func2 is function () returns never;
+    assertEquality(true, b);
 }
 
-function test6() {
-    boolean b = <any> func2 is function () returns string;
-    panic error("Error value is:" + string `${b}`);
+function testNeverRuntime5() {
+    boolean b = func2 is function () returns [never];
+    assertEquality(true, b);
+}
+
+function testNeverRuntime6() {
+    boolean b = func2 is function () returns string;
+    assertEquality(true, b);
+}
+
+function testNeverRuntime7() {
+    boolean b = func3 is function () returns never;
+    assertEquality(false, b);
+}
+
+function testNeverRuntime8() {
+    boolean b = func3 is function () returns record {| never x; |};
+    assertEquality(false, b);
+}
+
+function testNeverRuntime9() {
+    map<never> x = {};
+    boolean b = x is map<string>;
+    assertEquality(true, b);
+}
+
+function testNeverRuntime10() {
+    int x = 100;
+    boolean b = x is never;
+    assertEquality(false, b);
+}
+
+type Record record {|
+    int i;
+    never[] j;
+|};
+
+type Record2 record {|
+    int i;
+    never[2] j = [];
+|};
+
+function testNeverRuntime11() {
+    Record x = { i: 1, j: [] };
+    boolean b = x is never;
+    assertEquality(false, b);
+}
+
+function testNeverRuntime12() {
+    Record x = {i: 1, j: []};
+    boolean b = x is Record2;
+    assertEquality(false, b);
 }
 
 function testNeverWithAnyAndAnydataRuntime() {

@@ -71,7 +71,8 @@ public class BallerinaIntersectionTypeSymbol extends AbstractTypeSymbol implemen
         }
 
         TypesFactory typesFactory = TypesFactory.getInstance(this.context);
-        this.effectiveType = typesFactory.getTypeDescriptor(((BIntersectionType) this.getBType()).effectiveType);
+        this.effectiveType = typesFactory.getTypeDescriptor(((BIntersectionType) this.getBType()).effectiveType,
+                                                            false, false);
         return this.effectiveType;
     }
 

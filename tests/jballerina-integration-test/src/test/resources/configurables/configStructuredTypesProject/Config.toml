@@ -89,7 +89,6 @@ id=77
 name="riyafa"
 id=88
 
-
 [configStructuredTypes.farmer]
 name="waruna"
 id=999
@@ -178,10 +177,8 @@ id=100
 name="riyafa"
 id=105
 
-
 [configStructuredTypes.mod2.student]
 name="riyafa"
-
 
 [[configStructuredTypes.mod2.studentTable]]
 name="manu"
@@ -272,7 +269,6 @@ id=555
 name="hinduja"
 id=666
 
-
 [configStructuredTypes.mod2.person]
 name = "hinduja"
 id = 100
@@ -326,3 +322,71 @@ name = "riyafa"
 id = 144
 address.city="Madrid"
 address.country.name="Spain"
+
+[configStructuredTypes.lecturer]
+name="hinduja"
+department1.name="IT"
+department2.name="Finance"
+department3.name="HR"
+
+[configStructuredTypes.lawyer]
+name="riyafa"
+address1.city="Colombo"
+address2.city="Kandy"
+address3.city="Galle"
+
+[[configStructuredTypes.lecturerTable]]
+name="manu"
+department1.name="IT"
+department2.name="Sales"
+department3.name="HR"
+
+[[configStructuredTypes.lecturerTable]]
+name="waruna"
+department1.name="IT"
+department3.name="HR"
+
+[[configStructuredTypes.lawyerTable]]
+name="gabilan"
+address1.city="Colombo"
+address2.city="Kandy"
+address3.city="Galle"
+
+[[configStructuredTypes.lawyerTable]]
+name="riyafa"
+address1.city="Matara"
+address3.city="Gampaha"
+
+[configStructuredTypes.lecturer2]
+name="hinduja"
+department1.name="IT"
+department2.name="Finance"
+department3.name="HR"
+
+[configStructuredTypes.lawyer2]
+name="riyafa"
+place1.city="Colombo"
+place2.city="Kandy"
+place3.city="Galle"
+
+[[configStructuredTypes.lecturerTable2]]
+name="manu"
+department1.name="IT"
+department2.name="Sales"
+department3.name="HR"
+
+[[configStructuredTypes.lecturerTable2]]
+name="waruna"
+department1.name="IT"
+department3.name="HR"
+
+[[configStructuredTypes.lawyerTable2]]
+name="gabilan"
+place1.city="Colombo"
+place2.city="Kandy"
+place3.city="Galle"
+
+[[configStructuredTypes.lawyerTable2]]
+name="riyafa"
+place1.city="Matara"
+place3.city="Jaffna"

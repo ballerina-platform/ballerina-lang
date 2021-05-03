@@ -101,6 +101,14 @@ function checkEqualityToNilNegative(any a) returns boolean {
     return (a == ()) || !(a != ());
 }
 
+function checkAnyDataEqualityPositive(anydata a, anydata b) returns boolean {
+    return (a == b) && !(a != b);
+}
+
+function checkAnyDataEqualityNegative(anydata a, anydata b) returns boolean {
+    return (a == b) || !(a != b);
+}
+
 type ErrorDetail record {
     string message?;
     error cause?;
