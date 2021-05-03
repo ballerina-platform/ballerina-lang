@@ -20,6 +20,8 @@ package org.wso2.ballerinalang.compiler.diagnostic.properties;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.DiagnosticPropertyKind;
 
+import java.util.Arrays;
+
 /**
  * Represents numeric-type constant-properties passed when diagnostic logging.
  *
@@ -42,5 +44,19 @@ public class BNumericProperty implements DiagnosticProperty<Number> {
     @Override
     public Number value() {
         return value;
+    }
+
+    @Override
+    public int hashCode() {
+        return Arrays.hashCode(new int[]{kind.hashCode(), value.hashCode()});
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BNumericProperty) {
+            BNumericProperty that = (BNumericProperty) obj;
+            return this.kind.equals(that.kind) && this.value.equals(that.value);
+        }
+        return false;
     }
 }
