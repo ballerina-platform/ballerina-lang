@@ -135,7 +135,6 @@ public class ParserTestFormatter extends FormatterTest {
                 "match_stmt_source_09.bal", "match_stmt_source_13.bal", "match_stmt_source_04.bal",
                 "match_stmt_source_15.bal", "match_stmt_source_03.bal", "match_stmt_source_16.bal",
                 "match_stmt_source_06.bal", "match_stmt_source_07.bal", "match_stmt_source_11.bal",
-                "match_stmt_source_19.bal",
                 "object_constructor_source_09.bal", "object-constructor-with-methods.bal",
                 "object_constructor_source_05.bal", "object_constructor_source_04.bal",
                 "object_constructor_source_06.bal", "object_constructor_source_07.bal",

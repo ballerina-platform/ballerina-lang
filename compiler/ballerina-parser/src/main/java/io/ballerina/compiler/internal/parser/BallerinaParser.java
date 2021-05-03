@@ -2441,6 +2441,7 @@ public class BallerinaParser extends AbstractParser {
                 nextToken = peek();
                 if (isRecoveryAtFuncBodyEnd(nextToken)) {
                     // Special case the func-body-block end.
+                    // e.g. function foo() { string str = from <cursor> }
                     STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                             DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC);
                     return STNodeFactory.createSimpleNameReferenceNode(identifier);
@@ -4787,7 +4788,8 @@ public class BallerinaParser extends AbstractParser {
 
         nextToken = peek();
         if (isRecoveryAtFuncBodyEnd(nextToken)) {
-            // Special case the func-body-block end. Refer issue #26317
+            // Special case the func-body-block end.
+            // e.g. function foo() { if <cursor> }
             STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                     ParserRuleContext.VARIABLE_REF);
             return STNodeFactory.createSimpleNameReferenceNode(identifier);
@@ -15623,6 +15625,7 @@ public class BallerinaParser extends AbstractParser {
             default:
                 if (isRecoveryAtFuncBodyEnd(nextToken)) {
                     // Special case the func-body-block end.
+                    // e.g. function foo() { string str = from var <cursor> }
                     STNode identifier = SyntaxErrors.createMissingTokenWithDiagnostics(SyntaxKind.IDENTIFIER_TOKEN,
                             DiagnosticErrorCode.ERROR_MISSING_VARIABLE_NAME);
                     STNode captureBP = STNodeFactory.createCaptureBindingPatternNode(identifier);
