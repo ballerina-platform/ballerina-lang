@@ -21,6 +21,7 @@ import io.ballerina.tools.diagnostics.Location;
 import org.ballerinalang.model.TreeBuilder;
 import org.ballerinalang.model.elements.Flag;
 import org.ballerinalang.model.elements.PackageID;
+import org.ballerinalang.model.types.IntersectableReferenceType;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
@@ -828,7 +829,8 @@ public class ImmutableTypeCloner {
         }};
 
         BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentTypes,
-                                                                   effectiveType, Flags.READONLY);
+                                                                   (IntersectableReferenceType) effectiveType,
+                                                                   Flags.READONLY);
         intersectionTypeSymbol.type = intersectionType;
         return intersectionType;
     }
