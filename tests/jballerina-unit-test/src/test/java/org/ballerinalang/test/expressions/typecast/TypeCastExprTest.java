@@ -33,6 +33,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -703,6 +704,26 @@ public class TypeCastExprTest {
     public void testAnonRecordInCast() {
         BValue[] returns = BRunUtil.invoke(result, "testAnonRecordInCast");
         Assert.assertEquals(returns[0].stringValue(), "{name:\"Pubudu\"}");
+    }
+
+    @Test(dataProvider = "immutableArrayTypesTestFunctions")
+    public void testCastOfImmutableArrayTypes(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "immutableArrayTypesTestFunctions")
+    public Object[][] immutableArrayTypesTestFunctions() {
+        return new Object[][]{
+                {"testCastOfReadonlyIntArrayToByteArray"},
+                {"testCastOfReadonlyIntArrayToByteArrayNegative"},
+                {"testCastOfReadonlyAnyToByteArray"},
+                {"testCastOfReadonlyArrayToUnion"},
+                {"testCastOfReadonlyUnionArrayToByteArray"},
+                {"testCastOfReadonlyRecord"},
+                {"testCastOfReadonlyRecordNegative"},
+                {"testCastOfReadonlyStringArrayToStringConstantArray"},
+                {"testCastOfTwoDimensionalIntArrayToByteArray"}
+        };
     }
 
     @AfterClass
