@@ -2344,7 +2344,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
-        if (shouldExpandObjectMembers(objectConstructorExpressionNode.members())) {
+        if (shouldExpand(objectConstructorExpressionNode)) {
             fieldTrailingNL++;
         } else {
             fieldTrailingWS++;
@@ -4181,6 +4181,23 @@ public class FormattingTreeModifier extends TreeModifier {
         }
 
         NodeList<Node> members = objectTypeDesc.members();
+        return shouldExpandObjectMembers(members);
+    }
+
+    /**
+     * Check whether an object constructor expression node needs to be expanded in to multiple lines.
+     *
+     * @param objectConstructor Object constructor expression node
+     * @return <code>true</code> If the object constructor expression node needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(ObjectConstructorExpressionNode objectConstructor) {
+        if (hasNonWSMinutiae(objectConstructor.openBraceToken().trailingMinutiae())
+                || hasNonWSMinutiae(objectConstructor.closeBraceToken().leadingMinutiae())) {
+            return true;
+        }
+
+        NodeList<Node> members = objectConstructor.members();
         return shouldExpandObjectMembers(members);
     }
 
