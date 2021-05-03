@@ -554,7 +554,17 @@ public class TypedescriptorTest {
     public void testIntersectionType3() {
         Symbol symbol = getSymbol(171, 16);
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
-        assertEquals(type.typeKind(), INTERSECTION);
+
+        assertEquals(type.typeKind(), TYPE_REFERENCE);
+        assertEquals(type.getName().get(), "ReadonlyFoo");
+        assertEquals(((TypeReferenceTypeSymbol) type).typeDescriptor().typeKind(), INTERSECTION);
+
+        IntersectionTypeSymbol intrType = (IntersectionTypeSymbol) ((TypeReferenceTypeSymbol) type).typeDescriptor();
+        List<TypeSymbol> members = intrType.memberTypeDescriptors();
+
+        assertEquals(members.get(0).typeKind(), TYPE_REFERENCE);
+        assertEquals(members.get(0).getName().get(), "Foo");
+        assertEquals(members.get(1).typeKind(), READONLY);
     }
 
     @Test

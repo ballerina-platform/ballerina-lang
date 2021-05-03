@@ -71,16 +71,34 @@ import java.util.Set;
 import static org.ballerinalang.model.types.TypeKind.OBJECT;
 import static org.ballerinalang.model.types.TypeKind.PARAMETERIZED;
 import static org.ballerinalang.model.types.TypeKind.RECORD;
-import static org.wso2.ballerinalang.compiler.util.TypeTags.FINITE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.ANY;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.ANYDATA;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.BOOLEAN;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.BYTE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.DECIMAL;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.ERROR;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.FLOAT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.FUTURE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.HANDLE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.INT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.JSON;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.MAP;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NEVER;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.NIL;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.NONE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.READONLY;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SEMANTIC_ERROR;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SIGNED16_INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SIGNED32_INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.SIGNED8_INT;
-import static org.wso2.ballerinalang.compiler.util.TypeTags.UNION;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.STREAM;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.STRING;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.TABLE;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.TYPEDESC;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.UNSIGNED16_INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.UNSIGNED32_INT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.UNSIGNED8_INT;
+import static org.wso2.ballerinalang.compiler.util.TypeTags.XML;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.XML_COMMENT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.XML_ELEMENT;
 import static org.wso2.ballerinalang.compiler.util.TypeTags.XML_PI;
@@ -314,7 +332,7 @@ public class TypesFactory {
             return false;
         }
 
-        if ((bType.tag == UNION || bType.tag == FINITE) && !tSymbol.name.value.isEmpty()) {
+        if (!isBuiltinNamedType(bType.tag) && !tSymbol.name.value.isEmpty()) {
             return true;
         }
 
@@ -396,5 +414,34 @@ public class TypesFactory {
 
     private static boolean isCustomError(BTypeSymbol tSymbol) {
         return tSymbol.kind == SymbolKind.ERROR && !Names.ERROR.equals(tSymbol.name);
+    }
+
+    private static boolean isBuiltinNamedType(int tag) {
+        switch (tag) {
+            case INT:
+            case BYTE:
+            case FLOAT:
+            case DECIMAL:
+            case STRING:
+            case BOOLEAN:
+            case JSON:
+            case XML:
+            case NIL:
+            case ANY:
+            case ANYDATA:
+            case HANDLE:
+            case READONLY:
+            case NEVER:
+            case MAP:
+            case STREAM:
+            case TYPEDESC:
+            case TABLE:
+            case ERROR:
+            case FUTURE:
+            case SEMANTIC_ERROR:
+                return true;
+        }
+
+        return false;
     }
 }
