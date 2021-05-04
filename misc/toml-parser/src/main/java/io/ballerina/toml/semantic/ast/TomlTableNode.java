@@ -20,6 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.LinkedHashMap;
@@ -36,21 +37,21 @@ public class TomlTableNode extends TopLevelNode {
     private final Map<String, TopLevelNode> entries;
     private final boolean generated;
 
-    public TomlTableNode(TomlKeyNode key, TomlNodeLocation location) {
-        super(key, TomlType.TABLE, location);
+    public TomlTableNode(DocumentNode documentNode, TomlKeyNode key, TomlNodeLocation location) {
+        super(documentNode, key, TomlType.TABLE, location);
         this.entries = new LinkedHashMap<>();
         this.generated = false;
     }
 
-    public TomlTableNode(TomlKeyNode key, boolean generated, TomlNodeLocation location) {
-        super(key, TomlType.TABLE, location);
+    public TomlTableNode(DocumentNode documentNode, TomlKeyNode key, boolean generated, TomlNodeLocation location) {
+        super(documentNode, key, TomlType.TABLE, location);
         this.entries = new LinkedHashMap<>();
         this.generated = generated;
     }
 
-    public TomlTableNode(TomlKeyNode key, boolean generated, TomlNodeLocation location,
+    public TomlTableNode(DocumentNode documentNode, TomlKeyNode key, boolean generated, TomlNodeLocation location,
                          Map<String, TopLevelNode> entries) {
-        super(key, TomlType.TABLE, location);
+        super(documentNode, key, TomlType.TABLE, location);
         this.entries = entries;
         this.generated = generated;
     }

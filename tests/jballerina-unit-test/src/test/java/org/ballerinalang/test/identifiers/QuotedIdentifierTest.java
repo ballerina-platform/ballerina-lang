@@ -68,6 +68,7 @@ public class QuotedIdentifierTest {
         validateError(result, index++, "redeclared symbol 'error'", 39, 96);
         validateError(result, index++, "redeclared symbol 'error'", 41, 94);
         validateError(result, index++, "redeclared symbol 'error'", 43, 93);
+        validateError(result, index++, "redeclared symbol 'error'", 45, 82);
         validateError(result, index++, "redeclared symbol 'error'", 45, 106);
         assertEquals(result.getErrorCount(), index);
     }

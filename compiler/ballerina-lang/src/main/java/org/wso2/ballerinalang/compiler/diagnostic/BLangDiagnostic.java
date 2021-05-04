@@ -23,6 +23,7 @@ import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
 import io.ballerina.tools.diagnostics.Location;
 
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
@@ -85,5 +86,39 @@ public class BLangDiagnostic extends Diagnostic {
 
     public DiagnosticCode getCode() {
         return diagnosticCode;
+    }
+
+    @Override
+    public int hashCode() {
+        int propHash = Arrays.hashCode(properties.toArray());
+
+        if (diagnosticCode != null) {
+            return Arrays.hashCode(new int[]{
+                    location.hashCode(), msg.hashCode(), diagnosticInfo.hashCode(), diagnosticCode.hashCode(),
+                    propHash});
+        }
+        return Arrays.hashCode(new int[]{location.hashCode(), msg.hashCode(), diagnosticInfo.hashCode(), propHash});
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof BLangDiagnostic) {
+            BLangDiagnostic that = (BLangDiagnostic) obj;
+            if (this.diagnosticCode != null) {
+                return this.location.equals(that.location) && this.msg.equals(that.message())
+                        && this.diagnosticInfo.equals(that.diagnosticInfo)
+                        && this.properties.equals(that.properties)
+                        && this.diagnosticCode.equals(that.diagnosticCode);
+            } else {
+                if (that.diagnosticCode != null) {
+                    return false;
+                }
+                return this.location.equals(that.location)
+                        && this.msg.equals(that.message())
+                        && this.diagnosticInfo.equals(that.diagnosticInfo)
+                        && this.properties.equals(that.properties);
+            }
+        }
+        return false;
     }
 }

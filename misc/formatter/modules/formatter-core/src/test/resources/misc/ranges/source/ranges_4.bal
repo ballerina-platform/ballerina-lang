@@ -1,8 +1,7 @@
 import ballerina/io;
 
 public        function                 workerSendToWorker    (      )      returns     int   {
-      @strand  {      thread      :   "any"
-       }
+      @strand  {      thread      :   "any"}
     worker  w1   {
           int       i      =      40    ;
         i

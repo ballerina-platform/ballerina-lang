@@ -833,6 +833,37 @@ function testCloneWithTypeWithInferredArgument() {
    assert(n2[1], "world");
 }
 
+type Map map<anydata>;
+
+function testCloneWithTypeWithImmutableTypes() {
+
+   map<int> & readonly m = {a: 1, b: 2};
+   map<map<int>> n = {m};
+   var o = checkpanic n.cloneWithType(Map);
+   assert(o["m"] === m, false);
+   assert(o["m"].isReadOnly(), false);
+   anydata p = o["m"];
+   assert(p is map<anydata>, true);
+   map<anydata> q = <map<anydata>>p;
+   q["c"] = "foo";
+   assert(q.length(), 3);
+   assert(q["a"], 1);
+   assert(q["b"], 2);
+   assert(q["c"], "foo");
+
+   int[] & readonly array = [3, 4];
+   map<int[]> n2 = {array};
+   var o2 = checkpanic n2.cloneWithType(Map);
+   assert(o2["array"] === array, false);
+   assert(o2["array"].isReadOnly(), false);
+   anydata[] anyDataArray = <anydata[]>o2["array"];
+   anyDataArray[2] = "foo";
+   assert(anyDataArray.length(), 3);
+   assert(anyDataArray[0], 3);
+   assert(anyDataArray[1], 4);
+   assert(anyDataArray[2], "foo");
+}
+
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
 type Student2 record {
     string name;
@@ -1363,7 +1394,7 @@ json  p = {
     weight: 72.5,
     property: (), 
     address: [
-        125.0/3,
+        125.0/3.0,
         "xyz street",
         {province: "southern", Country: "Sri Lanka"},
         81000
@@ -1500,6 +1531,7 @@ function testEnsureTypeFunction3() returns int|error {
 
 function testEnsureType() {
     decimal h = 178.5;
+    decimal d = 24.0;
     float h1 = 178.5;
     decimal w = 72.5;
     json name = "Chiran";
@@ -1508,9 +1540,9 @@ function testEnsureType() {
     float|string name2 = "Chiran";
     assert(<int>(checkpanic testEnsureTypeWithInt()), 24);
     assert(<int>(checkpanic testEnsureTypeWithInt2()), 178);
-    assert(<int>(checkpanic testEnsureTypeWithInt3()), 0);
+    assert(testEnsureTypeWithInt3() is error, true);
     assert(<decimal>(checkpanic testEnsureTypeWithDecimal()), h);
-    assert(<decimal>(checkpanic testEnsureTypeWithDecimal2()), 24);
+    assert(<decimal>(checkpanic testEnsureTypeWithDecimal2()), d);
     assert(<()>(checkpanic testEnsureTypeWithNil()), ());
     assert( <string>(checkpanic testEnsureTypeWithString()), "Chiran");
     assert(<float>(checkpanic testEnsureTypeWithFloat()), w1);
@@ -1519,12 +1551,12 @@ function testEnsureType() {
     assert(<json>(checkpanic testEnsureTypeWithJson1()), 24);
     assert(<json>(checkpanic testEnsureTypeWithJson2()),h1);
     assert(<json>(checkpanic testEnsureTypeWithJson3()), {group: "O", RHD: "+"});
-    assert(<json>(checkpanic testEnsureTypeWithJson4()), [125.0/3, "xyz street",
+    assert(<json>(checkpanic testEnsureTypeWithJson4()), [125.0/3.0, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
     assert(<json>(checkpanic testEnsureTypeWithJson5()), 72.5);
     assert(<json>(checkpanic testEnsureTypeWithJson6()), false);
     assert(<boolean>(checkpanic testEnsureTypeWithCast1()), false);
-    assert(<json[]>(checkpanic testEnsureTypeWithCast2()), [125.0/3, "xyz street",
+    assert(<json[]>(checkpanic testEnsureTypeWithCast2()), [125.0/3.0, "xyz street",
     {province: "southern", Country: "Sri Lanka"}, 81000]);
     assert(<map<json>>(checkpanic testEnsureTypeWithJson3()), {group: "O", RHD: "+"});
     assert(testEnsureTypeFunction() is int:Unsigned32, true);

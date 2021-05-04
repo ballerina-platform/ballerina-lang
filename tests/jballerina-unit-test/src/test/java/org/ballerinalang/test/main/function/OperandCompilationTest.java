@@ -50,23 +50,22 @@ public class OperandCompilationTest {
     public void invalidSignatureTest() {
         CompileResult negativeResult = BCompileUtil.compile(
                 MAIN_FUNCTION_TEST_SRC_DIR + "invalid.bal");
-        assertEquals(negativeResult.getErrorCount(), 11);
+        assertEquals(negativeResult.getErrorCount(), 10);
         validateError(negativeResult, 0,
                       "main function operand parameter 't' has invalid type 'typedesc'", 17, 22);
         validateError(negativeResult, 1, "main function operand parameter 'm' has invalid type '(int|string)'", 17, 39);
-        validateError(negativeResult, 2, "main function operand parameter 'st1' has invalid type 'Student'", 17, 54);
-        validateError(negativeResult, 3, "main function operand parameter 'n' has invalid type 'boolean'", 17, 67);
-        validateError(negativeResult, 4, "main function operand parameter 'o' has invalid type 'boolean[]'", 17, 78);
+        validateError(negativeResult, 2, "main function operand parameter 'n' has invalid type 'boolean'", 17, 53);
+        validateError(negativeResult, 3, "main function operand parameter 'o' has invalid type 'boolean[]'", 17, 64);
+        validateError(negativeResult, 4,
+                      "main function operand parameter 'p' has invalid type 'boolean?'", 17, 77);
         validateError(negativeResult, 5,
-                      "main function operand parameter 'p' has invalid type 'boolean?'", 17, 91);
-        validateError(negativeResult, 6,
-                      "main function operand parameter 'q' has invalid type 'map<int>'", 17, 103);
-        validateError(negativeResult, 7, "main function operand parameter 'st2' has invalid type 'Student'", 18, 5);
-        validateError(negativeResult, 8, "main function operand parameter 'i' has invalid type '(int|typedesc)'", 18,
+                      "main function operand parameter 'q' has invalid type 'map<int>'", 17, 89);
+        validateError(negativeResult, 6, "main function operand parameter 'st2' has invalid type 'Student'", 18, 5);
+        validateError(negativeResult, 7, "main function operand parameter 'i' has invalid type '(int|typedesc)'", 18,
                       18);
-        validateError(negativeResult, 9, "main function operand parameter 'r' has invalid type '(float|string)'", 18,
+        validateError(negativeResult, 8, "main function operand parameter 'r' has invalid type '(float|string)'", 18,
                       43);
-        validateError(negativeResult, 10, "main function operand parameter 'f' has invalid type 'FooObject[]'", 18, 65);
+        validateError(negativeResult, 9, "main function operand parameter 'f' has invalid type 'FooObject[]'", 18, 79);
     }
 
     @Test
@@ -74,11 +73,42 @@ public class OperandCompilationTest {
         CompileResult negativeResult = BCompileUtil.compile(
                 MAIN_FUNCTION_TEST_SRC_DIR + "invalid_array.bal");
         assertEquals(negativeResult.getErrorCount(), 3);
-        validateError(negativeResult, 0, "main function operand parameter 'c' of type 'int?' cannot " +
-                "follow array of type 'int'", 17, 31);
-        validateError(negativeResult, 1, "main function operand parameter 'b' of type 'defaultable int' " +
-                "cannot follow array of type 'int'", 17, 39);
-        validateError(negativeResult, 2, "main function operand parameters can have only one array of type 'int'", 17,
+        validateError(negativeResult, 0,
+                      "main function cannot have operand parameter 'c' of type 'int?' and array of type 'int' together",
+                      17, 31);
+        validateError(negativeResult, 1,
+                      "main function cannot have operand parameter 'b' of type 'defaultable int' and array of type " +
+                              "'int' together", 17, 39);
+        validateError(negativeResult, 2, "main function can have at most one array parameter", 17,
                       48);
+    }
+
+    @Test
+    public void invalidSignatureWithDifferentArraysTest() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                MAIN_FUNCTION_TEST_SRC_DIR + "invalid_different_array.bal");
+        assertEquals(negativeResult.getErrorCount(), 1);
+        validateError(negativeResult, 0,
+                      "main function can have at most one array parameter", 17, 31);
+    }
+
+    @Test
+    public void invalidOrderOptional() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                MAIN_FUNCTION_TEST_SRC_DIR + "invalid_order.bal");
+        assertEquals(negativeResult.getErrorCount(), 1);
+        validateError(negativeResult, 0, "main function optional operand parameter 'a' of " +
+                "type 'int?' cannot precede operand parameter 'b' of type 'int'", 17, 30);
+    }
+
+    @Test
+    public void invalidArrayAndOptionalParamOrder() {
+        CompileResult negativeResult = BCompileUtil.compile(
+                MAIN_FUNCTION_TEST_SRC_DIR + "invalid_array_order.bal");
+        assertEquals(negativeResult.getErrorCount(), 2);
+        validateError(negativeResult, 0, "main function cannot have operand parameter 'c' of " +
+                "type 'string?' and array of type 'int' together", 17, 22);
+        validateError(negativeResult, 0, "main function cannot have operand parameter 'c' of " +
+                "type 'string?' and array of type 'int' together", 17, 22);
     }
 }

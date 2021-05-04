@@ -194,7 +194,7 @@ class Manager2 {
     }
 
     public function getBonus(float ratio, int months=6) returns float {
-        return self.salary*ratio*months;
+        return self.salary*ratio*<float>months;
     }
 
     public function getName(string greeting = "Hello") returns string {
@@ -229,7 +229,7 @@ class Manager3 {
     }
 
     public function getBonus(float ratio, int months=6) returns float {
-        return self.salary*ratio*months;
+        return self.salary*ratio*<float>months;
     }
 
     public function getName(string greeting = "Good morning") returns string {
@@ -280,9 +280,9 @@ public class PostPandemicEmployee {
 
     public function getBonus(float ratio, int months=12) returns float {
         if (self.workingFromHome) {
-            return self.salary * ratio * months + self.workingFromHomeAllowance;
+            return self.salary * ratio * <float>months + self.workingFromHomeAllowance;
         }
-        return self.salary * ratio * months;
+        return self.salary * ratio * <float>months;
     }
 
     public function getName(string greeting = "Contactless hello!") returns string {

@@ -24,6 +24,8 @@ import io.ballerina.runtime.api.types.Type;
 
 import java.util.Objects;
 
+import static io.ballerina.runtime.api.constants.RuntimeConstants.ORG_NAME_SEPARATOR;
+
 /**
  * Class that represents the key for configurable variables.
  *
@@ -76,5 +78,10 @@ public class VariableKey {
     @Override
     public int hashCode() {
         return Objects.hash(module, variable);
+    }
+
+    @Override
+    public String toString() {
+        return module.getOrg() + ORG_NAME_SEPARATOR + module.getName() + ":" + variable;
     }
 }
