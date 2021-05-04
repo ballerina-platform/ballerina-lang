@@ -58,19 +58,6 @@ function testMultiReturnValid () returns [int, string, int] {
     return [5, "john", 6];
 }
 
-final int i = 10;
-final string aa = "sam";
-
-function testConstAssignment () {
-    i = 20;
-    return;
-}
-
-function constantAssignment () {
-    // Following line is invalid.
-    aa = "mad";
-}
-
 public client class Client {
     remote function foo() returns [int, int] {
         return [0, 0];
@@ -134,4 +121,15 @@ function assignErrorToUnionWithErrorArray() {
 
 function assignFunctionParameterAnyToParameterUnionWithErrorAndAny() {
     function (any|error...) returns () func = function (any... y) {};
+}
+
+final int i = 10;
+final string aa = "sam";
+
+function testConstAssignment1 () {
+    i = 20;
+}
+
+function testConstAssignment2 () {
+    aa = "mad";
 }

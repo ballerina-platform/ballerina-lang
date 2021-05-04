@@ -35,7 +35,7 @@ import org.testng.annotations.Test;
 /**
  * Class to test functionality of assignment operation.
  */
-@Test(groups = { "brokenOnNewParser" })
+
 public class AssignStmtTest {
 
     private CompileResult result;
@@ -198,32 +198,28 @@ public class AssignStmtTest {
         BAssertUtil.validateError(resultNegative, i++,
                 "undefined symbol 'b'", 54, 22);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot assign a value to final 'i'", 65, 5);
+                "incompatible types: expected 'int', found '[int,int]'", 77, 13);
         BAssertUtil.validateError(resultNegative, i++,
-                "cannot assign a value to final 'aa'", 71, 5);
+                "incompatible types: expected 'map<string>', found 'record {| string a; anydata...; |}'", 78, 22);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'int', found '[int,int]'", 90, 13);
+                "invalid record binding pattern with type 'error'", 79, 9);
         BAssertUtil.validateError(resultNegative, i++,
-                "incompatible types: expected 'map<string>', found 'record {| string a; anydata...; |}'", 91, 22);
+                "invalid record variable; expecting a record type but found 'error' in type definition", 79, 20);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid record binding pattern with type 'error'", 92, 9);
+                                  "incompatible types: expected 'any[]', found 'error[]'", 85, 15);
         BAssertUtil.validateError(resultNegative, i++,
-                "invalid record variable; expecting a record type but found 'error' in type definition", 92, 20);
+                                  "incompatible types: expected 'error[]', found 'any[]'", 87, 26);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected 'any[]', found 'error[]'", 98, 15);
+                                  "incompatible types: expected 'CLError?[]', found 'error?[]'", 105, 19);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected 'error[]', found 'any[]'", 100, 26);
+                                  "incompatible types: expected 'CLError?[]', found 'error?[]'", 106, 11);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '(CError|LError)?[]', found 'error?[]'", 118, 19);
+                                  "incompatible types: expected '(error|int[])', found 'error[]'", 114, 21);
         BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '(CError|LError)?[]', found 'error?[]'", 119, 11);
-        BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '(error|int[])', found 'error[]'", 127, 21);
-        BAssertUtil.validateError(resultNegative, i++,
-                                  "incompatible types: expected '(int|error[])', found 'error'", 132, 21);
+                                  "incompatible types: expected '(int|error[])', found 'error'", 119, 21);
         BAssertUtil.validateError(resultNegative, i++,
                                   "incompatible types: expected 'function ((any|error)...) returns ()', found " +
-                                          "'function (any...) returns ()'", 136, 47);
+                                          "'function (any...) returns ()'", 123, 47);
         Assert.assertEquals(resultNegative.getErrorCount(), i);
     }
 
@@ -283,6 +279,16 @@ public class AssignStmtTest {
     @Test()
     public void assignAnyToUnionWithErrorAndAny() {
         BRunUtil.invoke(result, "assignAnyToUnionWithErrorAndAny");
+    }
+
+    @Test
+    public void testAssignmentStmtSemanticsNegative() {
+        resultNegative = BCompileUtil.compile("test-src/statements/assign/assign-stmt-semantics-negative.bal");
+        Assert.assertEquals(resultNegative.getErrorCount(), 3);
+        int i = 0;
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 20, 5);
+        BAssertUtil.validateError(resultNegative, i++, "cannot assign a value to a type definition", 21, 5);
+        BAssertUtil.validateError(resultNegative, i, "cannot assign a value to a type definition", 23, 6);
     }
 
     @AfterClass
