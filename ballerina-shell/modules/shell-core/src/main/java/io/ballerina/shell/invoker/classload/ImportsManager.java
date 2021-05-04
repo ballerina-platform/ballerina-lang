@@ -50,7 +50,7 @@ public class ImportsManager {
     private static final QuotedIdentifier ANON_SOURCE = new QuotedIdentifier("$");
     // Regex patterns
     private static final Pattern CLONEABLE_SIGNATURE_PATTERN =
-            Pattern.compile("readonly\\|xml<[^>]*>\\|\\(Cloneable\\)\\[]\\|map<Cloneable>\\|table<map<Cloneable>>");
+            Pattern.compile("readonly\\|xml<[^>]*>\\|Cloneable\\[]\\|map<Cloneable>\\|table<map<Cloneable>>");
     private static final Pattern FULLY_QUALIFIED_MODULE_ID_PATTERN =
             Pattern.compile("([\\w]+)/([\\w.]+):([^:]+):([\\w]+)[|]?");
     // Special imports
