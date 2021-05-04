@@ -26,11 +26,11 @@ public function main() {
     // The `from` clause works similar to a `foreach` statement.
     // The `students` is the concatenated `xml` of the `query expression` results.
     xml students = from var studentName in school/<student>/<firstName>
-                   // The `limit` clause limits the number of output items.
-                   limit 2
-                   // The `select` clause is evaluated for each iteration.
-                   // The emitted values are concatenated to form the `xml` result.
-                   select <xml>studentName;
+        // The `limit` clause limits the number of output items.
+        limit 2
+        // The `select` clause is evaluated for each iteration.
+        // The emitted values are concatenated to form the `xml` result.
+        select <xml>studentName;
 
     io:println(students);
 }
