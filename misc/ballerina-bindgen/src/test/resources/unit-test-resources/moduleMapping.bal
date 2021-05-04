@@ -26,7 +26,6 @@ public distinct class FileInputStream {
     public function toString() returns string {
         return java:toString(self.jObj) ?: "null";
     }
-
     # The function that maps to the `available` method of `java.io.FileInputStream`.
     #
     # + return - The `int` or the `IOException` value returning from the Java mapping.
@@ -156,8 +155,7 @@ public distinct class FileInputStream {
     # + arg2 - The `int` value required to map with the Java method parameter.
     # + return - The `int` or the `IOException` value returning from the Java mapping.
     public function read3(byte[] arg0, int arg1, int arg2) returns int|IOException|error {
-        int|error externalObj = java_io_FileInputStream_read3(self.jObj, check jarrays:toHandle(arg0, "byte"), arg1,
-        arg2);
+        int|error externalObj = java_io_FileInputStream_read3(self.jObj, check jarrays:toHandle(arg0, "byte"), arg1, arg2);
         if (externalObj is error) {
             IOException e = error IOException(IOEXCEPTION, externalObj, message = externalObj.message());
             return e;
@@ -186,8 +184,7 @@ public distinct class FileInputStream {
     # + arg2 - The `int` value required to map with the Java method parameter.
     # + return - The `int` or the `IOException` value returning from the Java mapping.
     public function readNBytes(byte[] arg0, int arg1, int arg2) returns int|IOException|error {
-        int|error externalObj = java_io_FileInputStream_readNBytes(self.jObj, check jarrays:toHandle(arg0, "byte"), arg1,
-        arg2);
+        int|error externalObj = java_io_FileInputStream_readNBytes(self.jObj, check jarrays:toHandle(arg0, "byte"), arg1, arg2);
         if (externalObj is error) {
             IOException e = error IOException(IOEXCEPTION, externalObj, message = externalObj.message());
             return e;
@@ -255,8 +252,7 @@ public distinct class FileInputStream {
     public function 'wait() returns javalang:InterruptedException? {
         error|() externalObj = java_io_FileInputStream_wait(self.jObj);
         if (externalObj is error) {
-            javalang:InterruptedException e = error javalang:InterruptedException(javalang:INTERRUPTEDEXCEPTION,
-            externalObj, message = externalObj.message());
+            javalang:InterruptedException e = error javalang:InterruptedException(javalang:INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         }
     }
@@ -268,8 +264,7 @@ public distinct class FileInputStream {
     public function wait2(int arg0) returns javalang:InterruptedException? {
         error|() externalObj = java_io_FileInputStream_wait2(self.jObj, arg0);
         if (externalObj is error) {
-            javalang:InterruptedException e = error javalang:InterruptedException(javalang:INTERRUPTEDEXCEPTION,
-            externalObj, message = externalObj.message());
+            javalang:InterruptedException e = error javalang:InterruptedException(javalang:INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         }
     }
@@ -282,11 +277,11 @@ public distinct class FileInputStream {
     public function wait3(int arg0, int arg1) returns javalang:InterruptedException? {
         error|() externalObj = java_io_FileInputStream_wait3(self.jObj, arg0, arg1);
         if (externalObj is error) {
-            javalang:InterruptedException e = error javalang:InterruptedException(javalang:INTERRUPTEDEXCEPTION,
-            externalObj, message = externalObj.message());
+            javalang:InterruptedException e = error javalang:InterruptedException(javalang:INTERRUPTEDEXCEPTION, externalObj, message = externalObj.message());
             return e;
         }
     }
+
 }
 
 # The constructor function to generate an object of `java.io.FileInputStream`.
@@ -296,8 +291,7 @@ public distinct class FileInputStream {
 public function newFileInputStream1(File arg0) returns FileInputStream|FileNotFoundException {
     handle|error externalObj = java_io_FileInputStream_newFileInputStream1(arg0.jObj);
     if (externalObj is error) {
-        FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.
-        message());
+        FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
         return e;
     } else {
         FileInputStream newObj = new (externalObj);
@@ -322,8 +316,7 @@ public function newFileInputStream2(FileDescriptor arg0) returns FileInputStream
 public function newFileInputStream3(string arg0) returns FileInputStream|FileNotFoundException {
     handle|error externalObj = java_io_FileInputStream_newFileInputStream3(java:fromString(arg0));
     if (externalObj is error) {
-        FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.
-        message());
+        FileNotFoundException e = error FileNotFoundException(FILENOTFOUNDEXCEPTION, externalObj, message = externalObj.message());
         return e;
     } else {
         FileInputStream newObj = new (externalObj);
