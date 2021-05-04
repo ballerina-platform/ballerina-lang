@@ -75,3 +75,17 @@ type CC record {
     string a;
     map<record {| int i = "foo"; |} & readonly> b = {};
 };
+
+type EE object {
+    int a;
+    map<record {| int i = "foo"; |}> b;
+};
+
+function testAnonTypeNegativeScenarios() {
+    function (record {| int i = "ABC"; |}[]) returns [record {| int i = "ABC"; |}] a1;
+    error<record {| int i = "ABC"; |}> a2;
+    typedesc<record {| int i = "ABC"; |}> a3;
+    typedesc<record {| int i = "ABC"; |}[]> a4;
+    future<record {| int i = "ABC"; |}[]> a5;
+    future<record {| int i = 1; record {| int i = "ABC"; |} j = {}; |}[]> a6;
+}
