@@ -713,8 +713,9 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     SAME_ARRAY_TYPE_AS_MAIN_PARAMETER("BCE4001", "same.array.type.as.main.param"),
     VARIABLE_AND_ARRAY_TYPE_AS_MAIN_PARAM("BCE4002", "variable.and.array.type.as.main.param"),
     INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4003", "invalid.main.option.params.type"),
-    WORKER_INTERACTION_AFTER_WAIT_ACTION("BCE4005", "invalid.worker.message.passing.after.wait.action")
-    ;
+    WORKER_INTERACTION_AFTER_WAIT_ACTION("BCE4005", "invalid.worker.message.passing.after.wait.action"),
+    OPTIONAL_OPERAND_PRECEDES_OPERAND("BCE4006", "optional.operand.precedes.operand")
+            ;
 
     private String diagnosticId;
     private String messageKey;
