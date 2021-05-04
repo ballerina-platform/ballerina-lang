@@ -28,7 +28,7 @@ class Manager1 {
     }
 
     public function getBonus(float ratio, int months=6) returns float {
-        return self.salary*ratio*months;
+        return self.salary*ratio*<float>months;
     }
 }
 

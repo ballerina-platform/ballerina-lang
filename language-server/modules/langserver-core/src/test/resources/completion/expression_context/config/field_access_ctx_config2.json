@@ -6,6 +6,29 @@
   "source": "expression_context/source/field_access_ctx_source2.bal",
   "items": [
     {
+      "label": "foreach - functionWithReturn()",
+      "kind": "Snippet",
+      "detail": "foreach snippet for iterable variable - functionWithReturn()",
+      "sortText": "Q",
+      "insertText": "foreach var item in functionWithReturn() {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 26
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
       "label": "testField",
       "kind": "Field",
       "detail": "module1:TestRecord1",

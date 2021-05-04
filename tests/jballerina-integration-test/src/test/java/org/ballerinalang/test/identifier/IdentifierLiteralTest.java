@@ -30,6 +30,8 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.HashMap;
 
+import static org.ballerinalang.test.context.LogLeecher.LeecherType.ERROR;
+
 /**
  * Test cases to verify name clashes between generated identifiers.
  *
@@ -56,17 +58,22 @@ public class IdentifierLiteralTest  extends BaseTest {
         runLeecher.waitForText(5000);
     }
 
-    @Test(description = "Test clashes in organization and module names that contain '_'", enabled = false)
+    @Test(description = "Test clashes in organization and module names that contain '_'")
     public void testPackageIDClash() throws BallerinaTestException {
-        Path projectPath = Paths.get(testFileLocation, "PackageNameClashProject")
-                .toAbsolutePath();
-        Path importProjectPath = Paths.get(testFileLocation, "testProject")
-                .toAbsolutePath();
-        LogLeecher runLeecher = new LogLeecher("2 passing");
-        bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0],
-                new LogLeecher[]{}, importProjectPath.toString());
-        bMainInstance.runMain("build", new String[0], new HashMap<>(), new String[0],
-                new LogLeecher[]{runLeecher}, projectPath.toString());
+        String importProjectPath = testFileLocation + File.separator + "testProject";
+        LogLeecher buildLeecher = new LogLeecher("target/bala/a_b-foo-any-0.1.0.bala");
+        LogLeecher pushLeecher =
+                new LogLeecher("Successfully pushed target/bala/a_b-foo-any-0.1.0.bala to 'local' repository.", ERROR);
+        LogLeecher runLeecher = new LogLeecher("Tests passed");
+        bMainInstance.runMain("build", new String[]{"-c"}, null, null, new LogLeecher[]{buildLeecher},
+                importProjectPath);
+        buildLeecher.waitForText(5000);
+        bMainInstance.runMain("push", new String[]{"--repository=local"}, null, null, new LogLeecher[]{pushLeecher},
+                importProjectPath);
+        pushLeecher.waitForText(5000);
+
+        bMainInstance.runMain("run", new String[0], null, new String[0], new LogLeecher[]{runLeecher},
+                testFileLocation + File.separator + "PackageNameClashProject");
         runLeecher.waitForText(5000);
     }
 

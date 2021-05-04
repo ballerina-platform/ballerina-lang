@@ -47,25 +47,19 @@ public class MainParameterVisitor {
     }
 
     private boolean isOperandTypeOrUnion(BType type) {
-        if (isOperandType(type)) {
-            return true;
-        }
+        return isOperandType(type) || isUnionWithNil(type);
+    }
+
+    private boolean isUnionWithNil(BType type) {
         if (type.tag == TypeTags.UNION) {
             BUnionType bUnionType = (BUnionType) type;
             LinkedHashSet<BType> memberTypes = bUnionType.getMemberTypes();
             if (memberTypes.size() == 2) {
-                boolean result = false;
-                for (BType memberType : memberTypes) {
-                    if (memberType.tag == TypeTags.NIL) {
-                        result = true;
-                        break;
+                boolean result = hasNil(memberTypes);
+                if (result) {
+                    for (BType memberType : memberTypes) {
+                        result &= isOperandType(memberType) || memberType.tag == TypeTags.NIL;
                     }
-                }
-                if (!result) {
-                    return false;
-                }
-                for (BType memberType : memberTypes) {
-                    result &= visit(memberType) || memberType.tag == TypeTags.NIL;
                 }
                 return result;
             }
@@ -73,7 +67,18 @@ public class MainParameterVisitor {
         return false;
     }
 
-    private boolean isOperandType(BType type) {
+    private boolean hasNil(LinkedHashSet<BType> memberTypes) {
+        boolean result = false;
+        for (BType memberType : memberTypes) {
+            if (memberType.tag == TypeTags.NIL) {
+                result = true;
+                break;
+            }
+        }
+        return result;
+    }
+
+    public boolean isOperandType(BType type) {
         switch (type.tag) {
             case TypeTags.INT:
             case TypeTags.FLOAT:

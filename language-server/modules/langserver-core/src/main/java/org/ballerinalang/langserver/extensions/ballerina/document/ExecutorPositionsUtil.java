@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.ServiceAttachPointKind;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.projects.Document;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -149,13 +150,14 @@ public class ExecutorPositionsUtil {
         try {
             if (project.kind() == ProjectKind.SINGLE_FILE_PROJECT && Files.isSameFile(filePath,
                     project.sourceRoot())) {
-                module.documents().forEach(document -> {
-                    testCaseVisitor.visitTestCases(document.syntaxTree().rootNode());
+                module.documentIds().forEach(documentId -> {
+                    testCaseVisitor.visitTestCases(module.document(documentId).syntaxTree().rootNode());
                 });
 
             } else if (project.kind() == ProjectKind.BUILD_PROJECT) {
-                module.testDocuments().forEach(testDocument -> {
+                module.testDocumentIds().forEach(testDocumentId -> {
                     try {
+                        Document testDocument = module.document(testDocumentId);
                         if ((module.isDefaultModule() && Files.isSameFile(filePath, project.sourceRoot()
                                 .resolve(moduleName).resolve(testDocument.name()))) || (!module.isDefaultModule()
                                 && Files.isSameFile(filePath, project.sourceRoot().resolve(MODULES)

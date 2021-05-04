@@ -1,41 +1,149 @@
 {
-  "result":[
+  "result": [
     {
-      "filePath":"file:///",
-      "name":"project",
-      "modules":[
+      "filePath": "file:///",
+      "name": "project",
+      "modules": [
         {
-          "functions":[
+          "name": "services",
+          "functions": [],
+          "services": [
             {
-              "name":"main",
-              "filePath":"main.bal",
-              "startLine":3,
-              "startColumn":16,
-              "endLine":3,
-              "endColumn":20
+              "name": "hello",
+              "filePath": "hello.bal",
+              "resources": [
+                {
+                  "name": "get satyHello",
+                  "filePath": "hello.bal",
+                  "startLine": 8,
+                  "startColumn": 22,
+                  "endLine": 8,
+                  "endColumn": 25
+                }
+              ]
             }
-          ],
-          "services":[
-
           ]
         },
         {
-          "name":"services",
-          "functions":[
-
-          ],
-          "services":[
+          "functions": [
             {
-              "name":"hello",
-              "filePath":"hello.bal",
-              "resources":[
+              "name": "main",
+              "filePath": "main.bal",
+              "startLine": 3,
+              "startColumn": 16,
+              "endLine": 3,
+              "endColumn": 20
+            }
+          ],
+          "services": []
+        }
+      ]
+    },
+    {
+      "filePath": "file:///",
+      "name": "project_functions",
+      "modules": [
+        {
+          "name": "storage",
+          "functions": [
+            {
+              "name": "initDatabase",
+              "filePath": "db.bal",
+              "startLine": 0,
+              "startColumn": 16,
+              "endLine": 0,
+              "endColumn": 28
+            }
+          ],
+          "services": []
+        },
+        {
+          "name": "services",
+          "functions": [
+            {
+              "name": "runServices",
+              "filePath": "svc.bal",
+              "startLine": 3,
+              "startColumn": 16,
+              "endLine": 3,
+              "endColumn": 27
+            }
+          ],
+          "services": []
+        },
+        {
+          "functions": [
+            {
+              "name": "main",
+              "filePath": "main.bal",
+              "startLine": 3,
+              "startColumn": 16,
+              "endLine": 3,
+              "endColumn": 20
+            }
+          ],
+          "services": []
+        }
+      ]
+    },
+    {
+      "filePath": "file:///",
+      "name": "project_services",
+      "modules": [
+        {
+          "name": "hello_service",
+          "functions": [],
+          "services": [
+            {
+              "name": "hello",
+              "filePath": "hello.bal",
+              "resources": [
                 {
-                  "name":"get satyHello",
-                  "filePath":"hello.bal",
-                  "startLine":8,
-                  "startColumn":22,
-                  "endLine":8,
-                  "endColumn":25
+                  "name": "get satyHello",
+                  "filePath": "hello.bal",
+                  "startLine": 8,
+                  "startColumn": 22,
+                  "endLine": 8,
+                  "endColumn": 25
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "name": "db_service",
+          "functions": [],
+          "services": [
+            {
+              "name": "process",
+              "filePath": "db.bal",
+              "resources": [
+                {
+                  "name": "post connect",
+                  "filePath": "db.bal",
+                  "startLine": 5,
+                  "startColumn": 22,
+                  "endLine": 5,
+                  "endColumn": 26
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "functions": [],
+          "services": [
+            {
+              "name": "",
+              "filePath": "main.bal",
+              "resources": [
+                {
+                  "name": "get welcome",
+                  "filePath": "main.bal",
+                  "startLine": 8,
+                  "startColumn": 22,
+                  "endLine": 8,
+                  "endColumn": 25
                 }
               ]
             }
@@ -44,122 +152,32 @@
       ]
     },
     {
-      "filePath":"file:///",
-      "name":"project_functions",
-      "modules":[
+      "filePath": "file:///",
+      "name": ".",
+      "modules": [
         {
-          "name":"services",
-          "functions":[
+          "functions": [
             {
-              "name":"runServices",
-              "filePath":"svc.bal",
-              "startLine":3,
-              "startColumn":16,
-              "endLine":3,
-              "endColumn":27
+              "name": "main",
+              "filePath": "main.bal",
+              "startLine": 3,
+              "startColumn": 16,
+              "endLine": 3,
+              "endColumn": 20
             }
           ],
-          "services":[
-
-          ]
-        },
-        {
-          "functions":[
+          "services": [
             {
-              "name":"main",
-              "filePath":"main.bal",
-              "startLine":3,
-              "startColumn":16,
-              "endLine":3,
-              "endColumn":20
-            }
-          ],
-          "services":[
-
-          ]
-        },
-        {
-          "name":"storage",
-          "functions":[
-            {
-              "name":"initDatabase",
-              "filePath":"db.bal",
-              "startLine":0,
-              "startColumn":16,
-              "endLine":0,
-              "endColumn":28
-            }
-          ],
-          "services":[
-
-          ]
-        }
-      ]
-    },
-    {
-      "filePath":"file:///",
-      "name":"project_services",
-      "modules":[
-        {
-          "functions":[
-
-          ],
-          "services":[
-            {
-              "name":"",
-              "filePath":"main.bal",
-              "resources":[
+              "name": "hey",
+              "filePath": "main.bal",
+              "resources": [
                 {
-                  "name":"get welcome",
-                  "filePath":"main.bal",
-                  "startLine":8,
-                  "startColumn":22,
-                  "endLine":8,
-                  "endColumn":25
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name":"hello_service",
-          "functions":[
-
-          ],
-          "services":[
-            {
-              "name":"hello",
-              "filePath":"hello.bal",
-              "resources":[
-                {
-                  "name":"get satyHello",
-                  "filePath":"hello.bal",
-                  "startLine":8,
-                  "startColumn":22,
-                  "endLine":8,
-                  "endColumn":25
-                }
-              ]
-            }
-          ]
-        },
-        {
-          "name":"db_service",
-          "functions":[
-
-          ],
-          "services":[
-            {
-              "name":"process",
-              "filePath":"db.bal",
-              "resources":[
-                {
-                  "name":"post connect",
-                  "filePath":"db.bal",
-                  "startLine":5,
-                  "startColumn":22,
-                  "endLine":5,
-                  "endColumn":26
+                  "name": "get satyHello",
+                  "filePath": "main.bal",
+                  "startLine": 9,
+                  "startColumn": 22,
+                  "endLine": 9,
+                  "endColumn": 25
                 }
               ]
             }

@@ -286,10 +286,26 @@ public class ManifestBuilder {
             TomlTableArrayNode dependencyTableArray = (TomlTableArrayNode) dependencyEntries;
 
             for (TomlTableNode dependencyNode : dependencyTableArray.children()) {
-                PackageName depName = PackageName.from(getStringValueFromDependencyNode(dependencyNode, "name"));
-                PackageOrg depOrg = PackageOrg.from(getStringValueFromDependencyNode(dependencyNode, "org"));
-                PackageVersion depVersion = PackageVersion
-                        .from(getStringValueFromDependencyNode(dependencyNode, VERSION));
+                String name = getStringValueFromDependencyNode(dependencyNode, "name");
+                String org = getStringValueFromDependencyNode(dependencyNode, "org");
+                String version = getStringValueFromDependencyNode(dependencyNode, VERSION);
+
+                // If name, org or version, one of the value is null, ignore dependency
+                if (name == null || org == null || version == null) {
+                    continue;
+                }
+
+                PackageName depName = PackageName.from(name);
+                PackageOrg depOrg = PackageOrg.from(org);
+                PackageVersion depVersion;
+                try {
+                    depVersion = PackageVersion.from(version);
+                } catch (ProjectException e) {
+                    // Ignore exception and dependency
+                    // Diagnostic will be added by toml schema validator for the semver version error
+                    continue;
+                }
+
                 if (dependencyNode.entries().containsKey("repository")) {
                     String repository = getStringValueFromDependencyNode(dependencyNode, "repository");
                     dependencies.add(new PackageManifest.Dependency(depName, depOrg, depVersion, repository));
@@ -470,6 +486,9 @@ public class ManifestBuilder {
 
     private String getStringValueFromDependencyNode(TomlTableNode pkgNode, String key) {
         TopLevelNode topLevelNode = pkgNode.entries().get(key);
+        if (topLevelNode == null) {
+            return null;
+        }
         return getStringFromTomlTableNode(topLevelNode);
     }
 
@@ -482,7 +501,7 @@ public class ManifestBuilder {
     }
 
     private String getStringFromTomlTableNode(TopLevelNode topLevelNode) {
-        if (topLevelNode.kind() == TomlType.KEY_VALUE) {
+        if (topLevelNode.kind() != null && topLevelNode.kind() == TomlType.KEY_VALUE) {
             TomlKeyValueNode keyValueNode = (TomlKeyValueNode) topLevelNode;
             TomlValueNode value = keyValueNode.value();
             if (value.kind() == TomlType.STRING) {

@@ -34,7 +34,7 @@ function testMap() returns (int|string|float)[] {
         } else if (x is string) {
             return "mapped " + x;
         } else {
-            return x * 5;
+            return x * 5.0;
         }
     });
 
@@ -81,7 +81,7 @@ function testSort(){
 function testReduce() returns float {
     [int, int, int, int, int] tup = [12, 15, 7, 10, 25];
     float avg = tup.reduce(function (float accum, int val) returns float {
-        return accum + <float>val / tup.length();
+        return accum + <float>val / <float>tup.length();
     }, 0.0);
     return avg;
 }
@@ -94,7 +94,7 @@ function testIterableOpChain() returns float {
     int totalCredits = grades.reduce(sum, 0);
 
     float gpa = grades.'map(gradeToValue).reduce(function (float accum, [float, int] gradePoint) returns float {
-        return accum + (gradePoint[0] * gradePoint[1]) / totalCredits;
+        return accum + (gradePoint[0] * <float>gradePoint[1]) / <float>totalCredits;
     }, 0.0);
 
     return gpa;
