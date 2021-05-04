@@ -97,7 +97,7 @@ public class JDIEventProcessor {
             }
             // Tries terminating the debug server, only if there is no any termination requests received from the
             // debug client.
-            if (!context.getAdapter().isTerminationRequestReceived()) {
+            if (!context.isTerminateRequestReceived()) {
                 // It is not required to terminate the debuggee (remote VM) in here, since it must be disconnected or
                 // dead by now.
                 context.getAdapter().terminateServer(false);
@@ -174,7 +174,7 @@ public class JDIEventProcessor {
     }
 
     void setBreakpoints(String path, Map<Integer, BalBreakpoint> breakpoints) {
-        this.breakpoints.put(getQualifiedClassName(path), breakpoints);
+        this.breakpoints.put(getQualifiedClassName(context, path), breakpoints);
         if (context.getDebuggeeVM() != null) {
             // Setting breakpoints to a already running debug session.
             context.getEventManager().deleteAllBreakpoints();
@@ -322,8 +322,7 @@ public class JDIEventProcessor {
                     return false;
                 }
 
-                SuspendedContext ctx = new SuspendedContext(context.getSourceProject(), context.getDebuggeeVM(),
-                        thread, validFrames.get(0).getJStackFrame());
+                SuspendedContext ctx = new SuspendedContext(context, thread, validFrames.get(0).getJStackFrame());
                 ExpressionEvaluator evaluator = new ExpressionEvaluator(ctx);
                 Value evaluatorResult = evaluator.evaluate(expression);
                 String condition = VariableFactory.getVariable(ctx, evaluatorResult).getDapVariable().getValue();

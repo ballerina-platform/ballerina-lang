@@ -34,26 +34,31 @@ public class AnnotationRefsTest extends FindAllReferencesTest {
     @DataProvider(name = "PositionProvider")
     public Object[][] getLookupPositions() {
         return new Object[][]{
-                {37, 24, List.of(location(37, 24, 26),
-                                 location(45, 1, 3),
-                                 location(60, 1, 3),
-                                 location(57, 22, 24))
+                {37, 24, location(37, 24, 26),
+                        List.of(location(37, 24, 26),
+                                location(45, 1, 3),
+                                location(60, 1, 3),
+                                location(57, 22, 24))
                 },
-                {63, 1, List.of(location(38, 19, 21),
+                {63, 1, location(38, 19, 21),
+                        List.of(location(38, 19, 21),
                                 location(63, 1, 3),
                                 location(66, 1, 3))
                 },
-                {38, 19, List.of(location(38, 19, 21),
-                                 location(63, 1, 3),
-                                 location(66, 1, 3))
+                {38, 19, location(38, 19, 21),
+                        List.of(location(38, 19, 21),
+                                location(63, 1, 3),
+                                location(66, 1, 3))
                 },
-                {39, 24, List.of(location(39, 24, 26),
-                                 location(72, 5, 7))
+                {39, 24, location(39, 24, 26),
+                        List.of(location(39, 24, 26),
+                                location(72, 5, 7))
                 },
-                {40, 17, List.of(location(40, 17, 19),
-                                 location(75, 29, 31),
-                                 location(76, 29, 31),
-                                 location(77, 29, 31))
+                {40, 17, location(40, 17, 19),
+                        List.of(location(40, 17, 19),
+                                location(75, 29, 31),
+                                location(76, 29, 31),
+                                location(77, 29, 31))
                 },
         };
     }

@@ -237,7 +237,6 @@ import io.ballerina.compiler.syntax.tree.XMLStepExpressionNode;
 import io.ballerina.compiler.syntax.tree.XMLTextNode;
 import io.ballerina.compiler.syntax.tree.XmlTypeDescriptorNode;
 import io.ballerina.tools.text.LineRange;
-import io.ballerina.tools.text.TextRange;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -1183,7 +1182,7 @@ public class FormattingTreeModifier extends TreeModifier {
             MappingConstructorExpressionNode mappingConstructorExpressionNode) {
         int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
-        if (shouldExpand(mappingConstructorExpressionNode.fields())) {
+        if (shouldExpand(mappingConstructorExpressionNode)) {
             fieldTrailingNL++;
         } else {
             fieldTrailingWS++;
@@ -2345,7 +2344,7 @@ public class FormattingTreeModifier extends TreeModifier {
 
         int fieldTrailingWS = 0;
         int fieldTrailingNL = 0;
-        if (shouldExpandObjectMembers(objectConstructorExpressionNode.members())) {
+        if (shouldExpand(objectConstructorExpressionNode)) {
             fieldTrailingNL++;
         } else {
             fieldTrailingWS++;
@@ -3166,34 +3165,6 @@ public class FormattingTreeModifier extends TreeModifier {
                 .apply();
     }
 
-//    @Override
-//    public ServiceConstructorExpressionNode transform(
-//            ServiceConstructorExpressionNode serviceConstructorExpressionNode) {
-//        NodeList<AnnotationNode> annots = serviceConstructorExpressionNode.annotations();
-//        NodeList<AnnotationNode> annotations;
-//        if (annots.size() <= 1) {
-//            annotations = formatNodeList(serviceConstructorExpressionNode.annotations(), 1, 0, 1,
-//                    0);
-//        } else {
-//            annotations = formatNodeList(serviceConstructorExpressionNode.annotations(), 0, 1, 0,
-//                    1);
-//        }
-//
-//        Token serviceKeyword = formatToken(serviceConstructorExpressionNode.serviceKeyword(), 1, 0);
-//        int prevIndentation = env.currentIndentation;
-//        // Set indentation for braces.
-//        int fieldIndentation = env.lineLength - serviceKeyword.text().length() - 1;
-//        setIndentation(fieldIndentation);
-//        Node serviceBody = formatNode(serviceConstructorExpressionNode.serviceBody(), env.trailingWS, env.trailingNL);
-//        setIndentation(prevIndentation);
-//
-//        return serviceConstructorExpressionNode.modify()
-//                .withAnnotations(annotations)
-//                .withServiceKeyword(serviceKeyword)
-//                .withServiceBody(serviceBody)
-//                .apply();
-//    }
-
     @Override
     public TypeReferenceTypeDescNode transform(TypeReferenceTypeDescNode typeReferenceTypeDescNode) {
         NameReferenceNode typeRef = formatNode(typeReferenceTypeDescNode.typeRef(), env.trailingWS, env.trailingNL);
@@ -3580,15 +3551,7 @@ public class FormattingTreeModifier extends TreeModifier {
             env.trailingNL = trailingNL;
             env.trailingWS = trailingWS;
 
-            // Cache the current node and parent before format.
-            // Because reference to the nodes will change after modifying.
-            T oldNode = node;
-            Node parent = node.parent();
-
             node = (T) node.apply(this);
-            if (shouldWrapLine(oldNode, parent)) {
-                node = wrapLine(oldNode, parent);
-            }
 
             env.trailingNL = prevTrailingNL;
             env.trailingWS = prevTrailingWS;
@@ -3923,95 +3886,6 @@ public class FormattingTreeModifier extends TreeModifier {
     }
 
     /**
-     * Check whether the current line should be wrapped.
-     *
-     * @param node Node that is being formatted
-     * @param parent
-     * @return Flag indicating whether to wrap the current line or not
-     */
-    private boolean shouldWrapLine(Node node, Node parent) {
-        boolean exceedsColumnLimit = env.lineLength > options.getColumnLimit();
-        boolean descendantNeedWrapping = env.nodeToWrap == node;
-        if (!exceedsColumnLimit && !descendantNeedWrapping) {
-            return false;
-        }
-
-        // Currently wrapping a line is supported at following levels:
-        SyntaxKind kind = node.kind();
-        switch (kind) {
-            case SIMPLE_NAME_REFERENCE:
-            case QUALIFIED_NAME_REFERENCE:
-                if (node.parent().kind() == SyntaxKind.ANNOTATION) {
-                    break;
-                }
-                return true;
-
-            // Parameters
-            case DEFAULTABLE_PARAM:
-            case REQUIRED_PARAM:
-            case REST_PARAM:
-
-                // Func-call arguments
-            case POSITIONAL_ARG:
-            case NAMED_ARG:
-            case REST_ARG:
-
-            case RETURN_TYPE_DESCRIPTOR:
-            case ANNOTATION_ATTACH_POINT:
-                return true;
-
-            // Template literals are multi line tokens, and newline are
-            // part of the content. Hence we cannot wrap those.
-            case XML_TEMPLATE_EXPRESSION:
-            case STRING_TEMPLATE_EXPRESSION:
-            case TEMPLATE_STRING:
-                break;
-            default:
-                // Expressions
-                if (SyntaxKind.BINARY_EXPRESSION.compareTo(kind) <= 0 &&
-                        SyntaxKind.OBJECT_CONSTRUCTOR.compareTo(kind) >= 0) {
-                    return true;
-                }
-
-                // Everything else is not supported
-                break;
-        }
-
-        // We reach here, if the current node exceeds the limit, but it is
-        // not a wrapping-point. Then we ask the parent to wrap itself.
-        env.nodeToWrap = parent;
-
-        return false;
-    }
-
-    /**
-     * Wrap the node. This is equivalent to adding a newline before the node and re-formatting the node. Wrapped content
-     * will start from the current level of indentation.
-     *
-     * @param <T> Node type
-     * @param node Node to be wrapped
-     * @param parent
-     * @return Wrapped node
-     */
-    @SuppressWarnings("unchecked")
-    private <T extends Node> T wrapLine(T node, Node parent) {
-        env.leadingNL += 1;
-        env.lineLength = 0;
-        env.hasNewline = true;
-        node = (T) node.apply(this);
-
-        // Sometimes wrapping the current node wouldn't be enough. Therefore, if the column
-        // length exceeds even after wrapping current node, then ask the parent node to warp.
-        if (env.lineLength > options.getColumnLimit()) {
-            env.nodeToWrap = parent;
-        } else {
-            env.nodeToWrap = null;
-        }
-
-        return node;
-    }
-
-    /**
      * Get leading minutiae.
      *
      * @return Leading minutiae list
@@ -4281,31 +4155,12 @@ public class FormattingTreeModifier extends TreeModifier {
     /**
      * Check whether a node list needs to be expanded into multiple lines.
      *
-     * @param nodeList node list
+     * @param node node to be expanded
      * @return <code>true</code> If the node list needs to be expanded into multiple lines.
      *         <code>false</code> otherwise
      */
-    private <T extends Node> boolean shouldExpand(NodeList<T> nodeList) {
-        int fieldCount = nodeList.size();
-        if (fieldCount <= 1) {
-            return false;
-        }
-
-        if (fieldCount > 3) {
-            return true;
-        }
-
-        for (Node field : nodeList) {
-            TextRange textRange = field.textRange();
-            if ((textRange.endOffset() - textRange.startOffset()) > 15) {
-                return true;
-            }
-
-            if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())) {
-                return true;
-            }
-        }
-        return false;
+    private boolean shouldExpand(Node node) {
+        return node.toSourceCode().trim().contains(System.lineSeparator());
     }
 
     /**
@@ -4320,31 +4175,41 @@ public class FormattingTreeModifier extends TreeModifier {
             return true;
         }
 
+        if (hasNonWSMinutiae(objectTypeDesc.openBrace().trailingMinutiae())
+                || hasNonWSMinutiae(objectTypeDesc.closeBrace().leadingMinutiae())) {
+            return true;
+        }
+
         NodeList<Node> members = objectTypeDesc.members();
         return shouldExpandObjectMembers(members);
     }
 
-    private boolean shouldExpandObjectMembers(NodeList<Node> members) {
-        int fieldCount = members.size();
-        if (fieldCount > 3) {
+    /**
+     * Check whether an object constructor expression node needs to be expanded in to multiple lines.
+     *
+     * @param objectConstructor Object constructor expression node
+     * @return <code>true</code> If the object constructor expression node needs to be expanded in to multiple lines.
+     *         <code>false</code> otherwise
+     */
+    private boolean shouldExpand(ObjectConstructorExpressionNode objectConstructor) {
+        if (hasNonWSMinutiae(objectConstructor.openBraceToken().trailingMinutiae())
+                || hasNonWSMinutiae(objectConstructor.closeBraceToken().leadingMinutiae())) {
             return true;
         }
 
+        NodeList<Node> members = objectConstructor.members();
+        return shouldExpandObjectMembers(members);
+    }
+
+    private boolean shouldExpandObjectMembers(NodeList<Node> members) {
         for (Node member : members) {
-            if (member.kind() == SyntaxKind.METHOD_DECLARATION) {
-                return true;
-            }
-
-            TextRange textRange = member.textRange();
-            if ((textRange.endOffset() - textRange.startOffset()) > 15) {
-                return true;
-            }
-
-            if (hasNonWSMinutiae(member.leadingMinutiae()) || hasNonWSMinutiae(member.trailingMinutiae())) {
+            if (member.kind() == SyntaxKind.METHOD_DECLARATION
+                    || hasNonWSMinutiae(member.leadingMinutiae())
+                    || hasNonWSMinutiae(member.trailingMinutiae())
+                    || member.toSourceCode().contains(System.lineSeparator())) {
                 return true;
             }
         }
-
         return false;
     }
 
@@ -4360,19 +4225,14 @@ public class FormattingTreeModifier extends TreeModifier {
             return true;
         }
 
-        int fieldCount = recordTypeDesc.fields().size();
-        fieldCount += recordTypeDesc.recordRestDescriptor().isPresent() ? 1 : 0;
-        if (fieldCount > 3) {
+        if (hasNonWSMinutiae(recordTypeDesc.bodyStartDelimiter().trailingMinutiae())
+                || hasNonWSMinutiae(recordTypeDesc.bodyEndDelimiter().leadingMinutiae())) {
             return true;
         }
 
         for (Node field : recordTypeDesc.fields()) {
-            TextRange textRange = field.textRange();
-            if ((textRange.endOffset() - textRange.startOffset()) > 15) {
-                return true;
-            }
-
-            if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())) {
+            if (hasNonWSMinutiae(field.leadingMinutiae()) || hasNonWSMinutiae(field.trailingMinutiae())
+                    || field.toSourceCode().contains(System.lineSeparator())) {
                 return true;
             }
         }

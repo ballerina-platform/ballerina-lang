@@ -25,11 +25,14 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.BTypeSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Optional;
+
 /**
  * @since 0.94
  */
 public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableReferenceType {
 
+    private BIntersectionType intersectionType = null;
     private boolean nullable = true;
     public BIntersectionType immutableType;
 
@@ -85,5 +88,15 @@ public class BAnyType extends BBuiltInRefType implements SelectivelyImmutableRef
     @Override
     public BIntersectionType getImmutableType() {
         return this.immutableType;
+    }
+
+    @Override
+    public Optional<BIntersectionType> getIntersectionType() {
+        return Optional.ofNullable(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(BIntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

@@ -24,7 +24,6 @@ import io.ballerina.toml.api.Toml;
 import java.util.Set;
 
 import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_DATA_ENV_VARIABLE;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.EMPTY_CONFIG_STRING;
 
 /**
  * Toml parser that reads from text content for configurable implementation.
@@ -43,7 +42,7 @@ public class TomlContentProvider extends TomlProvider {
     @Override
     public void initialize() {
         if (configContent.isEmpty()) {
-            throw new TomlConfigException(String.format(EMPTY_CONFIG_STRING, CONFIG_DATA_ENV_VARIABLE));
+            return;
         }
         super.tomlNode = Toml.read(configContent, CONFIG_DATA_ENV_VARIABLE).rootNode();
         super.initialize();

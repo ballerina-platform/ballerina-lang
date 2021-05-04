@@ -157,7 +157,7 @@ public function testWithRecords() returns Student {
         stu.email = "adamp@wso2.com";
     };
     var fw = @strand{thread:"any"} start f();
-    _ = wait {w1, w2, fw};
+    _ = wait {w1, fw};
 
     return stu;
 }
@@ -193,6 +193,6 @@ public function testWithObjects() returns Person {
     };
     future<()> w3 = @strand{thread:"any"} start f();
 
-    _ = wait {w1, w2, w3};
+    _ = wait w3;
     return p1;
 }

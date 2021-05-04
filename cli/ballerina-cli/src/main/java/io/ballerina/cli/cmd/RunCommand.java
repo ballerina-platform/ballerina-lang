@@ -83,6 +83,9 @@ public class RunCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--taint-check", description = "perform taint flow analysis")
     private Boolean taintCheck;
 
+//    @CommandLine.Option(names = "--show-all-warnings", description = "show warnings of dependencies")
+    private Boolean showAllWarnings;
+
     private static final String runCmd = "bal run [--experimental] [--offline] [--taint-check]\n" +
             "                  [<executable-jar | ballerina-file | package-path>] [-- program-args...]";
 
@@ -202,6 +205,7 @@ public class RunCommand implements BLauncherCmd {
                 .testReport(false)
                 .observabilityIncluded(observabilityIncluded)
                 .taintCheck(taintCheck)
+                .showAllWarnings(showAllWarnings)
                 .build();
     }
 }

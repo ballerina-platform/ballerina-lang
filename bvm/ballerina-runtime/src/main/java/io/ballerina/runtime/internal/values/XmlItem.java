@@ -391,8 +391,7 @@ public final class XmlItem extends XmlValue implements BXmlItem {
      */
     @Override
     public XmlValue strip() {
-        children.strip();
-        return this;
+       return this;
     }
 
     /**

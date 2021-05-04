@@ -401,11 +401,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define error details.
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
-        // Define type def members (if any)
-        defineMembers(typeAndClassDefs, pkgEnv);
-
         // Add distinct type information
         defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
+
+        // Define type def members (if any)
+        defineMembers(typeAndClassDefs, pkgEnv);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
@@ -816,7 +816,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
                                                                             annotationNode.getAttachPoints(),
                                                                             annotName, env.enclPkg.symbol.pkgID, null,
-                                                                            env.scope.owner, annotationNode.pos,
+                                                                            env.scope.owner, annotationNode.name.pos,
                                                                             getOrigin(annotName));
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
@@ -1061,8 +1061,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         Name prefix = names.fromIdNode(xmlnsNode.prefix);
+        Location nsSymbolPos = prefix.value.isEmpty() ? xmlnsNode.pos : xmlnsNode.prefix.pos;
         BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(prefix, nsURI, env.enclPkg.symbol.pkgID, env.scope.owner,
-                                                             xmlnsNode.pos, getOrigin(prefix));
+                                                             nsSymbolPos, getOrigin(prefix));
         xmlnsNode.symbol = xmlnsSymbol;
 
         // First check for package-imports with the same alias.
@@ -1403,6 +1404,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
+        // check for unresolved fields. This record may be referencing another record
+        if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
+            for (BLangSimpleVariable variable : structureTypeNode.fields) {
+                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
+                if (referencedType == symTable.noType) {
+                    if (!this.unresolvedTypes.contains(typeDefinition)) {
+                        this.unresolvedTypes.add(typeDefinition);
+                        return;
+                    }
+                }
+            }
+        }
+
         if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
             definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
                                                            Names.EMPTY, env.enclPkg.symbol.pkgID, definedType,
@@ -1495,8 +1510,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void invalidateAlreadyDefinedErrorType(BLangTypeDefinition typeDefinition) {
         // We need to invalidate the already defined type as we don't have a way to undefine it.
-        BTypeSymbol alreadyDefinedTypeSymbol =
-                (BTypeSymbol) symResolver.lookupSymbolInMainSpace(env, names.fromString(typeDefinition.name.value));
+        BSymbol alreadyDefinedTypeSymbol =
+                                symResolver.lookupSymbolInMainSpace(env, names.fromString(typeDefinition.name.value));
         if (alreadyDefinedTypeSymbol.type.tag == TypeTags.ERROR) {
             alreadyDefinedTypeSymbol.type = symTable.errorType;
         }
@@ -3239,6 +3254,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        // analyze restFieldType for open records
         for (BLangType typeRef : recordTypeNode.typeRefs) {
             if (typeRef.type.tag != TypeTags.RECORD) {
                 continue;
@@ -3275,23 +3291,29 @@ public class SymbolEnter extends BLangNodeVisitor {
                 })
                 .collect(getFieldCollector());
 
-        List<BType> list = new ArrayList<>();
-        for (BLangType tRef : structureTypeNode.typeRefs) {
-            BType type = tRef.type;
-            list.add(type);
-        }
-        structureType.typeInclusions = list;
-
-        // Resolve and add the fields of the referenced types to this object.
+        // Resolve referenced types and their fields of structural type
         resolveReferencedFields(structureTypeNode, typeDefEnv);
 
+        // collect resolved type refs from structural type
+        structureType.typeInclusions = new ArrayList<>();
+        for (BLangType tRef : structureTypeNode.typeRefs) {
+            BType type = tRef.type;
+            structureType.typeInclusions.add(type);
+        }
+
+        // Add referenced fields of structural type
+        defineReferencedFields(structureType, structureTypeNode, typeDefEnv);
+    }
+
+    private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
+                                        SymbolEnv typeDefEnv) {
         for (BLangSimpleVariable field : structureTypeNode.referencedFields) {
             defineNode(field, typeDefEnv);
             if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
             structureType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos,
-                                                                  field.symbol));
+                    field.symbol));
         }
     }
 
@@ -3767,14 +3789,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create variable symbol
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
-        if (flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
-                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM)) {
-            if (!symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
-                varSymbol.type = symTable.semanticError;
-            }
-        } else if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+        boolean considerAsMemberSymbol = flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
+                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM) ||
+                flagSet.contains(Flag.INCLUDED);
+
+        if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
+            varSymbol.type = symTable.semanticError;
+        } else if (!considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
         }
+
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
     }

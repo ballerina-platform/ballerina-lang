@@ -75,13 +75,15 @@ type _Frame record {|
 
 class _StreamPipeline {
     _StreamFunction streamFunction;
-    typedesc<Type> resType;
+    typedesc<Type> constraintTd;
+    typedesc<CompletionType> completionTd;
 
     function init(
             Type[]|map<Type>|record{}|string|xml|table<map<Type>>|stream<Type,CompletionType>|_Iterable collection,
-            typedesc<Type> resType) {
+            typedesc<Type> constraintTd, typedesc<CompletionType> completionTd) {
         self.streamFunction = new _InitFunction(collection);
-        self.resType = resType;
+        self.constraintTd = constraintTd;
+        self.completionTd = completionTd;
     }
 
     public isolated function next() returns _Frame|error? {
@@ -104,8 +106,8 @@ class _StreamPipeline {
     }
 
     public function getStream() returns stream <Type,CompletionType> {
-        IterHelper itrObj = new (self, self.resType);
-        var strm = internal:construct(self.resType, itrObj);
+        IterHelper itrObj = new (self, self.constraintTd);
+        var strm = internal:construct(self.constraintTd, self.completionTd, itrObj);
         return strm;
     }
 }
