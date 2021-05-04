@@ -178,6 +178,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangArrayType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangConstrainedType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangErrorType;
 import org.wso2.ballerinalang.compiler.tree.types.BLangFiniteTypeNode;
+import org.wso2.ballerinalang.compiler.tree.types.BLangFunctionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangIntersectionTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangObjectTypeNode;
 import org.wso2.ballerinalang.compiler.tree.types.BLangRecordTypeNode;
@@ -873,7 +874,10 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
             return;
         }
-        if (typeNode.getKind() == NodeKind.RECORD_TYPE && !((BLangRecordTypeNode) typeNode).analyzed) {
+        if (typeNode.getKind() == NodeKind.RECORD_TYPE) {
+            if (((BLangRecordTypeNode) typeNode).analyzed) {
+                return;
+            }
             analyzeDef(typeNode, env);
         }
         switch (typeNode.type.tag) {
@@ -913,6 +917,28 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                 for (BLangType memType : unionMemberTypes) {
                     analyzeTypeNode(memType, env);
                 }
+                break;
+            case TypeTags.ERROR:
+                BLangErrorType errorType = (BLangErrorType) typeNode;
+                if (errorType.detailType != null) {
+                    analyzeTypeNode(errorType.detailType, env);
+                }
+                break;
+            case TypeTags.INVOKABLE:
+                if (typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
+                    BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) typeNode;
+                    List<BLangVariable> params = functionTypeNode.params;
+                    for (BLangVariable param : params) {
+                        analyzeTypeNode(param.typeNode, env);
+                    }
+                    if (functionTypeNode.returnTypeNode != null) {
+                        analyzeTypeNode(functionTypeNode.returnTypeNode, env);
+                    }
+                }
+                break;
+            case TypeTags.TYPEDESC:
+            case TypeTags.FUTURE:
+                analyzeTypeNode(((BLangConstrainedType) typeNode).constraint, env);
                 break;
         }
     }
@@ -1527,14 +1553,15 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         setTypeOfVarRefInAssignment(varRef);
         expType = varRef.type;
 
-        BType typeChecked = typeChecker.checkExpr(assignNode.expr, this.env, expType);
-
-        if (typeChecked != symTable.semanticError && varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+        if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef variableRef = (BLangSimpleVarRef) varRef;
-            if (variableRef.lhsVar && variableRef.type.tsymbol == null && variableRef.type.tag == TypeTags.TYPEDESC) {
-                dlog.error(variableRef.pos, DiagnosticErrorCode.INVALID_VARIABLE_REFERENCE);
+            if (variableRef.lhsVar && (variableRef.symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
+                dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_ASSIGN_VALUE_TO_TYPE_DEF);
+                return;
             }
         }
+
+        typeChecker.checkExpr(assignNode.expr, this.env, expType);
 
         validateWorkerAnnAttachments(assignNode.expr);
 
@@ -1545,6 +1572,13 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     public void visit(BLangTupleDestructure tupleDeStmt) {
         for (BLangExpression tupleVar : tupleDeStmt.varRef.expressions) {
             setTypeOfVarRefForBindingPattern(tupleVar);
+            if (tupleVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+                BLangSimpleVarRef variableRef = (BLangSimpleVarRef) tupleVar;
+                if (variableRef.lhsVar && (variableRef.symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
+                    dlog.error(tupleVar.pos, DiagnosticErrorCode.CANNOT_ASSIGN_VALUE_TO_TYPE_DEF);
+                    return;
+                }
+            }
         }
 
         if (tupleDeStmt.varRef.restParam != null) {

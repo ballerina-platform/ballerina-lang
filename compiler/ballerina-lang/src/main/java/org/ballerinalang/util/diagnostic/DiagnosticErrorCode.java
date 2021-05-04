@@ -349,7 +349,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_ERROR_MATCH_PATTERN("BCE2617", "invalid.error.match.pattern"),
     DUPLICATE_VARIABLE_IN_BINDING_PATTERN("BCE2618", "duplicate.variable.in.binding.pattern"),
     INVALID_VARIABLE_REFERENCE_IN_BINDING_PATTERN("BCE2619", "invalid.variable.reference.in.binding.pattern"),
-    INVALID_VARIABLE_REFERENCE("BCE2620", "invalid.variable.reference"),
+    CANNOT_ASSIGN_VALUE_TO_TYPE_DEF("BCE2620", "cannot.assign.value.to.type.def"),
 
     INVALID_NAMESPACE_PREFIX("BCE2621", "invalid.namespace.prefix"),
     XML_TAGS_MISMATCH("BCE2622", "mismatching.xml.start.end.tags"),
