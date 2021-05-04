@@ -1,4 +1,4 @@
-// Copyright (c) 2020 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
+// Copyright (c) 2021 WSO2 Inc. (http://www.wso2.org) All Rights Reserved.
 //
 // WSO2 Inc. licenses this file to you under the Apache License,
 // Version 2.0 (the "License"); you may not use this file except
@@ -14,20 +14,5 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public function add(int a, int b) returns int {
-    return a + b + 25;
-}
-
-public type Department record {
-    string name = "IT";
-};
-
-public readonly class Employee {
-    public Department dept;
-    public int id;
-
-    public function init(Department & readonly dept, int id) {
-        self.dept = dept;
-        self.id = id;
-    }
+public function main(int? a, int b) {
 }

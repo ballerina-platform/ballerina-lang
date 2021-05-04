@@ -159,7 +159,7 @@ public class LaunchUtils {
             supportedConfigProviders.add(new TomlContentProvider(rootModule, secretContent, moduleSet));
         }
         supportedConfigProviders.add(cliConfigProvider);
-        ConfigResolver configResolver = new ConfigResolver(rootModule, configurationData,
+        ConfigResolver configResolver = new ConfigResolver(configurationData,
                                                            diagnosticLog, supportedConfigProviders);
         ConfigMap.setConfigurableMap(configResolver.resolveConfigs());
         if (!diagnosticLog.getDiagnosticList().isEmpty()) {

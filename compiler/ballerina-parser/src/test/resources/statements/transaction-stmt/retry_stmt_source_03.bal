@@ -8,7 +8,7 @@ function foo() {
     retry<> {
     }
 
-    retry(a, b 
+    retry(a, b
     }
 
     retry<T a, b) {

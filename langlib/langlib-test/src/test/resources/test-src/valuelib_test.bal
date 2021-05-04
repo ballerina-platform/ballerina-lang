@@ -833,6 +833,37 @@ function testCloneWithTypeWithInferredArgument() {
    assert(n2[1], "world");
 }
 
+type Map map<anydata>;
+
+function testCloneWithTypeWithImmutableTypes() {
+
+   map<int> & readonly m = {a: 1, b: 2};
+   map<map<int>> n = {m};
+   var o = checkpanic n.cloneWithType(Map);
+   assert(o["m"] === m, false);
+   assert(o["m"].isReadOnly(), false);
+   anydata p = o["m"];
+   assert(p is map<anydata>, true);
+   map<anydata> q = <map<anydata>>p;
+   q["c"] = "foo";
+   assert(q.length(), 3);
+   assert(q["a"], 1);
+   assert(q["b"], 2);
+   assert(q["c"], "foo");
+
+   int[] & readonly array = [3, 4];
+   map<int[]> n2 = {array};
+   var o2 = checkpanic n2.cloneWithType(Map);
+   assert(o2["array"] === array, false);
+   assert(o2["array"].isReadOnly(), false);
+   anydata[] anyDataArray = <anydata[]>o2["array"];
+   anyDataArray[2] = "foo";
+   assert(anyDataArray.length(), 3);
+   assert(anyDataArray[0], 3);
+   assert(anyDataArray[1], 4);
+   assert(anyDataArray[2], "foo");
+}
+
 /////////////////////////// Tests for `fromJsonWithType()` ///////////////////////////
 type Student2 record {
     string name;
