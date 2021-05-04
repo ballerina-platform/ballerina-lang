@@ -149,7 +149,8 @@ public class DebugTestRunner {
      * @param port          debug session port
      * @throws BallerinaTestException if any exception is occurred during initialization.
      */
-    public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind, int port) throws BallerinaTestException {
+    public void initDebugSession(DebugUtils.DebuggeeExecutionKind executionKind, int port)
+            throws BallerinaTestException {
         initDebugSession(executionKind, port, new HashMap<>());
     }
 
@@ -236,7 +237,8 @@ public class DebugTestRunner {
         debugClientConnector.attachToServer();
     }
 
-    private void launchDebuggee(DebugUtils.DebuggeeExecutionKind launchKind, Map<String, Object> args) throws BallerinaTestException {
+    private void launchDebuggee(DebugUtils.DebuggeeExecutionKind launchKind, Map<String, Object> args)
+            throws BallerinaTestException {
         try {
             // Sends "configuration done" notification to the debug server.
             debugClientConnector.getRequestManager().configurationDone(new ConfigurationDoneArguments());
