@@ -307,7 +307,7 @@ public class CodeActionUtil {
         }
 
         // Remove brackets of the unions, except the nil "()" type
-        types = types.stream().map(v -> v.replaceAll("^\\((.+)\\)$", "$1")).collect(Collectors.toList());
+//        types = types.stream().map(v -> v.replaceAll("^\\((.+)\\)$", "$1")).collect(Collectors.toList());
         importEdits.addAll(importsAcceptor.getNewImportTextEdits());
         return types;
     }
