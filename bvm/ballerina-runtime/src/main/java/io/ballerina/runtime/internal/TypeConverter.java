@@ -20,6 +20,7 @@ package io.ballerina.runtime.internal;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.creators.ErrorCreator;
+import io.ballerina.runtime.api.creators.TypeCreator;
 import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.Type;
@@ -835,12 +836,12 @@ public class TypeConverter {
     public static Type resolveMatchingTypeForUnion(Object value, Type type) {
         if (value instanceof ArrayValue && ((ArrayValue) value).getType().getTag() == TypeTags.ARRAY_TAG &&
                 !isDeepConversionRequiredForArray(((ArrayValue) value).getType())) {
-            return ((ArrayValue) value).getType();
+            return TypeCreator.createArrayType(type);
         }
 
         if (value instanceof MapValue && ((MapValue) value).getType().getTag() == TypeTags.MAP_TAG &&
                 !isDeepConversionRequiredForMap(((MapValue) value).getType())) {
-            return ((MapValue) value).getType();
+            return TypeCreator.createMapType(type);
         }
 
         if (value == null && type.isNilable()) {
