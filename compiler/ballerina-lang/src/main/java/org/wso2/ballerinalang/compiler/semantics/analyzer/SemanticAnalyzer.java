@@ -1547,7 +1547,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
         if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef variableRef = (BLangSimpleVarRef) varRef;
-            if (variableRef.lhsVar && (variableRef.symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
+            if (variableRef.lhsVar && variableRef.symbol != null &&
+                    (variableRef.symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
                 dlog.error(varRef.pos, DiagnosticErrorCode.CANNOT_ASSIGN_VALUE_TO_TYPE_DEF);
                 return;
             }
@@ -1566,7 +1567,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             setTypeOfVarRefForBindingPattern(tupleVar);
             if (tupleVar.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 BLangSimpleVarRef variableRef = (BLangSimpleVarRef) tupleVar;
-                if (variableRef.lhsVar && (variableRef.symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
+                if (variableRef.lhsVar && variableRef.symbol != null &&
+                        (variableRef.symbol.tag & SymTag.TYPE_DEF) == SymTag.TYPE_DEF) {
                     dlog.error(tupleVar.pos, DiagnosticErrorCode.CANNOT_ASSIGN_VALUE_TO_TYPE_DEF);
                     return;
                 }
