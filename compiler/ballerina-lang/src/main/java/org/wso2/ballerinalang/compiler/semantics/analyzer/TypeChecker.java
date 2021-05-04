@@ -3877,6 +3877,15 @@ public class TypeChecker extends BLangNodeVisitor {
                     BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
                     if (opSymbol == symTable.notFoundSymbol) {
+                        opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
+                    }
+
+                    if (opSymbol == symTable.notFoundSymbol) {
+                        opSymbol = symResolver.getArithmeticOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType,
+                                this.resultType);
+                    }
+
+                    if (opSymbol == symTable.notFoundSymbol) {
                         opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
                                 binaryExpr);
                     }
@@ -3902,11 +3911,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
-    }
-
-    private boolean isBinaryComparisonOperator(OperatorKind operatorKind) {
-        return operatorKind == OperatorKind.LESS_THAN || operatorKind == OperatorKind.LESS_EQUAL
-                || operatorKind == OperatorKind.GREATER_THAN || operatorKind == OperatorKind.GREATER_EQUAL;
     }
 
     private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {

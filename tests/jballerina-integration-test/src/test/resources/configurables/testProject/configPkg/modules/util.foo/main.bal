@@ -20,7 +20,7 @@ configurable string stringVar = "hello";
 configurable boolean booleanVar = ?;
 
 public function getAverage() returns float {
-    return <float>(intVar + floatVar) / 2;
+    return <float>(<float>intVar + floatVar) / 2.0;
 }
 
 public function getString() returns string {

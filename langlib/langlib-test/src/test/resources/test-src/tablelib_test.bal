@@ -250,7 +250,7 @@ function testFilter() returns boolean {
 
 function testReduce() returns float {
     float avg = tab.reduce(function (float accum, Person val) returns float {
-                               return accum + <float>val.age / tab.length();
+                               return accum + <float>val.age / <float>tab.length();
                            }, 0.0);
     return avg;
 }

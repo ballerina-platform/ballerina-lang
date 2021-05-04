@@ -3517,6 +3517,180 @@ public class Types {
         return matchFound;
     }
 
+    boolean validNumericTypeExists(BType type) {
+        if (isBasicNumericType(type)) {
+            return true;
+        }
+        switch (type.tag) {
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                Set<BType> memberTypes = unionType.getMemberTypes();
+                BType firstTypeInUnion = memberTypes.iterator().next();
+                if (firstTypeInUnion.tag == TypeTags.FINITE) {
+                    Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
+                    BType baseExprType = valSpace.iterator().next().type;
+                    for (BType memType : memberTypes) {
+                        if (memType.tag == TypeTags.FINITE) {
+                            if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                                return false;
+                            }
+                        }
+                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
+                    }
+                } else {
+                    for (BType memType : memberTypes) {
+                        if (!checkValidNumericTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
+                BType baseExprType = valSpace.iterator().next().type;
+                for (BLangExpression expr : valSpace) {
+                    if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
+                        return false;
+                    }
+                    if (!validNumericTypeExists(expr.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean checkValidNumericTypesInUnion(BType memType, int firstTypeTag) {
+        if (memType.tag != firstTypeTag && !checkTypesBelongToInt(memType.tag, firstTypeTag)) {
+            return false;
+        }
+        return validNumericTypeExists(memType);
+    }
+
+    private boolean checkTypesBelongToInt(int firstTypeTag, int secondTypeTag) {
+        return ((TypeTags.isIntegerTypeTag(firstTypeTag) || firstTypeTag == TypeTags.BYTE) &&
+                (TypeTags.isIntegerTypeTag(secondTypeTag) || secondTypeTag == TypeTags.BYTE));
+    }
+
+    boolean validIntegerTypeExists(BType type) {
+        if (TypeTags.isIntegerTypeTag(type.tag)) {
+            return true;
+        }
+        switch (type.tag) {
+            case TypeTags.BYTE:
+                return true;
+            case TypeTags.UNION:
+                LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+                for (BType memberType : memberTypes) {
+                    if (!validIntegerTypeExists(memberType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
+                for (BLangExpression expr : valueSpace) {
+                    if (!validIntegerTypeExists(expr.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    boolean validStringOrXmlTypeExists(BType type) {
+        if (TypeTags.isStringTypeTag(type.tag)) {
+            return true;
+        }
+        switch (type.tag) {
+            case TypeTags.XML:
+            case TypeTags.XML_TEXT:
+                return true;
+            case TypeTags.UNION:
+                BUnionType unionType = (BUnionType) type;
+                Set<BType> memberTypes = unionType.getMemberTypes();
+                BType firstTypeInUnion = memberTypes.iterator().next();
+                if (firstTypeInUnion.tag == TypeTags.FINITE) {
+                    Set<BLangExpression> valSpace = ((BFiniteType) firstTypeInUnion).getValueSpace();
+                    BType baseExprType = valSpace.iterator().next().type;
+                    for (BType memType : memberTypes) {
+                        if (memType.tag == TypeTags.FINITE) {
+                            if (!checkValueSpaceHasSameType((BFiniteType) memType, baseExprType)) {
+                                return false;
+                            }
+                        }
+                        if (!checkValidStringOrXmlTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
+                    }
+                } else {
+                    for (BType memType : memberTypes) {
+                        if (!checkValidStringOrXmlTypesInUnion(memType, firstTypeInUnion.tag)) {
+                            return false;
+                        }
+                    }
+                }
+                return true;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
+                BType baseExprType = valSpace.iterator().next().type;
+                for (BLangExpression expr : valSpace) {
+                    if (!checkValueSpaceHasSameType((BFiniteType) type, baseExprType)) {
+                        return false;
+                    }
+                    if (!validStringOrXmlTypeExists(expr.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean checkValidStringOrXmlTypesInUnion(BType memType, int firstTypeTag) {
+        if (memType.tag != firstTypeTag && !checkTypesBelongToStringOrXml(memType.tag, firstTypeTag)) {
+            return false;
+        }
+        return validStringOrXmlTypeExists(memType);
+    }
+
+    private boolean checkTypesBelongToStringOrXml(int firstTypeTag, int secondTypeTag) {
+        return (TypeTags.isStringTypeTag(firstTypeTag) && TypeTags.isStringTypeTag(secondTypeTag)) ||
+                (TypeTags.isXMLTypeTag(firstTypeTag) && TypeTags.isXMLTypeTag(secondTypeTag));
+    }
+
+    public boolean checkTypeContainString(BType type) {
+        if (TypeTags.isStringTypeTag(type.tag)) {
+            return true;
+        }
+        switch (type.tag) {
+            case TypeTags.UNION:
+                for (BType memType : ((BUnionType) type).getMemberTypes()) {
+                    if (!checkTypeContainString(memType)) {
+                        return false;
+                    }
+                }
+                return true;
+            case TypeTags.FINITE:
+                Set<BLangExpression> valSpace = ((BFiniteType) type).getValueSpace();
+                for (BLangExpression expr : valSpace) {
+                    if (!checkTypeContainString(expr.type)) {
+                        return false;
+                    }
+                }
+                return true;
+            default:
+                return false;
+        }
+    }
+
     /**
      * Retrieves member types of the specified type, expanding maps/arrays of/constrained by unions types to individual
      * maps/arrays.
@@ -5073,6 +5247,34 @@ public class Types {
             return true;
         }
         return isSimpleBasicType(type.tag);
+    }
+
+    public BType findCompatibleType(BType type) {
+        switch (type.tag) {
+            case TypeTags.DECIMAL:
+            case TypeTags.FLOAT:
+            case TypeTags.XML:
+            case TypeTags.XML_TEXT:
+                return type;
+            case TypeTags.INT:
+            case TypeTags.BYTE:
+            case TypeTags.SIGNED32_INT:
+            case TypeTags.SIGNED16_INT:
+            case TypeTags.SIGNED8_INT:
+            case TypeTags.UNSIGNED32_INT:
+            case TypeTags.UNSIGNED16_INT:
+            case TypeTags.UNSIGNED8_INT:
+                return symTable.intType;
+            case TypeTags.STRING:
+            case TypeTags.CHAR_STRING:
+                return symTable.stringType;
+            case TypeTags.UNION:
+                LinkedHashSet<BType> memberTypes = ((BUnionType) type).getMemberTypes();
+                return findCompatibleType(memberTypes.iterator().next());
+            default:
+                Set<BLangExpression> valueSpace = ((BFiniteType) type).getValueSpace();
+                return findCompatibleType(valueSpace.iterator().next().type);
+        }
     }
 
     public boolean isNonNilSimpleBasicTypeOrString(BType type) {

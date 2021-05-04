@@ -65,7 +65,7 @@ function testKeys() returns string[] {
 
 function testMap() returns map<float> {
     map<int> m = {"1":1, "2":2, "3":3};
-    return m.'map(function (int v) returns float { return v * 5.5; });
+    return m.'map(function (int v) returns float { return <float>v * 5.5; });
 }
 
 function testForEach() returns string {
@@ -85,7 +85,7 @@ function testFilter() returns map<decimal> {
 function testReduce() returns float {
     map<int> grades = {"maths":79, "physics":84, "chemistry":72, "ict":87};
     float avg = grades.reduce(function (float accum, int val) returns float {
-        return accum + <float>val / grades.length();
+        return accum + <float>val / <float>grades.length();
     }, 0.0);
     return avg;
 }
