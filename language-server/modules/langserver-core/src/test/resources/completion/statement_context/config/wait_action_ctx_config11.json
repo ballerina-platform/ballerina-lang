@@ -106,29 +106,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -408,28 +385,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fs",
-      "kind": "Variable",
-      "detail": "future<string>",
-      "sortText": "B",
-      "insertText": "fs",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "E",
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "getStringResult2()(string)",
       "kind": "Function",
       "detail": "Function",
@@ -466,11 +421,33 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "testFunction()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "E",
+      "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "fs2",
       "kind": "Variable",
       "detail": "future<string>",
       "sortText": "B",
       "insertText": "fs2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "fs",
+      "kind": "Variable",
+      "detail": "future<string>",
+      "sortText": "B",
+      "insertText": "fs",
       "insertTextFormat": "Snippet"
     }
   ]

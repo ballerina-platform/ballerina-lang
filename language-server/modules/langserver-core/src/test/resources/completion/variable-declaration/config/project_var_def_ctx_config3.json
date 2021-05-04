@@ -153,29 +153,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -471,22 +448,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "StrandData",
-      "kind": "Struct",
-      "detail": "Record",
-      "documentation": {
-        "left": "Describes Strand execution details for the runtime.\n"
-      },
-      "sortText": "M",
-      "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Person",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "Person",
+      "label": "defaultModel",
+      "kind": "Variable",
+      "detail": "Model",
+      "sortText": "C",
+      "insertText": "defaultModel",
       "insertTextFormat": "Snippet"
     },
     {
@@ -495,30 +461,6 @@
       "detail": "Class",
       "sortText": "A",
       "insertText": "Model",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Driver",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "M",
-      "insertText": "Driver",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Vehicle",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "L",
-      "insertText": "Vehicle",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "defaultModel",
-      "kind": "Variable",
-      "detail": "Model",
-      "sortText": "C",
-      "insertText": "defaultModel",
       "insertTextFormat": "Snippet"
     },
     {
@@ -540,11 +482,27 @@
       }
     },
     {
+      "label": "Person",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "Person",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "N",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Driver",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "M",
+      "insertText": "Driver",
       "insertTextFormat": "Snippet"
     },
     {
@@ -564,6 +522,25 @@
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "StrandData",
+      "kind": "Struct",
+      "detail": "Record",
+      "documentation": {
+        "left": "Describes Strand execution details for the runtime.\n"
+      },
+      "sortText": "M",
+      "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "Vehicle",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "L",
+      "insertText": "Vehicle",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "readonly",

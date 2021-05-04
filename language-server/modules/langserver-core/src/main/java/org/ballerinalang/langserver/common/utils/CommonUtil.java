@@ -1117,6 +1117,20 @@ public class CommonUtil {
         return symbolName;
     }
 
+    /**
+     * Escape a given value.
+     * 
+     * @param value to be escape
+     * @return {@link String}
+     */
+    public static String escapeReservedKeyword(String value) {
+        if (CommonUtil.BALLERINA_KEYWORDS.contains(value)) {
+            return "'" + value;
+        }
+
+        return value;
+    }
+
     private static String getQualifiedModuleName(Module module) {
         if (module.isDefaultModule()) {
             return module.moduleName().packageName().value();
