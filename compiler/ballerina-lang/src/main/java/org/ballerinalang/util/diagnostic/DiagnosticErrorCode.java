@@ -512,7 +512,8 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     EXPRESSION_IS_NOT_A_CONSTANT_EXPRESSION("BCE3504", "expression.is.not.a.constant.expression"),
     INVALID_CONST_EXPRESSION("BCE3505", "invalid.const.expression"),
     CONSTANT_EXPRESSION_NOT_SUPPORTED("BCE3506", "const.expression.not.supported"),
-    CONSTANT_DECLARATION_NOT_YET_SUPPORTED("BCE3507", "constant.declaration.not.yet.supported.for.type"),
+    KEY_NOT_FOUND("BCE3507", "key.not.found"),
+    CONSTANT_DECLARATION_NOT_YET_SUPPORTED("BCE3508", "constant.declaration.not.yet.supported.for.type"),
 
     // Anonymous functions related codes
     ARROW_EXPRESSION_MISMATCHED_PARAMETER_LENGTH("BCE3600", "arrow.expression.mismatched.parameter.length"),
