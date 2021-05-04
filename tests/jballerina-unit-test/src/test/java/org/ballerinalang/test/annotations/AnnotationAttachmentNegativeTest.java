@@ -136,7 +136,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnFunction() {
         int index = 47;
-        int line = 230;
+        int line = 192;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on function", line, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on function", line += 3, 1);
         validateError(compileResult, index++, "annotation 'v4' is not allowed on function", line += 3, 1);
@@ -155,7 +155,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnParam() {
         int index = 60;
-        int line = 271;
+        int line = 233;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on parameter", line, 31);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on parameter", line += 3, 29);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on parameter", line += 3, 29);
@@ -174,7 +174,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnReturn() {
         int index = 73;
-        int line = 307;
+        int line = 269;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on return", line, 53);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on return", line += 3, 53);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on return", line += 3, 53);
@@ -193,7 +193,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnListener() {
         int index = 86;
-        int line = 349;
+        int line = 311;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on listener", line, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on listener", line += 3, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on listener", line += 3, 1);
@@ -212,7 +212,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnService() {
         int index = 99;
-        int line = 388;
+        int line = 350;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on service", line, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on service", line += 3, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on service", line += 3, 1);
@@ -231,7 +231,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnResource() {
         int index = 112;
-        int line = 427;
+        int line = 389;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on object_method, function", line,
                 5);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on object_method, function", line += 3,
@@ -258,7 +258,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnAnnotation() {
         int index = 123;
-        int line = 490;
+        int line = 452;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on annotation", line, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on annotation", line += 3, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on annotation", line += 3, 1);
@@ -277,7 +277,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnVar() {
         int index = 136;
-        int line = 529;
+        int line = 491;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on var", line, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on var", line += 3, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on var", line += 3, 1);
@@ -296,7 +296,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnLetVar() {
         int index = 149;
-        int line = 568;
+        int line = 530;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on var", line, 13);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on var", line += 3, 13);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on var", line += 3, 13);
@@ -315,7 +315,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnConst() {
         int index = 162;
-        int line = 606;
+        int line = 568;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on const", line, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on const", line += 3, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on const", line += 3, 1);
@@ -334,7 +334,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnExternal() {
         int index = 175;
-        int line = 645;
+        int line = 607;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on external", line, 62);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on external", line += 3, 61);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on external", line += 3, 61);
@@ -353,7 +353,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnServiceVariable() {
         int index = 188;
-        int line = 683;
+        int line = 645;
         validateError(compileResult, index++, "annotation 'v8' is not allowed on var", line, 1);
         validateError(compileResult, index++, "annotation 'v1' is not allowed on service", line += 4, 1);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on service", line += 3, 1);
@@ -373,7 +373,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnWorker() {
         int index = 202;
-        int line = 733;
+        int line = 695;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on worker", line, 5);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on worker", line += 3, 5);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on worker", line += 3, 5);
@@ -392,7 +392,7 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentOnStart() {
         int index = 215;
-        int line = 777;
+        int line = 739;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on worker", line, 5);
         validateError(compileResult, index++, "annotation 'v2' is not allowed on worker", line += 3, 5);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on worker", line += 3, 5);
@@ -411,73 +411,75 @@ public class AnnotationAttachmentNegativeTest {
     @Test
     public void testInvalidAttachmentForField() {
         int index = 228;
-        validateError(compileResult, index++, "annotation 'v16' is not allowed on var", 821, 1);
-        validateError(compileResult, index++, "annotation 'v16' is not allowed on function", 823, 1);
-        validateError(compileResult, index++, "annotation 'v17' is not allowed on function", 824, 1);
-        validateError(compileResult, index++, "annotation 'v18' is not allowed on function", 825, 1);
-        validateError(compileResult, index++, "annotation 'v16' is not allowed on type", 830, 1);
-        validateError(compileResult, index++, "annotation 'v17' is not allowed on type", 831, 1);
-        validateError(compileResult, index++, "annotation 'v18' is not allowed on type", 832, 1);
-        validateError(compileResult, index++, "annotation 'v17' is not allowed on record_field, field", 834, 5);
-        validateError(compileResult, index++, "annotation 'v16' is not allowed on class", 837, 1);
-        validateError(compileResult, index++, "annotation 'v17' is not allowed on class", 838, 1);
-        validateError(compileResult, index++, "annotation 'v18' is not allowed on class", 839, 1);
-        validateError(compileResult, index, "annotation 'v18' is not allowed on object_field, field", 841, 5);
+        int line = 783;
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on var", line, 1);
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on function", line += 2, 1);
+        validateError(compileResult, index++, "annotation 'v17' is not allowed on function", line += 1, 1);
+        validateError(compileResult, index++, "annotation 'v18' is not allowed on function", line += 1, 1);
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on type", line += 5, 1);
+        validateError(compileResult, index++, "annotation 'v17' is not allowed on type", line += 1, 1);
+        validateError(compileResult, index++, "annotation 'v18' is not allowed on type", line += 1, 1);
+        validateError(compileResult, index++, "annotation 'v17' is not allowed on record_field, field", line += 2, 5);
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on class", line += 3, 1);
+        validateError(compileResult, index++, "annotation 'v17' is not allowed on class", line += 1, 1);
+        validateError(compileResult, index++, "annotation 'v18' is not allowed on class", line += 1, 1);
+        validateError(compileResult, index, "annotation 'v18' is not allowed on object_field, field", line + 2, 5);
     }
 
     @Test
     public void testInvalidAttachmentForTypeConversionExpr() {
         int index = 240;
-        validateError(compileResult, index++, "annotation 'v16' is not allowed on type", 849, 17);
+        validateError(compileResult, index++, "annotation 'v16' is not allowed on type", 811, 17);
     }
 
     @Test
     public void testInvalidAttachmentForClass() {
         int index = 241;
-        validateError(compileResult, index++, "annotation 'v19' is not allowed on class", 854, 6);
+        validateError(compileResult, index++, "annotation 'v19' is not allowed on class", 816, 6);
     }
 
     @Test
     public void testQualifiedNameInInvalidAttachmentError() {
         validateError(compileResult, 242,
-                      "annotation 'ballerina/lang.annotations:1.0.0:tainted' is not allowed on class", 861, 1);
+                      "annotation 'ballerina/lang.annotations:1.0.0:tainted' is not allowed on class", 823, 1);
     }
 
     @Test
     public void testInvalidAttachmentWithValue() {
         validateError(compileResult, 243,
                       "no annotation value expected for annotation 'ballerina/lang.annotations:1.0.0:tainted'",
-                      866, 10);
+                      828, 10);
         validateError(compileResult, 244, "no annotation value expected for annotation 'v7'",
-                      871, 35);
+                      833, 35);
     }
 
     @Test
     public void testInvalidAttachmentWithoutValue() {
+        int line = 835;
         validateError(compileResult, 245, "annotation value expected for annotation of " +
-                        "record type 'Annot' with required fields", 873, 1);
+                        "record type 'Annot' with required fields", line, 1);
         validateError(compileResult, 246, "annotation value expected for annotation of " +
-                        "record type 'Annot' with required fields", 876, 1);
+                        "record type 'Annot' with required fields", line += 3, 1);
         validateError(compileResult, 247, "annotation value expected for annotation of " +
-                        "record type 'Annot' with required fields", 877, 22);
+                        "record type 'Annot' with required fields", line += 1, 22);
         validateError(compileResult, 248, "annotation value expected for annotation of " +
-                "record type 'Annot' with required fields", 883, 1);
+                "record type 'Annot' with required fields", line += 6, 1);
         validateError(compileResult, 249, "annotation value expected for annotation of " +
-                "record type 'Annot' with required fields", 884, 1);
+                "record type 'Annot' with required fields", line + 1, 1);
     }
 
     @Test
     public void testInvalidAttachmentCount() {
         validateError(compileResult, 250, "cannot specify more than one annotation value for " +
-                              "annotation 'ballerina/lang.annotations:1.0.0:tainted'", 888, 1);
+                              "annotation 'ballerina/lang.annotations:1.0.0:tainted'", 850, 1);
         validateError(compileResult, 251,
-                      "cannot specify more than one annotation value for annotation 'v1'", 890, 1);
+                      "cannot specify more than one annotation value for annotation 'v1'", 852, 1);
     }
 
     @Test
     public void testInvalidAttachmentOnServiceClass() {
         int index = 252;
-        int line = 894;
+        int line = 856;
         validateError(compileResult, index++, "annotation 'v1' is not allowed on class", line, 1);
         validateError(compileResult, index++, "annotation 'v3' is not allowed on class", line += 6, 1);
         validateError(compileResult, index++, "annotation 'v4' is not allowed on class", line += 3, 1);

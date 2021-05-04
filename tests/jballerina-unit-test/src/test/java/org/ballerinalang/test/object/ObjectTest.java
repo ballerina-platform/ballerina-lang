@@ -436,6 +436,7 @@ public class ObjectTest {
         BAssertUtil.validateError(result, 0, "uninitialized field 'foo'", 18, 5);
     }
 
+    // https://github.com/ballerina-platform/ballerina-lang/issues/14633
     @Test(description = "Negative test to test self reference types", enabled = false)
     public void testSelfReferenceType() {
         CompileResult result = BCompileUtil.compile("test-src/object/object_cyclic_self_reference.bal");
