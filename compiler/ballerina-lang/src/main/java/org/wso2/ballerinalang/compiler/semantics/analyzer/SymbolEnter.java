@@ -1210,6 +1210,7 @@ public class SymbolEnter extends BLangNodeVisitor {
                         true);
                 checkErrors(env, unresolvedType, ((BLangStreamType) currentTypeOrClassNode).error, visitedNodes,
                         true);
+                break;
             case USER_DEFINED_TYPE:
                 checkErrorsOfUserDefinedType(env, unresolvedType, (BLangUserDefinedType) currentTypeOrClassNode,
                         visitedNodes, fromStructuredType);
