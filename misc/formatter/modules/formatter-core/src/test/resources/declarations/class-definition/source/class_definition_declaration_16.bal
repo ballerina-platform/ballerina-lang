@@ -1,16 +1,8 @@
-class
-         Student         {
-public
-      function
-      foo()
-      {
-        string
-x     =     "abc"
-        ;
+class      Student         {
+public    function   foo()   {
+        string   x     =     "abc"    ;
 }
 
-    int
-    a
-;
+    int    a   ;
     int    b   ;
 }

@@ -330,6 +330,11 @@ public class WorkerTest {
         Assert.assertEquals(mapResult.get("w2").stringValue(), "w2");
     }
 
+    @Test
+    public void testLambdaWithWorkerMessagePassing() {
+        BRunUtil.invoke(result, "testLambdaWithWorkerMessagePassing");
+    }
+
     @Test(expectedExceptions = BLangRuntimeException.class)
     public void testFunctionWithWorkerInsideLock() {
         BValue[] returns = BRunUtil.invoke(result, "testPanicWorkerInsideLock");

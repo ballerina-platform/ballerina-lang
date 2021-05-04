@@ -106,6 +106,9 @@ public class DocCommand implements BLauncherCmd {
     @CommandLine.Option(names = "--experimental", description = "Enable experimental language features.")
     private boolean experimentalFlag;
 
+//    @CommandLine.Option(names = "--show-all-warnings", description = "show warnings of dependencies")
+    private Boolean showAllWarnings;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(DOC_COMMAND);
@@ -228,6 +231,7 @@ public class DocCommand implements BLauncherCmd {
                 .skipTests(true)
                 .testReport(false)
                 .observabilityIncluded(false)
+                .showAllWarnings(showAllWarnings)
                 .build();
     }
 }

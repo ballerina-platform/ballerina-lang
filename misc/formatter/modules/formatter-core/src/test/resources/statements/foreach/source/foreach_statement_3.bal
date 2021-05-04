@@ -4,8 +4,7 @@ function foo() {
 
      foreach   var  i  in   1 ...endValue   {
        sum = sum + i;
-    } foreach var i in 1..< endValue
-    {
+    } foreach var i in 1..< endValue{
        sum = sum + i;
     }
 }

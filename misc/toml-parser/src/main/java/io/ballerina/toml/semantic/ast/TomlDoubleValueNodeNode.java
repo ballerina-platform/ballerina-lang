@@ -20,6 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.DocumentNode;
 
 /**
  * Represents A Double Value in Toml AST.
@@ -27,8 +28,8 @@ import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
  * @since 2.0.0
  */
 public class TomlDoubleValueNodeNode extends TomlBasicValueNode<Double> {
-    public TomlDoubleValueNodeNode(Double value, TomlNodeLocation location) {
-        super(value, TomlType.DOUBLE, location);
+    public TomlDoubleValueNodeNode(DocumentNode documentNode, Double value, TomlNodeLocation location) {
+        super(documentNode, value, TomlType.DOUBLE, location);
     }
 
     @Override

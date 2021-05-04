@@ -330,7 +330,7 @@ public function benchmarkLoopWithFramesWOEntries(int warmupCount, int benchmarkC
 }
 
 public function benchmarkNestedLoopWithQuery(int warmupCount, int benchmarkCount) returns int {
-    int c = round(ceil(sqrt(warmupCount * 1.0f)));
+    int c = round(ceil(sqrt(<float>warmupCount * 1.0f)));
     Person[] pl = getPersonArray(c);
     Department[] dl = getDepartmentArray(c);
     DeptPerson[] outputList =
@@ -343,7 +343,7 @@ public function benchmarkNestedLoopWithQuery(int warmupCount, int benchmarkCount
             dept: dept.name
         };
 
-    c = round(ceil(sqrt(benchmarkCount * 1.0f)));
+    c = round(ceil(sqrt(<float>benchmarkCount * 1.0f)));
     pl = getPersonArray(c);
     dl = getDepartmentArray(c);
 
@@ -361,7 +361,7 @@ public function benchmarkNestedLoopWithQuery(int warmupCount, int benchmarkCount
 }
 
 public function benchmarkNestedLoopWithWhile(int warmupCount, int benchmarkCount) returns int {
-    int c = round(ceil(sqrt(warmupCount * 1.0f)));
+    int c = round(ceil(sqrt(<float>warmupCount * 1.0f)));
     Person[] pl = getPersonArray(c);
     Department[] dl = getDepartmentArray(c);
     DeptPerson[] outputList = [];
@@ -379,7 +379,7 @@ public function benchmarkNestedLoopWithWhile(int warmupCount, int benchmarkCount
         i += 1;
     }
 
-    c = round(ceil(sqrt(benchmarkCount * 1.0f)));
+    c = round(ceil(sqrt(<float>benchmarkCount * 1.0f)));
     pl = getPersonArray(c);
     dl = getDepartmentArray(c);
     outputList = [];
@@ -401,7 +401,7 @@ public function benchmarkNestedLoopWithWhile(int warmupCount, int benchmarkCount
 }
 
 public function benchmarkNestedLoopWithForeach(int warmupCount, int benchmarkCount) returns int {
-    int c = round(ceil(sqrt(warmupCount * 1.0f)));
+    int c = round(ceil(sqrt(<float>warmupCount * 1.0f)));
     Person[] pl = getPersonArray(c);
     Department[] dl = getDepartmentArray(c);
     DeptPerson[] outputList = [];
@@ -416,7 +416,7 @@ public function benchmarkNestedLoopWithForeach(int warmupCount, int benchmarkCou
         }
     }
 
-    c = round(ceil(sqrt(benchmarkCount * 1.0f)));
+    c = round(ceil(sqrt(<float>benchmarkCount * 1.0f)));
     pl = getPersonArray(c);
     dl = getDepartmentArray(c);
     outputList = [];

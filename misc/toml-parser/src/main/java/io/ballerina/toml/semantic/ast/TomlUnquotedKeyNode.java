@@ -20,6 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.DocumentNode;
 
 /**
  * Represents A String Value in Toml AST.
@@ -27,7 +28,7 @@ import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
  * @since 2.0.0
  */
 public class TomlUnquotedKeyNode extends TomlBasicValueNode<String> {
-    public TomlUnquotedKeyNode(String value, TomlNodeLocation location) {
-        super(value, TomlType.UNQUOTED_KEY, location);
+    public TomlUnquotedKeyNode(DocumentNode documentNode, String value, TomlNodeLocation location) {
+        super(documentNode, value, TomlType.UNQUOTED_KEY, location);
     }
 }

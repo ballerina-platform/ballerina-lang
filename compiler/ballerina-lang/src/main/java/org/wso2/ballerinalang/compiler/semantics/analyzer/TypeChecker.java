@@ -1946,9 +1946,8 @@ public class TypeChecker extends BLangNodeVisitor {
 
         for (BField field : type.fields.values()) {
             String fieldName = field.name.value;
-
             if (!specFieldNames.contains(fieldName) && Symbols.isFlagOn(field.symbol.flags, Flags.REQUIRED)
-                    && field.type.tag != TypeTags.NEVER) {
+                    && !types.isNeverTypeOrStructureTypeWithARequiredNeverMember(field.type)) {
                 // Check if `field` is explicitly assigned a value in the record literal
                 // If a required field is missing, it's a compile error
                 dlog.error(pos, DiagnosticErrorCode.MISSING_REQUIRED_RECORD_FIELD, field.name);
@@ -3012,6 +3011,9 @@ public class TypeChecker extends BLangNodeVisitor {
         if (funcName.equals("mergeJson") && varRefType.tag != TypeTags.MAP) {
             return false;
         }
+        if (funcName.equals("strip") && TypeTags.isXMLTypeTag(varRefType.tag)) {
+            return false;
+        }
 
         dlog.error(iExpr.pos, DiagnosticErrorCode.CANNOT_UPDATE_READONLY_VALUE_OF_TYPE, varRefType);
         resultType = symTable.semanticError;
@@ -3875,6 +3877,15 @@ public class TypeChecker extends BLangNodeVisitor {
                     BSymbol opSymbol = symResolver.resolveBinaryOperator(binaryExpr.opKind, lhsType, rhsType);
 
                     if (opSymbol == symTable.notFoundSymbol) {
+                        opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType);
+                    }
+
+                    if (opSymbol == symTable.notFoundSymbol) {
+                        opSymbol = symResolver.getArithmeticOpsForTypeSets(binaryExpr.opKind, lhsType, rhsType,
+                                this.resultType);
+                    }
+
+                    if (opSymbol == symTable.notFoundSymbol) {
                         opSymbol = symResolver.getBinaryEqualityForTypeSets(binaryExpr.opKind, lhsType, rhsType,
                                 binaryExpr);
                     }
@@ -3900,11 +3911,6 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         resultType = types.checkType(binaryExpr, actualType, expType);
-    }
-
-    private boolean isBinaryComparisonOperator(OperatorKind operatorKind) {
-        return operatorKind == OperatorKind.LESS_THAN || operatorKind == OperatorKind.LESS_EQUAL
-                || operatorKind == OperatorKind.GREATER_THAN || operatorKind == OperatorKind.GREATER_EQUAL;
     }
 
     private SymbolEnv getEnvBeforeInputNode(SymbolEnv env, BLangNode node) {
@@ -5531,11 +5537,10 @@ public class TypeChecker extends BLangNodeVisitor {
             this.resultType = symTable.semanticError;
             return;
         }
-
         if (Symbols.isFlagOn(remoteFuncSymbol.flags, Flags.REMOTE) &&
                 Symbols.isFlagOn(expType.flags, Flags.CLIENT) &&
                 types.isNeverTypeOrStructureTypeWithARequiredNeverMember
-                ((BType) ((InvokableSymbol) remoteFuncSymbol).getReturnType())) {
+                        ((BType) ((InvokableSymbol) remoteFuncSymbol).getReturnType())) {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_CLIENT_REMOTE_METHOD_CALL);
         }
 

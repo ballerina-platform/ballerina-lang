@@ -241,6 +241,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXMLStrip() {
+        BRunUtil.invoke(compileResult, "testXMLStrip");
+    }
+
+    @Test
     public void testGet() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGet");
         assertEquals(returns[0].stringValue(), "<elem/>");
@@ -319,6 +324,8 @@ public class LangLibXMLTest {
         validateError(negativeResult, i++, "incompatible types: expected " +
                 "'(xml:ProcessingInstruction|xml:Comment)', found 'xml:Element'", 61, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 69, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml'",
+                75, 28);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 

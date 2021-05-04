@@ -20,6 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.DocumentNode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,8 +34,8 @@ public class TomlKeyNode extends TomlNode {
 
     private final List<TomlKeyEntryNode> keys;
 
-    public TomlKeyNode(List<TomlKeyEntryNode> keys, TomlNodeLocation location) {
-        super(TomlType.KEY_VALUE, location);
+    public TomlKeyNode(DocumentNode documentNode, List<TomlKeyEntryNode> keys, TomlNodeLocation location) {
+        super(documentNode, TomlType.KEY_VALUE, location);
         this.keys = keys;
     }
 

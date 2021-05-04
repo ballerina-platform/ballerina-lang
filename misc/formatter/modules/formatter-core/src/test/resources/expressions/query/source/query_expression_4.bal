@@ -13,8 +13,7 @@ public function main() {
         // When the `where` condition evaluates to false, the current iteration is skipped.
         where student.gpa >= 2.0
         // The `let` clause binds the variables.
-        let string degreeName = "Bachelor of Medicine",
-        int graduationYear = calGraduationYear(student.intakeYear)
+        let string degreeName = "Bachelor of Medicine",   int graduationYear = calGraduationYear(student.intakeYear)
         // The `limit` clause limits the number of output items.
         limit 2
         // The `select` clause is evaluated for each iteration.
@@ -33,13 +32,11 @@ public function main() {
     // Defines an `error` to handle a key conflict.
     error onConflictError = error("Key Conflict", message = "cannot insert report");
 
-      stream  <  Report  >   reportStream   =
-stream   from   var   student   in   duplicateStdList
+      stream  <  Report  >   reportStream   =   stream   from   var   student   in   duplicateStdList
          select   {
               id  :   student  .  id  ,
             name  :   student.firstName   +   " "   + student.lastName  ,
-            degree  :   "Bachelor of Medicine"  ,graduationYear  :   calGraduationYear  (  student
-            .  intakeYear  )
+            degree  :   "Bachelor of Medicine"  ,graduationYear  :   calGraduationYear  (  student   .  intakeYear  )
         }
         // The `on conflict` clause gets executed when `select` emits a row
         // that has the same key as a row that it emitted earlier.
@@ -56,6 +53,5 @@ function calGraduationYear(int year) returns int {
 }
 
 function foo() {
-from   SomeTable   where   student.gpa   >=   2.0   select   {  }     ->   default
-;
+from   SomeTable   in someList where   student.gpa   >=   2.0   select   {  }     ->   default  ;
 }

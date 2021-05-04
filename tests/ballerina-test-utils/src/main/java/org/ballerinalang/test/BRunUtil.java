@@ -381,6 +381,7 @@ public class BRunUtil {
                     break;
                 case TypeTags.UNION_TAG:
                 case TypeTags.ANY_TAG:
+                case TypeTags.ANYDATA_TAG:
                 case TypeTags.FINITE_TYPE_TAG:
                 case TypeTags.JSON_TAG:
                     typeClazz = Object.class;

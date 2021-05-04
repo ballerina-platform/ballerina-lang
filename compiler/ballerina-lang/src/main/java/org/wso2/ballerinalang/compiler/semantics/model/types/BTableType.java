@@ -27,6 +27,7 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * {@code BTableType} represents a table in Ballerina.
@@ -42,6 +43,8 @@ public class BTableType extends BType implements TableType {
     public boolean isTypeInlineDefined;
     public Location constraintPos;
     public BIntersectionType immutableType;
+
+    private BIntersectionType intersectionType = null;
 
     public BTableType(int tag, BType constraint, BTypeSymbol tSymbol) {
         super(tag, tSymbol);
@@ -100,5 +103,15 @@ public class BTableType extends BType implements TableType {
     @Override
     public BIntersectionType getImmutableType() {
         return immutableType;
+    }
+
+    @Override
+    public Optional<BIntersectionType> getIntersectionType() {
+        return Optional.ofNullable(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(BIntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

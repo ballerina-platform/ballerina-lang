@@ -81,7 +81,7 @@ public class CliSpec {
                 ArrayType arrayType = (ArrayType) typeOp;
                 BArray bArray = ValueCreator.createArrayValue(arrayType, -1);
                 Type elementType = arrayType.getElementType();
-                int elementCount = getElementCount(elementType, operands, opIndex);
+                int elementCount = getElementCount(operands, opIndex);
                 while (argIndex < operandArgs.size() - elementCount) {
                     try {
                         bArray.append(CliUtil.getBValue(elementType, operandArgs.get(argIndex++), curOperand.name));
@@ -145,9 +145,9 @@ public class CliSpec {
         }
     }
 
-    private int getElementCount(Type elementType, Operand[] operands, int opIndex) {
+    private int getElementCount(Operand[] operands, int opIndex) {
         int count = 0;
-        while (opIndex < operands.length && elementType == operands[opIndex++].type) {
+        while (opIndex < operands.length && operands[opIndex++].type.getTag() != TypeTags.RECORD_TYPE_TAG) {
             count++;
         }
         return count;
