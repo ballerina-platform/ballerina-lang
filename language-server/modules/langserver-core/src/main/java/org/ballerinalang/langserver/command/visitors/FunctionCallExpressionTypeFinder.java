@@ -118,7 +118,7 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     public void visit(StartActionNode startActionNode) {
         TypeSymbol typeSymbol = semanticModel.type(startActionNode).orElse(null);
         checkAndSetTypeResult(typeSymbol);
-        if(resultFound){
+        if (resultFound) {
             return;
         }
 
