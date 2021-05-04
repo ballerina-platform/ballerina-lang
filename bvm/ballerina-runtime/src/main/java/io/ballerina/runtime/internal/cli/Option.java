@@ -116,11 +116,15 @@ public class Option {
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             handleArrayParameter(optionName, val, (ArrayType) fieldType);
         } else {
-            if (recordKeysFound.contains(optionName)) {
-                throw ErrorCreator.createError(
-                        StringUtils.fromString("The option '" + optionName + "' cannot be repeated"));
-            }
+            validateRepeatingOptions(optionName);
             recordVal.put(optionName, CliUtil.getBValueWithUnionValue(fieldType, val, optionName.getValue()));
+        }
+    }
+
+    private void validateRepeatingOptions(BString optionName) {
+        if (recordKeysFound.contains(optionName)) {
+            throw ErrorCreator.createError(
+                    StringUtils.fromString("The option '" + optionName + "' cannot be repeated"));
         }
     }
 
@@ -134,6 +138,7 @@ public class Option {
     private boolean handleBooleanTrue(BString paramName) {
         Type fieldType = recordType.getFields().get(paramName.getValue()).getFieldType();
         if (isABoolean(fieldType)) {
+            validateRepeatingOptions(paramName);
             recordVal.put(paramName, true);
             return true;
         } else if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
@@ -214,6 +219,7 @@ public class Option {
             handleArrayParameter(paramName, val, (ArrayType) fieldType);
             return;
         }
+        validateRepeatingOptions(paramName);
         recordVal.put(paramName, CliUtil.getBValueWithUnionValue(fieldType, val, paramName.getValue()));
     }
 
