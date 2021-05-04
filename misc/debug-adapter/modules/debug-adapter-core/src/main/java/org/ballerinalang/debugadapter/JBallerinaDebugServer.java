@@ -322,8 +322,9 @@ public class JBallerinaDebugServer implements IDebugProtocolServer {
         VariablesResponse variablesResponse = new VariablesResponse();
         variablesResponse.setVariables(new Variable[0]);
         try {
-            // If frameId < 0, returns global variables.
-            // IF frameId >= 0, returns local variables.
+            // 1. If frameId < 0, returns global variables.
+            // 2. If frameId >= 0, returns local variables.
+            // 3. If frameId is NULL, returns child variables.
             Long frameId = scopeIdToFrameIdMap.get(args.getVariablesReference());
             if (frameId != null && frameId < 0) {
                 StackFrameProxyImpl stackFrame = stackFramesMap.get(-frameId);

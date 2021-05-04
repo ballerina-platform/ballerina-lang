@@ -22,6 +22,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 
 import java.util.Collections;
 
@@ -75,7 +76,7 @@ public class UnaryExpressionEvaluator extends Evaluator {
                             syntaxNode.toSourceCode().trim()));
             }
             genMethod.setArgValues(Collections.singletonList(valueAsObject));
-            return new BExpressionValue(context, genMethod.invoke());
+            return new BExpressionValue(context, genMethod.invokeSafely());
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

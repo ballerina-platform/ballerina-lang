@@ -23,6 +23,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.Collections;
@@ -58,7 +59,7 @@ public class XMLTemplateEvaluator extends Evaluator {
             RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, FROM_STRING_CLASS, XML_FROM_STRING_METHOD,
                     Collections.singletonList(B_STRING_CLASS));
             fromStringMethod.setArgValues(Collections.singletonList(xmlStrValue));
-            Value result = fromStringMethod.invoke();
+            Value result = fromStringMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } catch (EvaluationException e) {
             throw e;
