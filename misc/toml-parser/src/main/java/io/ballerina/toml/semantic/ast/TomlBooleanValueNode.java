@@ -20,6 +20,7 @@ package io.ballerina.toml.semantic.ast;
 
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.DocumentNode;
 
 /**
  * Represents A Boolean Value in Toml AST.
@@ -27,8 +28,8 @@ import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
  * @since 2.0.0
  */
 public class TomlBooleanValueNode extends TomlBasicValueNode<Boolean> {
-    public TomlBooleanValueNode(Boolean value, TomlNodeLocation location) {
-        super(value, TomlType.BOOLEAN, location);
+    public TomlBooleanValueNode(DocumentNode documentNode, Boolean value, TomlNodeLocation location) {
+        super(documentNode, value, TomlType.BOOLEAN, location);
     }
 
     @Override
