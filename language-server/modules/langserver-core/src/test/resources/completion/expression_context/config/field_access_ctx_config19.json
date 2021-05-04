@@ -350,13 +350,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonFloatString()(()|boolean|string|float|JsonFloat[]|map<JsonFloat>|error)",
+      "label": "fromJsonFloatString()(JsonFloat|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using float to represent numbers.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `()|boolean|string|float|JsonFloat[]|map<JsonFloat>|error`   \n- `str` parsed to JsonFloat or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using float to represent numbers.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `JsonFloat|error`   \n- `str` parsed to JsonFloat or error  \n  \n"
         }
       },
       "sortText": "D",
@@ -365,13 +365,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fromJsonDecimalString()(()|boolean|string|decimal|JsonDecimal[]|map<JsonDecimal>|error)",
+      "label": "fromJsonDecimalString()(JsonDecimal|error)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using decimal to represent numbers.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `()|boolean|string|decimal|JsonDecimal[]|map<JsonDecimal>|error`   \n- `str` parsed to JsonDecimal or error  \n  \n"
+          "value": "**Package:** _ballerina/lang.value:1.0.0_  \n  \nParses a string in JSON format, using decimal to represent numbers.\nReturns an error if the string cannot be parsed.\n  \n  \n  \n**Returns** `JsonDecimal|error`   \n- `str` parsed to JsonDecimal or error  \n  \n"
         }
       },
       "sortText": "D",
