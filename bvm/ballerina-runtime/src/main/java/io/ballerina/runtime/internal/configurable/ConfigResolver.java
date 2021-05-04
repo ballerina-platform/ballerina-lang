@@ -49,13 +49,10 @@ public class ConfigResolver {
 
     private final List<ConfigProvider> runtimeConfigProviders;
 
-    private final Module rootModule;
-
     private final RuntimeDiagnosticLog diagnosticLog;
 
-    public ConfigResolver(Module rootModule, Map<Module, VariableKey[]> configVarMap,
-                          RuntimeDiagnosticLog diagnosticLog, List<ConfigProvider> supportedConfigProviders) {
-        this.rootModule = rootModule;
+    public ConfigResolver(Map<Module, VariableKey[]> configVarMap, RuntimeDiagnosticLog diagnosticLog,
+                          List<ConfigProvider> supportedConfigProviders) {
         this.configVarMap = configVarMap;
         this.supportedConfigProviders = supportedConfigProviders;
         this.runtimeConfigProviders = new LinkedList<>();
