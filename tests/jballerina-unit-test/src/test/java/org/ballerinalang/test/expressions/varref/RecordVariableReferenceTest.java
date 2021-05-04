@@ -175,7 +175,7 @@ public class RecordVariableReferenceTest {
 //        Assert.assertEquals(((BMap) returns[2]).get("format").stringValue(), "Y");
 //    }
 
-    @Test
+    @Test(groups = {"disableOnOldParser", "brokenOnNewParser"})
     public void testRecordVariablesSemanticsNegative() {
         resultSemanticsNegative = BCompileUtil.compile("test-src/expressions/varref/record-variable-reference" +
                 "-semantics-negative.bal");
@@ -215,11 +215,16 @@ public class RecordVariableReferenceTest {
                 "incompatible types: expected 'map<error>', found 'map'",
                 164, 16);
         BAssertUtil.validateError(resultSemanticsNegative, ++i,
-                "invalid expr in assignment lhs", 186, 51);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "invalid variable reference; missing variable",
-                198, 5);
-        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'Baz', " +
-                        "found 'typedesc<Baz>'", 199, 9);
+                "invalid binding pattern, variable reference 'm[var1]' cannot be used with binding pattern", 198, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i,
+                "invalid binding pattern, variable reference 'm[var2]' cannot be used with binding pattern", 198, 36);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's'", 213, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'i'", 213, 9);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'f'", 213, 12);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 's2'", 231, 6);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'iv'", 231, 19);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'b3'", 231, 23);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "cannot assign a value to final 'm2'", 231, 31);
 
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
@@ -233,13 +238,6 @@ public class RecordVariableReferenceTest {
                 "duplicate variable 'x'", 36, 21);
         BAssertUtil.validateError(resultNegative, ++i, "variables in a binding pattern must be distinct; found " +
                 "duplicate variable 'x'", 36, 27);
-        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 's'", 50, 6);
-        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'i'", 50, 9);
-        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'f'", 50, 12);
-        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 's2'", 68, 6);
-        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'iv'", 68, 19);
-        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'b3'", 68, 23);
-        BAssertUtil.validateError(resultNegative, ++i, "cannot assign a value to final 'm2'", 68, 31);
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
 }
