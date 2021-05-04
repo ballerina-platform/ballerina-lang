@@ -67,7 +67,7 @@ public class MavenSupportTest extends CommandTest {
         Path mavenRepoPath = Paths.get(projectDir, "target", "platform-libs");
         String jarName = "snakeyaml-1.25.jar";
         String[] args = {"-mvn=org.yaml:snakeyaml:1.25", "-o=" + projectDir, "org.yaml.snakeyaml.Yaml"};
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
@@ -84,7 +84,7 @@ public class MavenSupportTest extends CommandTest {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         String[] args = {"-mvn=commons-logging:commons-logging:1.1.1", "-o=" + projectDir,
                 "org.apache.commons.logging.LogFactory"};
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
