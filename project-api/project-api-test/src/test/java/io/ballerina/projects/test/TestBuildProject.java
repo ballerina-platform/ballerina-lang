@@ -854,7 +854,65 @@ public class TestBuildProject {
         Assert.assertEquals(compilerPluginToml.entries().size(), 2);
     }
 
-    @Test(description = "tests if other documents can be edited ie. Ballerina.toml, Package.md")
+    @Test(description = "test editing Ballerina.toml")
+    public void testModifyBallerinaToml() {
+        Path projectPath = RESOURCE_DIRECTORY.resolve("project_with_tests");
+
+        // 1) Initialize the project instance
+        BuildProject project = null;
+        try {
+            project = BuildProject.load(projectPath);
+        } catch (Exception e) {
+            Assert.fail(e.getMessage());
+        }
+        Assert.assertEquals(project.currentPackage().packageName().toString(), "myproject");
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("myproject"));
+        }
+
+        PackageCompilation compilation = project.currentPackage().getCompilation();
+        // there should be 3 diagnostics coming from test files
+        Assert.assertEquals(compilation.diagnosticResult().diagnosticCount(), 3);
+
+        // 2) Check editing file - add build option
+        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("" +
+                "[package]\n" +
+                "org = \"sameera\"\n" +
+                "name = \"myproject\"\n" +
+                "version = \"0.1.0\"\n" +
+                "[build-options]\n" +
+                "skipTests = true").apply();
+        TomlTableNode ballerinaToml = newBallerinaToml.tomlAstNode();
+        Assert.assertEquals(ballerinaToml.entries().size(), 2);
+        Package newPackage = newBallerinaToml.packageInstance();
+
+        PackageCompilation newPackageCompilation = newPackage.getCompilation();
+        // the 3 test diagnostics should be removed since test sources are not expected to compile
+        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 0);
+
+        // 2) Check editing file - change package metadata
+        newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("" +
+                "[package]\n" +
+                "org = \"sameera\"\n" +
+                "name = \"yourproject\"\n" +
+                "version = \"0.1.0\"\n" +
+                "[sample]\n" +
+                "test = \"attribute\"").apply();
+        ballerinaToml = newBallerinaToml.tomlAstNode();
+        Assert.assertEquals(ballerinaToml.entries().size(), 2);
+        newPackage = newBallerinaToml.packageInstance();
+        Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
+        for (ModuleId moduleId : project.currentPackage().moduleIds()) {
+            Assert.assertTrue(project.currentPackage().module(moduleId).moduleName().toString().contains("yourproject"));
+        }
+
+        newPackageCompilation = newPackage.getCompilation();
+        // imports within the package should not be resolved since the package name has changed
+        // the original 3 test diagnostics should also be present
+        Assert.assertEquals(newPackageCompilation.diagnosticResult().diagnosticCount(), 9);
+    }
+
+    @Test(description = "tests if other documents can be edited ie. Dependencies.toml, Package.md")
     public void testOtherDocumentModify() {
         Path projectPath = RESOURCE_DIRECTORY.resolve("myproject");
 
@@ -866,19 +924,6 @@ public class TestBuildProject {
             Assert.fail(e.getMessage());
         }
         // 2) Check editing files
-        BallerinaToml newBallerinaToml = project.currentPackage().ballerinaToml().get().modify().withContent("" +
-                "[package]\n" +
-                "org = \"sameera\"\n" +
-                "name = \"yourproject\"\n" +
-                "version = \"0.1.0\"\n" +
-                "[sample]\n" +
-                "test = \"attribute\"").apply();
-        TomlTableNode ballerinaToml = newBallerinaToml.tomlAstNode();
-        Assert.assertEquals(ballerinaToml.entries().size(), 2);
-        Package newPackage = newBallerinaToml.packageInstance();
-        Assert.assertEquals(newPackage.packageName().toString(), "yourproject");
-        PackageCompilation compilation = newPackage.getCompilation();
-
         DependenciesToml newDependenciesToml = project.currentPackage().dependenciesToml()
                 .get().modify().withContent("" +
                 "[[dependency]]\n" +
