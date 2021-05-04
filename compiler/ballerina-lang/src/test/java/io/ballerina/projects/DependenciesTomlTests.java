@@ -118,12 +118,12 @@ public class DependenciesTomlTests {
         Assert.assertEquals(diagnostics.errors().size(), 3);
         Iterator<Diagnostic> iterator = diagnostics.errors().iterator();
         Diagnostic firstDiagnostic = iterator.next();
-        Assert.assertEquals(firstDiagnostic.message(), "invalid 'org' under [package]: "
+        Assert.assertEquals(firstDiagnostic.message(), "invalid 'org' under [[dependency]]: "
                 + "'org' can only contain alphanumerics, underscores and the maximum length is 256 characters");
         Assert.assertEquals(firstDiagnostic.location().lineRange().toString(), "(1:6,1:13)");
-        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [package]: 'name' can only contain "
+        Assert.assertEquals(iterator.next().message(), "invalid 'name' under [[dependency]]: 'name' can only contain "
                 + "alphanumerics, underscores and periods and the maximum length is 256 characters");
-        Assert.assertEquals(iterator.next().message(), "invalid 'version' under [package]: "
+        Assert.assertEquals(iterator.next().message(), "invalid 'version' under [[dependency]]: "
                 + "'version' should be compatible with semver");
     }
 
