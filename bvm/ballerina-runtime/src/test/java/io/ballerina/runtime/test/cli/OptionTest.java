@@ -73,13 +73,13 @@ public class OptionTest {
 
     @Test
     public void testOptionArgs() {
-        assertOptionArgTypes(new String[]{"--union", "e-fac", "--name", "Riyafa", "--age", "20", "--age", "25",
-                "--score", "99.99", "--value", "1e10"});
+        assertOptionArgTypes(new String[]{"--union", "e-fac", "--name", "Riyafa", "--age", "25", "--score", "99.99",
+                "--value", "1e10"});
     }
 
     @Test
     public void testNamedArgOptions() {
-        assertOptionArgTypes(new String[]{"--union=e-fac", "--name=Riyafa", "--age=20", "--age=25", "--score=99.99",
+        assertOptionArgTypes(new String[]{"--union=e-fac", "--name=Riyafa", "--age=25", "--score=99.99",
                 "--value=1e10"});
     }
 
@@ -143,6 +143,22 @@ public class OptionTest {
             Assert.fail();
         } catch (BError error) {
             Assert.assertEquals(error.getMessage(), "unsupported type expected with main function '(string|int)'");
+        }
+    }
+
+    @Test
+    public void testRepeatedOption() {
+        String optionName = "stringVal";
+        Field stringField = TypeCreator.createField(PredefinedTypes.TYPE_STRING, optionName, 1);
+        Map<String, Field> fields = Map.ofEntries(Map.entry(stringField.getFieldName(), stringField));
+        RecordType recordType = TypeCreator.createRecordType(RECORD_NAME, module, 1, fields, null, true, 6);
+        Option option = new Option(recordType, ValueCreator.createMapValue(recordType));
+        CliSpec cliSpec = new CliSpec(option, new Operand[0], "--stringVal", "--stringVal");
+        try {
+            cliSpec.getMainArgs();
+            Assert.fail();
+        } catch (BError error) {
+            Assert.assertEquals(error.getMessage(), "Missing option argument for '--stringVal'");
         }
     }
 

@@ -26,12 +26,12 @@ import java.util.Optional;
  *
  * @since 2.0.0
  */
-public class NumericSchema extends AbstractSchema {
+public class NumericSchema extends PrimitiveValueSchema<Double> {
     private final Double minimum;
     private final Double maximum;
 
-    public NumericSchema(Type type, Map<String, String> message, Double minimum, Double maximum) {
-        super(type, message);
+    public NumericSchema(Type type, Map<String, String> message, Double minimum, Double maximum, Double defaultValue) {
+        super(type, message, defaultValue);
         this.minimum = minimum;
         this.maximum = maximum;
     }

@@ -320,6 +320,6 @@ public class SchemaValidator extends TomlNodeVisitor {
         if (objectSchema.required() == null) {
             return new ArrayList<>();
         }
-        return objectSchema.required();
+        return new ArrayList<>(objectSchema.required());
     }
 }

@@ -174,6 +174,11 @@ public class PackageCompilation {
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);
+            if (!rootPackageContext.compilationOptions().showAllWarnings()) {
+                if (!moduleContext.moduleName().packageName().equals(rootPackageContext.packageName())) {
+                    continue;
+                }
+            }
             moduleContext.diagnostics().forEach(diagnostic ->
                     diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }

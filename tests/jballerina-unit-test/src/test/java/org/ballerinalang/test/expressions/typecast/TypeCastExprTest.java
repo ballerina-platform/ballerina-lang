@@ -33,6 +33,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 /**
@@ -576,6 +577,36 @@ public class TypeCastExprTest {
         Assert.assertEquals(errorMsg, "incompatible types: 'string' cannot be cast to 'map'");
     }
 
+    @Test(description = "Test any boolean to int with errors.")
+    public void testAnyBooleanToIntWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToIntWithErrors");
+    }
+
+    @Test(description = "Test any boolean to float with errors.")
+    public void testAnyBooleanToFloatWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToFloatWithErrors");
+    }
+
+    @Test(description = "Test any boolean to decimal with errors.")
+    public void testAnyBooleanToDecimalWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToDecimalWithErrors");
+    }
+
+    @Test(description = "Test any boolean to string with errors.")
+    public void testAnyBooleanToStringWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToStringWithErrors");
+    }
+
+    @Test(description = "Test any boolean to byte with errors.")
+    public void testAnyBooleanToByteWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToByteWithErrors");
+    }
+
+    @Test(description = "Test any boolean to union with errors.")
+    public void testAnyBooleanToUnionWithErrors() {
+        BRunUtil.invoke(result, "testAnyBooleanToUnionWithErrors");
+    }
+
     @Test
     public void testSameTypeCast() {
         BValue[] returns = BRunUtil.invoke(result, "testSameTypeCast");
@@ -597,6 +628,26 @@ public class TypeCastExprTest {
     public void testAnonRecordInCast() {
         BValue[] returns = BRunUtil.invoke(result, "testAnonRecordInCast");
         Assert.assertEquals(returns[0].stringValue(), "{name:\"Pubudu\"}");
+    }
+
+    @Test(dataProvider = "immutableArrayTypesTestFunctions")
+    public void testCastOfImmutableArrayTypes(String function) {
+        BRunUtil.invoke(result, function);
+    }
+
+    @DataProvider(name = "immutableArrayTypesTestFunctions")
+    public Object[][] immutableArrayTypesTestFunctions() {
+        return new Object[][]{
+                {"testCastOfReadonlyIntArrayToByteArray"},
+                {"testCastOfReadonlyIntArrayToByteArrayNegative"},
+                {"testCastOfReadonlyAnyToByteArray"},
+                {"testCastOfReadonlyArrayToUnion"},
+                {"testCastOfReadonlyUnionArrayToByteArray"},
+                {"testCastOfReadonlyRecord"},
+                {"testCastOfReadonlyRecordNegative"},
+                {"testCastOfReadonlyStringArrayToStringConstantArray"},
+                {"testCastOfTwoDimensionalIntArrayToByteArray"}
+        };
     }
 
     @AfterClass
