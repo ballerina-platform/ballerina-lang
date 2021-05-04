@@ -45,7 +45,8 @@ public function foo() {
     future<int> 
     f1 = 
     @strand 
-    {thread: "any"
+    {
+        thread: "any"
     } start 
     multiply(1, 2)
     ;
