@@ -19,7 +19,7 @@
 [boolean, float, string] [c, d, e] = [true, 2.25, "Jhone"];
 public function testBasic() {
     while (d < 3.0) {
-        d += 1;
+        d += 1.0;
     }
     assertTrue(c);
     assertEquality(3.25, d);

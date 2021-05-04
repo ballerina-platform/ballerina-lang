@@ -278,3 +278,9 @@ type Foo record {
 const Foo f = { s: "const string", i: 1 };
 
 const json j = 1;
+
+public const int:Signed32 ONE = 1;
+
+public const int:Unsigned16 TWO = 2;
+
+public const string:Char A = "A";

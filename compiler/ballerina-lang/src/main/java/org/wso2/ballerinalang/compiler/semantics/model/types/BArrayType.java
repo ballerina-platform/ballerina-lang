@@ -120,7 +120,7 @@ public class BArrayType extends BType implements ArrayType {
 
     @Override
     public Optional<BIntersectionType> getIntersectionType() {
-        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+        return Optional.ofNullable(this.intersectionType);
     }
 
     @Override

@@ -61,7 +61,7 @@ public class ConfigTest {
         Map<Module, VariableKey[]> configVarMap = new HashMap<>();
         VariableKey[] keys = {key};
         configVarMap.put(module, keys);
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                                                            Arrays.asList(configProvider));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
         Assert.assertTrue(expectedJClass.isInstance(configValueMap.get(key)),

@@ -220,13 +220,11 @@ public class ListBindingPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 65, 35);
         BAssertUtil.validateError(resultNegative, ++i, unreachableCode, 71, 5);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 79, 22);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 79, 22);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 81, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 81, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 83, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 83, 9);
         BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 85, 9);
-        BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 85, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 93, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 100, 9);
