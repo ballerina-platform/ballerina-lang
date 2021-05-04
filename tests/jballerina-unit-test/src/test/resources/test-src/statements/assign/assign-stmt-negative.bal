@@ -122,14 +122,3 @@ function assignErrorToUnionWithErrorArray() {
 function assignFunctionParameterAnyToParameterUnionWithErrorAndAny() {
     function (any|error...) returns () func = function (any... y) {};
 }
-
-final int i = 10;
-final string aa = "sam";
-
-function testConstAssignment1 () {
-    i = 20;
-}
-
-function testConstAssignment2 () {
-    aa = "mad";
-}
