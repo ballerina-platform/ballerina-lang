@@ -380,7 +380,8 @@ public class TypeNarrower extends BLangNodeVisitor {
         return finiteType;
     }
 
-    private void narrowTypeForEqualOrNotEqual(BLangBinaryExpr binaryExpr, BLangExpression lhsExpr, BLangExpression rhsExpr) {
+    private void narrowTypeForEqualOrNotEqual(BLangBinaryExpr binaryExpr, BLangExpression lhsExpr,
+                                              BLangExpression rhsExpr) {
         if (lhsExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
                 ((BLangSimpleVarRef) lhsExpr).symbol == symTable.notFoundSymbol) {
             return;
