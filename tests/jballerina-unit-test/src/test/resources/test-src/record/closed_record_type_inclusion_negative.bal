@@ -174,3 +174,17 @@ type Employee record {|
     *PersonTwo;
     int age;
 |};
+
+public type Foo record {|
+    float body;
+|};
+
+// Out of order inclusion test : added to test a NPE
+type Bar record {|
+    *Foo;
+    Baz2 body;   // defined after the type definition
+|};
+
+type Baz2 record {|
+    int id;
+|};

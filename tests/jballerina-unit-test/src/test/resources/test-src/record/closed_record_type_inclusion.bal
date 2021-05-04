@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-import testorg/records;
+import testorg/foo.records;
 
 // TESTS FOR RECORDS WHERE THE REFERENCED TYPE ONLY HAS VALUE TYPE FIELDS
 
@@ -34,13 +34,13 @@ type ClosedValType record {|
     byte cry?;
 |};
 
-type Foo1 record {
+type Foo1 record {|
     int a;
     float b;
     *ValType;
     string s;
     *ClosedValType;
-};
+|};
 
 function testValRefType() returns Foo1 {
     Foo1 f = {a:10, b:23.45, s:"hello foo", ri:20, crs:"qwerty", rf:45.6, rs:"asdf", cri:20, crf:12.34};
@@ -86,12 +86,12 @@ type ClosedRefType record {|
     Address cra?;
 |};
 
-type Foo2 record {
+type Foo2 record {|
     string s;
     *RefType;
     int i;
     *ClosedRefType;
-};
+|};
 
 function testRefTypes() returns Foo2 {
     Foo2 f = {s:"qwerty", i:10, rx:xml `<book>Count of Monte Cristo</book>`, rp:new("John Doe"), crp:new("Jane Doe"), crx:xml `<book>Count of Monte Cristo</book>`};
@@ -108,15 +108,15 @@ function testRefTypes() returns Foo2 {
 
 // Testing the order of resolving
 
-type Foo3 record {
+type Foo3 record {|
     *OrderTest;
     string s;
-};
+|};
 
-type OrderTest record {
+type OrderTest record {|
     int ri;
     string rs;
-};
+|};
 
 function testOrdering() returns Foo3 {
     Foo3 f = {s:"qwerty", ri:10, rs:"asdf"};
@@ -127,20 +127,20 @@ type AB record {
     int abi;
 };
 
-type CD record {
+type CD record {|
     *EF;
     AB cdr;
-};
+|};
 
-type EF record {
+type EF record {|
     *AB;
     string efs;
-};
+|};
 
-type Foo4 record {
+type Foo4 record {|
     string s;
     *CD;
-};
+|};
 
 function testReferenceChains() returns Foo4 {
     AB ab = {abi:123};
@@ -148,54 +148,131 @@ function testReferenceChains() returns Foo4 {
     return f;
 }
 
-function testTypeReferencingInBALAs() returns records:BManager {
-    records:BManager m = {name:"John Doe", age:25, adr:{city:"Colombo", country:"Sri Lanka"},
-                          company:"WSO2", dept:"Engineering"};
+function testTypeReferencingInBALAs() returns records:BClosedManager {
+    records:BClosedManager m = {name:"John Doe", age:25, adr:{city:"Colombo", country:"Sri Lanka"}, company:"WSO2", dept:"Engineering"};
     return m;
 }
 
 // TEST DEFAULT VALUE INIT IN TYPE REFERENCED FIELDS
 
-type PersonRec record {
+type PersonRec record {|
     string name = "John Doe";
     int age = 25;
     Address adr = {city: "Colombo", country: "Sri Lanka"};
-};
+|};
 
-type EmployeeRec record {
+type EmployeeRec record {|
     *PersonRec;
     string company = "WSO2";
-};
+|};
 
-type ManagerRec record {
+type ManagerRec record {|
     string dept = "";
     *EmployeeRec;
-};
+|};
 
 function testDefaultValueInit() returns ManagerRec {
     ManagerRec mgr = {};
     return mgr;
 }
 
-function testDefaultValueInitInBALAs() returns records:BManager {
-    records:BManager mgr = {};
+function testDefaultValueInitInBALAs() returns records:BClosedManager {
+    records:BClosedManager mgr = {};
     return mgr;
 }
 
-// Test overriding of referenced fields
+// Test overriding rest descriptor.
 
-type DefaultPerson record {
-    *records:AgedPerson;
-    int|string age = 18;
-    string name = "UNKNOWN";
+type Rec1 record {|
+    int i;
+    string...;
+|};
+
+type Rec2 record {|
+    string s;
+    any|error...;
+|};
+
+type IncludingRec1 record {|
+    boolean b;
+    *Rec1;
+|};
+
+type IncludingRec2 record {|
+    *Rec1;
+    boolean...;
+|};
+
+type IncludingRec3 record {|
+    int i;
+    *Rec2;
+|};
+
+type Rec3 record {
+    int i;
 };
 
-function testCreatingRecordWithOverriddenFields() {
-    DefaultPerson dummyPerson = {};
-    assertEquality(18, dummyPerson.age);
-    dummyPerson.age = 400;
-    assertEquality(400, dummyPerson.age);
-    assertEquality("UNKNOWN", dummyPerson.name);
+type Rec4 record {
+    int j;
+};
+
+type IncludingRec4 record {|
+    int k;
+    *Rec3;
+    *Rec4;
+|};
+
+type Rec5 record {|
+    int i;
+    string...;
+|};
+
+type Rec6 record {|
+    int j;
+    string...;
+|};
+
+type IncludingRec5 record {|
+    int k;
+    *Rec5;
+    *Rec6;
+|};
+
+function testRestTypeOverriding() {
+    IncludingRec1 r1 = {b: false, i: 1, "s": "str"};
+    assertEquality("str", r1["s"]);
+    IncludingRec2 r2 = {i: 1, "b": false};
+    assertEquality(false, r2["b"]);
+    IncludingRec3 r3 = {i: 1, s: "str", "e": error("Message")};
+    assertEquality(true, r3["e"] is error);
+    error e = <error> r3["e"];
+    assertEquality("Message", e.message());
+    IncludingRec4 r4 = {i: 1, j: 2, k: 3, "s": "str"};
+    assertEquality("str", r4["s"]);
+    IncludingRec4 r5 = {i: 1, j: 2, k: 3, "s": "str", "b": false};
+    assertEquality(false, r5["b"]);
+    IncludingRec5 r6 = {i: 1, j: 2, k: 3, "s1": "str1", "s2": "str2"};
+    assertEquality("str2", r6["s2"]);
+}
+
+public type Foo record {|
+    anydata body;
+|};
+
+// Out of order inclusion test : added to test a NPE
+type Bar record {|
+    *Foo;
+    Baz2 body;   // defined after the type definition
+|};
+
+type Baz2 record {|
+    int id;
+|};
+
+function testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
+    Baz2 bazRecord = {id: 4};
+    Bar barRecord = {body: bazRecord};
+    assertEquality(4, barRecord.body.id);
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

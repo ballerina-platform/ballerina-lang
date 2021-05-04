@@ -43,19 +43,19 @@ import static org.testng.Assert.assertEquals;
  *
  * @since 0.985.0
  */
-public class ClosedRecordTypeReferenceTest {
+public class ClosedRecordTypeInclusionTest {
 
     private CompileResult compileResult;
 
     @BeforeClass
     public void setup() {
         BCompileUtil.compileAndCacheBala("test-src/bala/test_projects/test_project");
-        compileResult = BCompileUtil.compile("test-src/record/closed_record_type_reference.bal");
+        compileResult = BCompileUtil.compile("test-src/record/closed_record_type_inclusion.bal");
     }
 
     @Test(description = "Negative tests" , groups = {"disableOnOldParser"})
     public void negativeTests() {
-        CompileResult negative = BCompileUtil.compile("test-src/record/closed_record_type_reference_negative.bal");
+        CompileResult negative = BCompileUtil.compile("test-src/record/closed_record_type_inclusion_negative.bal");
         int index = 0;
         BAssertUtil.validateError(negative, index++, "incompatible types: 'PersonObj' is not a record", 28, 6);
         BAssertUtil.validateError(negative, index++, "incompatible types: 'IntOrFloat' is not a record", 35, 6);
@@ -84,6 +84,7 @@ public class ClosedRecordTypeReferenceTest {
                         "PersonTwo]'", 168, 1);
         BAssertUtil.validateError(negative, index++, "invalid cyclic type reference in '[Employee, PersonTwo, " +
                 "Employee]'", 173, 1);
+        BAssertUtil.validateError(negative, index++, "redeclared symbol 'body'", 184, 6);
         assertEquals(negative.getErrorCount(), index);
     }
 
@@ -185,6 +186,11 @@ public class ClosedRecordTypeReferenceTest {
     @Test
     public void testRestTypeOverriding() {
         BRunUtil.invoke(compileResult, "testRestTypeOverriding");
+    }
+
+    @Test
+    public void testOutOfOrderFieldOverridingFieldFromTypeInclusion() {
+        BRunUtil.invoke(compileResult, "testOutOfOrderFieldOverridingFieldFromTypeInclusion");
     }
 
     @AfterClass
