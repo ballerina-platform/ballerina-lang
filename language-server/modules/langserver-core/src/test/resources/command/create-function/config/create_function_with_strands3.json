@@ -2,12 +2,12 @@
   "arguments": {
     "node.range": {
       "start": {
-        "line": 7,
-        "character": 48
+        "line": 9,
+        "character": 43
       },
       "end": {
-        "line": 7,
-        "character": 66
+        "line": 9,
+        "character": 70
       }
     }
   },
@@ -28,7 +28,7 @@
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction createVal(int a) returns (Foo & readonly)|int {\n    \n    return {};\n}\n"
+                "newText": "\n\nfunction createAnotherVal(Foo & readonly a) returns Foo & readonly {\n    \n    return {};\n}\n"
               }
             ]
           }
