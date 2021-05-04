@@ -871,20 +871,19 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void analyzeTypeNode(BLangType typeNode, SymbolEnv env) {
-        if (typeNode.getKind() == NodeKind.USER_DEFINED_TYPE) {
-            return;
-        }
-        if (typeNode.getKind() == NodeKind.RECORD_TYPE) {
-            if (((BLangRecordTypeNode) typeNode).analyzed) {
+        switch (typeNode.getKind()) {
+            case USER_DEFINED_TYPE:
                 return;
-            }
-            analyzeDef(typeNode, env);
-        }
-        switch (typeNode.type.tag) {
-            case TypeTags.ARRAY:
+            case RECORD_TYPE:
+                if (((BLangRecordTypeNode) typeNode).analyzed) {
+                    return;
+                }
+                analyzeDef(typeNode, env);
+                break;
+            case ARRAY_TYPE:
                 analyzeTypeNode(((BLangArrayType) typeNode).elemtype, env);
                 break;
-            case TypeTags.TUPLE:
+            case TUPLE_TYPE_NODE:
                 BLangTupleTypeNode tupleTypeNode = (BLangTupleTypeNode) typeNode;
                 List<BLangType> memberTypeNodes = tupleTypeNode.memberTypeNodes;
                 for (BLangType memType : memberTypeNodes) {
@@ -894,37 +893,31 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     analyzeTypeNode(tupleTypeNode.restParamType, env);
                 }
                 break;
-            case TypeTags.MAP:
-                BLangType constraintTypeNode = ((BLangConstrainedType) typeNode).constraint;
-                analyzeTypeNode(constraintTypeNode, env);
+            case TABLE_TYPE:
+                analyzeTypeNode(((BLangTableTypeNode) typeNode).constraint, env);
                 break;
-            case TypeTags.TABLE:
-                BLangType tableConstraintTypeNode = ((BLangTableTypeNode) typeNode).constraint;
-                analyzeTypeNode(tableConstraintTypeNode, env);
-                break;
-            case TypeTags.INTERSECTION:
+            case INTERSECTION_TYPE_NODE:
                 List<BLangType> constituentTypeNodes = ((BLangIntersectionTypeNode) typeNode).constituentTypeNodes;
                 for (BLangType constType : constituentTypeNodes) {
                     analyzeTypeNode(constType, env);
                 }
                 break;
-            case TypeTags.STREAM:
-                BLangType streamConstraintType = ((BLangStreamType) typeNode).constraint;
-                analyzeTypeNode(streamConstraintType, env);
+            case STREAM_TYPE:
+                analyzeTypeNode(((BLangStreamType) typeNode).constraint, env);
                 break;
-            case TypeTags.UNION:
+            case UNION_TYPE_NODE:
                 List<BLangType> unionMemberTypes = ((BLangUnionTypeNode) typeNode).memberTypeNodes;
                 for (BLangType memType : unionMemberTypes) {
                     analyzeTypeNode(memType, env);
                 }
                 break;
-            case TypeTags.ERROR:
+            case ERROR_TYPE:
                 BLangErrorType errorType = (BLangErrorType) typeNode;
                 if (errorType.detailType != null) {
                     analyzeTypeNode(errorType.detailType, env);
                 }
                 break;
-            case TypeTags.INVOKABLE:
+            case FUNCTION_TYPE:
                 if (typeNode.getKind() == NodeKind.FUNCTION_TYPE) {
                     BLangFunctionTypeNode functionTypeNode = (BLangFunctionTypeNode) typeNode;
                     List<BLangVariable> params = functionTypeNode.params;
@@ -936,8 +929,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                     }
                 }
                 break;
-            case TypeTags.TYPEDESC:
-            case TypeTags.FUTURE:
+            case CONSTRAINED_TYPE:
                 analyzeTypeNode(((BLangConstrainedType) typeNode).constraint, env);
                 break;
         }
