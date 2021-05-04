@@ -24,7 +24,7 @@ public function main() {
 }
 
 function getAverage() returns float {
-    return <float>(intVar + floatVar) / 2;
+    return <float>(<float>intVar + floatVar) / 2.0;
 }
 
 function getString() returns string {

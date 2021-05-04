@@ -160,6 +160,11 @@ public class XMLLiteralTest {
     }
 
     @Test
+    public void testXMLWithLeadingWhiteSpace() {
+        BRunUtil.invoke(result, "testXMLWithLeadingWhiteSpace");
+    }
+
+    @Test
     public void testXMLTextLiteral() {
         BValue[] returns = BRunUtil.invoke(result, "testXMLTextLiteral");
         Assert.assertTrue(returns[0] instanceof BXML);

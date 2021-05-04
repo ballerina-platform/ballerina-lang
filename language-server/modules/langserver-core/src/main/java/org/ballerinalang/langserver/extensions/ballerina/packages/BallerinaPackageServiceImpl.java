@@ -97,9 +97,7 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
                 Arrays.stream(documentIdentifiers).iterator().forEachRemaining(documentIdentifier -> {
                     CommonUtil.getPathFromURI(documentIdentifier.getUri()).ifPresent(path -> {
                         Project project = ProjectLoader.loadProject(path);
-                        if (project.kind() != ProjectKind.SINGLE_FILE_PROJECT) {
-                            jsonPackages.add(getPackageComponents(project));
-                        }
+                        jsonPackages.add(getPackageComponents(project));
                     });
                 });
                 response.setProjectPackages(jsonPackages);

@@ -147,8 +147,8 @@ function testSimpleTypeAccessOnFunctionPointer() {
     var updateVariables = function () {
         booleanVar = true;
         intVar += 1;
-        floatVar += 2;
-        decimalVar += 3;
+        floatVar += 2.0;
+        decimalVar += 3d;
         stringVar = "updated_test_string";
     };
 
