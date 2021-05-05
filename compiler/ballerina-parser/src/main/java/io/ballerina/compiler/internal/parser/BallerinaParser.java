@@ -2274,13 +2274,15 @@ public class BallerinaParser extends AbstractParser {
     private STNode parseTypeDescriptor(List<STNode> qualifiers, ParserRuleContext context,
                                        boolean isTypedBindingPattern, boolean isInConditionalExpr) {
         startContext(context);
-        STNode typeDesc = parseTypeDescriptorInternal(qualifiers, context, isTypedBindingPattern, isInConditionalExpr);
+        STNode typeDesc = parseTypeDescriptorInternal(qualifiers, context, isTypedBindingPattern, isInConditionalExpr,
+                TypePrecedence.DEFAULT);
         endContext();
         return typeDesc;
     }
 
     private STNode parseTypeDescriptorInternal(List<STNode> qualifiers, ParserRuleContext context,
-                                               boolean isTypedBindingPattern, boolean isInConditionalExpr) {
+                                               boolean isTypedBindingPattern, boolean isInConditionalExpr,
+                                               TypePrecedence precedence) {
         STNode typeDesc = parseTypeDescriptorInternal(qualifiers, context, isInConditionalExpr);
 
         // var is parsed as a built-in simple type. However, since var is not allowed everywhere,
@@ -2293,13 +2295,14 @@ public class BallerinaParser extends AbstractParser {
             typeDesc = STNodeFactory.createSimpleNameReferenceNode(missingToken);
         }
 
-        return parseComplexTypeDescriptorInternal(typeDesc, context, isTypedBindingPattern);
+        return parseComplexTypeDescriptorInternal(typeDesc, context, isTypedBindingPattern, precedence);
     }
 
     private STNode parseComplexTypeDescriptor(STNode typeDesc, ParserRuleContext context,
                                               boolean isTypedBindingPattern) {
         startContext(context);
-        STNode complexTypeDesc = parseComplexTypeDescriptorInternal(typeDesc, context, isTypedBindingPattern);
+        STNode complexTypeDesc = parseComplexTypeDescriptorInternal(typeDesc, context, isTypedBindingPattern,
+                TypePrecedence.DEFAULT);
         endContext();
         return complexTypeDesc;
     }
@@ -2307,11 +2310,14 @@ public class BallerinaParser extends AbstractParser {
     /**
      * This will handle the parsing of optional,array,union type desc to infinite length.
      *
-     * @param typeDesc LHS type of the complex type
+     * @param typeDesc              LHS type of the complex type
+     * @param context               Parsing context
+     * @param isTypedBindingPattern Whether in the typed-bp parsing or not
+     * @param precedence            Precedence of the parsing type
      * @return Parsed type descriptor node
      */
     private STNode parseComplexTypeDescriptorInternal(STNode typeDesc, ParserRuleContext context,
-                                              boolean isTypedBindingPattern) {
+                                                      boolean isTypedBindingPattern, TypePrecedence precedence) {
         STToken nextToken = peek();
         switch (nextToken.kind) {
             case QUESTION_MARK_TOKEN:
@@ -2322,26 +2328,79 @@ public class BallerinaParser extends AbstractParser {
                     return typeDesc;
                 }
                 return parseComplexTypeDescriptorInternal(parseOptionalTypeDescriptor(typeDesc), context,
-                        isTypedBindingPattern);
+                        isTypedBindingPattern, precedence);
             case OPEN_BRACKET_TOKEN:
                 // If next token after a type descriptor is '[' then it is an array type descriptor
-                if (isTypedBindingPattern) { // checking for typedesc parsing originating at typed-binding-pattern
+
+                if (precedence.isHigherThanOrEqual(TypePrecedence.ARRAY)) {
+                    return  typeDesc;
+                }
+                
+                if (isTypedBindingPattern && !isArrayTypeDescInTypedBP()) {
                     return typeDesc;
                 }
-                return parseComplexTypeDescriptorInternal(parseArrayTypeDescriptor(typeDesc), context, false);
+                
+                STNode arrayTypeDesc = parseArrayTypeDescriptor(typeDesc);
+                return parseComplexTypeDescriptorInternal(arrayTypeDesc, context, isTypedBindingPattern, precedence);
             case PIPE_TOKEN:
-                // If next token after a type descriptor is '|' then it is an union type descriptor
-                return parseUnionTypeDescriptor(typeDesc, context, isTypedBindingPattern);
+                if (precedence.isHigherThanOrEqual(TypePrecedence.UNION)) {
+                    return  typeDesc;
+                }
+                
+                STNode newTypeDesc = parseUnionTypeDescriptor(typeDesc, context, isTypedBindingPattern);
+                return parseComplexTypeDescriptorInternal(newTypeDesc, context, isTypedBindingPattern, precedence);
             case BITWISE_AND_TOKEN:
-                // If next token after a type descriptor is '&' then it is intersection type descriptor
-                return parseIntersectionTypeDescriptor(typeDesc, context, isTypedBindingPattern);
+                if (precedence.isHigherThanOrEqual(TypePrecedence.INTERSECTION)) {
+                    return  typeDesc;
+                }
+                
+                newTypeDesc = parseIntersectionTypeDescriptor(typeDesc, context, isTypedBindingPattern);
+                return parseComplexTypeDescriptorInternal(newTypeDesc, context, isTypedBindingPattern, precedence);
             default:
                 return typeDesc;
         }
     }
 
-    private boolean isValidTypeContinuationToken(STToken nextToken) {
-        switch (nextToken.kind) {
+    private boolean isArrayTypeDescInTypedBP() {
+        // Assume we reach here when the peek() is the open bracket of array-type-desc.
+        STToken nextNextToken = getNextNextToken();
+        switch (nextNextToken.kind) {
+            case DECIMAL_INTEGER_LITERAL_TOKEN:
+            case HEX_INTEGER_LITERAL_TOKEN:
+            case ASTERISK_TOKEN:
+                return true;
+            case CLOSE_BRACKET_TOKEN:
+                // [] - can be array-type-desc or list-BP
+                return !isTypedBPFollowingToken(3);
+            case IDENTIFIER_TOKEN:
+                // [a - can be array-type-desc or list-BP
+                switch (peek(3).kind) {
+                    case CLOSE_BRACKET_TOKEN:
+                        // [a] is ambiguous therefore check the next token
+                        return !isTypedBPFollowingToken(4);
+                    case COLON_TOKEN: // [a: - cannot be a BP
+                        return true;
+                    default:
+                        return false;
+                }
+            default:
+                return isValidTypeContinuationToken(nextNextToken);
+        }
+    }
+
+    private boolean isTypedBPFollowingToken(int peekIndex) {
+        switch (peek(peekIndex).kind) {
+            case EQUAL_TOKEN:
+            case IN_KEYWORD: // foreach-stmt, from-clause, join-clause
+            case SEMICOLON_TOKEN:
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    private boolean isValidTypeContinuationToken(STToken token) {
+        switch (token.kind) {
             case QUESTION_MARK_TOKEN:
             case OPEN_BRACKET_TOKEN:
             case PIPE_TOKEN:
@@ -9263,7 +9322,8 @@ public class BallerinaParser extends AbstractParser {
                                             boolean isTypedBindingPattern) {
         // we come here only after seeing | token hence consume.
         STNode pipeToken = consume();
-        STNode rightTypeDesc = parseTypeDescriptorInternal(new ArrayList<>(), context, isTypedBindingPattern, false);
+        STNode rightTypeDesc = parseTypeDescriptorInternal(new ArrayList<>(), context, isTypedBindingPattern, false,
+                TypePrecedence.UNION);
         return createUnionTypeDesc(leftTypeDesc, pipeToken, rightTypeDesc);
     }
 
@@ -11650,7 +11710,8 @@ public class BallerinaParser extends AbstractParser {
                                                    boolean isTypedBindingPattern) {
         // we come here only after seeing & token hence consume.
         STNode bitwiseAndToken = consume();
-        STNode rightTypeDesc = parseTypeDescriptorInternal(new ArrayList<>(), context, isTypedBindingPattern, false);
+        STNode rightTypeDesc = parseTypeDescriptorInternal(new ArrayList<>(), context, isTypedBindingPattern, false,
+                TypePrecedence.INTERSECTION);
         return createIntersectionTypeDesc(leftTypeDesc, bitwiseAndToken, rightTypeDesc);
     }
 
@@ -15816,8 +15877,10 @@ public class BallerinaParser extends AbstractParser {
                 return parseComplexTypeDescInTypedBPOrExprRhs(typeDescOrExpr, openBracket, member, closeBracket,
                         isTypedBindingPattern);
             case IN_KEYWORD:
-                // "in" keyword is only valid for for-each stmt.
-                if (context != ParserRuleContext.FOREACH_STMT && context != ParserRuleContext.FROM_CLAUSE) {
+                // "in" keyword is only valid for for-each-stmt, from-clause and join-clause.
+                if (context != ParserRuleContext.FOREACH_STMT &&
+                        context != ParserRuleContext.FROM_CLAUSE &&
+                        context != ParserRuleContext.JOIN_CLAUSE) {
                     break;
                 }
                 return createTypedBindingPattern(typeDescOrExpr, openBracket, member, closeBracket);
@@ -15899,8 +15962,9 @@ public class BallerinaParser extends AbstractParser {
                 STNode variableName = STNodeFactory.createCaptureBindingPatternNode(identifierToken);
                 return STNodeFactory.createTypedBindingPatternNode(arrayTypeDesc, variableName);
             }
-            // Invalidate Field binding pattern inside list binding pattern
+            
             if (member.kind == SyntaxKind.QUALIFIED_NAME_REFERENCE) {
+                // Invalidate Field binding pattern inside list binding pattern
                 openBracket = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(openBracket, member,
                         DiagnosticErrorCode.ERROR_FIELD_BP_INSIDE_LIST_BP);
             } else {

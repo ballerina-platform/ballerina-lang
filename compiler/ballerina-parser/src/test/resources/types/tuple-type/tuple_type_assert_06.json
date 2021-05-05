@@ -74,80 +74,80 @@
                   "hasDiagnostics": true,
                   "children": [
                     {
-                      "kind": "TUPLE_TYPE_DESC",
+                      "kind": "ARRAY_TYPE_DESC",
                       "hasDiagnostics": true,
                       "children": [
                         {
-                          "kind": "OPEN_BRACKET_TOKEN",
-                          "leadingMinutiae": [
-                            {
-                              "kind": "WHITESPACE_MINUTIAE",
-                              "value": "    "
-                            }
-                          ]
-                        },
-                        {
-                          "kind": "LIST",
+                          "kind": "TUPLE_TYPE_DESC",
                           "hasDiagnostics": true,
                           "children": [
                             {
-                              "kind": "INT_TYPE_DESC",
-                              "children": [
-                                {
-                                  "kind": "INT_KEYWORD"
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "COMMA_TOKEN",
-                              "trailingMinutiae": [
+                              "kind": "OPEN_BRACKET_TOKEN",
+                              "leadingMinutiae": [
                                 {
                                   "kind": "WHITESPACE_MINUTIAE",
-                                  "value": " "
+                                  "value": "    "
                                 }
                               ]
                             },
                             {
-                              "kind": "STRING_TYPE_DESC",
+                              "kind": "LIST",
+                              "hasDiagnostics": true,
                               "children": [
                                 {
-                                  "kind": "STRING_KEYWORD",
+                                  "kind": "INT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "INT_KEYWORD"
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "COMMA_TOKEN",
                                   "trailingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
                                       "value": " "
                                     }
                                   ]
-                                }
-                              ]
-                            },
-                            {
-                              "kind": "COMMA_TOKEN",
-                              "isMissing": true,
-                              "hasDiagnostics": true,
-                              "diagnostics": [
-                                "ERROR_MISSING_COMMA_TOKEN"
-                              ]
-                            },
-                            {
-                              "kind": "FLOAT_TYPE_DESC",
-                              "children": [
+                                },
                                 {
-                                  "kind": "FLOAT_KEYWORD"
+                                  "kind": "STRING_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "STRING_KEYWORD",
+                                      "trailingMinutiae": [
+                                        {
+                                          "kind": "WHITESPACE_MINUTIAE",
+                                          "value": " "
+                                        }
+                                      ]
+                                    }
+                                  ]
+                                },
+                                {
+                                  "kind": "COMMA_TOKEN",
+                                  "isMissing": true,
+                                  "hasDiagnostics": true,
+                                  "diagnostics": [
+                                    "ERROR_MISSING_COMMA_TOKEN"
+                                  ]
+                                },
+                                {
+                                  "kind": "FLOAT_TYPE_DESC",
+                                  "children": [
+                                    {
+                                      "kind": "FLOAT_KEYWORD"
+                                    }
+                                  ]
                                 }
                               ]
+                            },
+                            {
+                              "kind": "CLOSE_BRACKET_TOKEN"
                             }
                           ]
                         },
-                        {
-                          "kind": "CLOSE_BRACKET_TOKEN"
-                        }
-                      ]
-                    },
-                    {
-                      "kind": "LIST_BINDING_PATTERN",
-                      "hasDiagnostics": true,
-                      "children": [
                         {
                           "kind": "OPEN_BRACKET_TOKEN",
                           "trailingMinutiae": [
@@ -158,42 +158,37 @@
                           ]
                         },
                         {
-                          "kind": "LIST",
-                          "children": [
-                            {
-                              "kind": "LIST_BINDING_PATTERN",
-                              "children": [
-                                {
-                                  "kind": "OPEN_BRACKET_TOKEN"
-                                },
-                                {
-                                  "kind": "LIST",
-                                  "children": [
-                                    {
-                                      "kind": "CAPTURE_BINDING_PATTERN",
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "value": "a"
-                                        }
-                                      ]
-                                    }
-                                  ]
-                                },
-                                {
-                                  "kind": "CLOSE_BRACKET_TOKEN"
-                                }
-                              ]
-                            }
-                          ]
-                        },
-                        {
                           "kind": "CLOSE_BRACKET_TOKEN",
                           "isMissing": true,
                           "hasDiagnostics": true,
                           "diagnostics": [
                             "ERROR_MISSING_CLOSE_BRACKET_TOKEN"
                           ]
+                        }
+                      ]
+                    },
+                    {
+                      "kind": "LIST_BINDING_PATTERN",
+                      "children": [
+                        {
+                          "kind": "OPEN_BRACKET_TOKEN"
+                        },
+                        {
+                          "kind": "LIST",
+                          "children": [
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "a"
+                                }
+                              ]
+                            }
+                          ]
+                        },
+                        {
+                          "kind": "CLOSE_BRACKET_TOKEN"
                         }
                       ]
                     }
