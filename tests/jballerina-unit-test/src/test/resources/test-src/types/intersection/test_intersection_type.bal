@@ -191,3 +191,27 @@ public function testReadOnlyIntersectionFieldInRecord() {
     Z z = {y};
     assertEquality(z.y, y);
 }
+
+type Atom readonly & object {
+    function compare(Atom other);
+};
+
+readonly class AtomImpl {
+    *Atom;
+
+    function compare(Atom other) {
+        if (self === other) {
+            panic error("Same");
+        }
+    }
+}
+
+function testRecursiveReadonlyIntersection() {
+    Atom a = new AtomImpl();
+    error? e = trap a.compare(a);
+    if (e is error && e.message() == "Same") {
+        return;
+    }
+    panic error("Assertion error");
+}
+
