@@ -134,7 +134,7 @@ public class BIntersectionType extends BType implements IntersectionType {
 
     @Override
     public Optional<BIntersectionType> getIntersectionType() {
-        return this.intersectionType ==  null ? Optional.empty() : Optional.of(this.intersectionType);
+        return Optional.ofNullable(this.intersectionType);
     }
 
     @Override

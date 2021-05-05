@@ -50,15 +50,14 @@ public class FormattingEnv {
     boolean hasNewline = true;
 
     /**
+     * Flag indicating whether the token that is currently being formatted has preserved a user defined new line.
+     */
+    boolean hasPreservedNewline = false;
+
+    /**
      * Length of the currently formatting line.
      */
     int lineLength = 0;
-
-    /**
-     * Flag indicating whether to preserve the user added newlines. Preserves up to two newlines per each line-of-code.
-     */
-    boolean preserveNewlines = false;
-
 
     /**
      * Flag indicating whether the annotations should be inline.
@@ -69,4 +68,14 @@ public class FormattingEnv {
      * Previous token's trailing whitespaces.
      */
     int prevTokensTrailingWS = 0;
+
+    /**
+     * Previous token's trailing new lines.
+     */
+    int prevTokensTrailingNL = 0;
+
+    /**
+     * Flag indicating whether the token that is currently being formatted should preserve its user defined indentation.
+     */
+    boolean preserveIndentation = false;
 }

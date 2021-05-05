@@ -42,5 +42,5 @@ function funcErrorNamedRequiredParam(ErrorDataWithErrorField 'error, ErrorDataWi
 
 function funcErrorNamedRestParam(ErrorDataWithErrorField 'error, ErrorDataWithErrorField... 'error) {}
 
-function funcErrorNamedIncludedAndRequiredParam(*ErrorDataWithErrorField 'error, ErrorDataWithErrorField 'error) {}
+function funcErrorNamedIncludedAndRequiredParam(ErrorDataWithErrorField 'error, *ErrorDataWithErrorField 'error) {}
 

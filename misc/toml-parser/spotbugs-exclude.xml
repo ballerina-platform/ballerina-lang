@@ -26,4 +26,8 @@
         <Class name="io.ballerina.toml.semantic.diagnostics.DiagnosticComparator"/>
         <Bug pattern="SE_COMPARATOR_SHOULD_BE_SERIALIZABLE"/>
     </Match>
+    <Match>
+        <Class name="io.ballerina.toml.validator.BoilerplateGenerator"/>
+        <Bug pattern="FE_FLOATING_POINT_EQUALITY"/>
+    </Match>
 </FindBugsFilter>

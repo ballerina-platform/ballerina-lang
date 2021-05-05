@@ -136,11 +136,6 @@ public class BTupleType extends BType implements TupleType {
     }
 
     @Override
-    public String getName() {
-        return toString();
-    }
-
-    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;

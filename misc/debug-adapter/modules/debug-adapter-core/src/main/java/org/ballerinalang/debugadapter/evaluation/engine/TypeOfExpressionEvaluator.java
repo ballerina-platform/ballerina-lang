@@ -22,6 +22,7 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 
 import java.util.Collections;
 import java.util.List;
@@ -61,7 +62,7 @@ public class TypeOfExpressionEvaluator extends Evaluator {
             RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, GET_TYPEDESC_METHOD,
                     methodArgTypeNames);
             method.setArgValues(Collections.singletonList(valueAsObject));
-            return new BExpressionValue(context, method.invoke());
+            return new BExpressionValue(context, method.invokeSafely());
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

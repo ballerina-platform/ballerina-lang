@@ -434,7 +434,7 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "invalid expr in compound assignment lhs", 53, 14);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'json' and 'string'", 59, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and 'string'", 65, 5);
-        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'int', found 'float'", 72, 10);
+        BAssertUtil.validateError(compileResult, i++, "incompatible types: expected 'float', found 'int'", 73, 12);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int' and '[int,int]'", 78, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '&' not defined for 'int' and 'string'", 90, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '|' not defined for 'int' and 'string'", 96, 5);

@@ -20,6 +20,7 @@ package io.ballerina.toml.semantic.ast;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.diagnostics.DiagnosticComparator;
 import io.ballerina.toml.semantic.diagnostics.TomlNodeLocation;
+import io.ballerina.toml.syntax.tree.DocumentNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.List;
@@ -35,12 +36,14 @@ public abstract class TomlNode implements Node {
 
     private final TomlType kind;
     private final TomlNodeLocation location;
+    private final DocumentNode externalRootNode;
     protected Set<Diagnostic> diagnostics;
 
-    public TomlNode(TomlType kind, TomlNodeLocation location) {
+    public TomlNode(DocumentNode externalRootNode, TomlType kind, TomlNodeLocation location) {
         this.kind = kind;
         this.location = location;
-        diagnostics = new TreeSet<>(new DiagnosticComparator());
+        this.externalRootNode = externalRootNode;
+        this.diagnostics = new TreeSet<>(new DiagnosticComparator());
     }
 
     public abstract void accept(TomlNodeVisitor visitor);
@@ -63,6 +66,10 @@ public abstract class TomlNode implements Node {
 
     public TomlNodeLocation location() {
         return location;
+    }
+
+    public DocumentNode externalRootNode() {
+        return externalRootNode;
     }
 
     @Override

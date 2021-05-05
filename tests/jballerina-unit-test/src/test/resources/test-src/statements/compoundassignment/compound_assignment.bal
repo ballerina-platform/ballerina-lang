@@ -159,20 +159,20 @@ function testStringIntCompoundAssignmentAddition() returns (string){
 
 function testIncrementOperatorFloat() returns (float){
     float x = 100.0;
-    x += 1;
+    x += 1.0;
     return x;
 }
 
 function testDecrementOperatorFloat() returns (float){
     float x = 100.0;
-    x -= 1;
+    x -= 1.0;
     return x;
 }
 
 function testIntFloatCompoundAssignmentAddition() returns (float){
     int x = 5;
     float d = 2.5;
-    d += x;
+    d += <float>x;
     return d;
 }
 

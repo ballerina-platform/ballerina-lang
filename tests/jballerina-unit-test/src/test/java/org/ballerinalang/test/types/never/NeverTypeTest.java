@@ -101,7 +101,7 @@ public class NeverTypeTest {
 
     @Test
     public void testNeverTypeNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 42);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 44);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot define a variable of type 'never' or equivalent to type 'never'", 2, 5);
@@ -188,8 +188,12 @@ public class NeverTypeTest {
                 " cannot be of type 'never' or equivalent to type 'never'", 210, 48);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter" +
                 " cannot be of type 'never' or equivalent to type 'never'", 214, 48);
-        BAssertUtil.validateError(negativeCompileResult, i, "cannot define an object field of type 'never'" +
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define an object field of type 'never'" +
                 " or equivalent to type 'never'", 214, 82);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
+                "or equivalent to type 'never'", 229, 5);
+        BAssertUtil.validateError(negativeCompileResult, i, "cannot define a variable of type 'never' " +
+                "or equivalent to type 'never'", 230, 5);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -294,14 +298,25 @@ public class NeverTypeTest {
 
     @Test(dataProvider = "dataToTestNeverRuntime", description = "Test never runtime")
     public void testNeverRuntime(String functionName) {
-        runtimeResult = BCompileUtil.compile("test-src/types/never/never-type-runtime.bal");
+        runtimeResult = BCompileUtil.compile("test-src/types/never/never_type_runtime.bal");
         BRunUtil.invoke(runtimeResult, functionName);
     }
 
     @DataProvider
     public Object[] dataToTestNeverRuntime() {
         return new Object[]{
-                "testNeverRuntime",
+                "testNeverRuntime1",
+                "testNeverRuntime2",
+                "testNeverRuntime3",
+                "testNeverRuntime4",
+                "testNeverRuntime5",
+                "testNeverRuntime6",
+                "testNeverRuntime7",
+                "testNeverRuntime8",
+                "testNeverRuntime9",
+                "testNeverRuntime10",
+                "testNeverRuntime11",
+                "testNeverRuntime12",
                 "testNeverWithAnyAndAnydataRuntime"
         };
     }

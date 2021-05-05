@@ -1,4 +1,4 @@
 [package]
 org = "a"
-name = "main"
+name = "b_foo"
 version = "0.1.0"
