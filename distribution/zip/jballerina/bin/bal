@@ -263,7 +263,9 @@ elif [[ $1 == "run" ]] && [[ $2 == *.jar ]]; then # if 1st arg is "run" and 2nd 
         -Djava.command=$JAVACMD \
         -jar "${@:2}" # ignores "run"
 
-elif [[ $1 == "run" ]] && [[ $2 == "--debug" ]]; then # if 1st arg is "run" and 2nd arg is "--debug".
+# running executable(jar) in debug mode
+# if 1st arg is "run", 2nd arg is "--debug", 3rd arg is <debugPort> and 4th arg is executable(jar).
+elif [[ $1 == "run" ]] && [[ $2 == "--debug" ]] && [[ $4 == *.jar ]]; then
       $JAVACMD \
         -Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
         -Xms256m -Xmx1024m \
