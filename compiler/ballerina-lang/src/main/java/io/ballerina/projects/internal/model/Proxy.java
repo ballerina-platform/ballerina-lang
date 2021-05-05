@@ -23,10 +23,10 @@ package io.ballerina.projects.internal.model;
  * @since 0.964
  */
 public class Proxy {
-    private String host;
-    private int port;
-    private String username;
-    private String password;
+    private final String host;
+    private final int port;
+    private final String username;
+    private final String password;
 
     private Proxy(String host, int port, String username, String password) {
         this.host = host;
@@ -48,17 +48,8 @@ public class Proxy {
      *
      * @return host
      */
-    public String getHost() {
+    public String host() {
         return host;
-    }
-
-    /**
-     * Set host name.
-     *
-     * @param host host name
-     */
-    public void setHost(String host) {
-        this.host = host;
     }
 
     /**
@@ -66,17 +57,8 @@ public class Proxy {
      *
      * @return port proxy server
      */
-    public int getPort() {
+    public int port() {
         return port;
-    }
-
-    /**
-     * Set the port of the proxy server.
-     *
-     * @param port port of the proxy
-     */
-    public void setPort(int port) {
-        this.port = port;
     }
 
     /**
@@ -84,17 +66,8 @@ public class Proxy {
      *
      * @return username username of the proxy server
      */
-    public String getUserName() {
+    public String username() {
         return username;
-    }
-
-    /**
-     * Set the username of the proxy server.
-     *
-     * @param userName username of the proxy server
-     */
-    public void setUserName(String userName) {
-        this.username = userName;
     }
 
     /**
@@ -102,16 +75,7 @@ public class Proxy {
      *
      * @return password of the proxy server
      */
-    public String getPassword() {
+    public String password() {
         return password;
-    }
-
-    /**
-     * Set the password for the proxy server.
-     *
-     * @param password password of the proxy
-     */
-    public void setPassword(String password) {
-        this.password = password;
     }
 }

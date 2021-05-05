@@ -34,8 +34,6 @@ import io.ballerina.toml.semantic.ast.TopLevelNode;
 import io.ballerina.toml.validator.TomlValidator;
 import io.ballerina.toml.validator.schema.Schema;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.text.LinePosition;
-import io.ballerina.tools.text.LineRange;
 
 import java.io.IOException;
 import java.util.ArrayList;

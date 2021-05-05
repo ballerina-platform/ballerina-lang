@@ -173,9 +173,9 @@ public class URIDryConverter extends URIConverter {
      */
     private Proxy getProxy() {
         io.ballerina.projects.internal.model.Proxy proxy = TomlParserUtils.readSettings().getProxy();
-        if (!"".equals(proxy.getHost())) {
-            InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
-            if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
+        if (!"".equals(proxy.host())) {
+            InetSocketAddress proxyInet = new InetSocketAddress(proxy.host(), proxy.port());
+            if (!"".equals(proxy.username()) && "".equals(proxy.password())) {
                 Authenticator authenticator = new RemoteAuthenticator();
                 Authenticator.setDefault(authenticator);
             }
@@ -196,7 +196,7 @@ public class URIDryConverter extends URIConverter {
 
         @Override
         protected PasswordAuthentication getPasswordAuthentication() {
-            return (new PasswordAuthentication(this.proxy.getUserName(), this.proxy.getPassword().toCharArray()));
+            return (new PasswordAuthentication(this.proxy.username(), this.proxy.password().toCharArray()));
         }
     }
 }

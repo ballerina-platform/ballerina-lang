@@ -18,9 +18,9 @@
 package io.ballerina.cli.utils;
 
 import io.ballerina.cli.launcher.LauncherUtils;
+import io.ballerina.projects.Settings;
 import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.internal.SettingsBuilder;
-import io.ballerina.projects.Settings;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;

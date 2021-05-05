@@ -482,9 +482,9 @@ public class ProjectUtils {
      * @return proxy
      */
     public static Proxy initializeProxy(io.ballerina.projects.internal.model.Proxy proxy) {
-        if (proxy != null && !"".equals(proxy.getHost()) && proxy.getPort() > 0) {
-            InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
-            if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
+        if (proxy != null && !"".equals(proxy.host()) && proxy.port() > 0) {
+            InetSocketAddress proxyInet = new InetSocketAddress(proxy.host(), proxy.port());
+            if (!"".equals(proxy.username()) && "".equals(proxy.password())) {
                 Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();
                 Authenticator.setDefault(authenticator);
             }

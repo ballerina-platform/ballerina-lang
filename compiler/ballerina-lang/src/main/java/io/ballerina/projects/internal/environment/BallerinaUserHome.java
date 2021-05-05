@@ -9,7 +9,6 @@ import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
-import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
