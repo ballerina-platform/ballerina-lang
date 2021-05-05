@@ -18,4 +18,5 @@ function stepTypeCheckingNegative() {
     xml x1 = xml `<root><child attr="attr-val"></child></root>`;
     xml<xml:Comment> x9 = x1/<child>;
     xml<xml:Comment> xx = x1/**/<child>;
+    xml<xml:Comment> xx1 = x1/*.<child>;
 }

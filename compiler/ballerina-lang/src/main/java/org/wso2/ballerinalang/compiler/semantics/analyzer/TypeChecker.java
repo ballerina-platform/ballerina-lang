@@ -420,7 +420,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // check for undeclared namespaces.
         checkXMLNamespacePrefixes(xmlElementAccess.filters);
         checkExpr(xmlElementAccess.expr, env, symTable.xmlType);
-        resultType = new BXMLType(symTable.xmlElementType, null);
+        resultType = types.checkType(xmlElementAccess, symTable.xmlElementSeqType, expType);
     }
 
     @Override

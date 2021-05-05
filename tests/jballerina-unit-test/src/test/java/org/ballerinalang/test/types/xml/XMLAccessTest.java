@@ -280,6 +280,8 @@ public class XMLAccessTest {
                 "incompatible types: expected 'xml<xml:Comment>', found 'xml<xml:Element>'", 19, 27);
         BAssertUtil.validateError(compile, i++,
                 "incompatible types: expected 'xml<xml:Comment>', found 'xml<xml:Element>'", 20, 27);
+        BAssertUtil.validateError(compile, i++,
+                "incompatible types: expected 'xml<xml:Comment>', found 'xml<xml:Element>'", 21, 28);
         Assert.assertEquals(compile.getErrorCount(), i);
     }
 
