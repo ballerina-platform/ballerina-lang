@@ -28,12 +28,12 @@ import io.ballerina.projects.PackageName;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.ResolvedPackageDependency;
+import io.ballerina.projects.Settings;
 import org.apache.commons.compress.archivers.jar.JarArchiveEntry;
 import org.apache.commons.compress.archivers.zip.ZipArchiveEntryPredicate;
 import org.apache.commons.compress.archivers.zip.ZipArchiveOutputStream;
 import org.apache.commons.compress.archivers.zip.ZipFile;
 import org.ballerinalang.compiler.BLangCompilerException;
-import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.compiler.CompiledJarFile;
 import org.wso2.ballerinalang.compiler.packaging.converters.URIDryConverter;
 import org.wso2.ballerinalang.util.Lists;
@@ -481,8 +481,8 @@ public class ProjectUtils {
      * @param proxy toml model proxy
      * @return proxy
      */
-    public static Proxy initializeProxy(org.ballerinalang.toml.model.Proxy proxy) {
-        if (proxy != null && !"".equals(proxy.getHost())) {
+    public static Proxy initializeProxy(io.ballerina.projects.internal.model.Proxy proxy) {
+        if (proxy != null && !"".equals(proxy.getHost()) && proxy.getPort() > 0) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
             if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
                 Authenticator authenticator = new URIDryConverter.RemoteAuthenticator();

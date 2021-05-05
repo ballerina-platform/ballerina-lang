@@ -18,7 +18,7 @@
 package org.ballerinalang.toml;
 
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.ballerinalang.toml.parser.SettingsProcessor;
+import org.ballerinalang.toml.parser.SettingsBuilder;
 import org.testng.annotations.Test;
 
 import java.io.IOException;
@@ -39,6 +39,6 @@ public class InvalidSettingsTomlTest {
     public void testParseTomlContentFromFile() throws IOException, URISyntaxException, SettingsTomlException {
         URI settingsTomlURI =
                 Objects.requireNonNull(getClass().getClassLoader().getResource("invalid-settings.toml")).toURI();
-        SettingsProcessor.parseTomlContentFromFile(Paths.get(settingsTomlURI));
+        SettingsBuilder.parseTomlContentFromFile(Paths.get(settingsTomlURI));
     }
 }

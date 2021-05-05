@@ -15,7 +15,7 @@
  *  specific language governing permissions and limitations
  *  under the License.
  */
-package org.ballerinalang.toml.model;
+package io.ballerina.projects.internal.model;
 
 /**
  * Defines the properties used in central.
@@ -24,6 +24,18 @@ package org.ballerinalang.toml.model;
  */
 public class Central {
     private String accesstoken = "";
+
+    private Central(String accesstoken) {
+        this.accesstoken = accesstoken;
+    }
+
+    public static Central from(String accesstoken) {
+        return new Central(accesstoken);
+    }
+
+    public static Central from() {
+        return new Central("");
+    }
 
     /**
      * Get the access token.

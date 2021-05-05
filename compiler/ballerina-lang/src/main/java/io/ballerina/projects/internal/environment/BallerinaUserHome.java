@@ -1,14 +1,15 @@
 package io.ballerina.projects.internal.environment;
 
 import io.ballerina.projects.ProjectException;
+import io.ballerina.projects.Settings;
+import io.ballerina.projects.TomlDocument;
 import io.ballerina.projects.environment.Environment;
 import io.ballerina.projects.environment.PackageRepository;
+import io.ballerina.projects.internal.SettingsBuilder;
 import io.ballerina.projects.internal.repositories.FileSystemRepository;
 import io.ballerina.projects.internal.repositories.RemotePackageRepository;
 import io.ballerina.projects.util.ProjectConstants;
 import org.ballerinalang.toml.exceptions.SettingsTomlException;
-import org.ballerinalang.toml.model.Settings;
-import org.ballerinalang.toml.parser.SettingsProcessor;
 import org.wso2.ballerinalang.util.RepoUtils;
 
 import java.io.IOException;
@@ -85,10 +86,13 @@ public final class BallerinaUserHome {
             }
         }
         try {
-            return SettingsProcessor.parseTomlContentFromFile(settingsFilePath);
-        } catch (IOException | SettingsTomlException e) {
-            // Ignore 'Settings.toml' reading and parsing errors
-            return new Settings();
+            TomlDocument settingsTomlDocument = TomlDocument
+                    .from(String.valueOf(settingsFilePath.getFileName()), Files.readString(settingsFilePath));
+            SettingsBuilder settingsBuilder = SettingsBuilder.from(settingsTomlDocument);
+            return settingsBuilder.settings();
+        } catch (IOException e) {
+            // Ignore 'Settings.toml' reading and parsing errors and return empty Settings object
+            return Settings.from();
         }
     }
 

@@ -15,7 +15,7 @@
 *  specific language governing permissions and limitations
 *  under the License.
 */
-package org.ballerinalang.toml.model;
+package io.ballerina.projects.internal.model;
 
 /**
  * Describes the proxy object.
@@ -23,10 +23,25 @@ package org.ballerinalang.toml.model;
  * @since 0.964
  */
 public class Proxy {
-    private String host = "";
+    private String host;
     private int port;
-    private String username = "";
-    private String password = "";
+    private String username;
+    private String password;
+
+    private Proxy(String host, int port, String username, String password) {
+        this.host = host;
+        this.port = port;
+        this.username = username;
+        this.password = password;
+    }
+
+    public static Proxy from(String host, int port, String username, String password) {
+        return new Proxy(host, port, username, password);
+    }
+
+    public static Proxy from() {
+        return new Proxy("", 0, "", "");
+    }
 
     /**
      * Get host name.

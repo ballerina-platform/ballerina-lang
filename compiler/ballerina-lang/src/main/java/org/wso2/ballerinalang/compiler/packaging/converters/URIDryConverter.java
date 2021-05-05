@@ -172,7 +172,7 @@ public class URIDryConverter extends URIConverter {
      * @return The proxy object.
      */
     private Proxy getProxy() {
-        org.ballerinalang.toml.model.Proxy proxy = TomlParserUtils.readSettings().getProxy();
+        io.ballerina.projects.internal.model.Proxy proxy = TomlParserUtils.readSettings().getProxy();
         if (!"".equals(proxy.getHost())) {
             InetSocketAddress proxyInet = new InetSocketAddress(proxy.getHost(), proxy.getPort());
             if (!"".equals(proxy.getUserName()) && "".equals(proxy.getPassword())) {
@@ -189,7 +189,7 @@ public class URIDryConverter extends URIConverter {
      * Authenticator for the proxy server if provided.
      */
     public static class RemoteAuthenticator extends Authenticator {
-        org.ballerinalang.toml.model.Proxy proxy;
+        io.ballerina.projects.internal.model.Proxy proxy;
         public RemoteAuthenticator() {
             proxy = TomlParserUtils.readSettings().getProxy();
         }
