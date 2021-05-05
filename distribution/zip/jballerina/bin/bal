@@ -262,6 +262,27 @@ elif [[ $1 == "run" ]] && [[ $2 == *.jar ]]; then # if 1st arg is "run" and 2nd 
         -Dballerina.target=jvm \
         -Djava.command=$JAVACMD \
         -jar "${@:2}" # ignores "run"
+
+elif [[ $1 == "run" ]] && [[ $2 == "--debug" ]]; then # if 1st arg is "run" and 2nd arg is "--debug".
+      echo agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=$3
+      $JAVACMD \
+        -Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
+        -Xms256m -Xmx1024m \
+        -XX:+HeapDumpOnOutOfMemoryError \
+        -XX:HeapDumpPath="$BALLERINA_HOME/heap-dump.hprof" \
+        $JAVA_OPTS \
+        -classpath "$BALLERINA_CLASSPATH" \
+        -Dballerina.home="$BALLERINA_HOME" \
+        -Dballerina.version=2.0.0-beta.1-SNAPSHOT \
+        -Djava.util.logging.config.class="org.ballerinalang.logging.util.LogConfigReader" \
+        -Djava.util.logging.manager="org.ballerinalang.logging.BLogManager" \
+        -Denable.nonblocking=false \
+        -Djava.security.egd=file:/dev/./urandom \
+        -Dfile.encoding=UTF8 \
+        -Dballerina.target=jvm \
+        -Djava.command=$JAVACMD \
+        -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=$3 \
+        -jar "${@:4}" # ignores "run"
 else
     $JAVACMD \
         -Xbootclasspath/a:"$BALLERINA_XBOOTCLASSPATH" \
