@@ -318,6 +318,12 @@ public class ClosedRecordTest {
         BRunUtil.invoke(compileResult, "removeIfHasKeyRest");
     }
 
+    @Test
+    public void testCyclicRecordViaFields() {
+        CompileResult cyclicBal = BCompileUtil.compile("test-src/record/cyclic_record_via_fields.bal");
+        Assert.assertEquals(cyclicBal.getErrorCount(), 0);
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;

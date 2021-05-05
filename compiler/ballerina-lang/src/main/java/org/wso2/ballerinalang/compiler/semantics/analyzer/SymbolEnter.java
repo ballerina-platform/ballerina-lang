@@ -211,6 +211,8 @@ public class SymbolEnter extends BLangNodeVisitor {
     private final Types types;
     private final SourceDirectory sourceDirectory;
     private List<BLangNode> unresolvedTypes;
+    private Set<BLangNode> unresolvedRecordDueToFields;
+    private boolean resolveRecordsUnresolvedDueToFields;
     private List<BLangClassDefinition> unresolvedClasses;
     private HashSet<LocationData> unknownTypeRefs;
     private List<PackageID> importedPackages;
@@ -1099,6 +1101,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         this.unresolvedTypes = new ArrayList<>();
+        this.unresolvedRecordDueToFields = new HashSet<>();
+        this.resolveRecordsUnresolvedDueToFields = false;
         for (BLangNode typeDef : typeDefs) {
             if (isErrorIntersectionType(typeDef, env)) {
                 populateUndefinedErrorIntersection((BLangTypeDefinition) typeDef, env);
@@ -1109,6 +1113,14 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (typeDefs.size() <= unresolvedTypes.size()) {
+
+            this.resolveRecordsUnresolvedDueToFields = true;
+            unresolvedTypes.removeAll(unresolvedRecordDueToFields);
+            for (BLangNode unresolvedType : unresolvedRecordDueToFields) {
+                defineNode(unresolvedType, env);
+            }
+            this.resolveRecordsUnresolvedDueToFields = false;
+
             // This situation can occur due to either a cyclic dependency or at least one of member types in type
             // definition node cannot be resolved. So we iterate through each node recursively looking for cyclic
             // dependencies or undefined types in type node.
@@ -1406,19 +1418,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-//        // check for unresolved fields. This record may be referencing another record
-//        if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-//            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
-//            for (BLangSimpleVariable variable : structureTypeNode.fields) {
-//                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
-//                if (referencedType == symTable.noType) {
-//                    if (!this.unresolvedTypes.contains(typeDefinition)) {
-//                        this.unresolvedTypes.add(typeDefinition);
-//                        return;
-//                    }
-//                }
-//            }
-//        }
+        // check for unresolved fields. This record may be referencing another record
+        if (!this.resolveRecordsUnresolvedDueToFields &&
+                typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
+            for (BLangSimpleVariable variable : structureTypeNode.fields) {
+                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
+                if (referencedType == symTable.noType) {
+                    if (this.unresolvedRecordDueToFields.add(typeDefinition)) {
+                        this.unresolvedTypes.add(typeDefinition);
+                        return;
+                    }
+                }
+            }
+        }
 
         if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
             definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),
