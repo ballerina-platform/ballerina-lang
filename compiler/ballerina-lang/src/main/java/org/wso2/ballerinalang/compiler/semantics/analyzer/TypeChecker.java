@@ -425,9 +425,6 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-//        if (xmlNavigation.isLValue) { // TODO grainier
-//            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);
-//        }
         checkXMLNamespacePrefixes(xmlNavigation.filters);
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
@@ -2316,10 +2313,6 @@ public class TypeChecker extends BLangNodeVisitor {
                 unresolvedReference = unresolvedReference
                         || varRefExpr.restVar.symbol == null
                         || !isValidVariableReference(varRefExpr.restVar);
-
-//            } else if (varRefExpr.restVar.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
-//                    || varRefExpr.restVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-//                unresolvedReference = checkErrorRestParamVarRef(varRefExpr, unresolvedReference);
             }
         }
 
@@ -2372,27 +2365,6 @@ public class TypeChecker extends BLangNodeVisitor {
             checkExpr(varRefExpr.cause, env);
         }
     }
-
-//    private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
-//        BLangAccessExpression accessExpression = (BLangAccessExpression) varRefExpr.restVar;
-//        Name exprName = names.fromIdNode(((BLangSimpleVarRef) accessExpression.expr).variableName);
-//        BSymbol fSym = symResolver.lookupSymbolInMainSpace(env, exprName);
-//        if (fSym != null) {
-//            if (fSym.type.getKind() == TypeKind.MAP) {
-//                BType constraint = ((BMapType) fSym.type).constraint;
-//                if (types.isAssignable(constraint, symTable.anydataOrReadonly)) {
-//                    varRefExpr.restVar.type = constraint;
-//                } else {
-//                    varRefExpr.restVar.type = symTable.anydataOrReadonly;
-//                }
-//            } else {
-//                throw new UnsupportedOperationException("rec field base access");
-//            }
-//        } else {
-//            unresolvedReference = true;
-//        }
-//        return unresolvedReference;
-//    }
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {

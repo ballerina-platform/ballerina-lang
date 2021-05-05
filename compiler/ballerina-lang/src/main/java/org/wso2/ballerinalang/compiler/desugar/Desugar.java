@@ -7796,7 +7796,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
-        BLangValueExpression expr; // TODO: grainier
+        BLangValueExpression expr;
         if (iExpr.expr == null) {
             expr = new BLangSimpleVarRef();
         } else {
