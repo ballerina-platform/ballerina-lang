@@ -41,7 +41,7 @@ import java.util.Set;
  *
  * @since 0.94
  */
-public class BLangInvocation extends BLangAccessibleExpression implements InvocationNode {
+public class BLangInvocation extends BLangExpression implements InvocationNode {
 
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;

@@ -18,6 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.expressions.ExpressionNode;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.symbols.BVarSymbol;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType.NarrowedTypes;
@@ -51,4 +52,6 @@ public abstract class BLangExpression extends BLangNode implements ExpressionNod
     public BType expectedType;
 
     public Map<BVarSymbol, NarrowedTypes> narrowedTypeInfo;
+
+    public BSymbol symbol;
 }

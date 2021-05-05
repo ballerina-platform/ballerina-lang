@@ -26,7 +26,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
  *
  * @since 2.0.0
  */
-public abstract class BLangLVAccessExpression extends BLangAccessibleExpression {
+public abstract class BLangLVAccessExpression extends BLangExpression {
 
     public boolean lhsVar = false;
     public boolean compoundAssignmentLhsVar = false;

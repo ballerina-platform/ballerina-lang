@@ -30,7 +30,7 @@ import java.util.StringJoiner;
 /**
  * @since 1.2.0
  */
-public class BLangXMLNavigationAccess extends BLangAccessibleExpression implements XMLNavigationAccess {
+public class BLangXMLNavigationAccess extends BLangExpression implements XMLNavigationAccess {
 
     public BLangExpression expr;
     public final NavAccessType navAccessType;
