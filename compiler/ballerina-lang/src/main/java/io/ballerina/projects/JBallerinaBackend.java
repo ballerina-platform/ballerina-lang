@@ -149,8 +149,14 @@ public class JBallerinaBackend extends CompilerBackend {
             if (hasNoErrors(diagnostics)) {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
             }
-            moduleContext.diagnostics().forEach(diagnostic ->
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
+
+            ModuleDescriptor diagnosticModuleDesc = null;
+            if (!moduleContext.moduleName().packageName().equals(packageContext.packageName())) {
+                diagnosticModuleDesc = moduleContext.descriptor();
+            }
+            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName(), diagnosticModuleDesc));
+            }
         }
 
         // add plugin diagnostics

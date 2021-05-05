@@ -17,6 +17,7 @@
  */
 package io.ballerina.projects.internal;
 
+import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -41,20 +42,23 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
  * @since 2.0.0
  */
 public class PackageDiagnostic extends Diagnostic {
-    private final Diagnostic diagnostic;
-    private final Location location;
+    private Diagnostic diagnostic;
+    private Location location;
 
-    public PackageDiagnostic(Diagnostic diagnostic, ModuleName moduleName) {
-        this.diagnostic = diagnostic;
+    public PackageDiagnostic(Diagnostic diagnostic, ModuleName moduleName, ModuleDescriptor moduleDescriptor) {
         String filePath;
-        if (!moduleName.isDefaultModuleName()) {
-            Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart());
-            LineRange lineRange = this.diagnostic.location().lineRange();
-            filePath = modulePath.resolve(lineRange.filePath()).toString();
-        } else {
+        if (moduleDescriptor != null) {
             filePath = diagnostic.location().lineRange().filePath();
+        } else {
+            if (!moduleName.isDefaultModuleName()) {
+                Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart());
+                filePath = modulePath.resolve(diagnostic.location().lineRange().filePath()).toString();
+            } else {
+                filePath = diagnostic.location().lineRange().filePath();
+            }
         }
-        this.location = new DiagnosticLocation(filePath, this.diagnostic.location());
+        this.diagnostic = diagnostic;
+        this.location = new DiagnosticLocation(filePath, this.diagnostic.location(), moduleDescriptor);
     }
 
     @Override
@@ -92,7 +96,7 @@ public class PackageDiagnostic extends Diagnostic {
         private final LineRange lineRange;
         private final TextRange textRange;
 
-        public DiagnosticLocation(String filePath, Location location) {
+        public DiagnosticLocation(String filePath, Location location, ModuleDescriptor moduleDescriptor) {
             LineRange lineRange = location.lineRange();
             int startLine = lineRange.startLine().line(),
                     endLine = lineRange.endLine().line(),
@@ -101,6 +105,12 @@ public class PackageDiagnostic extends Diagnostic {
 
             // replace hardcoded string "tests/" to match the OS
             filePath = filePath.replace(TEST_DIR_NAME + "/", TEST_DIR_NAME + File.separator);
+            // add package info if it is a dependency
+            if (moduleDescriptor != null) {
+                filePath = moduleDescriptor.org() + "/" +
+                        moduleDescriptor.name().toString() + "/" +
+                        moduleDescriptor.version() + "::" + filePath;
+            }
             this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, startColumn),
                     LinePosition.from(endLine, endColumn));
             this.textRange = location.textRange();
