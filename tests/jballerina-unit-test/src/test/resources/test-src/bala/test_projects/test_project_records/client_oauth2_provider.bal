@@ -14,12 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type ClientConfiguration record {|
-    ClientAuth auth?;
-|};
-
-public type ClientAuth ClientCredentialsGrantConfig;
-
 public type ClientCredentialsGrantConfig record {|
+    string tokenUrl;
     ClientConfiguration clientConfig = {};
 |};

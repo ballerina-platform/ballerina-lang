@@ -14,12 +14,22 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type ClientConfiguration record {|
-    ClientAuth auth?;
+public type C1 record {|
+    CA auth?;
 |};
 
-public type ClientAuth ClientCredentialsGrantConfig;
+public type CA CCGC;
 
-public type ClientCredentialsGrantConfig record {|
-    ClientConfiguration clientConfig = {};
+public type CCGC record {|
+    D1 d1 = {};
+|};
+
+public type D2 record {|
+    int x = 2;
+    D3 d3 = {};
+|};
+
+public type D3 record {|
+    int x = 3;
+    C1 clientConfig = {};
 |};

@@ -19,7 +19,3 @@ public type ClientConfiguration record {|
 |};
 
 public type ClientAuth ClientCredentialsGrantConfig;
-
-public type ClientCredentialsGrantConfig record {|
-    ClientConfiguration clientConfig = {};
-|};

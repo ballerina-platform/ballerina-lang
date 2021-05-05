@@ -324,6 +324,12 @@ public class ClosedRecordTest {
         Assert.assertEquals(cyclicBal.getErrorCount(), 0);
     }
 
+    @Test
+    public void testCyclicRecordViaFields2() {
+        CompileResult cyclicBal = BCompileUtil.compile("test-src/record/cyclic_record_via_fields2.bal");
+        Assert.assertEquals(cyclicBal.getErrorCount(), 0);
+    }
+
     @AfterClass
     public void tearDown() {
         compileResult = null;
