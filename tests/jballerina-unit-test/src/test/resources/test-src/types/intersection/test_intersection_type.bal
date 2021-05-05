@@ -215,3 +215,16 @@ function testRecursiveReadonlyIntersection() {
     panic error("Assertion error");
 }
 
+function testRuntimeTypeNameOfIntersectionType() {
+    any a = new AtomImpl();
+
+    error|int r = trap (<int> a);
+    if r is error {
+        var message = r.detail()["message"];
+        if message is string && message == "incompatible types: 'AtomImpl' cannot be cast to 'int'" {
+            return;
+        }
+    }
+    panic error("Assertion error");
+}
+
