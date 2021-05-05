@@ -31,33 +31,33 @@ under the License.
         </groups>
         <classes>
             <!--Remote Debugging Tests-->
-<!--            <class name="org.ballerinalang.debugger.test.remote.BallerinaRunRemoteDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.remote.BallerinaTestRemoteDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.remote.BallerinaBuildRemoteDebugTest"/>-->
+            <class name="org.ballerinalang.debugger.test.remote.BallerinaRunRemoteDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.remote.BallerinaTestRemoteDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.remote.BallerinaBuildRemoteDebugTest"/>
 
-<!--            &lt;!&ndash;Debug engaging tests for ballerina commands &ndash;&gt;-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.run.SingleBalFileRunDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.ModuleBreakpointTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.run.MultiModuleRunDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.test.MultiModuleTestDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.build.MultiModuleBuildDebugTest"/>-->
+            <!--Debug engaging tests for ballerina commands -->
+            <class name="org.ballerinalang.debugger.test.adapter.run.SingleBalFileRunDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.ModuleBreakpointTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.run.MultiModuleRunDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.test.MultiModuleTestDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.build.MultiModuleBuildDebugTest"/>
 
-<!--            &lt;!&ndash;Breakpoint tests&ndash;&gt;-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.CallStackDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.DebugTerminationTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.DebugInstructionTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.LangLibDebugTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.ConditionalBreakpointTest"/>-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.run.DebugEngageTest"/>-->
+            <!--Breakpoint tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.ControlFlowDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.CallStackDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LanguageConstructDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.DebugTerminationTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.DebugInstructionTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.LangLibDebugTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.ConditionalBreakpointTest"/>
+            <class name="org.ballerinalang.debugger.test.adapter.run.DebugEngageTest"/>
 
-<!--            &lt;!&ndash;Debug Variables Tests&ndash;&gt;-->
-<!--            <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>-->
+            <!--Debug Variables Tests-->
+            <class name="org.ballerinalang.debugger.test.adapter.variables.VariableVisibilityTest"/>
 
             <!--Debugger Expression Evaluation Tests-->
             <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationTest"/>
-<!--            <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationNegativeTest"/>-->
+            <class name="org.ballerinalang.debugger.test.adapter.evaluation.ExpressionEvaluationNegativeTest"/>
         </classes>
     </test>
 </suite>
