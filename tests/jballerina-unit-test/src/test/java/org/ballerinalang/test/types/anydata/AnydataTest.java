@@ -300,4 +300,9 @@ public class AnydataTest {
     public void testRuntimeIsAnydata() {
         BRunUtil.invokeFunction(result, "testRuntimeIsAnydata");
     }
+
+    @Test
+    public void testSubtypeOfBasicTypesIsAnydata() {
+        BRunUtil.invokeFunction(result, "testSubtypeOfBasicTypesIsAnydata");
+    }
 }

@@ -158,7 +158,8 @@ public abstract class BType implements Type {
     }
 
     public boolean isAnydata() {
-        return this.getTag() <= TypeTags.ANYDATA_TAG;
+        return this.getTag() <= TypeTags.ANYDATA_TAG ||
+                (this.getTag() >= TypeTags.SIGNED32_INT_TAG && this.getTag() <= TypeTags.NEVER_TAG);
     }
 
     public boolean isPureType() {

@@ -900,6 +900,29 @@ function testRuntimeIsAnydata() {
     assertTrue(h2 is anydata);
 }
 
+function testSubtypeOfBasicTypesIsAnydata() {
+
+    map<string:Char> x1 = {};
+    any a1 = x1;
+    assertTrue(a1 is anydata);
+
+    string:Char[] x2 = ["a", "b"];
+    any a2 = x2;
+    assertTrue(a2 is anydata);
+
+    map<int:Signed32> x3 = {};
+    any a3 = x3;
+    assertTrue(a3 is anydata);
+
+    int:Signed32[] x4 = [];
+    any a4 = x4;
+    assertTrue(a4 is anydata);
+
+    map<never> x5 = {};
+    any a5 = x5;
+    assertTrue(a5 is anydata);
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }
