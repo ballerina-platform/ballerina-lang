@@ -1103,16 +1103,16 @@ public class IsolationAnalyzer extends BLangNodeVisitor {
                 addToAccessedRestrictedVars(exprInfo.accessedRestrictedVars, varRefExpr);
             }
 
-            if (parent == null && varRefExpr.lhsVar) {
+            if (parent == null && varRefExpr.isLValue) {
                 if (!isSelfOfObject(varRefExpr) && isInvalidCopyIn(varRefExpr, env)) {
                     exprInfo.nonCaptureBindingPatternVarRefsOnLhs.add(varRefExpr);
                 }
-            } else if ((!varRefExpr.lhsVar || parent.getKind() != NodeKind.ASSIGNMENT) &&
+            } else if ((!varRefExpr.isLValue || parent.getKind() != NodeKind.ASSIGNMENT) &&
                     !isIsolated(varRefExpr.symbol.flags) &&
                     !isSelfOfIsolatedObject(varRefExpr) &&
                     isInvalidCopyIn(varRefExpr, env)) {
                 exprInfo.copyInVarRefs.add(varRefExpr);
-            } else if (!varRefExpr.lhsVar && parent != null && isInvalidTransfer(varRefExpr, true)) {
+            } else if (!varRefExpr.isLValue && parent != null && isInvalidTransfer(varRefExpr, true)) {
                 exprInfo.copyOutVarRefs.add(varRefExpr);
             }
         } else if (isMethodCallOnSelfInIsolatedObject(varRefExpr, parent)) {

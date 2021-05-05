@@ -156,7 +156,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BFunctio
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation.BLangAttachedFunctionInvocation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsAssignableExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIsLikeExpr;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLVAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -3185,14 +3185,14 @@ public class Desugar extends BLangNodeVisitor {
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
 
-        BLangLVAccessExpression varRef = compoundAssignment.varRef;
+        BLangValueExpression varRef = compoundAssignment.varRef;
         if (compoundAssignment.varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
             // Create a new varRef if this is a simpleVarRef. Because this can be a
             // narrowed type var. In that case, lhs and rhs must be visited in two
             // different manners.
             if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
                 varRef = ASTBuilderUtil.createVariableRef(compoundAssignment.varRef.pos, varRef.symbol);
-                varRef.lhsVar = true;
+                varRef.isLValue = true;
             }
 
             result = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, rewriteExpr(varRef),
@@ -3223,7 +3223,7 @@ public class Desugar extends BLangNodeVisitor {
             varRefs.add(0, tempVarRef);
             types.add(0, varRef.type);
 
-            varRef = (BLangLVAccessExpression) ((BLangIndexBasedAccess) varRef).expr;
+            varRef = (BLangValueExpression) ((BLangIndexBasedAccess) varRef).expr;
         } while (varRef.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR);
 
         // Create the index access expression. ex: c[$temp3$][$temp2$][$temp1$]
@@ -5661,9 +5661,9 @@ public class Desugar extends BLangNodeVisitor {
         genVarRefExpr.type = varRefExpr.type;
         genVarRefExpr.pos = varRefExpr.pos;
 
-        if ((varRefExpr.lhsVar)
+        if ((varRefExpr.isLValue)
                 || genVarRefExpr.symbol.name.equals(IGNORE)) { //TODO temp fix to get this running in bvm
-            genVarRefExpr.lhsVar = varRefExpr.lhsVar;
+            genVarRefExpr.isLValue = varRefExpr.isLValue;
             genVarRefExpr.type = varRefExpr.symbol.type;
             result = genVarRefExpr;
             return;
@@ -5671,7 +5671,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // If the the variable is not used in lhs, then add a conversion if required.
         // This is done to make the types compatible for narrowed types.
-        genVarRefExpr.lhsVar = varRefExpr.lhsVar;
+        genVarRefExpr.isLValue = varRefExpr.isLValue;
         BType targetType = genVarRefExpr.type;
         genVarRefExpr.type = genVarRefExpr.symbol.type;
         BLangExpression expression = addConversionExprIfRequired(genVarRefExpr, targetType);
@@ -5747,7 +5747,6 @@ public class Desugar extends BLangNodeVisitor {
                 targetVarRef = new BLangJSONAccessExpr(fieldAccessExpr.pos, fieldAccessExpr.expr, stringLit);
             } else {
                 BLangInvocation xmlAccessInvocation = rewriteXMLAttributeOrElemNameAccess(fieldAccessExpr);
-                // xmlAccessInvocation.lhsVar = fieldAccessExpr.lhsVar; // TODO grainier
                 xmlAccessInvocation.type = fieldAccessExpr.type;
                 result = xmlAccessInvocation;
                 return;
@@ -5761,7 +5760,7 @@ public class Desugar extends BLangNodeVisitor {
                     fieldAccessExpr.fieldKind);
         }
 
-        targetVarRef.lhsVar = fieldAccessExpr.lhsVar;
+        targetVarRef.isLValue = fieldAccessExpr.isLValue;
         targetVarRef.type = fieldAccessExpr.type;
         targetVarRef.optionalFieldAccess = fieldAccessExpr.optionalFieldAccess;
         result = targetVarRef;
@@ -6039,7 +6038,7 @@ public class Desugar extends BLangNodeVisitor {
                     indexAccessExpr.indexExpr);
         }
 
-        targetVarRef.lhsVar = indexAccessExpr.lhsVar;
+        targetVarRef.isLValue = indexAccessExpr.isLValue;
         targetVarRef.type = indexAccessExpr.type;
         result = targetVarRef;
     }
@@ -7162,7 +7161,7 @@ public class Desugar extends BLangNodeVisitor {
 
         // When XmlAttributeAccess expression is not a LHS target of a assignment and not a part of a index access
         // it will be converted to a 'map<string>.convert(xmlRef@)'
-        if (xmlAttributeAccessExpr.lhsVar || xmlAttributeAccessExpr.indexExpr != null) {
+        if (xmlAttributeAccessExpr.isLValue || xmlAttributeAccessExpr.indexExpr != null) {
             result = xmlAttributeAccessExpr;
         } else {
             result = rewriteExpr(xmlAttributeAccessExpr);
@@ -7797,7 +7796,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private void visitFunctionPointerInvocation(BLangInvocation iExpr) {
-        BLangLVAccessExpression expr; // TODO: grainier
+        BLangValueExpression expr; // TODO: grainier
         if (iExpr.expr == null) {
             expr = new BLangSimpleVarRef();
         } else {
@@ -8990,7 +8989,7 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private boolean safeNavigate(BLangAccessExpression accessExpr) {
-        if (accessExpr.lhsVar || accessExpr.expr == null) {
+        if (accessExpr.isLValue || accessExpr.expr == null) {
             return false;
         }
 
@@ -9430,7 +9429,7 @@ public class Desugar extends BLangNodeVisitor {
         return nillTypeNode;
     }
 
-    private BLangLVAccessExpression cloneExpression(BLangExpression expr) {
+    private BLangValueExpression cloneExpression(BLangExpression expr) {
         switch (expr.getKind()) {
             case SIMPLE_VARIABLE_REF:
                 return ASTBuilderUtil.createVariableRef(expr.pos, ((BLangSimpleVarRef) expr).symbol);
@@ -9472,7 +9471,7 @@ public class Desugar extends BLangNodeVisitor {
 
         accessExpr.originalType = originalAccessExpr.originalType;
         accessExpr.pos = originalAccessExpr.pos;
-        accessExpr.lhsVar = originalAccessExpr.lhsVar;
+        accessExpr.isLValue = originalAccessExpr.isLValue;
         accessExpr.symbol = originalAccessExpr.symbol;
         accessExpr.errorSafeNavigation = false;
         accessExpr.nilSafeNavigation = false;

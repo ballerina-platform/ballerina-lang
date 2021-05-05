@@ -111,7 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
-import org.wso2.ballerinalang.compiler.tree.expressions.BLangLVAccessExpression;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangValueExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -1431,7 +1431,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         // Check whether the variable reference is an function invocation or not.
         boolean isValidVarRef = validateLhsVar(varRef);
         if (isValidVarRef) {
-            compoundAssignment.varRef.compoundAssignmentLhsVar = true;
+            compoundAssignment.varRef.isCompoundAssignmentLValue = true;
             this.typeChecker.checkExpr(varRef, env);
             expTypes.add(varRef.type);
         } else {
@@ -3454,8 +3454,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void setTypeOfVarRef(BLangExpression expr) {
-        BLangLVAccessExpression varRefExpr = (BLangLVAccessExpression) expr;
-        varRefExpr.lhsVar = true;
+        BLangValueExpression varRefExpr = (BLangValueExpression) expr;
+        varRefExpr.isLValue = true;
         typeChecker.checkExpr(varRefExpr, env);
 
         // Check whether this is an readonly field.
@@ -3473,7 +3473,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private void setTypeOfVarRefForBindingPattern(BLangExpression expr) {
         BLangVariableReference varRefExpr = (BLangVariableReference) expr;
-        varRefExpr.lhsVar = true;
+        varRefExpr.isLValue = true;
         typeChecker.checkExpr(varRefExpr, env);
 
         switch (expr.getKind()) {
