@@ -416,33 +416,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "val",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "B",
-      "insertText": "val",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "main()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "main()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "sortText": "M",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "last",
+      "kind": "Variable",
+      "detail": "xml",
+      "sortText": "B",
+      "insertText": "last",
       "insertTextFormat": "Snippet"
     },
     {
@@ -462,11 +448,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "last",
+      "label": "val",
       "kind": "Variable",
-      "detail": "xml",
+      "detail": "string",
       "sortText": "B",
-      "insertText": "last",
+      "insertText": "val",
       "insertTextFormat": "Snippet"
     },
     {
@@ -478,6 +464,21 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "main()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "main",
+      "insertText": "main()",
       "insertTextFormat": "Snippet"
     },
     {

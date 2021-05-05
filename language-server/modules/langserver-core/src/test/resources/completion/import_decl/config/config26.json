@@ -479,6 +479,14 @@
       ]
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -487,14 +495,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -620,6 +620,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction4",
       "insertText": "testFunction4()",
       "insertTextFormat": "Snippet"
     },
@@ -634,6 +635,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "testImports",
       "insertText": "testImports()",
       "insertTextFormat": "Snippet"
     },

@@ -457,14 +457,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestRec2",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "TestRec2",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -473,6 +465,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestRec2",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "TestRec2",
       "insertTextFormat": "Snippet"
     },
     {
@@ -606,6 +606,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "main",
       "insertText": "main(${1})",
       "insertTextFormat": "Snippet",
       "command": {

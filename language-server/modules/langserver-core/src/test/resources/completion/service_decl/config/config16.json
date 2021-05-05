@@ -572,11 +572,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lst",
+      "label": "self",
       "kind": "Variable",
-      "detail": "module1:Listener",
+      "detail": "isolated service object {resource function name . () returns () ;}",
       "sortText": "B",
-      "insertText": "lst",
+      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {
@@ -590,15 +590,16 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "self",
+      "label": "lst",
       "kind": "Variable",
-      "detail": "isolated service object {resource function name . () returns () ;}",
+      "detail": "module1:Listener",
       "sortText": "B",
-      "insertText": "self",
+      "insertText": "lst",
       "insertTextFormat": "Snippet"
     },
     {

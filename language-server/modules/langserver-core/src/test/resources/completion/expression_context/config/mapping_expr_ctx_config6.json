@@ -16,15 +16,8 @@
         }
       },
       "sortText": "C",
+      "filterText": "getField",
       "insertText": "getField()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -36,11 +29,34 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "B",
+      "insertText": "value1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testMap",
       "kind": "Variable",
       "detail": "$CompilationError$",
       "sortText": "B",
       "insertText": "testMap",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "doTask()",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "doTask",
+      "insertText": "doTask()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -54,6 +70,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
@@ -68,21 +85,8 @@
         }
       },
       "sortText": "C",
+      "filterText": "getInt",
       "insertText": "getInt()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "doTask()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "doTask()",
       "insertTextFormat": "Snippet"
     },
     {

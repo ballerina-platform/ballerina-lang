@@ -409,14 +409,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lst",
-      "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "B",
-      "insertText": "lst",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testFunction()(int)",
       "kind": "Function",
       "detail": "Function",
@@ -427,7 +419,16 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "lst",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "B",
+      "insertText": "lst",
       "insertTextFormat": "Snippet"
     },
     {

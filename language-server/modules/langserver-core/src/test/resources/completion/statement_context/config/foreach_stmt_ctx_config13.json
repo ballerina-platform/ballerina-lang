@@ -39,6 +39,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "getCodePoint",
       "insertText": "getCodePoint(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -57,6 +58,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBytes",
       "insertText": "toBytes()",
       "insertTextFormat": "Snippet"
     },
@@ -71,6 +73,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
@@ -85,6 +88,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toCodePointInts",
       "insertText": "toCodePointInts()",
       "insertTextFormat": "Snippet"
     },
@@ -99,6 +103,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "includes",
       "insertText": "includes(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -117,6 +122,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "equalsIgnoreCaseAscii",
       "insertText": "equalsIgnoreCaseAscii(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -135,6 +141,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toUpperAscii",
       "insertText": "toUpperAscii()",
       "insertTextFormat": "Snippet"
     },
@@ -149,6 +156,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "substring",
       "insertText": "substring(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -167,6 +175,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "lastIndexOf",
       "insertText": "lastIndexOf(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -185,6 +194,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -199,6 +209,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "trim",
       "insertText": "trim()",
       "insertTextFormat": "Snippet"
     },
@@ -213,6 +224,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "endsWith",
       "insertText": "endsWith(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -231,6 +243,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "join",
       "insertText": "join(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -249,6 +262,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "indexOf",
       "insertText": "indexOf(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -267,6 +281,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "codePointCompare",
       "insertText": "codePointCompare(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -285,6 +300,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toLowerAscii",
       "insertText": "toLowerAscii()",
       "insertTextFormat": "Snippet"
     },
@@ -299,6 +315,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "startsWith",
       "insertText": "startsWith(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -317,6 +334,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -335,6 +353,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonString",
       "insertText": "fromJsonString()",
       "insertTextFormat": "Snippet"
     },
@@ -349,6 +368,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromBalString",
       "insertText": "fromBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -363,6 +383,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonFloatString",
       "insertText": "fromJsonFloatString()",
       "insertTextFormat": "Snippet"
     },
@@ -377,6 +398,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonDecimalString",
       "insertText": "fromJsonDecimalString()",
       "insertTextFormat": "Snippet"
     },
@@ -391,6 +413,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -405,6 +428,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -419,6 +443,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonStringWithType",
       "insertText": "fromJsonStringWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -437,6 +462,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
     },
@@ -451,6 +477,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -465,6 +492,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonWithType",
       "insertText": "fromJsonWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -483,6 +511,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "mergeJson",
       "insertText": "mergeJson(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -501,6 +530,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -515,6 +545,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -533,6 +564,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     },
@@ -547,6 +579,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     }

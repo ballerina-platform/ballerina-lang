@@ -433,19 +433,34 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'if",
-      "kind": "Variable",
-      "detail": "string",
-      "sortText": "C",
-      "insertText": "'if",
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "N",
+      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "'from",
+      "label": "fromCurrency",
       "kind": "Variable",
       "detail": "Currency",
-      "sortText": "A",
-      "insertText": "'from",
+      "sortText": "C",
+      "insertText": "fromCurrency",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'function()(string)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "'function",
+      "insertText": "'function()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -459,26 +474,13 @@
         }
       },
       "sortText": "D",
+      "filterText": "example",
       "insertText": "example(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
-    },
-    {
-      "label": "'function()(string)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `string`   \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "'function()",
-      "insertTextFormat": "Snippet"
     },
     {
       "label": "to",
@@ -500,11 +502,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "N",
-      "insertText": "Thread",
+      "label": "'from",
+      "kind": "Variable",
+      "detail": "Currency",
+      "sortText": "A",
+      "insertText": "'from",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "'if",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "C",
+      "insertText": "'if",
       "insertTextFormat": "Snippet"
     },
     {
@@ -513,14 +523,6 @@
       "detail": "Record",
       "sortText": "A",
       "insertText": "Currency",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "fromCurrency",
-      "kind": "Variable",
-      "detail": "Currency",
-      "sortText": "C",
-      "insertText": "fromCurrency",
       "insertTextFormat": "Snippet"
     },
     {

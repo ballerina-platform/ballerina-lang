@@ -39,6 +39,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "filter",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -57,6 +58,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "next",
       "insertText": "next()",
       "insertTextFormat": "Snippet"
     },
@@ -71,6 +73,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "reduce",
       "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -89,6 +92,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -103,6 +107,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "forEach",
       "insertText": "forEach(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -121,6 +126,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "map",
       "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -139,6 +145,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "close",
       "insertText": "close()",
       "insertTextFormat": "Snippet"
     },
@@ -153,6 +160,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -167,6 +175,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -185,6 +194,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     }

@@ -47,6 +47,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "reduce",
       "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -65,6 +66,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "hasKey",
       "insertText": "hasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -83,6 +85,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "forEach",
       "insertText": "forEach(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -101,6 +104,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "keys",
       "insertText": "keys()",
       "insertTextFormat": "Snippet"
     },
@@ -115,6 +119,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
@@ -129,6 +134,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "remove",
       "insertText": "remove(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -147,6 +153,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "filter",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -165,6 +172,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "removeIfHasKey",
       "insertText": "removeIfHasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -183,6 +191,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -197,6 +206,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "entries",
       "insertText": "entries()",
       "insertTextFormat": "Snippet"
     },
@@ -211,6 +221,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "removeAll",
       "insertText": "removeAll()",
       "insertTextFormat": "Snippet"
     },
@@ -225,6 +236,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "get",
       "insertText": "get(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -243,6 +255,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toArray",
       "insertText": "toArray()",
       "insertTextFormat": "Snippet"
     },
@@ -257,6 +270,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "map",
       "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -275,6 +289,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -293,6 +308,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -307,6 +323,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -321,6 +338,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
     },
@@ -335,6 +353,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -349,6 +368,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -363,6 +383,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -381,6 +402,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     },
@@ -395,6 +417,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     }

@@ -16,6 +16,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "post",
       "insertText": "post(${1})",
       "insertTextFormat": "Snippet",
       "command": {

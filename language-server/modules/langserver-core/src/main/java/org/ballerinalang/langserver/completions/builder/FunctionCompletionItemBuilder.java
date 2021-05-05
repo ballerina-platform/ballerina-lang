@@ -44,6 +44,7 @@ import org.eclipse.lsp4j.InsertTextFormat;
 import org.eclipse.lsp4j.MarkupContent;
 import org.eclipse.lsp4j.jsonrpc.messages.Either;
 
+import javax.annotation.Nullable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -52,8 +53,6 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
-import javax.annotation.Nullable;
-
 /**
  * This class is being used to build function type completion item.
  *
@@ -61,26 +60,6 @@ import javax.annotation.Nullable;
  */
 public final class FunctionCompletionItemBuilder {
     private FunctionCompletionItemBuilder() {
-    }
-
-    /**
-     * Creates and returns a completion item.
-     *
-     * @param funcSymbol BSymbol or null
-     * @param label      label
-     * @param insertText insert text
-     * @param context    {@link BallerinaCompletionContext}
-     * @return {@link CompletionItem}
-     */
-    public static CompletionItem build(FunctionSymbol funcSymbol,
-                                       String label,
-                                       String insertText,
-                                       BallerinaCompletionContext context) {
-        CompletionItem item = new CompletionItem();
-        item.setLabel(label);
-        item.setInsertText(insertText);
-        setMeta(item, funcSymbol, context);
-        return item;
     }
 
     /**
@@ -99,6 +78,7 @@ public final class FunctionCompletionItemBuilder {
             Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
             item.setInsertText(functionSignature.getLeft());
             item.setLabel(functionSignature.getRight());
+            item.setFilterText(funcName);
         }
         return item;
     }

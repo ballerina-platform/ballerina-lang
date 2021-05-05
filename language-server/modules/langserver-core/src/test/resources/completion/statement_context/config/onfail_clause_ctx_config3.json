@@ -596,14 +596,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "animals",
-      "kind": "Variable",
-      "detail": "string[]",
-      "sortText": "B",
-      "insertText": "animals",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "animal",
       "kind": "Variable",
       "detail": "string",
@@ -622,7 +614,16 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "animals",
+      "kind": "Variable",
+      "detail": "string[]",
+      "sortText": "B",
+      "insertText": "animals",
       "insertTextFormat": "Snippet"
     }
   ]
