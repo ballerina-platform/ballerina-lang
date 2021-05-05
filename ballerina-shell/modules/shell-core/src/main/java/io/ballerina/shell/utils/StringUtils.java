@@ -137,7 +137,7 @@ public class StringUtils {
      * @return encoded string.
      */
     public static String encodeIdentifier(String string) {
-        return IdentifierUtils.encodeNonFunctionIdentifier(string);
+        return string.replace("\\", "\\\\");
     }
 
     /**
@@ -161,5 +161,20 @@ public class StringUtils {
             return ((BError) error).getErrorMessage() + " " + ((BError) error).getDetails();
         }
         return error.getMessage();
+    }
+
+    /**
+     * Convert unicode character to ballerina unicode format
+     *
+     * @param string Input unicode containing string to convert.
+     * @return reformatted unicode string.
+     */
+    public static String convertUnicode(String string){
+        String newString = string;
+        char character = newString.charAt(newString.length() - 1);
+        int code = character;
+
+        String convertedString = "\\" + "u" + "{" + Integer.toHexString(code) + "}";
+        return convertedString;
     }
 }

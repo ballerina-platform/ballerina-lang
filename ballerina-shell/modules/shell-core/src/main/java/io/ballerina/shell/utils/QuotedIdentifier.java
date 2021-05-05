@@ -27,11 +27,19 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class QuotedIdentifier {
+    private final String UNICODE = "unicode";
     private final String name;
 
     public QuotedIdentifier(String name) {
         Objects.requireNonNull(name);
-        this.name = StringUtils.quoted(name);
+        if (name.contains(UNICODE)) {
+            char character = name.charAt(name.length()-1);
+            String string = "" + character;
+            this.name = StringUtils.quoted(name)
+                    .replace(string, StringUtils.convertUnicode(name));
+        } else {
+            this.name = StringUtils.quoted(name);
+        }
     }
 
     @Override
