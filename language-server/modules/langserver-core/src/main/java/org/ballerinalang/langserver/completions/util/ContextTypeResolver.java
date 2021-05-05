@@ -17,11 +17,14 @@
  */
 package org.ballerinalang.langserver.completions.util;
 
+import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.AnnotationSymbol;
 import io.ballerina.compiler.api.symbols.ArrayTypeSymbol;
 import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.MapTypeSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
 import io.ballerina.compiler.api.symbols.RecordTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
@@ -33,12 +36,15 @@ import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.AssignmentStatementNode;
 import io.ballerina.compiler.syntax.tree.CaptureBindingPatternNode;
 import io.ballerina.compiler.syntax.tree.FieldAccessExpressionNode;
+import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.IndexedExpressionNode;
 import io.ballerina.compiler.syntax.tree.NameReferenceNode;
+import io.ballerina.compiler.syntax.tree.NamedArgumentNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeTransformer;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.ReturnTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.SimpleNameReferenceNode;
@@ -54,7 +60,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
-
 import javax.annotation.Nonnull;
 
 /**
@@ -234,6 +239,81 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         }
         
         return SymbolUtil.getTypeDescriptor(filteredSymbol.get());
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(PositionalArgumentNode positionalArgumentNode) {
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return Optional.empty();
+        }
+
+        switch (positionalArgumentNode.parent().kind()) {
+            case FUNCTION_CALL:
+                FunctionCallExpressionNode fnCallExpr = (FunctionCallExpressionNode) positionalArgumentNode.parent();
+                int argIndex = -1;
+                for (int i = 0; i < fnCallExpr.arguments().size(); i++) {
+                    if (fnCallExpr.arguments().get(i).equals(positionalArgumentNode)) {
+                        argIndex = i;
+                        break;
+                    }
+                }
+
+                if (argIndex == -1) {
+                    return Optional.empty();
+                }
+
+                Optional<Symbol> symbol = semanticModel.get().symbol(fnCallExpr);
+                if (symbol.isEmpty()) {
+                    return Optional.empty();
+                }
+
+                FunctionTypeSymbol functionTypeSymbol = ((FunctionSymbol) symbol.get()).typeDescriptor();
+                if (functionTypeSymbol.params().isEmpty() || functionTypeSymbol.params().get().size() <= argIndex) {
+                    return Optional.empty();
+                }
+
+                ParameterSymbol parameterSymbol = functionTypeSymbol.params().get().get(argIndex);
+                return Optional.of(parameterSymbol.typeDescriptor());
+        }
+        
+        return Optional.empty();
+    }
+
+    @Override
+    public Optional<TypeSymbol> transform(NamedArgumentNode namedArgumentNode) {
+        Optional<SemanticModel> semanticModel = context.currentSemanticModel();
+        if (semanticModel.isEmpty()) {
+            return Optional.empty();
+        }
+
+        switch (namedArgumentNode.parent().kind()) {
+            case FUNCTION_CALL: {
+                FunctionCallExpressionNode fnCallExpr = (FunctionCallExpressionNode) namedArgumentNode.parent();
+                Optional<Symbol> symbol = semanticModel.get().symbol(fnCallExpr);
+                if (symbol.isEmpty()) {
+                    return Optional.empty();
+                }
+
+                FunctionTypeSymbol functionTypeSymbol = ((FunctionSymbol) symbol.get()).typeDescriptor();
+                if (functionTypeSymbol.params().isEmpty()) {
+                    return Optional.empty();
+                }
+
+                for (ParameterSymbol parameterSymbol : functionTypeSymbol.params().get()) {
+                    if (parameterSymbol.getName().stream()
+                            .anyMatch(name -> name.equals(namedArgumentNode.argumentName().name().text()))) {
+                        return Optional.of(parameterSymbol.typeDescriptor());
+                    }
+                }
+                break;
+            }
+            case ERROR_CONSTRUCTOR: {
+                // TODO: Couldn't find a way to get this done yet due to a limitation
+            }
+        }
+
+        return Optional.empty();
     }
 
     @Override
