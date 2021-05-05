@@ -25,7 +25,7 @@ import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 /**
  * @since 0.94
  */
-public class BLangLiteral extends BLangExpression implements LiteralNode {
+public class BLangLiteral extends BLangAccessibleExpression implements LiteralNode {
 
     public Object value;
     public String originalValue;

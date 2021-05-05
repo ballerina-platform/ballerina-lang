@@ -111,6 +111,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangFieldBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangGroupExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLVAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
@@ -124,6 +125,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTupleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeConversionExpr;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangTypeInit;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangVariableReference;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangConstPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorCauseMatchPattern;
 import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangErrorFieldMatchPatterns;
@@ -3445,7 +3447,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void setTypeOfVarRef(BLangExpression expr) {
-        BLangAccessExpression varRefExpr = (BLangAccessExpression) expr;
+        BLangVariableReference varRefExpr = (BLangVariableReference) expr;
         varRefExpr.lhsVar = true;
         typeChecker.checkExpr(varRefExpr, env);
 
@@ -3463,7 +3465,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     private void setTypeOfVarRefForBindingPattern(BLangExpression expr) {
-        BLangAccessExpression varRefExpr = (BLangAccessExpression) expr;
+        BLangVariableReference varRefExpr = (BLangVariableReference) expr;
         varRefExpr.lhsVar = true;
         typeChecker.checkExpr(varRefExpr, env);
 

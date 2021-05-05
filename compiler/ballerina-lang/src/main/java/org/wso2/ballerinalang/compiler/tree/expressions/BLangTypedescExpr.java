@@ -28,7 +28,7 @@ import org.wso2.ballerinalang.compiler.tree.types.BLangType;
 /**
  * @since 0.95
  */
-public class BLangTypedescExpr extends BLangExpression implements TypedescExpressionNode {
+public class BLangTypedescExpr extends BLangAccessibleExpression implements TypedescExpressionNode {
 
     public BLangType typeNode;
     public BType resolvedType;

@@ -17,17 +17,18 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
-import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
-
 /**
- * {@code BLangAccessibleExpression} represents an expression, where a {@code BLangAccessExpression} can be called
- * upon.
- * eg: list-construct, record literal, grouped expression, etc...
+ * {@code BLangLVAccessExpression} represents an access expression on LHS.
+ * i.e: field access, index-based access & variable refs.
+ * y = 1;
+ * x.y = 1;
+ * x["y"] = 1;
  *
  * @since 2.0.0
  */
-public abstract class BLangAccessibleExpression extends BLangExpression {
-    public BSymbol symbol;
-    // public boolean lhsVar = false;
-    // public boolean compoundAssignmentLhsVar = false;
+public abstract class BLangLVAccessExpression extends BLangAccessibleExpression {
+
+    public boolean lhsVar = false;
+    public boolean compoundAssignmentLhsVar = false;
+
 }

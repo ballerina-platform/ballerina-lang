@@ -1136,8 +1136,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.requiredArgs = cloneList(source.requiredArgs);
-
-        cloneBLangAccessExpression(source, clone);
+        clone.expr = clone(source.expr);
     }
 
     @Override
@@ -1164,8 +1163,7 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.flagSet = cloneSet(source.flagSet, Flag.class);
         clone.annAttachments = cloneList(source.annAttachments);
         clone.requiredArgs = cloneList(source.requiredArgs);
-
-        cloneBLangAccessExpression(source, clone);
+        clone.expr = clone(source.expr);
     }
 
     @Override
@@ -1524,7 +1522,7 @@ public class NodeCloner extends BLangNodeVisitor {
         source.cloneRef = clone;
         clone.pkgAlias = source.pkgAlias;
         clone.annotationName = source.annotationName;
-        cloneBLangAccessExpression(source, clone);
+        clone.expr = clone(source.expr);
     }
 
     @Override

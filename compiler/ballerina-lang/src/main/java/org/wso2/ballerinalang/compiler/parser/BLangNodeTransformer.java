@@ -1951,7 +1951,7 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
 
     @Override
     public BLangNode transform(OptionalFieldAccessExpressionNode optionalFieldAccessExpressionNode) {
-        BLangFieldBasedAccess bLFieldBasedAccess = (BLangFieldBasedAccess) TreeBuilder.createFieldBasedAccessNode();
+        BLangFieldBasedAccess bLFieldBasedAccess;
         Node fieldName = optionalFieldAccessExpressionNode.fieldName();
 
         if (fieldName.kind() == SyntaxKind.QUALIFIED_NAME_REFERENCE) {

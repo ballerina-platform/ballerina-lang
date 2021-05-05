@@ -125,6 +125,7 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangIndexBasedAccess;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInferredTypedescDefaultNode;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangIntRangeExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangInvocation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangLVAccessExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLetExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangListConstructorExpr;
@@ -425,9 +426,9 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangXMLNavigationAccess xmlNavigation) {
-        if (xmlNavigation.lhsVar) {
-            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);
-        }
+//        if (xmlNavigation.lhsVar) { // TODO grainier
+//            dlog.error(xmlNavigation.pos, DiagnosticErrorCode.CANNOT_UPDATE_XML_SEQUENCE);
+//        }
         checkXMLNamespacePrefixes(xmlNavigation.filters);
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
@@ -2318,9 +2319,9 @@ public class TypeChecker extends BLangNodeVisitor {
                         || varRefExpr.restVar.symbol == null
                         || !isValidVariableReference(varRefExpr.restVar);
 
-            } else if (varRefExpr.restVar.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
-                    || varRefExpr.restVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
-                unresolvedReference = checkErrorRestParamVarRef(varRefExpr, unresolvedReference);
+//            } else if (varRefExpr.restVar.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
+//                    || varRefExpr.restVar.getKind() == NodeKind.INDEX_BASED_ACCESS_EXPR) {
+//                unresolvedReference = checkErrorRestParamVarRef(varRefExpr, unresolvedReference);
             }
         }
 
@@ -2374,26 +2375,26 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
-        BLangAccessExpression accessExpression = (BLangAccessExpression) varRefExpr.restVar;
-        Name exprName = names.fromIdNode(((BLangSimpleVarRef) accessExpression.expr).variableName);
-        BSymbol fSym = symResolver.lookupSymbolInMainSpace(env, exprName);
-        if (fSym != null) {
-            if (fSym.type.getKind() == TypeKind.MAP) {
-                BType constraint = ((BMapType) fSym.type).constraint;
-                if (types.isAssignable(constraint, symTable.anydataOrReadonly)) {
-                    varRefExpr.restVar.type = constraint;
-                } else {
-                    varRefExpr.restVar.type = symTable.anydataOrReadonly;
-                }
-            } else {
-                throw new UnsupportedOperationException("rec field base access");
-            }
-        } else {
-            unresolvedReference = true;
-        }
-        return unresolvedReference;
-    }
+//    private boolean checkErrorRestParamVarRef(BLangErrorVarRef varRefExpr, boolean unresolvedReference) {
+//        BLangAccessExpression accessExpression = (BLangAccessExpression) varRefExpr.restVar;
+//        Name exprName = names.fromIdNode(((BLangSimpleVarRef) accessExpression.expr).variableName);
+//        BSymbol fSym = symResolver.lookupSymbolInMainSpace(env, exprName);
+//        if (fSym != null) {
+//            if (fSym.type.getKind() == TypeKind.MAP) {
+//                BType constraint = ((BMapType) fSym.type).constraint;
+//                if (types.isAssignable(constraint, symTable.anydataOrReadonly)) {
+//                    varRefExpr.restVar.type = constraint;
+//                } else {
+//                    varRefExpr.restVar.type = symTable.anydataOrReadonly;
+//                }
+//            } else {
+//                throw new UnsupportedOperationException("rec field base access");
+//            }
+//        } else {
+//            unresolvedReference = true;
+//        }
+//        return unresolvedReference;
+//    }
 
     @Override
     public void visit(BLangTupleVarRef varRefExpr) {
@@ -2483,17 +2484,12 @@ public class TypeChecker extends BLangNodeVisitor {
         // First analyze the accessible expression.
         BLangExpression containerExpression = fieldAccessExpr.expr;
 
-        // Container expression must be a accessible expression.
-        if (!(containerExpression instanceof BLangAccessibleExpression)) {
-            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS,
-                    containerExpression);
-            resultType = symTable.semanticError;
-            return;
+        if (containerExpression instanceof BLangLVAccessExpression) {
+            ((BLangLVAccessExpression) containerExpression).lhsVar = fieldAccessExpr.lhsVar;
+            ((BLangLVAccessExpression) containerExpression).compoundAssignmentLhsVar =
+                    fieldAccessExpr.compoundAssignmentLhsVar;
         }
 
-        ((BLangAccessibleExpression) containerExpression).lhsVar = fieldAccessExpr.lhsVar;
-        ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
-                fieldAccessExpr.compoundAssignmentLhsVar;
         BType varRefType = getTypeOfExprInFieldAccess(containerExpression);
 
         // Disallow `expr.ns:attrname` syntax on non xml expressions.
@@ -2619,20 +2615,14 @@ public class TypeChecker extends BLangNodeVisitor {
             return;
         }
 
-        boolean isStringValue = containerExpression.type != null && containerExpression.type.tag == TypeTags.STRING;
-
-        // Container expression must be a accessible expression.
-        if (!(containerExpression instanceof BLangAccessibleExpression) && !isStringValue) {
-            dlog.error(containerExpression.pos, DiagnosticErrorCode.EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS,
-                    containerExpression);
-            resultType = symTable.semanticError;
-            return;
+        if (containerExpression instanceof BLangLVAccessExpression) {
+            ((BLangLVAccessExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
+            ((BLangLVAccessExpression) containerExpression).compoundAssignmentLhsVar =
+                    indexBasedAccessExpr.compoundAssignmentLhsVar;
         }
 
+        boolean isStringValue = containerExpression.type != null && containerExpression.type.tag == TypeTags.STRING;
         if (!isStringValue) {
-            ((BLangAccessibleExpression) containerExpression).lhsVar = indexBasedAccessExpr.lhsVar;
-            ((BLangAccessibleExpression) containerExpression).compoundAssignmentLhsVar =
-                    indexBasedAccessExpr.compoundAssignmentLhsVar;
             checkExpr(containerExpression, this.env, symTable.noType);
         }
 
@@ -5503,7 +5493,7 @@ public class TypeChecker extends BLangNodeVisitor {
     // - foo->bar();
     // - start foo.bar(); or start foo->bar()
     private void checkActionInvocation(BLangInvocation.BLangActionInvocation aInv, BObjectType expType) {
-        BLangAccessExpression varRef = (BLangAccessExpression) aInv.expr;
+        BLangAccessibleExpression varRef = (BLangAccessibleExpression) aInv.expr;
 
         if (((varRef.symbol.tag & SymTag.ENDPOINT) != SymTag.ENDPOINT) && !aInv.async) {
             dlog.error(aInv.pos, DiagnosticErrorCode.INVALID_ACTION_INVOCATION, varRef.type);

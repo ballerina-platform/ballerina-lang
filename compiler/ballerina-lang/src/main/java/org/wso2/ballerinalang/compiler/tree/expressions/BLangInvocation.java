@@ -41,7 +41,7 @@ import java.util.Set;
  *
  * @since 0.94
  */
-public class BLangInvocation extends BLangAccessExpression implements InvocationNode {
+public class BLangInvocation extends BLangAccessibleExpression implements InvocationNode {
 
     public BLangIdentifier pkgAlias;
     public BLangIdentifier name;
@@ -53,6 +53,7 @@ public class BLangInvocation extends BLangAccessExpression implements Invocation
     public boolean async;
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
+    public BLangExpression expr;
 
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.
