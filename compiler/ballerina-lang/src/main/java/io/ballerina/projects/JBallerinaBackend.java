@@ -70,7 +70,6 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
-import static io.ballerina.projects.util.ProjectUtils.checkWritePermission;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
