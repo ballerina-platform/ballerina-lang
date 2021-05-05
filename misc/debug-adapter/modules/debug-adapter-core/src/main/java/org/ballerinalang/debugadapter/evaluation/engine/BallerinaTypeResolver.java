@@ -29,6 +29,7 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.utils.PackageUtils;
 
 import java.util.ArrayList;
@@ -92,7 +93,7 @@ public class BallerinaTypeResolver {
             RuntimeStaticMethod method = getRuntimeMethod(context, B_TYPE_UTILS_CLASS, VALUE_FROM_STRING_METHOD,
                     methodArgTypeNames);
             method.setArgValues(Collections.singletonList(context.getAttachedVm().mirrorOf(typeName)));
-            return Optional.of(new BExpressionValue(context, method.invoke()).getJdiValue());
+            return Optional.of(new BExpressionValue(context, method.invokeSafely()).getJdiValue());
         } catch (EvaluationException e) {
             return Optional.empty();
         }

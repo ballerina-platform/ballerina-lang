@@ -32,7 +32,7 @@ public class OptionTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_all.bal");
         String[] args =
                 {"--name", "Riyafa=Riyafa", "--good", "--score", "100", "--height", "5.5", "--energy", "10e99",
-                        "--ratings", "5", "--ratings", "3", "--friends", "--friends", "--good"};
+                        "--ratings", "5", "--ratings", "3", "--friends", "--friends"};
         BRunUtil.runMain(compileResult, args);
     }
 
@@ -41,7 +41,7 @@ public class OptionTest {
         CompileResult compileResult = BCompileUtil.compile("test-src/cli/option_all.bal");
         String[] args =
                 {"--name=Riyafa=Riyafa", "--good", "--score=100", "--height=5.5", "--energy=10e99",
-                        "--ratings=5", "--ratings=3", "--friends", "--friends", "--good"};
+                        "--ratings=5", "--ratings=3", "--friends", "--friends"};
         BRunUtil.runMain(compileResult, args);
     }
 

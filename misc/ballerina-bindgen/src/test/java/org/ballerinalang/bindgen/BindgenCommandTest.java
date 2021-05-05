@@ -72,7 +72,7 @@ public class BindgenCommandTest extends CommandTest {
         MavenResolver mavenResolver = new MavenResolver(projectDir);
         mavenResolver.resolve("log4j", "log4j", "1.2.17", false);
 
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
@@ -94,7 +94,7 @@ public class BindgenCommandTest extends CommandTest {
         String[] args = {"-cp=" + incorrectJarPath + ", test.txt, " + invalidDirPath, "-o=" +
                 projectDir, "java.lang.Object"};
 
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
@@ -110,7 +110,7 @@ public class BindgenCommandTest extends CommandTest {
         String projectDir = Paths.get(testResources.toString(), "balProject").toString();
         String[] args = {"-mvn=org.yaml.snakeyaml.1.25", "-o=" + projectDir, "java.lang.Object"};
 
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();
@@ -123,7 +123,7 @@ public class BindgenCommandTest extends CommandTest {
         String incorrectPath = Paths.get("./incorrect").toString();
         String[] args = {"-o=" + incorrectPath, "java.lang.Object"};
 
-        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream);
+        BindgenCommand bindgenCommand = new BindgenCommand(printStream, printStream, false);
         new CommandLine(bindgenCommand).parseArgs(args);
 
         bindgenCommand.execute();

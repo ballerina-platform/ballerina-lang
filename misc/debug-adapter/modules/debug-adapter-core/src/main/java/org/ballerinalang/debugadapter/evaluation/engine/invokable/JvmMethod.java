@@ -14,13 +14,16 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.evaluation.engine;
+package org.ballerinalang.debugadapter.evaluation.engine.invokable;
 
 import com.sun.jdi.Method;
 import com.sun.jdi.Value;
+import com.sun.jdi.request.EventRequest;
+import com.sun.jdi.request.EventRequestManager;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 import org.ballerinalang.debugadapter.jdi.JdiProxyException;
 
@@ -50,11 +53,36 @@ public abstract class JvmMethod {
     }
 
     /**
-     * Invokes the underlying JVM method with given args.
+     * Invokes the underlying JVM method with given args. Each concrete class should have their own implementation for
+     * this JDI-based invocation.
      *
      * @return invocation result
      */
-    public abstract Value invoke() throws EvaluationException;
+    protected abstract Value invoke() throws EvaluationException;
+
+    /**
+     * Safely invokes the underlying JVM method with given args. This will prevent potential deadlocks which can
+     * occur during single-threaded method executions in the remote JVM.
+     *
+     * @return invocation result
+     */
+    public Value invokeSafely() throws EvaluationException {
+        disablePendingJDIRequests();
+        return this.invoke();
+    }
+
+    /**
+     * When invoking methods in the remote JVM, it can cause deadlocks if 'invokeMethod' is called from the
+     * client's event handler thread. In that case, the thread will be waiting for the invokeMethod to complete
+     * and won't read the EventSet that comes in for the new event. If this new EventSet is in 'SUSPEND_ALL'
+     * mode, then a deadlock will occur because no one will resume the EventSet. Therefore to avoid this, we are
+     * disabling possible event requests before doing any method invocations.
+     */
+    private void disablePendingJDIRequests() {
+        EventRequestManager eventManager = context.getExecutionContext().getEventManager();
+        eventManager.classPrepareRequests().forEach(EventRequest::disable);
+        eventManager.breakpointRequests().forEach(EventRequest::disable);
+    }
 
     /**
      * Returns the required set of argument values to invoke underlying JVM method.
