@@ -36,7 +36,6 @@ public class CleanTargetDirTask implements Task {
     @Override
     public void execute(Project project) {
         try {
-            ProjectUtils.checkWritePermission(project.sourceRoot());
             Target target = new Target(project.sourceRoot());
             target.clean();
         } catch (IOException | ProjectException e) {

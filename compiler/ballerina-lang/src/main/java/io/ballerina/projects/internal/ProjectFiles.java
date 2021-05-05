@@ -119,6 +119,7 @@ public class ProjectFiles {
     }
 
     public static List<DocumentData> loadDocuments(Path dirPath) {
+        checkReadPermission(dirPath);
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
             return pathStream
                     .filter(BAL_EXTENSION_MATCHER::matches)
@@ -130,6 +131,7 @@ public class ProjectFiles {
     }
 
     private static List<DocumentData> loadTestDocuments(Path dirPath) {
+        checkReadPermission(dirPath);
         try (Stream<Path> pathStream = Files.walk(dirPath, 1)) {
             return pathStream
                     .filter(BAL_EXTENSION_MATCHER::matches)
@@ -144,6 +146,7 @@ public class ProjectFiles {
         if (Files.notExists(documentFilePath)) {
             return null;
         }
+        checkReadPermission(documentFilePath);
 
         String content;
         try {
@@ -155,6 +158,7 @@ public class ProjectFiles {
     }
 
     private static DocumentData loadTestDocument(Path documentFilePath) {
+        checkReadPermission(documentFilePath);
         String content;
         try {
             content = Files.readString(documentFilePath, Charset.defaultCharset());
