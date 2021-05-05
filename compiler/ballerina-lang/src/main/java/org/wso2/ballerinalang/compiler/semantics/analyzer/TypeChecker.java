@@ -432,18 +432,21 @@ public class TypeChecker extends BLangNodeVisitor {
         if (xmlNavigation.childIndex != null) {
             checkExpr(xmlNavigation.childIndex, env, symTable.intType);
         }
-        BType actualType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
+        BType exprType = checkExpr(xmlNavigation.expr, env, symTable.xmlType);
 
-        if (actualType.tag == TypeTags.UNION) {
+        if (exprType.tag == TypeTags.UNION) {
             dlog.error(xmlNavigation.pos, DiagnosticErrorCode.TYPE_DOES_NOT_SUPPORT_XML_NAVIGATION_ACCESS,
                     xmlNavigation.expr.type);
         }
+
+        BType actualType = xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN
+                ? symTable.xmlType : symTable.xmlElementSeqType;
 
         types.checkType(xmlNavigation, actualType, expType);
         if (xmlNavigation.navAccessType == XMLNavigationAccess.NavAccessType.CHILDREN) {
             resultType = symTable.xmlType;
         } else {
-            resultType = new BXMLType(symTable.xmlElementType, null);
+            resultType = symTable.xmlElementSeqType;
         }
     }
 
