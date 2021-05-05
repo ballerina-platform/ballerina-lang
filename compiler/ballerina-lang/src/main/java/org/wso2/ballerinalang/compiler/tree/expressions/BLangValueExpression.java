@@ -18,7 +18,7 @@
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
 /**
- * {@code BLangLVAccessExpression} represents an access expression on LHS.
+ * {@code BLangValueExpression} represents a value access expression.
  * i.e: field access, index-based access & variable refs.
  * y = 1;
  * x.y = 1;
