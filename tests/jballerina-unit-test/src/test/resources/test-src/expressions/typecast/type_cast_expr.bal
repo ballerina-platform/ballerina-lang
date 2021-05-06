@@ -15,7 +15,7 @@
 // under the License.
 
 const ERR_REASON = "error reason";
-const TYPE_CAST_ERROR = "{ballerina/lang.runtime}TypeCastError";
+const TYPE_CAST_ERROR = "{ballerina/lang.error}TypeCastError";
 
 type MyError error;
 type MyErrorTwo error<ErrorDetails>;

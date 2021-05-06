@@ -1604,11 +1604,11 @@ function testEnsureTypeNegative() {
     error e5 = <error> err5;
     error e6 = <error> err6;
 
-    assertEquality("error TypeCastError (\"{ballerina/lang.runtime}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'int'\")", e1.toString());
-    assertEquality("error TypeCastError (\"{ballerina/lang.runtime}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'decimal'\")", e2.toString());
-    assertEquality("error TypeCastError (\"{ballerina/lang.runtime}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float'\")", e3.toString());
-    assertEquality("error TypeCastError (\"{ballerina/lang.runtime}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float[]'\")", e4.toString());
-    assertEquality("error TypeCastError (\"{ballerina/lang.runtime}TypeCastError\",message=\"incompatible types: '()' cannot be cast to 'int'\")", e5.toString());
+    assertEquality("error TypeCastError (\"{ballerina/lang.error}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'int'\")", e1.toString());
+    assertEquality("error TypeCastError (\"{ballerina/lang.error}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'decimal'\")", e2.toString());
+    assertEquality("error TypeCastError (\"{ballerina/lang.error}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float'\")", e3.toString());
+    assertEquality("error TypeCastError (\"{ballerina/lang.error}TypeCastError\",message=\"incompatible types: 'string' cannot be cast to 'float[]'\")", e4.toString());
+    assertEquality("error TypeCastError (\"{ballerina/lang.error}TypeCastError\",message=\"incompatible types: '()' cannot be cast to 'int'\")", e5.toString());
     assertEquality("error(\"{ballerina/lang.map}KeyNotFound\",message=\"Key 'children' not found in JSON mapping\")", e6.toString());
 }
 

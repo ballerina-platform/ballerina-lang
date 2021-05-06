@@ -79,7 +79,7 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.error\\}TypeCastError \\{\"message\":" +
                     "\"incompatible types: '\\(string\\|int\\)\\?\\[2\\]' cannot be cast to 'string\\[2\\]'.*")
     public void testArrayCastNegative() {
         BRunUtil.invoke(result, "testArrayCastNegative");
@@ -170,14 +170,14 @@ public class TypeCastExpressionsTest {
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.error\\}TypeCastError \\{\"message\":" +
                     "\"incompatible types: 'int' cannot be cast to '\\(string\\|boolean\\)'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeOne() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_1");
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.error\\}TypeCastError \\{\"message\":" +
                     "\"incompatible types: 'string' cannot be cast to '\\(Lead\\|int\\)'.*")
     public void testDirectlyUnmatchedUnionToUnionCastNegativeTwo() {
         BRunUtil.invoke(result, "testDirectlyUnmatchedUnionToUnionCastNegative_2");

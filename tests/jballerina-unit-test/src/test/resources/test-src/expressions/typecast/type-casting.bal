@@ -586,7 +586,7 @@ function testCastOfReadonlyIntArrayToByteArrayNegative() {
     byte[]|error g = trap <byte[]> f;
     assertEquality(true, g is error);
     error err = <error> g;
-    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("{ballerina/lang.error}TypeCastError", err.message());
     assertEquality("incompatible types: 'int[] & readonly' cannot be cast to 'byte[]'", <string> checkpanic err.detail()["message"]);
 }
 
@@ -647,7 +647,7 @@ function testCastOfReadonlyRecordNegative() {
     Bar|error b = trap <Bar> a;
     assertEquality(true, b is error);
     error err = <error> b;
-    assertEquality("{ballerina}TypeCastError", err.message());
+    assertEquality("{ballerina/lang.error}TypeCastError", err.message());
     assertEquality("incompatible types: '(Foo & readonly)' cannot be cast to 'Bar'", <string> checkpanic err.detail()["message"]);
 }
 

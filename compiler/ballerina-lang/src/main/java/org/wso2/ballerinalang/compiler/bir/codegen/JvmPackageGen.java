@@ -197,7 +197,6 @@ public class JvmPackageGen {
         dependentModuleArray.add(PackageID.BOOLEAN);
         dependentModuleArray.add(PackageID.QUERY);
         dependentModuleArray.add(PackageID.TRANSACTION);
-        dependentModuleArray.add(PackageID.RUNTIME);
     }
 
     private static boolean isSameModule(PackageID moduleId, PackageID importModule) {

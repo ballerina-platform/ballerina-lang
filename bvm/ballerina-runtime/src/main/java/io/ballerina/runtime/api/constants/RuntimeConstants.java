@@ -79,8 +79,6 @@ public class RuntimeConstants {
     public static final Module BALLERINA_LANG_ERROR_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
             "lang.error", "1.0.0");
     public static final Module BALLERINA_AUTH_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX, "auth", "1.0.0");
-    public static final Module BALLERINA_LANG_RUNTIME_PKG_ID = new Module(BALLERINA_BUILTIN_PKG_PREFIX,
-            RUNTIME_LANG_LIB, "0.0.1");
 
     // Workers
     public static final String DEFAULT_WORKER_NAME = "default";

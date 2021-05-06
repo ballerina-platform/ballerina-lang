@@ -226,7 +226,7 @@ public class RefTypeTests {
     }
 
     @Test(expectedExceptions = { BLangRuntimeException.class },
-            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.runtime\\}TypeCastError \\{\"message\":" +
+            expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.error\\}TypeCastError \\{\"message\":" +
                     "\"incompatible types: 'int' cannot be cast to 'MIX_TYPE'.*")
     public void testGetInvalidIntegerAsMixType() {
         BValue[] returns = BRunUtil.invoke(result, "getInvalidIntegerAsMixType");

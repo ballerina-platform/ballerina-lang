@@ -113,7 +113,7 @@ public class ErrorUtils {
     }
 
     public static BError createTypeCastError(Object sourceVal, Type targetType) {
-        throw createRuntimeError(RuntimeConstants.BALLERINA_LANG_RUNTIME_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
+        throw createRuntimeError(RuntimeConstants.BALLERINA_LANG_ERROR_PKG_ID, RuntimeErrorType.TYPE_CAST_ERROR,
                 TypeChecker.getType(sourceVal), targetType);
     }
 

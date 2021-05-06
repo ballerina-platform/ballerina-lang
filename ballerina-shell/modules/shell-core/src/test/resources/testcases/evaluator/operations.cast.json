@@ -39,7 +39,7 @@
   {
     "description": "Casting to incorrect type.",
     "code": "Department department = <Department>value;",
-    "stdout": "panic: {ballerina/lang.runtime}TypeCastError {\"message\":\"incompatible types: 'Employee' cannot be cast to 'Department'\"}\n",
+    "stdout": "panic: {ballerina/lang.error}TypeCastError {\"message\":\"incompatible types: 'Employee' cannot be cast to 'Department'\"}\n",
     "error": "InvokerPanicException"
   }
 ]
