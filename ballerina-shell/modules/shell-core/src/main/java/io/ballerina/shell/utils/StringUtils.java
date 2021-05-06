@@ -164,17 +164,12 @@ public class StringUtils {
     }
 
     /**
-     * Convert unicode character to ballerina unicode format
+     * Convert unicode character to ballerina unicode format.
      *
      * @param string Input unicode containing string to convert.
      * @return reformatted unicode string.
      */
-    public static String convertUnicode(String string){
-        String newString = string;
-        char character = newString.charAt(0);
-        int code = character;
-
-        String convertedString = "\\" + "u" + "{" + Integer.toHexString(code) + "}";
-        return convertedString;
+    public static String convertUnicode(char character){
+        return "\\u{" + Integer.toHexString((int) character) + "}";
     }
 }

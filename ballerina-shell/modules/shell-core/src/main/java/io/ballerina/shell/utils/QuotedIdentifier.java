@@ -27,24 +27,21 @@ import java.util.Objects;
  * @since 2.0.0
  */
 public class QuotedIdentifier {
-    private final int ASCII_VALUE = 128;
-    private String name;
+    private static final int ASCII_VALUE = 128;
+    private final String name;
 
     public QuotedIdentifier(String name) {
-        boolean isUnicode = false;
         Objects.requireNonNull(name);
-        char[] characters = name.toCharArray();
-        for (char character: characters) {
+        StringBuilder convertedName = new StringBuilder();
+        for (char character : name.toCharArray()) {
             if (character >= ASCII_VALUE) {
-                isUnicode = true;
-                String string = "" + character;
-                this.name = StringUtils.quoted(name)
-                        .replace(string, StringUtils.convertUnicode(string));
+                String replacement = StringUtils.convertUnicode(character);
+                convertedName.append(replacement);
+            } else {
+                convertedName.append(character);
             }
         }
-        if (isUnicode == false) {
-            this.name = StringUtils.quoted(name);
-        }
+        this.name = StringUtils.quoted(convertedName.toString());
     }
 
     @Override
