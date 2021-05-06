@@ -249,48 +249,16 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
         // TODO: Add other cases like error constructors here
         switch (positionalArgumentNode.parent().kind()) {
             case FUNCTION_CALL:
+                return getPositionalArgumentType(positionalArgumentNode,
+                        ((FunctionCallExpressionNode) positionalArgumentNode.parent()).arguments(),
+                        positionalArgumentNode.parent());
             case METHOD_CALL:
-                NonTerminalNode parentNode = positionalArgumentNode.parent();
-                Optional<NodeList<FunctionArgumentNode>> argumentNodes = getFunctionArgumentNodes(parentNode);
-                if (argumentNodes.isEmpty()) {
-                    return Optional.empty();
-                }
-
-                int argIndex = -1;
-                for (int i = 0; i < argumentNodes.get().size(); i++) {
-                    if (argumentNodes.get().get(i).equals(positionalArgumentNode)) {
-                        argIndex = i;
-                        break;
-                    }
-                }
-                
-                Optional<List<ParameterSymbol>> parameterSymbols = context.currentSemanticModel()
-                        .flatMap(semanticModel -> semanticModel.symbol(parentNode))
-                        .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION ||
-                                symbol.kind() == SymbolKind.METHOD ||
-                                symbol.kind() == SymbolKind.RESOURCE_METHOD)
-                        .flatMap(symbol -> ((FunctionSymbol) symbol).typeDescriptor().params());
-
-                if (argIndex == -1 || parameterSymbols.isEmpty() || parameterSymbols.get().size() <= argIndex) {
-                    return Optional.empty();
-                }
-
-                ParameterSymbol parameterSymbol = parameterSymbols.get().get(argIndex);
-                return Optional.of(parameterSymbol.typeDescriptor());
+                return getPositionalArgumentType(positionalArgumentNode,
+                        ((MethodCallExpressionNode) positionalArgumentNode.parent()).arguments(),
+                        positionalArgumentNode.parent());
         }
-        
+
         return Optional.empty();
-    }
-
-    private Optional<NodeList<FunctionArgumentNode>> getFunctionArgumentNodes(NonTerminalNode expressionNode) {
-        switch (expressionNode.kind()) {
-            case FUNCTION_CALL:
-                return Optional.of(((FunctionCallExpressionNode) expressionNode).arguments());
-            case METHOD_CALL:
-                return Optional.of(((MethodCallExpressionNode) expressionNode).arguments());
-            default:
-                return Optional.empty();
-        }
     }
 
     @Override
@@ -373,5 +341,41 @@ public class ContextTypeResolver extends NodeTransformer<Optional<TypeSymbol>> {
             default:
                 return rawType;
         }
+    }
+
+    /**
+     * Given a positional argument node, it's parent (function or method call expression node) and function's/method's
+     * argument nodes; this method returns the type symbol of the argument corresponding to the positional argument
+     * provided.
+     *
+     * @param positionalArgumentNode   Positional argument node
+     * @param argumentNodes            Argument nodes of the function/method call expression
+     * @param functionOrMethodCallExpr Function/method call expression
+     * @return Optional type symbol
+     */
+    private Optional<TypeSymbol> getPositionalArgumentType(PositionalArgumentNode positionalArgumentNode,
+                                                           NodeList<FunctionArgumentNode> argumentNodes,
+                                                           NonTerminalNode functionOrMethodCallExpr) {
+        int argIndex = -1;
+        for (int i = 0; i < argumentNodes.size(); i++) {
+            if (argumentNodes.get(i).equals(positionalArgumentNode)) {
+                argIndex = i;
+                break;
+            }
+        }
+
+        Optional<List<ParameterSymbol>> parameterSymbols = context.currentSemanticModel()
+                .flatMap(semanticModel -> semanticModel.symbol(functionOrMethodCallExpr))
+                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION ||
+                        symbol.kind() == SymbolKind.METHOD ||
+                        symbol.kind() == SymbolKind.RESOURCE_METHOD)
+                .flatMap(symbol -> ((FunctionSymbol) symbol).typeDescriptor().params());
+
+        if (argIndex == -1 || parameterSymbols.isEmpty() || parameterSymbols.get().size() <= argIndex) {
+            return Optional.empty();
+        }
+
+        ParameterSymbol parameterSymbol = parameterSymbols.get().get(argIndex);
+        return Optional.of(parameterSymbol.typeDescriptor());
     }
 }
