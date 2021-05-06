@@ -13,21 +13,6 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-import ballerina/jballerina.java;
 
-public type Employee record {
-    string name;
-};
-
-public function main([int, Employee, string] t) {
-    int id;
-    Employee e;
-    string dept;
-    [id, e, dept] = t;
-
-    print("Id: " + id.toString() + ", Name: " + e.name + ", Dept: " + dept);
+public function main(int[] intArr) {
 }
-
-public function print(any|error... values) = @java:Method {
-    'class: "org.ballerinalang.test.utils.interop.Utils"
-} external;
