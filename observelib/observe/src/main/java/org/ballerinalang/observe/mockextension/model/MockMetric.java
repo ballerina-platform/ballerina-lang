@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerina.testobserve.metrics.extension.model;
+package org.ballerinalang.observe.mockextension.model;
 
 import io.ballerina.runtime.observability.metrics.MetricId;
 

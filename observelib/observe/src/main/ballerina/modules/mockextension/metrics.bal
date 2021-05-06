@@ -21,5 +21,5 @@ import ballerina/jballerina.java;
 # + return - The metrics currently in the metrics registry
 public isolated function getMetrics() returns json = @java:Method {
     name: "getMetrics",
-    'class: "org.ballerina.testobserve.metrics.extension.MetricsUtils"
+    'class: "org.ballerinalang.observe.mockextension.MetricsUtils"
 } external;

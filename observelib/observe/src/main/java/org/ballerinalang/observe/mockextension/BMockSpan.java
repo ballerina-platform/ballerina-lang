@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-package org.ballerina.testobserve.tracing.extension;
+package org.ballerinalang.observe.mockextension;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.trace.data.EventData;

@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/http;
+import ballerina/observe.mockextension;
 import ballerina/testobserve;
 
 @http:ServiceConfig {
@@ -26,7 +27,7 @@ service mockTracer on new http:Listener(10010) {
         path: "/spans/{serviceName}"
     }
     resource function getMockTracers(http:Caller caller, http:Request clientRequest, string serviceName) {
-        json spans = testobserve:getFinishedSpans(serviceName);
+        json spans = mockextension:getFinishedSpans(serviceName);
         http:Response res = new;
         res.setJsonPayload(spans);
         checkpanic caller->respond(res);
