@@ -171,7 +171,7 @@ public class StringUtils {
      */
     public static String convertUnicode(String string){
         String newString = string;
-        char character = newString.charAt(newString.length() - 1);
+        char character = newString.charAt(0);
         int code = character;
 
         String convertedString = "\\" + "u" + "{" + Integer.toHexString(code) + "}";
