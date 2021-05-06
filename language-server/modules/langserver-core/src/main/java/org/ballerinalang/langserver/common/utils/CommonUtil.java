@@ -317,6 +317,7 @@ public class CommonUtil {
                 if (!rawType.equals(effectiveType)) {
                     typeString = getDefaultValueForType(effectiveType);
                 } else {
+                    typeString = "()";
                     // Get the member type from intersection which is not readonly and get its default value
                     Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
                             .memberTypeDescriptors().stream()
@@ -324,9 +325,6 @@ public class CommonUtil {
                             .findAny();
                     if (memberType.isPresent()) {
                         typeString = getDefaultValueForType(memberType.get());
-                    } else {
-                        // Right now we don't worry about the effective type being equal to intersection type
-                        typeString = "()";
                     }
                 }
                 break;
