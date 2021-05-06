@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.evaluation.engine;
+package org.ballerinalang.debugadapter.evaluation.engine.invokable;
 
 import com.sun.jdi.ClassNotLoadedException;
 import com.sun.jdi.ClassType;
@@ -43,7 +43,7 @@ public class RuntimeStaticMethod extends RuntimeMethod {
     }
 
     @Override
-    public Value invoke() throws EvaluationException {
+    protected Value invoke() throws EvaluationException {
         try {
             if (!(classRef instanceof ClassType)) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR

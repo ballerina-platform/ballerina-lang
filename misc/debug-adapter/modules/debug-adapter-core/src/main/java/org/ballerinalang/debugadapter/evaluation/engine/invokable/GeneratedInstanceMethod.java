@@ -14,47 +14,46 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.evaluation.engine;
+package org.ballerinalang.debugadapter.evaluation.engine.invokable;
 
 import com.sun.jdi.ClassNotLoadedException;
-import com.sun.jdi.ClassType;
 import com.sun.jdi.Method;
 import com.sun.jdi.ObjectReference;
-import com.sun.jdi.ReferenceType;
 import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.variable.VariableFactory;
 
 import java.util.List;
 
 /**
- * JVM generated static method representation of a ballerina function.
+ * JVM generated instance method representation of a ballerina function.
  *
  * @since 2.0.0
  */
-public class GeneratedStaticMethod extends GeneratedMethod {
+public class GeneratedInstanceMethod extends GeneratedMethod {
 
-    private final ReferenceType classRef;
+    private final Value objectValueRef;
 
-    public GeneratedStaticMethod(SuspendedContext context, ReferenceType classRef, Method methodRef) {
+    public GeneratedInstanceMethod(SuspendedContext context, Value objectRef, Method methodRef) {
         super(context, methodRef);
-        this.classRef = classRef;
+        this.objectValueRef = objectRef;
     }
 
     @Override
-    public Value invoke() throws EvaluationException {
+    protected Value invoke() throws EvaluationException {
         try {
-            if (!(classRef instanceof ClassType)) {
+            if (!(objectValueRef instanceof ObjectReference)) {
                 throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_EXECUTION_ERROR
                         .getString(), methodRef.name()));
             }
             List<Value> argValueList = getMethodArgs(this);
-            return ((ClassType) classRef).invokeMethod(context.getOwningThread().getThreadReference(),
+            return ((ObjectReference) objectValueRef).invokeMethod(context.getOwningThread().getThreadReference(),
                     methodRef, argValueList, ObjectReference.INVOKE_SINGLE_THREADED);
         } catch (ClassNotLoadedException e) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.FUNCTION_NOT_FOUND.getString(),
-                    methodRef.name()));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.OBJECT_METHOD_NOT_FOUND.getString(),
+                    methodRef.name(), VariableFactory.getVariable(context, objectValueRef).computeValue()));
         } catch (EvaluationException e) {
             throw e;
         } catch (Exception e) {

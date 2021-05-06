@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package org.ballerinalang.debugadapter.evaluation.engine;
+package org.ballerinalang.debugadapter.evaluation.engine.invokable;
 
 import com.sun.jdi.AbsentInformationException;
 import com.sun.jdi.ClassNotLoadedException;
@@ -32,6 +32,7 @@ import io.ballerina.runtime.api.types.ByteType;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.Evaluator;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 
 import java.util.ArrayList;
@@ -56,7 +57,7 @@ public abstract class GeneratedMethod extends JvmMethod {
         this.namedArgValues = null;
     }
 
-    protected void setNamedArgValues(Map<String, Value> namedArgValues) {
+    public void setNamedArgValues(Map<String, Value> namedArgValues) {
         this.namedArgValues = namedArgValues;
     }
 
@@ -92,10 +93,20 @@ public abstract class GeneratedMethod extends JvmMethod {
                 Value strand = getCurrentStrand();
                 namedArgValues.put(STRAND_VAR_NAME, strand);
                 List<LocalVariable> args = method.methodRef.arguments();
-                List<String> argNames = args.stream().map(LocalVariable::name).collect(Collectors.toList());
+                List<String> argNames = args.stream()
+                        .filter(LocalVariable::isArgument)
+                        .map(LocalVariable::name)
+                        .collect(Collectors.toList());
 
                 for (int i = 0, argNamesSize = argNames.size(); i < argNamesSize; i++) {
                     String argName = argNames.get(i);
+
+                    // This is a hack to avoid the weird issue introduced after the "self" variable being added to the
+                    // variable table. Now all the object methods contain 'self' as a method argument when retrieving
+                    // from 'methodRef.arguments()', even if the actual method does not have it.
+                    if (argName.equals("self")) {
+                        continue;
+                    }
                     // If this is a defaultable parameter
                     if (namedArgValues.get(argName) == null &&
                             namedArgValues.get(argName + DEFAULTABLE_PARAM_SUFFIX) != null) {

@@ -60,7 +60,7 @@ public class TomlProviderNegativeTest {
     public void testPathErrors(String tomlFileName, String errorMsg, int warningCount) {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         VariableKey intVar = new VariableKey(ROOT_MODULE, "byteVar", PredefinedTypes.TYPE_BYTE, true);
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, Map.ofEntries(Map.entry(ROOT_MODULE,
+        ConfigResolver configResolver = new ConfigResolver(Map.ofEntries(Map.entry(ROOT_MODULE,
                 new VariableKey[]{intVar})), diagnosticLog, List.of(new TomlFileProvider(ROOT_MODULE,
                 getConfigPathForNegativeCases(tomlFileName), Set.of(ROOT_MODULE))));
         configResolver.resolveConfigs();
@@ -115,7 +115,7 @@ public class TomlProviderNegativeTest {
         VariableKey[] variableKeys = getSimpleVariableKeys(importedModule);
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(importedModule, variableKeys));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,
                         getConfigPathForNegativeCases("NoModuleConfig.toml"), configVarMap.keySet())));
         configResolver.resolveConfigs();
@@ -349,7 +349,7 @@ public class TomlProviderNegativeTest {
                 Map.ofEntries(Map.entry(ROOT_MODULE, getSimpleVariableKeys(ROOT_MODULE)),
                 Map.entry(subModule, getSimpleVariableKeys(subModule)));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog,
                 List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,
                         getConfigPathForNegativeCases("ValueNotProvidedSubModule.toml"), variableMap.keySet())));
         configResolver.resolveConfigs();
@@ -371,7 +371,7 @@ public class TomlProviderNegativeTest {
         String errorMsg = "warning: invalid toml file : \n" +
                     "[ClashingOrgModuleError1.toml:(5:1,7:19)] existing node 'foo'\n";
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, variableMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(variableMap, diagnosticLog,
                 List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,
                         getConfigPathForNegativeCases("ClashingOrgModuleError1.toml"), variableMap.keySet())));
         configResolver.resolveConfigs();
@@ -383,7 +383,7 @@ public class TomlProviderNegativeTest {
     private void validateTomlProviderErrors(String tomlFileName, String errorMsg,
                                             Map<Module, VariableKey[]> configVarMap, int errorCount, int warnCount) {
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(TomlProviderNegativeTest.ROOT_MODULE,
                         getConfigPathForNegativeCases(tomlFileName + ".toml"), configVarMap.keySet())));
         configResolver.resolveConfigs();
@@ -399,7 +399,7 @@ public class TomlProviderNegativeTest {
         String tomlContent = "[rootOrg.test_module] intVar = 42.22 floatVar = 3 stringVar = 11";
         configVarMap.put(ROOT_MODULE, keys);
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlContentProvider(ROOT_MODULE, tomlContent, configVarMap.keySet())));
         configResolver.resolveConfigs();
         Assert.assertEquals(diagnosticLog.getErrorCount(), 2);
@@ -414,7 +414,7 @@ public class TomlProviderNegativeTest {
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(
                 ROOT_MODULE, getSimpleVariableKeys(ROOT_MODULE)));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPath("Config_First.toml"), configVarMap.keySet()),
                         new TomlFileProvider(
                                 ROOT_MODULE, getConfigPath("Config_Second.toml"), configVarMap.keySet())));
@@ -447,7 +447,7 @@ public class TomlProviderNegativeTest {
                 Map.entry(importedModule, getSimpleVariableKeys(importedModule)));
 
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPathForNegativeCases("UnusedTomlParts.toml"),
                         configVarMap.keySet())));
         configResolver.resolveConfigs();
@@ -477,7 +477,7 @@ public class TomlProviderNegativeTest {
 
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(importedModule, variableKeys));
         RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap, diagnosticLog,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap, diagnosticLog,
                 List.of(new TomlFileProvider(ROOT_MODULE, getConfigPathForNegativeCases("OptionalImportedModule.toml"),
                         configVarMap.keySet())));
         configResolver.resolveConfigs();

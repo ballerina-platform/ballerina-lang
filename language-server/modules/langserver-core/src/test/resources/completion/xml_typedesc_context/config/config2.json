@@ -6,6 +6,14 @@
   "source": "xml_typedesc_context/source/source2.bal",
   "items": [
     {
+      "label": "NEW_XML_TYPE",
+      "kind": "TypeParameter",
+      "detail": "Element",
+      "sortText": "M",
+      "insertText": "NEW_XML_TYPE",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
@@ -117,29 +125,6 @@
             }
           },
           "newText": "import ballerina/module1;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -276,14 +261,6 @@
       "detail": "type",
       "sortText": "Q",
       "insertText": "xml",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "NEW_XML_TYPE",
-      "kind": "TypeParameter",
-      "detail": "Element",
-      "sortText": "M",
-      "insertText": "NEW_XML_TYPE",
       "insertTextFormat": "Snippet"
     }
   ]

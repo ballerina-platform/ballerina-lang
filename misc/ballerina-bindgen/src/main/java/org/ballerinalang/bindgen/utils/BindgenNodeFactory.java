@@ -434,7 +434,7 @@ class BindgenNodeFactory {
         }
 
         NodeList<StatementNode> statements = AbstractNodeFactory.createNodeList(statementNodes);
-        Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN, emptyML(), singleNLML());
+        Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN, emptyML(), doubleNLML());
 
         return NodeFactory.createFunctionBodyBlockNode(openBraceToken, null, statements, closeBraceToken);
     }
@@ -905,7 +905,7 @@ class BindgenNodeFactory {
      */
     private static MarkdownParameterDocumentationLineNode createMarkdownParameterDocumentationLineNode(
             String paramName, String content) {
-        Token hashToken = AbstractNodeFactory.createToken(SyntaxKind.HASH_TOKEN, singleNLML(), emptyML());
+        Token hashToken = AbstractNodeFactory.createToken(SyntaxKind.HASH_TOKEN, emptyML(), emptyML());
         Token plusToken = AbstractNodeFactory.createToken(SyntaxKind.PLUS_TOKEN);
         Token parameterName = AbstractNodeFactory.createLiteralValueToken(SyntaxKind.PARAMETER_NAME, paramName,
                 singleWSML(), singleWSML());
@@ -921,7 +921,7 @@ class BindgenNodeFactory {
      * Creates a markdown documentation line node using the documentation elements provided.
      */
     private static MarkdownDocumentationLineNode createMarkdownDocumentationLineNode(String content) {
-        Token hashToken = AbstractNodeFactory.createToken(SyntaxKind.HASH_TOKEN, singleNLML(), singleWSML());
+        Token hashToken = AbstractNodeFactory.createToken(SyntaxKind.HASH_TOKEN, emptyML(), singleWSML());
         LiteralValueToken documentElements = AbstractNodeFactory.createLiteralValueToken(
                 SyntaxKind.DOCUMENTATION_DESCRIPTION, content, emptyML(), singleNLML());
 
@@ -1220,7 +1220,7 @@ class BindgenNodeFactory {
      */
     private static MappingConstructorExpressionNode createMappingConstructorExpressionNode(
             Map<String, List<String>> fields) {
-        Token openBraceToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN);
+        Token openBraceToken = AbstractNodeFactory.createToken(SyntaxKind.OPEN_BRACE_TOKEN, emptyML(), singleNLML());
         Token closeBraceToken = AbstractNodeFactory.createToken(SyntaxKind.CLOSE_BRACE_TOKEN);
         List<Node> mappingFields = new LinkedList<>();
         for (Map.Entry<String, List<String>> entry : fields.entrySet()) {
@@ -1323,6 +1323,14 @@ class BindgenNodeFactory {
      */
     private static MinutiaeList singleNLML() {
         String newLine = System.getProperty("line.separator");
+        return emptyML().add(AbstractNodeFactory.createEndOfLineMinutiae(newLine));
+    }
+
+    /**
+     * Retrieve two new line minutiaes as a minutiae list.
+     */
+    private static MinutiaeList doubleNLML() {
+        String newLine = System.getProperty("line.separator") + System.getProperty("line.separator");
         return emptyML().add(AbstractNodeFactory.createEndOfLineMinutiae(newLine));
     }
 

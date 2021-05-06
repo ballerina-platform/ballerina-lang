@@ -214,7 +214,7 @@
                                   "leadingMinutiae": [
                                     {
                                       "kind": "WHITESPACE_MINUTIAE",
-                                      "value": "                              "
+                                      "value": "        "
                                     }
                                   ],
                                   "trailingMinutiae": [
@@ -377,11 +377,7 @@
           "leadingMinutiae": [
             {
               "kind": "WHITESPACE_MINUTIAE",
-              "value": "                               "
-            },
-            {
-              "kind": "END_OF_LINE_MINUTIAE",
-              "value": "\n"
+              "value": "         "
             },
             {
               "kind": "END_OF_LINE_MINUTIAE",

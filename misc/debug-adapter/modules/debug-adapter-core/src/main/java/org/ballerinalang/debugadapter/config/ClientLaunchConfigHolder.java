@@ -35,7 +35,8 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
     private Boolean networkLogsEnabled;
     private Integer networkLogsPort;
     private List<String> commandOptions;
-    private List<String> programArguments;
+    private List<String> programArgs;
+    private List<String> testArgs;
     private Map<String, String> env;
 
     private static final String ARG_BALLERINA_HOME = "ballerina.home";
@@ -45,6 +46,7 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
     private static final String ARG_NETWORK_LOGS_PORT = "networkLogsPort";
     private static final String ARG_COMMAND_OPTIONS = "commandOptions";
     private static final String ARG_SCRIPT_ARGUMENTS = "scriptArguments";
+    private static final String ARG_TEST_ARGUMENTS = "tests";
     private static final String ARG_NO_DEBUG = "noDebug";
     private static final String ARG_ENV = "env";
 
@@ -132,14 +134,24 @@ public class ClientLaunchConfigHolder extends ClientConfigHolder {
         return commandOptions;
     }
 
-    public List<String> getProgramArguments() {
-        if (programArguments == null) {
-            programArguments = new ArrayList<>();
+    public List<String> getProgramArgs() {
+        if (programArgs == null) {
+            programArgs = new ArrayList<>();
             if (clientRequestArgs.get(ARG_SCRIPT_ARGUMENTS) instanceof ArrayList) {
-                programArguments.addAll((ArrayList<String>) clientRequestArgs.get(ARG_SCRIPT_ARGUMENTS));
+                programArgs.addAll((ArrayList<String>) clientRequestArgs.get(ARG_SCRIPT_ARGUMENTS));
             }
         }
-        return programArguments;
+        return programArgs;
+    }
+
+    public List<String> getTestArgs() {
+        if (testArgs == null) {
+            testArgs = new ArrayList<>();
+            if (clientRequestArgs.get(ARG_TEST_ARGUMENTS) instanceof ArrayList) {
+                testArgs.addAll((ArrayList<String>) clientRequestArgs.get(ARG_TEST_ARGUMENTS));
+            }
+        }
+        return testArgs;
     }
 
     public Optional<Map<String, String>> getEnv() {
