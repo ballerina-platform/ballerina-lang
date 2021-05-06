@@ -427,7 +427,7 @@
                       "leadingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",
-                          "value": "     "
+                          "value": "    "
                         },
                         {
                           "kind": "INVALID_NODE_MINUTIAE",

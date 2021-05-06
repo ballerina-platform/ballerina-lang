@@ -585,6 +585,23 @@ public class BuildCommandTest extends BaseCommandTest {
                                   .toFile().exists());
     }
 
+    @Test(description = "Compile a package with an empty Dependencies.toml")
+    public void testPackageWithEmptyDependenciesToml() throws IOException {
+        Path projectPath = this.testResources.resolve("validProjectWithDependenciesToml");
+        System.setProperty("user.dir", projectPath.toString());
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        String buildLog = readOutput(true);
+
+        Assert.assertEquals(buildLog.replaceAll("\r", ""),
+                            getOutput("build-project-with-dependencies-toml.txt"));
+        Assert.assertTrue(projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala")
+                                  .toFile().exists());
+        // `Dependencies.toml` file should not get deleted
+        Assert.assertTrue(projectPath.resolve("Dependencies.toml").toFile().exists());
+    }
+
     static class Copy extends SimpleFileVisitor<Path> {
         private Path fromPath;
         private Path toPath;

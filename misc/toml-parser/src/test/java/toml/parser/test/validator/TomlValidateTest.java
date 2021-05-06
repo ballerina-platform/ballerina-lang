@@ -99,4 +99,20 @@ public class TomlValidateTest {
         Diagnostic diagnostic = toml.diagnostics().get(0);
         Assert.assertEquals(diagnostic.message(), "key 'field' not supported in schema 'C2C Spec'");
     }
+
+    @Test
+    public void testArrayTablesMultipleMissingEntry() throws IOException {
+        Path resourceDirectory = basePath.resolve("dependency-schema.json");
+        Path sampleInput = basePath.resolve("Dependencies.toml");
+
+        Toml toml = Toml.read(sampleInput, Schema.from(resourceDirectory));
+
+        List<Diagnostic> diagnostics = toml.diagnostics();
+        Assert.assertEquals(diagnostics.size(), 2);
+
+        Diagnostic diagnostic = diagnostics.get(0);
+        Diagnostic diagnostic1 = diagnostics.get(1);
+        Assert.assertEquals(diagnostic.message(), "'version' of the dependency is missing");
+        Assert.assertEquals(diagnostic1.message(), "'version' of the dependency is missing");
+    }
 }

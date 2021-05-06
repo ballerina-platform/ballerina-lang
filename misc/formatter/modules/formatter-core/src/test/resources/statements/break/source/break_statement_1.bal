@@ -2,8 +2,7 @@ public function foo() {
    int i = 0;
    while (true) {
        if (i == 3) {
-              break
-              ;
+              break  ;
        }
        i = i + 1;
    }

@@ -32,9 +32,9 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.engine.GeneratedStaticMethod;
-import org.ballerinalang.debugadapter.evaluation.engine.RuntimeInstanceMethod;
-import org.ballerinalang.debugadapter.evaluation.engine.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
@@ -274,7 +274,7 @@ public class EvaluationUtils {
             }
             RuntimeInstanceMethod unboxingMethod = new RuntimeInstanceMethod(context, value, method.get(0));
             unboxingMethod.setArgValues(new ArrayList<>());
-            return unboxingMethod.invoke();
+            return unboxingMethod.invokeSafely();
         } catch (EvaluationException e) {
             return value;
         }
@@ -297,7 +297,7 @@ public class EvaluationUtils {
                     methodArgTypeNames.add(JVMValueType.BOOLEAN.getString());
                     method = getRuntimeMethod(context, JAVA_BOOLEAN_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(jvmValue));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else {
                     return jvmValue;
                 }
@@ -306,12 +306,12 @@ public class EvaluationUtils {
                     methodArgTypeNames.add(JVMValueType.INT.getString());
                     method = getRuntimeMethod(context, JAVA_INT_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(jvmValue));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else if (jvmValue instanceof LongValue) {
                     methodArgTypeNames.add(JVMValueType.LONG.getString());
                     method = getRuntimeMethod(context, JAVA_LONG_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(jvmValue));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else {
                     return jvmValue;
                 }
@@ -321,12 +321,12 @@ public class EvaluationUtils {
                     methodArgTypeNames.add(JVMValueType.FLOAT.getString());
                     method = getRuntimeMethod(context, JAVA_FLOAT_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(variable.getJvmValue()));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else if (jvmValue instanceof DoubleValue) {
                     methodArgTypeNames.add(JVMValueType.DOUBLE.getString());
                     method = getRuntimeMethod(context, JAVA_DOUBLE_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(variable.getJvmValue()));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else {
                     return jvmValue;
                 }
@@ -351,7 +351,7 @@ public class EvaluationUtils {
             }
             RuntimeInstanceMethod concatMethod = new RuntimeInstanceMethod(context, result, method.get(0));
             concatMethod.setArgValues(Collections.singletonList(bStrings[i]));
-            result = concatMethod.invoke();
+            result = concatMethod.invokeSafely();
             method = ((ObjectReference) result).referenceType().methodsByName("concat");
         }
         return result;
@@ -373,7 +373,7 @@ public class EvaluationUtils {
         args.add(EvaluationUtils.getValueAsObject(context, value));
         args.add(null);
         runtimeMethod.setArgValues(args);
-        return runtimeMethod.invoke();
+        return runtimeMethod.invokeSafely();
     }
 
     /**
@@ -399,7 +399,7 @@ public class EvaluationUtils {
         RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, B_STRING_UTILS_CLASS, FROM_STRING_METHOD,
                 argTypeNames);
         fromStringMethod.setArgValues(Collections.singletonList(stringRef));
-        return fromStringMethod.invoke();
+        return fromStringMethod.invokeSafely();
     }
 
     /**

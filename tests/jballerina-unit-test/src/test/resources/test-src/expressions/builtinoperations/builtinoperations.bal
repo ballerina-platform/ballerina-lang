@@ -33,7 +33,7 @@ function testIsFinite() returns [boolean, boolean, boolean] {
 
 function testWithCalc() returns [boolean, boolean, boolean] {
     float f = 6.0/2.0;
-    f = f + 20;
+    f = f + 20.0;
     f = f / 0.0;
     boolean bool = f.isInfinite();
     return [bool, f.isFinite(), f.isNaN()];

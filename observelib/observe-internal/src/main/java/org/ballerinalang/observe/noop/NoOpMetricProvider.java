@@ -30,10 +30,11 @@ import java.util.function.ToDoubleFunction;
  * Provide No-Op implementations of metrics.
  */
 public class NoOpMetricProvider implements MetricProvider {
+    public static final String NAME = "noop";
 
     @Override
     public String getName() {
-        return "NoOp";
+        return NAME;
     }
 
     @Override

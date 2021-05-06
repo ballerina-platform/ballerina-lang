@@ -57,7 +57,7 @@ function testReassignValueInLet() {
 
 	error? outputNameList =
 	    from var student in studentList
-	    let float twiceScore = (student.score*2)
+	    let float twiceScore = (student.score * 2.0)
 	    do {
 	        twiceScore = 1000;
 	        if (twiceScore < 50.00) {

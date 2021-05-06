@@ -306,29 +306,6 @@
       ]
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 2,
-              "character": 0
-            },
-            "end": {
-              "line": 2,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
-        }
-      ]
-    },
-    {
       "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
@@ -464,11 +441,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lsproject.hierarchy.module4",
+      "label": "lsproject.module1",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module4",
+      "insertText": "module11",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -482,7 +459,7 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.hierarchy.module4;\n"
+          "newText": "import lsproject.module1 as module11 ;\n"
         }
       ]
     },
@@ -510,11 +487,11 @@
       ]
     },
     {
-      "label": "lsproject.module1",
+      "label": "lsproject.hierarchy.module4",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module11",
+      "insertText": "module4",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -528,9 +505,17 @@
               "character": 0
             }
           },
-          "newText": "import lsproject.module1 as module11 ;\n"
+          "newText": "import lsproject.hierarchy.module4;\n"
         }
       ]
+    },
+    {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "StrandData",
@@ -541,14 +526,6 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
