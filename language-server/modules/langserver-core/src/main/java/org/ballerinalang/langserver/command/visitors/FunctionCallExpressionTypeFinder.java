@@ -118,17 +118,15 @@ public class FunctionCallExpressionTypeFinder extends NodeVisitor {
     public void visit(StartActionNode startActionNode) {
         TypeSymbol typeSymbol = semanticModel.type(startActionNode).orElse(null);
         checkAndSetTypeResult(typeSymbol);
-        if (resultFound) {
-            return;
-        }
-
-        // We should be within a variable declaration or assignment. Let's get it's type
-        typeSymbol = semanticModel.type(startActionNode.parent()).orElse(null);
-        if (typeSymbol != null && typeSymbol.typeKind() == TypeDescKind.FUTURE) {
-            // Function's type will be the future's type parameter
-            FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) typeSymbol;
-            typeSymbol = futureTypeSymbol.typeParameter().orElse(null);
-            checkAndSetTypeResult(typeSymbol);
+        if (!resultFound) {
+            // We should be within a variable declaration or assignment. Let's get it's type
+            typeSymbol = semanticModel.type(startActionNode.parent()).orElse(null);
+            if (typeSymbol != null && typeSymbol.typeKind() == TypeDescKind.FUTURE) {
+                // Function's type will be the future's type parameter
+                FutureTypeSymbol futureTypeSymbol = (FutureTypeSymbol) typeSymbol;
+                typeSymbol = futureTypeSymbol.typeParameter().orElse(null);
+                checkAndSetTypeResult(typeSymbol);
+            }
         }
     }
 
