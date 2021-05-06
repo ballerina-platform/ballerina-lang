@@ -2212,7 +2212,7 @@ public class BallerinaParser extends AbstractParser {
 
         STNode returnsKeyword = parseReturnsKeyword();
         STNode annot = parseOptionalAnnotations();
-        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC);
+        STNode type = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_RETURN_TYPE_DESC, TypePrecedence.DEFAULT);
         return STNodeFactory.createReturnTypeDescriptorNode(returnsKeyword, annot, type);
     }
 
@@ -2254,28 +2254,36 @@ public class BallerinaParser extends AbstractParser {
      * @return Parsed node
      */
     private STNode parseTypeDescriptor(ParserRuleContext context) {
-        return parseTypeDescriptor(context, false, false);
+        return parseTypeDescriptor(context, false, false, TypePrecedence.DEFAULT);
+    }
+
+    private STNode parseTypeDescriptor(ParserRuleContext context, TypePrecedence precedence) {
+        return parseTypeDescriptor(context, false, false, precedence);
     }
 
     private STNode parseTypeDescriptor(List<STNode> qualifiers, ParserRuleContext context) {
-        return parseTypeDescriptor(qualifiers, context, false, false);
+        return parseTypeDescriptor(qualifiers, context, false, false, TypePrecedence.DEFAULT);
     }
 
     private STNode parseTypeDescriptorInExpression(boolean isInConditionalExpr) {
-        return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_EXPRESSION, false, isInConditionalExpr);
+        return parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_EXPRESSION, false, isInConditionalExpr,
+                TypePrecedence.DEFAULT);
     }
 
     private STNode parseTypeDescriptor(ParserRuleContext context, boolean isTypedBindingPattern,
-                                       boolean isInConditionalExpr) {
+                                       boolean isInConditionalExpr, TypePrecedence precedence) {
         List<STNode> typeDescQualifiers = new ArrayList<>();
-        return parseTypeDescriptor(typeDescQualifiers, context, isTypedBindingPattern, isInConditionalExpr);
+        return parseTypeDescriptor(typeDescQualifiers, context, isTypedBindingPattern, isInConditionalExpr, precedence);
     }
 
+
+    
     private STNode parseTypeDescriptor(List<STNode> qualifiers, ParserRuleContext context,
-                                       boolean isTypedBindingPattern, boolean isInConditionalExpr) {
+                                       boolean isTypedBindingPattern, boolean isInConditionalExpr,
+                                       TypePrecedence precedence) {
         startContext(context);
         STNode typeDesc = parseTypeDescriptorInternal(qualifiers, context, isTypedBindingPattern, isInConditionalExpr,
-                TypePrecedence.DEFAULT);
+                precedence);
         endContext();
         return typeDesc;
     }
@@ -2625,7 +2633,7 @@ public class BallerinaParser extends AbstractParser {
      * @return Distinct type descriptor
      */
     private STNode parseDistinctTypeDesc(STNode distinctKeyword, ParserRuleContext context) {
-        STNode typeDesc = parseTypeDescriptor(context);
+        STNode typeDesc = parseTypeDescriptor(context, TypePrecedence.DISTINCT);
         return STNodeFactory.createDistinctTypeDescriptorNode(distinctKeyword, typeDesc);
     }
 
@@ -12909,7 +12917,8 @@ public class BallerinaParser extends AbstractParser {
         startContext(ParserRuleContext.ON_FAIL_CLAUSE);
         STNode onKeyword = parseOnKeyword();
         STNode failKeyword = parseFailKeyword();
-        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false);
+        STNode typeDescriptor = parseTypeDescriptor(ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false,
+                TypePrecedence.DEFAULT);
         STNode identifier = parseIdentifier(ParserRuleContext.VARIABLE_REF);
         STNode blockStatement = parseBlockNode();
         endContext();
@@ -15203,7 +15212,7 @@ public class BallerinaParser extends AbstractParser {
 
     private STNode parseTypedBindingPattern(List<STNode> qualifiers, ParserRuleContext context) {
         STNode typeDesc = parseTypeDescriptor(qualifiers,
-                ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false);
+                ParserRuleContext.TYPE_DESC_IN_TYPE_BINDING_PATTERN, true, false, TypePrecedence.DEFAULT);
         STNode typeBindingPattern = parseTypedBindingPatternTypeRhs(typeDesc, context);
         return typeBindingPattern;
     }

@@ -37,4 +37,14 @@ public class TypePrecedenceTest extends AbstractTypesTest {
     public void testUnionIntersectionAndArray() {
         testFile("type-precedence/type-precedence_source_02.bal", "type-precedence/type-precedence_assert_02.json");
     }
+
+    @Test
+    public void testUnionIntersectionArrayAndDistinct() {
+        testFile("type-precedence/type-precedence_source_03.bal", "type-precedence/type-precedence_assert_03.json");
+    }
+
+    @Test
+    public void testAllLevels() {
+        testFile("type-precedence/type-precedence_source_04.bal", "type-precedence/type-precedence_assert_04.json");
+    }
 }
