@@ -166,10 +166,10 @@ public class StringUtils {
     /**
      * Convert unicode character to ballerina unicode format.
      *
-     * @param string Input unicode containing string to convert.
+     * @param character Input unicode containing string to convert.
      * @return reformatted unicode string.
      */
-    public static String convertUnicode(char character){
+    public static String convertUnicode(char character) {
         return "\\u{" + Integer.toHexString((int) character) + "}";
     }
 }
