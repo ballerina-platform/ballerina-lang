@@ -1,15 +1,15 @@
 {
   "position": {
-    "line": 6,
-    "character": 43
+    "line": 11,
+    "character": 36
   },
-  "source": "expression_context/source/anon_func_expr_ctx_source7.bal",
+  "source": "expression_context/source/function_call_expression_ctx_source10.bal",
   "items": [
     {
       "label": "start",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "start ",
       "insertTextFormat": "Snippet"
     },
@@ -17,7 +17,7 @@
       "label": "wait",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "wait ",
       "insertTextFormat": "Snippet"
     },
@@ -25,7 +25,7 @@
       "label": "flush",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "flush ",
       "insertTextFormat": "Snippet"
     },
@@ -33,16 +33,8 @@
       "label": "from clause",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "O",
+      "sortText": "Q",
       "insertText": "from ${1:var} ${2:item} in ${3}",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "N",
-      "insertText": "module1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -73,7 +65,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value3",
+      "insertText": "value",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -87,7 +79,30 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value as value3 ;\n"
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -276,7 +291,7 @@
       "label": "service",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "service",
       "insertTextFormat": "Snippet"
     },
@@ -284,7 +299,7 @@
       "label": "new",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "new ",
       "insertTextFormat": "Snippet"
     },
@@ -292,7 +307,7 @@
       "label": "isolated",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "isolated ",
       "insertTextFormat": "Snippet"
     },
@@ -300,7 +315,7 @@
       "label": "transactional",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "transactional",
       "insertTextFormat": "Snippet"
     },
@@ -308,7 +323,7 @@
       "label": "function",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "function ",
       "insertTextFormat": "Snippet"
     },
@@ -316,7 +331,7 @@
       "label": "let",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "let",
       "insertTextFormat": "Snippet"
     },
@@ -324,7 +339,7 @@
       "label": "typeof",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "typeof ",
       "insertTextFormat": "Snippet"
     },
@@ -332,7 +347,7 @@
       "label": "trap",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "trap",
       "insertTextFormat": "Snippet"
     },
@@ -340,7 +355,7 @@
       "label": "error",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "error",
       "insertTextFormat": "Snippet"
     },
@@ -348,7 +363,7 @@
       "label": "client",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "client ",
       "insertTextFormat": "Snippet"
     },
@@ -356,7 +371,7 @@
       "label": "object",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "object ",
       "insertTextFormat": "Snippet"
     },
@@ -364,7 +379,7 @@
       "label": "true",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "true",
       "insertTextFormat": "Snippet"
     },
@@ -372,7 +387,7 @@
       "label": "false",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "false",
       "insertTextFormat": "Snippet"
     },
@@ -380,7 +395,7 @@
       "label": "check",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "check ",
       "insertTextFormat": "Snippet"
     },
@@ -388,7 +403,7 @@
       "label": "checkpanic",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "checkpanic ",
       "insertTextFormat": "Snippet"
     },
@@ -396,7 +411,7 @@
       "label": "is",
       "kind": "Keyword",
       "detail": "Keyword",
-      "sortText": "P",
+      "sortText": "R",
       "insertText": "is",
       "insertTextFormat": "Snippet"
     },
@@ -404,7 +419,7 @@
       "label": "error constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "O",
+      "sortText": "Q",
       "insertText": "error(\"${1}\")",
       "insertTextFormat": "Snippet"
     },
@@ -412,7 +427,7 @@
       "label": "object constructor",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "O",
+      "sortText": "Q",
       "insertText": "object {${1}};",
       "insertTextFormat": "Snippet"
     },
@@ -420,7 +435,7 @@
       "label": "base16",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "O",
+      "sortText": "Q",
       "insertText": "base16 `${1}`",
       "insertTextFormat": "Snippet"
     },
@@ -428,99 +443,23 @@
       "label": "base64",
       "kind": "Snippet",
       "detail": "Snippet",
-      "sortText": "O",
+      "sortText": "Q",
       "insertText": "base64 `${1}`",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "value2",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "B",
-      "insertText": "value2",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lambda",
-      "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "B",
-      "filterText": "lambda",
-      "insertText": "lambda",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "lambda()(int)",
+      "label": "addFunction(int num1, int num2)(int)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "lambda",
-      "insertText": "lambda()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunction",
-      "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` num1  \n- `int` num2  \n  \n**Returns** `int`   \n  \n"
         }
       },
       "sortText": "B",
-      "filterText": "testFunction",
-      "insertText": "testFunction",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testFunction()",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n"
-        }
-      },
-      "sortText": "C",
-      "filterText": "testFunction",
-      "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "doTask",
-      "kind": "Variable",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
-        }
-      },
-      "sortText": "B",
-      "filterText": "doTask",
-      "insertText": "doTask",
+      "filterText": "addFunction",
+      "insertText": "addFunction(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -528,18 +467,41 @@
       }
     },
     {
-      "label": "doTask(int a, int c)",
+      "label": "myString",
+      "kind": "Variable",
+      "detail": "string",
+      "sortText": "D",
+      "insertText": "myString",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "main()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` c"
+          "value": "**Package:** _._  \n  \n  \n"
         }
       },
-      "sortText": "C",
-      "filterText": "doTask",
-      "insertText": "doTask(${1})",
+      "sortText": "E",
+      "filterText": "main",
+      "insertText": "main()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myFunc(int a, int b)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "myFunc",
+      "insertText": "myFunc(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
@@ -553,16 +515,59 @@
       "documentation": {
         "left": "Describes Strand execution details for the runtime.\n"
       },
-      "sortText": "L",
+      "sortText": "N",
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "process(function (int, int) returns int func, int num1, int num2)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `function (int, int) returns int` func  \n- `int` num1  \n- `int` num2  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "B",
+      "filterText": "process",
+      "insertText": "process(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
-      "sortText": "M",
+      "sortText": "O",
       "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "total",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "A",
+      "insertText": "total",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myInt2",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "A",
+      "insertText": "myInt2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "myInt1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "A",
+      "insertText": "myInt1",
       "insertTextFormat": "Snippet"
     },
     {
