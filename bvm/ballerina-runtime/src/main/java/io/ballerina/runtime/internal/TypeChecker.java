@@ -1918,6 +1918,10 @@ public class TypeChecker {
             return false;
         }
 
+        if (sourceType.getTag() == TypeTags.OBJECT_TYPE_TAG) {
+            return !((BObject) value).getType().isReadOnly();
+        }
+
         return !((RefValue) value).isFrozen();
     }
 
