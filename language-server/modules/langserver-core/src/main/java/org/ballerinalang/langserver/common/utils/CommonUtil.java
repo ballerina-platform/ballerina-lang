@@ -314,18 +314,16 @@ public class CommonUtil {
             case INTERSECTION:
                 TypeSymbol effectiveType = ((IntersectionTypeSymbol) rawType).effectiveTypeDescriptor();
                 effectiveType = getRawType(effectiveType);
-                if (!rawType.equals(effectiveType)) {
-                    typeString = getDefaultValueForType(effectiveType);
-                } else {
-                    typeString = "()";
-                    // Get the member type from intersection which is not readonly and get its default value
-                    Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
-                            .memberTypeDescriptors().stream()
-                            .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
-                            .findAny();
-                    if (memberType.isPresent()) {
-                        typeString = getDefaultValueForType(memberType.get());
-                    }
+                typeString = "()";
+                // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
+                // further checks here.
+                // Get the member type from intersection which is not readonly and get its default value
+                Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
+                        .memberTypeDescriptors().stream()
+                        .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
+                        .findAny();
+                if (memberType.isPresent()) {
+                    typeString = getDefaultValueForType(memberType.get());
                 }
                 break;
             case STREAM:
