@@ -166,7 +166,7 @@ public class StringUtils {
     /**
      * Convert unicode character to ballerina unicode format.
      *
-     * @param character Input unicode containing string to convert.
+     * @param character unicode character to convert.
      * @return reformatted unicode string.
      */
     public static String convertUnicode(char character) {
