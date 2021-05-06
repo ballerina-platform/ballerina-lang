@@ -59,5 +59,10 @@
     "description": "Member access of escaped name.",
     "code": "person2[\"first name\"]",
     "expr": "\"Tom\""
+  },
+  {
+    "description": "Use unicode with escape in name.",
+    "code": "string 'unicode_\\u{2324} = \"Jane doe\"; 'unicode_\\u{2324}",
+    "expr": "\"Jane doe\""
   }
 ]
