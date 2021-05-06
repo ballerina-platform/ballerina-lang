@@ -16,10 +16,75 @@
 
 import ballerina/jballerina.java;
 
+public type Tag record {
+  string key;
+  string value;
+  int hashCode;
+};
+
+public type MetricId record {
+  string name;
+  string description;
+  Tag[] tags;
+  int hashCode;
+};
+
+public type PercentileValue record {
+  float percentile;
+  float value;
+};
+
+public type TimeWindow record {
+    int seconds;
+    int nanos;
+};
+
+public type Snapshot record {
+  TimeWindow timeWindow;
+  float min;
+  float max;
+  float mean;
+  float stdDev;
+  PercentileValue[] percentileValues;
+};
+
+public type Counter record {
+  MetricId id;
+  int value;
+};
+
+public type Gauge record {
+  MetricId id;
+  float value;
+  int count;
+  float sum;
+  Snapshot[] snapshots;
+};
+
+public type PolledGauge record {
+  MetricId id;
+  float value;
+};
+
+public type Metrics record {
+  Counter [] counters;
+  Gauge [] gauges;
+  PolledGauge [] polledGauges;
+};
+
 # Get all the current metrics
 #
-# + return - The metrics currently in the metrics registry
-public isolated function getMetrics() returns json = @java:Method {
+# + return - Current metrics
+public isolated function getMetrics() returns Metrics | error {
+    json metricsJson = externGetMetrics();
+    Metrics | error metrics = metricsJson.cloneWithType(Metrics);
+    return metrics;
+}
+
+# Get all the current metrics
+#
+# + return - The metrics currently in the metrics registry as a json
+public isolated function externGetMetrics() returns json = @java:Method {
     name: "getMetrics",
     'class: "org.ballerinalang.observe.mockextension.MetricsUtils"
 } external;

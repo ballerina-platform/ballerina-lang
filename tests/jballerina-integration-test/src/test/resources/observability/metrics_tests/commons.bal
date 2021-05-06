@@ -19,7 +19,8 @@ import ballerina/testobserve;
 
 service /metricsRegistry on new testobserve:Listener(10090) {
     resource function post getMetrics(testobserve:Caller caller) {
-        json metrics = mockextension:getMetrics();
-        checkpanic caller->respond(metrics.toJsonString());
+        mockextension:Metrics metrics = checkpanic mockextension:getMetrics();
+        json metricsJson = checkpanic metrics.cloneWithType(json);
+        checkpanic caller->respond(metricsJson.toJsonString());
     }
 }

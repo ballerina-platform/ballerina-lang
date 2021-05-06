@@ -16,13 +16,33 @@
 
 import ballerina/jballerina.java;
 
+public type Fields record {
+    map<string> CHECKPOINT;
+};
+
+public type Event record {
+    int timestampMicros;
+    Fields fields;
+};
+
+public type Span record {
+  string operationName;
+  string traceId;
+  string spanId;
+  string parentId;
+  map<string> tags;
+  Event[] events;
+};
+
 # Get all the finished spans.
 #
 # + serviceName - The name of the service of which the finished spans should be fetched
-# + return - The finished spans as a json
-public isolated function getFinishedSpans(string serviceName) returns json {
+# + return - The finished spans
+public isolated function getFinishedSpans(string serviceName) returns Span[] | error {
     handle serviceNameHandle = java:fromString(serviceName);
-    return externGetFinishedSpans(serviceNameHandle);
+    json spansJson = externGetFinishedSpans(serviceNameHandle);
+    Span[] | error spans = spansJson.cloneWithType();
+    return spans;
 }
 
 # Get all the finished spans.
