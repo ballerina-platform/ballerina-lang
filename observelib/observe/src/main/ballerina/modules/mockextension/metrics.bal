@@ -15,6 +15,7 @@
 // under the License.
 
 import ballerina/jballerina.java;
+import ballerina/log;
 
 public type Tag record {
   string key;
@@ -75,10 +76,14 @@ public type Metrics record {
 # Get all the current metrics
 #
 # + return - Current metrics
-public isolated function getMetrics() returns Metrics | error {
+public isolated function getMetrics() returns Metrics {
     json metricsJson = externGetMetrics();
     Metrics | error metrics = metricsJson.cloneWithType(Metrics);
-    return metrics;
+    if (metrics is error) {
+        log:printError("cannot convert to Metrics record; json string: " + metricsJson.toJsonString(),
+            'error = <error>metrics);
+    }
+    return checkpanic metrics;
 }
 
 # Get all the current metrics

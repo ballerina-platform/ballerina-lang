@@ -28,7 +28,7 @@ service mockTracer on new http:Listener(19090) {
         path: "/spans/{serviceName}"
     }
     resource function getMockTraces(http:Caller caller, http:Request clientRequest, string serviceName) {
-        mockextension:Spans[] spans = checkpanic mockextension:getFinishedSpans(serviceName);
+        mockextension:Spans[] spans = mockextension:getFinishedSpans(serviceName);
         json spansJson = checkpanic spans.cloneWithType(json);
         http:Response res = new;
         res.setJsonPayload(spansJson);

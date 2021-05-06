@@ -24,7 +24,7 @@ utils:MockClient testClient = new();
 @display { label: "mockTracer" }
 service /mockTracer on new testobserve:Listener(19090) {
     resource function post getMockTraces(testobserve:Caller caller, string serviceName) {
-        mockextension:Span[] spans = checkpanic mockextension:getFinishedSpans(serviceName);
+        mockextension:Span[] spans = mockextension:getFinishedSpans(serviceName);
         json spansJson = checkpanic spans.cloneWithType(json);
         checkpanic caller->respond(spansJson.toJsonString());
     }
