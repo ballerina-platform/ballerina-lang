@@ -183,7 +183,7 @@ function testXMLAttributeWithCompoundAssignment() returns (string){
     var result = x1.ns0:foo1;
 
     if (result is string) {
-        result += "bar2";
+        result = result + "bar2";
         return result;
     } else {
         return result.toString();

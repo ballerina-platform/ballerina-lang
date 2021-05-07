@@ -12,7 +12,7 @@ public function main (string... args) returns error? {
 
     var x3 = ints:fromString(args[0]);
     if (x3 is int) {
-        x3 += 1;
+        x3 = x3 + 1;
         secureFunction(x3,x3);
     } else {
         panic x3;

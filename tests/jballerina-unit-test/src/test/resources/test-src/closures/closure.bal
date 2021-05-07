@@ -653,8 +653,8 @@ function test29() returns [boolean, boolean, boolean, boolean, boolean, boolean,
 function test30() returns int|string {
     int|string x = 5;
     var addFunc1 = function () {
-        if (x is int && x > 3) {
-            x = x + 1;
+        if (x is int && <int>x > 3) {
+            x = <int>x + 1;
         } else {
             x = 0;
         }
@@ -666,20 +666,20 @@ function test30() returns int|string {
 function test31() returns int|string {
     int|string x = 5;
     var func1 = function () {
-        if (x is int && x > 3) {
-            x = x + 1;
-            if (x > 5) {
-               x = x + 10;
+        if (x is int && <int>x > 3) {
+            x = <int>x + 1;
+            if (<int>x > 5) {
+               x = <int>x + 10;
             }
         } else {
             x = 0;
         }
          var func2 = function () {
-            if (x is int && x > 5) {
-                x = x + 1;
+            if (x is int && <int>x > 5) {
+                x = <int>x + 1;
                 var func3 = function () {
-                    if (x is int && x > 10) {
-                        x = x + 1;
+                    if (x is int && <int>x > 10) {
+                        x = <int>x + 1;
                     } else {
                         x = 0;
                     }
@@ -695,8 +695,8 @@ function test31() returns int|string {
 
     if (x is int && x > 3) {
         x = x + 10;
-        if (x > 25) {
-            x = x + 3;
+        if (<int>x > 25) {
+            x = <int>x + 3;
         }
     } else {
         x = 0;
