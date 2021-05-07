@@ -99,12 +99,8 @@ public class ModuleCompilation {
             Package pkg = packageCache.getPackageOrThrow(sortedModuleId.packageId());
             ModuleContext moduleContext = pkg.module(sortedModuleId).moduleContext();
             moduleContext.compile(compilerContext);
-            ModuleDescriptor diagnosticModuleDesc = null;
-            if (!moduleContext.moduleName().packageName().equals(packageContext.packageName())) {
-                diagnosticModuleDesc = moduleContext.descriptor();
-            }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName(), diagnosticModuleDesc));
+                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
         }
 

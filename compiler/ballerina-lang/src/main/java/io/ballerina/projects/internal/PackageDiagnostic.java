@@ -19,6 +19,8 @@ package io.ballerina.projects.internal;
 
 import io.ballerina.projects.ModuleDescriptor;
 import io.ballerina.projects.ModuleName;
+import io.ballerina.projects.Project;
+import io.ballerina.projects.ProjectKind;
 import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
@@ -44,11 +46,17 @@ import static io.ballerina.projects.util.ProjectConstants.TEST_DIR_NAME;
 public class PackageDiagnostic extends Diagnostic {
     private Diagnostic diagnostic;
     private Location location;
+    private Project project;
+    private ModuleDescriptor moduleDescriptor;
 
-    public PackageDiagnostic(Diagnostic diagnostic, ModuleName moduleName, ModuleDescriptor moduleDescriptor) {
+
+    public PackageDiagnostic(Diagnostic diagnostic, ModuleDescriptor moduleDescriptor, Project project) {
         String filePath;
-        if (moduleDescriptor != null) {
-            filePath = diagnostic.location().lineRange().filePath();
+        ModuleName moduleName = moduleDescriptor.name();
+        if (project.kind().equals(ProjectKind.BALA_PROJECT)) {
+            Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.toString());
+            filePath = project.sourceRoot().resolve(modulePath).resolve(
+                    diagnostic.location().lineRange().filePath()).toString();
         } else {
             if (!moduleName.isDefaultModuleName()) {
                 Path modulePath = Paths.get(ProjectConstants.MODULES_ROOT).resolve(moduleName.moduleNamePart());
@@ -58,7 +66,9 @@ public class PackageDiagnostic extends Diagnostic {
             }
         }
         this.diagnostic = diagnostic;
-        this.location = new DiagnosticLocation(filePath, this.diagnostic.location(), moduleDescriptor);
+        this.project = project;
+        this.moduleDescriptor = moduleDescriptor;
+        this.location = new DiagnosticLocation(filePath, this.diagnostic.location());
     }
 
     @Override
@@ -83,8 +93,22 @@ public class PackageDiagnostic extends Diagnostic {
 
     @Override
     public String toString() {
+        String filePath = this.diagnostic.location().lineRange().filePath();
+        // add package info if it is a dependency
+        if (this.project.kind().equals(ProjectKind.BALA_PROJECT)) {
+            filePath = moduleDescriptor.org() + "/" +
+                    moduleDescriptor.name().toString() + "/" +
+                    moduleDescriptor.version() + "::" + filePath;
+        }
+
+        LineRange lineRange = diagnostic.location().lineRange();
+        LineRange oneBasedLineRange = LineRange.from(
+                filePath,
+                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
+                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
+
         return diagnosticInfo().severity().toString() + " ["
-                + this.location.lineRange().filePath() + ":" + this.location.lineRange() + "] " + message();
+                + filePath + ":" + oneBasedLineRange + "] " + message();
     }
 
     /*
@@ -96,7 +120,7 @@ public class PackageDiagnostic extends Diagnostic {
         private final LineRange lineRange;
         private final TextRange textRange;
 
-        public DiagnosticLocation(String filePath, Location location, ModuleDescriptor moduleDescriptor) {
+        public DiagnosticLocation(String filePath, Location location) {
             LineRange lineRange = location.lineRange();
             int startLine = lineRange.startLine().line(),
                     endLine = lineRange.endLine().line(),
@@ -105,12 +129,6 @@ public class PackageDiagnostic extends Diagnostic {
 
             // replace hardcoded string "tests/" to match the OS
             filePath = filePath.replace(TEST_DIR_NAME + "/", TEST_DIR_NAME + File.separator);
-            // add package info if it is a dependency
-            if (moduleDescriptor != null) {
-                filePath = moduleDescriptor.org() + "/" +
-                        moduleDescriptor.name().toString() + "/" +
-                        moduleDescriptor.version() + "::" + filePath;
-            }
             this.lineRange = LineRange.from(filePath, LinePosition.from(startLine, startColumn),
                     LinePosition.from(endLine, endColumn));
             this.textRange = location.textRange();
