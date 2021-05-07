@@ -105,7 +105,7 @@ public class ForeachCompletionUtil {
         }
         String detail = "foreach snippet for iterable variable - " + symbolName;
         String label = "foreach - " + symbolName;
-        String type = getTypeOfIteratorVariable(symbol);
+        String type = getTypeOfIteratorVariable(ctx, symbol);
         StringBuilder snippet = new StringBuilder("foreach");
         snippet.append(" ").append(type).append(" ")
                 .append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME)).append(" in ").append(symbolName)
@@ -132,22 +132,22 @@ public class ForeachCompletionUtil {
      * @param symbol iterable type symbol.
      * @return signature of the member type.
      */
-    public static String getTypeOfIteratorVariable(TypeSymbol symbol) {
+    public static String getTypeOfIteratorVariable(BallerinaCompletionContext ctx, TypeSymbol symbol) {
 
         String type;
         TypeSymbol rawType = CommonUtil.getRawType(symbol);
         switch (rawType.typeKind()) {
             case STRING:
             case XML:
-                type = rawType.signature();
+                type = CommonUtil.getModifiedTypeName(ctx, rawType);
                 break;
             case ARRAY:
-                type = ((ArrayTypeSymbol) rawType).memberTypeDescriptor().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((ArrayTypeSymbol) rawType).memberTypeDescriptor());
                 break;
             case TUPLE:
                 List<String> typesSet = new ArrayList<>(((TupleTypeSymbol) rawType).
                         memberTypeDescriptors().stream().map(
-                        tSymbol -> tSymbol.typeKind().getName()).collect(Collectors.toSet()));
+                        tSymbol -> CommonUtil.getModifiedTypeName(ctx, tSymbol)).collect(Collectors.toSet()));
                 if (typesSet.size() == 1) {
                     type = typesSet.get(0);
                 } else {
@@ -155,13 +155,13 @@ public class ForeachCompletionUtil {
                 }
                 break;
             case MAP:
-                type = ((MapTypeSymbol) rawType).typeParam().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((MapTypeSymbol) rawType).typeParam());
                 break;
             case TABLE:
-                type = ((TableTypeSymbol) rawType).rowTypeParameter().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((TableTypeSymbol) rawType).rowTypeParameter());
                 break;
             case STREAM:
-                type = ((StreamTypeSymbol) rawType).typeParameter().signature();
+                type = CommonUtil.getModifiedTypeName(ctx, ((StreamTypeSymbol) rawType).typeParameter());
                 break;
             case RECORD:
                 //todo: Fix when #30245 is fixed.
