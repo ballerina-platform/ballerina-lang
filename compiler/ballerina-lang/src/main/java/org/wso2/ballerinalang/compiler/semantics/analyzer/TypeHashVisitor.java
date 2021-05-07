@@ -477,7 +477,7 @@ public class TypeHashVisitor implements UniqueTypeVisitor<Integer> {
         List<Integer> fieldsHashes = getFieldsHashes(type.fields);
         List<Integer> typeInclHashes = getTypesHashes(type.typeInclusions);
         Integer hash = hash(baseHash(type), type.flags, type.sealed, fieldsHashes, typeInclHashes,
-                visit(type.restFieldType));
+                visit(type.restFieldType), type.tsymbol.getName());
         return addToVisited(type, hash);
     }
 

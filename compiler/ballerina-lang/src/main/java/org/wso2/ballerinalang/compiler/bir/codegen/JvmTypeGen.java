@@ -356,6 +356,7 @@ public class JvmTypeGen {
                     mv.visitInsn(DUP);
                     addRecordFields(mv, recordType.fields);
                     addRecordRestField(mv, recordType.restFieldType);
+                    addRecordTypedescValue(mv, typeOwnerClass, optionalTypeDef.internalName.value);
                     addImmutableType(mv, recordType);
                     break;
                 case TypeTags.OBJECT:
@@ -950,6 +951,13 @@ public class JvmTypeGen {
         // Load the rest field type
         loadType(mv, restFieldType);
         mv.visitFieldInsn(PUTFIELD, RECORD_TYPE_IMPL, "restFieldType", String.format("L%s;", TYPE));
+    }
+
+    private void addRecordTypedescValue(MethodVisitor mv, String typeOwnerClass, String typeName) {
+        mv.visitInsn(DUP);
+        mv.visitFieldInsn(GETSTATIC, typeOwnerClass, getTypedescFieldName(typeName),
+                String.format("L%s;", TYPEDESC_VALUE));
+        mv.visitFieldInsn(PUTFIELD, RECORD_TYPE_IMPL, "typedescValue",  String.format("L%s;", TYPEDESC_VALUE));
     }
 
     // -------------------------------------------------------
