@@ -28,6 +28,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 
@@ -446,6 +447,25 @@ public class CompoundAssignmentTest {
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int?'", 140, 5);
         BAssertUtil.validateError(compileResult, i++, "operator '+' not defined for 'int?' and 'int'", 150, 11);
         BAssertUtil.validateError(compileResult, i, "invalid expr in compound assignment lhs", 156, 18);
+    }
+
+    @Test(dataProvider = "dataToTestCompoundAssignmentBinaryOpsWithTypes", description = "Test compound assignment " +
+            "binary operations with types")
+    public void testCompoundAssignmentBinaryOpsWithTypes(String functionName) {
+        BRunUtil.invoke(result, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestCompoundAssignmentBinaryOpsWithTypes() {
+        return new Object[]{
+                "testCompoundAssignmentAdditionWithTypes",
+                "testCompoundAssignmentSubtractionWithTypes",
+                "testCompoundAssignmentMultiplicationWithTypes",
+                "testCompoundAssignmentDivisionWithTypes",
+                "testCompoundAssignmentBitwiseLeftShift",
+                "testCompoundAssignmentBitwiseRightShift",
+                "testCompoundAssignmentBitwiseUnsignedRightShift"
+        };
     }
 
     @AfterClass
