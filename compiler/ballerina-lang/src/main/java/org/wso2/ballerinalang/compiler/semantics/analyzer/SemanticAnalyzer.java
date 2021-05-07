@@ -1413,7 +1413,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     private Boolean validateLhsVar(BLangExpression vRef) {
         if (vRef.getKind() == NodeKind.INVOCATION) {
-            dlog.error(((BLangInvocation) vRef).pos, DiagnosticErrorCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT, vRef);
+            dlog.error(vRef.pos, DiagnosticErrorCode.INVALID_INVOCATION_LVALUE_ASSIGNMENT, vRef);
             return false;
         }
         if (vRef.getKind() == NodeKind.FIELD_BASED_ACCESS_EXPR
@@ -1425,16 +1425,27 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
         List<BType> expTypes = new ArrayList<>();
-        BLangExpression varRef = compoundAssignment.varRef;
+        BLangAccessExpression varRef = compoundAssignment.varRef;
+
         // Check whether the variable reference is an function invocation or not.
         boolean isValidVarRef = validateLhsVar(varRef);
         if (isValidVarRef) {
-            compoundAssignment.varRef.compoundAssignmentLhsVar = true;
+            varRef.compoundAssignmentLhsVar = true;
             this.typeChecker.checkExpr(varRef, env);
+
+            // If this is an update of a type narrowed variable, the assignment should allow assigning
+            // values of its original type. Therefore treat all lhs simpleVarRefs in their original type.
+            if (isSimpleVarRef(varRef)) {
+                BVarSymbol originSymbol = ((BVarSymbol) varRef.symbol).originalSymbol;
+                if (originSymbol != null) {
+                    varRef.type = originSymbol.type;
+                }
+            }
             expTypes.add(varRef.type);
         } else {
             expTypes.add(symTable.semanticError);
         }
+
         this.typeChecker.checkExpr(compoundAssignment.expr, env);
 
         checkConstantAssignment(varRef);
@@ -1463,6 +1474,8 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
                         Lists.of(compoundAssignment.modifiedExpr.type), expTypes);
             }
         }
+
+        resetTypeNarrowing(varRef, compoundAssignment.expr.type);
     }
 
     public void visit(BLangAssignment assignNode) {
