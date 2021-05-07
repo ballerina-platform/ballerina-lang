@@ -163,3 +163,48 @@ function testTypeNarrowing(string? s) returns string {
         return s;
     }
 }
+
+function testTypeNarrowingWithClosure() {
+    string? optionalName = "Ballerina";
+    var lambdaFunc = function (int|string id) returns ONE {
+        int? optionalAge = 20;
+        if optionalName == "Ballerina" {
+            boolean result;
+            // Type of optionalName should not be narrowed since it's not a local var or param
+            if (optionalName is string?) {
+                result = true;
+            } else {
+                result = false;
+            }
+            assertTrue(result);
+        }
+
+        if optionalAge == () {
+            () d = optionalAge;
+        }
+
+        if id != ONE {
+            return 1;
+        } else {
+            return id;
+        }
+    };
+}
+
+function assertTrue(any|error actual) {
+    assertEquality(true, actual);
+}
+
+function assertEquality(any|error expected, any|error actual) {
+    if expected is anydata && actual is anydata && expected == actual {
+        return;
+    }
+
+    if expected === actual {
+        return;
+    }
+
+    string expectedValAsString = expected is error ? expected.toString() : expected.toString();
+    string actualValAsString = actual is error ? actual.toString() : actual.toString();
+    panic error("AssertionError", message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}

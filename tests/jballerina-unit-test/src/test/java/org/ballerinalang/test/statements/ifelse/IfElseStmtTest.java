@@ -271,6 +271,7 @@ public class IfElseStmtTest {
     @Test()
     public void ifStmtTypeNarrowingTest() {
         BValue[] args = {new BString("ballerina")};
+        BRunUtil.invoke(result, "testTypeNarrowingWithClosure");
         BValue[] returns = BRunUtil.invoke(result, "testTypeNarrowing", args);
         Assert.assertEquals(returns.length, 1);
         Assert.assertEquals(returns[0].stringValue(), "ballerina");
