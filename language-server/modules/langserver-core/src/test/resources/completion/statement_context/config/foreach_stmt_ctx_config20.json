@@ -126,13 +126,13 @@
       }
     },
     {
-      "label": "iterator()(object {public isolated function next() returns record {| ItemType value; |}? ;})",
+      "label": "iterator()(object {public isolated function next() returns record {| xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text value; |}? ;})",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of `x`\n  \n  \n  \n**Returns** `object {public isolated function next() returns record {| ItemType value; |}? ;}`   \n- iterator object  \nEach item is represented by an xml singleton.  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns an iterator over the xml items of `x`\n  \n  \n  \n**Returns** `object {public isolated function next() returns record {| xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text value; |}? ;}`   \n- iterator object  \nEach item is represented by an xml singleton.  \n  \n"
         }
       },
       "sortText": "D",
@@ -156,13 +156,13 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "slice(int startIndex, int endIndex)(xml<ItemType>)",
+      "label": "slice(int startIndex, int endIndex)(xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>)",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
         "right": {
           "kind": "markdown",
-          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns a subsequence of an xml value.\n  \n**Params**  \n- `int` startIndex: start index, inclusive  \n- `int` endIndex: end index, exclusive(Defaultable)  \n  \n**Returns** `xml<ItemType>`   \n- a subsequence of `x` consisting of items with index >= startIndex and < endIndex  \n  \n"
+          "value": "**Package:** _ballerina/lang.xml:0.8.0_  \n  \nReturns a subsequence of an xml value.\n  \n**Params**  \n- `int` startIndex: start index, inclusive  \n- `int` endIndex: end index, exclusive(Defaultable)  \n  \n**Returns** `xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>`   \n- a subsequence of `x` consisting of items with index >= startIndex and < endIndex  \n  \n"
         }
       },
       "sortText": "D",
