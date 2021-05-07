@@ -158,14 +158,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "C",
-      "insertText": "ballerina/lang.query;",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "ballerina/lang.int",
       "kind": "Module",
       "detail": "Module",

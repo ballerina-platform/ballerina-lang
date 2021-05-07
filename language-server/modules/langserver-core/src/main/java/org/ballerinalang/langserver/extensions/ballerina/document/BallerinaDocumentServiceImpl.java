@@ -346,4 +346,29 @@ public class BallerinaDocumentServiceImpl implements BallerinaDocumentService {
             return syntaxTreeNodeResponse;
         });
     }
+
+    @Override
+    public CompletableFuture<ExecutorPositionsResponse> executorPositions(BallerinaProjectParams params) {
+        return CompletableFuture.supplyAsync(() -> {
+            ExecutorPositionsResponse response = new ExecutorPositionsResponse();
+            try {
+                String fileUri = params.getDocumentIdentifier().getUri();
+                Optional<Path> filePath = CommonUtil.getPathFromURI(fileUri);
+                if (filePath.isEmpty()) {
+                    return response;
+                }
+                Optional<Project> project = this.workspaceManager.project(filePath.get());
+                if (project.isEmpty()) {
+                    return response;
+                }
+                response.setExecutorPositions(ExecutorPositionsUtil.getExecutorPositions(project.get(),
+                        filePath.get()));
+            } catch (Throwable e) {
+                String msg = "Operation 'ballerinaDocument/executorPositions' failed!";
+                this.clientLogger.logError(DocumentContext.DC_EXEC_POSITION, msg, e, params.getDocumentIdentifier(),
+                        (Position) null);
+            }
+            return response;
+        });
+    }
 }

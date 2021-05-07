@@ -57,7 +57,8 @@ public class ClassDefinitionNodeContext extends AbstractCompletionProvider<Class
         Token classKeyword = node.classKeyword();
 
         // class <cursor>. added +1 in order to keep at least one space after the class keyword
-        return !classKeyword.isMissing() && cursor >= classKeyword.textRange().endOffset() + 1;
+        return !classKeyword.isMissing() && cursor > classKeyword.textRange().endOffset()
+                && cursor <= node.closeBrace().textRange().startOffset();
     }
 
     private boolean withinBody(BallerinaCompletionContext context, ClassDefinitionNode node) {

@@ -817,7 +817,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         rewriteExprs(errorConstructorExpr.positionalArgs);
-        rewriteExprs(errorConstructorExpr.namedArgs);
+        rewriteExpr(errorConstructorExpr.errorDetail);
         result = errorConstructorExpr;
     }
 

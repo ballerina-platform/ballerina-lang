@@ -131,6 +131,35 @@ function testDependentlyTypedFunctionCall() {
     testParameterizedType2(boolean);
 }
 
+function testExpressionsOfIntersectionTypes() {
+    int[] x = [1, 2];
+    x.cloneReadOnly();
+
+    errorIntersection();
+
+    recordIntersection({});
+
+    nilableIntersection1();
+
+    nilableIntersection2();
+}
+
+type ErrorOne error<record { boolean fatal; }>;
+type ErrorTwo error<record { int code; }>;
+type ErrorIntersection ErrorOne & ErrorTwo;
+
+function errorIntersection() returns ErrorOne & ErrorTwo => error ErrorIntersection("error!", code = 1234, fatal = false);
+
+type Foo record {|
+    int i = 1;
+|};
+
+function recordIntersection(Foo foo) returns (readonly & Foo)|int|(string[] & readonly) => foo.cloneReadOnly();
+
+function nilableIntersection1() returns (int[] & readonly)? => ();
+
+function nilableIntersection2() returns ()|(int[] & readonly) => [1, 2];
+
 // utils
 
 class PersonObj {

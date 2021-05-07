@@ -30,6 +30,7 @@ import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
+import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -45,10 +46,6 @@ public class ErrorTest {
     private CompileResult distinctErrorTestResult;
     private CompileResult negativeDistinctErrorRes;
 
-    private static final String ERROR1 = "error1";
-    private static final String ERROR2 = "error2";
-    private static final String ERROR3 = "error3";
-    private static final String EMPTY_CURLY_BRACE = "{}";
     private static final String CONST_ERROR_REASON = "reason one";
 
     @BeforeClass
@@ -242,10 +239,10 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++, "missing arg within parenthesis", 57, 32);
         BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
                 "args 'other' when error detail type 'Bee' contains individual field descriptors", 95, 53);
-        BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 96, 32);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing error message in error constructor", 96, 32);
         BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
                 "args 'other' when error detail type 'Bee' contains individual field descriptors", 96, 60);
-        BAssertUtil.validateError(negativeCompileResult, i++, "missing positional arg in error constructor", 97, 38);
+        BAssertUtil.validateError(negativeCompileResult, i++, "missing error message in error constructor", 97, 38);
         BAssertUtil.validateError(negativeCompileResult, i++, "error constructor does not accept additional detail " +
                 "args 'other' when error detail type 'Bee' contains individual field descriptors", 97, 66);
         BAssertUtil.validateError(negativeCompileResult, i++,
@@ -371,8 +368,10 @@ public class ErrorTest {
         BRunUtil.invoke(errorTestResult, "testErrorBindingPattern");
     }
 
-    @Test
-    public void testErrorDataWithErrorField() {
-        BRunUtil.invoke(errorTestResult, "testErrorDataWithErrorField");
+    @AfterClass
+    public void cleanup() {
+        errorTestResult = null;
+        distinctErrorTestResult = null;
+        negativeDistinctErrorRes = null;
     }
 }

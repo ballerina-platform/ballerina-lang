@@ -270,7 +270,7 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
                 prefix = importNode.prefix().get().prefix().text();
             }
             String label = prefix;
-            String insertText = prefix;
+            String insertText = CommonUtil.escapeReservedKeyword(prefix);
             CompletionItem item = this.getModuleCompletionItem(label, insertText, new ArrayList<>());
             processedList.add(processedModuleHash);
             completionItems.add(new SymbolCompletionItem(ctx, null, item));
@@ -280,13 +280,18 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
         List<Package> packages = LSPackageLoader.getInstance(ctx.languageServercontext()).getDistributionRepoPackages();
         packages.forEach(pkg -> {
             String name = pkg.packageName().value();
-            String orgName = pkg.packageOrg().value();
+            String orgName = CommonUtil.escapeModuleName(pkg.packageOrg().value());
             if (CommonUtil.matchingImportedModule(ctx, pkg).isEmpty()
                     && !processedList.contains(orgName + CommonKeys.SLASH_KEYWORD_KEY + name)
                     && !CommonUtil.PRE_DECLARED_LANG_LIBS.contains(name)) {
-                String[] pkgNameComps = name.split("\\.");
-                String insertText = pkgNameComps[pkgNameComps.length - 1];
-                List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, ctx);
+                List<String> pkgNameComps = Arrays.stream(name.split("\\."))
+                        .map(CommonUtil::escapeModuleName)
+                        .collect(Collectors.toList());
+                String aliasComponent = pkgNameComps.get(pkgNameComps.size() - 1);
+                // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
+                String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
+                String alias = !insertText.equals(aliasComponent) ? insertText : "";
+                List<TextEdit> txtEdits = CommonUtil.getAutoImportTextEdits(orgName, name, alias, ctx);
                 CompletionItem item = getModuleCompletionItem(CommonUtil.getPackageLabel(pkg), insertText, txtEdits);
                 completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
             }
@@ -305,14 +310,25 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
             }
             String moduleNamePart = module.moduleName().moduleNamePart();
             // In order to support the hierarchical module names, split and get the last component as the module name
-            String[] moduleNameComponents = moduleNamePart.split("\\.");
-            String insertText = moduleNameComponents[moduleNameComponents.length - 1];
-            String pkgName = module.moduleName().packageName().value();
-            String label = pkgName + "." + moduleNamePart;
+//            String[] moduleNameComponents = moduleNamePart.split("\\.");
+//            String aliasComponent = moduleNameComponents[moduleNameComponents.length - 1];
+
+
+            List<String> moduleNameComponents = Arrays.stream(moduleNamePart.split("\\."))
+                    .map(CommonUtil::escapeReservedKeyword)
+                    .collect(Collectors.toList());
+            String aliasComponent = moduleNameComponents.get(moduleNameComponents.size() - 1);
+            
+            
+            // TODO: 2021-04-23 This has to be revamped with completion/resolve request for faster responses 
+            String insertText = CommonUtil.getValidatedSymbolName(ctx, aliasComponent);
+            String alias = !insertText.equals(aliasComponent) ? insertText : "";
+            String pkgName = CommonUtil.escapeReservedKeyword(module.moduleName().packageName().value());
+            String label = pkgName + "." + String.join(".", moduleNameComponents);
             if (module.equals(currentModule.get()) || module.isDefaultModule() || processedList.contains(label)) {
                 return;
             }
-            List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits("", label, ctx);
+            List<TextEdit> textEdits = CommonUtil.getAutoImportTextEdits("", label, alias, ctx);
             CompletionItem item = this.getModuleCompletionItem(label, insertText, textEdits);
             completionItems.add(new StaticCompletionItem(ctx, item, StaticCompletionItem.Kind.MODULE));
         });

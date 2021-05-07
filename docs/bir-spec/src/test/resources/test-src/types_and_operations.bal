@@ -352,7 +352,7 @@ public function functionWithStreams() {
 
 
     float? avg = subscriptionStream.reduce(function (float accum, Student student) returns float {
-        return accum + <float>student.score / studentList.length();
+        return accum + <float>student.score / <float>studentList.length();
     }, 0.0);
 
     if (avg is float) {

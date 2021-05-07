@@ -22,12 +22,16 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.TypeTags;
 import io.ballerina.runtime.api.types.IntersectionType;
 import io.ballerina.runtime.api.types.Type;
+import io.ballerina.runtime.internal.configurable.exceptions.ConfigException;
 import io.ballerina.toml.semantic.TomlType;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlNode;
+import io.ballerina.tools.text.LinePosition;
+import io.ballerina.tools.text.LineRange;
 
-import static io.ballerina.runtime.internal.configurable.ConfigConstants.CONFIGURATION_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIGURATION_NOT_SUPPORTED_FOR_TOML;
+import static io.ballerina.runtime.internal.configurable.providers.toml.TomlConstants.CONFIG_FILE_NAME;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_TYPE_NOT_SUPPORTED;
+import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TYPE_NOT_SUPPORTED;
 
 /**
  * Util methods required for configurable variables.
@@ -94,14 +98,12 @@ public class Utils {
             case TypeTags.XML_PI_TAG:
             case TypeTags.XML_TAG:
             case TypeTags.XML_TEXT_TAG:
-                throw new TomlConfigException(String.format(CONFIGURATION_NOT_SUPPORTED_FOR_TOML, variableName,
-                                                            expectedType.toString()));
+                throw new ConfigException(CONFIG_TOML_TYPE_NOT_SUPPORTED, variableName, expectedType.toString());
             case TypeTags.INTERSECTION_TAG:
                 Type effectiveType = ((IntersectionType) expectedType).getEffectiveType();
                 return getEffectiveTomlType(effectiveType, variableName);
             default:
-                throw new TomlConfigException(String.format(CONFIGURATION_NOT_SUPPORTED,
-                                                            variableName, expectedType.toString()));
+                throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, expectedType.toString());
         }
         return tomlType;
     }
@@ -112,5 +114,20 @@ public class Utils {
 
     static String getModuleKey(Module module) {
         return module.getOrg() + "." + module.getName();
+    }
+
+    static String getLineRange(TomlNode node) {
+        if (node.location() == null) {
+            return CONFIG_FILE_NAME;
+        }
+        LineRange oneBasedLineRange = getOneBasedLineRange(node.location().lineRange());
+        return oneBasedLineRange.filePath() + ":" + oneBasedLineRange;
+    }
+
+    static LineRange getOneBasedLineRange(LineRange lineRange) {
+        return LineRange.from(
+                lineRange.filePath(),
+                LinePosition.from(lineRange.startLine().line() + 1, lineRange.startLine().offset() + 1),
+                LinePosition.from(lineRange.endLine().line() + 1, lineRange.endLine().offset() + 1));
     }
 }

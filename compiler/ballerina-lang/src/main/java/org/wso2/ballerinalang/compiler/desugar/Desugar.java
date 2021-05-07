@@ -67,13 +67,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -4080,10 +4078,10 @@ public class Desugar extends BLangNodeVisitor {
     }
 
     private List<String> getKeysToRemove(BLangMappingBindingPattern mappingBindingPattern) {
-        List<String> allKeys = new ArrayList<>(((BRecordType) mappingBindingPattern.type).fields.keySet());
         List<String> keysToRemove = new ArrayList<>();
-        for (int i = 0; i < mappingBindingPattern.fieldBindingPatterns.size(); i++) {
-            keysToRemove.add(allKeys.get(i));
+        List<BLangFieldBindingPattern> fieldBindingPatterns = mappingBindingPattern.fieldBindingPatterns;
+        for (int i = 0; i < fieldBindingPatterns.size(); i++) {
+            keysToRemove.add(fieldBindingPatterns.get(i).fieldName.value);
         }
         return keysToRemove;
     }
@@ -6299,19 +6297,26 @@ public class Desugar extends BLangNodeVisitor {
     private BLangInvocation desugarStreamTypeInit(BLangTypeInit typeInitExpr) {
         BInvokableSymbol symbol = (BInvokableSymbol) symTable.langInternalModuleSymbol.scope
                 .lookup(Names.CONSTRUCT_STREAM).symbol;
-        BType targetType = ((BStreamType) typeInitExpr.type).constraint;
-        BType errorType = ((BStreamType) typeInitExpr.type).error;
-        BType typedescType = new BTypedescType(targetType, symTable.typeDesc.tsymbol);
-        BLangTypedescExpr typedescExpr = new BLangTypedescExpr();
-        typedescExpr.resolvedType = targetType;
-        typedescExpr.type = typedescType;
-        List<BLangExpression> args = new ArrayList<>(Lists.of(typedescExpr));
+
+        BType constraintType = ((BStreamType) typeInitExpr.type).constraint;
+        BType constraintTdType = new BTypedescType(constraintType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr constraintTdExpr = new BLangTypedescExpr();
+        constraintTdExpr.resolvedType = constraintType;
+        constraintTdExpr.type = constraintTdType;
+
+        BType completionType = ((BStreamType) typeInitExpr.type).completionType;
+        BType completionTdType = new BTypedescType(completionType, symTable.typeDesc.tsymbol);
+        BLangTypedescExpr completionTdExpr = new BLangTypedescExpr();
+        completionTdExpr.resolvedType = completionType;
+        completionTdExpr.type = completionTdType;
+
+        List<BLangExpression> args = new ArrayList<>(Lists.of(constraintTdExpr, completionTdExpr));
         if (!typeInitExpr.argsExpr.isEmpty()) {
             args.add(typeInitExpr.argsExpr.get(0));
         }
         BLangInvocation streamConstructInvocation = ASTBuilderUtil.createInvocationExprForMethod(
                 typeInitExpr.pos, symbol, args, symResolver);
-        streamConstructInvocation.type = new BStreamType(TypeTags.STREAM, targetType, errorType, null);
+        streamConstructInvocation.type = new BStreamType(TypeTags.STREAM, constraintType, completionType, null);
         return streamConstructInvocation;
     }
 
@@ -6491,9 +6496,17 @@ public class Desugar extends BLangNodeVisitor {
             }
         }
 
+        boolean isBinaryShiftOperator = symResolver.isBinaryShiftOperator(binaryOpKind);
+        boolean isArithmeticOperator = symResolver.isArithmeticOperator(binaryOpKind);
+
         // Check lhs and rhs type compatibility
         if (lhsExprTypeTag == rhsExprTypeTag) {
-            return;
+            if (!isBinaryShiftOperator && !isArithmeticOperator) {
+                return;
+            }
+            if (types.isValueType(binaryExpr.lhsExpr.type)) {
+                return;
+            }
         }
 
         if (TypeTags.isStringTypeTag(lhsExprTypeTag) && binaryExpr.opKind == OperatorKind.ADD) {
@@ -6538,32 +6551,111 @@ public class Desugar extends BLangNodeVisitor {
             return;
         }
 
-        if (binaryExpr.opKind == OperatorKind.LESS_THAN || binaryExpr.opKind == OperatorKind.LESS_EQUAL ||
-                binaryExpr.opKind == OperatorKind.GREATER_THAN || binaryExpr.opKind == OperatorKind.GREATER_EQUAL) {
-            if (TypeTags.isIntegerTypeTag(lhsExprTypeTag)) {
-                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+        if (isArithmeticOperator) {
+            createTypeCastExprForArithmeticExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+            return;
+        }
+
+        if (isBinaryShiftOperator) {
+            createTypeCastExprForBinaryShiftExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+            return;
+        }
+
+        if (symResolver.isBinaryComparisonOperator(binaryOpKind)) {
+            createTypeCastExprForRelationalExpr(binaryExpr, lhsExprTypeTag, rhsExprTypeTag);
+        }
+    }
+
+    private void createTypeCastExprForArithmeticExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
+                                                     int rhsExprTypeTag) {
+        if ((TypeTags.isIntegerTypeTag(lhsExprTypeTag) && TypeTags.isIntegerTypeTag(rhsExprTypeTag)) ||
+                (TypeTags.isStringTypeTag(lhsExprTypeTag) && TypeTags.isStringTypeTag(rhsExprTypeTag)) ||
+                (TypeTags.isXMLTypeTag(lhsExprTypeTag) && TypeTags.isXMLTypeTag(rhsExprTypeTag))) {
+            return;
+        }
+        if (TypeTags.isXMLTypeTag(lhsExprTypeTag) && !TypeTags.isXMLTypeTag(rhsExprTypeTag)) {
+            if (types.checkTypeContainString(binaryExpr.rhsExpr.type)) {
+                binaryExpr.rhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.rhsExpr,
+                        binaryExpr.rhsExpr.pos, symTable.xmlType);
                 return;
             }
-
-            if (TypeTags.isIntegerTypeTag(rhsExprTypeTag)) {
-                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.xmlType);
+            return;
+        }
+        if (TypeTags.isXMLTypeTag(rhsExprTypeTag) && !TypeTags.isXMLTypeTag(lhsExprTypeTag)) {
+            if (types.checkTypeContainString(binaryExpr.lhsExpr.type)) {
+                binaryExpr.lhsExpr = ASTBuilderUtil.createXMLTextLiteralNode(binaryExpr, binaryExpr.lhsExpr,
+                        binaryExpr.rhsExpr.pos, symTable.xmlType);
                 return;
             }
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.xmlType);
+            return;
+        }
+        binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, binaryExpr.type);
+        binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, binaryExpr.type);
+    }
 
-            if (lhsExprTypeTag == TypeTags.BYTE || rhsExprTypeTag == TypeTags.BYTE) {
-                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
-                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+    private void createTypeCastExprForBinaryShiftExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
+                                                      int rhsExprTypeTag) {
+        boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
+        boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
+        if (isLhsIntegerType || lhsExprTypeTag == TypeTags.BYTE) {
+            if (isRhsIntegerType || rhsExprTypeTag == TypeTags.BYTE) {
                 return;
             }
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            return;
+        }
 
-            if (TypeTags.isStringTypeTag(lhsExprTypeTag)) {
-                binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
-                return;
-            }
+        if (isRhsIntegerType || rhsExprTypeTag == TypeTags.BYTE) {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            return;
+        }
 
-            if (TypeTags.isStringTypeTag(rhsExprTypeTag)) {
-                binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
-            }
+        binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+        binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+    }
+
+    private void createTypeCastExprForRelationalExpr(BLangBinaryExpr binaryExpr, int lhsExprTypeTag,
+                                                                int rhsExprTypeTag) {
+        boolean isLhsIntegerType = TypeTags.isIntegerTypeTag(lhsExprTypeTag);
+        boolean isRhsIntegerType = TypeTags.isIntegerTypeTag(rhsExprTypeTag);
+
+        if ((isLhsIntegerType && isRhsIntegerType) || (lhsExprTypeTag == TypeTags.BYTE &&
+                rhsExprTypeTag == TypeTags.BYTE)) {
+            return;
+        }
+
+        if (isLhsIntegerType && !isRhsIntegerType) {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            return;
+        }
+
+        if (!isLhsIntegerType && isRhsIntegerType) {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            return;
+        }
+
+        if (lhsExprTypeTag == TypeTags.BYTE || rhsExprTypeTag == TypeTags.BYTE) {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.intType);
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.intType);
+            return;
+        }
+
+        boolean isLhsStringType = TypeTags.isStringTypeTag(lhsExprTypeTag);
+        boolean isRhsStringType = TypeTags.isStringTypeTag(rhsExprTypeTag);
+
+        if (isLhsStringType && isRhsStringType) {
+            return;
+        }
+
+        if (isLhsStringType && !isRhsStringType) {
+            binaryExpr.rhsExpr = createTypeCastExpr(binaryExpr.rhsExpr, symTable.stringType);
+            return;
+        }
+
+        if (!isLhsStringType && isRhsStringType) {
+            binaryExpr.lhsExpr = createTypeCastExpr(binaryExpr.lhsExpr, symTable.stringType);
         }
     }
 
@@ -6686,8 +6778,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BType targetType = conversionExpr.targetType;
-        // validateIsNotCastToAnImportedAnonType(targetType == null ? conversionExpr.type : targetType);
-
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
 
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
@@ -9719,96 +9809,6 @@ public class Desugar extends BLangNodeVisitor {
         fields.clear();
         return type.tag == TypeTags.RECORD ? new BLangStructLiteral(pos, type, rewrittenFields) :
                 new BLangMapLiteral(pos, type, rewrittenFields);
-    }
-
-    /**
-     * This in intended to be a temporary validation to avoid casting to anonymous types from imported packages,
-     * because such casts can cause backward compatibility issues since anonymous type names can change per compilation.
-     * The current alternative in such a scenario is to cast to a compatible in-line type. For example, a cast to an
-     * anonymous record type can be replaced with a cast to a map type.
-     * If this is not possible due to some reason, we need to introduce an approach to uniquely identify anonymous
-     * types across compilations.
-     * See https://github.com/ballerina-platform/ballerina-lang/issues/28262.
-     */
-    private void validateIsNotCastToAnImportedAnonType(BType targetType) {
-        validateIsNotCastToAnImportedAnonType(targetType, new HashSet<>());
-    }
-
-    private void validateIsNotCastToAnImportedAnonType(BType targetType, Set<BType> unresolvedTypes) {
-        if (!unresolvedTypes.add(targetType)) {
-            return;
-        }
-
-        switch (targetType.tag) {
-            case TypeTags.TABLE:
-                validateIsNotCastToAnImportedAnonType(((BTableType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.TYPEDESC:
-                validateIsNotCastToAnImportedAnonType(((BTypedescType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.STREAM:
-                validateIsNotCastToAnImportedAnonType(((BStreamType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.MAP:
-                validateIsNotCastToAnImportedAnonType(((BMapType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.INVOKABLE:
-                BInvokableType invokableType = (BInvokableType) targetType;
-                for (BType paramType : invokableType.paramTypes) {
-                    validateIsNotCastToAnImportedAnonType(paramType, unresolvedTypes);
-                }
-
-                BType restType = invokableType.restType;
-                if (restType != null) {
-                    validateIsNotCastToAnImportedAnonType(restType, unresolvedTypes);
-                }
-
-                BType retType = invokableType.retType;
-                if (retType != null) {
-                    validateIsNotCastToAnImportedAnonType(retType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.ARRAY:
-                validateIsNotCastToAnImportedAnonType(((BArrayType) targetType).eType, unresolvedTypes);
-                return;
-            case TypeTags.UNION:
-                for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
-                    validateIsNotCastToAnImportedAnonType(memberType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.INTERSECTION:
-                for (BType constituentType : ((BIntersectionType) targetType).getConstituentTypes()) {
-                    validateIsNotCastToAnImportedAnonType(constituentType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.ERROR:
-                validateIsNotCastToAnImportedAnonType(((BErrorType) targetType).detailType, unresolvedTypes);
-                return;
-            case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) targetType;
-                for (BType tupleMemberType : tupleType.tupleTypes) {
-                    validateIsNotCastToAnImportedAnonType(tupleMemberType, unresolvedTypes);
-                }
-
-                BType tupleRestType = tupleType.restType;
-                if (tupleRestType != null) {
-                    validateIsNotCastToAnImportedAnonType(tupleRestType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.FUTURE:
-                BType constraint = ((BFutureType) targetType).constraint;
-                if (constraint != null) {
-                    validateIsNotCastToAnImportedAnonType(constraint, unresolvedTypes);
-                }
-                return;
-            case TypeTags.RECORD:
-            case TypeTags.OBJECT:
-                if (Symbols.isFlagOn(targetType.flags, Flags.ANONYMOUS) &&
-                        !targetType.tsymbol.pkgID.equals(env.enclPkg.packageID)) {
-                    throw new IllegalStateException("Invalid cast to anonymous type imported from '" +
-                                                            targetType.tsymbol.pkgID.toString() + "'");
-                }
-        }
     }
 
     protected void addTransactionInternalModuleImport() {

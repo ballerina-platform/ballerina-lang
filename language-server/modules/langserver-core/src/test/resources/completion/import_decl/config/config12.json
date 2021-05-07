@@ -142,6 +142,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "foreach ${1:int} ${2:i} in ${3:0}...${4:9} {\n\t${5}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "fork",
       "kind": "Snippet",
       "detail": "Statement",
@@ -310,7 +318,7 @@
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "module1",
+      "insertText": "module11",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -324,30 +332,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/module1;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
+          "newText": "import ballerina/module1 as module11 ;\n"
         }
       ]
     },
@@ -487,29 +472,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "lsproject.hierarchy.module4",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "module4",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import lsproject.hierarchy.module4;\n"
-        }
-      ]
-    },
-    {
       "label": "lsproject.module2",
       "kind": "Module",
       "detail": "Module",
@@ -529,6 +491,29 @@
             }
           },
           "newText": "import lsproject.module2;\n"
+        }
+      ]
+    },
+    {
+      "label": "lsproject.hierarchy.module4",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module4",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import lsproject.hierarchy.module4;\n"
         }
       ]
     },
@@ -600,19 +585,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
       "sortText": "Q",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
@@ -664,7 +649,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testImports()",
+      "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -674,7 +659,7 @@
         }
       },
       "sortText": "C",
-      "insertText": "testImports()",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -692,7 +677,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
+      "label": "testImports()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -702,7 +687,7 @@
         }
       },
       "sortText": "C",
-      "insertText": "testFunction()",
+      "insertText": "testImports()",
       "insertTextFormat": "Snippet"
     },
     {

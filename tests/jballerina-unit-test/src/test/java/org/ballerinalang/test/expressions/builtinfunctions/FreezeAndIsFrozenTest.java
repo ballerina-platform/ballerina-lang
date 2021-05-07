@@ -241,7 +241,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml}XMLOperationError \\{\"message\":" +
-                    "\"Failed to set children to xml element: modification not allowed on readonly value\".*")
+            "\"Failed to set children to xml element: modification not allowed on readonly value\".*")
     public void testFrozenXmlSetChildrenDeep() {
         BRunUtil.invoke(result, "testFrozenXmlSetChildrenDeep", new BValue[0]);
     }
