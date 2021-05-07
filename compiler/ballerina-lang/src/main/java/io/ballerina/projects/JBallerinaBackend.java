@@ -149,13 +149,14 @@ public class JBallerinaBackend extends CompilerBackend {
             if (hasNoErrors(diagnostics)) {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
             }
-            if (!packageContext.compilationOptions().showAllWarnings()) {
-                if (!moduleContext.moduleName().packageName().equals(packageContext.packageName())) {
-                    continue;
-                }
+
+            ModuleDescriptor diagnosticModuleDesc = null;
+            if (!moduleContext.moduleName().packageName().equals(packageContext.packageName())) {
+                diagnosticModuleDesc = moduleContext.descriptor();
             }
-            moduleContext.diagnostics().forEach(diagnostic ->
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
+            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName(), diagnosticModuleDesc));
+            }
         }
 
         // add plugin diagnostics

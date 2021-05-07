@@ -168,9 +168,6 @@ public class BuildCommand implements BLauncherCmd {
             description = "list conflicted classes when generating executable")
     private Boolean listConflictedClasses;
 
-//    @CommandLine.Option(names = "--show-all-warnings", description = "show warnings of dependencies")
-    private Boolean showAllWarnings;
-
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -291,7 +288,6 @@ public class BuildCommand implements BLauncherCmd {
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .listConflictedClasses(listConflictedClasses)
-                .showAllWarnings(showAllWarnings)
                 .build();
     }
 
