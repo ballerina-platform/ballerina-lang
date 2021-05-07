@@ -176,6 +176,12 @@ public class XMLLiteralTest {
                 "'xml<xml:Text>', found 'xml:ProcessingInstruction'", 101, 31);
         BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
                 "'xml<xml:Text>', found 'xml:ProcessingInstruction'", 101, 38);
+        BAssertUtil.validateError(negativeResult, index++, "undefined symbol 'b'", 105, 32);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'(int|float|decimal|string|boolean)', found 'map<string>'", 111, 32);
+        BAssertUtil.validateError(negativeResult, index++, "incompatible types: expected " +
+                "'(int|float|decimal|string|boolean)', found 'error'", 111, 37);
+
         Assert.assertEquals(index, negativeResult.getErrorCount());
     }
 
