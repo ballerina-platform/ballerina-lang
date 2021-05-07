@@ -194,6 +194,7 @@ import static org.ballerinalang.model.elements.PackageID.XML;
 import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
+import static org.ballerinalang.model.tree.NodeKind.CLASS_DEFN;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
@@ -1177,6 +1178,9 @@ public class SymbolEnter extends BLangNodeVisitor {
                 continue;
             }
 
+            if (typeDef.getKind() == CLASS_DEFN && ((BLangClassDefinition) typeDef).isObjectContructorDecl) {
+                continue;
+            }
             defineNode(typeDef, env);
         }
 
@@ -3749,8 +3753,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineFields(List<BLangNode> typeDefNodes, SymbolEnv pkgEnv) {
         for (BLangNode typeDef : typeDefNodes) {
             if (typeDef.getKind() == NodeKind.CLASS_DEFN) {
-                BLangClassDefinition classDefinition = (BLangClassDefinition) typeDef;
-                defineFieldsOfClassDef(classDefinition, pkgEnv);
+                defineFieldsOfClassDef((BLangClassDefinition) typeDef, pkgEnv);
             } else if (typeDef.getKind() == NodeKind.TYPE_DEFINITION) {
                 defineFieldsOfObjectOrRecordTypeDef((BLangTypeDefinition) typeDef, pkgEnv);
             }
@@ -3959,6 +3962,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             SymbolEnv objMethodsEnv =
                     SymbolEnv.createObjectMethodsEnv(objTypeNode, (BObjectTypeSymbol) objTypeNode.symbol, pkgEnv);
 
+
             // Define the functions defined within the object
             defineObjectInitFunction(objTypeNode, objMethodsEnv);
             objTypeNode.functions.forEach(f -> {
@@ -4116,6 +4120,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         for (int i = 0; i < origSize; i++) {
             BLangNode typeDefOrClass = typeDefNodes.get(i);
             if (typeDefOrClass.getKind() == NodeKind.CLASS_DEFN) {
+                BLangClassDefinition classDef = (BLangClassDefinition) typeDefOrClass;
+                if (classDef.isObjectContructorDecl) {
+                    continue;
+                }
                 setReadOnlynessOfClassDef((BLangClassDefinition) typeDefOrClass, pkgEnv);
                 continue;
             } else if (typeDefOrClass.getKind() != NodeKind.TYPE_DEFINITION) {
