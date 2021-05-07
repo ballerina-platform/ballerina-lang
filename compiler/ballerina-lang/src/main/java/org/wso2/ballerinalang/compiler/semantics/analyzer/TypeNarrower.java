@@ -71,11 +71,13 @@ public class TypeNarrower extends BLangNodeVisitor {
     private SymbolTable symTable;
     private Types types;
     private SymbolEnter symbolEnter;
+    private TypeChecker typeChecker;
     private static final CompilerContext.Key<TypeNarrower> TYPE_NARROWER_KEY = new CompilerContext.Key<>();
 
     private TypeNarrower(CompilerContext context) {
         context.put(TYPE_NARROWER_KEY, this);
         this.symTable = SymbolTable.getInstance(context);
+        this.typeChecker = TypeChecker.getInstance(context);
         this.types = Types.getInstance(context);
         this.symbolEnter = SymbolEnter.getInstance(context);
     }
@@ -237,15 +239,22 @@ public class TypeNarrower extends BLangNodeVisitor {
     @Override
     public void visit(BLangTypeTestExpr typeTestExpr) {
         analyzeExpr(typeTestExpr.expr, env);
-        if (typeTestExpr.expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
+        BLangExpression lhsExpression = typeTestExpr.expr;
+        if (lhsExpression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return;
         }
 
-        BSymbol symbol = ((BLangSimpleVarRef) typeTestExpr.expr).symbol;
+        BSymbol symbol = ((BLangSimpleVarRef) lhsExpression).symbol;
         if (symbol == symTable.notFoundSymbol) {
             // Terminate for undefined symbols
             return;
         }
+
+        typeChecker.markAndRegisterClosureVariable(symbol, lhsExpression.pos, env);
+        if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+            return;
+        }
+
         BVarSymbol varSymbol = (BVarSymbol) symbol;
 
         setNarrowedTypeInfo(typeTestExpr, varSymbol, typeTestExpr.typeNode.type);
@@ -382,19 +391,28 @@ public class TypeNarrower extends BLangNodeVisitor {
 
     private void narrowTypeForEqualOrNotEqual(BLangBinaryExpr binaryExpr, BLangExpression lhsExpr,
                                               BLangExpression rhsExpr) {
-        if (lhsExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF ||
-                ((BLangSimpleVarRef) lhsExpr).symbol == symTable.notFoundSymbol) {
+        if (lhsExpr.getKind() != NodeKind.SIMPLE_VARIABLE_REF) {
             return;
         }
 
-        if (rhsExpr.getKind() == NodeKind.LITERAL || rhsExpr.getKind() == NodeKind.NUMERIC_LITERAL) {
-            setNarrowedTypeInfo(binaryExpr, (BVarSymbol) ((BLangSimpleVarRef) lhsExpr).symbol,
-                    createFiniteType(rhsExpr));
-        } else if (rhsExpr.getKind() == NodeKind.SIMPLE_VARIABLE_REF &&
-                ((BLangSimpleVarRef) rhsExpr).symbol != symTable.notFoundSymbol &&
-                ((BLangSimpleVarRef) rhsExpr).symbol.kind == SymbolKind.CONSTANT) {
-            setNarrowedTypeInfo(binaryExpr, (BVarSymbol) ((BLangSimpleVarRef) lhsExpr).symbol,
-                    ((BLangSimpleVarRef) rhsExpr).symbol.type);
+        BSymbol lhsVarSymbol = ((BLangSimpleVarRef) lhsExpr).symbol;
+        if (((lhsVarSymbol.tag & SymTag.VARIABLE) != SymTag.VARIABLE)) {
+            return;
+        }
+
+        typeChecker.markAndRegisterClosureVariable(lhsVarSymbol, lhsExpr.pos, env);
+        if (lhsVarSymbol.closure || (lhsVarSymbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE) {
+            return;
+        }
+
+        NodeKind rhsExperKind = rhsExpr.getKind();
+        if (rhsExperKind == NodeKind.LITERAL || rhsExperKind == NodeKind.NUMERIC_LITERAL) {
+            setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, createFiniteType(rhsExpr));
+        } else if (rhsExperKind == NodeKind.SIMPLE_VARIABLE_REF) {
+            BSymbol rhsVarSymbol = ((BLangSimpleVarRef) rhsExpr).symbol;
+            if (rhsVarSymbol != symTable.notFoundSymbol && rhsVarSymbol.kind == SymbolKind.CONSTANT) {
+                setNarrowedTypeInfo(binaryExpr, (BVarSymbol) lhsVarSymbol, rhsVarSymbol.type);
+            }
         }
     }
 
