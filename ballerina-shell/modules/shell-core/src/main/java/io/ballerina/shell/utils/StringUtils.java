@@ -166,8 +166,8 @@ public class StringUtils {
     /**
      * Convert unicode character to ballerina unicode format.
      *
-     * @param character unicode character to convert.
-     * @return reformatted unicode string.
+     * @param character Unicode character to convert.
+     * @return Reformatted unicode string.
      */
     public static String convertUnicode(char character) {
         return "\\u{" + Integer.toHexString((int) character) + "}";
