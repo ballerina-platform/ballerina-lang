@@ -59,26 +59,12 @@ public abstract class RightArrowActionNodeContext<T extends ActionNode> extends 
         Optional<TypeSymbol> expressionType = expressionNode.apply(resolver);
 
         if (expressionType.isPresent() && SymbolUtil.isClient(expressionType.get())) {
-            if (node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
-                RemoteMethodCallActionNode remoteMethodCallActionNode = (RemoteMethodCallActionNode) node;
-                if (onSuggestClientActions(remoteMethodCallActionNode, context)) {
-                    /*
-                    Covers the following case where a is a client object and we suggest the remote actions
-                    (1) a -> g<cursor>
-                     */
-                    List<Symbol> clientActions = this.getClientActions(expressionType.get());
-                    completionItems.addAll(this.getCompletionItemList(clientActions, context));
-                } else if (onSuggestFunctionParameters(remoteMethodCallActionNode, context)) {
-                    completionItems.addAll(this.expressionCompletions(context));
-                }
-            } else {
-                /*
-                Covers the following case where a is a client object and we suggest the remote actions
-                (1) a -> g<cursor>
-                 */
-                List<Symbol> clientActions = this.getClientActions(expressionType.get());
-                completionItems.addAll(this.getCompletionItemList(clientActions, context));
-            }
+            /*
+            Covers the following case where a is a client object and we suggest the remote actions
+            (1) a -> g<cursor>
+             */
+            List<Symbol> clientActions = this.getClientActions(expressionType.get());
+            completionItems.addAll(this.getCompletionItemList(clientActions, context));
         } else {
             /*
             Covers the following case where a is any other variable and we suggest the workers
@@ -109,17 +95,5 @@ public abstract class RightArrowActionNodeContext<T extends ActionNode> extends 
         return ((ObjectTypeSymbol) typeDescriptor).methods().values().stream()
                 .filter(method -> method.qualifiers().contains(Qualifier.REMOTE))
                 .collect(Collectors.toList());
-    }
-
-    private boolean onSuggestClientActions(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
-        int cursor = context.getCursorPositionInTree();
-        return node.rightArrowToken().textRange().endOffset() <= cursor &&
-                (node.openParenToken().isMissing() || cursor <= node.openParenToken().textRange().startOffset());
-    }
-
-    private boolean onSuggestFunctionParameters(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
-        int cursor = context.getCursorPositionInTree();
-        return !node.openParenToken().isMissing() && node.openParenToken().textRange().endOffset() <= cursor &&
-                (node.closeParenToken().isMissing() || cursor <= node.closeParenToken().textRange().startOffset());
     }
 }
