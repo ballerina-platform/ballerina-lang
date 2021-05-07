@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import ballerina/log;
 
 public type Tag record {
   string key;
@@ -80,16 +79,16 @@ public isolated function getMetrics() returns Metrics {
     json metricsJson = externGetMetrics();
     Metrics | error metrics = metricsJson.cloneWithType(Metrics);
     if (metrics is error) {
-        log:printError("cannot convert to Metrics record; json string: " + metricsJson.toJsonString(),
-            'error = <error>metrics);
+        panic error("cannot convert to Metrics record; json string: " + metricsJson.toJsonString(), metrics);
+    } else {
+        return metrics;
     }
-    return checkpanic metrics;
 }
 
 # Get all the current metrics
 #
 # + return - The metrics currently in the metrics registry as a json
-public isolated function externGetMetrics() returns json = @java:Method {
+isolated function externGetMetrics() returns json = @java:Method {
     name: "getMetrics",
     'class: "org.ballerinalang.observe.mockextension.MetricsUtils"
 } external;

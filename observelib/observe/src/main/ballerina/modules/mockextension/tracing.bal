@@ -15,7 +15,6 @@
 // under the License.
 
 import ballerina/jballerina.java;
-import ballerina/log;
 
 public type Fields record {
     map<string> CHECKPOINT;
@@ -44,10 +43,10 @@ public isolated function getFinishedSpans(string serviceName) returns Span[] {
     json spansJson = externGetFinishedSpans(serviceNameHandle);
     Span[] | error spans = spansJson.cloneWithType();
     if (spans is error) {
-        log:printError("cannot convert to Span record array; json string: " + spansJson.toJsonString(),
-            'error = <error>spans);
+        panic error("cannot convert to Span record array; json string: " + spansJson.toJsonString(), spans);
+    } else {
+        return spans;
     }
-    return checkpanic spans;
 }
 
 # Get all the finished spans.
