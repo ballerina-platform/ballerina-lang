@@ -3517,7 +3517,11 @@ public class SymbolEnter extends BLangNodeVisitor {
                 pkgNode.constants.add((BLangConstant) node);
                 break;
             case CLASS_DEFN:
-                pkgNode.classDefinitions.add((BLangClassDefinition) node);
+                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+                if (classDefinition.flagSet.contains(Flag.OBJECT_CTOR)) {
+                    pkgNode.classDefinitionsForObjectCtors.add(classDefinition);
+                }
+                pkgNode.classDefinitions.add(classDefinition);
         }
     }
 

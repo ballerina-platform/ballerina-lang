@@ -20,6 +20,7 @@ package org.wso2.ballerinalang.compiler.tree.expressions;
 
 import org.ballerinalang.model.tree.NodeKind;
 import org.ballerinalang.model.tree.types.TypeNode;
+import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
 import org.wso2.ballerinalang.compiler.tree.BLangClassDefinition;
 import org.wso2.ballerinalang.compiler.tree.BLangNodeVisitor;
 import org.wso2.ballerinalang.compiler.tree.types.BLangType;
@@ -37,6 +38,7 @@ public class BLangObjectConstructorExpression extends BLangExpression {
     public BLangType referenceType;
     public boolean isClient;
     public boolean isService;
+    public SymbolEnv capturedClosureEnv;
 
     public BLangObjectConstructorExpression() {
         super();
