@@ -8,4 +8,5 @@ public function function1() {
     future<(Foo & readonly)|int> futureResult = start createVal(a);
     Foo & readonly val = {};
     future<Foo & readonly> futureResult2 = start createAnotherVal(val);
+    start funcWithNoType()
 }

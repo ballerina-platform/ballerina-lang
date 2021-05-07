@@ -92,6 +92,7 @@ public class CreateFunctionCommandExecTest extends AbstractCommandExecutionTest 
                 {"create_function_with_strands1.json", "create_function_with_strands1.bal"},
                 {"create_function_with_strands2.json", "create_function_with_strands1.bal"},
                 {"create_function_with_strands3.json", "create_function_with_strands1.bal"},
+                {"create_function_with_strands4.json", "create_function_with_strands1.bal"},
         };
     }
 
