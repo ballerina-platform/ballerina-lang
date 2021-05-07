@@ -20,8 +20,11 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ActionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.Node;
+import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
@@ -42,25 +45,40 @@ import java.util.stream.Collectors;
  * @param <T> Action node type
  * @since 2.0.0
  */
-public abstract class RightArrowActionNodeContext<T extends Node> extends AbstractCompletionProvider<T> {
+public abstract class RightArrowActionNodeContext<T extends ActionNode> extends AbstractCompletionProvider<T> {
 
     public RightArrowActionNodeContext(Class<T> attachmentPoint) {
         super(attachmentPoint);
     }
 
-    protected List<LSCompletionItem> getFilteredItems(BallerinaCompletionContext context, ExpressionNode node) {
+    protected List<LSCompletionItem> getFilteredItems(BallerinaCompletionContext context, T node,
+                                                      ExpressionNode expressionNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
         ContextTypeResolver resolver = new ContextTypeResolver(context);
-        Optional<TypeSymbol> expressionType = node.apply(resolver);
+        Optional<TypeSymbol> expressionType = expressionNode.apply(resolver);
 
         if (expressionType.isPresent() && SymbolUtil.isClient(expressionType.get())) {
-            /*
-            Covers the following case where a is a client object and we suggest the remote actions
-            (1) a -> g<cursor>
-             */
-            List<Symbol> clientActions = this.getClientActions(expressionType.get());
-            completionItems.addAll(this.getCompletionItemList(clientActions, context));
+            if (node.kind() == SyntaxKind.REMOTE_METHOD_CALL_ACTION) {
+                RemoteMethodCallActionNode remoteMethodCallActionNode = (RemoteMethodCallActionNode) node;
+                if (onSuggestClientActions(remoteMethodCallActionNode, context)) {
+                    /*
+                    Covers the following case where a is a client object and we suggest the remote actions
+                    (1) a -> g<cursor>
+                     */
+                    List<Symbol> clientActions = this.getClientActions(expressionType.get());
+                    completionItems.addAll(this.getCompletionItemList(clientActions, context));
+                } else if (onSuggestFunctionParameters(remoteMethodCallActionNode, context)) {
+                    completionItems.addAll(this.expressionCompletions(context));
+                }
+            } else {
+                /*
+                Covers the following case where a is a client object and we suggest the remote actions
+                (1) a -> g<cursor>
+                 */
+                List<Symbol> clientActions = this.getClientActions(expressionType.get());
+                completionItems.addAll(this.getCompletionItemList(clientActions, context));
+            }
         } else {
             /*
             Covers the following case where a is any other variable and we suggest the workers
@@ -91,5 +109,17 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
         return ((ObjectTypeSymbol) typeDescriptor).methods().values().stream()
                 .filter(method -> method.qualifiers().contains(Qualifier.REMOTE))
                 .collect(Collectors.toList());
+    }
+
+    private boolean onSuggestClientActions(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
+        int cursor = context.getCursorPositionInTree();
+        return node.rightArrowToken().textRange().endOffset() <= cursor &&
+                (node.openParenToken().isMissing() || cursor <= node.openParenToken().textRange().startOffset());
+    }
+
+    private boolean onSuggestFunctionParameters(RemoteMethodCallActionNode node, BallerinaCompletionContext context) {
+        int cursor = context.getCursorPositionInTree();
+        return !node.openParenToken().isMissing() && node.openParenToken().textRange().endOffset() <= cursor &&
+                (node.closeParenToken().isMissing() || cursor <= node.closeParenToken().textRange().startOffset());
     }
 }

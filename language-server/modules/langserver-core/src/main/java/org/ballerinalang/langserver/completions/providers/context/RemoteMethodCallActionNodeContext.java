@@ -38,9 +38,9 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
     @Override
     public List<LSCompletionItem> getCompletions(BallerinaCompletionContext context, RemoteMethodCallActionNode node)
             throws LSCompletionException {
-        List<LSCompletionItem> completionItems = this.getFilteredItems(context, node.expression());
+        List<LSCompletionItem> completionItems = this.getFilteredItems(context, node, node.expression());
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 }
