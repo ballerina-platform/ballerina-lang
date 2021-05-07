@@ -28,16 +28,15 @@ import org.eclipse.lsp4j.debug.Source;
  */
 public class BalBreakpoint {
 
-    private Long line;
+    private Integer line;
     private Source source;
-    private Boolean verified;
     private String condition;
 
-    public Long getLine() {
+    public Integer getLine() {
         return line;
     }
 
-    public void setLine(Long line) {
+    public void setLine(Integer line) {
         this.line = line;
     }
 
@@ -49,14 +48,6 @@ public class BalBreakpoint {
         this.source = source;
     }
 
-    public Boolean getVerified() {
-        return verified;
-    }
-
-    public void setVerified(Boolean verified) {
-        this.verified = verified;
-    }
-
     public String getCondition() {
         return condition;
     }
@@ -65,11 +56,11 @@ public class BalBreakpoint {
         this.condition = condition;
     }
 
-    public Breakpoint getBreakpoint() {
+    public Breakpoint getAsDAPBreakpoint() {
         Breakpoint breakpoint = new Breakpoint();
         breakpoint.setLine(line);
         breakpoint.setSource(source);
-        breakpoint.setVerified(verified);
+        breakpoint.setVerified(true);
         return breakpoint;
     }
 }

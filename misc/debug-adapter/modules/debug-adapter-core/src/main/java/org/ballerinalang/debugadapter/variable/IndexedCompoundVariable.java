@@ -106,7 +106,7 @@ public abstract class IndexedCompoundVariable extends BCompoundVariable {
             dapVariable.setName(this.name);
             dapVariable.setType(this.type.getString());
             dapVariable.setValue(computeValue());
-            dapVariable.setIndexedVariables((long) getChildrenCount());
+            dapVariable.setIndexedVariables(getChildrenCount());
         }
         return dapVariable;
     }

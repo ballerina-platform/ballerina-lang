@@ -78,7 +78,7 @@ public abstract class NamedCompoundVariable extends BCompoundVariable {
             dapVariable.setName(this.name);
             dapVariable.setType(this.type.getString());
             dapVariable.setValue(computeValue());
-            dapVariable.setNamedVariables((long) getChildrenCount());
+            dapVariable.setNamedVariables(getChildrenCount());
         }
         return dapVariable;
     }
