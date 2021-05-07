@@ -174,13 +174,8 @@ public class PackageCompilation {
         List<Diagnostic> diagnostics = new ArrayList<>();
         for (ModuleContext moduleContext : packageResolution.topologicallySortedModuleList()) {
             moduleContext.compile(compilerContext);
-
-            ModuleDescriptor diagnosticModuleDesc = null;
-            if (!moduleContext.moduleName().packageName().equals(rootPackageContext.packageName())) {
-                diagnosticModuleDesc = moduleContext.descriptor();
-            }
             for (Diagnostic diagnostic : moduleContext.diagnostics()) {
-                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName(), diagnosticModuleDesc));
+                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
         }
         runPluginCodeAnalysis(diagnostics);
