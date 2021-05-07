@@ -2590,13 +2590,12 @@ public class TypeChecker extends BLangNodeVisitor {
      * enclosing invokable node's environment, which are outside of the scope of a lambda function.
      */
     private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangInvokableNode encInvokable) {
-        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
-            // if enclosing env's node is arrow expression
-            return env.enclEnv;
+        if (env.enclEnv.node == null) {
+            return env;
         }
-
-        if (env.enclEnv.node != null && (env.enclEnv.node.getKind() == NodeKind.ON_FAIL)) {
-            // if enclosing env's node is a transaction, retry or a on-fail
+        NodeKind kind = env.enclEnv.node.getKind();
+        if (kind == NodeKind.ARROW_EXPR || kind == NodeKind.ON_FAIL || kind == NodeKind.CLASS_DEFN) {
+            // TODO : check if we need ON_FAIL now
             return env.enclEnv;
         }
 
@@ -2607,14 +2606,11 @@ public class TypeChecker extends BLangNodeVisitor {
     }
 
     private SymbolEnv findEnclosingInvokableEnv(SymbolEnv env, BLangRecordTypeNode recordTypeNode) {
-        if (env.enclEnv.node != null && env.enclEnv.node.getKind() == NodeKind.ARROW_EXPR) {
-            // if enclosing env's node is arrow expression
-            return env.enclEnv;
-        }
-
-        if (env.enclEnv.node != null && (env.enclEnv.node.getKind() == NodeKind.ON_FAIL)) {
-            // if enclosing env's node is a transaction, retry or on-fail
-            return env.enclEnv;
+        if (env.enclEnv.node != null) {
+            NodeKind kind = env.enclEnv.node.getKind();
+            if (kind == NodeKind.ARROW_EXPR || kind == NodeKind.ON_FAIL || kind == NodeKind.CLASS_DEFN) {
+                return env.enclEnv;
+            }
         }
 
         if (env.enclType != null && env.enclType == recordTypeNode) {
@@ -3329,6 +3325,14 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectCtorExpression) {
+        BLangClassDefinition classNode = objectCtorExpression.classNode;
+        if (classNode.cloneRef != null) {
+           classNode = (BLangClassDefinition) classNode.cloneRef;
+           objectCtorExpression.classNode = classNode;
+        }
+        // TODO: check referenced type
+        BObjectType objectType;
+//        symbolEnter.defineClassDefinition(classNode, env);
         if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
             BObjectType objectType = (BObjectType) objectCtorExpression.classNode.getBType();
             if (types.getReferredType(objectCtorExpression.expectedType).tag == TypeTags.OBJECT) {
@@ -3344,7 +3348,44 @@ public class TypeChecker extends BLangNodeVisitor {
                 }
             }
         }
-        visit(objectCtorExpression.typeInit);
+        BLangTypeInit cIExpr = objectCtorExpression.typeInit;
+        BType actualType = symResolver.resolveTypeNode(cIExpr.userDefinedType, env);
+        if (actualType == symTable.semanticError) {
+            resultType = symTable.semanticError;
+            return;
+        }
+
+        BObjectType actualObjectType = (BObjectType) actualType;
+        List<BLangType> typeRefs = classNode.typeRefs;
+        SymbolEnv typeDefEnv = SymbolEnv.createObjectConstructorObjectEnv(classNode, env);
+        classNode.oceEnvData.typeInit = objectCtorExpression.typeInit;
+        classNode.oceEnvData.capturedClosureEnv = typeDefEnv;
+        if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
+            handleObjectConstrExprForReadOnly(objectCtorExpression, actualObjectType, typeDefEnv, false);
+        } else if (!typeRefs.isEmpty() && Symbols.isFlagOn(typeRefs.get(0).getBType().flags,
+                Flags.READONLY)) {
+            handleObjectConstrExprForReadOnly(objectCtorExpression, actualObjectType, typeDefEnv, true);
+        } else {
+            semanticAnalyzer.analyzeNode(classNode, typeDefEnv);
+        }
+        markConstructedObjectIsolatedness(actualObjectType);
+
+        if (((BObjectTypeSymbol) actualType.tsymbol).initializerFunc != null) {
+            cIExpr.initInvocation.symbol = ((BObjectTypeSymbol) actualType.tsymbol).initializerFunc.symbol;
+            checkInvocationParam(cIExpr.initInvocation);
+            cIExpr.initInvocation.setBType(((BInvokableSymbol) cIExpr.initInvocation.symbol).retType);
+        } else {
+            // If the initializerFunc is null then this is a default constructor invocation. Hence should not
+            // pass any arguments.
+            if (!isValidInitInvocation(cIExpr, (BObjectType) actualType)) {
+                return;
+            }
+        }
+        if (cIExpr.initInvocation.getBType() == null) {
+            cIExpr.initInvocation.setBType(symTable.nilType);
+        }
+        BType actualTypeInitType = getObjectConstructorReturnType(actualType, cIExpr.initInvocation.getBType());
+        resultType = types.checkType(cIExpr, actualTypeInitType, expType);
     }
 
     private boolean isDefiniteObjectType(BType bType, Set<BTypeIdSet> typeIdSets) {
@@ -3427,27 +3468,6 @@ public class TypeChecker extends BLangNodeVisitor {
         switch (actualType.tag) {
             case TypeTags.OBJECT:
                 BObjectType actualObjectType = (BObjectType) actualType;
-
-                if (isObjectConstructorExpr(cIExpr, actualObjectType)) {
-                    BLangClassDefinition classDefForConstructor = getClassDefinitionForObjectConstructorExpr(cIExpr,
-                                                                                                             env);
-                    List<BLangType> typeRefs = classDefForConstructor.typeRefs;
-
-                    SymbolEnv pkgEnv = symTable.pkgEnvMap.get(env.enclPkg.symbol);
-
-                    if (Symbols.isFlagOn(expType.flags, Flags.READONLY)) {
-                        handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
-                                                          false);
-                    } else if (!typeRefs.isEmpty() && Symbols.isFlagOn(typeRefs.get(0).getBType().flags,
-                                                                       Flags.READONLY)) {
-                        handleObjectConstrExprForReadOnly(cIExpr, actualObjectType, classDefForConstructor, pkgEnv,
-                                                          true);
-                    } else {
-                        analyzeObjectConstructor(classDefForConstructor, pkgEnv);
-                    }
-
-                    markConstructedObjectIsolatedness(actualObjectType);
-                }
 
                 if ((actualType.tsymbol.flags & Flags.CLASS) != Flags.CLASS) {
                     dlog.error(cIExpr.pos, DiagnosticErrorCode.CANNOT_INITIALIZE_ABSTRACT_OBJECT,
@@ -5865,7 +5885,8 @@ public class TypeChecker extends BLangNodeVisitor {
         BLangInvokableNode encInvokable = env.enclInvokable;
         if (symbol.closure || (symbol.owner.tag & SymTag.PACKAGE) == SymTag.PACKAGE &&
                 env.node.getKind() != NodeKind.ARROW_EXPR && env.node.getKind() != NodeKind.EXPR_FUNCTION_BODY &&
-                encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA)) {
+                encInvokable != null && !encInvokable.flagSet.contains(Flag.LAMBDA) &&
+                !encInvokable.flagSet.contains(Flag.OBJECT_CTOR)) {
             return;
         }
         if (encInvokable != null && encInvokable.flagSet.contains(Flag.LAMBDA)
@@ -5893,6 +5914,44 @@ public class TypeChecker extends BLangNodeVisitor {
                     !encInvokable.flagSet.contains(Flag.ATTACHED)) {
                 resolvedSymbol.closure = true;
                 ((BLangFunction) encInvokable).closureVarSymbols.add(new ClosureVarSymbol(resolvedSymbol, pos));
+            }
+        }
+
+        BLangNode node = env.node;
+        SymbolEnv cEnv = env;
+        while (node != null) {
+            if (node.getKind() == NodeKind.FUNCTION) {
+                BLangFunction function = (BLangFunction) node;
+                if (!function.flagSet.contains(Flag.OBJECT_CTOR) && !function.flagSet.contains(Flag.ATTACHED)) {
+                    break;
+                }
+            }
+            if (node.getKind() == NodeKind.CLASS_DEFN && ((BLangClassDefinition) node).isObjectContructorDecl) {
+                BLangFunction currentFunction = (BLangFunction) encInvokable;
+                if ((currentFunction != null) && currentFunction.attachedFunction &&
+                        (currentFunction.symbol.receiverSymbol == symbol)) {
+                    // self symbol
+                    return;
+                }
+                SymbolEnv encInvokableEnv = findEnclosingInvokableEnv(env, encInvokable);
+                BSymbol resolvedSymbol = symResolver.lookupClosureVarSymbol(encInvokableEnv, symbol.name,
+                        SymTag.VARIABLE);
+                BLangClassDefinition classDefinition = (BLangClassDefinition) node;
+                if (resolvedSymbol != symTable.notFoundSymbol && !resolvedSymbol.closure) {
+                    if (resolvedSymbol.owner.getKind() == SymbolKind.PACKAGE) {
+                        break;
+                    }
+                    classDefinition.hasClosureVars |= true;
+                    resolvedSymbol.closure = true;
+                }
+                break;
+            } else {
+                SymbolEnv enclEnv = cEnv.enclEnv;
+                if (enclEnv == null) {
+                    break;
+                }
+                cEnv = enclEnv;
+                node = cEnv.node;
             }
         }
     }
@@ -6236,8 +6295,9 @@ public class TypeChecker extends BLangNodeVisitor {
         List<BLangExpression> nonRestArgs = iExpr.requiredArgs;
         List<BVarSymbol> valueProvidedParams = new ArrayList<>();
 
-        List<BVarSymbol> requiredParams = new ArrayList<>();
-        List<BVarSymbol> requiredIncRecordParams = new ArrayList<>();
+        int nonRestArgCount = nonRestArgs.size();
+        List<BVarSymbol> requiredParams = new ArrayList<>(nonRestParams.size() + nonRestArgCount);
+        List<BVarSymbol> requiredIncRecordParams = new ArrayList<>(incRecordParams.size() + nonRestArgCount);
 
         for (BVarSymbol nonRestParam : nonRestParams) {
             if (nonRestParam.isDefaultable) {
@@ -6254,7 +6314,7 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         int i = 0;
-        for (; i < nonRestArgs.size(); i++) {
+        for (; i < nonRestArgCount; i++) {
             BLangExpression arg = nonRestArgs.get(i);
 
             // Special case handling for the first param because for parameterized invocations, we have added the
@@ -8508,33 +8568,16 @@ public class TypeChecker extends BLangNodeVisitor {
         actualType.tsymbol.flags |= Flags.ISOLATED;
     }
 
-    private boolean isObjectConstructorExpr(BLangTypeInit cIExpr, BType actualType) {
-        return cIExpr.getType() != null && Symbols.isFlagOn(actualType.tsymbol.flags, Flags.ANONYMOUS);
-    }
+    private void handleObjectConstrExprForReadOnly(
+            BLangObjectConstructorExpression objectCtorExpr, BObjectType actualObjectType, SymbolEnv env,
+            boolean logErrors) {
 
-    private BLangClassDefinition getClassDefinitionForObjectConstructorExpr(BLangTypeInit cIExpr, SymbolEnv env) {
-        List<BLangClassDefinition> classDefinitions = env.enclPkg.classDefinitions;
-
-        BLangUserDefinedType userDefinedType = (BLangUserDefinedType) cIExpr.getType();
-        BSymbol symbol = symResolver.lookupMainSpaceSymbolInPackage(userDefinedType.pos, env,
-                                                                    names.fromIdNode(userDefinedType.pkgAlias),
-                                                                    names.fromIdNode(userDefinedType.typeName));
-
-        for (BLangClassDefinition classDefinition : classDefinitions) {
-            if (classDefinition.symbol == symbol) {
-                return classDefinition;
-            }
-        }
-        return null; // Won't reach here.
-    }
-
-    private void handleObjectConstrExprForReadOnly(BLangTypeInit cIExpr, BObjectType actualObjectType,
-                                                   BLangClassDefinition classDefForConstructor, SymbolEnv env,
-                                                   boolean logErrors) {
+        BLangClassDefinition classDefForConstructor = objectCtorExpr.classNode;
         boolean hasNeverReadOnlyField = false;
 
         for (BField field : actualObjectType.fields.values()) {
             BType fieldType = field.type;
+
             if (!types.isInherentlyImmutableType(fieldType) && !types.isSelectivelyImmutableType(fieldType, false)) {
                 analyzeObjectConstructor(classDefForConstructor, env);
                 hasNeverReadOnlyField = true;
@@ -8558,7 +8601,7 @@ public class TypeChecker extends BLangNodeVisitor {
         actualObjectType.tsymbol.flags |= Flags.READONLY;
 
         ImmutableTypeCloner.markFieldsAsImmutable(classDefForConstructor, env, actualObjectType, types,
-                                                  anonymousModelHelper, symTable, names, cIExpr.pos);
+                                                  anonymousModelHelper, symTable, names, objectCtorExpr.pos);
 
         analyzeObjectConstructor(classDefForConstructor, env);
     }

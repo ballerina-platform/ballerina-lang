@@ -23,6 +23,7 @@ import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.ballerinalang.test.BAssertUtil.validateError;
@@ -33,57 +34,51 @@ import static org.ballerinalang.test.BAssertUtil.validateError;
 @Test
 public class ObjectConstructorTest {
 
-    private CompileResult compiledConstructedObjects;
+    private CompileResult compiledConstructedObjects, closures;
 
     @BeforeClass
     public void setup() {
         compiledConstructedObjects = BCompileUtil.compile(
                 "test-src/expressions/object/object_constructor_expression.bal");
+        closures = BCompileUtil.compile(
+                "test-src/expressions/object/object_closures.bal");
     }
 
-    @Test
-    public void testObjectCreationViaObjectConstructor() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectCreationViaObjectConstructor");
+    @DataProvider(name = "ObjectCtorTestFunctionList")
+    public Object[][] objectCtorTestFunctionList() {
+        return new Object[][]{
+                {"testObjectCreationViaObjectConstructor"},
+                {"testObjectConstructorAnnotationAttachment"},
+                {"testObjectConstructorObjectFunctionInvocation"},
+                {"testObjectConstructorIncludedMethod"},
+                {"testObjectConstructorWithDistintExpectedType"},
+                {"testObjectConstructorWithDistintTypeReference"},
+                {"testObjectConstructorWithDistintTypeReferenceVar"},
+                {"testObjectConstructorWithDefiniteTypeAndWithoutReference"},
+                {"testObjectConstructorExprWithReadOnlyCET"},
+        };
     }
 
-    @Test
-    public void testObjectConstructorAnnotationAttachment() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorAnnotationAttachment");
+    @DataProvider(name = "ClosureTestFunctionList")
+    public Object[][] closureTestFunctionList() {
+        return new Object[][]{
+                {"closureVariableAsFieldValue"},
+                {"closureVariableAsFieldValueUsedInAttachedFunctions"},
+                {"closureVariableUsedInsideAttachedMethodBodyAndField"},
+                {"closureVariableUsedInsideAttachedMethodBodyOnly"},
+                {"closureVariableUsedInsideWithDifferentType"},
+                {"testClosureButAsArgument"},
+        };
     }
 
-    @Test
-    public void testObjectConstructorObjectFunctionInvocation() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorObjectFunctionInvocation");
+    @Test(dataProvider = "ObjectCtorTestFunctionList")
+    public void testCompiledConstructedObjects(String funcName) {
+        BRunUtil.invoke(compiledConstructedObjects, funcName);
     }
 
-    @Test
-    public void testObjectConstructorIncludedMethod() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorIncludedMethod");
-    }
-
-    @Test
-    public void testObjectConstructorWithDistintExpectedType() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintExpectedType");
-    }
-
-    @Test
-    public void testObjectConstructorWithDistintTypeReference() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintTypeReference");
-    }
-
-    @Test
-    public void testObjectConstructorWithDistintTypeReferenceVar() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDistintTypeReferenceVar");
-    }
-
-    @Test
-    public void testObjectConstructorWithDefiniteTypeAndWithoutReference() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorWithDefiniteTypeAndWithoutReference");
-    }
-
-    @Test
-    public void testObjectConstructorExprWithReadOnlyCET() {
-        BRunUtil.invoke(compiledConstructedObjects, "testObjectConstructorExprWithReadOnlyCET");
+    @Test(dataProvider = "ClosureTestFunctionList")
+    public void testClosureSupportForObjectCtor(String funcName) {
+        BRunUtil.invoke(closures, funcName);
     }
 
     @Test
@@ -135,5 +130,6 @@ public class ObjectConstructorTest {
     @AfterClass
     public void tearDown() {
         compiledConstructedObjects = null;
+        closures = null;
     }
 }

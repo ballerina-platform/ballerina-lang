@@ -211,8 +211,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         if (isRedeclaredSymbol(symbol, foundSym)) {
 
             Name name = symbol.name;
-            if (Symbols.isRemote(symbol) && !Symbols.isRemote(foundSym)
-                || !Symbols.isRemote(symbol) && Symbols.isRemote(foundSym)) {
+            if (Symbols.isRemote(symbol) ^ Symbols.isRemote(foundSym)) {
                 dlog.error(pos, DiagnosticErrorCode.UNSUPPORTED_REMOTE_METHOD_NAME_IN_SCOPE, name);
                 return false;
             }

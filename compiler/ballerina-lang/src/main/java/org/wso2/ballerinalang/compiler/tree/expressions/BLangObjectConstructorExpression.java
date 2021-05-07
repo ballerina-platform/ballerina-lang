@@ -39,7 +39,6 @@ public class BLangObjectConstructorExpression extends BLangExpression {
     public boolean isService;
 
     public BLangObjectConstructorExpression() {
-        super();
         this.isClient = false;
     }
 

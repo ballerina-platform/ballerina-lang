@@ -2282,6 +2282,9 @@ public class NodeCloner extends BLangNodeVisitor {
         clone.generatedInitFunction = clone(source.generatedInitFunction);
         clone.receiver = clone(source.receiver);
         clone.isServiceDecl = source.isServiceDecl;
+        clone.isObjectContructorDecl = source.isObjectContructorDecl;
+        clone.internal = source.internal;
+        clone.oceEnvData = source.oceEnvData;
     }
 
     @Override
