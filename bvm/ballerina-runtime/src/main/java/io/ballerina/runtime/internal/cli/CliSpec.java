@@ -57,10 +57,11 @@ public class CliSpec {
         // First argument is for the strand
         mainArgs.add(null);
         if (option != null) {
-            BMap<BString, Object> record = option.parseRecord(args);
+            BMap<BString, Object> recordVal = option.parseRecord(args);
             processOperands(option.getOperandArgs());
-            mainArgs.add(record);
-            mainArgs.add(true);
+            int optionLocation = option.getLocation() * 2 + 1;
+            mainArgs.add(optionLocation, recordVal);
+            mainArgs.add(optionLocation + 1, true);
         } else {
             RecordType type = TypeCreator.createRecordType("dummy", null, 1, new HashMap<>(), null, true, 6);
             Option dummyOption = new Option(type, ValueCreator.createMapValue(type));
