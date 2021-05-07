@@ -3170,6 +3170,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangObjectConstructorExpression objectCtorExpression) {
+        objectCtorExpression.capturedClosureEnv = env.createClone();
         if (objectCtorExpression.referenceType == null && objectCtorExpression.expectedType != null) {
             BObjectType objectType = (BObjectType) objectCtorExpression.classNode.getBType();
             if (objectCtorExpression.expectedType.tag == TypeTags.OBJECT) {
