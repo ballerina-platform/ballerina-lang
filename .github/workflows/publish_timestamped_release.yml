@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - master
-      - slbeta1-stage
+      - "slbeta1-stage"
   workflow_dispatch:
 
 jobs:
