@@ -175,6 +175,7 @@ function assertEquality(any|error expected, any|error actual) {
 }
 
 type R record {| int x; |};
+class O { int x = 225; }
 
 public function testAccessOnGroupedExpressions() returns error|boolean {
     boolean result = true;
@@ -210,10 +211,68 @@ public function testAccessOnGroupedExpressions() returns error|boolean {
     string name = "john";
     int l = (`Hello ${name}!`).strings.length();
     result = result && l == 2;
+
+    // literal, simple varref, group-expr, list-construct.
+    int i1 = 1;
+    s = (1 + i1 + ([1, 2])[0] + [2, 3, 4][1]).toString();
+    result = result && s == "6";
+
+    // unary, binary.
+    boolean[] bArr = [true, false, true];
+    s = ((bArr[0] || !bArr[1]) && bArr[2]).toString();
+    result = result && s == "true";
+
+    // bitwise shift.
+    int i2 = 64;
+    s = (1 << i2).toString();
+    result = result && s == "1";
+
+    // chain invocations, builtin functions.
+    boolean bool = true;
+    s = bool.cloneReadOnly().toString();
+    result = result && s == "true";
+
+    // checkpanic, native conversions
+    map<anydata> m = {"x":2};
+    s = (checkpanic m.cloneWithType(R)).x.toString();
+    result = result && s == "2";
+
+    // elvis
+    int|() i3 = 120;
+    s = (i3 ?: 111).toString();
+    result = result && s == "120";
+
+    // error constructor
+    s = (error("msg")).message();
+    result = result && s == "msg";
+
+    // lambda
+    function (int) returns int lambda = (x) => x + 5;
+    s = lambda(5).toString();
+    result = result && s == "10";
+
+    // let expr
+    s = (let int x = 4 in 2 * x * 2).toString();
+    result = result && s == "16";
+
+    // object constructor
+    s = new O().x.toString();
+    result = result && s == "225";
+
+    // trap
+    s = (trap trapTest()).message();
+    result = result && s == "msg";
+
+    s = (typeof (12.5f)).toString();
+    result = result && s == "typedesc float";
     return result;
 }
 
 function castAndGetX(any a) returns int {
     // access on cast expressions
     return (<R>a).x;
+}
+
+function trapTest() returns error {
+    panic error("msg");
 }
