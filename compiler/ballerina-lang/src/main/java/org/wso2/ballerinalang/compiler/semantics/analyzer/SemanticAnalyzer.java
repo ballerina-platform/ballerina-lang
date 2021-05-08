@@ -3440,13 +3440,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     private void setTypeOfVarRefInAssignment(BLangExpression expr) {
         // In assignments, lhs supports only simple, record, error, tuple
         // varRefs and field, xml and index based access expressions.
-        if (expr.getKind() != NodeKind.SIMPLE_VARIABLE_REF
-                && expr.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR
-                && expr.getKind() != NodeKind.FIELD_BASED_ACCESS_EXPR
-                && expr.getKind() != NodeKind.XML_ATTRIBUTE_ACCESS_EXPR
-                && expr.getKind() != NodeKind.RECORD_VARIABLE_REF
-                && expr.getKind() != NodeKind.ERROR_VARIABLE_REF
-                && expr.getKind() != NodeKind.TUPLE_VARIABLE_REF) {
+        if (!(expr instanceof BLangValueExpression)) {
             dlog.error(expr.pos, DiagnosticErrorCode.INVALID_VARIABLE_ASSIGNMENT, expr);
             expr.type = symTable.semanticError;
         }
