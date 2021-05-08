@@ -1445,6 +1445,14 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
             BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expTypes.get(0),
                     compoundAssignment.expr.type);
             if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expTypes.get(0),
+                        compoundAssignment.expr.type);
+            }
+            if (opSymbol == symTable.notFoundSymbol) {
+                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expTypes.get(0),
+                        compoundAssignment.expr.type);
+            }
+            if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(compoundAssignment.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES,
                         compoundAssignment.opKind, expTypes.get(0), compoundAssignment.expr.type);
             } else {

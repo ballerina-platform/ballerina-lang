@@ -67,13 +67,11 @@ import org.wso2.ballerinalang.compiler.semantics.model.types.BArrayType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BErrorType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BField;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BFutureType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BIntersectionType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BInvokableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BMapType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BObjectType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BRecordType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BStreamType;
-import org.wso2.ballerinalang.compiler.semantics.model.types.BTableType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTupleType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BType;
 import org.wso2.ballerinalang.compiler.semantics.model.types.BTypedescType;
@@ -6781,8 +6779,6 @@ public class Desugar extends BLangNodeVisitor {
         }
 
         BType targetType = conversionExpr.targetType;
-        // validateIsNotCastToAnImportedAnonType(targetType == null ? conversionExpr.type : targetType);
-
         conversionExpr.typeNode = rewrite(conversionExpr.typeNode, env);
 
         conversionExpr.expr = rewriteExpr(conversionExpr.expr);
@@ -9808,96 +9804,6 @@ public class Desugar extends BLangNodeVisitor {
         fields.clear();
         return type.tag == TypeTags.RECORD ? new BLangStructLiteral(pos, type, rewrittenFields) :
                 new BLangMapLiteral(pos, type, rewrittenFields);
-    }
-
-    /**
-     * This in intended to be a temporary validation to avoid casting to anonymous types from imported packages,
-     * because such casts can cause backward compatibility issues since anonymous type names can change per compilation.
-     * The current alternative in such a scenario is to cast to a compatible in-line type. For example, a cast to an
-     * anonymous record type can be replaced with a cast to a map type.
-     * If this is not possible due to some reason, we need to introduce an approach to uniquely identify anonymous
-     * types across compilations.
-     * See https://github.com/ballerina-platform/ballerina-lang/issues/28262.
-     */
-    private void validateIsNotCastToAnImportedAnonType(BType targetType) {
-        validateIsNotCastToAnImportedAnonType(targetType, new HashSet<>());
-    }
-
-    private void validateIsNotCastToAnImportedAnonType(BType targetType, Set<BType> unresolvedTypes) {
-        if (!unresolvedTypes.add(targetType)) {
-            return;
-        }
-
-        switch (targetType.tag) {
-            case TypeTags.TABLE:
-                validateIsNotCastToAnImportedAnonType(((BTableType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.TYPEDESC:
-                validateIsNotCastToAnImportedAnonType(((BTypedescType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.STREAM:
-                validateIsNotCastToAnImportedAnonType(((BStreamType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.MAP:
-                validateIsNotCastToAnImportedAnonType(((BMapType) targetType).constraint, unresolvedTypes);
-                return;
-            case TypeTags.INVOKABLE:
-                BInvokableType invokableType = (BInvokableType) targetType;
-                for (BType paramType : invokableType.paramTypes) {
-                    validateIsNotCastToAnImportedAnonType(paramType, unresolvedTypes);
-                }
-
-                BType restType = invokableType.restType;
-                if (restType != null) {
-                    validateIsNotCastToAnImportedAnonType(restType, unresolvedTypes);
-                }
-
-                BType retType = invokableType.retType;
-                if (retType != null) {
-                    validateIsNotCastToAnImportedAnonType(retType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.ARRAY:
-                validateIsNotCastToAnImportedAnonType(((BArrayType) targetType).eType, unresolvedTypes);
-                return;
-            case TypeTags.UNION:
-                for (BType memberType : ((BUnionType) targetType).getMemberTypes()) {
-                    validateIsNotCastToAnImportedAnonType(memberType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.INTERSECTION:
-                for (BType constituentType : ((BIntersectionType) targetType).getConstituentTypes()) {
-                    validateIsNotCastToAnImportedAnonType(constituentType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.ERROR:
-                validateIsNotCastToAnImportedAnonType(((BErrorType) targetType).detailType, unresolvedTypes);
-                return;
-            case TypeTags.TUPLE:
-                BTupleType tupleType = (BTupleType) targetType;
-                for (BType tupleMemberType : tupleType.tupleTypes) {
-                    validateIsNotCastToAnImportedAnonType(tupleMemberType, unresolvedTypes);
-                }
-
-                BType tupleRestType = tupleType.restType;
-                if (tupleRestType != null) {
-                    validateIsNotCastToAnImportedAnonType(tupleRestType, unresolvedTypes);
-                }
-                return;
-            case TypeTags.FUTURE:
-                BType constraint = ((BFutureType) targetType).constraint;
-                if (constraint != null) {
-                    validateIsNotCastToAnImportedAnonType(constraint, unresolvedTypes);
-                }
-                return;
-            case TypeTags.RECORD:
-            case TypeTags.OBJECT:
-                if (Symbols.isFlagOn(targetType.flags, Flags.ANONYMOUS) &&
-                        !targetType.tsymbol.pkgID.equals(env.enclPkg.packageID)) {
-                    throw new IllegalStateException("Invalid cast to anonymous type imported from '" +
-                                                            targetType.tsymbol.pkgID.toString() + "'");
-                }
-        }
     }
 
     protected void addTransactionInternalModuleImport() {

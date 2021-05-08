@@ -6,11 +6,34 @@
   "source": "statement_context/source/foreach_stmt_ctx_source9.bal",
   "items": [
     {
-      "label": "foreach - numberList",
+      "label": "foreach",
       "kind": "Snippet",
       "detail": "foreach snippet for iterable variable - numberList",
       "sortText": "Q",
       "insertText": "foreach int item in numberList {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 15
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach range expression snippet for iterable variable - numberList",
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...numberList.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

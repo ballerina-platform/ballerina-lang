@@ -6,11 +6,34 @@
   "source": "statement_context/source/foreach_stmt_ctx_source13.bal",
   "items": [
     {
-      "label": "foreach - myStr",
+      "label": "foreach",
       "kind": "Snippet",
       "detail": "foreach snippet for iterable variable - myStr",
       "sortText": "Q",
       "insertText": "foreach string item in myStr {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 10
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach range expression snippet for iterable variable - myStr",
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...myStr.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
