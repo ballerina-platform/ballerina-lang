@@ -1693,7 +1693,7 @@ public class SymbolResolver extends BLangNodeVisitor {
         return symTable.notFoundSymbol;
     }
 
-    public BSymbol getArithmeticOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType, BType resType) {
+    public BSymbol getArithmeticOpsForTypeSets(OperatorKind opKind, BType lhsType, BType rhsType) {
         boolean validNumericOrStringTypeExists;
         switch (opKind) {
             case ADD:

@@ -6,11 +6,34 @@
   "source": "expression_context/source/field_access_ctx_source4.bal",
   "items": [
     {
-      "label": "foreach - xmlVal",
+      "label": "foreach",
       "kind": "Snippet",
       "detail": "foreach snippet for iterable variable - xmlVal",
       "sortText": "Q",
       "insertText": "foreach xml item in xmlVal {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 11
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach range expression snippet for iterable variable - xmlVal",
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...xmlVal.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
