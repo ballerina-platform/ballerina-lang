@@ -195,8 +195,8 @@ public class BIRPackageSymbolEnter {
             this.env = prevEnv;
             return pkgSymbol;
         } catch (Throwable e) {
-            throw new BLangCompilerException("Error while loading the bir. " +
-                    (e.getMessage() != null ? e.getMessage() : ""), e);
+            throw new BLangCompilerException("failed to load the module '" + packageId.toString() + "' from its BIR" +
+                    (e.getMessage() != null ? (" due to: " + e.getMessage()) : ""), e);
         }
     }
 
