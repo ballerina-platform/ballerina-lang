@@ -2741,8 +2741,13 @@ public class TypeChecker {
             return false;
         }
 
-        if (((BTableType) lhsTable.getType()).getFieldNames() != null &&
-                ((BTableType) lhsTable.getType()).getFieldNames().length > 0) {
+        boolean isLhsKeyedTable = ((BTableType) lhsTable.getType()).getFieldNames() != null &&
+                ((BTableType) lhsTable.getType()).getFieldNames().length > 0;
+        boolean isRhsKeyedTable = ((BTableType) rhsTable.getType()).getFieldNames() != null &&
+                ((BTableType) rhsTable.getType()).getFieldNames().length > 0;
+
+        // check equality for keyed tables
+        if (isLhsKeyedTable && isRhsKeyedTable) {
             for (Map.Entry<BAnydataType, Object> lhsTableEntry :
                     (Iterable<Map.Entry<BAnydataType, Object>>) lhsTable.entrySet()) {
                 if (!isEqual(lhsTableEntry.getValue(), rhsTable.get(lhsTableEntry.getKey()), checkedValues)) {
@@ -2753,7 +2758,27 @@ public class TypeChecker {
             return true;
         }
 
-        return lhsTable.entrySet().equals(rhsTable.entrySet());
+        // check equality for keyless tables
+        if (!isLhsKeyedTable && !isRhsKeyedTable) {
+            for (Map.Entry<BAnydataType, Object> lhsTableEntry :
+                    (Iterable<Map.Entry<BAnydataType, Object>>) lhsTable.entrySet()) {
+                boolean recordFound = false;
+                for (Map.Entry<BAnydataType, Object> rhsTableEntry :
+                        (Iterable<Map.Entry<BAnydataType, Object>>) rhsTable.entrySet()) {
+                    if (isEqual(lhsTableEntry.getValue(), rhsTableEntry.getValue())) {
+                        recordFound = true;
+                        break;
+                    }
+                }
+                if (!recordFound) {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        return false;
     }
 
 
