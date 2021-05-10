@@ -695,8 +695,8 @@ function test31() returns int|string {
 
     if (x is int && x > 3) {
         x = x + 10;
-        if (<int>x > 25) {
-            x = <int>x + 3;
+        if (x > 25) {
+            x = x + 3;
         }
     } else {
         x = 0;
