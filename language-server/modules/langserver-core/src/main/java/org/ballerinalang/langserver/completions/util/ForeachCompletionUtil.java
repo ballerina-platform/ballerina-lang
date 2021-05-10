@@ -120,7 +120,7 @@ public class ForeachCompletionUtil {
         completionItems.add(new StaticCompletionItem(ctx,
                 getIteratingCompletionItem(ctx, symbolName, symbol, textEdits), StaticCompletionItem.Kind.OTHER));
         completionItems.add(new StaticCompletionItem(ctx,
-                getRangeExprCompletionItem(ctx, symbolName, symbol, textEdits), StaticCompletionItem.Kind.OTHER));
+                getRangeExprCompletionItem(ctx, symbolName, textEdits), StaticCompletionItem.Kind.OTHER));
         return completionItems;
     }
 
@@ -136,7 +136,7 @@ public class ForeachCompletionUtil {
     private static CompletionItem getIteratingCompletionItem(BallerinaCompletionContext ctx,
                                                              String symbolName, TypeSymbol symbol,
                                                              List<TextEdit> textEdits) {
-        String detail = "foreach snippet for iterable variable - " + symbolName;
+        String detail = "foreach var item in expr";
         //change label and tests accordingly
         String label = "foreach";
         String type = getTypeOfIteratorVariable(symbol);
@@ -145,7 +145,8 @@ public class ForeachCompletionUtil {
                 .append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME)).append(" in ").append(symbolName)
                 .append(" ").append("{").append(CommonUtil.LINE_SEPARATOR).append("\t${1}")
                 .append(CommonUtil.LINE_SEPARATOR).append("}");
-        return ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, textEdits);
+        String documentation = "foreach statement for iterable variable - " + symbolName;
+        return ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, documentation, textEdits);
     }
 
     /**
@@ -153,21 +154,21 @@ public class ForeachCompletionUtil {
      *
      * @param ctx        completion context
      * @param symbolName symbol name corresponding to the symbol
-     * @param symbol     type symbol
      * @param textEdits  edits that replace the field access symbol
      * @return
      */
     private static CompletionItem getRangeExprCompletionItem(BallerinaCompletionContext ctx,
-                                                             String symbolName, TypeSymbol symbol,
+                                                             String symbolName,
                                                              List<TextEdit> textEdits) {
-        String detail = "foreach range expression snippet for iterable variable - " + symbolName;
+        String detail = "foreach int i in 0...expr";
         String label = "foreach i";
         StringBuilder snippet = new StringBuilder("foreach");
         snippet.append(" int ").append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME_RANGE_EXP))
                 .append(" in ").append("${1:0}").append("...").append(symbolName)
                 .append(".length() ").append("{").append(CommonUtil.LINE_SEPARATOR).append("\t${2}")
                 .append(CommonUtil.LINE_SEPARATOR).append("}");
-        return ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, textEdits);
+        String documentation = "foreach i statement for iterable variable - " + symbolName;
+        return ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, documentation, textEdits);
     }
 
     /**
