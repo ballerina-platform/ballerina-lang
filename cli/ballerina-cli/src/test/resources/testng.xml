@@ -22,20 +22,7 @@ under the License.
 <suite name="commands-test-suite">
     <test name="command-tests" preserve-order="true" parallel="false">
         <packages>
-            <package name="io.ballerina.cli.cmd.AddCommandTest"/>
-            <package name="io.ballerina.cli.cmd.BaseCommandTest"/>
-            <package name="io.ballerina.cli.cmd.BuildCommandTest"/>
-            <package name="io.ballerina.cli.cmd.CleanCommandTest"/>
-            <package name="io.ballerina.cli.cmd.DocCommandTest"/>
-            <package name="io.ballerina.cli.cmd.InitCommandTest"/>
-            <package name="io.ballerina.cli.cmd.NewCommandTest"/>
-            <package name="io.ballerina.cli.cmd.PrintUtilsTest"/>
-            <package name="io.ballerina.cli.cmd.PullCommandTest"/>
-            <package name="io.ballerina.cli.cmd.PushCommandTest"/>
-            <package name="io.ballerina.cli.cmd.RunCommandTest"/>
-            <package name="io.ballerina.cli.cmd.SearchCommandTest"/>
-            <package name="io.ballerina.cli.cmd.ShellCommandTest"/>
-            <package name="io.ballerina.cli.cmd.TestCommandTest"/>
+            <package name="io.ballerina.cli.cmd.*"/>
             <package name="io.ballerina.cli.utils.TestCentralUtils"/>
         </packages>
     </test>

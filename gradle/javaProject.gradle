@@ -171,6 +171,7 @@ spotbugsTest {
 }
 
 test {
+    outputs.upToDateWhen { false }
     testLogging {
         // Make sure output from standard out or error is shown in Gradle output.
         showStackTraces = true
