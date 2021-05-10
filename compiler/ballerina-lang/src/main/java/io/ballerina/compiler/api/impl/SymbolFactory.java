@@ -165,6 +165,11 @@ public class SymbolFactory {
                 return createPathParamSymbol((BVarSymbol) symbol, PathSegment.Kind.PATH_REST_PARAMETER);
             }
 
+            // If the symbol is a wildcard('_'), a variable symbol will not be created.
+            if (((BVarSymbol) symbol).isIgnorable) {
+                return null;
+            }
+
             // return the variable symbol
             return createVariableSymbol((BVarSymbol) symbol, name);
         }
