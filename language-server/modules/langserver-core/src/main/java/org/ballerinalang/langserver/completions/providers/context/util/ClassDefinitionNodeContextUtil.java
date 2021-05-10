@@ -27,7 +27,7 @@ public class ClassDefinitionNodeContextUtil {
     }
 
     public static boolean onSuggestInitFunction(Node node) {
-        if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
+        if (node.kind() != SyntaxKind.CLASS_DEFINITION) {
             return false;
         }
 
