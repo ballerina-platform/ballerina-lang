@@ -1,3 +1,2 @@
-   public
-    type Student object {
+   public   type Student object {
 };

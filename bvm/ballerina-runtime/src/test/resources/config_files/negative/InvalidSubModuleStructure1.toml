@@ -1,3 +1,2 @@
 [test_module]
-stringVar = "required"
 util.foo = 22

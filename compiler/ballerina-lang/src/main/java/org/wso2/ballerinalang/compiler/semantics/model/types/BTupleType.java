@@ -25,6 +25,7 @@ import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 /**
@@ -39,6 +40,8 @@ public class BTupleType extends BType implements TupleType {
     public Boolean isAnyData = null;
 
     public BIntersectionType immutableType;
+
+    private BIntersectionType intersectionType = null;
 
     public BTupleType(List<BType> tupleTypes) {
         super(TypeTags.TUPLE, null);
@@ -87,5 +90,15 @@ public class BTupleType extends BType implements TupleType {
     @Override
     public BIntersectionType getImmutableType() {
         return this.immutableType;
+    }
+
+    @Override
+    public Optional<BIntersectionType> getIntersectionType() {
+        return Optional.ofNullable(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(BIntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

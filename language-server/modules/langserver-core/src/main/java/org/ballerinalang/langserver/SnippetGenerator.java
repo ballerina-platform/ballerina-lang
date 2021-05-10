@@ -414,6 +414,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get ForeachRangeExpression Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getForeachRangeExpressionSnippet() {
+        String snippet = "foreach ${1:int} ${2:i} in ${3:0}...${4:9} {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.FOREACH_RANGE_EXP, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
+    }
+
+    /**
      * Get Fork Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block

@@ -35,6 +35,7 @@ import java.util.List;
 import java.util.StringJoiner;
 import java.util.regex.Pattern;
 
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
 
 /**
@@ -119,13 +120,13 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
         List<TypeSymbol> memberTypes = this.memberTypeDescriptors();
         if (containsTwoElements(memberTypes) && containsNil(memberTypes)) {
             TypeSymbol member1 = memberTypes.get(0);
-            return member1.typeKind() == NIL ?
-                    memberTypes.get(1).signature() + "?" : member1.signature() + "?";
+            return member1.typeKind() == NIL ? getSignatureForIntersectionType(memberTypes.get(1)) + "?" :
+                    getSignatureForIntersectionType(member1) + "?";
         } else {
             StringJoiner joiner = new StringJoiner("|");
             unionType.resolvingToString = true;
             for (TypeSymbol typeDescriptor : memberTypes) {
-                joiner.add(typeDescriptor.signature());
+                joiner.add(getSignatureForIntersectionType(typeDescriptor));
             }
             unionType.resolvingToString = false;
             return joiner.toString();
@@ -139,6 +140,13 @@ public class BallerinaUnionTypeSymbol extends AbstractTypeSymbol implements Unio
             joiner.add(typeDescriptor.signature());
         }
         return joiner.toString();
+    }
+
+    private String getSignatureForIntersectionType(TypeSymbol typeSymbol) {
+        if (typeSymbol.typeKind() != INTERSECTION) {
+            return typeSymbol.signature();
+        }
+        return "(" + typeSymbol.signature() + ")";
     }
 
     private boolean containsNil(List<TypeSymbol> types) {

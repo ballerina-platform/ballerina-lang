@@ -126,6 +126,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_DO.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH_RANGE_EXP.get()));
         if (this.onSuggestFork(node)) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
         }
