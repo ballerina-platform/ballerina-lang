@@ -17,9 +17,11 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.RemoteMethodCallActionNode;
 import org.ballerinalang.annotation.JavaSPIService;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -61,7 +63,18 @@ public class RemoteMethodCallActionNodeContext extends RightArrowActionNodeConte
             List<Symbol> clientActions = this.getClientActions(expressionType.get());
             completionItems.addAll(this.getCompletionItemList(clientActions, context));
         } else if (onSuggestFunctionParameters(node, context)) {
-            completionItems.addAll(this.expressionCompletions(context));
+            /*
+             * Covers the following cases:
+             * 1. a->func(<cursor>)
+             * 2. a->func(mod1:<cursor>)
+             */
+            if (QNameReferenceUtil.onQualifiedNameIdentifier(context, context.getNodeAtCursor())) {
+                QualifiedNameReferenceNode qualifiedNameRef = (QualifiedNameReferenceNode) context.getNodeAtCursor();
+                List<Symbol> exprCtxEntries = QNameReferenceUtil.getExpressionContextEntries(context, qualifiedNameRef);
+                completionItems.addAll(this.getCompletionItemList(exprCtxEntries, context));
+            } else {
+                completionItems.addAll(this.expressionCompletions(context));
+            }
         }
 
         this.sort(context, node, completionItems);

@@ -42,6 +42,7 @@ import io.ballerina.projects.ProjectKind;
 import org.ballerinalang.langserver.LSPackageLoader;
 import org.ballerinalang.langserver.common.utils.CommonKeys;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
+import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.CompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
@@ -338,11 +339,11 @@ public abstract class AbstractCompletionProvider<T extends Node> implements Ball
 
     /**
      * Check whether the cursor is within a qualified name reference.
-     * This has been deprecated and use QNameReferenceUtil#onQualifiedNameIdentifier instead.
-     * 
+     *
      * @param context completion context
-     * @param node node to evaluate upon
+     * @param node    node to evaluate upon
      * @return {@link Boolean}
+     * @deprecated Use {@link QNameReferenceUtil#onQualifiedNameIdentifier(BallerinaCompletionContext, Node)} instead
      */
     @Deprecated(forRemoval = true)
     protected boolean onQualifiedNameIdentifier(CompletionContext context, Node node) {
