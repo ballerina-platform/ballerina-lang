@@ -66,6 +66,7 @@ import org.wso2.ballerinalang.compiler.tree.clauses.BLangLimitClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangMatchClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnConflictClause;
+import org.wso2.ballerinalang.compiler.tree.clauses.BLangOnFailClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderByClause;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangOrderKey;
 import org.wso2.ballerinalang.compiler.tree.clauses.BLangSelectClause;
@@ -142,6 +143,7 @@ import org.wso2.ballerinalang.compiler.tree.matchpatterns.BLangVarBindingPattern
 import org.wso2.ballerinalang.compiler.tree.statements.BLangAssignment;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangBlockStmt;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangCompoundAssignment;
+import org.wso2.ballerinalang.compiler.tree.statements.BLangDo;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorDestructure;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangErrorVariableDef;
 import org.wso2.ballerinalang.compiler.tree.statements.BLangExpressionStmt;
@@ -1323,6 +1325,18 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangListBindingPattern listBindingPattern) {
         lookupNodes(listBindingPattern.bindingPatterns);
         lookupNode(listBindingPattern.restBindingPattern);
+    }
+
+    @Override
+    public void visit(BLangDo doNode) {
+        lookupNode(doNode.body);
+        lookupNode(doNode.onFailClause);
+    }
+
+    @Override
+    public void visit(BLangOnFailClause onFailClause) {
+        lookupNode((BLangNode) onFailClause.variableDefinitionNode);
+        lookupNode(onFailClause.body);
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {
