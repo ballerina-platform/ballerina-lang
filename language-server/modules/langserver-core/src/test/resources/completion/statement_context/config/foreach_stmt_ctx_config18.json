@@ -6,11 +6,34 @@
   "source": "statement_context/source/foreach_stmt_ctx_source18.bal",
   "items": [
     {
-      "label": "foreach - employeeTab",
+      "label": "foreach",
       "kind": "Snippet",
       "detail": "foreach snippet for iterable variable - employeeTab",
       "sortText": "Q",
       "insertText": "foreach Employee item in employeeTab {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 6,
+              "character": 4
+            },
+            "end": {
+              "line": 6,
+              "character": 16
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach range expression snippet for iterable variable - employeeTab",
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...employeeTab.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
