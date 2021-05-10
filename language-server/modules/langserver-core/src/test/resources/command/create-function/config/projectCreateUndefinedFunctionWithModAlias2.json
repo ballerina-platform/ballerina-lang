@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction addTeacher(mod2:Teacher a, string b) returns int {\n    \n    return 0;\n}\n"
+                                "newText": "\n\nfunction addTeacher(mod2:Teacher a, string b) returns int {\n    return 0;\n}\n"
                             }
                         ]
                     }

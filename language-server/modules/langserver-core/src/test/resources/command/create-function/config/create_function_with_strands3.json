@@ -28,7 +28,7 @@
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction createAnotherVal(Foo & readonly a) returns Foo & readonly {\n    \n    return {};\n}\n"
+                "newText": "\n\nfunction createAnotherVal(Foo & readonly a) returns Foo & readonly {\n    return {};\n}\n"
               }
             ]
           }

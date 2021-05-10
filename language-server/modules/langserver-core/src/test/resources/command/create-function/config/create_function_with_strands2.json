@@ -28,7 +28,7 @@
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction createVal(int a) returns (Foo & readonly)|int {\n    \n    return {};\n}\n"
+                "newText": "\n\nfunction createVal(int a) returns (Foo & readonly)|int {\n    return {};\n}\n"
               }
             ]
           }
