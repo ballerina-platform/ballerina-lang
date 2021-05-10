@@ -44,7 +44,6 @@ import io.ballerina.runtime.internal.values.ArrayValue;
 import io.ballerina.runtime.internal.values.DecimalValue;
 import io.ballerina.runtime.internal.values.MapValue;
 import io.ballerina.runtime.internal.values.MapValueImpl;
-import io.ballerina.runtime.internal.values.XmlItem;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -607,7 +606,7 @@ public class TypeConverter {
     public static BXml stringToXml(String value) throws BError {
         StringBuilder sb = new StringBuilder();
         sb.append("<root>").append(value).append("</root>");
-        XmlItem item = (XmlItem) XmlUtils.parse(sb.toString());
+        BXml item = XmlUtils.parse(sb.toString());
         return item.children();
     }
 
