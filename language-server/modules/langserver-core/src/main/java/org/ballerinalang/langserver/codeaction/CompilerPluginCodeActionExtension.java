@@ -17,7 +17,7 @@ package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.ToolingManager;
+import io.ballerina.projects.CodeActionManager;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContextImpl;
 import io.ballerina.tools.text.LinePosition;
@@ -85,33 +85,22 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                 ToolingCodeActionContextImpl.from(context.fileUri(), context.filePath(), linePosition,
                         context.currentDocument().get(), context.currentSemanticModel().get());
 
-        ToolingManager toolingManager = packageCompilation.get().getToolingManager();
+        CodeActionManager codeActionManager = packageCompilation.get().getToolingManager();
 
         List<CodeAction> codeActions = new LinkedList<>();
-        toolingManager.nodeBasedCodeActions(toolingCodeActionContext, node).stream()
-                .map(codeAction -> {
-                    CodeAction action = new CodeAction(codeAction.getTitle());
-
-                    List<Object> arguments = new LinkedList<>();
-                    arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, context.fileUri()));
-                    arguments.addAll(codeAction.getArguments());
-                    action.setCommand(new Command(codeAction.getTitle(), codeAction.getCommand(), arguments));
-                    return action;
-                })
-                .forEach(codeActions::add);
 
         context.diagnostics(context.filePath()).stream()
                 .filter(diag -> CommonUtil.isWithinRange(context.cursorPosition(),
                         CommonUtil.toRange(diag.location().lineRange())))
                 .forEach(diagnostic -> {
-                    toolingManager.diagnosticBasedCodeActions(toolingCodeActionContext, diagnostic).stream()
+                    codeActionManager.codeActions(toolingCodeActionContext, diagnostic).stream()
                             .map(codeAction -> {
                                 CodeAction action = new CodeAction(codeAction.getTitle());
 
                                 List<Object> arguments = new LinkedList<>();
                                 arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, context.fileUri()));
                                 arguments.addAll(codeAction.getArguments());
-                                action.setCommand(new Command(codeAction.getTitle(), codeAction.getCommand(), arguments));
+                                action.setCommand(new Command(codeAction.getTitle(), codeAction.getId(), arguments));
                                 return action;
                             })
                             .forEach(codeActions::add);

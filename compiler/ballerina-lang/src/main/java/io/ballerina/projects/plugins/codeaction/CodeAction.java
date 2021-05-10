@@ -22,13 +22,13 @@ import java.util.List;
  */
 public class CodeAction {
 
+    private String id;
     private String title;
-    private String command;
-    private List<CodeActionExecutor.CommandArg> arguments;
+    private List<CodeActionArgument> arguments;
 
-    private CodeAction(String title, String command, List<CodeActionExecutor.CommandArg> arguments) {
+    private CodeAction(String id, String title, List<CodeActionArgument> arguments) {
+        this.id = id;
         this.title = title;
-        this.command = command;
         this.arguments = arguments;
     }
 
@@ -36,11 +36,11 @@ public class CodeAction {
         return title;
     }
 
-    public String getCommand() {
-        return command;
+    public String getId() {
+        return id;
     }
 
-    public List<CodeActionExecutor.CommandArg> getArguments() {
+    public List<CodeActionArgument> getArguments() {
         return arguments;
     }
 
@@ -48,15 +48,15 @@ public class CodeAction {
         this.title = title;
     }
 
-    public void setCommand(String command) {
-        this.command = command;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public void setArguments(List<CodeActionExecutor.CommandArg> arguments) {
+    public void setArguments(List<CodeActionArgument> arguments) {
         this.arguments = arguments;
     }
 
-    public static CodeAction from(String title, String command, List<CodeActionExecutor.CommandArg> arguments) {
-        return new CodeAction(title, command, arguments);
+    public static CodeAction from(String id, String title, List<CodeActionArgument> arguments) {
+        return new CodeAction(id, title, arguments);
     }
 }

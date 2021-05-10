@@ -17,8 +17,9 @@ package io.ballerina.plugins.codeaction;
 
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
-import io.ballerina.projects.plugins.codeaction.CodeActionExecutor;
+import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.CodeActionProvider;
+import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
@@ -29,12 +30,12 @@ import java.util.List;
 /**
  * A dummy code action provider.
  */
-public class CreateVarCodeAction extends CodeActionProvider {
+public class CreateVarCodeAction implements CodeActionProvider {
 
     public static final String VAR_ASSIGNMENT_REQUIRED = "variable assignment is required";
 
     @Override
-    public List<CodeAction> getDiagnosticBasedCodeAction(ToolingCodeActionContext context, Diagnostic diagnostic) {
+    public List<CodeAction> getCodeActions(ToolingCodeActionContext context, Diagnostic diagnostic) {
         if (!(diagnostic.message().startsWith(VAR_ASSIGNMENT_REQUIRED))) {
             return Collections.emptyList();
         }
@@ -48,10 +49,21 @@ public class CreateVarCodeAction extends CodeActionProvider {
             return Collections.emptyList();
         }
 
-        List<CodeActionExecutor.CommandArg> args = List.of(
-                CodeActionExecutor.CommandArg.from(AddGenericVarExecutor.ARG_NODE_RANGE, diagnostic.location().lineRange()),
-                CodeActionExecutor.CommandArg.from(AddGenericVarExecutor.ARG_VAR_TYPE, typeSymbol.signature())
+        List<CodeActionArgument> args = List.of(
+                CodeActionArgument.from(AddGenericVarExecutor.ARG_NODE_RANGE, diagnostic.location().lineRange()),
+                CodeActionArgument.from(AddGenericVarExecutor.ARG_VAR_TYPE, typeSymbol.signature())
         );
-        return Collections.singletonList(CodeAction.from("Create generic variable", AddGenericVarExecutor.COMMAND, args));
+        return Collections.singletonList(CodeAction.from(AddGenericVarExecutor.COMMAND, "Create generic variable", args));
+    }
+
+    @Override
+    public List<DocumentEdit> execute(ToolingCodeActionContext context, List<CodeActionArgument> arguments) {
+        AddGenericVarExecutor executor = new AddGenericVarExecutor();
+        return executor.execute(context, arguments);
+    }
+
+    @Override
+    public String name() {
+        return "CREATE_VAR";
     }
 }

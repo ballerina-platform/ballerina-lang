@@ -17,7 +17,6 @@
  */
 package io.ballerina.projects.plugins;
 
-import io.ballerina.projects.plugins.codeaction.CodeActionExecutor;
 import io.ballerina.projects.plugins.codeaction.CodeActionProvider;
 
 /**
@@ -42,6 +41,4 @@ public interface CompilerPluginContext {
     void addCompilerLifecycleListener(CompilerLifecycleListener lifecycleListener);
 
     void addCodeActionProvider(CodeActionProvider provider);
-
-    void addCodeActionExecutor(CodeActionExecutor executor);
 }

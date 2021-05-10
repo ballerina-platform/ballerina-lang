@@ -38,7 +38,7 @@ class CompilerPluginManager {
 
     private CodeAnalyzerManager codeAnalyzerManager;
     private CompilerLifecycleManager compilerLifecycleListenerManager;
-    private ToolingManager toolingManager;
+    private CodeActionManager codeActionManager;
 
     private CompilerPluginManager(PackageCompilation compilation,
                                   List<CompilerPluginContextIml> compilerPluginContexts) {
@@ -71,13 +71,13 @@ class CompilerPluginManager {
         return codeAnalyzerManager;
     }
 
-    ToolingManager getToolingManager() {
-        if (toolingManager != null) {
-            return toolingManager;
+    CodeActionManager getToolingManager() {
+        if (codeActionManager != null) {
+            return codeActionManager;
         }
 
-        toolingManager = ToolingManager.from(compilerPluginContexts);
-        return toolingManager;
+        codeActionManager = CodeActionManager.from(compilerPluginContexts);
+        return codeActionManager;
     }
 
     private static List<CompilerPluginInfo> loadEngagedCompilerPlugins(List<Package> dependencies) {

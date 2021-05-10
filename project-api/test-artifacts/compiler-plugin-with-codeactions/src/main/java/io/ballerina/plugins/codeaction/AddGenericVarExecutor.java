@@ -16,7 +16,7 @@
 package io.ballerina.plugins.codeaction;
 
 import io.ballerina.compiler.syntax.tree.SyntaxTree;
-import io.ballerina.projects.plugins.codeaction.CodeActionExecutor;
+import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
 import io.ballerina.tools.text.LineRange;
@@ -28,22 +28,16 @@ import io.ballerina.tools.text.TextRange;
 import java.util.Collections;
 import java.util.List;
 
-public class AddGenericVarExecutor implements CodeActionExecutor {
+public class AddGenericVarExecutor {
 
     public static final String COMMAND = "ADD_VAR";
     public static final String ARG_NODE_RANGE = "node.range";
     public static final String ARG_VAR_TYPE = "var.type";
 
-    @Override
-    public String getCommand() {
-        return COMMAND;
-    }
-
-    @Override
-    public List<DocumentEdit> execute(ToolingCodeActionContext context, List<CommandArg> arguments) {
+    public List<DocumentEdit> execute(ToolingCodeActionContext context, List<CodeActionArgument> arguments) {
         LineRange lineRange = null;
         String type = null;
-        for (CommandArg argument : arguments) {
+        for (CodeActionArgument argument : arguments) {
             switch (argument.key()) {
                 case ARG_NODE_RANGE:
                     lineRange = argument.valueAs(LineRange.class);

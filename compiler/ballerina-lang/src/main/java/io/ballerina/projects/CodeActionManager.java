@@ -15,13 +15,15 @@
  */
 package io.ballerina.projects;
 
-import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
-import io.ballerina.projects.plugins.codeaction.CodeActionExecutor;
+import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
+import io.ballerina.projects.plugins.codeaction.CodeActionProvider;
+import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.Collection;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
@@ -29,23 +31,23 @@ import java.util.Optional;
 /**
  * Tooling manager.
  */
-public class ToolingManager {
+public class CodeActionManager {
 
     private List<CompilerPluginContextIml> compilerPluginContexts;
 
-    private ToolingManager(List<CompilerPluginContextIml> compilerPluginContexts) {
+    private CodeActionManager(List<CompilerPluginContextIml> compilerPluginContexts) {
         this.compilerPluginContexts = compilerPluginContexts;
     }
 
-    public List<CodeAction> nodeBasedCodeActions(ToolingCodeActionContext context, Node node) {
+    public List<CodeAction> codeActions(ToolingCodeActionContext context, Diagnostic diagnostic) {
         List<CodeAction> codeActions = new LinkedList<>();
         for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
             compilerPluginContext.codeActionProviders().stream()
-                    .map(provider -> provider.getNodeBasedCodeActions(context, node))
+                    .map(provider -> provider.getCodeActions(context, diagnostic))
                     .flatMap(Collection::stream)
                     .peek(codeAction -> {
-                        codeAction.setCommand(getPackagePrefixedCommand(compilerPluginContext.compilerPluginInfo(),
-                                codeAction.getCommand()));
+                        codeAction.setId(getPackagePrefixedCommand(compilerPluginContext.compilerPluginInfo(),
+                                codeAction.getId()));
                     })
                     .forEach(codeActions::add);
         }
@@ -53,54 +55,39 @@ public class ToolingManager {
         return codeActions;
     }
 
-    public List<CodeAction> diagnosticBasedCodeActions(ToolingCodeActionContext context, Diagnostic diagnostic) {
-        List<CodeAction> codeActions = new LinkedList<>();
-        for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
-            compilerPluginContext.codeActionProviders().stream()
-                    .map(provider -> provider.getDiagnosticBasedCodeAction(context, diagnostic))
-                    .flatMap(Collection::stream)
-                    .peek(codeAction -> {
-                        codeAction.setCommand(getPackagePrefixedCommand(compilerPluginContext.compilerPluginInfo(),
-                                codeAction.getCommand()));
-                    })
-                    .forEach(codeActions::add);
-        }
-
-        return codeActions;
-    }
-
-    public Optional<CodeActionExecutor> getCodeActionExecutor(String command) {
+    public List<DocumentEdit> executeCodeAction(String codeActionId, ToolingCodeActionContext context,
+                                                List<CodeActionArgument> arguments) {
         for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
             String prefix = getPackagePrefix(compilerPluginContext.compilerPluginInfo());
-            if (!command.startsWith(prefix)) {
+            if (!codeActionId.startsWith(prefix)) {
                 continue;
             }
 
-            if (command.length() == prefix.length()) {
+            if (codeActionId.length() == prefix.length()) {
                 continue;
             }
 
             // Get command name. Substring excluding the "_"
-            command = command.substring(prefix.length() + 1);
-            if (command.isEmpty()) {
+            codeActionId = codeActionId.substring(prefix.length() + 1);
+            if (codeActionId.isEmpty()) {
                 continue;
             }
-            
-            String finalCommand = command;
-            Optional<CodeActionExecutor> codeActionExecutor = compilerPluginContext.codeActionExecutors().stream()
-                    .filter(executor -> finalCommand.equals(executor.getCommand()))
-                    .findAny();
 
-            if (codeActionExecutor.isPresent()) {
-                return codeActionExecutor;
+            String finalCodeActionId = codeActionId;
+            Optional<CodeActionProvider> codeActionProvider = compilerPluginContext.codeActionProviders().stream()
+                    .filter(provider -> finalCodeActionId.equals(provider.name()))
+                    .findFirst();
+
+            if (codeActionProvider.isPresent()) {
+                return codeActionProvider.get().execute(context, arguments);
             }
         }
 
-        return Optional.empty();
+        return Collections.emptyList();
     }
 
-    static ToolingManager from(List<CompilerPluginContextIml> compilerPluginContexts) {
-        return new ToolingManager(compilerPluginContexts);
+    static CodeActionManager from(List<CompilerPluginContextIml> compilerPluginContexts) {
+        return new CodeActionManager(compilerPluginContexts);
     }
 
     private static String getPackagePrefix(CompilerPluginInfo compilerPluginInfo) {

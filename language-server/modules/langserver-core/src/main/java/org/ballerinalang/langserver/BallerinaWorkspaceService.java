@@ -20,8 +20,8 @@ import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.ToolingManager;
-import io.ballerina.projects.plugins.codeaction.CodeActionExecutor;
+import io.ballerina.projects.CodeActionManager;
+import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContextImpl;
@@ -201,13 +201,13 @@ public class BallerinaWorkspaceService implements WorkspaceService {
      * @return any | null
      */
     private Object executeCommandExternal(ExecuteCommandContext context, ExecuteCommandParams params) {
-        List<CodeActionExecutor.CommandArg> args = new LinkedList<>();
+        List<CodeActionArgument> args = new LinkedList<>();
         String uri = null;
         for (CommandArgument arg : context.getArguments()) {
             if (CommandConstants.ARG_KEY_DOC_URI.equals(arg.key())) {
                 uri = arg.valueAs(String.class);
             } else {
-                args.add(CodeActionExecutor.CommandArg.from(arg.key(), arg.value()));
+                args.add(CodeActionArgument.from(arg.key(), arg.value()));
             }
         }
 
@@ -226,16 +226,11 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         ToolingCodeActionContext toolingCodeActionContext = ToolingCodeActionContextImpl.from(uri, filePath.get(), 
                 null, document.get(), semanticModel.get());
 
-        String command = params.getCommand();
+        String codeActionId = params.getCommand();
         List<CommandArgument> arguments = context.getArguments();
-        ToolingManager toolingManager = packageCompilation.get().getToolingManager();
-        Optional<CodeActionExecutor> codeActionExecutor = toolingManager.getCodeActionExecutor(command);
+        CodeActionManager codeActionManager = packageCompilation.get().getToolingManager();
 
-        if (codeActionExecutor.isEmpty()) {
-            return Collections.emptyList();
-        }
-
-        List<DocumentEdit> docEdits = codeActionExecutor.get().execute(toolingCodeActionContext, args);
+        List<DocumentEdit> docEdits = codeActionManager.executeCodeAction(codeActionId, toolingCodeActionContext, args);
 
         List<Either<TextDocumentEdit, ResourceOperation>> edits = docEdits.stream()
                 .map(docEdit -> {
