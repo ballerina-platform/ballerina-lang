@@ -817,7 +817,7 @@ public class TypeChecker extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangTableConstructorExpr tableConstructorExpr) {
-        if (expType.tag == TypeTags.NONE) {
+        if (expType.tag == TypeTags.NONE || expType.tag == TypeTags.ANY || expType.tag == TypeTags.ANYDATA) {
             List<BType> memTypes = checkExprList(new ArrayList<>(tableConstructorExpr.recordLiteralList), env);
             for (BType memType : memTypes) {
                 if (memType == symTable.semanticError) {
