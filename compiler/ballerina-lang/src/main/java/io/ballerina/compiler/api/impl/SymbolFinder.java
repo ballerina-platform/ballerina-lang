@@ -1106,7 +1106,7 @@ class SymbolFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangQueryExpr queryExpr) {
-
+        lookupNodes(queryExpr.queryClauseList);
     }
 
     @Override

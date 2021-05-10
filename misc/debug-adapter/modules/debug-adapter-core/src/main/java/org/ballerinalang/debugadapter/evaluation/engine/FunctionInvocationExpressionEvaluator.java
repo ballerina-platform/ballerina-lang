@@ -30,6 +30,7 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
 import java.util.List;
@@ -77,7 +78,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             FunctionTypeSymbol functionTypeDesc = functionDef.get().typeDescriptor();
             Map<String, Value> argValueMap = generateNamedArgs(context, functionName, functionTypeDesc, argEvaluators);
             jvmMethod.setNamedArgValues(argValueMap);
-            Value result = jvmMethod.invoke();
+            Value result = jvmMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } catch (EvaluationException e) {
             throw e;

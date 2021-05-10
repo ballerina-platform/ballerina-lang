@@ -27,6 +27,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Optional;
+
 /**
  * {@code BObjectType} represents object type in Ballerina.
  *
@@ -42,6 +44,8 @@ public class BObjectType extends BStructureType implements ObjectType {
     private static final String RIGHT_CURL = "}";
     private static final String SEMI_COLON = ";";
     private static final String READONLY = "readonly";
+
+    private BIntersectionType intersectionType = null;
 
     public BIntersectionType immutableType;
     public BObjectType mutableType = null;
@@ -119,5 +123,15 @@ public class BObjectType extends BStructureType implements ObjectType {
     @Override
     public BIntersectionType getImmutableType() {
         return this.immutableType;
+    }
+
+    @Override
+    public Optional<BIntersectionType> getIntersectionType() {
+        return Optional.ofNullable(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(BIntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

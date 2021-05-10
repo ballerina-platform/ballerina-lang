@@ -244,7 +244,7 @@ function testTaintCheckingInExprBodies() {
     assert("untainted value: Hello World!", val);
 }
 
-function letAsBody() returns float => let float a = 12.34 in let int b = 100 in a * b;
+function letAsBody() returns float => let float a = 12.34 in let int b = 100 in a * <float>b;
 
 function testLetExprAsExprBody() {
     float f = letAsBody();

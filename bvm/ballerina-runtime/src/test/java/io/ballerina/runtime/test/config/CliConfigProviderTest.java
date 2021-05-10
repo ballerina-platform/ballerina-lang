@@ -55,7 +55,7 @@ public class CliConfigProviderTest {
                 new VariableKey(module, variableName, type, true),
         };
         configVarMap.put(module, keys);
-        ConfigResolver configResolver = new ConfigResolver(ROOT_MODULE, configVarMap,
+        ConfigResolver configResolver = new ConfigResolver(configVarMap,
                                                            diagnosticLog,
                                                            List.of(new CliProvider(ROOT_MODULE, arg)));
         Map<VariableKey, Object> configValueMap = configResolver.resolveConfigs();
@@ -78,6 +78,8 @@ public class CliConfigProviderTest {
                         StringUtils.fromString(" hello world ")},
                 // module = root Module
                 {"-CintVar=123", "rootOrg", "rootMod", "intVar", PredefinedTypes.TYPE_INT, 123L},
+                // module = root Module and full command line argument
+                {"-CrootOrg.rootMod.intVar=123", "rootOrg", "rootMod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 // module org = root Module org
                 {"-Cmod.intVar=123", "rootOrg", "mod", "intVar", PredefinedTypes.TYPE_INT, 123L},
                 // Variable with '='

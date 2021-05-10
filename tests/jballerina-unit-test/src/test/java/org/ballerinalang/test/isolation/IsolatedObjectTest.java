@@ -81,8 +81,6 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 31, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 32, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 47, 6);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 47, 6);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 55, 106);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 55, 106);
         validateError(result, i++,
                       "invalid access of a mutable field of an 'isolated' object outside a 'lock' statement", 71, 39);
@@ -185,7 +183,6 @@ public class IsolatedObjectTest {
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 477, 5);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 478, 5);
         validateError(result, i++, ERROR_INVALID_TRANSFER_IN_IN_LOCK_WITH_RESTRICTED_VAR_USAGE, 493, 40);
-        validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 505, 6);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 505, 6);
         validateError(result, i++, "invalid non-private mutable field in an 'isolated' object", 516, 5);
         validateError(result, i++, "invalid access of a mutable field of an 'isolated' object outside a 'lock' " +

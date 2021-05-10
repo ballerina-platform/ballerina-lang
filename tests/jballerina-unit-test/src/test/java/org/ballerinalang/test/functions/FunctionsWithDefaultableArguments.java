@@ -219,11 +219,6 @@ public class FunctionsWithDefaultableArguments {
         Assert.assertEquals(returns[0].stringValue(), "hellohelloasyncworldworldasyncsamplevalue");
     }
 
-    @Test
-    public void testErrorNamedDefaultArgument() {
-        BRunUtil.invoke(result, "testErrorNamedDefaultArgument");
-    }
-
     @AfterClass
     public void tearDown() {
         result = null;
