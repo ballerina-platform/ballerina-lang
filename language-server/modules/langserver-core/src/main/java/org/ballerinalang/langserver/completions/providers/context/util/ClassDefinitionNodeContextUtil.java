@@ -28,13 +28,13 @@ public class ClassDefinitionNodeContextUtil {
 
     public static boolean onSuggestInitFunction(Node node) {
         if (node.kind() == SyntaxKind.CLASS_DEFINITION) {
-            ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
-            return classDefinitionNode.members().stream()
-                    .filter(member -> member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
-                    .map(member -> (FunctionDefinitionNode) member)
-                    .noneMatch(funcDef -> "init".equals(funcDef.functionName().text()));
+            return false;
         }
 
-        return false;
+        ClassDefinitionNode classDefinitionNode = (ClassDefinitionNode) node;
+        return classDefinitionNode.members().stream()
+                .filter(member -> member.kind() == SyntaxKind.OBJECT_METHOD_DEFINITION)
+                .map(member -> (FunctionDefinitionNode) member)
+                .noneMatch(funcDef -> "init".equals(funcDef.functionName().text()));
     }
 }
