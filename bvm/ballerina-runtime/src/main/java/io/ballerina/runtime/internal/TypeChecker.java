@@ -2864,10 +2864,11 @@ public class TypeChecker {
         if (type == null) {
             return true;
         }
-        if (type.getTag() < TypeTags.RECORD_TYPE_TAG || TypeTags.isIntegerTypeTag(type.getTag())) {
+        if (type.getTag() < TypeTags.CHAR_STRING_TAG) {
             return true;
         }
         switch (type.getTag()) {
+            case TypeTags.ANYDATA_TAG:
             case TypeTags.STREAM_TAG:
             case TypeTags.MAP_TAG:
             case TypeTags.ANY_TAG:
