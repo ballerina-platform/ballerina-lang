@@ -263,6 +263,7 @@ public class TypeChecker extends BLangNodeVisitor {
     private Stack<SymbolEnv> queryEnvs, prevEnvs;
     private Stack<BLangSelectClause> selectClauses;
     private BLangMissingNodesHelper missingNodesHelper;
+    private String nonWorkerReferenceName;
 
     /**
      * Expected types or inherited types.
@@ -3559,7 +3560,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 checkTypesForRecords(waitForAllExpr);
                 break;
             case TypeTags.MAP:
-                checkTypesForMap(waitForAllExpr.keyValuePairs, ((BMapType) expType).constraint);
+                checkTypesForMap(waitForAllExpr, ((BMapType) expType).constraint);
                 LinkedHashSet<BType> memberTypesForMap = collectWaitExprTypes(waitForAllExpr.keyValuePairs);
                 if (memberTypesForMap.size() == 1) {
                     resultType = new BMapType(TypeTags.MAP,
@@ -3571,7 +3572,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             case TypeTags.NONE:
             case TypeTags.ANY:
-                checkTypesForMap(waitForAllExpr.keyValuePairs, expType);
+                checkTypesForMap(waitForAllExpr, expType);
                 LinkedHashSet<BType> memberTypes = collectWaitExprTypes(waitForAllExpr.keyValuePairs);
                 if (memberTypes.size() == 1) {
                     resultType = new BMapType(TypeTags.MAP, memberTypes.iterator().next(), symTable.mapType.tsymbol);
@@ -3582,7 +3583,7 @@ public class TypeChecker extends BLangNodeVisitor {
                 break;
             default:
                 dlog.error(waitForAllExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
-                        getWaitForAllExprReturnType(waitForAllExpr.keyValuePairs, waitForAllExpr.pos));
+                        getWaitForAllExprReturnType(waitForAllExpr, waitForAllExpr.pos));
                 resultType = symTable.semanticError;
                 break;
         }
@@ -3593,9 +3594,10 @@ public class TypeChecker extends BLangNodeVisitor {
         }
     }
 
-    private BRecordType getWaitForAllExprReturnType(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyVals,
+    private BRecordType getWaitForAllExprReturnType(BLangWaitForAllExpr waitExpr,
                                                     Location pos) {
         BRecordType retType = new BRecordType(null, Flags.ANONYMOUS);
+        List<BLangWaitForAllExpr.BLangWaitKeyValue> keyVals = waitExpr.keyValuePairs;
 
         for (BLangWaitForAllExpr.BLangWaitKeyValue keyVal : keyVals) {
             BLangIdentifier fieldName;
@@ -3633,7 +3635,8 @@ public class TypeChecker extends BLangNodeVisitor {
         return memberTypes;
     }
 
-    private void checkTypesForMap(List<BLangWaitForAllExpr.BLangWaitKeyValue> keyValuePairs, BType expType) {
+    private void checkTypesForMap(BLangWaitForAllExpr waitForAllExpr, BType expType) {
+        List<BLangWaitForAllExpr.BLangWaitKeyValue> keyValuePairs = waitForAllExpr.keyValuePairs;
         keyValuePairs.forEach(keyVal -> checkWaitKeyValExpr(keyVal, expType));
     }
 
@@ -3645,7 +3648,7 @@ public class TypeChecker extends BLangNodeVisitor {
         // by the lhs record
         if (((BRecordType) expType).sealed && rhsFields.size() > lhsFields.size()) {
             dlog.error(waitExpr.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
-                    getWaitForAllExprReturnType(waitExpr.keyValuePairs, waitExpr.pos));
+                    getWaitForAllExprReturnType(waitExpr, waitExpr.pos));
             resultType = symTable.semanticError;
             return;
         }
@@ -3700,7 +3703,142 @@ public class TypeChecker extends BLangNodeVisitor {
         }
         BFutureType futureType = new BFutureType(TypeTags.FUTURE, type, null);
         checkExpr(expr, env, futureType);
+        setEventualTypeForExpression(expr, type);
     }
+
+    // eventual type if not directly referring a worker is T|error. future<T> --> T|error
+    private void setEventualTypeForExpression(BLangExpression expression,
+                                              BType currentExpectedType) {
+        if ((expression.getKind() != NodeKind.SIMPLE_VARIABLE_REF) || (expression == null)) {
+            return;
+        }
+
+        BLangSimpleVarRef varRef = (BLangSimpleVarRef) expression;
+        if (varRef.type == symTable.semanticError) {
+            return;
+        }
+        BFutureType futureType = (BFutureType) varRef.type;
+        BType currentType = futureType.constraint;
+        if (types.containsErrorType(currentType)) {
+            return;
+        }
+        String varName = varRef.variableName.value;
+        if (workerExists(env, varName)) {
+            return;
+        }
+        BUnionType eventualType = BUnionType.create(null, currentType, symTable.errorType);
+        if (((currentExpectedType.tag != TypeTags.NONE) && (currentExpectedType.tag != TypeTags.NIL)) &&
+                !types.isAssignable(eventualType, currentExpectedType)) {
+            dlog.error(expression.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR_WAIT_FIELD,
+                    currentExpectedType, eventualType, varName);
+        }
+        futureType.constraint = eventualType;
+    }
+
+    private void setEventualTypeForWaitExpression(BLangSimpleVarRef expression,
+                                                  Location pos) {
+        if ((resultType == symTable.semanticError) ||
+                (expression == null) ||
+                (types.containsErrorType(resultType))) {
+            return;
+        }
+        BSymbol varRefSymbol = expression.symbol;
+        if (varRefSymbol == null) {
+            return;
+        }
+        String varRefSymbolName = varRefSymbol.getName().value;
+        if (workerExists(env, varRefSymbolName)) {
+            return;
+        }
+
+        BType currentExpectedType = ((BFutureType) expType).constraint;
+        BUnionType eventualType = BUnionType.create(null, resultType, symTable.errorType);
+        if ((currentExpectedType.tag == TypeTags.NONE) || (currentExpectedType.tag == TypeTags.NIL)) {
+            resultType = eventualType;
+            return;
+        }
+
+        if (!types.isAssignable(eventualType, currentExpectedType)) {
+            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR_WAIT_FIELD,
+                    currentExpectedType, eventualType, varRefSymbolName);
+            resultType = symTable.semanticError;
+            return;
+        }
+        if (resultType.tag == TypeTags.FUTURE) {
+            ((BFutureType) resultType).constraint = eventualType;
+        } else {
+            resultType = eventualType;
+        }
+    }
+
+    private void setEventualTypeForAlternateWaitExpression(BLangExpression expression, Location pos) {
+        if ((resultType == symTable.semanticError) ||
+                (expression == null) ||
+                (expression.getKind() != NodeKind.BINARY_EXPR) ||
+                (types.containsErrorType(resultType))) {
+            return;
+        }
+        if (types.containsErrorType(resultType)) {
+            return;
+        }
+        nonWorkerReferenceName = "";
+        if (!isReferencingNonWorker((BLangBinaryExpr) expression)) {
+            return;
+        }
+
+        BType currentExpectedType = ((BFutureType) expType).constraint;
+        BUnionType eventualType = BUnionType.create(null, resultType, symTable.errorType);
+        if ((currentExpectedType.tag == TypeTags.NONE) || (currentExpectedType.tag == TypeTags.NIL)) {
+            resultType = eventualType;
+            return;
+        }
+
+        if (!types.isAssignable(eventualType, currentExpectedType)) {
+            dlog.error(pos, DiagnosticErrorCode.INCOMPATIBLE_TYPE_WAIT_FUTURE_EXPR_WAIT_FIELD,
+                    currentExpectedType, eventualType, nonWorkerReferenceName);
+            resultType = symTable.semanticError;
+            nonWorkerReferenceName = "";
+            return;
+        }
+        if (resultType.tag == TypeTags.FUTURE) {
+            ((BFutureType) resultType).constraint = eventualType;
+        } else {
+            resultType = eventualType;
+        }
+    }
+
+    private boolean isReferencingNonWorker(BLangBinaryExpr binaryExpr) {
+        if (binaryExpr == null) {
+            return false;
+        }
+
+        BLangExpression lhsExpr = binaryExpr.lhsExpr;
+        BLangExpression rhsExpr = binaryExpr.rhsExpr;
+        return isReferencingNonWorker(lhsExpr) || isReferencingNonWorker(rhsExpr);
+    }
+
+    private boolean isReferencingNonWorker(BLangExpression expression) {
+        if (expression == null) {
+            return false;
+        }
+
+        if (expression.getKind() == NodeKind.BINARY_EXPR) {
+            return isReferencingNonWorker((BLangBinaryExpr) expression);
+        } else if (expression.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            BLangSimpleVarRef simpleVarRef = (BLangSimpleVarRef) expression;
+            BSymbol varRefSymbol = simpleVarRef.symbol;
+            if (varRefSymbol == null) {
+                return true; // TODO: inconclusive
+            }
+            String varRefSymbolName = varRefSymbol.getName().value;
+            if (workerExists(env, varRefSymbolName)) {
+                return false;
+            }
+            nonWorkerReferenceName = varRefSymbolName;
+        } 
+        return true;
+    }
+
 
     public void visit(BLangTernaryExpr ternaryExpr) {
         BType condExprType = checkExpr(ternaryExpr.expr, env, this.symTable.booleanType);
@@ -3742,6 +3880,12 @@ public class TypeChecker extends BLangNodeVisitor {
         } else if (resultType != symTable.semanticError) {
             // Handle other types except for semantic errors
             resultType = ((BFutureType) resultType).constraint;
+        }
+
+        if (waitExpr.getExpression().getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
+            setEventualTypeForWaitExpression((BLangSimpleVarRef) waitExpr.getExpression(), waitExpr.pos);
+        } else {
+            setEventualTypeForAlternateWaitExpression(waitExpr.getExpression(), waitExpr.pos);
         }
         waitExpr.type = resultType;
 
