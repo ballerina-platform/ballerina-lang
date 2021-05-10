@@ -54,12 +54,6 @@ function testIntCastFloatStmt (int a) returns float {
     return x;
 }
 
-function testBinaryExpressionIntAndFloatStmt (int a) returns float {
-    float x;
-    x = <float>a;
-    return x + a;
-}
-
 public client class Client {
     remote function foo() returns [int, int] {
         return [0, 0];
@@ -84,7 +78,7 @@ public function restActionResultAssignment() returns [int, int, string, string, 
     var { a: d } = c->foo1();
     var error(r) = c->foo2();
     var error(r2, failedAttempts = failedAttempts) = c->foo3();
-    return [a, b, d, r, r2, <int>failedAttempts];
+    return [a, b, d, r, r2, <int> checkpanic failedAttempts];
 }
 
 function testAssignErrorArrayToAny() {
