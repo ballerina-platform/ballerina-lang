@@ -104,7 +104,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     BINARY_OP_INCOMPATIBLE_TYPES("BCE2070", "binary.op.incompatible.types"),
     UNARY_OP_INCOMPATIBLE_TYPES("BCE2071", "unary.op.incompatible.types"),
     SELF_REFERENCE_VAR("BCE2072", "self.reference.var"),
-    INVALID_WORKER_SEND_POSITION("BCE2073", "invalid.worker.send.position"),
+    UNSUPPORTED_WORKER_SEND_POSITION("BCE2073", "unsupported.worker.send.position"),
     INVALID_WORKER_RECEIVE_POSITION("BCE2074", "invalid.worker.receive.position"),
     UNDEFINED_WORKER("BCE2075", "undefined.worker"),
     INVALID_WORKER_JOIN_RESULT_TYPE("BCE2076", "invalid.worker.join.result.type"),

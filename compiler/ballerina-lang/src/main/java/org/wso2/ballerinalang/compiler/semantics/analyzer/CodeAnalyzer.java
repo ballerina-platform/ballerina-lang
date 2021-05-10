@@ -2606,8 +2606,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         return env.enclInvokable.flagSet.contains(Flag.WORKER);
     }
 
-    private boolean isCommunicationAllowedLocation(String workerIdentifier) {
-        return (isDefaultWorkerCommunication(workerIdentifier) && isInWorker()) || isTopLevel();
+    private boolean isCommunicationAllowedLocation() {
+        return isTopLevel();
     }
 
     private boolean isDefaultWorkerCommunication(String workerIdentifier) {
@@ -2648,13 +2648,13 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         }
 
         String workerName = workerSendNode.workerIdentifier.getValue();
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
-        if (!allowedLocation) {
-            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.INVALID_WORKER_SEND_POSITION);
+        if (!isCommunicationAllowedLocation()) {
+            this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
-        if (!this.workerExists(workerSendNode.type, workerName)) {
+        if (!this.workerExists(workerSendNode.type, workerName)
+                || (!isWorkerFromFunction(env, names.fromString(workerName)) && !workerName.equals("function"))) {
             this.dlog.error(workerSendNode.pos, DiagnosticErrorCode.UNDEFINED_WORKER, workerName);
             was.hasErrors = true;
         }
@@ -2700,9 +2700,8 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         String workerName = syncSendExpr.workerIdentifier.getValue();
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
-        if (!allowedLocation) {
-            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.INVALID_WORKER_SEND_POSITION);
+        if (!isCommunicationAllowedLocation()) {
+            this.dlog.error(syncSendExpr.pos, DiagnosticErrorCode.UNSUPPORTED_WORKER_SEND_POSITION);
             was.hasErrors = true;
         }
 
@@ -2728,8 +2727,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
         WorkerActionSystem was = this.workerActionSystemStack.peek();
 
         String workerName = workerReceiveNode.workerIdentifier.getValue();
-        boolean allowedLocation = isCommunicationAllowedLocation(workerName);
-        if (!allowedLocation) {
+        if (!isCommunicationAllowedLocation()) {
             this.dlog.error(workerReceiveNode.pos, DiagnosticErrorCode.INVALID_WORKER_RECEIVE_POSITION);
             was.hasErrors = true;
         }
@@ -4005,7 +4003,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             for (BLangWaitForAllExpr.BLangWaitKeyValue keyValuePair : waitForAllExpr.keyValuePairs) {
                 BSymbol workerSymbol = getWorkerSymbol(keyValuePair);
                 if (isWorkerSymbol(workerSymbol)
-                        && isWorkerFromFunction(workerActionSystem.getActionEnvironment(currentAction), workerSymbol)) {
+                        && isWorkerFromFunction(workerActionSystem.getActionEnvironment(currentAction), workerSymbol.name)) {
                     var otherSM = workerActionSystem.find(workerSymbol.name.value);
                     allWorkersAreDone = allWorkersAreDone && otherSM.done();
                 }
@@ -4058,15 +4056,19 @@ public class CodeAnalyzer extends BLangNodeVisitor {
             populateWorkerNameList(binaryExpr.rhsExpr, workerNames, functionEnv);
         } else if (expr.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
             BLangSimpleVarRef varRef = (BLangSimpleVarRef) expr;
-            if (isWorkerSymbol(varRef.symbol) && isWorkerFromFunction(functionEnv, varRef.symbol)) {
+            if (isWorkerSymbol(varRef.symbol) && isWorkerFromFunction(functionEnv, varRef.symbol.name)) {
                 workerNames.add(varRef.variableName.value);
             }
         }
     }
 
-    private boolean isWorkerFromFunction(SymbolEnv functionEnv, BSymbol symbol) {
+    private boolean isWorkerFromFunction(SymbolEnv functionEnv, Name workerName) {
         if (functionEnv == null) {
             return false;
+        }
+
+        if (functionEnv.scope.lookup(workerName).symbol != null) {
+            return true;
         }
 
         if (functionEnv.enclInvokable != null) {
@@ -4075,11 +4077,7 @@ public class CodeAnalyzer extends BLangNodeVisitor {
                 return false;
             }
         }
-
-        if (functionEnv.scope.lookup(symbol.name).symbol != null) {
-            return true;
-        }
-        return isWorkerFromFunction(functionEnv.enclEnv, symbol);
+        return isWorkerFromFunction(functionEnv.enclEnv, workerName);
     }
 
     private boolean isWorkerSymbol(BSymbol symbol) {
