@@ -17,6 +17,7 @@ package org.ballerinalang.langserver.codeaction.providers;
 
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.StartActionNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.annotation.JavaSPIService;
@@ -109,6 +110,18 @@ public class CreateFunctionCodeAction extends AbstractCodeActionProvider {
         FunctionCallExpressionNode functionCallExpressionNode = null;
         if (node.kind() == SyntaxKind.FUNCTION_CALL) {
             functionCallExpressionNode = (FunctionCallExpressionNode) node;
+        }
+
+        if (functionCallExpressionNode != null) {
+            return Optional.of(functionCallExpressionNode);
+        }
+
+        // Else, a function call can be within a start action
+        if (node.kind() == SyntaxKind.START_ACTION) {
+            StartActionNode startActionNode = (StartActionNode) node;
+            if (startActionNode.expression().kind() == SyntaxKind.FUNCTION_CALL) {
+                functionCallExpressionNode = (FunctionCallExpressionNode) startActionNode.expression();
+            }
         }
 
         return Optional.ofNullable(functionCallExpressionNode);

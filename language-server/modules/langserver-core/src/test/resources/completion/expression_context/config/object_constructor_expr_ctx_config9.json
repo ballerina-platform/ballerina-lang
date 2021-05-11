@@ -401,6 +401,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "Thread",
+      "kind": "TypeParameter",
+      "detail": "Union",
+      "sortText": "M",
+      "insertText": "Thread",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testObjectConstructor()",
       "kind": "Function",
       "detail": "Function",
@@ -411,6 +419,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "testObjectConstructor",
       "insertText": "testObjectConstructor()",
       "insertTextFormat": "Snippet"
     },
@@ -420,14 +429,6 @@
       "detail": "int",
       "sortText": "B",
       "insertText": "value1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "Thread",
-      "kind": "TypeParameter",
-      "detail": "Union",
-      "sortText": "M",
-      "insertText": "Thread",
       "insertTextFormat": "Snippet"
     },
     {
@@ -449,6 +450,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunctionWithReturn",
       "insertText": "testFunctionWithReturn()",
       "insertTextFormat": "Snippet"
     },

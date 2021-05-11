@@ -307,6 +307,8 @@ public enum Snippet {
 
     STMT_FOREACH(SnippetGenerator.getForeachSnippet()),
 
+    STMT_FOREACH_RANGE_EXP(SnippetGenerator.getForeachRangeExpressionSnippet()),
+
     STMT_FORK(SnippetGenerator.getForkStatementSnippet()),
 
     STMT_IF(SnippetGenerator.getIfStatementSnippet()),
@@ -343,13 +345,13 @@ public enum Snippet {
     CLAUSE_DO(SnippetGenerator.getDoClauseSnippet()),
 
     CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
-    
+
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
-    
+
     CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
-    
+
     CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet()),
-    
+
     TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
 
     private final String snippetName;

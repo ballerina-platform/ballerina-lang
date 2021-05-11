@@ -6,11 +6,40 @@
   "source": "statement_context/source/foreach_stmt_ctx_source14.bal",
   "items": [
     {
-      "label": "foreach - tupleArr",
+      "label": "foreach",
       "kind": "Snippet",
-      "detail": "foreach snippet for iterable variable - tupleArr",
+      "detail": "foreach var item in expr",
+      "documentation": {
+        "left": "foreach statement for iterable variable - tupleArr"
+      },
       "sortText": "Q",
       "insertText": "foreach [string, int] item in tupleArr {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 13
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach int i in 0...expr",
+      "documentation": {
+        "left": "foreach i statement for iterable variable - tupleArr"
+      },
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...tupleArr.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -39,6 +68,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "reduce",
       "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -57,6 +87,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "forEach",
       "insertText": "forEach(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -75,6 +106,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "shift",
       "insertText": "shift()",
       "insertTextFormat": "Snippet"
     },
@@ -89,6 +121,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
@@ -103,6 +136,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "sort",
       "insertText": "sort(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -121,6 +155,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "reverse",
       "insertText": "reverse()",
       "insertTextFormat": "Snippet"
     },
@@ -135,6 +170,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toStream",
       "insertText": "toStream()",
       "insertTextFormat": "Snippet"
     },
@@ -149,6 +185,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "remove",
       "insertText": "remove(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -167,6 +204,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "push",
       "insertText": "push(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -185,6 +223,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "filter",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -203,6 +242,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "pop",
       "insertText": "pop()",
       "insertTextFormat": "Snippet"
     },
@@ -217,6 +257,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "lastIndexOf",
       "insertText": "lastIndexOf(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -235,6 +276,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -249,6 +291,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "removeAll",
       "insertText": "removeAll()",
       "insertTextFormat": "Snippet"
     },
@@ -263,6 +306,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "setLength",
       "insertText": "setLength(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -281,6 +325,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "slice",
       "insertText": "slice(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -299,6 +344,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "enumerate",
       "insertText": "enumerate()",
       "insertTextFormat": "Snippet"
     },
@@ -313,6 +359,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "unshift",
       "insertText": "unshift(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -331,6 +378,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "map",
       "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -349,6 +397,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "indexOf",
       "insertText": "indexOf(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -367,6 +416,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -385,6 +435,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -399,6 +450,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -413,6 +465,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
     },
@@ -427,6 +480,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -441,6 +495,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -455,6 +510,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -473,6 +529,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     },
@@ -487,6 +544,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     }

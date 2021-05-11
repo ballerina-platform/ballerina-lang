@@ -6,11 +6,40 @@
   "source": "statement_context/source/foreach_stmt_ctx_source16.bal",
   "items": [
     {
-      "label": "foreach - var1",
+      "label": "foreach",
       "kind": "Snippet",
-      "detail": "foreach snippet for iterable variable - var1",
+      "detail": "foreach var item in expr",
+      "documentation": {
+        "left": "foreach statement for iterable variable - var1"
+      },
       "sortText": "Q",
       "insertText": "foreach var item in var1 {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 9
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach int i in 0...expr",
+      "documentation": {
+        "left": "foreach i statement for iterable variable - var1"
+      },
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...var1.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -55,6 +84,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "reduce",
       "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -73,6 +103,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "hasKey",
       "insertText": "hasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -91,6 +122,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "forEach",
       "insertText": "forEach(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -109,6 +141,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "keys",
       "insertText": "keys()",
       "insertTextFormat": "Snippet"
     },
@@ -123,6 +156,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
@@ -137,6 +171,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "remove",
       "insertText": "remove(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -155,6 +190,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "filter",
       "insertText": "filter(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -173,6 +209,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "removeIfHasKey",
       "insertText": "removeIfHasKey(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -191,6 +228,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -205,6 +243,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "entries",
       "insertText": "entries()",
       "insertTextFormat": "Snippet"
     },
@@ -219,6 +258,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "removeAll",
       "insertText": "removeAll()",
       "insertTextFormat": "Snippet"
     },
@@ -233,6 +273,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "get",
       "insertText": "get(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -251,6 +292,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toArray",
       "insertText": "toArray()",
       "insertTextFormat": "Snippet"
     },
@@ -265,6 +307,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "map",
       "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -283,6 +326,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -301,6 +345,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -315,6 +360,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -329,6 +375,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
     },
@@ -343,6 +390,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -357,6 +405,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "fromJsonWithType",
       "insertText": "fromJsonWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -375,6 +424,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "mergeJson",
       "insertText": "mergeJson(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -393,6 +443,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -407,6 +458,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -425,6 +477,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     },
@@ -439,6 +492,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     }

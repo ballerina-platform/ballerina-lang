@@ -54,6 +54,7 @@ import java.util.stream.Collectors;
 public class ForeachCompletionUtil {
 
     private static final String VAR_NAME = "item";
+    private static final String VAR_NAME_RANGE_EXP = "i";
     private static final String VAR_TYPE = "var";
     private static final List<TypeDescKind> ITERABLES = Arrays.asList(
             TypeDescKind.STRING, TypeDescKind.ARRAY, TypeDescKind.TUPLE,
@@ -81,7 +82,7 @@ public class ForeachCompletionUtil {
                 expr.expression().kind() == SyntaxKind.FUNCTION_CALL)) {
             return completionItems;
         }
-        completionItems.add(getForEachCompletionItem(ctx, expr, typeSymbol));
+        completionItems.addAll(getForEachCompletionItems(ctx, expr, typeSymbol));
         return completionItems;
     }
 
@@ -93,24 +94,10 @@ public class ForeachCompletionUtil {
      * @param expr   expression node
      * @return {@link LSCompletionItem}
      */
-    private static LSCompletionItem getForEachCompletionItem(BallerinaCompletionContext ctx,
-                                                             FieldAccessExpressionNode expr,
-                                                             TypeSymbol symbol) {
-        String symbolName;
-        if (expr.expression().kind() == SyntaxKind.FUNCTION_CALL) {
-            symbolName = expr.expression().toSourceCode().trim();
-            //todo: Trim for arguments as well
-        } else {
-            symbolName = ((SimpleNameReferenceNode) expr.expression()).name().text();
-        }
-        String detail = "foreach snippet for iterable variable - " + symbolName;
-        String label = "foreach - " + symbolName;
-        String type = getTypeOfIteratorVariable(symbol);
-        StringBuilder snippet = new StringBuilder("foreach");
-        snippet.append(" ").append(type).append(" ")
-                .append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME)).append(" in ").append(symbolName)
-                .append(" ").append("{").append(CommonUtil.LINE_SEPARATOR).append("\t${1}")
-                .append(CommonUtil.LINE_SEPARATOR).append("}");
+    private static List<LSCompletionItem> getForEachCompletionItems(BallerinaCompletionContext ctx,
+                                                                    FieldAccessExpressionNode expr,
+                                                                    TypeSymbol symbol) {
+        List<LSCompletionItem> completionItems = new ArrayList<>();
 
         //create the text edit item to replace the field accession text
         List<TextEdit> textEdits = new ArrayList<>();
@@ -121,9 +108,67 @@ public class ForeachCompletionUtil {
         Position end = new Position(lineRange.endLine().line(), lineRange.endLine().offset());
         textEdit.setRange(new Range(start, end));
         textEdits.add(textEdit);
-        CompletionItem completionItem =
-                ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, textEdits);
-        return new StaticCompletionItem(ctx, completionItem, StaticCompletionItem.Kind.OTHER);
+
+        String symbolName;
+        if (expr.expression().kind() == SyntaxKind.FUNCTION_CALL) {
+            symbolName = expr.expression().toSourceCode().trim();
+            //todo: Trim for arguments as well
+        } else {
+            symbolName = ((SimpleNameReferenceNode) expr.expression()).name().text();
+        }
+
+        completionItems.add(new StaticCompletionItem(ctx,
+                getIteratingCompletionItem(ctx, symbolName, symbol, textEdits), StaticCompletionItem.Kind.OTHER));
+        completionItems.add(new StaticCompletionItem(ctx,
+                getRangeExprCompletionItem(ctx, symbolName, textEdits), StaticCompletionItem.Kind.OTHER));
+        return completionItems;
+    }
+
+    /**
+     * Returns the foreach completionitem to iterate the symbol.
+     *
+     * @param ctx        completion context
+     * @param symbolName symbol name corresponding to the symbol
+     * @param symbol     type symbol
+     * @param textEdits  edits that replace the field access symbol
+     * @return
+     */
+    private static CompletionItem getIteratingCompletionItem(BallerinaCompletionContext ctx,
+                                                             String symbolName, TypeSymbol symbol,
+                                                             List<TextEdit> textEdits) {
+        String detail = "foreach var item in expr";
+        //change label and tests accordingly
+        String label = "foreach";
+        String type = getTypeOfIteratorVariable(symbol);
+        StringBuilder snippet = new StringBuilder("foreach");
+        snippet.append(" ").append(type).append(" ")
+                .append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME)).append(" in ").append(symbolName)
+                .append(" ").append("{").append(CommonUtil.LINE_SEPARATOR).append("\t${1}")
+                .append(CommonUtil.LINE_SEPARATOR).append("}");
+        String documentation = "foreach statement for iterable variable - " + symbolName;
+        return ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, documentation, textEdits);
+    }
+
+    /**
+     * Returns the foreach completion item with range expression.
+     *
+     * @param ctx        completion context
+     * @param symbolName symbol name corresponding to the symbol
+     * @param textEdits  edits that replace the field access symbol
+     * @return
+     */
+    private static CompletionItem getRangeExprCompletionItem(BallerinaCompletionContext ctx,
+                                                             String symbolName,
+                                                             List<TextEdit> textEdits) {
+        String detail = "foreach int i in 0...expr";
+        String label = "foreach i";
+        StringBuilder snippet = new StringBuilder("foreach");
+        snippet.append(" int ").append(CommonUtil.getValidatedSymbolName(ctx, VAR_NAME_RANGE_EXP))
+                .append(" in ").append("${1:0}").append("...").append(symbolName)
+                .append(".length() ").append("{").append(CommonUtil.LINE_SEPARATOR).append("\t${2}")
+                .append(CommonUtil.LINE_SEPARATOR).append("}");
+        String documentation = "foreach i statement for iterable variable - " + symbolName;
+        return ForeachCompletionItemBuilder.build(snippet.toString(), label, detail, documentation, textEdits);
     }
 
     /**

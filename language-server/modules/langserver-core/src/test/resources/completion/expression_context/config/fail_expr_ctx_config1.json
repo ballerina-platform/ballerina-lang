@@ -409,6 +409,22 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "TestObject2",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "K",
+      "insertText": "TestObject2",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject1",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "K",
+      "insertText": "TestObject1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "obj1",
       "kind": "Variable",
       "detail": "TestObject1",
@@ -427,23 +443,8 @@
         }
       },
       "sortText": "C",
+      "filterText": "testNewFunction",
       "insertText": "testNewFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject1",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "K",
-      "insertText": "TestObject1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestObject2",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "K",
-      "insertText": "TestObject2",
       "insertTextFormat": "Snippet"
     },
     {
