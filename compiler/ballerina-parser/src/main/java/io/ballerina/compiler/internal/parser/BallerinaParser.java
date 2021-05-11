@@ -900,15 +900,15 @@ public class BallerinaParser extends AbstractParser {
         }
 
         // Invalidate other qualifiers with configurable
-        if (isModuleVar && configurableQualIndex > -1 ) {
+        if (isModuleVar && configurableQualIndex > -1) {
             STNode configurableQual = varDeclQualList.get(configurableQualIndex);
             for (int i = 0; i < varDeclQualList.size(); i++) {
                 if (i < configurableQualIndex) {
-                    configurableQual = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(configurableQual, varDeclQualList.get(i),
-                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+                    configurableQual = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(configurableQual,
+                            varDeclQualList.get(i), DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
                 } else if (i > configurableQualIndex) {
-                    configurableQual = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(configurableQual, varDeclQualList.get(i),
-                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+                    configurableQual = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(configurableQual,
+                            varDeclQualList.get(i), DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
                 }
             }
             varDeclQualList = new ArrayList<>(Arrays.asList(configurableQual));

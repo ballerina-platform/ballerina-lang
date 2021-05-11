@@ -2767,6 +2767,8 @@ public class BLangNodeTransformer extends NodeTransformer<BLangNode> {
                 markVariableWithFlag(var, Flag.FINAL);
             } else if (qualifier.kind() == SyntaxKind.CONFIGURABLE_KEYWORD) {
                 var.flagSet.add(Flag.CONFIGURABLE);
+                var.flagSet.add(Flag.FINAL);
+                var.flagSet.add(Flag.READONLY);
                 // Initializer is always present for configurable, hence get directly
                 if (initializer.get().kind() == SyntaxKind.REQUIRED_EXPRESSION) {
                     var.flagSet.add(Flag.REQUIRED);
