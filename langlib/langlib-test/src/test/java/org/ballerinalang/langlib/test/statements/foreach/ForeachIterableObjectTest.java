@@ -81,6 +81,11 @@ public class ForeachIterableObjectTest {
     }
 
     @Test
+    public void testIterableIterator() {
+        BRunUtil.invoke(program, "testIterableIterator");
+    }
+
+    @Test
     public void testIterableObjectErrors() {
         int i = 0;
         BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'object { public isolated " +
@@ -96,13 +101,13 @@ public class ForeachIterableObjectTest {
         BAssertUtil.validateError(negativeResult, i++, "invalid iterable type 'Iterable13': an iterable object must " +
                 "be a subtype of 'ballerina/lang.object:1.0.0:Iterable'", 248, 25);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function" +
-                " iterator() returns object { public isolated function next () returns ((" +
+                " iterator() returns object { public function next () returns ((" +
                 "record {| (any|error) value; |}|error)?); }', found 'public function iterator() returns " +
                 "object { public function foo () returns (record {| int value; |}?); }'", 254, 5);
         BAssertUtil.validateError(negativeResult, i++, "no implementation found for the method 'iterator' of class" +
                 " 'Iterable11'", 276, 1);
         BAssertUtil.validateError(negativeResult, i++, "mismatched function signatures: expected 'public function" +
-                " iterator() returns object { public isolated function next () returns ((" +
+                " iterator() returns object { public function next () returns ((" +
                 "record {| (any|error) value; |}|error)?); }', found 'public function iterator() returns " +
                 "object { public isolated function next () returns (record {| int x; |}?); }'", 302, 5);
         Assert.assertEquals(negativeResult.getErrorCount(), i);

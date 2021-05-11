@@ -448,6 +448,59 @@ function testListBindingPattern19() {
     assertEquals(-1, listBindingPattern19([1,2,3]));
 }
 
+function listBindingPattern20(int[3] a) returns int {
+    match a {
+        var [x, _, z] => {
+            return x + z;
+        }
+    }
+}
+
+function testListBindingPattern20() {
+    assertEquals(4, listBindingPattern20([1, 2, 3]));
+}
+
+type Person record {
+    string name;
+};
+
+function listBindingPattern21(string[]|Person v) returns string {
+    match v {
+        var [a, b] => {
+            return "string[2]";
+        }
+        _ => {
+            return "other";
+        }
+    }
+}
+
+function testListBindingPattern21() {
+    assertEquals("string[2]", listBindingPattern21(["hello", "world"]));
+    assertEquals("other", listBindingPattern21(["hello"]));
+    assertEquals("other", listBindingPattern21(["hello", "world", "ballerina"]));
+    assertEquals("other", listBindingPattern21({name: "May"}));
+}
+
+function listBindingPattern22(json j) returns json {
+    match j {
+        var [x] => {
+            return x;
+        }
+    }
+    return ();
+}
+
+function testListBindingPattern22() {
+    assertEquals("hello", listBindingPattern22(["hello"]));
+    assertEquals(1, listBindingPattern22([1]));
+    assertEquals((), listBindingPattern22([()]));
+    assertEquals((), listBindingPattern22({a: "hello world", x1: 1}));
+    assertEquals((), listBindingPattern22([]));
+    assertEquals((), listBindingPattern22([1, 2, 3]));
+    assertEquals((), listBindingPattern22(1));
+}
+
 function assertEquals(anydata expected, anydata actual) {
     if expected == actual {
         return;

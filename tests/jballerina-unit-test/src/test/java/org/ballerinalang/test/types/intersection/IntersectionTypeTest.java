@@ -112,6 +112,11 @@ public class IntersectionTypeTest {
     }
 
     @Test
+    public void testAnonDistinctError() {
+        BRunUtil.invoke(errorIntersectionResults, "testAnonDistinctError");
+    }
+
+    @Test
     public void testErrorIntersectionNegative() {
         CompileResult result = BCompileUtil.compile("test-src/types/intersection/error_intersection_type_negative.bal");
 
@@ -119,9 +124,6 @@ public class IntersectionTypeTest {
         validateError(result, index++, "invalid intersection type 'ErrorOne & ErrorTwo': no intersection", 45, 24);
         validateError(result, index++, "invalid intersection type 'ErrorOne & ErrorThree': no intersection", 47, 27);
         validateError(result, index++, "invalid intersection type 'ErrorOne & ErrorFour': no intersection", 49, 29);
-        validateError(result, index++,
-                      "invalid error detail rest arg 'z' passed to open detail record '"
-                              + "record {| string x; string...; |}'", 56, 15);
         validateError(result, index++, "error constructor does not accept additional detail args 'z' when " +
                         "error detail type 'record {| string x; string...; |}' contains individual field descriptors",
                 56, 63);

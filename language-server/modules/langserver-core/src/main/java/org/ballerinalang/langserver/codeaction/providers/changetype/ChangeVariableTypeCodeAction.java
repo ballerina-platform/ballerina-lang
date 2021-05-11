@@ -52,6 +52,8 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
 
+    public static final String NAME = "Change Variable Type";
+
     /**
      * {@inheritDoc}
      */
@@ -98,6 +100,11 @@ public class ChangeVariableTypeCodeAction extends TypeCastCodeAction {
             actions.add(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
         }
         return actions;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private Optional<NonTerminalNode> getVariableNode(NonTerminalNode sNode) {

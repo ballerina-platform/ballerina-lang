@@ -25,6 +25,8 @@ import org.wso2.ballerinalang.compiler.semantics.model.symbols.Symbols;
 import org.wso2.ballerinalang.compiler.util.TypeTags;
 import org.wso2.ballerinalang.util.Flags;
 
+import java.util.Optional;
+
 /**
  * {@code BRecordType} represents record type in Ballerina.
  *
@@ -47,6 +49,8 @@ public class BRecordType extends BStructureType implements RecordType {
 
     public BIntersectionType immutableType;
     public BRecordType mutableType;
+
+    private BIntersectionType intersectionType = null;
 
     public BRecordType(BTypeSymbol tSymbol) {
         super(TypeTags.RECORD, tSymbol);
@@ -102,5 +106,15 @@ public class BRecordType extends BStructureType implements RecordType {
     @Override
     public BIntersectionType getImmutableType() {
         return this.immutableType;
+    }
+
+    @Override
+    public Optional<BIntersectionType> getIntersectionType() {
+        return Optional.ofNullable(this.intersectionType);
+    }
+
+    @Override
+    public void setIntersectionType(BIntersectionType intersectionType) {
+        this.intersectionType = intersectionType;
     }
 }

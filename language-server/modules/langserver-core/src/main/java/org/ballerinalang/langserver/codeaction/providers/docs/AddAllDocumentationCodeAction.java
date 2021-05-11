@@ -38,6 +38,9 @@ import java.util.List;
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "Add All Documentation";
+
     public AddAllDocumentationCodeAction() {
         super(Arrays.asList(CodeActionNodeType.FUNCTION,
                 CodeActionNodeType.OBJECT,
@@ -55,6 +58,11 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
     @Override
     public List<CodeAction> getNodeBasedCodeActions(CodeActionContext context,
                                                     NodeBasedPositionDetails posDetails) {
+        // We don't show 'Document All' for nodes other than top level nodes
+        if (posDetails.matchedStatementNode() != posDetails.matchedTopLevelNode()) {
+            return Collections.emptyList();
+        }
+
         String docUri = context.fileUri();
         CommandArgument docUriArg = CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, docUri);
         List<Object> args = new ArrayList<>(Collections.singletonList(docUriArg));
@@ -62,5 +70,10 @@ public class AddAllDocumentationCodeAction extends AbstractCodeActionProvider {
         CodeAction action = new CodeAction(CommandConstants.ADD_ALL_DOC_TITLE);
         action.setCommand(new Command(CommandConstants.ADD_ALL_DOC_TITLE, AddAllDocumentationExecutor.COMMAND, args));
         return Collections.singletonList(action);
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 }

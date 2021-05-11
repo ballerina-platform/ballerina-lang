@@ -47,14 +47,10 @@ public class ParserTestRunner {
 
     public HashSet<String> skipList() {
         HashSet<String> hashSet = new HashSet<>();
-        // Following should be fixed
-        // TODO: categorize and create issues
-        hashSet.add("xml_template_source_24.bal");
+        // Compiler should be able to compile any user input.
+        // Therefore, when adding an item to the skip list, please create an issue.
         hashSet.add("func_def_source_08.bal");
-        hashSet.add("find_node_test_1.bal");
-        hashSet.add("minutiae_test_05_with_no_newlines.bal");
-        hashSet.add("import_decl_source_13.bal");
-        hashSet.add("do_stmt_source_07.bal");
+        hashSet.add("match_stmt_source_13.bal");
         return hashSet;
     }
 

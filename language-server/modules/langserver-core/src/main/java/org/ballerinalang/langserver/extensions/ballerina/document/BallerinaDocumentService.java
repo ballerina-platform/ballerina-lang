@@ -29,6 +29,8 @@ import java.util.concurrent.CompletableFuture;
  */
 @JsonSegment("ballerinaDocument")
 public interface BallerinaDocumentService {
+    @JsonRequest
+    CompletableFuture<SyntaxApiCallsResponse> syntaxApiCalls(SyntaxApiCallsRequest request);
 
     @JsonRequest
     CompletableFuture<BallerinaSyntaxTreeResponse> syntaxTree(BallerinaSyntaxTreeRequest request);
@@ -50,4 +52,10 @@ public interface BallerinaDocumentService {
 
     @JsonRequest
     CompletableFuture<List<PublishDiagnosticsParams>> diagnostics(BallerinaProjectParams params);
+
+    @JsonRequest
+    CompletableFuture<SyntaxTreeNodeResponse> syntaxTreeNode(SyntaxTreeNodeRequest params);
+
+    @JsonRequest
+    CompletableFuture<ExecutorPositionsResponse> executorPositions(BallerinaProjectParams params);
 }

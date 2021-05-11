@@ -164,6 +164,41 @@ public class MatchStmtListMatchPatternTest {
     }
 
     @Test
+    public void testListMatchPattern24() {
+        BRunUtil.invoke(result, "testListMatchPattern24");
+    }
+
+    @Test
+    public void testListMatchPattern25() {
+        BRunUtil.invoke(result, "testListMatchPattern25");
+    }
+
+    @Test
+    public void testListMatchPattern26() {
+        BRunUtil.invoke(result, "testListMatchPattern26");
+    }
+
+    @Test
+    public void testListMatchPattern27() {
+        BRunUtil.invoke(result, "testListMatchPattern27");
+    }
+
+    @Test
+    public void testListMatchPatternWithWildCard() {
+        BRunUtil.invoke(result, "testListMatchPatternWithWildCard");
+    }
+
+    @Test
+    public void testListMatchPatternWithArrayAndAnydataIntersection() {
+        BRunUtil.invoke(result, "testListMatchPatternWithArrayAndAnydataIntersection");
+    }
+
+    @Test
+    public void testListMatchPattern29() {
+        BRunUtil.invoke(result, "testListMatchPattern29");
+    }
+
+    @Test
     public void testRestMatchPattern1() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest1");
     }
@@ -186,6 +221,21 @@ public class MatchStmtListMatchPatternTest {
     @Test
     public void testRestMatchPattern5() {
         BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRest5");
+    }
+
+    @Test
+    public void testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPatternWithArrayAndAnydataIntersection");
+    }
+
+    @Test
+    public void testListMatchPatternWithClosedArray() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithClosedArray");
+    }
+
+    @Test
+    public void testListMatchPatternWithRestPattern11() {
+        BRunUtil.invoke(restMatchPatternResult, "testListMatchPatternWithRestPattern11");
     }
 
     @Test(description = "invalid match patterns")
@@ -221,6 +271,10 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 152, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 164, 9);
         BAssertUtil.validateError(resultNegative, ++i, unreachablePattern, 184, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 191, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 197, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 199, 9);
+        BAssertUtil.validateError(resultNegative, ++i, patternNotMatched, 201, 9);
 
         Assert.assertEquals(resultNegative.getErrorCount(), i + 1);
     }
@@ -234,6 +288,18 @@ public class MatchStmtListMatchPatternTest {
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "same variable cannot repeat in a match pattern", 21,
                 17);
         BAssertUtil.validateError(resultSemanticsNegative, ++i, "redeclared symbol 'a'", 21, 22);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'string[]', found " +
+                "'int[]'", 28, 26);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int[][]', found '" +
+                "(int|error)[][]'", 29, 27);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                37, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean[]', found " +
+                        "'json[]'", 37, 24);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'int', found 'json'",
+                40, 21);
+        BAssertUtil.validateError(resultSemanticsNegative, ++i, "incompatible types: expected 'boolean', found 'json'",
+                40, 25);
         Assert.assertEquals(resultSemanticsNegative.getErrorCount(), i + 1);
     }
 

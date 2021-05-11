@@ -19,7 +19,7 @@ package org.ballerinalang.debugadapter.evaluation;
 import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.Document;
-import io.ballerina.projects.ModuleCompilation;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.tools.text.TextDocumentChange;
 import io.ballerina.tools.text.TextEdit;
 import io.ballerina.tools.text.TextRange;
@@ -45,13 +45,13 @@ public class DebugExpressionCompiler {
      * @param expr expression string
      * @return module compilation
      */
-    public ModuleCompilation getModuleCompilation(String expr) {
+    public PackageCompilation getModuleCompilation(String expr) {
         if (document == null) {
             document = context.getDocument();
         }
 
         if (expr == null || expr.isBlank()) {
-            return document.module().getCompilation();
+            return document.module().packageInstance().getCompilation();
         }
 
         // As expressions cannot be compiled standalone, coverts into a compilable statement.
@@ -61,14 +61,14 @@ public class DebugExpressionCompiler {
         TextEdit[] textEdit = {TextEdit.from(TextRange.from(startOffset, 0), exprStatement)};
         String newContent = new String(document.textDocument().apply(TextDocumentChange.from(textEdit)).toCharArray());
         Document newDocument = document.modify().withContent(newContent).apply();
-        return newDocument.module().getCompilation();
+        return newDocument.module().packageInstance().getCompilation();
     }
 
     public SemanticModel getSemanticInfo() {
         if (document == null) {
             document = context.getDocument();
         }
-        return document.module().getCompilation().getSemanticModel();
+        return document.module().packageInstance().getCompilation().getSemanticModel(document.module().moduleId());
     }
 
     /**

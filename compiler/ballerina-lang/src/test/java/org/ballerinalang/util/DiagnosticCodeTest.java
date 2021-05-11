@@ -19,6 +19,7 @@ package org.ballerinalang.util;
 
 import io.ballerina.tools.diagnostics.DiagnosticCode;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.ballerinalang.util.diagnostic.DiagnosticHintCode;
 import org.ballerinalang.util.diagnostic.DiagnosticWarningCode;
 import org.testng.Assert;
 import org.testng.annotations.Test;
@@ -45,6 +46,12 @@ public class DiagnosticCodeTest {
     @Test
     public void testDiagnosticWarningCodesUniqueness() {
         DiagnosticWarningCode[] codes = DiagnosticWarningCode.values();
+        validateDiagnosticUniqueness(codes);
+    }
+
+    @Test
+    public void testDiagnosticHintCodesUniqueness() {
+        DiagnosticHintCode[] codes = DiagnosticHintCode.values();
         validateDiagnosticUniqueness(codes);
     }
 

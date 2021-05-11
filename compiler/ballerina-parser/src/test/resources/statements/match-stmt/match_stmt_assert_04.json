@@ -259,7 +259,7 @@
                       "isMissing": true,
                       "hasDiagnostics": true,
                       "diagnostics": [
-                        "ERROR_MISSING_PLUS_TOKEN"
+                        "ERROR_MISSING_BINARY_OPERATOR"
                       ]
                     },
                     {
@@ -513,45 +513,7 @@
                                 },
                                 {
                                   "kind": "LIST",
-                                  "hasDiagnostics": true,
-                                  "children": [
-                                    {
-                                      "kind": "FIELD_MATCH_PATTERN",
-                                      "hasDiagnostics": true,
-                                      "children": [
-                                        {
-                                          "kind": "IDENTIFIER_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_IDENTIFIER"
-                                          ]
-                                        },
-                                        {
-                                          "kind": "COLON_TOKEN",
-                                          "isMissing": true,
-                                          "hasDiagnostics": true,
-                                          "diagnostics": [
-                                            "ERROR_MISSING_COLON_TOKEN"
-                                          ]
-                                        },
-                                        {
-                                          "kind": "SIMPLE_NAME_REFERENCE",
-                                          "hasDiagnostics": true,
-                                          "children": [
-                                            {
-                                              "kind": "IDENTIFIER_TOKEN",
-                                              "isMissing": true,
-                                              "hasDiagnostics": true,
-                                              "diagnostics": [
-                                                "ERROR_MISSING_IDENTIFIER"
-                                              ]
-                                            }
-                                          ]
-                                        }
-                                      ]
-                                    }
-                                  ]
+                                  "children": []
                                 },
                                 {
                                   "kind": "CLOSE_BRACE_TOKEN",

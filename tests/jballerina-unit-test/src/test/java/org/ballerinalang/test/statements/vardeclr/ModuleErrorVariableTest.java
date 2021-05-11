@@ -75,11 +75,9 @@ public class ModuleErrorVariableTest {
         validateError(compileResultNegetive, index++,
                 "annotation 'annot' is not allowed on var", 36, 1);
         validateError(compileResultNegetive, index++,
-                "invalid arg type in error detail field 'basicErrorNo', expected 'int', found 'other'", 39, 78);
-        validateError(compileResultNegetive, index++,
-                "invalid error constructor, error details does not match", 39, 78);
-        validateError(compileResultNegetive, index++,
                 "incompatible types: expected 'string', found 'other'", 40, 69);
+        validateError(compileResultNegetive, index++,
+                "invalid arg type in error detail field 'basicErrorNo', expected 'int', found 'other'", 40, 79);
         validateError(compileResultNegetive, index++,
                 "invalid record binding pattern with type '[int]'", 53, 33);
         validateError(compileResultNegetive, index++,

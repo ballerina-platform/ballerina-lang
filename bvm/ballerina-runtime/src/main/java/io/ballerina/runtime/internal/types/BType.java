@@ -133,11 +133,16 @@ public abstract class BType implements Type {
     }
 
     public String getName() {
-        return typeName;
+        return typeName == null ? "" : typeName;
     }
 
-    public String getQualifiedName() {
-        return pkg == null ? typeName : pkg.toString() + ":" + typeName;
+    public final String getQualifiedName() {
+        String name = getName();
+        if (name.isEmpty()) {
+            return "";
+        }
+
+        return pkg == null ? name : pkg.toString() + ":" + name;
     }
 
     public Module getPackage() {

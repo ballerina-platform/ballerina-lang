@@ -254,7 +254,7 @@ function testReassignValueInLet() returns FullName[]{
 
 	var outputNameList =
 	    from var student in studentList
-	    let float twiceScore = (student.score*2)
+	    let float twiceScore = (student.score * 2.0)
 	    do {
 	        twiceScore = 1000;
 	        if(twiceScore < 50.00){
@@ -411,6 +411,24 @@ function testTableWithNonMappingTypeWithBindingPatterns() {
     table<int> ids = from var {id} in t select id;
 }
 
+public function testInvalidInputType() {
+    int x = 1;
+    int[] w = from var a in x
+                select 1;
+}
+
 function testIncompatibleSelectType(stream<string, error> clientStream) returns error? {
     return from string num in clientStream select {a: 1};
+}
+
+function testMapBindingPatternsAnydataType() {
+    map<anydata> keyValsMap = {foo:"sss", bar:"ffff"};
+    var x = from var {k} in keyValsMap
+                 select k;
+}
+
+function testMapBindingPatternsAnyType() {
+    map<any> keyValsMap = {foo:"sss", bar:"ffff"};
+    var x = from var {k} in keyValsMap
+                 select k;
 }

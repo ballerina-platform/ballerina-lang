@@ -153,12 +153,13 @@ class PersonObj {
 type PersonTable table<Person>;
 type IntStream stream<int>;
 type IntArray int[];
+type XmlType xml;
 
 function testComplexTypes() {
     json j = rt:echo(<json>{"name": "John Doe"}, json);
     assert(<json>{"name": "John Doe"}, j);
 
-    xml x = rt:echo(xml `<hello>xml content</hello>`, xml);
+    xml x = rt:echo(xml `<hello>xml content</hello>`, XmlType);
     assert(xml `<hello>xml content</hello>`, x);
 
     int[] ar = rt:echo(<int[]>[20, 30, 40], IntArray);

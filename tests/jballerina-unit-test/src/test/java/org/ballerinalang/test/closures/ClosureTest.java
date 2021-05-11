@@ -265,4 +265,16 @@ public class ClosureTest {
         BValue[] returns = BRunUtil.invoke(compileResult, "testRestParamsAsClosureVars2");
         Assert.assertEquals(((BInteger) returns[0]).intValue(), 60);
     }
+
+    @Test(description = "Test closure within resource function")
+    public void testClosureWithinResource() {
+        CompileResult result = BCompileUtil.compile("test-src/closures/closures_in_resource.bal");
+        Assert.assertEquals(result.getErrorCount(), 0);
+        BRunUtil.invoke(result, "testClosureWithinResource");
+    }
+
+    @Test(description = "Test error constructor with closure")
+    public void errorConstructorWithClosureTest() {
+        BRunUtil.invoke(compileResult, "errorConstructorWithClosureTest");
+    }
 }

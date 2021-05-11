@@ -346,8 +346,8 @@ public class ValueComparisonUtils {
             if (c != 0) {
                 break;
             } else {
-                if (i == len - 1 && lengthVal1 < lengthVal2) {
-                    return -1;
+                if (i == len - 1) {
+                    return Long.compare(lengthVal1, lengthVal2);
                 }
             }
         }

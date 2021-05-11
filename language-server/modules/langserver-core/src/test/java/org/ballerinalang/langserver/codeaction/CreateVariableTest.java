@@ -84,14 +84,19 @@ public class CreateVariableTest extends AbstractCodeActionTest {
                 {"variableAssignmentRequiredCodeAction37.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction38.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction39.json", "createVariable5.bal"},
-//                {"variableAssignmentRequiredCodeAction40.json", "createVariable5.bal"},   // disabled due to #26996
+                {"variableAssignmentRequiredCodeAction40.json", "createVariable5.bal"},
                 {"variableAssignmentRequiredCodeAction41.json", "createVariable6.bal"},
+                {"variableAssignmentRequiredCodeAction42.json", "createVariable7.bal"},
+                {"variableAssignmentRequiredCodeAction43.json", "createVariable7.bal"},
                 {"ignoreReturnValueCodeAction.json", "createVariable.bal"},
                 {"projectVariableAssignmentRequiredCodeAction1.json", "testproject/main.bal"},
                 {"projectVariableAssignmentRequiredCodeAction2.json", "testproject/main.bal"},
                 {"createVariableInClassMethod.json", "createVariableInClassMethod.bal"},
                 {"createVariableInServiceMethod.json", "createVariableInServiceMethod.bal"},
                 {"createVariableInServiceRemoteMethod.json", "createVariableInServiceMethod.bal"},
+                {"createVariableWithUnionType.json", "createVariableWithUnionType.bal"},
+                {"createVariableWithIntersectionType.json", "createVariableWithIntersectionType.bal"},
+                {"createVariableWithIntersectionType2.json", "createVariableWithIntersectionType.bal"},
         };
     }
 }

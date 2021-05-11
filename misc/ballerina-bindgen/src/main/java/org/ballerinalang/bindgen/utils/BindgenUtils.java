@@ -29,6 +29,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
 import java.io.PrintWriter;
+import java.lang.reflect.Constructor;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
 import java.lang.reflect.Modifier;
@@ -123,6 +124,11 @@ public class BindgenUtils {
                 throw new BindgenException("Unable to create the directory: " + path, e);
             }
         }
+    }
+
+    public static boolean isPublicConstructor(Constructor constructor) {
+        int modifiers = constructor.getModifiers();
+        return Modifier.isPublic(modifiers);
     }
 
     public static boolean isPublicField(Field field) {

@@ -36,6 +36,9 @@ public function foo() returns int:c {
     }
     transaction:Info info;
     int:IntType info;
+    string:lastIndexOf();
+    string:fromBytes(byteArray1);
+    int:sum(4, 5);
 }
 
 transaction:Info info2;
@@ -50,3 +53,5 @@ public function bar() {
 
 // Predeclared module prefix in array length
 int[int:SIGNED8_MAX_VALUE] x = [];
+
+xmlns boolean:qux as ns1;

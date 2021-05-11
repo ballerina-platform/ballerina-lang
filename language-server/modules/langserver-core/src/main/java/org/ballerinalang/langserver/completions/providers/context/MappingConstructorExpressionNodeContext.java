@@ -21,6 +21,7 @@ import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.ComputedNameFieldNode;
 import io.ballerina.compiler.syntax.tree.MappingConstructorExpressionNode;
@@ -152,6 +153,14 @@ public class MappingConstructorExpressionNodeContext extends
         if (rawType.typeKind() == TypeDescKind.RECORD) {
             return Optional.of((RecordTypeSymbol) rawType);
         }
+        if (rawType.typeKind() == TypeDescKind.UNION) {
+            List<TypeSymbol> records = ((UnionTypeSymbol) rawType).memberTypeDescriptors().stream()
+                    .filter(typeSymbol -> CommonUtil.getRawType(typeSymbol).typeKind() == TypeDescKind.RECORD)
+                    .collect(Collectors.toList());
+            if (records.size() == 1) {
+                return Optional.of((RecordTypeSymbol) CommonUtil.getRawType(records.get(0)));
+            }
+        }
 
         return Optional.empty();
     }
@@ -202,4 +211,6 @@ public class MappingConstructorExpressionNodeContext extends
 
         return this.getCompletionItemList(moduleContent, context);
     }
+
+
 }

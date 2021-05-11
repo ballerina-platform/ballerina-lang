@@ -29,6 +29,8 @@ import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.tools.diagnostics.Location;
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BInvokableSymbol;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.List;
 import java.util.Optional;
@@ -39,11 +41,15 @@ import java.util.StringJoiner;
  *
  * @since 2.0.0
  */
-public class BallerinaMethodSymbol implements MethodSymbol {
+public class BallerinaMethodSymbol extends BallerinaSymbol implements MethodSymbol {
 
     private final FunctionSymbol functionSymbol;
+    private String signature;
 
-    public BallerinaMethodSymbol(FunctionSymbol functionSymbol) {
+    public BallerinaMethodSymbol(FunctionSymbol functionSymbol,
+                                 BInvokableSymbol invokableSymbol,
+                                 CompilerContext context) {
+        super(functionSymbol.getName().get(), functionSymbol.kind(), invokableSymbol, context);
         this.functionSymbol = functionSymbol;
     }
 
@@ -104,6 +110,10 @@ public class BallerinaMethodSymbol implements MethodSymbol {
 
     @Override
     public String signature() {
+        if (this.signature != null) {
+            return this.signature;
+        }
+
         StringJoiner qualifierJoiner = new StringJoiner(" ");
         this.functionSymbol.qualifiers().stream().map(Qualifier::getValue).forEach(qualifierJoiner::add);
         qualifierJoiner.add("function ");
@@ -111,7 +121,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
         StringBuilder signature = new StringBuilder(qualifierJoiner.toString());
         StringJoiner joiner = new StringJoiner(", ");
         signature.append(this.functionSymbol.getName().get()).append("(");
-        for (ParameterSymbol requiredParam : this.typeDescriptor().parameters()) {
+        for (ParameterSymbol requiredParam : this.typeDescriptor().params().get()) {
             String ballerinaParameterSignature = requiredParam.signature();
             joiner.add(ballerinaParameterSignature);
         }
@@ -121,6 +131,7 @@ public class BallerinaMethodSymbol implements MethodSymbol {
         if (returnTypeSymbol.isPresent() && returnTypeSymbol.get().typeKind() != TypeDescKind.NIL) {
             signature.append(" returns ").append(returnTypeSymbol.get().signature());
         }
-        return signature.toString();
+        this.signature = signature.toString();
+        return this.signature;
     }
 }

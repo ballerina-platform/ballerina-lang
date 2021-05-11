@@ -33,6 +33,8 @@ public function foo() returns map: {
     int:
 }
 
+xmlns boolean:
+
 public function main(transaction) {
     // missing colon in var decl
     transaction Info info;
@@ -40,8 +42,12 @@ public function main(transaction) {
     int a = transaction
     // missing open parenthesis in transaction statement
     transaction int a = 5 }
-    // invalid colon
-    transaction: { int a = 5; }
     // missing identifier and var decl rhs
     transaction:
+    // transaction with colon negative
+    transaction: {
+        int a = 5;
+        int b = 10;
+        int c = 11;
+    }
 }

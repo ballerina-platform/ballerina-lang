@@ -208,6 +208,15 @@ function testFunctionOfFunctionTypedParamWithRest2() {
     assertEquality(x[0], y[1]);
 }
 
+function testFuncWithActualNeverReturn() {
+    int|error x = trap blowUp();
+    assertEquality(true, x is error);
+}
+
+function blowUp() returns int {
+    panic error("do not call me");
+}
+
 function assertEquality(any|error expected, any|error actual) {
     if expected is anydata && actual is anydata && expected == actual {
         return;

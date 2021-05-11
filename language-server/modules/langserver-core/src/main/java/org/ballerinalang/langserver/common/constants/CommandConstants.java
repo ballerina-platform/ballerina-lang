@@ -114,7 +114,7 @@ public class CommandConstants {
 
     public static final String CREATE_VAR_ADD_CHECK_TITLE = "Create variable and check error";
 
-    public static final String ADD_CHECK_TITLE = "Add check error";
+    public static final String ADD_CHECK_TITLE = "Add 'check' error";
 
     public static final String CREATE_SERVICE_RESOURCE = "Create service resource for the path '%s'";
 
@@ -127,4 +127,6 @@ public class CommandConstants {
     public static final String IMPLEMENT_FUNCS_TITLE = "Implement method '%s'";
 
     public static final String OPTIMIZE_IMPORTS_TITLE = "Optimize all imports";
+    
+    public static final String REPORT_USAGE_STATISTICS_COMMAND_TITLE = "Report usage statistics";
 }

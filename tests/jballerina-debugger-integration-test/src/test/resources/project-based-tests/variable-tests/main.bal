@@ -16,9 +16,9 @@
 
 import ballerina/lang.'int;
 
-type '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student record {
+type '\ \/\:\@\[\`\{\~\u{03C0}_123_ƮέŞŢ_Student record {
     string '1st_name;
-    int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324};
+    int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{03C0};
     Grades grades;
 };
 
@@ -42,10 +42,10 @@ type Employee record {
 
 type EmployeeTable table<Employee> key(id);
 
-class 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ {
+class 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ {
     public string '1st_name = "John";
-    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324} = 0;
-    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ? parent = ();
+    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{03C0} = 0;
+    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ? parent = ();
     string email = "default@abc.com";
     string address = "No 20, Palm grove";
 
@@ -70,8 +70,8 @@ public class Location {
 
 public type AnonPerson object {
     public string '1st_name;
-    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{2324};
-    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ? parent;
+    public int 'Ȧɢέ_\ \/\:\@\[\`\{\~\u{03C0};
+    public 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ? parent;
     string email;
     string address;
 };
@@ -106,7 +106,7 @@ var decimalValue = 100.0d;
 var byteValue = <byte>2;
 var floatValue = 2.0;
 json jsonVar = {name:"John", age:20};
-var '\ \/\:\@\[\`\{\~\u{2324}_IL = "IL with global var";
+var '\ \/\:\@\[\`\{\~\u{03C0}_IL = "IL with global var";
 
 // configurable variables
 configurable int port = ?;
@@ -135,13 +135,18 @@ public function main() {
     //------------------------ basic, structured type variables ------------------------//
 
     any[] arrayVar = [1, 20, -10.0, "foo"];
+    boolean[] booleanArrayVar = [false, true];
+    int[] intArrayVar = [1, 2, 3];
+    float[] floatArrayVar = [1.5, -2.0, 3.0];
+    decimal[] decimalArrayVar = [3, 34.3, -45];
+    string[] stringArrayVar = ["foo", "bar"];
     byte[] byteArrayVar = base64 `aa ab cc ad af df 1a d2 f3 a4`;
     [int, string] tupleVar = [20, "foo"];
     map<string> mapVar = {line1: "No. 20", line2: "Palm Grove", city: "Colombo 03", country: "Sri Lanka"};
 
-    '\ \/\:\@\[\`\{\~\u{2324}_123_ƮέŞŢ_Student recordVar = {
+    '\ \/\:\@\[\`\{\~\u{03C0}_123_ƮέŞŢ_Student recordVar = {
         '1st_name: "John Doe",
-        'Ȧɢέ_\ \/\:\@\[\`\{\~⌤: 20,
+        'Ȧɢέ_\ \/\:\@\[\`\{\~π: 20,
         grades: {
             maths: 80,
             physics: 75,
@@ -169,9 +174,9 @@ public function main() {
     future<int> futureVar = start sum(40, 50);
     _ = wait futureVar;
 
-    'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ objectVar = new;
+    'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ objectVar = new;
 
-    AnonPerson anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{2324}_ƮέŞŢ();
+    AnonPerson anonObjectVar = new 'Person_\\\ \/\<\>\:\@\[\`\{\~\u{03C0}_ƮέŞŢ();
 
     typedesc<int> typedescVar = int;
     stream<int, error> oddNumberStream = new stream<int, error>(new OddNumberGenerator());
@@ -187,9 +192,9 @@ public function main() {
     xml<never> neverVar = <xml<never>> 'xml:concat();
 
     // quoted identifiers
-    string '\ \/\:\@\[\`\{\~\u{2324}_var = "IL with special characters in var";
+    string '\ \/\:\@\[\`\{\~\u{03C0}_var = "IL with special characters in var";
     string 'üňĩćőđę_var = "IL with unicode characters in var";
-    json 'ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{2324}_json = {};
+    json 'ĠĿŐΒȂɭ_\ \/\:\@\[\`\{\~\u{03C0}_json = {};
     
     // variable visibility in 'if' statement
     if (true) {

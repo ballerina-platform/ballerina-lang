@@ -1161,8 +1161,10 @@ function testTypeDescTypeTest1() returns boolean {
     return false;
 }
 
+type XmlType xml;
+
 function testTypeDescTypeTest2() returns boolean {
-    string result = testType(xml);
+    string result = testType(XmlType);
     if (result == "null") {
         return true;
     }
@@ -1287,3 +1289,230 @@ type OpenRecordWithIntField record {
 type ClosedRecordWithIntField record {|
     int i;
 |};
+
+type ClosedRec record {|
+    int i?;
+    boolean b;
+|};
+
+public function testRecordIntersectionWithClosedRecordAndRecordWithOptionalField() {
+    record {| boolean b; |} x = {b: true};
+    record {| byte i?; boolean b?; |} y = x;
+
+    assertEquality(true, y is ClosedRec);
+
+    if y is ClosedRec {
+        record {| byte i?; boolean b; |} rec = y;
+        assertEquality(true, rec.b);
+        assertEquality((), rec?.i);
+
+        record {| byte i?; boolean...; |} rec2 = y;
+        assertEquality(true, rec2["b"]);
+        assertEquality((), rec2?.i);
+    }
+}
+
+type ClosedRecTwo record {|
+    int i;
+    string s?;
+|};
+
+type ClosedRecThree record {|
+    int i?;
+    boolean b = true;
+|};
+
+function testRecordIntersectionWithClosedRecordAndRecordWithOptionalField2() {
+    record {| int i; |} x = {i: 1};
+    record {| int i; boolean b?; |} y = x;
+
+    assertEquality(true, y is ClosedRecTwo);
+
+    if y is ClosedRecTwo {
+        record {| int i; |} z = y;
+        assertEquality(1, z.i);
+    }
+
+    ClosedRec cr1 = {i: 1, b: true};
+    assertEquality(false, cr1 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr1 is record {| byte i; boolean b?; |});
+
+    record {| byte i?; boolean b = false; |} rec2 = {i: 100};
+    ClosedRec cr2 = rec2;
+    assertEquality(true, cr2 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr2 is record {| byte i; boolean b?; |});
+
+    if cr2 is record {| byte i?; boolean b?; |} {
+        record {| byte i?; boolean b; |} rec = cr2;
+        assertEquality(100, rec?.i);
+        assertEquality(false, rec.b);
+    }
+
+    ClosedRec cr3 = <record {| byte i; boolean b; |}> {i: 45, b: true};
+    assertEquality(true, cr3 is record {| byte i?; boolean b?; |});
+    assertEquality(true, cr3 is record {| byte i; boolean b?; |});
+
+    if cr3 is record {| byte i; boolean b?; |} {
+        record {| byte i; boolean b; |} rec = cr3;
+        assertEquality(45, rec?.i);
+        assertEquality(true, rec.b);
+    }
+
+    ClosedRecThree cr4 = {i: 1, b: true};
+    assertEquality(false, cr4 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr4 is record {| byte i; boolean b?; |});
+
+    record {| byte i?; boolean b = false; |} rec3 = {i: 100};
+    ClosedRecThree cr5 = rec3;
+    assertEquality(true, cr5 is record {| byte i?; boolean b?; |});
+    assertEquality(false, cr5 is record {| byte i; boolean b?; |});
+
+    if cr5 is record {| byte i?; boolean b?; |} {
+        record {| byte i?; boolean b; |} rec = cr5;
+        assertEquality(100, rec?.i);
+        assertEquality(false, rec.b);
+    }
+
+    ClosedRecThree cr6 = <record {| byte i; boolean b = false; |}> {i: 45, b: true};
+    assertEquality(true, cr6 is record {| byte i?; boolean b?; |});
+    assertEquality(true, cr6 is record {| byte i; boolean b?; |});
+
+    if cr6 is record {| byte i; boolean b?; |} {
+        record {| byte i; boolean b; |} rec = cr6;
+        assertEquality(45, rec?.i);
+        assertEquality(true, rec.b);
+    }
+}
+
+type RecordWithDefaultValue record {|
+    int i = 10;
+    boolean b?;
+|};
+
+type RecordWithNoDefaultValue record {|
+    byte i;
+    boolean|string b?;
+|};
+
+function testRecordIntersectionWithDefaultValues() {
+    RecordWithDefaultValue e = {};
+    assertEquality(false, e is RecordWithNoDefaultValue);
+
+    record {| byte i = 101; |} rec = {};
+    RecordWithDefaultValue f = rec;
+    assertEquality(true, f is RecordWithNoDefaultValue);
+
+    if f is RecordWithNoDefaultValue {
+        record {| byte i; boolean b?; |} rec2 = f;
+        assertEquality(101, rec2?.i);
+        assertEquality((), rec2?.b);
+    }
+
+    record {| byte i = 101; boolean b; |} rec3 = {b: true};
+    RecordWithDefaultValue g = rec3;
+    assertEquality(true, g is RecordWithNoDefaultValue);
+
+    if g is RecordWithNoDefaultValue {
+        record {| byte i; boolean b?; |} rec2 = g;
+        assertEquality(101, rec2?.i);
+        assertEquality(true, rec2?.b);
+    }
+}
+
+function testClosedRecordAndMapIntersection() {
+    record {| byte i; |} x = {i: 123};
+    map<int|string> m = x;
+
+    assertEquality(true, m is record {| int i; float f?; |});
+
+    if m is record {| int i; float f?; |} {
+        record {| int i; |} rec = m;
+        assertEquality(123, rec.i);
+    }
+}
+
+type RecordWithNonReadOnlyField record {|
+    int i;
+    string s?;
+|};
+
+type RecordWithReadOnlyFieldAndOptionalNonReadOnlyField record {|
+    readonly int i;
+    boolean b?;
+|};
+
+type RecordWithReadOnlyFieldAndNonReadOnlyField record {|
+    readonly int i;
+    string|boolean s;
+|};
+
+function testIntersectionReadOnlyness() {
+    record {| int i; |} & readonly r1 = {i: 1};
+    RecordWithNonReadOnlyField r2 = r1;
+
+    assertEquality(true, r2 is RecordWithReadOnlyFieldAndOptionalNonReadOnlyField);
+    assertEquality(false, r2 is RecordWithReadOnlyFieldAndNonReadOnlyField);
+
+    if r2 is RecordWithReadOnlyFieldAndOptionalNonReadOnlyField {
+        readonly x = r2;
+        record {| readonly int i; |} y = r2;
+        assertEquality(1, y.i);
+    }
+
+    record {| readonly int i; string s; |} r3 = {i: 123, s: "hello"};
+    RecordWithNonReadOnlyField r4 = r3;
+
+    assertEquality(true, r4 is RecordWithReadOnlyFieldAndNonReadOnlyField);
+    if r2 is RecordWithReadOnlyFieldAndNonReadOnlyField {
+        record {| readonly int i; string s; |} x = r2;
+        assertEquality(123, x.i);
+        assertEquality("hello", x.s);
+    }
+}
+
+function testMapIntersection() {
+    map<int|string> m = {a: 1, b: 2};
+    assertEquality(false, m is map<int|boolean>);
+
+    map<int> m2 = {a: 1, b: 2};
+    map<int|string> m3 = m2;
+    assertEquality(true, m3 is map<int|boolean>);
+
+    if m3 is map<int|boolean> {
+        map<int> m4 = m3;
+        assertEquality(2, m4.length());
+        assertEquality(1, m4["a"]);
+        assertEquality(2, m4["b"]);
+        assertEquality((), m4["c"]);
+    }
+}
+
+function jsonIntersection(json j) returns int {
+    if j is map<int|stream<int>> {
+        map<int> m = j;
+        return m.length();
+    }
+
+    if j is (int|stream<int>|boolean)[] {
+        (int|boolean)[] a = j;
+        return a.length();
+    }
+
+    return -1;
+}
+
+function testJsonIntersection() {
+    assertEquality(-1, jsonIntersection({a: 1, b: 2}));
+    assertEquality(2, jsonIntersection(<map<byte>> {a: 1, b: 2}));
+    assertEquality(-1, jsonIntersection(1));
+    assertEquality(-1, jsonIntersection([1, 2, 3]));
+    assertEquality(4, jsonIntersection(<int[]> [1, 2, 3, 4]));
+}
+
+function assertEquality(anydata expected, anydata actual) {
+    if expected == actual {
+        return;
+    }
+
+    panic error("expected '" + expected.toString() + "', found '" + actual.toString () + "'");
+}

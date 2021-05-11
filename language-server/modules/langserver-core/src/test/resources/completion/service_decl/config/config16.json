@@ -142,11 +142,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "fork",
+      "label": "foreach i",
       "kind": "Snippet",
       "detail": "Statement",
       "sortText": "O",
-      "insertText": "fork {\n\t${1}\n}",
+      "insertText": "foreach ${1:int} ${2:i} in ${3:0}...${4:9} {\n\t${5}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -155,6 +155,14 @@
       "detail": "Statement",
       "sortText": "O",
       "insertText": "transaction {\n\t${1}\n}",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "retry",
+      "kind": "Snippet",
+      "detail": "Statement",
+      "sortText": "O",
+      "insertText": "retry {\n\t${1}\n}",
       "insertTextFormat": "Snippet"
     },
     {
@@ -294,29 +302,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },
@@ -464,14 +449,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestObject",
-      "kind": "Interface",
-      "detail": "Object",
-      "sortText": "K",
-      "insertText": "TestObject",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "StrandData",
       "kind": "Struct",
       "detail": "Record",
@@ -480,6 +457,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestObject",
+      "kind": "Interface",
+      "detail": "Object",
+      "sortText": "K",
+      "insertText": "TestObject",
       "insertTextFormat": "Snippet"
     },
     {
@@ -531,19 +516,19 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "service",
-      "kind": "Unit",
-      "detail": "type",
-      "sortText": "Q",
-      "insertText": "service",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "byte",
       "kind": "Unit",
       "detail": "type",
       "sortText": "Q",
       "insertText": "byte",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "service",
+      "kind": "Unit",
+      "detail": "type",
+      "sortText": "Q",
+      "insertText": "service",
       "insertTextFormat": "Snippet"
     },
     {
@@ -595,6 +580,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "self",
+      "kind": "Variable",
+      "detail": "isolated service object {resource function name . () returns () ;}",
+      "sortText": "B",
+      "insertText": "self",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()(int)",
       "kind": "Function",
       "detail": "Function",
@@ -605,15 +598,8 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "self",
-      "kind": "Variable",
-      "detail": "isolated service object {resource function name . () returns () ;}",
-      "sortText": "B",
-      "insertText": "self",
       "insertTextFormat": "Snippet"
     },
     {

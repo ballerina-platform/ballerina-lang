@@ -131,16 +131,6 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get commit keyword Snippet Block.
-     *
-     * @return {@link SnippetBlock}     Generated Snippet Block
-     */
-    public static SnippetBlock getCommitKeywordSnippet() {
-        return new SnippetBlock(ItemResolverConstants.COMMIT, "commit;", ItemResolverConstants.KEYWORD_TYPE,
-                Kind.KEYWORD);
-    }
-
-    /**
      * Get is keyword Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -420,6 +410,18 @@ public class SnippetGenerator {
         String snippet = "foreach ${1:var} ${2:item} in ${3:itemList} {" + CommonUtil.LINE_SEPARATOR + "\t${4}"
                 + CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.FOREACH, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
+    }
+
+    /**
+     * Get ForeachRangeExpression Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getForeachRangeExpressionSnippet() {
+        String snippet = "foreach ${1:int} ${2:i} in ${3:0}...${4:9} {" + CommonUtil.LINE_SEPARATOR + "\t${5}"
+                + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.FOREACH_RANGE_EXP, snippet, ItemResolverConstants.STATEMENT_TYPE,
                 Kind.STATEMENT);
     }
 
@@ -1289,6 +1291,18 @@ public class SnippetGenerator {
     }
 
     /**
+     * Get Retry Statement Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getRetryStatementSnippet() {
+        String snippet = "retry {" + CommonUtil.LINE_SEPARATOR
+                + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
+        return new SnippetBlock(ItemResolverConstants.RETRY, snippet, ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
+    }
+
+    /**
      * Get Trap Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
@@ -1360,13 +1374,23 @@ public class SnippetGenerator {
     }
 
     /**
-     * Get Rollback Keyword Snippet Block.
+     * Get Rollback Statement Snippet Block.
      *
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getRollbackStatementSnippet() {
-        return new SnippetBlock(ItemResolverConstants.ROLLBACK_KEYWORD, "rollback;", ItemResolverConstants.KEYWORD_TYPE,
-                Kind.KEYWORD);
+        return new SnippetBlock(ItemResolverConstants.ROLLBACK, "rollback;", ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
+    }
+
+    /**
+     * Get commit statement Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getCommitStatementSnippet() {
+        return new SnippetBlock(ItemResolverConstants.COMMIT, "commit;", ItemResolverConstants.STATEMENT_TYPE,
+                Kind.STATEMENT);
     }
 
     /**
@@ -1388,9 +1412,28 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getDoStatementSnippet() {
+        return getDoSnippet(ItemResolverConstants.STATEMENT_TYPE, Kind.STATEMENT);
+    }
+
+    /**
+     * Get {@code do} Clause Snippet Block.
+     *
+     * @return {@link SnippetBlock}     Generated Snippet Block
+     */
+    public static SnippetBlock getDoClauseSnippet() {
+        return getDoSnippet(ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);
+    }
+
+    /**
+     * Common method to generate {@code do} statement/clause.
+     *
+     * @param snippetType      Snippet type
+     * @param snippetBlockKind Snippet block kind
+     * @return Snippet block for do stmt/clause
+     */
+    private static SnippetBlock getDoSnippet(String snippetType, Kind snippetBlockKind) {
         String snippet = "do {" + CommonUtil.LINE_SEPARATOR + "\t${1}" + CommonUtil.LINE_SEPARATOR + "}";
-        return new SnippetBlock(ItemResolverConstants.DO, snippet, ItemResolverConstants.STATEMENT_TYPE,
-                Kind.STATEMENT);
+        return new SnippetBlock(ItemResolverConstants.DO, snippet, snippetType, snippetBlockKind);
     }
 
     /**
@@ -1495,7 +1538,7 @@ public class SnippetGenerator {
      * @return {@link SnippetBlock}     Generated Snippet Block
      */
     public static SnippetBlock getInitFunctionSnippet() {
-        String snippet = "public function init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
+        String snippet = "function init(${1:any arg}) {" + CommonUtil.LINE_SEPARATOR + "\t${2}" +
                 CommonUtil.LINE_SEPARATOR + "}";
         return new SnippetBlock(ItemResolverConstants.NEW_OBJECT_INITIALIZER_TYPE, snippet,
                 ItemResolverConstants.SNIPPET_TYPE, Kind.SNIPPET);

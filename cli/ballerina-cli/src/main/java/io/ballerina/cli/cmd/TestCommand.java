@@ -119,6 +119,9 @@ public class TestCommand implements BLauncherCmd {
             description = "hidden option for code coverage to include all classes")
     private String includes;
 
+//    @CommandLine.Option(names = "--show-all-warnings", description = "show warnings of dependencies")
+    private Boolean showAllWarnings;
+
     private static final String testCmd = "bal test [--offline] [--skip-tests]\n" +
             "                   [<ballerina-file> | <package-path>] [(--key=value)...]";
 
@@ -200,6 +203,7 @@ public class TestCommand implements BLauncherCmd {
                 .skipTests(false)
                 .testReport(testReport)
                 .observabilityIncluded(observabilityIncluded)
+                .showAllWarnings(showAllWarnings)
                 .build();
     }
 

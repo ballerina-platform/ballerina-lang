@@ -193,7 +193,13 @@ public class DefaultPackageResolver implements PackageResolver {
         ResolutionRequest newResolutionReq = ResolutionRequest.from(
                 PackageDescriptor.from(resolutionRequest.orgName(), resolutionRequest.packageName(),
                         latestVersion), resolutionRequest.scope());
-        Optional<Package> packageOptional = pkgRepoThatContainsLatestVersion.getPackage(newResolutionReq);
+
+        // Check if the package is already in cache to avoid
+        // duplicating package instances in the WritablePackageCache.
+        Optional<Package> packageOptional = Optional.ofNullable(loadFromCache(newResolutionReq));
+        if (packageOptional.isEmpty()) {
+            packageOptional = pkgRepoThatContainsLatestVersion.getPackage(newResolutionReq);
+        }
         return packageOptional.orElse(null);
     }
 
@@ -214,9 +220,7 @@ public class DefaultPackageResolver implements PackageResolver {
             }
         }
 
-        return resolvedPackage.orElseThrow(() -> new IllegalStateException(
-                "Ballerina langlib package cannot be found in Ballerina distribution: org=" +
-                        resolutionRequest.orgName() + ", name=" + resolutionRequest.packageName()));
+        return resolvedPackage.orElse(null);
     }
 
     private PackageVersion findLatest(List<PackageVersion> packageVersions) {
@@ -231,9 +235,19 @@ public class DefaultPackageResolver implements PackageResolver {
         return latestVersion;
     }
 
-    public static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
+    private static PackageVersion getLatest(PackageVersion v1, PackageVersion v2) {
         SemanticVersion semVer1 = v1.value();
         SemanticVersion semVer2 = v2.value();
-        return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
+        boolean isV1PreReleaseVersion = semVer1.isPreReleaseVersion();
+        boolean isV2PreReleaseVersion = semVer2.isPreReleaseVersion();
+        if (isV1PreReleaseVersion ^ isV2PreReleaseVersion) {
+            // Only one version is a pre-release version
+            // Return the version which is not a pre-release version
+            return isV1PreReleaseVersion ? v2 : v1;
+        } else {
+            // Both versions are pre-release versions or both are not pre-release versions
+            // Find the the latest version
+            return semVer1.greaterThanOrEqualTo(semVer2) ? v1 : v2;
+        }
     }
 }

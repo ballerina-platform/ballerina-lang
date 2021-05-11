@@ -20,7 +20,7 @@ package org.ballerinalang.langserver.util;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
 import com.google.gson.JsonElement;
-import io.ballerina.projects.Module;
+import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.Project;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import org.ballerinalang.langserver.BallerinaLanguageServer;
@@ -30,6 +30,8 @@ import org.ballerinalang.langserver.commons.LanguageServerContext;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceDocumentException;
 import org.ballerinalang.langserver.commons.workspace.WorkspaceManager;
 import org.ballerinalang.langserver.contexts.ContextBuilder;
+import org.ballerinalang.langserver.extensions.ballerina.document.BallerinaProjectParams;
+import org.ballerinalang.langserver.extensions.ballerina.document.SyntaxTreeNodeRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageComponentsRequest;
 import org.ballerinalang.langserver.extensions.ballerina.packages.PackageMetadataRequest;
 import org.eclipse.lsp4j.ClientCapabilities;
@@ -115,6 +117,10 @@ public class TestUtil {
     private static final String PACKAGE_METADATA = "ballerinaPackage/metadata";
 
     private static final String PACKAGE_COMPONENTS = "ballerinaPackage/components";
+
+    private static final String DOCUMENT_SYNTAX_TREE_NODE = "ballerinaDocument/syntaxTreeNode";
+
+    private static final String DOCUMENT_EXEC_POSITIONS = "ballerinaDocument/executorPositions";
 
     private static final Gson GSON = new Gson();
 
@@ -342,6 +348,34 @@ public class TestUtil {
     }
 
     /**
+     * Returns syntaxTreeNode API response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path to evaluate
+     * @param range           Document position
+     * @return {@link String} Document syntaxTree node response
+     */
+    public static String getSyntaxTreeNodeResponse(Endpoint serviceEndpoint, String filePath, Range range) {
+        SyntaxTreeNodeRequest request = new SyntaxTreeNodeRequest();
+        request.setDocumentIdentifiers(getTextDocumentIdentifier(filePath));
+        request.setRange(range);
+        return getResponseString(serviceEndpoint.request(DOCUMENT_SYNTAX_TREE_NODE, request));
+    }
+
+    /**
+     * Returns executorPositions API response.
+     *
+     * @param serviceEndpoint Language Server Service endpoint
+     * @param filePath        File path to evaluate
+     * @return {@link String} Document executor positions response
+     */
+    public static String getExecutorPositionsResponse(Endpoint serviceEndpoint, String filePath) {
+        BallerinaProjectParams executorPositionsRequest = new BallerinaProjectParams();
+        executorPositionsRequest.setDocumentIdentifier(getTextDocumentIdentifier(filePath));
+        return getResponseString(serviceEndpoint.request(DOCUMENT_EXEC_POSITIONS, executorPositionsRequest));
+    }
+
+    /**
      * Open a document.
      *
      * @param serviceEndpoint Language Server Service Endpoint
@@ -540,10 +574,8 @@ public class TestUtil {
         if (project.isEmpty()) {
             return diagnostics;
         }
-        for (Module module : project.get().currentPackage().modules()) {
-            diagnostics.addAll(module.getCompilation().diagnostics().diagnostics());
-        }
-
+        DiagnosticResult diagnosticResult = project.get().currentPackage().getCompilation().diagnosticResult();
+        diagnostics.addAll(diagnosticResult.diagnostics());
         return diagnostics;
     }
 }

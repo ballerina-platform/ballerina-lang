@@ -20,6 +20,7 @@ package io.ballerina.cli.cmd;
 
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.ProjectFiles;
+import io.ballerina.projects.util.ProjectConstants;
 import org.apache.commons.io.FileUtils;
 import org.powermock.api.mockito.PowerMockito;
 import org.powermock.core.classloader.annotations.PowerMockIgnore;
@@ -46,10 +47,10 @@ import static io.ballerina.cli.cmd.CommandOutputUtils.getOutput;
  * @since 2.0.0
  */
 @PrepareForTest({ RepoUtils.class })
-@PowerMockIgnore("jdk.internal.reflect.*")
+@PowerMockIgnore({"jdk.internal.reflect.*", "javax.net.*", "com.sun.*"})
 public class PushCommandTest extends BaseCommandTest {
 
-    private static final String VALID_PROJECT = "validProject";
+    private static final String VALID_PROJECT = "validApplicationProject";
     private Path testResources;
 
     @BeforeClass
@@ -69,7 +70,7 @@ public class PushCommandTest extends BaseCommandTest {
     @Test(description = "Push package with too many args")
     public void testPushWithTooManyArgs() throws IOException {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
-        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse("tests");
         pushCommand.execute();
 
@@ -85,7 +86,7 @@ public class PushCommandTest extends BaseCommandTest {
                 + "'bal build -c' to compile and generate the bala.";
 
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
-        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse();
         pushCommand.execute();
 
@@ -115,7 +116,7 @@ public class PushCommandTest extends BaseCommandTest {
         // Push
         String expected = "cannot find bala file for the package: winery. Run "
                 + "'bal build -c' to compile and generate the bala.";
-        PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream);
+        PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse();
         pushCommand.execute();
 
@@ -129,7 +130,7 @@ public class PushCommandTest extends BaseCommandTest {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         // Test if no arguments was passed in
         String[] args = { "sample2", "--help" };
-        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
 
@@ -141,7 +142,7 @@ public class PushCommandTest extends BaseCommandTest {
         Path validBalProject = this.testResources.resolve(VALID_PROJECT);
         // Test if no arguments was passed in
         String[] args = { "-h" };
-        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
 
@@ -159,7 +160,7 @@ public class PushCommandTest extends BaseCommandTest {
         Path mockRepo = Paths.get("build").resolve("ballerina-home");
         // Test if no arguments was passed in
         String[] args = { "--repository=local" };
-        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
+        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
         PowerMockito.mockStatic(RepoUtils.class);
         PowerMockito.when(RepoUtils.createAndGetHomeReposPath()).thenReturn(mockRepo);
@@ -181,28 +182,59 @@ public class PushCommandTest extends BaseCommandTest {
         BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
         new CommandLine(buildCommand).parse();
         buildCommand.execute();
-        String buildLog = readOutput(true);
         Assert.assertTrue(
                 projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
         // Push
         String expected = "Package.md is missing in bala file";
 
-        PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream);
+        PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse();
         pushCommand.execute();
 
-        buildLog = readOutput(true);
+        String buildLog = readOutput(true);
+        String actual = buildLog.replaceAll("\r", "");
+        Assert.assertTrue(actual.contains(expected));
+    }
+
+    @Test
+    public void testPushWithEmptyPackageMd() throws IOException {
+        Path projectPath = this.testResources.resolve(VALID_PROJECT);
+        System.setProperty("user.dir", projectPath.toString());
+        Files.createFile(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+        // Build project
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
+
+        Files.delete(projectPath.resolve(ProjectConstants.PACKAGE_MD_FILE_NAME));
+
+        // Push
+        String expected = "package md file cannot be empty";
+
+        PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
+        new CommandLine(pushCommand).parse();
+        pushCommand.execute();
+
+        String buildLog = readOutput(true);
         String actual = buildLog.replaceAll("\r", "");
         Assert.assertTrue(actual.contains(expected));
     }
 
     @Test
     public void testPushToAnUnsupportedRepo() throws IOException {
-        Path validBalProject = this.testResources.resolve(VALID_PROJECT);
+        Path projectPath = this.testResources.resolve("validLibraryProject");
+        // Build project
+        BuildCommand buildCommand = new BuildCommand(projectPath, printStream, printStream, false, true, true);
+        new CommandLine(buildCommand).parse();
+        buildCommand.execute();
+        Assert.assertTrue(
+                projectPath.resolve("target").resolve("bala").resolve("foo-winery-any-0.1.0.bala").toFile().exists());
 
         String[] args = { "--repository=stdlib.local" };
-        PushCommand pushCommand = new PushCommand(validBalProject, printStream, printStream);
+        PushCommand pushCommand = new PushCommand(projectPath, printStream, printStream, false);
         new CommandLine(pushCommand).parse(args);
         pushCommand.execute();
         String errMsg = "unsupported repository 'stdlib.local' found. Only 'local' repository is supported";

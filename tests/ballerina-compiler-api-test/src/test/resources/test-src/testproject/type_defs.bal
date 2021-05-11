@@ -80,3 +80,7 @@ public type Student record {|
 public type Cat object {
     *Pet;
 };
+
+public type Annot record {|
+    string host;
+|};

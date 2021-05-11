@@ -17,7 +17,6 @@
  */
 package org.ballerinalang.test.types.never;
 
-import org.ballerinalang.core.model.values.BValue;
 import org.ballerinalang.core.util.exceptions.BLangRuntimeException;
 import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
@@ -36,6 +35,7 @@ public class NeverTypeTest {
 
     private CompileResult neverTypeTestResult;
     private CompileResult negativeCompileResult;
+    private CompileResult runtimeResult;
 
     @BeforeClass
     public void setup() {
@@ -101,88 +101,99 @@ public class NeverTypeTest {
 
     @Test
     public void testNeverTypeNegative() {
-        Assert.assertEquals(negativeCompileResult.getErrorCount(), 40);
+        Assert.assertEquals(negativeCompileResult.getErrorCount(), 44);
         int i = 0;
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot define a variable of type 'never' or equivalent to type 'never'", 2, 5);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "cannot define a variable of type 'never' or equivalent to type 'never'", 12, 5);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected '()', found 'never'", 16, 12);
+                "incompatible types: expected 'never', found 'string'", 21, 12);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found 'string'", 25, 12);
+                "incompatible types: expected 'never', found 'string'", 27, 16);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found 'string'", 31, 16);
+                "incompatible types: expected 'never', found '()'", 32, 12);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found '()'", 36, 12);
+                "incompatible types: expected 'never', found '()'", 37, 20);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found '()'", 41, 20);
+                "cannot define a variable of type 'never' or equivalent to type 'never'", 54, 5);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot define a variable of type 'never' or equivalent to type 'never'", 58, 5);
+                "incompatible types: expected 'never', found 'string'", 54, 23);
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'never', found 'string'", 58, 23);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found 'string'", 62, 23);
+                "cannot define a variable of type 'never' or equivalent to type 'never'", 62, 5);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "cannot define a variable of type 'never' or equivalent to type 'never'", 66, 5);
+                "incompatible types: expected 'never', found 'int'", 72, 16);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found 'int'", 76, 16);
+                "incompatible types: expected 'never', found '()'", 77, 16);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found '()'", 81, 16);
+                "incompatible types: expected 'never', found 'string'", 87, 16);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found 'string'", 91, 16);
+                "incompatible types: expected 'never', found '()'", 92, 16);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found '()'", 96, 16);
+                "incompatible types: expected 'never', found 'int'", 101, 38);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found 'int'", 105, 38);
+                "incompatible types: expected 'never', found 'int'", 108, 14);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found 'int'", 112, 14);
+                "incompatible types: expected 'never', found '()'", 113, 14);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'never', found '()'", 117, 14);
+                "table key specifier '[name]' does not match with key constraint type '[never]'", 125, 34);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "table key specifier '[name]' does not match with key constraint type '[never]'", 129, 34);
+                "table key specifier mismatch with key constraint. expected: '1' fields but found '0'", 134, 37);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "table key specifier mismatch with key constraint. expected: '1' fields but found '0'", 138, 37);
+                "incompatible types: expected 'xml<never>', found 'xml:Text'", 143, 26);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'xml:Text', found 'never'", 147, 20);
+                "incompatible types: expected 'string', found '(xml|xml:Text)'", 145, 17);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'xml<never>', found 'never'", 148, 21);
+                "incompatible types: expected 'string', found '(xml|xml:Text)'", 147, 17);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'xml<never>', found 'xml:Text'", 150, 26);
+                "incompatible types: expected '(int|float)', found 'xml<never>'", 149, 20);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'string', found '(xml|xml:Text)'", 152, 17);
+                "incompatible types: expected 'string', found '(string|xml:Text)'", 151, 18);
         BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'string', found '(xml|xml:Text)'", 154, 17);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected '(int|float)', found 'xml<never>'", 156, 20);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected 'string', found '(string|xml:Text)'", 158, 18);
-        BAssertUtil.validateError(negativeCompileResult, i++,
-                "incompatible types: expected '(int|string)', found 'xml<never>'", 159, 21);
+                "incompatible types: expected '(int|string)', found 'xml<never>'", 152, 21);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type " +
-                        "'never' or equivalent to type 'never'", 163, 5);
+                        "'never' or equivalent to type 'never'", 156, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
-                        "or equivalent to type 'never'", 166, 1);
+                        "or equivalent to type 'never'", 159, 1);
         BAssertUtil.validateError(negativeCompileResult, i++, "constant cannot be defined with type 'never', " +
-                        "expected a simple basic types or a map of a simple basic type", 168, 7);
+                        "expected a simple basic types or a map of a simple basic type", 161, 7);
         BAssertUtil.validateError(negativeCompileResult, i++, "incompatible types: expected 'never', found '()'",
-                168, 17);
+                161, 17);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
-                        "or equivalent to type 'never'", 171, 5);
+                        "or equivalent to type 'never'", 164, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
-                        "or equivalent to type 'never'", 172, 5);
+                        "or equivalent to type 'never'", 165, 5);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
-                        "cannot be of type 'never' or equivalent to type 'never'", 180, 16);
+                        "cannot be of type 'never' or equivalent to type 'never'", 173, 16);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
-                "cannot be of type 'never' or equivalent to type 'never'", 183, 16);
+                "cannot be of type 'never' or equivalent to type 'never'", 176, 16);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
-                "cannot be of type 'never' or equivalent to type 'never'", 186, 16);
+                "cannot be of type 'never' or equivalent to type 'never'", 179, 16);
         BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter " +
-                "cannot be of type 'never' or equivalent to type 'never'", 189, 25);
-        BAssertUtil.validateError(negativeCompileResult, i++, "cannot call a remote method with return type 'never'",
-                194, 5);
+                "cannot be of type 'never' or equivalent to type 'never'", 182, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot call a remote method with return type 'never' " +
+                        "or equivalent to type 'never'",
+                187, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot call a remote method with return type 'never' " +
+                        "or equivalent to type 'never'",
+                188, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot call a remote method with return type 'never' " +
+                        "or equivalent to type 'never'",
+                189, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
+                "or equivalent to type 'never'", 207, 5);
+        BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter" +
+                " cannot be of type 'never' or equivalent to type 'never'", 210, 48);
+        BAssertUtil.validateError(negativeCompileResult, i++, "a required parameter or a defaultable parameter" +
+                " cannot be of type 'never' or equivalent to type 'never'", 214, 48);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define an object field of type 'never'" +
+                " or equivalent to type 'never'", 214, 82);
+        BAssertUtil.validateError(negativeCompileResult, i++, "cannot define a variable of type 'never' " +
+                "or equivalent to type 'never'", 229, 5);
         BAssertUtil.validateError(negativeCompileResult, i, "cannot define a variable of type 'never' " +
-                "or equivalent to type 'never'", 204, 5);
+                "or equivalent to type 'never'", 230, 5);
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -191,17 +202,22 @@ public class NeverTypeTest {
         BRunUtil.invoke(neverTypeTestResult, "testNeverWithCallStmt");
     }
 
-    @Test(expectedExceptions = BLangRuntimeException.class,
-            expectedExceptionsMessageRegExp = "error: Bad Sad!!.*")
-    public void testNeverWithStartAction() {
-        BRunUtil.invoke(neverTypeTestResult, "testNeverWithStartAction");
+    @Test(dataProvider = "dataToTestNeverWithExpressions", description = "Test never type with expressions")
+    public void testNeverWithExpressions(String functionName) {
+        BRunUtil.invoke(neverTypeTestResult, functionName);
     }
 
-    @Test(description = "Test never type with trap expression")
-    public void testNeverWithTrapExpr() {
-        BValue[] returns = BRunUtil.invoke(neverTypeTestResult, "testNeverWithTrapExpr");
-        Assert.assertEquals(returns.length, 1);
-        Assert.assertEquals(returns[0].stringValue(), "Bad Sad!! {}");
+    @DataProvider
+    public Object[] dataToTestNeverWithExpressions() {
+        return new Object[]{
+                "testNeverWithStartAction1",
+                "testNeverWithStartAction2",
+                "testNeverWithTrapExpr1",
+                "testNeverWithTrapExpr2",
+                "testValidNeverReturnFuncAssignment",
+                "testValidNeverReturnFuncAssignment2",
+                "testNeverWithAnydata"
+        };
     }
 
     @Test(expectedExceptions = BLangRuntimeException.class,
@@ -275,9 +291,40 @@ public class NeverTypeTest {
         BRunUtil.invoke(neverTypeTestResult, "testNeverWithServiceObjFunc");
     }
 
+    @Test(description = "Test never sub typing")
+    public void testNeverSubtyping() {
+        BRunUtil.invoke(neverTypeTestResult, "testNeverSubtyping");
+    }
+
+    @Test(dataProvider = "dataToTestNeverRuntime", description = "Test never runtime")
+    public void testNeverRuntime(String functionName) {
+        runtimeResult = BCompileUtil.compile("test-src/types/never/never_type_runtime.bal");
+        BRunUtil.invoke(runtimeResult, functionName);
+    }
+
+    @DataProvider
+    public Object[] dataToTestNeverRuntime() {
+        return new Object[]{
+                "testNeverRuntime1",
+                "testNeverRuntime2",
+                "testNeverRuntime3",
+                "testNeverRuntime4",
+                "testNeverRuntime5",
+                "testNeverRuntime6",
+                "testNeverRuntime7",
+                "testNeverRuntime8",
+                "testNeverRuntime9",
+                "testNeverRuntime10",
+                "testNeverRuntime11",
+                "testNeverRuntime12",
+                "testNeverWithAnyAndAnydataRuntime"
+        };
+    }
+
     @AfterClass
     public void tearDown() {
         neverTypeTestResult = null;
         negativeCompileResult = null;
+        runtimeResult = null;
     }
 }

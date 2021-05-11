@@ -315,7 +315,7 @@ public class GlobalVariableRefAnalyzer {
         }
 
         // Dependent has a dependency on a global var.
-        if (provider.kind != SymbolKind.FUNCTION) {
+        if (provider.tag != SymTag.FUNCTION) {
             return;
         }
 

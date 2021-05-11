@@ -35,7 +35,7 @@ import java.util.List;
 public class CliUtil {
 
     private static final String HEX_PREFIX = "0X";
-    private static final String INVALID_ARGUMENT_ERROR = "invalid argument '%s', expected %s value";
+    private static final String INVALID_ARGUMENT_ERROR = "invalid argument '%s' for parameter '%s', expected %s value";
 
 
     static boolean isLongOption(String arg) {
@@ -45,36 +45,36 @@ public class CliUtil {
     private CliUtil() {
     }
 
-    static Object getBValueWithUnionValue(Type type, String value) {
+    static Object getBValueWithUnionValue(Type type, String value, String parameterName) {
         if (type.getTag() == TypeTags.UNION_TAG) {
-            return getUnionValue(type, value);
+            return getUnionValue(type, value, parameterName);
         }
-        return getBValue(type, value);
+        return getBValue(type, value, parameterName);
     }
 
-    static Object getUnionValue(Type type, String value) {
+    static Object getUnionValue(Type type, String value, String parameterName) {
         List<Type> unionMemberTypes = ((UnionType) type).getMemberTypes();
         if (isUnionWithNil(unionMemberTypes)) {
             type = unionMemberTypes.get(0) == PredefinedTypes.TYPE_NULL ? unionMemberTypes.get(1) :
                     unionMemberTypes.get(0);
-            return getBValue(type, value);
+            return getBValue(type, value, parameterName);
         }
         throw getUnsupportedTypeException(type);
     }
 
-    static Object getBValue(Type type, String value) {
+    static Object getBValue(Type type, String value, String parameterName) {
         switch (type.getTag()) {
             case TypeTags.STRING_TAG:
                 return StringUtils.fromString(value);
             case TypeTags.INT_TAG:
-                return getIntegerValue(value);
+                return getIntegerValue(value, parameterName);
             case TypeTags.FLOAT_TAG:
-                return getFloatValue(value);
+                return getFloatValue(value, parameterName);
             case TypeTags.DECIMAL_TAG:
-                return getDecimalValue(value);
+                return getDecimalValue(value, parameterName);
             case TypeTags.BOOLEAN_TAG:
-                throw ErrorCreator.createError(
-                        StringUtils.fromString("'boolean' type expected as an unnamed option argument"));
+                throw ErrorCreator.createError(StringUtils.fromString("the option '" + parameterName + "' of type " +
+                                                                              "'boolean' is expected without a value"));
             default:
                 throw getUnsupportedTypeException(type);
         }
@@ -85,11 +85,22 @@ public class CliUtil {
                 StringUtils.fromString("unsupported type expected with main function '" + type + "'"));
     }
 
+    static boolean isUnionWithNil(Type fieldType) {
+        if (fieldType.getTag() == TypeTags.UNION_TAG) {
+            List<Type> unionMemberTypes = ((UnionType) fieldType).getMemberTypes();
+            if (isUnionWithNil(unionMemberTypes)) {
+                return true;
+            }
+            throw getUnsupportedTypeException(fieldType);
+        }
+        return false;
+    }
+
     static boolean isUnionWithNil(List<Type> unionMemberTypes) {
         return unionMemberTypes.size() == 2 && unionMemberTypes.contains(PredefinedTypes.TYPE_NULL);
     }
 
-    private static long getIntegerValue(String argument) {
+    private static long getIntegerValue(String argument, String parameterName) {
         try {
             if (argument.toUpperCase().startsWith(HEX_PREFIX)) {
                 return Long.parseLong(argument.toUpperCase().replace(HEX_PREFIX, ""), 16);
@@ -97,26 +108,30 @@ public class CliUtil {
             return Long.parseLong(argument);
         } catch (NumberFormatException e) {
             throw ErrorCreator.createError(
-                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, "integer")));
+                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, "integer")));
         }
     }
 
-    private static double getFloatValue(String argument) {
+    private static double getFloatValue(String argument, String parameterName) {
         try {
             return Double.parseDouble(argument);
         } catch (NumberFormatException e) {
-            // Todo: fix error message
             throw ErrorCreator.createError(
-                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, "float")));
+                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, "float")));
         }
     }
 
-    private static DecimalValue getDecimalValue(String argument) {
+    private static DecimalValue getDecimalValue(String argument, String parameterName) {
         try {
             return new DecimalValue(argument);
         } catch (NumberFormatException e) {
             throw ErrorCreator.createError(
-                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, "decimal")));
+                    StringUtils.fromString(String.format(INVALID_ARGUMENT_ERROR, argument, parameterName, "decimal")));
         }
+    }
+
+    static boolean isSupportedType(int tag) {
+        return tag == TypeTags.STRING_TAG || tag == TypeTags.INT_TAG || tag == TypeTags.FLOAT_TAG ||
+                tag == TypeTags.DECIMAL_TAG || tag == TypeTags.BOOLEAN_TAG;
     }
 }

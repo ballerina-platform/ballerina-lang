@@ -19,7 +19,6 @@
 package org.ballerinalang.test.query;
 
 import org.ballerinalang.core.model.values.BBoolean;
-import org.ballerinalang.core.model.values.BError;
 import org.ballerinalang.core.model.values.BInteger;
 import org.ballerinalang.core.model.values.BMap;
 import org.ballerinalang.core.model.values.BValue;
@@ -254,10 +253,7 @@ public class SimpleQueryExpressionWithDefinedTypeTest {
 
     @Test(description = "Query a stream with error")
     public void testQueryStreamWithError() {
-        BValue[] returnValues = BRunUtil.invoke(result, "testQueryStreamWithError");
-        Assert.assertNotNull(returnValues);
-        Assert.assertEquals(returnValues.length, 1, "Expected events are not received");
-        Assert.assertTrue(returnValues[0] instanceof BError, "Expected BErrorType type value");
+        BRunUtil.invoke(result, "testQueryStreamWithError");
     }
 
     @Test(description = "Test anonymous record type, record type referencing, optional field, " +

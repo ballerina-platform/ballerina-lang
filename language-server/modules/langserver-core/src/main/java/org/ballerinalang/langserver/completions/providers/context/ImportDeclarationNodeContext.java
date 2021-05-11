@@ -21,7 +21,6 @@ import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportPrefixNode;
 import io.ballerina.compiler.syntax.tree.SeparatedNodeList;
-import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageName;
@@ -223,21 +222,22 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
         }
 
         Package currentPackage = currentProject.get().currentPackage();
-        PackageName packageName = currentPackage.packageName();
-        completionItems.add(getImportCompletion(ctx, packageName.value(), packageName.value() + "."));
+        String currentPackageName = CommonUtil.escapeReservedKeyword(currentPackage.packageName().value());
+        
+        completionItems.add(getImportCompletion(ctx, currentPackageName, currentPackageName + "."));
         Optional<Module> currentModule = ctx.currentModule();
-        currentPackage.modules().forEach(module -> {
+        for (Module module : currentPackage.modules()) {
+            String moduleNamePart = CommonUtil.escapeReservedKeyword(module.moduleName().moduleNamePart());
             String qualifiedModuleName = module.moduleName().packageName().value()
-                    + Names.DOT + module.moduleName().moduleNamePart();
+                    + Names.DOT + moduleNamePart;
             if (module.isDefaultModule()
                     || (currentModule.isPresent() && module.moduleId().equals(currentModule.get().moduleId()))
                     || CommonUtil.matchingImportedModule(ctx, "", qualifiedModuleName).isPresent()) {
-                return;
+                continue;
             }
-
-            String label = packageName + "." + module.moduleName().moduleNamePart();
+            String label = currentPackageName + "." + moduleNamePart;
             completionItems.add(getImportCompletion(ctx, label, label));
-        });
+        }
 
         return completionItems;
     }
@@ -246,7 +246,12 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
                                                             List<IdentifierToken> moduleName) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         String pkgName = context.workspace().module(context.filePath()).get().packageInstance().packageName().value();
-        List<String> modNameString = moduleName.stream().map(Token::text).collect(Collectors.toList());
+        /*
+        In cases where the names are reserved keywords, then they are escaped. When comparing we need to remove ' char.
+         */
+        List<String> modNameString = moduleName.stream()
+                .map(token -> token.text().replace("'", ""))
+                .collect(Collectors.toList());
         Optional<Project> currentProject = context.workspace().project(context.filePath());
         if (currentProject.isEmpty() || currentProject.get().kind() == ProjectKind.SINGLE_FILE_PROJECT
                 || !modNameString.get(0).equals(pkgName)) {
@@ -266,7 +271,9 @@ public class ImportDeclarationNodeContext extends AbstractCompletionProvider<Imp
             List<String> moduleNameParts = Arrays.asList(module.moduleName().moduleNamePart().split("\\."));
             moduleName.forEach(token -> moduleNameParts.remove(token.text()));
             String label = module.moduleName().moduleNamePart();
-            String insertText = String.join(".", moduleNameParts);
+            String insertText = moduleNameParts.stream()
+                    .map(CommonUtil::escapeReservedKeyword)
+                    .collect(Collectors.joining("."));
 
             completionItems.add(getImportCompletion(context, label, insertText));
         });

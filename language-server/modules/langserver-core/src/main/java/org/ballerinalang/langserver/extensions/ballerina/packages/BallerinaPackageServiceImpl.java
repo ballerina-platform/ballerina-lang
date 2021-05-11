@@ -24,6 +24,7 @@ import io.ballerina.compiler.api.symbols.ServiceAttachPointKind;
 import io.ballerina.compiler.api.symbols.ServiceDeclarationSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
+import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectKind;
@@ -96,9 +97,7 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
                 Arrays.stream(documentIdentifiers).iterator().forEachRemaining(documentIdentifier -> {
                     CommonUtil.getPathFromURI(documentIdentifier.getUri()).ifPresent(path -> {
                         Project project = ProjectLoader.loadProject(path);
-                        if (project.kind() != ProjectKind.SINGLE_FILE_PROJECT) {
-                            jsonPackages.add(getPackageComponents(project));
-                        }
+                        jsonPackages.add(getPackageComponents(project));
                     });
                 });
                 response.setProjectPackages(jsonPackages);
@@ -123,12 +122,14 @@ public class BallerinaPackageServiceImpl implements BallerinaPackageService {
         Package currentPackage = project.currentPackage();
         jsonPackage.addProperty(PackageServiceConstants.NAME, currentPackage.packageName().value());
 
-        currentPackage.modules().forEach(module -> {
+        currentPackage.moduleIds().forEach(moduleId -> {
             JsonObject jsonModule = new JsonObject();
+            Module module = project.currentPackage().module(moduleId);
             if (module.moduleName().moduleNamePart() != null) {
                 jsonModule.addProperty(PackageServiceConstants.NAME, module.moduleName().moduleNamePart());
             }
-            List<Symbol> symbolList = module.getCompilation().getSemanticModel().moduleSymbols();
+            List<Symbol> symbolList = project.currentPackage()
+                    .getCompilation().getSemanticModel(moduleId).moduleSymbols();
 
             List<FunctionSymbol> functionList =
                     symbolList.stream().filter(symbol -> symbol.kind() == SymbolKind.FUNCTION)

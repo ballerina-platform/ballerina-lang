@@ -23,13 +23,12 @@ import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.JarLibrary;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.ModuleId;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PlatformLibrary;
 import io.ballerina.projects.PlatformLibraryScope;
 import io.ballerina.projects.ResolvedPackageDependency;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.projects.util.ProjectUtils;
-import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.test.runtime.util.CodeCoverageUtils;
 import org.ballerinalang.test.runtime.util.TesterinaConstants;
 import org.jacoco.core.analysis.Analyzer;
@@ -41,13 +40,8 @@ import org.jacoco.core.analysis.IPackageCoverage;
 import org.jacoco.core.analysis.ISourceFileCoverage;
 import org.jacoco.core.data.ExecutionData;
 import org.jacoco.core.data.SessionInfo;
-import org.jacoco.core.internal.analysis.BundleCoverageImpl;
 import org.jacoco.core.tools.ExecFileLoader;
-import org.jacoco.report.IReportVisitor;
-import org.jacoco.report.xml.XMLFormatter;
 
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.NoSuchFileException;
@@ -57,12 +51,10 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.regex.Pattern;
 
 import static io.ballerina.runtime.api.utils.IdentifierUtils.decodeIdentifier;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BIN_DIR;
 import static org.ballerinalang.test.runtime.util.TesterinaConstants.BLANG_SRC_FILE_SUFFIX;
-import static org.ballerinalang.test.runtime.util.TesterinaConstants.REPORT_XML_FILE;
 import static org.jacoco.core.analysis.ICounter.FULLY_COVERED;
 import static org.jacoco.core.analysis.ICounter.NOT_COVERED;
 import static org.jacoco.core.analysis.ICounter.PARTLY_COVERED;
@@ -81,8 +73,18 @@ public class CoverageReport {
     private ExecFileLoader execFileLoader;
     private Module module;
     private Target target;
+    private Map<String, ModuleCoverage> moduleCoverageMap;
+    private List<IClassCoverage> packageNativeClassCoverageList;
+    private List<IClassCoverage> packageBalClassCoverageList;
+    private List<ISourceFileCoverage> packageSourceCoverageList;
+    private List<ExecutionData> packageExecData;
+    private List<SessionInfo> sessionInfoList;
 
-    public CoverageReport(Module module) throws IOException {
+    public CoverageReport(Module module, Map<String, ModuleCoverage> moduleCoverageMap,
+                          List<IClassCoverage> packageNativeClassCoverageList,
+                          List<IClassCoverage> packageBalClassCoverageList,
+                          List<ISourceFileCoverage> packageSourceCoverageList, List<ExecutionData> packageExecData,
+                          List<SessionInfo> sessionInfoList) throws IOException {
         this.module = module;
         this.target = new Target(module.project().sourceRoot());
 
@@ -91,54 +93,46 @@ public class CoverageReport {
         this.classesDirectory = coverageDir.resolve(TesterinaConstants.BIN_DIR);
         this.executionDataFile = coverageDir.resolve(TesterinaConstants.EXEC_FILE_NAME);
         this.execFileLoader = new ExecFileLoader();
+        this.moduleCoverageMap = moduleCoverageMap;
+        this.packageNativeClassCoverageList = packageNativeClassCoverageList;
+        this.packageBalClassCoverageList = packageBalClassCoverageList;
+        this.packageSourceCoverageList = packageSourceCoverageList;
+        this.packageExecData = packageExecData;
+        this.sessionInfoList = sessionInfoList;
     }
 
     /**
-     * Generates the report.
+     * Generates the testerina coverage report.
      *
-     * @throws IOException when file operations are failed
+     * @param jBallerinaBackend JBallerinaBackend
+     * @param includesInCoverage boolean
+     * @throws IOException
      */
-    public void generateReport(Map<String, ModuleCoverage> moduleCoverageMap,
-                               List<IClassCoverage> packageNativeClassCoverageList,
-                               List<IClassCoverage> packageBalClassCoverageList,
-                               List<ISourceFileCoverage> packageSourceCoverageList, JBallerinaBackend jBallerinaBackend,
-                               String includesInCoverage,
-                               List<ExecutionData> packageExecData, List<SessionInfo> sessionInfoList)
-            throws IOException {
+    public void generateReport(JBallerinaBackend jBallerinaBackend, String includesInCoverage) throws IOException {
         String orgName = this.module.packageInstance().packageOrg().toString();
         String packageName = this.module.packageInstance().packageName().toString();
-        String version = this.module.packageInstance().packageVersion().toString();
 
         List<Path> filteredPathList;
 
         if (!module.testDocumentIds().isEmpty()) {
             filteredPathList =
                     filterPaths(jBallerinaBackend.jarResolver().getJarFilePathsRequiredForTestExecution(
-                            this.module.moduleName()), jBallerinaBackend);
+                            this.module.moduleName()), jBallerinaBackend, module.packageInstance());
         } else {
             filteredPathList = filterPaths(jBallerinaBackend.jarResolver().getJarFilePathsRequiredForExecution(),
-                    jBallerinaBackend);
+                    jBallerinaBackend, module.packageInstance());
         }
-
         if (!filteredPathList.isEmpty()) {
-            addCompiledSources(filteredPathList, orgName, packageName, version, false,
-                    includesInCoverage);
-            execFileLoader.load(executionDataFile.toFile());
-            final CoverageBuilder coverageBuilder = analyzeStructure();
-            // Create Testerina coverage report
-            createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
-            // Add additional dependency jars for Coverage XML if included
+            CoverageBuilder coverageBuilder = generateTesterinaCoverageReport(orgName, packageName, filteredPathList);
+            // Add additional dependency jars for Jacoco Coverage XML if included
             if (includesInCoverage != null) {
-                addCompiledSources(getDependencyJarList(jBallerinaBackend), orgName, packageName, version,
-                       true, includesInCoverage);
+                List<Path> dependencyPathList = getDependenciesForJacocoXML(jBallerinaBackend);
+                addCompiledSources(dependencyPathList, orgName, packageName, includesInCoverage);
                 execFileLoader.load(executionDataFile.toFile());
                 final CoverageBuilder xmlCoverageBuilder = analyzeStructure();
-                updatePackageLevelCoverage(packageExecData, sessionInfoList,
-                        xmlCoverageBuilder, packageNativeClassCoverageList, packageBalClassCoverageList,
-                        packageSourceCoverageList);
+                updatePackageLevelCoverage(xmlCoverageBuilder);
             } else {
-                updatePackageLevelCoverage(packageExecData, sessionInfoList, coverageBuilder,
-                        packageNativeClassCoverageList, packageBalClassCoverageList, packageSourceCoverageList);
+                updatePackageLevelCoverage(coverageBuilder);
             }
             CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
         } else {
@@ -148,22 +142,49 @@ public class CoverageReport {
     }
 
     /**
+     * Return the required dependencies for Jacoco XML creation.
+     *
+     * @param jBallerinaBackend JBallerinaBackend
+     * @return List of Path
+     */
+    private List<Path> getDependenciesForJacocoXML(JBallerinaBackend jBallerinaBackend) {
+        List<Path> dependencyPathList = getDependencyJarList(jBallerinaBackend);
+        List<Path> platformLibsList = getPlatformLibsList(jBallerinaBackend, module.packageInstance());
+        for (Path otherDependencyPath : platformLibsList) {
+            if (!dependencyPathList.contains(otherDependencyPath)) {
+                dependencyPathList.add(otherDependencyPath);
+            }
+        }
+        return dependencyPathList;
+    }
+
+    /**
+     * Generate the json coverage report for Testerina.
+     *
+     * @param orgName package org name
+     * @param packageName package name
+     * @param filteredPathList List of the extracted source path
+     * @return CoverageBuilder
+     * @throws IOException
+     */
+    private CoverageBuilder generateTesterinaCoverageReport(String orgName, String packageName,
+                                                            List<Path> filteredPathList) throws IOException {
+        // For the Testerina report only the ballerina specific sources need to be extracted
+        addCompiledSources(filteredPathList, orgName, packageName);
+        execFileLoader.load(executionDataFile.toFile());
+        final CoverageBuilder coverageBuilder = analyzeStructure();
+        // Create Testerina coverage report
+        createReport(coverageBuilder.getBundle(title), moduleCoverageMap);
+        return coverageBuilder;
+    }
+
+    /**
      * Traverse through the coverageBuilder generated for the current module and update
      * package level information to be used for coverage generation for the ballerina package.
      *
-     * @param packagePrefix "orgName"/"pakageName" as String
-     * @param packageExecData ExecutionData list for package
-     * @param sessionInfoList SessionInfo list for package
      * @param coverageBuilder CoverageBuilder after processing this module
-     * @param packageNativeClassCoverageList List of package native IClassCoverage
-     * @param packageBalClassCoverageList List of bal IClassCoverage for package
-     * @param packageSourceCoverageList List of ISourceFileCoverage for package
      */
-    private void updatePackageLevelCoverage(List<ExecutionData> packageExecData,
-                                            List<SessionInfo> sessionInfoList, CoverageBuilder coverageBuilder,
-                                            List<IClassCoverage> packageNativeClassCoverageList,
-                                            List<IClassCoverage> packageBalClassCoverageList,
-                                            List<ISourceFileCoverage> packageSourceCoverageList) {
+    private void updatePackageLevelCoverage(CoverageBuilder coverageBuilder) {
         // Traverse through the class coverages and store only ballerina source file coverages.
         // Native source coverages can be collected by visiting the class coverages.
         for (ISourceFileCoverage sourceFileCoverage : coverageBuilder.getSourceFiles()) {
@@ -183,13 +204,13 @@ public class CoverageReport {
                 packageBalClassCoverageList.add(classCov);
             } else {
                 // Remove old coverage class to keep only the lastest coverage class.
-                removeFromCoverageList(packageNativeClassCoverageList, classCov);
+                removeFromCoverageList(classCov);
                 packageNativeClassCoverageList.add(classCov);
             }
         }
         // Update module wise session info to a list, compare and add only unique information.
         for (SessionInfo sessionInfo : execFileLoader.getSessionInfoStore().getInfos()) {
-            if (!isExistingSessionInfo(sessionInfoList, sessionInfo)) {
+            if (!isExistingSessionInfo(sessionInfo)) {
                 sessionInfoList.add(sessionInfo);
             }
         }
@@ -200,7 +221,7 @@ public class CoverageReport {
         }
     }
 
-    private boolean isExistingSessionInfo(List<SessionInfo> sessionInfoList, SessionInfo sessionInfo) {
+    private boolean isExistingSessionInfo(SessionInfo sessionInfo) {
         for (SessionInfo existingSessionInfo : sessionInfoList) {
             if (existingSessionInfo.compareTo(sessionInfo) == 0) {
                 return true;
@@ -212,13 +233,12 @@ public class CoverageReport {
     /**
      * Remove IClassCoverage from package Class coverage list if it exists already.
      *
-     * @param packageClassCoverageList list of IClassCoverage for package
      * @param classCoverage            IClassCoverage to check if already exixts
      */
-    private void removeFromCoverageList(List<IClassCoverage> packageClassCoverageList, IClassCoverage classCoverage) {
+    private void removeFromCoverageList(IClassCoverage classCoverage) {
         boolean isExists = false;
         IClassCoverage coverageToRemove = null;
-        for (IClassCoverage coverage : packageClassCoverageList) {
+        for (IClassCoverage coverage : packageNativeClassCoverageList) {
             if (classCoverage.getName().equals(coverage.getName())) {
                 //Remove existing coverage class from the list
                 isExists = true;
@@ -226,19 +246,38 @@ public class CoverageReport {
             }
         }
         if (isExists && coverageToRemove != null) {
-            packageClassCoverageList.remove(coverageToRemove);
+            packageNativeClassCoverageList.remove(coverageToRemove);
         }
     }
 
-    private void addCompiledSources(List<Path> pathList, String orgName, String packageName, String version,
-                                    boolean enableIncludesFilter, String includesInCoverage) throws IOException {
+    private void addCompiledSources(List<Path> pathList, String orgName, String packageName)
+            throws IOException {
         if (!pathList.isEmpty()) {
             // For each jar file found, we unzip it for this particular module
             for (Path jarPath : pathList) {
                 try {
                     // Creates coverage folder with each class per module
-                    CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir, orgName, packageName, version,
-                            enableIncludesFilter, includesInCoverage);
+                    CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir.resolve(BIN_DIR),
+                            orgName, packageName, false, null);
+                } catch (NoSuchFileException e) {
+                    if (Files.exists(coverageDir.resolve(BIN_DIR))) {
+                        CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
+                    }
+                    return;
+                }
+            }
+        }
+    }
+
+    private void addCompiledSources(List<Path> pathList, String orgName, String packageName,
+                                    String includesInCoverage) throws IOException {
+        if (!pathList.isEmpty()) {
+            // For each jar file found, we unzip it for this particular module
+            for (Path jarPath : pathList) {
+                try {
+                    // Creates coverage folder with each class per module
+                    CodeCoverageUtils.unzipCompiledSource(jarPath, coverageDir.resolve(BIN_DIR), orgName, packageName,
+                            true, includesInCoverage);
                 } catch (NoSuchFileException e) {
                     if (Files.exists(coverageDir.resolve(BIN_DIR))) {
                         CodeCoverageUtils.deleteDirectory(coverageDir.resolve(BIN_DIR).toFile());
@@ -254,54 +293,6 @@ public class CoverageReport {
         final Analyzer analyzer = new Analyzer(execFileLoader.getExecutionDataStore(), coverageBuilder);
         analyzer.analyzeAll(classesDirectory.toFile());
         return coverageBuilder;
-    }
-
-    private IBundleCoverage getPartialCoverageModifiedBundle(CoverageBuilder coverageBuilder) {
-        return new BundleCoverageImpl(title, modifyClasses(coverageBuilder.getClasses()),
-                modifySourceFiles(coverageBuilder.getSourceFiles()));
-    }
-
-    /**
-     * Modify Classes in CoverageBuilder to reflect ballerina source root.
-     *
-     * @param classesList Collection<IClassCoverage>
-     * @return Collection<IClassCoverage>
-     */
-    private Collection<IClassCoverage> modifyClasses(Collection<IClassCoverage> classesList) {
-        Collection<IClassCoverage> modifiedClasses = new ArrayList<>();
-        for (IClassCoverage classCoverage : classesList) {
-            if (classCoverage.getSourceFileName() != null) {
-                if (classCoverage.getSourceFileName().startsWith("tests/")) {
-                    continue;
-                } else {
-                    //Normalize package name and class name for classes generated for bal files
-                    IClassCoverage modifiedClassCoverage = new NormalizedCoverageClass(classCoverage,
-                            normalizeFileName(classCoverage.getPackageName()),
-                            normalizeFileName(classCoverage.getName()));
-                    modifiedClasses.add(modifiedClassCoverage);
-                }
-            } else {
-                modifiedClasses.add(classCoverage);
-            }
-        }
-        return modifiedClasses;
-    }
-
-    private void createXMLReport(IBundleCoverage bundleCoverage) throws IOException {
-        XMLFormatter xmlFormatter = new XMLFormatter();
-        File reportFile = new File(target.getReportPath().resolve(
-                this.module.moduleName().toString()).resolve(REPORT_XML_FILE).toString());
-        reportFile.getParentFile().mkdirs();
-
-        try (FileOutputStream fileOutputStream = new FileOutputStream(reportFile)) {
-            IReportVisitor visitor = xmlFormatter.createVisitor(fileOutputStream);
-            visitor.visitInfo(execFileLoader.getSessionInfoStore().getInfos(),
-                    execFileLoader.getExecutionDataStore().getContents());
-
-            visitor.visitBundle(bundleCoverage, null);
-
-            visitor.visitEnd();
-        }
     }
 
     private void createReport(final IBundleCoverage bundleCoverage, Map<String, ModuleCoverage> moduleCoverageMap) {
@@ -394,9 +385,10 @@ public class CoverageReport {
         }
     }
 
-    private List<Path> filterPaths(Collection<JarLibrary> pathCollection, JBallerinaBackend jBallerinaBackend) {
+    private List<Path> filterPaths(Collection<JarLibrary> pathCollection, JBallerinaBackend jBallerinaBackend,
+                                   Package pkg) {
         List<Path> filteredPathList = new ArrayList<>();
-        List<Path> exclusionPathList = getExclusionJarList(jBallerinaBackend);
+        List<Path> exclusionPathList = getExclusionJarList(jBallerinaBackend, pkg);
         for (JarLibrary library : pathCollection) {
             Path path = library.path();
             if (!exclusionPathList.contains(path)) {
@@ -441,14 +433,29 @@ public class CoverageReport {
         return document;
     }
 
-    private List<Path> getExclusionJarList(JBallerinaBackend jBallerinaBackend) {
+    private List<Path> getExclusionJarList(JBallerinaBackend jBallerinaBackend, Package pkg) {
         List<Path> exclusionPathList = new ArrayList<>(getDependencyJarList(jBallerinaBackend));
         exclusionPathList.add(jBallerinaBackend.runtimeLibrary().path());
         for (JarLibrary library : ProjectUtils.testDependencies()) {
             exclusionPathList.add(library.path());
         }
+        // Add platform libs of this package to exclusion jar list
+        exclusionPathList.addAll(getPlatformLibsList(jBallerinaBackend, pkg));
         return exclusionPathList;
     }
+
+    private List<Path> getPlatformLibsList(JBallerinaBackend jBallerinaBackend, Package pkg) {
+        List<Path> platformLibsList = new ArrayList<>();
+        Collection<PlatformLibrary> otherJarDependencies = jBallerinaBackend.platformLibraryDependencies(
+                pkg.packageId(), PlatformLibraryScope.DEFAULT);
+        for (PlatformLibrary otherJarDependency : otherJarDependencies) {
+            if (!platformLibsList.contains(otherJarDependency.path())) {
+                platformLibsList.add(otherJarDependency.path());
+            }
+        };
+        return platformLibsList;
+    }
+
 
     private List<Path> getDependencyJarList(JBallerinaBackend jBallerinaBackend) {
         List<Path> dependencyPathList = new ArrayList<>();
@@ -471,71 +478,9 @@ public class CoverageReport {
                             dependencyPathList.add(otherJarDependency.path());
                         }
                     }
+
                 });
         return dependencyPathList;
-    }
-
-    private Collection<ISourceFileCoverage> modifySourceFiles(Collection<ISourceFileCoverage> sourcefiles) {
-        Collection<ISourceFileCoverage> modifiedSourceFiles = new ArrayList<>();
-        for (ISourceFileCoverage sourcefile : sourcefiles) {
-            ISourceFileCoverage modifiedSourceFile;
-            List<ILine> modifiedLines;
-            if (sourcefile.getName().endsWith(BLANG_SRC_FILE_SUFFIX)) {
-                if (sourcefile.getName().startsWith("tests/")) {
-                    continue;
-                } else {
-                    modifiedLines = modifyLines(sourcefile);
-                    //Normalize source file package name
-                    modifiedSourceFile = new PartialCoverageModifiedSourceFile(sourcefile,
-                            modifiedLines, normalizeFileName(sourcefile.getPackageName()));
-                    modifiedSourceFiles.add(modifiedSourceFile);
-                }
-            } else {
-                modifiedSourceFiles.add(sourcefile);
-            }
-
-        }
-        return modifiedSourceFiles;
-    }
-
-    private String normalizeFileName(String fileName) {
-        String orgName = IdentifierUtils.encodeNonFunctionIdentifier(
-                this.module.packageInstance().packageOrg().toString());
-        //Get package instance and traverse through all the modules
-        for (Module module : this.module.packageInstance().modules()) {
-            String packageName = IdentifierUtils.encodeNonFunctionIdentifier(
-                    module.moduleName().toString());
-            String sourceRoot = module.project().sourceRoot().getFileName().toString();
-            if (!module.isDefaultModule()) {
-                sourceRoot = sourceRoot + "/" + ProjectConstants.MODULES_ROOT + "/" +
-                        module.moduleName().moduleNamePart();
-            }
-            if (fileName.contains(orgName + "/" + packageName + "/")) {
-                //Escape special characters before using in regex
-                orgName = Pattern.quote(orgName);
-                packageName = Pattern.quote(packageName);
-                // Capture file paths with the format "orgName/packageName/xxxx/file-name" and replace with
-                // "<source-root>/file-name"
-                String normalizedFileName = fileName.replaceAll("^" + orgName + "/" +
-                        packageName + "/.*/", sourceRoot + "/");
-                // Capture remaining file paths with the format "orgName/packageName/file-name" and replace
-                // with "<source-root>"
-                normalizedFileName = normalizedFileName.replaceAll("^" + orgName + "/" +
-                        packageName + "/.*", sourceRoot);
-                return normalizedFileName;
-            }
-        }
-        return fileName;
-    }
-
-    private List<ILine> modifyLines(ISourceFileCoverage sourcefile) {
-        List<ILine> modifiedLines = new ArrayList<>();
-        for (int i = sourcefile.getFirstLine(); i <= sourcefile.getLastLine(); i++) {
-            ILine line = sourcefile.getLine(i);
-            ILine modifiedLine = new PartialCoverageModifiedLine(line.getInstructionCounter(), line.getBranchCounter());
-            modifiedLines.add(modifiedLine);
-        }
-        return modifiedLines;
     }
 
 }

@@ -17,6 +17,9 @@
  */
 package io.ballerina.runtime.test;
 
+import io.ballerina.runtime.api.Module;
+import io.ballerina.runtime.api.PredefinedTypes;
+import io.ballerina.runtime.internal.configurable.VariableKey;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 
 import java.nio.file.Path;
@@ -34,5 +37,11 @@ public class TestUtils {
 
     public static Path getConfigPathForNegativeCases(String configFileName) {
         return Paths.get(RuntimeUtils.USER_DIR, "src", "test", "resources", "config_files", "negative", configFileName);
+    }
+
+     public static VariableKey[] getSimpleVariableKeys(Module module) {
+        VariableKey intVar = new VariableKey(module, "intVar", PredefinedTypes.TYPE_INT, true);
+        VariableKey stringVar = new VariableKey(module, "stringVar", PredefinedTypes.TYPE_STRING, true);
+        return new VariableKey[]{intVar, stringVar};
     }
 }

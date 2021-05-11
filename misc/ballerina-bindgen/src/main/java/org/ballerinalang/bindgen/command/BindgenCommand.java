@@ -44,15 +44,25 @@ public class BindgenCommand implements BLauncherCmd {
 
     private PrintStream outStream;
     private PrintStream outError;
+    private boolean exitWhenFinish;
     private Path targetOutputPath = Paths.get(System.getProperty(USER_DIR));
 
     public BindgenCommand() {
         this(System.out, System.err);
     }
 
+    public BindgenCommand(PrintStream out, PrintStream err, boolean exitWhenFinish) {
+        this.outStream = out;
+        this.outError = err;
+        this.exitWhenFinish = exitWhenFinish;
+        BindgenUtils.setOutStream(out);
+        BindgenUtils.setErrStream(err);
+    }
+
     public BindgenCommand(PrintStream out, PrintStream err) {
         this.outStream = out;
         this.outError = err;
+        this.exitWhenFinish = true;
         BindgenUtils.setOutStream(out);
         BindgenUtils.setErrStream(err);
     }
@@ -100,16 +110,19 @@ public class BindgenCommand implements BLauncherCmd {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(getName());
             outStream.println(commandUsageInfo);
+            exitWithCode(0, this.exitWhenFinish);
             return;
         }
 
         if (classNames == null) {
             setOutError("One or more class names should be specified to generate the Ballerina bindings.");
+            exitWithCode(1, this.exitWhenFinish);
             return;
         }
 
         if (this.outputPath != null && modulesFlag) {
             setOutError("Output path cannot be provided with the modules flag.");
+            exitWithCode(1, this.exitWhenFinish);
             return;
         }
 
@@ -124,6 +137,7 @@ public class BindgenCommand implements BLauncherCmd {
         } else if (modulesFlag) {
             if (ProjectDirs.findProjectRoot(targetOutputPath) == null) {
                 setOutError("Ballerina project not detected to generate Java package to Ballerina module mappings.");
+                exitWithCode(1, this.exitWhenFinish);
                 return;
             }
             bindingsGenerator.setModulesFlag(modulesFlag);
@@ -159,6 +173,7 @@ public class BindgenCommand implements BLauncherCmd {
             String[] mvnDependency = this.mavenDependency.split(splitColonRegex);
             if (mvnDependency.length != 3) {
                 setOutError("Error in the maven dependency provided.");
+                exitWithCode(1, this.exitWhenFinish);
                 return;
             }
             bindingsGenerator.setMvnGroupId(mvnDependency[0]);
@@ -169,8 +184,10 @@ public class BindgenCommand implements BLauncherCmd {
         bindingsGenerator.setClassNames(this.classNames);
         try {
             bindingsGenerator.generateJavaBindings();
+            exitWithCode(0, this.exitWhenFinish);
         } catch (BindgenException e) {
             outError.println("\nError while generating Ballerina bindings:\n" + e.getMessage());
+            exitWithCode(1, this.exitWhenFinish);
         }
     }
 
@@ -178,6 +195,12 @@ public class BindgenCommand implements BLauncherCmd {
         outError.println("\n" + errorValue + "\n");
         outStream.println(BINDGEN_CMD);
         outStream.println("\nUse 'bal bindgen --help' for more information on the command.");
+    }
+
+    public void exitWithCode(int exit, boolean exitWhenFinish) {
+        if (exitWhenFinish) {
+            Runtime.getRuntime().exit(exit);
+        }
     }
 
     @Override

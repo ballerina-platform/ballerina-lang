@@ -245,6 +245,8 @@ public class TestProcessor {
         List<FunctionSymbol> functionSymbolList = new ArrayList<>();
         List<String> functionNamesList = new ArrayList<>();
         for (Map.Entry<Document, SyntaxTree> syntaxTreeEntry : syntaxTreeMap.entrySet()) {
+            // we cannot remove the module.getCompilation() here since the semantic model is accessed
+            // after the code gen phase here. package.getCompilation() throws an IllegalStateException
             List<Symbol> symbols = module.getCompilation().getSemanticModel().visibleSymbols(
                     syntaxTreeEntry.getKey(),
                     LinePosition.from(syntaxTreeEntry.getValue().rootNode().location().lineRange().endLine().line(),

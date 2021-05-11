@@ -42,6 +42,7 @@ import static io.ballerina.compiler.api.symbols.TypeDescKind.DECIMAL;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FLOAT;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.FUTURE;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.INT;
+import static io.ballerina.compiler.api.symbols.TypeDescKind.INTERSECTION;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.JSON;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.MAP;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.NIL;
@@ -154,7 +155,7 @@ public class ExpressionTypeTest {
         TypeSymbol type = getExprType(34, 20, 34, 34);
         assertEquals(type.typeKind(), MAP);
 
-        TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
+        TypeSymbol constraint = ((MapTypeSymbol) type).typeParam();
         assertEquals(constraint.typeKind(), STRING);
 
         assertType(34, 28, 34, 33, STRING);
@@ -188,7 +189,7 @@ public class ExpressionTypeTest {
         TypeSymbol type = getExprType(42, 13, 42, 40);
         assertEquals(type.typeKind(), MAP);
 
-        TypeSymbol constraint = ((MapTypeSymbol) type).typeParameter().get();
+        TypeSymbol constraint = ((MapTypeSymbol) type).typeParam();
         assertEquals(constraint.typeKind(), JSON);
 
         // Disabled ones due to #26628
@@ -326,8 +327,38 @@ public class ExpressionTypeTest {
     }
 
     @Test
+    public void testExpressionsOfIntersectionTypes() {
+        assertType(135, 4, 135, 21, INTERSECTION);
+        assertType(135, 4, 135, 22, INTERSECTION);
+        assertType(137, 4, 137, 24, INTERSECTION);
+        assertType(137, 4, 137, 23, INTERSECTION);
+        assertType(139, 4, 139, 26, UNION);
+        TypeSymbol t1 = getExprType(139, 4, 139, 27);
+        assertEquals(t1.typeKind(), UNION);
+        assertEquals(t1.signature(), "(Foo & readonly)|int|(string[] & readonly)");
+        assertType(141, 4, 141, 26, UNION);
+        TypeSymbol t2 = getExprType(141, 4, 141, 27);
+        assertEquals(t2.typeKind(), UNION);
+        assertEquals(t2.signature(), "(int[] & readonly)?");
+        assertType(143, 4, 143, 26, UNION);
+        TypeSymbol t3 = getExprType(143, 4, 143, 27);
+        assertEquals(t3.typeKind(), UNION);
+        assertEquals(t3.signature(), "(int[] & readonly)?");
+    }
+
+    @Test
     public void testTypeWithinServiceDecl() {
         assertType(118, 15, 118, 16, RECORD);
+    }
+
+    @Test
+    public void testTypeWithinDoAndOnFailClause() {
+        TypeSymbol exprType = getExprType(164, 16, 164, 23);
+        assertEquals(exprType.typeKind(), TYPE_REFERENCE);
+        assertEquals(exprType.getName().get(), "Foo");
+
+        exprType = getExprType(166, 12, 166, 42);
+        assertEquals(exprType.typeKind(), STRING);
     }
 
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {

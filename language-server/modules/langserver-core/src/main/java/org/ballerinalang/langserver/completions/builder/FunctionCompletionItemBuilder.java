@@ -66,26 +66,6 @@ public final class FunctionCompletionItemBuilder {
     /**
      * Creates and returns a completion item.
      *
-     * @param funcSymbol BSymbol or null
-     * @param label      label
-     * @param insertText insert text
-     * @param context    {@link BallerinaCompletionContext}
-     * @return {@link CompletionItem}
-     */
-    public static CompletionItem build(FunctionSymbol funcSymbol,
-                                       String label,
-                                       String insertText,
-                                       BallerinaCompletionContext context) {
-        CompletionItem item = new CompletionItem();
-        item.setLabel(label);
-        item.setInsertText(insertText);
-        setMeta(item, funcSymbol, context);
-        return item;
-    }
-
-    /**
-     * Creates and returns a completion item.
-     *
      * @param functionSymbol BSymbol
      * @param context        LS context
      * @return {@link CompletionItem}
@@ -99,6 +79,7 @@ public final class FunctionCompletionItemBuilder {
             Pair<String, String> functionSignature = getFunctionInvocationSignature(functionSymbol, funcName, context);
             item.setInsertText(functionSignature.getLeft());
             item.setLabel(functionSignature.getRight());
+            item.setFilterText(funcName);
         }
         return item;
     }
@@ -153,7 +134,7 @@ public final class FunctionCompletionItemBuilder {
         Map<String, String> docParamsMap = new HashMap<>();
         docAttachment.ifPresent(documentation -> documentation.parameterMap().forEach(docParamsMap::put));
 
-        List<ParameterSymbol> defaultParams = functionTypeDesc.parameters().stream()
+        List<ParameterSymbol> defaultParams = functionTypeDesc.params().get().stream()
                 .filter(parameter -> parameter.paramKind() == ParameterKind.DEFAULTABLE)
                 .collect(Collectors.toList());
 
@@ -170,7 +151,7 @@ public final class FunctionCompletionItemBuilder {
         documentation.append(description).append(CommonUtil.MD_LINE_SEPARATOR);
 
         StringJoiner joiner = new StringJoiner(CommonUtil.MD_LINE_SEPARATOR);
-        List<ParameterSymbol> functionParameters = new ArrayList<>(functionTypeDesc.parameters());
+        List<ParameterSymbol> functionParameters = new ArrayList<>(functionTypeDesc.params().get());
         if (functionTypeDesc.restParam().isPresent()) {
             functionParameters.add(functionTypeDesc.restParam().get());
         }
@@ -290,7 +271,7 @@ public final class FunctionCompletionItemBuilder {
         boolean skipFirstParam = skipFirstParam(ctx, symbol);
         FunctionTypeSymbol functionTypeDesc = symbol.typeDescriptor();
         Optional<ParameterSymbol> restParam = functionTypeDesc.restParam();
-        List<ParameterSymbol> parameterDefs = new ArrayList<>(functionTypeDesc.parameters());
+        List<ParameterSymbol> parameterDefs = new ArrayList<>(functionTypeDesc.params().get());
         for (int i = 0; i < parameterDefs.size(); i++) {
             if (i == 0 && skipFirstParam) {
                 continue;

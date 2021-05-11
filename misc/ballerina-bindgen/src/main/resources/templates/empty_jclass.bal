@@ -9,15 +9,13 @@
 import ballerina/jballerina.java;
 
 # Ballerina class mapping for the Java `FULL_CLASS_NAME` CLASS_TYPE.
-@java:Binding {
-    'class: "FULL_CLASS_NAME"
-}
+@java:Binding {'class: "FULL_CLASS_NAME"}
 ACCESS_MODIFIERdistinct class SIMPLE_CLASS_NAME {
 
     *java:JObject;
 
     # The `handle` field that stores the reference to the `FULL_CLASS_NAME` object.
-    ACCESS_MODIFIERhandle jObj;
+    public handle jObj;
 
     # The init function of the Ballerina class mapping the `FULL_CLASS_NAME` Java CLASS_TYPE.
     #

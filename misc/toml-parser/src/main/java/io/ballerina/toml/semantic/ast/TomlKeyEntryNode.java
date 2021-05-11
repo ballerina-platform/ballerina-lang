@@ -18,6 +18,8 @@
 
 package io.ballerina.toml.semantic.ast;
 
+import io.ballerina.toml.syntax.tree.DocumentNode;
+
 /**
  * Represents Key in TOML AST.
  *
@@ -27,8 +29,8 @@ public class TomlKeyEntryNode extends TomlNode {
 
     private final TomlBasicValueNode name;
 
-    public TomlKeyEntryNode(TomlBasicValueNode name) {
-        super(name.kind(), name.location());
+    public TomlKeyEntryNode(DocumentNode documentNode, TomlBasicValueNode name) {
+        super(documentNode, name.kind(), name.location());
         this.name = name;
     }
 

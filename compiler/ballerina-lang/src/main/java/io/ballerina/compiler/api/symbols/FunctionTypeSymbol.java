@@ -30,8 +30,18 @@ public interface FunctionTypeSymbol extends TypeSymbol {
      * Get the required parameters.
      *
      * @return {@link List} of required parameters
+     * @deprecated This method will be removed in a later release. Use `params()` instead.
      */
+    @Deprecated(forRemoval = true)
     List<ParameterSymbol> parameters();
+
+    /**
+     * For regular function types, this will return a list of the non-rest parameters. If this is the `function` type
+     * descriptor, this will return empty.
+     *
+     * @return A {@link List} of required parameters or empty
+     */
+    Optional<List<ParameterSymbol>> params();
 
     /**
      * Get the rest parameter.
@@ -46,4 +56,12 @@ public interface FunctionTypeSymbol extends TypeSymbol {
      * @return {@link Optional} return type
      */
     Optional<TypeSymbol> returnTypeDescriptor();
+
+    /**
+     * Retrieves an instance which captures the info regarding the annotations attached to the return type descriptor.
+     * Returns empty if there aren't any annotations attached to the return type descriptor.
+     *
+     * @return An {@link Annotatable} instance representing the annotations attached to the return type
+     */
+    Optional<Annotatable> returnTypeAnnotations();
 }

@@ -1505,9 +1505,15 @@ public class BallerinaLexer extends AbstractLexer {
                 startMode(ParserMode.INTERPOLATION_BRACED_CONTENT);
                 break;
             case LexerTerminals.CLOSE_BRACE:
-            case LexerTerminals.BACKTICK:
                 endMode();
                 break;
+            case LexerTerminals.BACKTICK:
+                // Recursively end backtick string related contexts
+                while (this.mode != ParserMode.DEFAULT) {
+                    endMode();
+                }
+                reader.advance();
+                return getBacktickToken();
             default:
                 // Otherwise read the token from default mode.
                 break;

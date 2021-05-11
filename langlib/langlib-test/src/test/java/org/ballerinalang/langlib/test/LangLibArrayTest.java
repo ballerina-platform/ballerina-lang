@@ -380,7 +380,7 @@ public class LangLibArrayTest {
 
     }
     @Test
-    public void callingLengthModificationFunctionsOnFixedLengthLists() {
+    public void testArrayLibNegativeCases() {
         CompileResult negativeResult = BCompileUtil.compile("test-src/arraylib_test_negative.bal");
         int errorIndex = 0;
         BAssertUtil.validateError(negativeResult, errorIndex++, "cannot call 'push' on fixed length list(s) of type " +
@@ -480,20 +480,23 @@ public class LangLibArrayTest {
         BAssertUtil.validateError(negativeResult, errorIndex++,
                 "invalid member type of the array/tuple to sort: 'map<string>?[]' is not an ordered type", 171, 47);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "incompatible types: expected '(boolean|int|float|decimal|string|" +
-                        "ballerina/lang.array:1.1.0:OrderedType[])?', found 'any'", 174, 60);
+                "incompatible types: expected 'ballerina/lang.array:1.1.0:OrderedType', found 'any'", 174, 60);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
-                178, 34);
+                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 178, 34);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
-                180, 34);
+                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 180, 34);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type",
-                182, 34);
+                "invalid member type of the array/tuple to sort: '(string|int)[]' is not an ordered type", 182, 34);
         BAssertUtil.validateError(negativeResult, errorIndex++,
-                "invalid sort key function return type: '(string|int)' is not an ordered type",
-                184, 62);
+                "invalid sort key function return type: '(string|int)' is not an ordered type", 184, 62);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'anydata[]', found '(Person|error)[]'", 195, 15);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'anydata[]', found '(Person|error)[]'", 196, 15);
+        BAssertUtil.validateError(negativeResult, errorIndex++,
+                "incompatible types: expected 'anydata[]', found 'function[]'", 199, 15);
+        BAssertUtil.validateError(negativeResult, errorIndex++, "incompatible types: expected 'anydata', found " +
+                        "'function (int) returns (int)'", 199, 26);
         Assert.assertEquals(negativeResult.getErrorCount(), errorIndex);
     }
 

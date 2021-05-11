@@ -80,7 +80,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
     protected static final String GLOBAL_VAR_08 = "byteValue";
     protected static final String GLOBAL_VAR_09 = "floatValue";
     protected static final String GLOBAL_VAR_10 = "jsonVar";
-    protected static final String GLOBAL_VAR_11 = "'\\ \\/\\:\\@\\[\\`\\{\\~\\u{2324}_IL";
+    protected static final String GLOBAL_VAR_11 = "'\\ \\/\\:\\@\\[\\`\\{\\~\\u{03C0}_IL";
 
     protected DebugTestRunner debugTestRunner;
 
@@ -103,7 +103,7 @@ public abstract class ExpressionEvaluationBaseTest extends BaseTestCase {
         String testModuleFileName = "main.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testModuleFileName, true);
 
-        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 192));
+        debugTestRunner.addBreakPoint(new BallerinaTestDebugPoint(debugTestRunner.testEntryFilePath, 197));
         debugTestRunner.initDebugSession(DebugUtils.DebuggeeExecutionKind.RUN);
         Pair<BallerinaTestDebugPoint, StoppedEventArguments> debugHitInfo = debugTestRunner.waitForDebugHit(25000);
         this.context = debugHitInfo.getRight();

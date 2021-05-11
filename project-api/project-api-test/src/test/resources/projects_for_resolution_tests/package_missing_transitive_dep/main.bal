@@ -1,6 +1,6 @@
 import samjs/package_a.mod_a1;
 import samjs/package_a.mod_a2;
-import samjs/package_k.mod_k2;
+import samjs/package_kk.mod_k2 as _;
 
 
 public function main() {
