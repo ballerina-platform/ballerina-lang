@@ -183,18 +183,10 @@ public class Type {
             type.isNullable = true;
         } else if (node instanceof UnionTypeDescriptorNode) {
             type.isAnonymousUnionType = true;
-            Node unionTypeNode = node;
-            while (unionTypeNode instanceof UnionTypeDescriptorNode) {
-                UnionTypeDescriptorNode unionType = (UnionTypeDescriptorNode) unionTypeNode;
-                type.memberTypes.add(fromNode(unionType.leftTypeDesc(), semanticModel));
-                unionTypeNode = unionType.rightTypeDesc();
-            }
-            type.memberTypes.add(fromNode(unionTypeNode, semanticModel));
+            addUnionMemberTypes(type.memberTypes, node, semanticModel);
         } else if (node instanceof IntersectionTypeDescriptorNode) {
             type.isIntersectionType = true;
-            IntersectionTypeDescriptorNode intersectionType = (IntersectionTypeDescriptorNode) node;
-            type.memberTypes.add(fromNode(intersectionType.leftTypeDesc(), semanticModel));
-            type.memberTypes.add(fromNode(intersectionType.rightTypeDesc(), semanticModel));
+            addIntersectionMemberTypes(type.memberTypes, node, semanticModel);
         } else if (node instanceof RecordTypeDescriptorNode) {
             type.name = node.toString();
             type.generateUserDefinedTypeLink = false;
@@ -274,6 +266,52 @@ public class Type {
             type.category = "UNKNOWN";
         }
         return type;
+    }
+
+    public static void addUnionMemberTypes(List<Type> memberTypes, Node typeNode, SemanticModel semanticModel) {
+        if (typeNode.kind() != SyntaxKind.UNION_TYPE_DESC) {
+             memberTypes.add(fromNode(typeNode, semanticModel));
+             return;
+        }
+
+        // flatten the types inside the union and add it to the list.
+        UnionTypeDescriptorNode unionType = (UnionTypeDescriptorNode) typeNode;
+        Node lhsType = unionType.leftTypeDesc();
+        if (lhsType.kind() != SyntaxKind.UNION_TYPE_DESC) {
+            memberTypes.add(fromNode(lhsType, semanticModel));
+        } else {
+            addUnionMemberTypes(memberTypes, lhsType, semanticModel);
+        }
+
+        Node rhsType = unionType.rightTypeDesc();
+        if (rhsType.kind() != SyntaxKind.UNION_TYPE_DESC) {
+            memberTypes.add(fromNode(rhsType, semanticModel));
+        } else {
+            addUnionMemberTypes(memberTypes, rhsType, semanticModel);
+        }
+    }
+
+    public static void addIntersectionMemberTypes(List<Type> memberTypes, Node typeNode, SemanticModel semanticModel) {
+        if (typeNode.kind() != SyntaxKind.INTERSECTION_TYPE_DESC) {
+            memberTypes.add(fromNode(typeNode, semanticModel));
+            return;
+        }
+
+        // flatten the types inside the intersection and add it to the list.
+        IntersectionTypeDescriptorNode intersectionType = (IntersectionTypeDescriptorNode) typeNode;
+        Node lhsType = intersectionType.leftTypeDesc();
+        if (lhsType.kind() != SyntaxKind.INTERSECTION_TYPE_DESC) {
+            memberTypes.add(fromNode(lhsType, semanticModel));
+        } else {
+            addIntersectionMemberTypes(memberTypes, lhsType, semanticModel);
+        }
+
+        Node rhsType = intersectionType.rightTypeDesc();
+        if (rhsType.kind() != SyntaxKind.INTERSECTION_TYPE_DESC) {
+            memberTypes.add(fromNode(rhsType, semanticModel));
+        } else {
+            addIntersectionMemberTypes(memberTypes, rhsType, semanticModel);
+        }
     }
 
     public static void resolveSymbol(Type type, Symbol symbol) {

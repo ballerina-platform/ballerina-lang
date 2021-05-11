@@ -67,7 +67,6 @@ import io.ballerina.compiler.syntax.tree.TupleTypeDescriptorNode;
 import io.ballerina.compiler.syntax.tree.TypeDefinitionNode;
 import io.ballerina.compiler.syntax.tree.TypeReferenceNode;
 import io.ballerina.compiler.syntax.tree.TypedescTypeDescriptorNode;
-import io.ballerina.compiler.syntax.tree.UnionTypeDescriptorNode;
 import org.ballerinalang.docgen.docs.BallerinaDocGenerator;
 import org.ballerinalang.docgen.docs.utils.BallerinaDocUtils;
 import org.ballerinalang.docgen.generator.model.Annotation;
@@ -324,8 +323,7 @@ public class Generator {
             }
         }
         List<Type> memberTypes = new ArrayList<>();
-        memberTypes.add(Type.fromNode(typeDescriptor.leftTypeDesc(), semanticModel));
-        memberTypes.add(Type.fromNode(typeDescriptor.rightTypeDesc(), semanticModel));
+        Type.addIntersectionMemberTypes(memberTypes, typeDescriptor, semanticModel);
         BType bType = new BType(typeName, getDocFromMetadata(optionalMetadataNode),
                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isIntersectionType = true;
@@ -360,13 +358,7 @@ public class Generator {
     private static BType getUnionTypeModel(Node unionTypeDescriptor, String unionName,
                                            Optional<MetadataNode> optionalMetadataNode, SemanticModel semanticModel) {
         List<Type> memberTypes = new ArrayList<>();
-        Node typeDescriptor = unionTypeDescriptor;
-        while (typeDescriptor.kind().equals(SyntaxKind.UNION_TYPE_DESC)) {
-            UnionTypeDescriptorNode unionType = (UnionTypeDescriptorNode) typeDescriptor;
-            memberTypes.add(Type.fromNode(unionType.leftTypeDesc(), semanticModel));
-            typeDescriptor = unionType.rightTypeDesc();
-        }
-        memberTypes.add(Type.fromNode(typeDescriptor, semanticModel));
+        Type.addUnionMemberTypes(memberTypes, unionTypeDescriptor, semanticModel);
         BType bType = new BType(unionName, getDocFromMetadata(optionalMetadataNode),
                                 isDeprecated(optionalMetadataNode), memberTypes);
         bType.isAnonymousUnionType = true;
