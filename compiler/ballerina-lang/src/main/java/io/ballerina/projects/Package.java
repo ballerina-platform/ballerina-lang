@@ -2,6 +2,8 @@ package io.ballerina.projects;
 
 import io.ballerina.projects.internal.ManifestBuilder;
 import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
+import org.wso2.ballerinalang.compiler.PackageCache;
+import org.wso2.ballerinalang.compiler.util.CompilerContext;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -229,7 +231,7 @@ public class Package {
         private PackageManifest packageManifest;
         private Map<ModuleId, ModuleContext> moduleContextMap;
         private Project project;
-        private final DependencyGraph<PackageDescriptor> pkgDependencyGraph;
+        private final DependencyGraph<ResolvedPackageDependency> dependencyGraph;
         private CompilationOptions compilationOptions;
         private TomlDocumentContext ballerinaTomlContext;
         private TomlDocumentContext dependenciesTomlContext;
@@ -242,7 +244,7 @@ public class Package {
             this.packageManifest = oldPackage.manifest();
             this.moduleContextMap = copyModules(oldPackage);
             this.project = oldPackage.project;
-            this.pkgDependencyGraph = oldPackage.packageContext().dependencyGraph();
+            this.dependencyGraph = oldPackage.getResolution().dependencyGraph();
             this.compilationOptions = oldPackage.compilationOptions();
             this.ballerinaTomlContext = oldPackage.packageContext.ballerinaTomlContext().orElse(null);
             this.dependenciesTomlContext = oldPackage.packageContext.dependenciesTomlContext().orElse(null);
@@ -373,6 +375,7 @@ public class Package {
         Modifier updateDependenciesToml(DependenciesToml dependenciesToml) {
             this.dependenciesTomlContext = dependenciesToml.dependenciesTomlContext();
             updateManifest();
+            updateModules();
             return this;
         }
 
@@ -412,8 +415,22 @@ public class Package {
             PackageContext newPackageContext = new PackageContext(this.project, this.packageId, this.packageManifest,
                     this.ballerinaTomlContext, this.dependenciesTomlContext, this.cloudTomlContext,
                     this.compilerPluginTomlContext, this.packageMdContext,  this.compilationOptions,
-                    this.moduleContextMap, this.pkgDependencyGraph);
+                    this.moduleContextMap, DependencyGraph.emptyGraph());
             this.project.setCurrentPackage(new Package(newPackageContext, this.project));
+
+            List<ResolvedPackageDependency> newSortedList = this.project.currentPackage().getResolution()
+                    .dependencyGraph().toTopologicallySortedList();
+            List<ResolvedPackageDependency> oldSortedList = this.dependencyGraph.toTopologicallySortedList();
+
+            for (int i = 0; i < newSortedList.size(); ++i) {
+                if (!newSortedList.get(i).packageId().equals(oldSortedList.get(i).packageId())) {
+                    CompilerContext compilerContext = project.projectEnvironmentContext()
+                            .getService(CompilerContext.class);
+                    PackageCache packageCache = PackageCache.getInstance(compilerContext);
+                    packageCache.flush();
+                    break;
+                }
+            }
             return this.project.currentPackage();
         }
 
