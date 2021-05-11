@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction createStudent() returns Student {\n    \n    return new (\"\");\n}\n"
+                                "newText": "\n\nfunction createStudent() returns Student {\n    return new (\"\");\n}\n"
                             }
                         ]
                     }
