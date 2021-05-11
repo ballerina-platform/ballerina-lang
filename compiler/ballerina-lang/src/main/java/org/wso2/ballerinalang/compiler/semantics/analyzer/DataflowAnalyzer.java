@@ -555,6 +555,7 @@ public class DataflowAnalyzer extends BLangNodeVisitor {
     @Override
     public void visit(BLangCompoundAssignment compoundAssignNode) {
         analyzeNode(compoundAssignNode.expr, env);
+        analyzeNode(compoundAssignNode.varRef, env);
         checkAssignment(compoundAssignNode.varRef);
         this.uninitializedVars.remove(compoundAssignNode.varRef.symbol);
     }
