@@ -24,7 +24,10 @@ import io.ballerina.projects.plugins.CompilerPlugin;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
+import java.util.ServiceLoader;
 import java.util.stream.Collectors;
 
 /**
@@ -53,8 +56,32 @@ class CompilerPluginManager {
         DependencyGraph<ResolvedPackageDependency> dependencyGraph = packageResolution.dependencyGraph();
         List<Package> directDependencies = getDirectDependencies(rootPkgNode, dependencyGraph);
         List<CompilerPluginInfo> compilerPlugins = loadEngagedCompilerPlugins(directDependencies);
+        List<CompilerPluginInfo> inBuiltCompilerPlugins = loadInBuiltCompilerPlugins(rootPkgNode.packageInstance());
+        compilerPlugins.addAll(inBuiltCompilerPlugins);
         List<CompilerPluginContextIml> compilerPluginContexts = initializePlugins(compilerPlugins);
         return new CompilerPluginManager(compilation, compilerPluginContexts);
+    }
+
+    private static List<CompilerPluginInfo> loadInBuiltCompilerPlugins(Package rootPackage) {
+        List<CompilerPluginInfo> compilerPluginInfoList = new ArrayList<>();
+        ServiceLoader<CompilerPlugin> pluginServiceLoader = ServiceLoader
+                .load(CompilerPlugin.class, ClassLoader.getSystemClassLoader());
+        for (CompilerPlugin plugin : pluginServiceLoader) {
+            CompilerPlugin compilerPlugin;
+            try {
+                if (!rootPackage.manifest().descriptor().isBuiltInPackage() &&
+                        rootPackage.project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+                    compilerPlugin = CompilerPlugins.loadCompilerPlugin(
+                            plugin.getClass().getName(), Collections.emptyList());
+                    compilerPluginInfoList.add(new CompilerPluginInfo(compilerPlugin));
+                }
+            } catch (Throwable e) {
+                // Used Throwable here to catch any sort of error produced by the in-built compiler plugin code
+                throw new ProjectException("Failed to load the compiler plugin class: '"
+                        + plugin.getClass().getName()  + "'. " + e.getMessage());
+            }
+        }
+        return compilerPluginInfoList;
     }
 
     PackageCompilation compilation() {
@@ -126,11 +153,19 @@ class CompilerPluginManager {
             compilerPluginInfo.compilerPlugin().init(pluginContext);
         } catch (Throwable e) {
             // Used Throwable here catch any sort of error produced by the third-party compiler plugin code
-            PackageDescriptor packageDesc = compilerPluginInfo.packageDesc();
-            throw new ProjectException("Failed to initialize the compiler plugin in package: '"
-                    + packageDesc.org() +
-                    ":" + packageDesc.name() +
-                    ":" + packageDesc.version() + "'. " + e.getMessage(), e);
+            Optional<PackageDescriptor> pkgDesc = compilerPluginInfo.packageDesc();
+            String message;
+            if (pkgDesc.isEmpty()) {
+                message = "Failed to initialize the compiler plugin: '"
+                        + compilerPluginInfo.compilerPlugin().getClass().getName()  + "'. ";
+            } else {
+                message = "Failed to initialize the compiler plugin in package: '"
+                        + pkgDesc.get().org() +
+                        ":" + pkgDesc.get().name() +
+                        ":" + pkgDesc.get().version() + "'. ";
+            }
+            throw new ProjectException(message + e.getMessage(), e);
+
         }
     }
 
