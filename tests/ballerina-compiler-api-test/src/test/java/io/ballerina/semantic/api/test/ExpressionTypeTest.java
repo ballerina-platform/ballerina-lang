@@ -351,6 +351,16 @@ public class ExpressionTypeTest {
         assertType(118, 15, 118, 16, RECORD);
     }
 
+    @Test
+    public void testTypeWithinDoAndOnFailClause() {
+        TypeSymbol exprType = getExprType(164, 16, 164, 23);
+        assertEquals(exprType.typeKind(), TYPE_REFERENCE);
+        assertEquals(exprType.getName().get(), "Foo");
+
+        exprType = getExprType(166, 12, 166, 42);
+        assertEquals(exprType.typeKind(), STRING);
+    }
+
     private void assertType(int sLine, int sCol, int eLine, int eCol, TypeDescKind kind) {
         TypeSymbol type = getExprType(sLine, sCol, eLine, eCol);
         assertEquals(type.typeKind(), kind);
