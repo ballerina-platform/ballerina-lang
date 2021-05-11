@@ -16,13 +16,10 @@
 
 import ballerina/jballerina.java;
 
-public type Fields record {
-    map<string> CHECKPOINT;
-};
-
 public type Event record {
+    string name;
     int timestampMicros;
-    Fields fields;
+    map<string> tags;
 };
 
 public type Span record {
