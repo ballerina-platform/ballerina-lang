@@ -8,7 +8,10 @@
     {
       "label": "foreach",
       "kind": "Snippet",
-      "detail": "foreach snippet for iterable variable - myStr",
+      "detail": "foreach var item in expr",
+      "documentation": {
+        "left": "foreach statement for iterable variable - myStr"
+      },
       "sortText": "Q",
       "insertText": "foreach string item in myStr {\n\t${1}\n}",
       "insertTextFormat": "Snippet",
@@ -31,7 +34,10 @@
     {
       "label": "foreach i",
       "kind": "Snippet",
-      "detail": "foreach range expression snippet for iterable variable - myStr",
+      "detail": "foreach int i in 0...expr",
+      "documentation": {
+        "left": "foreach i statement for iterable variable - myStr"
+      },
       "sortText": "Q",
       "insertText": "foreach int i in ${1:0}...myStr.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
