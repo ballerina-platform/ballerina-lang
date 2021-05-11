@@ -311,6 +311,21 @@ public class CommonUtil {
                         new ArrayList<>(((UnionTypeSymbol) bType).memberTypeDescriptors());
                 typeString = getDefaultValueForType(members.get(0));
                 break;
+            case INTERSECTION:
+                TypeSymbol effectiveType = ((IntersectionTypeSymbol) rawType).effectiveTypeDescriptor();
+                effectiveType = getRawType(effectiveType);
+                typeString = "()";
+                // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
+                // further checks here.
+                // Get the member type from intersection which is not readonly and get its default value
+                Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
+                        .memberTypeDescriptors().stream()
+                        .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
+                        .findAny();
+                if (memberType.isPresent()) {
+                    typeString = getDefaultValueForType(memberType.get());
+                }
+                break;
             case STREAM:
 //            case TABLE:
             default:

@@ -6,11 +6,40 @@
   "source": "expression_context/source/field_access_ctx_source2.bal",
   "items": [
     {
-      "label": "foreach - functionWithReturn()",
+      "label": "foreach",
       "kind": "Snippet",
-      "detail": "foreach snippet for iterable variable - functionWithReturn()",
+      "detail": "foreach var item in expr",
+      "documentation": {
+        "left": "foreach statement for iterable variable - functionWithReturn()"
+      },
       "sortText": "Q",
       "insertText": "foreach var item in functionWithReturn() {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 3,
+              "character": 4
+            },
+            "end": {
+              "line": 3,
+              "character": 26
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach int i in 0...expr",
+      "documentation": {
+        "left": "foreach i statement for iterable variable - functionWithReturn()"
+      },
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...functionWithReturn().length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

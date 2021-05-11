@@ -6,11 +6,40 @@
   "source": "statement_context/source/foreach_stmt_ctx_source16.bal",
   "items": [
     {
-      "label": "foreach - var1",
+      "label": "foreach",
       "kind": "Snippet",
-      "detail": "foreach snippet for iterable variable - var1",
+      "detail": "foreach var item in expr",
+      "documentation": {
+        "left": "foreach statement for iterable variable - var1"
+      },
       "sortText": "Q",
       "insertText": "foreach var item in var1 {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 5,
+              "character": 4
+            },
+            "end": {
+              "line": 5,
+              "character": 9
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach int i in 0...expr",
+      "documentation": {
+        "left": "foreach i statement for iterable variable - var1"
+      },
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...var1.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {

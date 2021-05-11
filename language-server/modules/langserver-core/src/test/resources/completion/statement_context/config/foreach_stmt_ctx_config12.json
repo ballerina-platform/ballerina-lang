@@ -6,11 +6,40 @@
   "source": "statement_context/source/foreach_stmt_ctx_source12.bal",
   "items": [
     {
-      "label": "foreach - myTuple",
+      "label": "foreach",
       "kind": "Snippet",
-      "detail": "foreach snippet for iterable variable - myTuple",
+      "detail": "foreach var item in expr",
+      "documentation": {
+        "left": "foreach statement for iterable variable - myTuple"
+      },
       "sortText": "Q",
       "insertText": "foreach string item in myTuple {\n\t${1}\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 2,
+              "character": 4
+            },
+            "end": {
+              "line": 2,
+              "character": 12
+            }
+          },
+          "newText": ""
+        }
+      ]
+    },
+    {
+      "label": "foreach i",
+      "kind": "Snippet",
+      "detail": "foreach int i in 0...expr",
+      "documentation": {
+        "left": "foreach i statement for iterable variable - myTuple"
+      },
+      "sortText": "Q",
+      "insertText": "foreach int i in ${1:0}...myTuple.length() {\n\t${2}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
