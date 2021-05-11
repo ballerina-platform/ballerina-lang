@@ -35,8 +35,6 @@ import java.util.Optional;
  */
 public class CodeActionManager {
 
-    private static final String ARG_KEY_CODE_ACTION_ID = "plugin.codeActionId";
-
     private List<CompilerPluginContextIml> compilerPluginContexts;
 
     private CodeActionManager(List<CompilerPluginContextIml> compilerPluginContexts) {
@@ -54,7 +52,6 @@ public class CodeActionManager {
                                         compilerPluginContext.compilerPluginInfo(), provider.name()));
                                 // Then, add code action ID as an argument
                                 List<CodeActionArgument> arguments = new ArrayList<>(codeAction.getArguments());
-                                arguments.add(CodeActionArgument.from(ARG_KEY_CODE_ACTION_ID, codeAction.getId()));
                                 codeAction.setArguments(arguments);
                             })
                             .forEach(codeActions::add));
@@ -87,14 +84,7 @@ public class CodeActionManager {
                     .findFirst();
 
             if (codeActionProvider.isPresent()) {
-                Optional<String> codeActionId = arguments.stream()
-                        .filter(codeActionArgument -> ARG_KEY_CODE_ACTION_ID.equals(codeActionArgument.key()))
-                        .findFirst()
-                        .flatMap(codeActionArgument -> Optional.of(codeActionArgument.valueAs(String.class)));
-
-                if (codeActionId.isPresent()) {
-                    return codeActionProvider.get().execute(context, codeActionId.get(), arguments);
-                }
+                return codeActionProvider.get().execute(context, arguments);
             }
         }
 

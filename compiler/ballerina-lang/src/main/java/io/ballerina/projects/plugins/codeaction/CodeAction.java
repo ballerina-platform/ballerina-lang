@@ -1,12 +1,12 @@
 /*
  * Copyright (c) 2021, WSO2 Inc. (http://wso2.com) All Rights Reserved.
- *  
+ *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
  * You may obtain a copy of the License at
- *  
+ *
  * http://www.apache.org/licenses/LICENSE-2.0
- *  
+ *
  * Unless required by applicable law or agreed to in writing, software
  * distributed under the License is distributed on an "AS IS" BASIS,
  * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,23 +22,17 @@ import java.util.List;
  */
 public class CodeAction {
 
-    private String id;
     private String title;
     private String providerName;
     private List<CodeActionArgument> arguments;
 
-    private CodeAction(String id, String title, List<CodeActionArgument> arguments) {
-        this.id = id;
+    private CodeAction(String title, List<CodeActionArgument> arguments) {
         this.title = title;
         this.arguments = arguments;
     }
 
     public String getTitle() {
         return title;
-    }
-
-    public String getId() {
-        return id;
     }
 
     public List<CodeActionArgument> getArguments() {
@@ -49,10 +43,6 @@ public class CodeAction {
         this.title = title;
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
-
     public void setArguments(List<CodeActionArgument> arguments) {
         this.arguments = arguments;
     }
@@ -60,12 +50,12 @@ public class CodeAction {
     public String getProviderName() {
         return providerName;
     }
-     
+
     public void setProviderName(String providerName) {
         this.providerName = providerName;
     }
 
-    public static CodeAction from(String id, String title, List<CodeActionArgument> arguments) {
-        return new CodeAction(id, title, arguments);
+    public static CodeAction from(String title, List<CodeActionArgument> arguments) {
+        return new CodeAction(title, arguments);
     }
 }

@@ -28,6 +28,7 @@ import io.ballerina.tools.text.TextRange;
 import java.util.Collections;
 import java.util.List;
 
+@Deprecated
 public class AddGenericVarExecutor {
 
     public static final String COMMAND = "ADD_VAR";
@@ -60,7 +61,7 @@ public class AddGenericVarExecutor {
         TextEdit edit = TextEdit.from(TextRange.from(start, 0), type + " myVar = ");
         TextDocumentChange textDocumentChange = TextDocumentChange.from(List.of(edit).toArray(new TextEdit[0]));
         TextDocument modified = syntaxTree.textDocument().apply(textDocumentChange);
-        DocumentEdit documentEdit = new DocumentEdit(context.fileUri(), syntaxTree, SyntaxTree.from(modified));
+        DocumentEdit documentEdit = new DocumentEdit(context.fileUri(), SyntaxTree.from(modified));
         return List.of(documentEdit);
     }
 }

@@ -16,6 +16,7 @@
 package io.ballerina.plugins.codeaction;
 
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.plugins.codeaction.CodeAction;
 import io.ballerina.projects.plugins.codeaction.CodeActionArgument;
 import io.ballerina.projects.plugins.codeaction.CodeActionProvider;
@@ -23,44 +24,76 @@ import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticProperty;
+import io.ballerina.tools.text.LineRange;
+import io.ballerina.tools.text.TextDocument;
+import io.ballerina.tools.text.TextDocumentChange;
+import io.ballerina.tools.text.TextEdit;
+import io.ballerina.tools.text.TextRange;
 
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 /**
  * A dummy code action provider.
  */
 public class CreateVarCodeAction implements CodeActionProvider {
 
+    public static final String ARG_NODE_RANGE = "node.range";
+    public static final String ARG_VAR_TYPE = "var.type";
     public static final String VAR_ASSIGNMENT_REQUIRED = "variable assignment is required";
 
     @Override
-    public List<CodeAction> getCodeActions(ToolingCodeActionContext context, Diagnostic diagnostic) {
+    public Optional<CodeAction> getCodeActions(ToolingCodeActionContext context, Diagnostic diagnostic) {
         if (!(diagnostic.message().startsWith(VAR_ASSIGNMENT_REQUIRED))) {
-            return Collections.emptyList();
+            return Optional.empty();
         }
 
         if (diagnostic.properties().isEmpty()) {
-            return Collections.emptyList();
+            return Optional.empty();
         }
 
         TypeSymbol typeSymbol = ((DiagnosticProperty<TypeSymbol>) diagnostic.properties().get(0)).value();
         if (typeSymbol == null) {
-            return Collections.emptyList();
+            return Optional.empty();
         }
 
         List<CodeActionArgument> args = List.of(
-                CodeActionArgument.from(AddGenericVarExecutor.ARG_NODE_RANGE, diagnostic.location().lineRange()),
-                CodeActionArgument.from(AddGenericVarExecutor.ARG_VAR_TYPE, typeSymbol.signature())
+                CodeActionArgument.from(ARG_NODE_RANGE, diagnostic.location().lineRange()),
+                CodeActionArgument.from(ARG_VAR_TYPE, typeSymbol.signature())
         );
-        return Collections.singletonList(CodeAction.from(AddGenericVarExecutor.COMMAND, "Create generic variable", args));
+        return Optional.of(CodeAction.from("Create generic variable", args));
     }
 
     @Override
-    public List<DocumentEdit> execute(ToolingCodeActionContext context, String codeActionId,
-                                      List<CodeActionArgument> arguments) {
-        AddGenericVarExecutor executor = new AddGenericVarExecutor();
-        return executor.execute(context, arguments);
+    public List<DocumentEdit> execute(ToolingCodeActionContext context, List<CodeActionArgument> arguments) {
+        LineRange lineRange = null;
+        String type = null;
+        for (CodeActionArgument argument : arguments) {
+            switch (argument.key()) {
+                case ARG_NODE_RANGE:
+                    lineRange = argument.valueAs(LineRange.class);
+                    break;
+                case ARG_VAR_TYPE:
+                    type = argument.valueAs(String.class);
+                    break;
+            }
+        }
+
+        if (lineRange == null || type == null) {
+            return Collections.emptyList();
+        }
+
+        SyntaxTree syntaxTree = context.currentDocument().syntaxTree();
+        TextDocument textDocument = syntaxTree.textDocument();
+        int start = textDocument.textPositionFrom(lineRange.startLine());
+        int end = textDocument.textPositionFrom(lineRange.endLine());
+
+        TextEdit edit = TextEdit.from(TextRange.from(start, 0), type + " myVar = ");
+        TextDocumentChange textDocumentChange = TextDocumentChange.from(List.of(edit).toArray(new TextEdit[0]));
+        TextDocument modified = syntaxTree.textDocument().apply(textDocumentChange);
+        DocumentEdit documentEdit = new DocumentEdit(context.fileUri(), SyntaxTree.from(modified));
+        return List.of(documentEdit);
     }
 
     @Override

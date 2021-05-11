@@ -18,6 +18,7 @@ package org.ballerinalang.langserver;
 import com.google.gson.Gson;
 import com.google.gson.JsonObject;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.syntax.tree.SyntaxTree;
 import io.ballerina.projects.Document;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.CodeActionManager;
@@ -230,15 +231,22 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
         List<DocumentEdit> docEdits = codeActionManager.executeCodeAction(providerName, toolingCodeActionContext, args);
 
-        List<Either<TextDocumentEdit, ResourceOperation>> edits = docEdits.stream()
-                .map(docEdit -> {
-                    LineRange lineRange = docEdit.getOriginalSyntaxTree().rootNode().lineRange();
-                    Range range = CommonUtil.toRange(LineRange.from(docEdit.getFileUri(), lineRange.startLine(), lineRange.endLine()));
-                    TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
-                    return new TextDocumentEdit(new VersionedTextDocumentIdentifier(docEdit.getFileUri(), null), Collections.singletonList(edit));
-                })
-                .map(textDocumentEdit -> Either.<TextDocumentEdit, ResourceOperation>forLeft(textDocumentEdit))
-                .collect(Collectors.toList());
+        List<Either<TextDocumentEdit, ResourceOperation>> edits = new LinkedList<>();
+        docEdits.forEach(docEdit -> {
+            Optional<SyntaxTree> originalST = CommonUtil.getPathFromURI(docEdit.getFileUri())
+                    .flatMap(workspaceManager::document)
+                    .flatMap(doc -> Optional.of(doc.syntaxTree()));
+            if (originalST.isEmpty()) {
+                return;
+            }
+
+            LineRange lineRange = originalST.get().rootNode().lineRange();
+            Range range = CommonUtil.toRange(LineRange.from(docEdit.getFileUri(), lineRange.startLine(), lineRange.endLine()));
+            TextEdit edit = new TextEdit(range, docEdit.getModifiedSyntaxTree().toSourceCode());
+            TextDocumentEdit documentEdit = new TextDocumentEdit(new VersionedTextDocumentIdentifier(docEdit.getFileUri(), null), Collections.singletonList(edit));
+            Either<TextDocumentEdit, ResourceOperation> either = Either.forLeft(documentEdit);
+            edits.add(either);
+        });
         return CommandUtil.applyWorkspaceEdit(edits, languageServer.getClient());
     }
 }

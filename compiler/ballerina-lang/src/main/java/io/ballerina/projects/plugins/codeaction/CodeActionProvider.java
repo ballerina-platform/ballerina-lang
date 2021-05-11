@@ -18,17 +18,19 @@ package io.ballerina.projects.plugins.codeaction;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
 import java.util.List;
+import java.util.Optional;
 
 /**
  * Code action provider interface.
  */
 public interface CodeActionProvider {
 
-    List<CodeAction> getCodeActions(ToolingCodeActionContext context, Diagnostic diagnostic);
+    // TODO Or return CodeAction with a prevalidation step
+    //      Anyway, return a single code action
+    Optional<CodeAction> getCodeActions(ToolingCodeActionContext context, Diagnostic diagnostic);
 
     List<DocumentEdit> execute(ToolingCodeActionContext context,
-                               String codeActionId,
                                List<CodeActionArgument> arguments);
-    
+
     String name();
 }
