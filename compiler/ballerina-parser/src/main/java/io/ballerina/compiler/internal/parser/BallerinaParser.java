@@ -904,11 +904,13 @@ public class BallerinaParser extends AbstractParser {
             STNode configurableQual = varDeclQualList.get(configurableQualIndex);
             for (int i = 0; i < varDeclQualList.size(); i++) {
                 if (i < configurableQualIndex) {
-                    configurableQual = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(configurableQual,
-                            varDeclQualList.get(i), DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+                    STNode invalidQual = varDeclQualList.get(i);
+                    configurableQual = SyntaxErrors.cloneWithLeadingInvalidNodeMinutiae(configurableQual, invalidQual,
+                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) invalidQual).text());
                 } else if (i > configurableQualIndex) {
-                    configurableQual = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(configurableQual,
-                            varDeclQualList.get(i), DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED);
+                    STNode invalidQual = varDeclQualList.get(i);
+                    configurableQual = SyntaxErrors.cloneWithTrailingInvalidNodeMinutiae(configurableQual, invalidQual,
+                            DiagnosticErrorCode.ERROR_QUALIFIER_NOT_ALLOWED, ((STToken) invalidQual).text());
                 }
             }
             varDeclQualList = new ArrayList<>(Arrays.asList(configurableQual));
