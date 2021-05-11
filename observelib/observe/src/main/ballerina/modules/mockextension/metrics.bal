@@ -19,14 +19,12 @@ import ballerina/jballerina.java;
 public type Tag record {
   string key;
   string value;
-  int hashCode;
 };
 
 public type MetricId record {
   string name;
   string description;
   Tag[] tags;
-  int hashCode;
 };
 
 public type PercentileValue record {
