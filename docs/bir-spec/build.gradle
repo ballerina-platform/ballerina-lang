@@ -49,7 +49,7 @@ kaitai {
     executionTimeout = 10_000
     version = "0.9"
     url = new URL("https://github.com/kaitai-io/kaitai_struct_compiler/releases/download/0.9/kaitai-struct-compiler-0" +
-            ".9.zip"
+            ".9.zip")
 }
 
 sourceSets.main.java.srcDirs += 'build/generated/kaitai'
