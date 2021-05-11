@@ -66,6 +66,7 @@ public class EvaluationUtils {
     private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
     public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
     public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
+    public static final String B_TYPE_CONVERTER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeConverter";
     public static final String B_VALUE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.ValueCreator";
     public static final String B_STRING_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.StringUtils";
     public static final String B_TYPE_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.TypeUtils";
@@ -77,7 +78,7 @@ public class EvaluationUtils {
     public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
     private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
-    public static final String FROM_STRING_CLASS = "org.ballerinalang.langlib.xml.FromString";
+
 
     // Java runtime helper classes
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
@@ -121,7 +122,7 @@ public class EvaluationUtils {
     public static final String REF_EQUAL_METHOD = "isReferenceEqual";
     public static final String VALUE_EQUAL_METHOD = "isEqual";
     public static final String XML_CONCAT_METHOD = "concatenate";
-    public static final String XML_FROM_STRING_METHOD = "fromString";
+    public static final String STRING_TO_XML_METHOD = "stringToXml";
     private static final String B_STRING_CONCAT_METHOD = "concat";
     static final String FROM_STRING_METHOD = "fromString";
     private static final String FOR_NAME_METHOD = "forName";
@@ -156,14 +157,14 @@ public class EvaluationUtils {
         }
         List<Method> methods = classesRef.get(0).methodsByName(methodName);
         if (methods == null || methods.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         methods = methods.stream().filter(method -> method.isPublic() && method.isStatic() &&
                 compare(method.argumentTypeNames(), argTypeNames)).collect(Collectors.toList());
         if (methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         return new RuntimeStaticMethod(context, classesRef.get(0), methods.get(0));
     }
@@ -178,16 +179,16 @@ public class EvaluationUtils {
         }
         List<Method> methods = classesRef.get(0).methodsByName(methodName);
         if (methods == null || methods.isEmpty()) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         methods = methods.stream()
                 .filter(method -> method.isPublic() && method.isStatic())
                 .collect(Collectors.toList());
 
         if (methods.size() != 1) {
-            throw new EvaluationException(String.format(EvaluationExceptionKind.CUSTOM_ERROR.getString(), "Error " +
-                    "occurred when trying to load JVM util function: " + methodName));
+            throw new EvaluationException(String.format(EvaluationExceptionKind.HELPER_UTIL_NOT_FOUND.getString(),
+                    methodName));
         }
         return new GeneratedStaticMethod(context, classesRef.get(0), methods.get(0));
     }
