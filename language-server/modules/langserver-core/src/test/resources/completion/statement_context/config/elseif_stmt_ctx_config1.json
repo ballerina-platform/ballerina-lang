@@ -595,7 +595,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunction()",
+      "label": "doSomeTask()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -605,7 +605,8 @@
         }
       },
       "sortText": "C",
-      "insertText": "testFunction()",
+      "filterText": "doSomeTask",
+      "insertText": "doSomeTask()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -617,7 +618,7 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "doSomeTask()",
+      "label": "testFunction()",
       "kind": "Function",
       "detail": "Function",
       "documentation": {
@@ -627,7 +628,8 @@
         }
       },
       "sortText": "C",
-      "insertText": "doSomeTask()",
+      "filterText": "testFunction",
+      "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     }
   ]

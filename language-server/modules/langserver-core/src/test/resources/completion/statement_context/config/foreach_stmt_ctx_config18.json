@@ -68,6 +68,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "add",
       "insertText": "add(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -86,6 +87,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "reduce",
       "insertText": "reduce(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -104,6 +106,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "forEach",
       "insertText": "forEach(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -122,6 +125,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "length",
       "insertText": "length()",
       "insertTextFormat": "Snippet"
     },
@@ -136,6 +140,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "put",
       "insertText": "put(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -154,6 +159,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "iterator",
       "insertText": "iterator()",
       "insertTextFormat": "Snippet"
     },
@@ -168,6 +174,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "removeAll",
       "insertText": "removeAll()",
       "insertTextFormat": "Snippet"
     },
@@ -182,6 +189,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toArray",
       "insertText": "toArray()",
       "insertTextFormat": "Snippet"
     },
@@ -196,6 +204,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "map",
       "insertText": "map(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -214,6 +223,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneWithType",
       "insertText": "cloneWithType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -232,6 +242,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -246,6 +257,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toBalString",
       "insertText": "toBalString()",
       "insertTextFormat": "Snippet"
     },
@@ -260,6 +272,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJson",
       "insertText": "toJson()",
       "insertTextFormat": "Snippet"
     },
@@ -274,6 +287,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "isReadOnly",
       "insertText": "isReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -288,6 +302,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -302,6 +317,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -320,6 +336,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toString",
       "insertText": "toString()",
       "insertTextFormat": "Snippet"
     },
@@ -334,6 +351,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "toJsonString",
       "insertText": "toJsonString()",
       "insertTextFormat": "Snippet"
     }

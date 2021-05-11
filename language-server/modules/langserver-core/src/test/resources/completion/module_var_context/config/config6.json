@@ -441,17 +441,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "getIntValue()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "D",
-      "insertText": "getIntValue()",
+      "label": "testC",
+      "kind": "Variable",
+      "detail": "module1:Client",
+      "sortText": "C",
+      "insertText": "testC",
       "insertTextFormat": "Snippet"
     },
     {
@@ -466,11 +460,18 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testC",
-      "kind": "Variable",
-      "detail": "module1:Client",
-      "sortText": "C",
-      "insertText": "testC",
+      "label": "getIntValue()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "D",
+      "filterText": "getIntValue",
+      "insertText": "getIntValue()",
       "insertTextFormat": "Snippet"
     },
     {

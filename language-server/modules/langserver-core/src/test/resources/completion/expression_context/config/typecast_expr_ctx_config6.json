@@ -433,14 +433,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "value1",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "C",
-      "insertText": "value1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -449,11 +441,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ErrorName",
-      "kind": "Event",
-      "detail": "Error",
-      "sortText": "Q",
-      "insertText": "ErrorName",
+      "label": "value1",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "value1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -475,7 +467,16 @@
         }
       },
       "sortText": "D",
+      "filterText": "getTDesc",
       "insertText": "getTDesc()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "ErrorName",
+      "kind": "Event",
+      "detail": "Error",
+      "sortText": "Q",
+      "insertText": "ErrorName",
       "insertTextFormat": "Snippet"
     },
     {
