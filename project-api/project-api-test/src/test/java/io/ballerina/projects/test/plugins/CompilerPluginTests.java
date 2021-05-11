@@ -32,15 +32,10 @@ import org.testng.annotations.Test;
 
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.net.URLClassLoader;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -137,7 +132,6 @@ public class CompilerPluginTests {
     @Test
     public void testInBuiltCompilerPlugin() throws IOException {
         Package currentPackage = loadPackage("package_test_inbuilt_plugin");
-        Thread.currentThread().setContextClassLoader(createClassLoader());
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
@@ -176,12 +170,5 @@ public class CompilerPluginTests {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
         BuildProject buildProject = BuildProject.load(projectDirPath);
         return buildProject.currentPackage();
-    }
-
-    private static ClassLoader createClassLoader() throws MalformedURLException {
-        URL[] pluginJarUrl = new URL[] {Paths.get("build/bre/lib/logging-file-appender-plugin-1.0.0.jar").toUri().toURL()};
-        return AccessController.doPrivileged(
-                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(pluginJarUrl)
-        );
     }
 }

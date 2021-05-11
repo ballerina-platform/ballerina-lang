@@ -227,7 +227,7 @@ class CodeAnalyzerManager {
                 Optional<PackageDescriptor> pkgDesc = codeAnalyzerInfo.compilerPluginInfo().packageDesc();
                 String message;
                 if (pkgDesc.isEmpty()) {
-                    message = "The in-built compiler extension '" +
+                    message = "The compiler extension '" +
                             codeAnalyzerInfo.compilerPluginInfo().compilerPlugin().getClass().getName()
                             + "' failed to complete. ";
                 } else {
@@ -268,7 +268,7 @@ class CodeAnalyzerManager {
                 Optional<PackageDescriptor> pkgDesc = codeAnalyzerInfo.compilerPluginInfo().packageDesc();
                 String message;
                 if (pkgDesc.isEmpty()) {
-                    message = "The in-built compiler extension '"
+                    message = "The compiler extension '"
                             + codeAnalyzerInfo.compilerPluginInfo().compilerPlugin().getClass().getName()
                             + "' failed to complete. ";
                 } else {

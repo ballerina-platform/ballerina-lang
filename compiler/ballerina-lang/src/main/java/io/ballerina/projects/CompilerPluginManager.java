@@ -77,7 +77,7 @@ class CompilerPluginManager {
                 }
             } catch (Throwable e) {
                 // Used Throwable here to catch any sort of error produced by the in-built compiler plugin code
-                throw new ProjectException("Failed to load the in-built compiler plugin class: '"
+                throw new ProjectException("Failed to load the compiler plugin class: '"
                         + plugin.getClass().getName()  + "'. " + e.getMessage());
             }
         }
@@ -156,7 +156,7 @@ class CompilerPluginManager {
             Optional<PackageDescriptor> pkgDesc = compilerPluginInfo.packageDesc();
             String message;
             if (pkgDesc.isEmpty()) {
-                message = "Failed to initialize the in-built compiler plugin: '"
+                message = "Failed to initialize the compiler plugin: '"
                         + compilerPluginInfo.compilerPlugin().getClass().getName()  + "'. ";
             } else {
                 message = "Failed to initialize the compiler plugin in package: '"
