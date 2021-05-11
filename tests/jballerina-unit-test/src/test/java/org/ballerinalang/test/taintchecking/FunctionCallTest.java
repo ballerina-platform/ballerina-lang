@@ -48,7 +48,7 @@ public class FunctionCallTest {
 
     @Test
     public void testFuncCall() {
-        BRunUtil.invoke(result, "main", new Object[]{1L, StringUtils.fromString("str"), true, false});
+        BRunUtil.invoke(result, "main", new Object[]{1L, StringUtils.fromString("str"), 1, 0});
     }
 
     @Test(groups = "disableOnOldParser")

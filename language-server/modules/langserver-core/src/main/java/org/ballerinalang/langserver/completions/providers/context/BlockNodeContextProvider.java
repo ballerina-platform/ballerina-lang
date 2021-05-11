@@ -17,12 +17,11 @@ package org.ballerinalang.langserver.completions.providers.context;
 
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
-import io.ballerina.compiler.api.symbols.TypeDescKind;
-import io.ballerina.compiler.api.symbols.TypeSymbol;
-import io.ballerina.compiler.api.symbols.UnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
 import io.ballerina.compiler.syntax.tree.BlockStatementNode;
 import io.ballerina.compiler.syntax.tree.FunctionBodyBlockNode;
+import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
+import io.ballerina.compiler.syntax.tree.NamedWorkerDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NodeList;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
@@ -30,22 +29,21 @@ import io.ballerina.compiler.syntax.tree.QualifiedNameReferenceNode;
 import io.ballerina.compiler.syntax.tree.StatementNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
-import org.ballerinalang.langserver.SnippetBlock;
-import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.completion.QNameReferenceUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionException;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ItemResolverConstants;
 import org.ballerinalang.langserver.completions.util.Snippet;
+import org.ballerinalang.langserver.completions.util.SortingUtil;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
-import java.util.stream.IntStream;
 
 /**
  * Generic completion resolver for the Block Nodes.
@@ -74,19 +72,14 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                 }
              */
             QualifiedNameReferenceNode nameRef = (QualifiedNameReferenceNode) nodeAtCursor;
-            Predicate<Symbol> filter = symbol ->
-                    symbol.kind() == SymbolKind.TYPE_DEFINITION
-                            || symbol.kind() == SymbolKind.VARIABLE
-                            || symbol.kind() == SymbolKind.CONSTANT
-                            || symbol.kind() == SymbolKind.FUNCTION
-                            || symbol.kind() == SymbolKind.CLASS;
+            Predicate<Symbol> filter = symbol -> symbol.kind() != SymbolKind.SERVICE_DECLARATION;
             List<Symbol> moduleContent = QNameReferenceUtil.getModuleContent(context, nameRef, filter);
 
             completionItems.addAll(this.getCompletionItemList(moduleContent, context));
         } else {
             /*
             Covers the following
-            Ex: function test() {
+            Ex: if (true) {
                     <cursor>
                     i<cursor>
                 }
@@ -98,7 +91,7 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.addAll(this.getSymbolCompletions(context));
         }
         this.sort(context, node, completionItems);
-        
+
         return completionItems;
     }
 
@@ -133,8 +126,16 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_DO.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_LOCK.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH.get()));
-        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FOREACH_RANGE_EXP.get()));
+        if (this.onSuggestFork(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_FORK.get()));
+        }
+        if (this.withinTransactionStatement(node)) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_ROLLBACK.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_COMMIT.get()));
+        }
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_TRANSACTION.get()));
+        completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETRY_TRANSACTION.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_MATCH.get()));
         completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_RETURN.get()));
@@ -166,7 +167,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_CONTINUE.get()));
             completionItems.add(new SnippetCompletionItem(context, Snippet.STMT_BREAK.get()));
         }
-        // Todo: Implement rollback statement suggestion
 
         return completionItems;
     }
@@ -180,7 +180,6 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
                         symbol.kind() == SymbolKind.PARAMETER)
                 .collect(Collectors.toList());
         completionItems.addAll(this.getCompletionItemList(filteredList, context));
-        completionItems.addAll(this.getTypeguardDestructedItems(visibleSymbols, context));
         return completionItems;
     }
 
@@ -195,6 +194,18 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         }
 
         return withinLoops;
+    }
+
+    private boolean withinTransactionStatement(T node) {
+        Node evalNode = node;
+        boolean withinTransaction = false;
+
+        while (!withinTransaction && evalNode != null) {
+            withinTransaction = evalNode.kind() == SyntaxKind.TRANSACTION_STATEMENT;
+            evalNode = evalNode.parent();
+        }
+
+        return withinTransaction;
     }
 
     private Optional<Node> nodeBeforeCursor(BallerinaCompletionContext context, Node node) {
@@ -230,68 +241,62 @@ public class BlockNodeContextProvider<T extends Node> extends AbstractCompletion
         return Optional.empty();
     }
 
-    private List<LSCompletionItem> getTypeguardDestructedItems(List<Symbol> scopeEntries,
-                                                               BallerinaCompletionContext ctx) {
-        List<String> capturedSymbols = new ArrayList<>();
-        // In the case of type guarded variables multiple symbols with the same symbol name and we ignore those
-        return scopeEntries.stream()
-                .filter(symbol -> {
-                    if (symbol.kind() != SymbolKind.VARIABLE) {
-                        return false;
-                    }
-                    TypeSymbol typeDesc = ((VariableSymbol) symbol).typeDescriptor();
-                    return typeDesc.typeKind() == TypeDescKind.UNION
-                            && !capturedSymbols.contains(symbol.getName().get());
-                })
-                .map(symbol -> {
-                    String symbolName = symbol.getName().get();
-                    capturedSymbols.add(symbolName);
-                    List<TypeSymbol> errorTypes = new ArrayList<>();
-                    List<TypeSymbol> resultTypes = new ArrayList<>();
-                    List<TypeSymbol> members
-                            = new ArrayList<>(((UnionTypeSymbol) ((VariableSymbol) symbol).typeDescriptor())
-                            .memberTypeDescriptors());
-                    members.forEach(bType -> {
-                        if (bType.typeKind() == TypeDescKind.ERROR) {
-                            errorTypes.add(bType);
-                        } else {
-                            resultTypes.add(bType);
-                        }
-                    });
-                    if (errorTypes.size() == 1) {
-                        resultTypes.addAll(errorTypes);
-                    }
-                    String label = symbolName + " - typeguard " + symbolName;
-                    String detail = "Destructure the variable " + symbolName + " with typeguard";
-                    StringBuilder snippet = new StringBuilder();
-                    int paramCounter = 1;
-                    if (errorTypes.size() > 1) {
-                        snippet.append("if (").append(symbolName).append(" is ").append("error) {")
-                                .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
-                                .append("}");
-                        paramCounter++;
-                    } else if (errorTypes.size() == 1) {
-                        snippet.append("if (").append(symbolName).append(" is ")
-                                .append(CommonUtil.getModifiedTypeName(ctx, errorTypes.get(0))).append(") {")
-                                .append(CommonUtil.LINE_SEPARATOR).append("\t${1}").append(CommonUtil.LINE_SEPARATOR)
-                                .append("}");
-                        paramCounter++;
-                    }
-                    int finalParamCounter = paramCounter;
-                    String restSnippet = (!snippet.toString().isEmpty() && resultTypes.size() > 2) ? " else " : "";
-                    restSnippet += IntStream.range(0, resultTypes.size() - paramCounter).mapToObj(value -> {
-                        TypeSymbol bType = members.get(value);
-                        String placeHolder = "\t${" + (value + finalParamCounter) + "}";
-                        return "if (" + symbolName + " is " + CommonUtil.getModifiedTypeName(ctx, bType) + ") {"
-                                + CommonUtil.LINE_SEPARATOR + placeHolder + CommonUtil.LINE_SEPARATOR + "}";
-                    }).collect(Collectors.joining(" else ")) + " else {" + CommonUtil.LINE_SEPARATOR + "\t${"
-                            + members.size() + "}" + CommonUtil.LINE_SEPARATOR + "}";
+    private boolean onSuggestFork(Node node) {
+        Node parent = node.parent();
+        while (parent != null) {
+            if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+                return ((FunctionDefinitionNode) parent).qualifierList().stream()
+                        .noneMatch(token -> token.kind() == SyntaxKind.ISOLATED_KEYWORD);
+            }
+            parent = parent.parent();
+        }
 
-                    snippet.append(restSnippet);
+        return false;
+    }
 
-                    SnippetBlock cItemSnippet = new SnippetBlock(label, snippet.toString(), detail,
-                            SnippetBlock.Kind.SNIPPET);
-                    return new SnippetCompletionItem(ctx, cItemSnippet);
-                }).collect(Collectors.toList());
+    boolean withinFunctionOrWorkerWithReturn(Node node) {
+        NonTerminalNode parent = node.parent();
+        while (parent != null) {
+            if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION
+                    || parent.kind() == SyntaxKind.NAMED_WORKER_DECLARATION) {
+                break;
+            }
+            parent = parent.parent();
+        }
+
+        if (parent == null) {
+            return false;
+        }
+
+        if (parent.kind() == SyntaxKind.FUNCTION_DEFINITION) {
+            FunctionDefinitionNode functionDef = (FunctionDefinitionNode) parent;
+            return functionDef.functionSignature().returnTypeDesc().isPresent();
+        }
+
+        if (parent.kind() == SyntaxKind.NAMED_WORKER_DECLARATION) {
+            NamedWorkerDeclarationNode workerDeclarationNode = (NamedWorkerDeclarationNode) parent;
+            return workerDeclarationNode.returnTypeDesc().isPresent();
+        }
+
+        return false;
+    }
+
+    @Override
+    public void sort(BallerinaCompletionContext context, T node,
+                     List<LSCompletionItem> completionItems) {
+        if (!this.withinFunctionOrWorkerWithReturn(node)) {
+            super.sort(context, node, completionItems);
+            return;
+        }
+
+        for (LSCompletionItem lsCompletionItem : completionItems) {
+            if (lsCompletionItem.getCompletionItem().getLabel().equals(ItemResolverConstants.RETURN)) {
+                lsCompletionItem.getCompletionItem().setSortText(SortingUtil.genSortText(1));
+                continue;
+            }
+
+            int rank = SortingUtil.toRank(lsCompletionItem, 1);
+            lsCompletionItem.getCompletionItem().setSortText(SortingUtil.genSortText(rank));
+        }
     }
 }

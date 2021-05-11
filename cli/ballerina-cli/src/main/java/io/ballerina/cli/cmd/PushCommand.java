@@ -33,6 +33,7 @@ import io.ballerina.projects.util.ProjectUtils;
 import org.ballerinalang.central.client.CentralAPIClient;
 import org.ballerinalang.central.client.exceptions.CentralClientException;
 import org.ballerinalang.central.client.exceptions.NoPackageException;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import org.ballerinalang.toml.model.Settings;
 import org.wso2.ballerinalang.util.RepoUtils;
 import picocli.CommandLine;
@@ -40,7 +41,6 @@ import picocli.CommandLine;
 import java.io.File;
 import java.io.IOException;
 import java.io.PrintStream;
-import java.net.Proxy;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -54,12 +54,13 @@ import java.util.zip.ZipInputStream;
 import static io.ballerina.cli.cmd.Constants.PUSH_COMMAND;
 import static io.ballerina.cli.utils.CentralUtils.authenticate;
 import static io.ballerina.cli.utils.CentralUtils.getBallerinaCentralCliTokenUrl;
+import static io.ballerina.cli.utils.CentralUtils.getCentralPackageURL;
 import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.projects.util.ProjectConstants.SETTINGS_FILE_NAME;
+import static io.ballerina.projects.util.ProjectUtils.getAccessTokenOfCLI;
 import static io.ballerina.projects.util.ProjectUtils.initializeProxy;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 import static org.wso2.ballerinalang.programfile.ProgramFileConstants.SUPPORTED_PLATFORMS;
-import static org.wso2.ballerinalang.util.RepoUtils.getRemoteRepoURL;
 
 /**
  * This class represents the "bal push" command.
@@ -91,17 +92,20 @@ public class PushCommand implements BLauncherCmd {
     private Path userDir;
     private PrintStream errStream;
     private PrintStream outStream;
+    private boolean exitWhenFinish;
 
     public PushCommand() {
-        userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
-        errStream = System.err;
-        outStream = System.out;
+        this.userDir = Paths.get(System.getProperty(ProjectConstants.USER_DIR));
+        this.errStream = System.err;
+        this.outStream = System.out;
+        this.exitWhenFinish = true;
     }
 
-    public PushCommand(Path userDir, PrintStream outStream, PrintStream errStream) {
+    public PushCommand(Path userDir, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish) {
         this.userDir = userDir;
         this.outStream = outStream;
         this.errStream = errStream;
+        this.exitWhenFinish = exitWhenFinish;
     }
 
     @Override
@@ -109,6 +113,8 @@ public class PushCommand implements BLauncherCmd {
         if (helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(PUSH_COMMAND);
             outStream.println(commandUsageInfo);
+            // Exit status, zero for OK, non-zero for error
+            Runtime.getRuntime().exit(0);
             return;
         }
 
@@ -117,6 +123,7 @@ public class PushCommand implements BLauncherCmd {
             project = BuildProject.load(userDir);
         } catch (ProjectException e) {
             CommandUtil.printError(errStream, e.getMessage(), null, false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
@@ -133,33 +140,39 @@ public class PushCommand implements BLauncherCmd {
                         String errMsg = "unsupported repository '" + repositoryName + "' found. Only '" +
                                 ProjectConstants.LOCAL_REPOSITORY_NAME + "' repository is supported";
                         CommandUtil.printError(this.errStream, errMsg, null, false);
+                        CommandUtil.exitError(this.exitWhenFinish);
                         return;
                     }
 
                     pushPackage(project);
                 } else {
                     Settings settings = readSettings();
-                    Proxy proxy = initializeProxy(settings.getProxy());
-                    CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(), proxy);
+                    CentralAPIClient client = new CentralAPIClient(RepoUtils.getRemoteRepoURL(),
+                                                                   initializeProxy(settings.getProxy()),
+                                                                   getAccessTokenOfCLI(settings));
 
                     try {
-                        pushPackage(project, client, settings);
+                        pushPackage(project, client);
                     } catch (ProjectException | CentralClientException e) {
                         CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                        CommandUtil.exitError(this.exitWhenFinish);
                         return;
                     }
                 }
-            } catch (ProjectException e) {
+            } catch (ProjectException | SettingsTomlException e) {
                 CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
         } else {
             CommandUtil.printError(this.errStream, "too many arguments", "bal push ", false);
+            CommandUtil.exitError(this.exitWhenFinish);
             return;
         }
 
-        // Exit status, zero for OK, non-zero for error
-        Runtime.getRuntime().exit(0);
+        if (this.exitWhenFinish) {
+            Runtime.getRuntime().exit(0);
+        }
     }
 
     @Override
@@ -188,10 +201,10 @@ public class PushCommand implements BLauncherCmd {
                 + " to '" + repositoryName + "' repository.");
     }
 
-    private void pushPackage(BuildProject project, CentralAPIClient client, Settings settings)
+    private void pushPackage(BuildProject project, CentralAPIClient client)
             throws CentralClientException {
         Path balaFilePath = validateBala(project, client);
-        pushBalaToRemote(balaFilePath, client, settings);
+        pushBalaToRemote(balaFilePath, client);
     }
 
     private static Path validateBala(BuildProject project, CentralAPIClient client) throws CentralClientException {
@@ -208,9 +221,10 @@ public class PushCommand implements BLauncherCmd {
                     + pkgAsDependency.name().toString() + ":"
                     + pkgAsDependency.version().toString();
             throw new ProjectException(
-                    "package '" + pkg + "' already exists in " + "remote repository("
-                            + getRemoteRepoURL() + "). build and push after "
-                            + "updating the version in the Ballerina.toml.");
+                    "package '" + pkg + "' already exists in " + "remote repository :"
+                            + getCentralPackageURL(project.currentPackage().packageOrg().value(),
+                                                   project.currentPackage().packageName().value())
+                            + ". build and push after updating the version in the Ballerina.toml.");
         }
 
         // bala file path
@@ -246,11 +260,7 @@ public class PushCommand implements BLauncherCmd {
         }
 
         try {
-            if (!isPackageMdIncluded(packageBalaFile)) {
-                throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME +
-                        " is missing in bala file:" + packageBalaFile);
-            }
-
+            validatePackageMdAndBalToml(packageBalaFile);
         } catch (IOException e) {
             throw new ProjectException("error while validating the bala file", e);
         }
@@ -259,17 +269,20 @@ public class PushCommand implements BLauncherCmd {
         return packageBalaFile;
     }
 
-    private static boolean isPackageMdIncluded(Path balaPath) throws IOException {
+    private static void validatePackageMdAndBalToml(Path balaPath) throws IOException {
         try (ZipInputStream zip = new ZipInputStream(Files.newInputStream(balaPath, StandardOpenOption.READ))) {
             ZipEntry entry;
             while ((entry = zip.getNextEntry()) != null) {
                 if (entry.getName().equals(
                         ProjectConstants.BALA_DOCS_DIR + "/" + ProjectConstants.PACKAGE_MD_FILE_NAME)) {
-                    return true;
+                    if (entry.getSize() == 0) {
+                        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " cannot be empty.");
+                    }
+                    return;
                 }
             }
         }
-        return false;
+        throw new ProjectException(ProjectConstants.PACKAGE_MD_FILE_NAME + " is missing in bala file:" + balaPath);
     }
 
     private void pushBalaToCustomRepo(Path balaFilePath) {
@@ -309,7 +322,7 @@ public class PushCommand implements BLauncherCmd {
      *
      * @param balaPath Path to the bala file.
      */
-    private void pushBalaToRemote(Path balaPath, CentralAPIClient client, Settings settings) {
+    private void pushBalaToRemote(Path balaPath, CentralAPIClient client) {
         Path balaFileName = balaPath.getFileName();
         if (null != balaFileName) {
             ProjectEnvironmentBuilder defaultBuilder = ProjectEnvironmentBuilder.getDefaultBuilder();
@@ -322,11 +335,16 @@ public class PushCommand implements BLauncherCmd {
 
             Path ballerinaHomePath = RepoUtils.createAndGetHomeReposPath();
             Path settingsTomlFilePath = ballerinaHomePath.resolve(SETTINGS_FILE_NAME);
-            String accessToken = authenticate(errStream, getBallerinaCentralCliTokenUrl(), settings,
-                                              settingsTomlFilePath);
 
             try {
-                client.pushPackage(balaPath, org, name, version, accessToken, JvmTarget.JAVA_11.code(),
+                authenticate(errStream, getBallerinaCentralCliTokenUrl(), settingsTomlFilePath, client);
+            } catch (SettingsTomlException e) {
+                CommandUtil.printError(this.errStream, e.getMessage(), null, false);
+                return;
+            }
+
+            try {
+                client.pushPackage(balaPath, org, name, version, JvmTarget.JAVA_11.code(),
                                    RepoUtils.getBallerinaVersion());
             } catch (CentralClientException e) {
                 String errorMessage = e.getMessage();

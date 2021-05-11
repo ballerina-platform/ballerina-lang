@@ -214,7 +214,7 @@ public class MappingConstructorExprTest {
         validateError(result, 0, "expression is not a constant expression", 19, 47);
     }
 
-    @Test
+    @Test(enabled = false)
     public void testSpreadOpFieldTaintAnalysisNegative() {
         CompileResult result = BCompileUtil.compile(
                 "test-src/expressions/mappingconstructor/spread_op_field_taint_analysis_negative.bal");
@@ -239,6 +239,7 @@ public class MappingConstructorExprTest {
                 { "testSpreadOpInConstMap" },
                 { "testSpreadOpInGlobalMap" },
                 { "testMappingConstrExprAsSpreadExpr" },
+                { "testSpreadFieldWithRecordTypeHavingNeverField" }
         };
     }
 

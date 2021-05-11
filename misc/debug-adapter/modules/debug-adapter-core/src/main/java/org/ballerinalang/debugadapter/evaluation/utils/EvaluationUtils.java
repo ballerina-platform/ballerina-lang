@@ -16,6 +16,7 @@
 
 package org.ballerinalang.debugadapter.evaluation.utils;
 
+import com.sun.jdi.BooleanValue;
 import com.sun.jdi.ClassObjectReference;
 import com.sun.jdi.ClassType;
 import com.sun.jdi.DoubleValue;
@@ -31,9 +32,9 @@ import com.sun.jdi.Value;
 import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
-import org.ballerinalang.debugadapter.evaluation.engine.GeneratedStaticMethod;
-import org.ballerinalang.debugadapter.evaluation.engine.RuntimeInstanceMethod;
-import org.ballerinalang.debugadapter.evaluation.engine.RuntimeStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeInstanceMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.JVMValueType;
 import org.ballerinalang.debugadapter.variable.VariableFactory;
@@ -52,31 +53,42 @@ import java.util.stream.IntStream;
  */
 public class EvaluationUtils {
 
-    // Helper classes
-    public static final String B_UNARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.unary";
-    public static final String B_BINARY_EXPR_HELPER_CLASS = "ballerina.debugger_helpers.1_0_0.binary";
-    public static final String B_TYPE_CHECKER_CLASS = "io.ballerina.runtime.internal.TypeChecker";
-    public static final String B_TYPE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.TypeCreator";
-    public static final String B_VALUE_CREATOR_CLASS = "io.ballerina.runtime.api.creators.ValueCreator";
-    public static final String B_STRING_UTILS_CLASS = "io.ballerina.runtime.api.utils.StringUtils";
-    public static final String B_TYPE_UTILS_CLASS = "io.ballerina.runtime.api.utils.TypeUtils";
-    public static final String B_XML_FACTORY_CLASS = "io.ballerina.runtime.internal.XmlFactory";
-    public static final String B_DECIMAL_VALUE_CLASS = "io.ballerina.runtime.internal.values.DecimalValue";
-    public static final String B_XML_VALUE_CLASS = "io.ballerina.runtime.internal.values.XmlValue";
-    public static final String B_STRING_CLASS = "io.ballerina.runtime.api.values.BString";
+    // Debugger runtime helper classes
+    private static final String DEBUGGER_HELPER_PREFIX = "ballerina.debugger_helpers.1_0_0.";
+    public static final String B_UNARY_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "unary_operations";
+    public static final String B_ARITHMETIC_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "arithmetic_operations";
+    public static final String B_RELATIONAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "relational_operations";
+    public static final String B_BITWISE_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "bitwise_operations";
+    public static final String B_SHIFT_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "shift_operations";
+    public static final String B_LOGICAL_EXPR_HELPER_CLASS = DEBUGGER_HELPER_PREFIX + "logical_operations";
+
+    // Ballerina runtime helper classes
+    private static final String RUNTIME_HELPER_PREFIX = "io.ballerina.runtime.";
+    public static final String B_TYPE_CHECKER_CLASS = RUNTIME_HELPER_PREFIX + "internal.TypeChecker";
+    public static final String B_TYPE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.TypeCreator";
+    public static final String B_VALUE_CREATOR_CLASS = RUNTIME_HELPER_PREFIX + "api.creators.ValueCreator";
+    public static final String B_STRING_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.StringUtils";
+    public static final String B_TYPE_UTILS_CLASS = RUNTIME_HELPER_PREFIX + "api.utils.TypeUtils";
+    public static final String B_XML_FACTORY_CLASS = RUNTIME_HELPER_PREFIX + "internal.XmlFactory";
+    public static final String B_DECIMAL_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.DecimalValue";
+    public static final String B_XML_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.XmlValue";
+    public static final String B_STRING_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BString";
+    public static final String B_TYPE_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type";
+    public static final String B_TYPE_ARRAY_CLASS = RUNTIME_HELPER_PREFIX + "api.types.Type[]";
+    private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
+    private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
     public static final String FROM_STRING_CLASS = "org.ballerinalang.langlib.xml.FromString";
-    public static final String B_TYPE_CLASS = "io.ballerina.runtime.api.types.Type";
-    public static final String B_TYPE_ARRAY_CLASS = "io.ballerina.runtime.api.types.Type[]";
+
+    // Java runtime helper classes
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
-    private static final String B_LINK_CLASS = "io.ballerina.runtime.api.values.BLink";
-    private static final String B_ERROR_VALUE_CLASS = "io.ballerina.runtime.internal.values.ErrorValue";
     private static final String JAVA_BOOLEAN_CLASS = "java.lang.Boolean";
     private static final String JAVA_INT_CLASS = "java.lang.Integer";
     private static final String JAVA_LONG_CLASS = "java.lang.Long";
     private static final String JAVA_FLOAT_CLASS = "java.lang.Float";
     private static final String JAVA_DOUBLE_CLASS = "java.lang.Double";
     private static final String JAVA_LANG_CLASS = "java.lang.Class";
+
     // Helper methods
     public static final String B_ADD_METHOD = "add";
     public static final String B_SUB_METHOD = "subtract";
@@ -262,7 +274,7 @@ public class EvaluationUtils {
             }
             RuntimeInstanceMethod unboxingMethod = new RuntimeInstanceMethod(context, value, method.get(0));
             unboxingMethod.setArgValues(new ArrayList<>());
-            return unboxingMethod.invoke();
+            return unboxingMethod.invokeSafely();
         } catch (EvaluationException e) {
             return value;
         }
@@ -281,21 +293,25 @@ public class EvaluationUtils {
         Value jvmValue = variable.getJvmValue();
         switch (variable.getBType()) {
             case BOOLEAN:
-                methodArgTypeNames.add(JVMValueType.BOOLEAN.getString());
-                method = getRuntimeMethod(context, JAVA_BOOLEAN_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
-                method.setArgValues(Collections.singletonList(jvmValue));
-                return method.invoke();
+                if (jvmValue instanceof BooleanValue) {
+                    methodArgTypeNames.add(JVMValueType.BOOLEAN.getString());
+                    method = getRuntimeMethod(context, JAVA_BOOLEAN_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
+                    method.setArgValues(Collections.singletonList(jvmValue));
+                    return method.invokeSafely();
+                } else {
+                    return jvmValue;
+                }
             case INT:
                 if (jvmValue instanceof IntegerValue) {
                     methodArgTypeNames.add(JVMValueType.INT.getString());
                     method = getRuntimeMethod(context, JAVA_INT_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(jvmValue));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else if (jvmValue instanceof LongValue) {
                     methodArgTypeNames.add(JVMValueType.LONG.getString());
                     method = getRuntimeMethod(context, JAVA_LONG_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(jvmValue));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else {
                     return jvmValue;
                 }
@@ -305,12 +321,12 @@ public class EvaluationUtils {
                     methodArgTypeNames.add(JVMValueType.FLOAT.getString());
                     method = getRuntimeMethod(context, JAVA_FLOAT_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(variable.getJvmValue()));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else if (jvmValue instanceof DoubleValue) {
                     methodArgTypeNames.add(JVMValueType.DOUBLE.getString());
                     method = getRuntimeMethod(context, JAVA_DOUBLE_CLASS, VALUE_OF_METHOD, methodArgTypeNames);
                     method.setArgValues(Collections.singletonList(variable.getJvmValue()));
-                    return method.invoke();
+                    return method.invokeSafely();
                 } else {
                     return jvmValue;
                 }
@@ -335,7 +351,7 @@ public class EvaluationUtils {
             }
             RuntimeInstanceMethod concatMethod = new RuntimeInstanceMethod(context, result, method.get(0));
             concatMethod.setArgValues(Collections.singletonList(bStrings[i]));
-            result = concatMethod.invoke();
+            result = concatMethod.invokeSafely();
             method = ((ObjectReference) result).referenceType().methodsByName("concat");
         }
         return result;
@@ -357,7 +373,7 @@ public class EvaluationUtils {
         args.add(EvaluationUtils.getValueAsObject(context, value));
         args.add(null);
         runtimeMethod.setArgValues(args);
-        return runtimeMethod.invoke();
+        return runtimeMethod.invokeSafely();
     }
 
     /**
@@ -383,7 +399,7 @@ public class EvaluationUtils {
         RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, B_STRING_UTILS_CLASS, FROM_STRING_METHOD,
                 argTypeNames);
         fromStringMethod.setArgValues(Collections.singletonList(stringRef));
-        return fromStringMethod.invoke();
+        return fromStringMethod.invokeSafely();
     }
 
     /**

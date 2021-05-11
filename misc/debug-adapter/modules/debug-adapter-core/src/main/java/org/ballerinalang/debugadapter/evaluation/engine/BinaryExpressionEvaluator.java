@@ -23,6 +23,8 @@ import org.ballerinalang.debugadapter.SuspendedContext;
 import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.RuntimeStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.VMUtils;
 import org.ballerinalang.debugadapter.variable.BVariable;
 import org.ballerinalang.debugadapter.variable.BVariableType;
@@ -32,8 +34,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_ADD_METHOD;
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BINARY_EXPR_HELPER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_ARITHMETIC_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_AND_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_OR_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_BITWISE_XOR_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_DIV_METHOD;
@@ -41,11 +44,14 @@ import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_GT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LEFT_SHIFT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LOGICAL_AND_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LOGICAL_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LOGICAL_OR_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LT_EQUALS_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_LT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_MOD_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_MUL_METHOD;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_RELATIONAL_EXPR_HELPER_CLASS;
+import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SHIFT_EXPR_HELPER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SIGNED_RIGHT_SHIFT_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_SUB_METHOD;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CHECKER_CLASS;
@@ -123,10 +129,11 @@ public class BinaryExpressionEvaluator extends Evaluator {
             case BITWISE_AND_TOKEN:
             case PIPE_TOKEN:
             case BITWISE_XOR_TOKEN:
+                return performBitwiseOperation(lVar, rVar, operatorType);
             case DOUBLE_LT_TOKEN:
             case DOUBLE_GT_TOKEN:
             case TRIPPLE_GT_TOKEN:
-                return performBitwiseOperation(lVar, rVar, operatorType);
+                return performShiftOperation(lVar, rVar, operatorType);
             case LOGICAL_AND_TOKEN:
             case LOGICAL_OR_TOKEN:
                 return performLogicalOperation(lVar, rVar, operatorType);
@@ -162,7 +169,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
             RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_XML_FACTORY_CLASS, XML_CONCAT_METHOD,
                     argTypeNames);
             runtimeMethod.setArgValues(argList);
-            Value result = runtimeMethod.invoke();
+            Value result = runtimeMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } else {
             // Prepares to invoke the JVM runtime util function which is responsible for XML concatenation.
@@ -173,30 +180,35 @@ public class BinaryExpressionEvaluator extends Evaluator {
             GeneratedStaticMethod genMethod;
             switch (operator) {
                 case PLUS_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_ADD_METHOD);
+                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_ADD_METHOD);
                     break;
                 case MINUS_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_SUB_METHOD);
+                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_SUB_METHOD);
                     break;
                 case ASTERISK_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_MUL_METHOD);
+                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_MUL_METHOD);
                     break;
                 case SLASH_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_DIV_METHOD);
+                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_DIV_METHOD);
                     break;
                 case PERCENT_TOKEN:
-                    genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_MOD_METHOD);
+                    genMethod = getGeneratedMethod(context, B_ARITHMETIC_EXPR_HELPER_CLASS, B_MOD_METHOD);
                     break;
                 default:
                     throw createUnsupportedOperationException(lVar, rVar, operator);
             }
             genMethod.setArgValues(argList);
-            Value result = genMethod.invoke();
+            Value result = genMethod.invokeSafely();
             return new BExpressionValue(context, result);
         }
     }
 
     private BExpressionValue compare(BVariable lVar, BVariable rVar, SyntaxKind operator) throws EvaluationException {
+
+        // Tests the relative order of two values. There must be an ordered type to which the static type of both
+        // operands belong. The static type of the result is boolean.
+        //
+        // OrderedType ::= ()|boolean|int|float|decimal|string|OrderedType[]
         List<Value> argList = new ArrayList<>();
         argList.add(getValueAsObject(context, lVar));
         argList.add(getValueAsObject(context, rVar));
@@ -204,22 +216,22 @@ public class BinaryExpressionEvaluator extends Evaluator {
         GeneratedStaticMethod genMethod;
         switch (operator) {
             case LT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LT_METHOD);
+                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_LT_METHOD);
                 break;
             case LT_EQUAL_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LT_EQUALS_METHOD);
+                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_LT_EQUALS_METHOD);
                 break;
             case GT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_GT_METHOD);
+                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_GT_METHOD);
                 break;
             case GT_EQUAL_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_GT_EQUALS_METHOD);
+                genMethod = getGeneratedMethod(context, B_RELATIONAL_EXPR_HELPER_CLASS, B_GT_EQUALS_METHOD);
                 break;
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operator);
         }
         genMethod.setArgValues(argList);
-        Value result = genMethod.invoke();
+        Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);
     }
 
@@ -232,28 +244,44 @@ public class BinaryExpressionEvaluator extends Evaluator {
         GeneratedStaticMethod genMethod;
         switch (operator) {
             case BITWISE_AND_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_BITWISE_AND_METHOD);
+                genMethod = getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_AND_METHOD);
                 break;
             case PIPE_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_BITWISE_OR_METHOD);
+                genMethod = getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_OR_METHOD);
                 break;
             case BITWISE_XOR_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_BITWISE_XOR_METHOD);
-                break;
-            case DOUBLE_LT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LEFT_SHIFT_METHOD);
-                break;
-            case DOUBLE_GT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_SIGNED_RIGHT_SHIFT_METHOD);
-                break;
-            case TRIPPLE_GT_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_UNSIGNED_RIGHT_SHIFT_METHOD);
+                genMethod = getGeneratedMethod(context, B_BITWISE_EXPR_HELPER_CLASS, B_BITWISE_XOR_METHOD);
                 break;
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operator);
         }
         genMethod.setArgValues(argList);
-        Value result = genMethod.invoke();
+        Value result = genMethod.invokeSafely();
+        return new BExpressionValue(context, result);
+    }
+
+    private BExpressionValue performShiftOperation(BVariable lVar, BVariable rVar, SyntaxKind operator)
+            throws EvaluationException {
+        List<Value> argList = new ArrayList<>();
+        argList.add(getValueAsObject(context, lVar));
+        argList.add(getValueAsObject(context, rVar));
+
+        GeneratedStaticMethod genMethod;
+        switch (operator) {
+            case DOUBLE_LT_TOKEN:
+                genMethod = getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_LEFT_SHIFT_METHOD);
+                break;
+            case DOUBLE_GT_TOKEN:
+                genMethod = getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_SIGNED_RIGHT_SHIFT_METHOD);
+                break;
+            case TRIPPLE_GT_TOKEN:
+                genMethod = getGeneratedMethod(context, B_SHIFT_EXPR_HELPER_CLASS, B_UNSIGNED_RIGHT_SHIFT_METHOD);
+                break;
+            default:
+                throw createUnsupportedOperationException(lVar, rVar, operator);
+        }
+        genMethod.setArgValues(argList);
+        Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);
     }
 
@@ -266,16 +294,16 @@ public class BinaryExpressionEvaluator extends Evaluator {
         GeneratedStaticMethod genMethod;
         switch (operator) {
             case LOGICAL_AND_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LOGICAL_AND_METHOD);
+                genMethod = getGeneratedMethod(context, B_LOGICAL_EXPR_HELPER_CLASS, B_LOGICAL_AND_METHOD);
                 break;
             case LOGICAL_OR_TOKEN:
-                genMethod = getGeneratedMethod(context, B_BINARY_EXPR_HELPER_CLASS, B_LOGICAL_OR_METHOD);
+                genMethod = getGeneratedMethod(context, B_LOGICAL_EXPR_HELPER_CLASS, B_LOGICAL_OR_METHOD);
                 break;
             default:
                 throw createUnsupportedOperationException(lVar, rVar, operator);
         }
         genMethod.setArgValues(argList);
-        Value result = genMethod.invoke();
+        Value result = genMethod.invokeSafely();
         return new BExpressionValue(context, result);
     }
 
@@ -308,7 +336,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
         RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, VALUE_EQUAL_METHOD,
                 argTypeNames);
         runtimeMethod.setArgValues(argList);
-        Value result = runtimeMethod.invoke();
+        Value result = runtimeMethod.invokeSafely();
         BVariable variable = VariableFactory.getVariable(context, result);
         boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
         booleanValue = operatorType == SyntaxKind.DOUBLE_EQUAL_TOKEN ? booleanValue : !booleanValue;
@@ -330,7 +358,7 @@ public class BinaryExpressionEvaluator extends Evaluator {
         RuntimeStaticMethod runtimeMethod = getRuntimeMethod(context, B_TYPE_CHECKER_CLASS, REF_EQUAL_METHOD,
                 argTypeNames);
         runtimeMethod.setArgValues(argList);
-        Value result = runtimeMethod.invoke();
+        Value result = runtimeMethod.invokeSafely();
         BVariable variable = VariableFactory.getVariable(context, result);
         boolean booleanValue = Boolean.parseBoolean(variable.getDapVariable().getValue());
         booleanValue = operatorType == SyntaxKind.TRIPPLE_EQUAL_TOKEN ? booleanValue : !booleanValue;

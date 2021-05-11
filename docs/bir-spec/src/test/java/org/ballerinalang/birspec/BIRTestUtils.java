@@ -132,6 +132,14 @@ class BIRTestUtils {
             // assert markdown document
             assertMarkdownDocument(actualFunction.doc(), expectedFunction.markdownDocAttachment, constantPoolEntries);
 
+            // assert annotation attachments
+            assertAnnotationAttachments(actualFunction.annotationAttachmentsContent(),
+                                        expectedFunction.annotAttachments, constantPoolEntries);
+
+            // assert return type annotation attachments
+            assertAnnotationAttachments(actualFunction.returnTypeAnnotations(), expectedFunction.returnTypeAnnots,
+                                        constantPoolEntries);
+
             // assert required param count
             Assert.assertEquals(actualFunction.requiredParamCount(), expectedFunction.requiredParams.size());
 
@@ -243,19 +251,36 @@ class BIRTestUtils {
         assertMarkdownEntry(constantPoolEntries, actualDocContent.descriptionCpIndex(), expectedDocument.description);
 
         assertMarkdownEntry(constantPoolEntries, actualDocContent.returnValueDescriptionCpIndex(),
-                expectedDocument.returnValueDescription);
+                            expectedDocument.returnValueDescription);
 
         List<MarkdownDocAttachment.Parameter> expectedParameters = expectedDocument.parameters;
         Assert.assertEquals(actualDocContent.parametersCount(), expectedParameters.size());
         ArrayList<Bir.MarkdownParameter> actualParameters = actualDocContent.parameters();
-        for (int i = 0; i < actualParameters.size(); i++) {
-            Bir.MarkdownParameter actualParameter = actualParameters.get(i);
-            MarkdownDocAttachment.Parameter expectedParameter = expectedParameters.get(i);
+
+        assertMarkdownParams(constantPoolEntries, actualParameters, expectedParameters);
+
+        assertMarkdownEntry(constantPoolEntries, actualDocContent.deprecatedDocsCpIndex(),
+                            expectedDocument.deprecatedDocumentation);
+
+        List<MarkdownDocAttachment.Parameter> expDeprecatedParams = expectedDocument.deprecatedParams;
+        ArrayList<Bir.MarkdownParameter> actualDeprecatedParams = actualDocContent.deprecatedParams();
+        Assert.assertEquals(actualDocContent.deprecatedParamsCount(), expDeprecatedParams.size());
+        Assert.assertEquals(actualDeprecatedParams.size(), actualDocContent.deprecatedParamsCount());
+
+        assertMarkdownParams(constantPoolEntries, actualDeprecatedParams, expDeprecatedParams);
+    }
+
+    private static void assertMarkdownParams(ArrayList<Bir.ConstantPoolEntry> constantPoolEntries,
+                                             ArrayList<Bir.MarkdownParameter> actualParams,
+                                             List<MarkdownDocAttachment.Parameter> expParams) {
+        for (int i = 0; i < actualParams.size(); i++) {
+            Bir.MarkdownParameter actualParameter = actualParams.get(i);
+            MarkdownDocAttachment.Parameter expectedParameter = expParams.get(i);
 
             assertMarkdownEntry(constantPoolEntries, actualParameter.nameCpIndex(), expectedParameter.name);
 
             assertMarkdownEntry(constantPoolEntries, actualParameter.descriptionCpIndex(),
-                    expectedParameter.description);
+                                expectedParameter.description);
         }
     }
 
@@ -690,6 +715,22 @@ class BIRTestUtils {
                 break;
             default:
                 Assert.fail(String.format("Unknown constant value type: %s", typeTag.name()));
+        }
+    }
+
+    private static void assertAnnotationAttachments(Bir.AnnotationAttachmentsContent actualAnnots,
+                                                    List<BIRNode.BIRAnnotationAttachment> expAnnots,
+                                                    ArrayList<Bir.ConstantPoolEntry> constantPoolEntries) {
+        Assert.assertEquals(actualAnnots.attachmentsCount(), expAnnots.size());
+
+        for (int i = 0; i < expAnnots.size(); i++) {
+            Bir.AnnotationAttachment actualAnnot = actualAnnots.annotationAttachments().get(i);
+            BIRNode.BIRAnnotationAttachment expAnnot = expAnnots.get(i);
+            Bir.ConstantPoolEntry annotTag = constantPoolEntries.get(actualAnnot.tagReferenceCpIndex());
+
+            assertConstantPoolEntry(annotTag, expAnnot.annotTagRef.value);
+
+            Assert.assertEquals(actualAnnot.attachValuesCount(), expAnnot.annotValues.size());
         }
     }
 

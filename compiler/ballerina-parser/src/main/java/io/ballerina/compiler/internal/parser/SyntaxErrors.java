@@ -96,7 +96,6 @@ public class SyntaxErrors {
     private static DiagnosticCode getErrorCode(ParserRuleContext currentCtx) {
         switch (currentCtx) {
             case EXTERNAL_FUNC_BODY:
-            case BINDING_PATTERN_OR_EXPR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUAL_TOKEN;
             case FUNC_BODY_OR_TYPE_DESC_RHS:
             case FUNC_BODY_BLOCK:
@@ -114,6 +113,7 @@ public class SyntaxErrors {
             case FUNC_DEF_OR_TYPE_DESC_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_SEMICOLON_TOKEN;
             case SIMPLE_TYPE_DESCRIPTOR:
+                return DiagnosticErrorCode.ERROR_MISSING_BUILTIN_TYPE;
             case REQUIRED_PARAM:
             case VAR_DECL_STMT:
             case ASSIGNMENT_OR_VAR_DECL_STMT:
@@ -125,6 +125,7 @@ public class SyntaxErrors {
             case TYPE_DESCRIPTOR:
             case OPTIONAL_TYPE_DESCRIPTOR:
             case ARRAY_TYPE_DESCRIPTOR:
+            case SIMPLE_TYPE_DESC_IDENTIFIER:
                 return DiagnosticErrorCode.ERROR_MISSING_TYPE_DESC;
             case TYPE_NAME:
             case TYPE_REFERENCE_IN_TYPE_INCLUSION:
@@ -171,6 +172,8 @@ public class SyntaxErrors {
             case ERROR_FIELD_BINDING_PATTERN:
             case ERROR_CAUSE_SIMPLE_BINDING_PATTERN:
             case PATH_SEGMENT_IDENT:
+            case BINDING_PATTERN_OR_EXPR_RHS:
+            case NAMED_ARG_BINDING_PATTERN:
                 return DiagnosticErrorCode.ERROR_MISSING_IDENTIFIER;
             case VERSION_NUMBER:
             case MAJOR_VERSION:
@@ -232,7 +235,7 @@ public class SyntaxErrors {
             case UNARY_EXPRESSION:
             case EXPRESSION_RHS:
             case PLUS_TOKEN:
-                return DiagnosticErrorCode.ERROR_MISSING_PLUS_TOKEN;
+                return DiagnosticErrorCode.ERROR_MISSING_BINARY_OPERATOR;
             case CLOSE_BRACE:
             case RECORD_BODY_END:
             case RECORD_FIELD_OR_RECORD_END:
@@ -242,6 +245,7 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_CLOSE_PAREN_TOKEN;
             case COMMA:
             case ERROR_MESSAGE_BINDING_PATTERN_END_COMMA:
+            case ERROR_MESSAGE_MATCH_PATTERN_END_COMMA:
                 return DiagnosticErrorCode.ERROR_MISSING_COMMA_TOKEN;
             case OPEN_BRACE:
             case TRANSACTION_STMT_RHS_OR_TYPE_REF:
@@ -249,6 +253,7 @@ public class SyntaxErrors {
             case OPEN_PARENTHESIS:
             case ARG_LIST_OPEN_PAREN:
             case PARENTHESISED_TYPE_DESC_START:
+            case ERROR_CONSTRUCTOR_RHS:
                 return DiagnosticErrorCode.ERROR_MISSING_OPEN_PAREN_TOKEN;
             case SEMICOLON:
             case OBJECT_FIELD_RHS:
@@ -364,6 +369,7 @@ public class SyntaxErrors {
             case LISTENER_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_LISTENER_KEYWORD;
             case SERVICE_KEYWORD:
+            case SERVICE_IDENT:
                 return DiagnosticErrorCode.ERROR_MISSING_SERVICE_KEYWORD;
             case XMLNS_KEYWORD:
             case XML_NAMESPACE_DECLARATION:
@@ -495,6 +501,8 @@ public class SyntaxErrors {
                 return DiagnosticErrorCode.ERROR_MISSING_PIPE_TOKEN;
             case EQUALS_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_EQUALS_KEYWORD;
+            case REMOTE_IDENT:
+                return DiagnosticErrorCode.ERROR_MISSING_REMOTE_KEYWORD;
 
             // Type keywords
             case STRING_KEYWORD:
@@ -521,6 +529,7 @@ public class SyntaxErrors {
             case DISTINCT_KEYWORD:
                 return DiagnosticErrorCode.ERROR_MISSING_DISTINCT_KEYWORD;
             default:
+                assert false : "Error code not defined";
                 return DiagnosticErrorCode.ERROR_SYNTAX_ERROR;
         }
     }

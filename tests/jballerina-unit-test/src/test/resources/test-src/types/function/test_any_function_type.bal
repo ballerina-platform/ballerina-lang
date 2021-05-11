@@ -23,9 +23,10 @@ function foo(function x) returns int {
 }
 
 //------------ Testing a function with 'function' return type ---------
+int glob = 1;
 
 function bar(int b) returns int {
-    return b;
+    return b + glob;
 }
 
 isolated function bar2(int b) returns int {
@@ -186,23 +187,66 @@ function testReferringToFunctionWithAnyFunctionReturnType() {
 }
 
 function func() returns function {
-   return function () {};
+    int i = 1;
+    return function () { i = 2; };
 }
 
 //---------------Test casting with function with 'function' as return type ------------
 
 function testCastingToFunctionWithAnyFunctionReturnType() {
-   any a = func;
-   var b = <function () returns function> a;
-   assertEquality(a, b);
+    any a = func;
+    var b = <function () returns function> a;
+    assertEquality(a, b);
 
-   any c = function () {};
-   var d = trap <function () returns function> c;
-   assertEquality(true, d is error);
-   error e = <error> d;
-   assertEquality("{ballerina}TypeCastError", e.message());
-   assertEquality("incompatible types: 'function () returns (())' cannot be cast to 'function () returns (function)'",
-                  <string> checkpanic e.detail()["message"]);
+    int i = 1;
+    any c = function () { i = 2; };
+    var d = trap <function () returns function> c;
+    assertEquality(true, d is error);
+    error e = <error> d;
+    assertEquality("{ballerina}TypeCastError", e.message());
+    assertEquality("incompatible types: 'function () returns (())' cannot be cast to 'function () returns (function)'",
+                   <string> checkpanic e.detail()["message"]);
+}
+
+//---------------Test runtime 'hashCode' via 'function' equality------------
+
+function testRuntimeHashCodeViaFunctionEquality() {
+    function[] arr = [testCastingToFunctionWithAnyFunctionReturnType];
+    function[] & readonly immutableArr = arr.cloneReadOnly();
+    assertEquality(arr[0], immutableArr[0]);
+}
+
+function testFunctionWithNeverOrNeverEqualReturnType() {
+    function () returns int|never x1 = blowUp1;
+    function () returns int x2 = blowUp1;
+    function () returns int? x3 = blowUp1;
+    function () returns never x4 = blowUp1;
+
+    function () returns int|never y1 = blowUp2;
+    function () returns int y2 = blowUp2;
+    function () returns int? y3 = blowUp2;
+    function () returns never y4 = blowUp2;
+
+    function () returns string|never z1 = blowUp3;
+    function () returns string|record {| never x; |} z2 = blowUp3;
+
+    function () returns int a1 = blowUp4;
+}
+
+function blowUp1() returns never {
+    panic error("Error!");
+}
+
+function blowUp2() returns record {| never x; |} {
+    panic error("Error!");
+}
+
+function blowUp3() returns string {
+    panic error("Error!");
+}
+
+function blowUp4() returns int|never {
+    panic error("Error!");
 }
 
 const ASSERTION_ERROR_REASON = "AssertionError";

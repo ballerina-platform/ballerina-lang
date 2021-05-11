@@ -114,6 +114,7 @@ dependencies {
     dist project(':ballerina-bindgen')
     dist project(':maven-resolver')
     dist project(':diagram-util')
+    dist project(':syntax-api-calls-gen')
     dist project(':language-server:language-server-commons')
     dist project(':docerina')
     dist project(':observability-symbol-collector')
@@ -330,6 +331,13 @@ def copyDebugAdapterLauncher = {
     }
 }
 
+def copyCompletionFile = {
+    path -> copySpec {
+        from('resources/command-completion')
+        into(path + 'resources/command-completion')
+    }
+}
+
 def copyDebugAdapterLibsSpec = {
     path -> copySpec {
         from configurations.debugAdapterLib
@@ -428,6 +436,7 @@ task createZip(type: Zip) {
     with copyBallerinaZipSpec(basePath)
     with copyDebugAdapterLibsSpec(basePath)
     with copyDebugAdapterLauncher(basePath)
+    with copyCompletionFile(basePath)
     with apiDocsSpec(basePath)
     with copyStaticSpec(basePath)
     with copyDocerinaUi(basePath)
@@ -452,6 +461,7 @@ task updateBalHome(type: Copy) {
     with copyBallerinaZipSpec(installDir)
     with copyDebugAdapterLibsSpec(installDir)
     with copyDebugAdapterLauncher(installDir)
+    with copyCompletionFile(installDir)
     with apiDocsSpec(installDir)
     with copyStaticSpec(installDir)
     with copyDocerinaUi(installDir)
@@ -478,6 +488,7 @@ task createDistribution(type: Copy) {
     with copyBallerinaZipSpec("")
     with copyDebugAdapterLibsSpec("")
     with copyDebugAdapterLauncher("")
+    with copyCompletionFile("")
     with apiDocsSpec("")
     with copyStaticSpec("")
     with copyDocerinaUi("")

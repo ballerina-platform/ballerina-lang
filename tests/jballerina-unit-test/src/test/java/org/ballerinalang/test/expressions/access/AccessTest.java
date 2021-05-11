@@ -107,4 +107,11 @@ public class AccessTest {
     public void testSimpleTypeAccessOnFunctionPointer() {
         BRunUtil.invoke(result, "testSimpleTypeAccessOnFunctionPointer");
     }
+
+    @Test
+    public void testAccessOnGroupedExpressions() {
+        BValue[] returns = BRunUtil.invoke(result, "testAccessOnGroupedExpressions");
+        Assert.assertTrue(((BBoolean) returns[0]).booleanValue());
+    }
+
 }

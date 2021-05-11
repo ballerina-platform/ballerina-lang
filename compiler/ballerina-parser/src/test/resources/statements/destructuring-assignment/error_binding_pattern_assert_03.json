@@ -1401,7 +1401,7 @@
                           ]
                         },
                         {
-                          "kind": "CAPTURE_BINDING_PATTERN",
+                          "kind": "NAMED_ARG_BINDING_PATTERN",
                           "hasDiagnostics": true,
                           "children": [
                             {
@@ -1411,6 +1411,24 @@
                               "diagnostics": [
                                 "ERROR_MISSING_IDENTIFIER"
                               ]
+                            },
+                            {
+                              "kind": "EQUAL_TOKEN",
+                              "trailingMinutiae": [
+                                {
+                                  "kind": "WHITESPACE_MINUTIAE",
+                                  "value": " "
+                                }
+                              ]
+                            },
+                            {
+                              "kind": "CAPTURE_BINDING_PATTERN",
+                              "children": [
+                                {
+                                  "kind": "IDENTIFIER_TOKEN",
+                                  "value": "bindingPattern"
+                                }
+                              ]
                             }
                           ]
                         }
@@ -1418,40 +1436,6 @@
                     },
                     {
                       "kind": "CLOSE_PAREN_TOKEN",
-                      "hasDiagnostics": true,
-                      "diagnostics": [
-                        "ERROR_INVALID_TOKEN",
-                        "ERROR_INVALID_TOKEN"
-                      ],
-                      "leadingMinutiae": [
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "EQUAL_TOKEN"
-                              }
-                            ]
-                          }
-                        },
-                        {
-                          "kind": "WHITESPACE_MINUTIAE",
-                          "value": " "
-                        },
-                        {
-                          "kind": "INVALID_NODE_MINUTIAE",
-                          "invalidNode": {
-                            "kind": "INVALID_TOKEN_MINUTIAE_NODE",
-                            "children": [
-                              {
-                                "kind": "IDENTIFIER_TOKEN",
-                                "value": "bindingPattern"
-                              }
-                            ]
-                          }
-                        }
-                      ],
                       "trailingMinutiae": [
                         {
                           "kind": "WHITESPACE_MINUTIAE",

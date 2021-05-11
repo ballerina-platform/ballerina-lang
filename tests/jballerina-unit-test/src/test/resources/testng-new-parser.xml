@@ -210,8 +210,8 @@
                     <exclude name="testAsyncNonNativeBasic11" />
                 </methods>
             </class>
-            <class name="org.ballerinalang.test.bala.record.OpenRecordTypeReferenceTest" />
-            <class name="org.ballerinalang.test.bala.record.ClosedRecordTypeReferenceTest" />
+            <class name="org.ballerinalang.test.bala.record.OpenRecordTypeInclusionTest" />
+            <class name="org.ballerinalang.test.bala.record.ClosedRecordTypeInclusionTest" />
         </classes>
     </test>
 </suite>

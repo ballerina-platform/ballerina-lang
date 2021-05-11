@@ -26,6 +26,7 @@ import io.ballerina.compiler.syntax.tree.ExpressionNode;
 import io.ballerina.compiler.syntax.tree.ModuleVariableDeclarationNode;
 import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
+import io.ballerina.compiler.syntax.tree.PositionalArgumentNode;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.compiler.syntax.tree.VariableDeclarationNode;
 import io.ballerina.tools.diagnostics.Diagnostic;
@@ -56,6 +57,8 @@ import java.util.Optional;
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
+    public static final String NAME = "Type Cast";
+
     /**
      * {@inheritDoc}
      */
@@ -81,10 +84,7 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
 
         if (rhsTypeSymbol.isPresent() && rhsTypeSymbol.get().typeKind() == TypeDescKind.UNION) {
             // If RHS is a union and has error member type; skip code-action
-            UnionTypeSymbol unionTypeDesc = (UnionTypeSymbol) rhsTypeSymbol.get();
-            boolean hasErrorMemberType = unionTypeDesc.memberTypeDescriptors().stream()
-                    .anyMatch(member -> member.typeKind() == TypeDescKind.ERROR);
-            if (hasErrorMemberType) {
+            if (CodeActionUtil.hasErrorMemberType((UnionTypeSymbol) rhsTypeSymbol.get())) {
                 return Collections.emptyList();
             }
         }
@@ -105,9 +105,14 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         return Collections.singletonList(createQuickFixCodeAction(commandTitle, edits, context.fileUri()));
     }
 
-    private NonTerminalNode getMatchedNode(NonTerminalNode node) {
+    @Override
+    public String getName() {
+        return NAME;
+    }
+
+    protected NonTerminalNode getMatchedNode(NonTerminalNode node) {
         List<SyntaxKind> syntaxKinds = Arrays.asList(SyntaxKind.LOCAL_VAR_DECL,
-                SyntaxKind.MODULE_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT);
+                SyntaxKind.MODULE_VAR_DECL, SyntaxKind.ASSIGNMENT_STATEMENT, SyntaxKind.POSITIONAL_ARG);
         while (node != null && !syntaxKinds.contains(node.kind())) {
             node = node.parent();
         }
@@ -115,13 +120,15 @@ public class TypeCastCodeAction extends AbstractCodeActionProvider {
         return node;
     }
 
-    private Optional<ExpressionNode> getExpression(Node node) {
+    protected Optional<ExpressionNode> getExpression(Node node) {
         if (node.kind() == SyntaxKind.LOCAL_VAR_DECL) {
             return ((VariableDeclarationNode) node).initializer();
         } else if (node.kind() == SyntaxKind.MODULE_VAR_DECL) {
             return ((ModuleVariableDeclarationNode) node).initializer();
         } else if (node.kind() == SyntaxKind.ASSIGNMENT_STATEMENT) {
             return Optional.of(((AssignmentStatementNode) node).expression());
+        } else if (node.kind() == SyntaxKind.POSITIONAL_ARG) {
+            return Optional.of(((PositionalArgumentNode) node).expression());
         } else {
             return Optional.empty();
         }

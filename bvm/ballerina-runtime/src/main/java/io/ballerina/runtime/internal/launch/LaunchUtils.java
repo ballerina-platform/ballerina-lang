@@ -28,7 +28,7 @@ import io.ballerina.runtime.internal.configurable.providers.cli.CliProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlContentProvider;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlDetails;
 import io.ballerina.runtime.internal.configurable.providers.toml.TomlFileProvider;
-import io.ballerina.runtime.internal.diagnostics.DiagnosticLog;
+import io.ballerina.runtime.internal.diagnostics.RuntimeDiagnosticLog;
 import io.ballerina.runtime.internal.util.RuntimeUtils;
 import org.ballerinalang.config.ConfigRegistry;
 import org.ballerinalang.logging.BLogManager;
@@ -45,6 +45,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.ServiceLoader;
+import java.util.Set;
 import java.util.logging.LogManager;
 
 import static io.ballerina.runtime.api.constants.RuntimeConstants.BALLERINA_ARGS_INIT_PREFIX;
@@ -144,20 +145,21 @@ public class LaunchUtils {
                                                  String[] args, Path[] configFilePaths, String secretContent,
                                                  String configContent) {
 
-        DiagnosticLog diagnosticLog = new DiagnosticLog();
+        RuntimeDiagnosticLog diagnosticLog = new RuntimeDiagnosticLog();
         CliProvider cliConfigProvider = new CliProvider(rootModule, args);
         List<ConfigProvider> supportedConfigProviders = new LinkedList<>();
+        Set<Module> moduleSet = configurationData.keySet();
         if (configContent != null) {
-            supportedConfigProviders.add(new TomlContentProvider(configContent));
+            supportedConfigProviders.add(new TomlContentProvider(rootModule, configContent, moduleSet));
         }
         for (int i = configFilePaths.length - 1; i >= 0; i--) {
-            supportedConfigProviders.add(new TomlFileProvider(configFilePaths[i]));
+            supportedConfigProviders.add(new TomlFileProvider(rootModule, configFilePaths[i], moduleSet));
         }
         if (secretContent != null) {
-            supportedConfigProviders.add(new TomlContentProvider(secretContent));
+            supportedConfigProviders.add(new TomlContentProvider(rootModule, secretContent, moduleSet));
         }
         supportedConfigProviders.add(cliConfigProvider);
-        ConfigResolver configResolver = new ConfigResolver(rootModule, configurationData,
+        ConfigResolver configResolver = new ConfigResolver(configurationData,
                                                            diagnosticLog, supportedConfigProviders);
         ConfigMap.setConfigurableMap(configResolver.resolveConfigs());
         if (!diagnosticLog.getDiagnosticList().isEmpty()) {
@@ -174,12 +176,10 @@ public class LaunchUtils {
     }
 
     private static String populateConfigDetails(List<Path> paths, Map<String, String> envVars) {
-        String configContent = null;
         if (envVars.containsKey(CONFIG_FILES_ENV_VARIABLE)) {
             String[] configPathList = envVars.get(CONFIG_FILES_ENV_VARIABLE).split(File.pathSeparator);
             for (String pathString : configPathList) {
-                Path path = Paths.get(pathString);
-                paths.add(path);
+                paths.add(Paths.get(pathString));
             }
         } else if (envVars.containsKey(CONFIG_DATA_ENV_VARIABLE)) {
             return envVars.get(CONFIG_DATA_ENV_VARIABLE);
@@ -188,11 +188,10 @@ public class LaunchUtils {
                 paths.add(DEFAULT_CONFIG_PATH);
             }
         }
-        return configContent;
+        return null;
     }
 
     private static String populateSecretConfigDetails(List<Path> paths, Map<String, String> envVars) {
-        String secret = null;
         if (envVars.containsKey(SECRET_FILE_ENV_VARIABLE)) {
             paths.add(Paths.get(envVars.get(SECRET_FILE_ENV_VARIABLE)));
         } else if (envVars.containsKey(SECRET_DATA_ENV_VARIABLE)) {
@@ -202,6 +201,6 @@ public class LaunchUtils {
                 paths.add(DEFAULT_SECRET_PATH);
             }
         }
-        return secret;
+        return null;
     }
 }

@@ -30,16 +30,13 @@ public class ModuleSearchJson {
     @Expose
     private String orgName;
     @Expose
-    private String packageName;
-    @Expose
     private String version;
 
-    public ModuleSearchJson(String id, String orgName, String packageName, String version, String description) {
+    public ModuleSearchJson(String id, String orgName, String version, String description) {
         this.setId(id);
         this.setDescription(description);
         this.setOrgName(orgName);
         this.setVersion(version);
-        this.setPackageName(packageName);
     }
 
     public String getId() {
@@ -74,11 +71,4 @@ public class ModuleSearchJson {
         this.version = version;
     }
 
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
 }

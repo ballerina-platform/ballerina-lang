@@ -37,6 +37,7 @@ import java.util.Map;
 import java.util.stream.Collectors;
 
 import static io.ballerina.compiler.api.symbols.ParameterKind.DEFAULTABLE;
+import static io.ballerina.compiler.api.symbols.ParameterKind.INCLUDED_RECORD;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REQUIRED;
 import static io.ballerina.compiler.api.symbols.ParameterKind.REST;
 import static io.ballerina.compiler.api.symbols.TypeDescKind.ARRAY;
@@ -86,7 +87,8 @@ public class ParameterSymbolTest {
                 {16, 31, "x", STRING, REQUIRED, "string x"},
                 {16, 38, "y", INT, REQUIRED, "int y"},
                 {16, 47, "f", FLOAT, DEFAULTABLE, "float f"},
-                {16, 68, "rest", ARRAY, REST, "string... rest"},
+                {16, 66, "grades", TYPE_REFERENCE, INCLUDED_RECORD, "*Grades grades"},
+                {16, 84, "rest", ARRAY, REST, "string... rest"},
                 {25, 31, "name", STRING, REQUIRED, "string name"},
                 {25, 41, "age", INT, DEFAULTABLE, "int age"},
                 {25, 61, "other", ARRAY, REST, "anydata... other"},
@@ -117,6 +119,7 @@ public class ParameterSymbolTest {
         assertParam((ParameterSymbol) params.get("x"), "x", REQUIRED, STRING);
         assertParam((ParameterSymbol) params.get("y"), "y", REQUIRED, INT);
         assertParam((ParameterSymbol) params.get("f"), "f", DEFAULTABLE, FLOAT);
+        assertParam((ParameterSymbol) params.get("grades"), "grades", INCLUDED_RECORD, TYPE_REFERENCE);
         assertParam((ParameterSymbol) params.get("rest"), "rest", REST, ARRAY);
     }
 

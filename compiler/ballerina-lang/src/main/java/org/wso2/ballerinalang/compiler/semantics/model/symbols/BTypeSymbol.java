@@ -31,6 +31,8 @@ import org.wso2.ballerinalang.compiler.util.Names;
 public class BTypeSymbol extends BSymbol implements TypeSymbol {
 
     public boolean isLabel;
+    public boolean isTypeParamResolved;
+    public BTypeSymbol typeParamTSymbol;
 
     public BTypeSymbol(int symTag, long flags, Name name, PackageID pkgID, BType type, BSymbol owner,
                        Location pos, SymbolOrigin origin) {

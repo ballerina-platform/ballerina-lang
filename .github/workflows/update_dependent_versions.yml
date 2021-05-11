@@ -1,11 +1,7 @@
 name: Update Stdlib Repos on Version Change
 
 on:
-    push:
-        branches:
-            - master
-        paths:
-            - 'gradle.properties'
+    workflow_dispatch:
 
 jobs:
     update-stdlibs:

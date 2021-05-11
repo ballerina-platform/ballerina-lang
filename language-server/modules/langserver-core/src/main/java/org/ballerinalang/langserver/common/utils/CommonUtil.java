@@ -43,8 +43,6 @@ import io.ballerina.compiler.syntax.tree.Token;
 import io.ballerina.projects.Module;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.ProjectKind;
-import io.ballerina.projects.util.ProjectConstants;
 import io.ballerina.tools.diagnostics.Location;
 import io.ballerina.tools.text.LinePosition;
 import io.ballerina.tools.text.LineRange;
@@ -96,6 +94,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
 import java.util.function.BiFunction;
 import java.util.function.Predicate;
 import java.util.regex.Matcher;
@@ -194,8 +193,39 @@ public class CommonUtil {
                 + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
                 + pkgName + SEMI_COLON_SYMBOL_KEY
                 + CommonUtil.LINE_SEPARATOR;
-        
+
         return Collections.singletonList(new TextEdit(new Range(start, start), importStatement));
+    }
+
+    /**
+     * Get the text edit for an auto import statement.
+     * Here we do not check whether the package is not already imported or a predeclared lang-lib, Particular
+     * check should be done before usage
+     *
+     * @param orgName package org name
+     * @param pkgName package name
+     * @param alias   import alias
+     * @param context Language server context
+     * @return {@link List}     List of Text Edits to apply
+     */
+    public static List<TextEdit> getAutoImportTextEdits(@Nonnull String orgName, String pkgName, String alias,
+                                                        DocumentServiceContext context) {
+        List<ImportDeclarationNode> currentDocImports = context.currentDocImports();
+        Position start = new Position(0, 0);
+        if (currentDocImports != null && !currentDocImports.isEmpty()) {
+            ImportDeclarationNode last = CommonUtil.getLastItem(currentDocImports);
+            int endLine = last.lineRange().endLine().line();
+            start = new Position(endLine, 0);
+        }
+        StringBuilder builder = new StringBuilder(ItemResolverConstants.IMPORT + " "
+                + (!orgName.isEmpty() ? orgName + SLASH_KEYWORD_KEY : orgName)
+                + pkgName);
+        if (!alias.isEmpty()) {
+            builder.append(" as ").append(alias).append(" ");
+        }
+        builder.append(SEMI_COLON_SYMBOL_KEY).append(CommonUtil.LINE_SEPARATOR);
+
+        return Collections.singletonList(new TextEdit(new Range(start, start), builder.toString()));
     }
 
     /**
@@ -236,6 +266,16 @@ public class CommonUtil {
                 }
                 break;
             case RECORD:
+                // TODO: Here we have disregarded the formatting of the record fields. Need to consider that in future
+                RecordTypeSymbol recordTypeSymbol = (RecordTypeSymbol) rawType;
+                typeString = "{";
+                typeString += getMandatoryRecordFields(recordTypeSymbol).stream()
+                        .filter(recordFieldSymbol -> recordFieldSymbol.getName().isPresent())
+                        .map(recordFieldSymbol -> recordFieldSymbol.getName().get() + ": " +
+                                getDefaultValueForType(recordFieldSymbol.typeDescriptor()))
+                        .collect(Collectors.joining(", "));
+                typeString += "}";
+                break;
             case MAP:
                 typeString = "{}";
                 break;
@@ -244,7 +284,7 @@ public class CommonUtil {
                 if (objectTypeSymbol.kind() == SymbolKind.CLASS) {
                     ClassSymbol classSymbol = (ClassSymbol) objectTypeSymbol;
                     if (classSymbol.initMethod().isPresent()) {
-                        List<ParameterSymbol> params = classSymbol.initMethod().get().typeDescriptor().parameters();
+                        List<ParameterSymbol> params = classSymbol.initMethod().get().typeDescriptor().params().get();
                         String text = params.stream()
                                 .map(param -> getDefaultValueForType(param.typeDescriptor()))
                                 .collect(Collectors.joining(", "));
@@ -270,6 +310,21 @@ public class CommonUtil {
                 List<TypeSymbol> members =
                         new ArrayList<>(((UnionTypeSymbol) bType).memberTypeDescriptors());
                 typeString = getDefaultValueForType(members.get(0));
+                break;
+            case INTERSECTION:
+                TypeSymbol effectiveType = ((IntersectionTypeSymbol) rawType).effectiveTypeDescriptor();
+                effectiveType = getRawType(effectiveType);
+                typeString = "()";
+                // Right now, intersection types can only have readonly and another type only. Therefore, not doing 
+                // further checks here.
+                // Get the member type from intersection which is not readonly and get its default value
+                Optional<TypeSymbol> memberType = ((IntersectionTypeSymbol) effectiveType)
+                        .memberTypeDescriptors().stream()
+                        .filter(typeSymbol -> typeSymbol.typeKind() != TypeDescKind.READONLY)
+                        .findAny();
+                if (memberType.isPresent()) {
+                    typeString = getDefaultValueForType(memberType.get());
+                }
                 break;
             case STREAM:
 //            case TABLE:
@@ -300,8 +355,11 @@ public class CommonUtil {
     public static List<LSCompletionItem> getRecordFieldCompletionItems(BallerinaCompletionContext context,
                                                                        Map<String, RecordFieldSymbol> fields) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
+        AtomicInteger fieldCounter = new AtomicInteger();
         fields.forEach((name, field) -> {
-            String insertText = getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0);
+            fieldCounter.getAndIncrement();
+            String insertText =
+                    getRecordFieldCompletionInsertText(field, Collections.emptyList(), 0, fieldCounter.get());
             CompletionItem fieldItem = new CompletionItem();
             fieldItem.setInsertText(insertText);
             fieldItem.setInsertTextFormat(InsertTextFormat.Snippet);
@@ -484,31 +542,33 @@ public class CommonUtil {
     /**
      * Get the completion item insert text for a BField.
      *
-     * @param bField BField to evaluate
+     * @param bField  BField to evaluate
      * @param parents Parent record field symbols
      * @return {@link String} Insert text
      */
     public static String getRecordFieldCompletionInsertText(RecordFieldSymbol bField,
                                                             List<RecordFieldSymbol> parents,
-                                                            int tabOffset) {
+                                                            int tabOffset, int fieldId) {
         TypeSymbol fieldType = CommonUtil.getRawType(bField.typeDescriptor());
         StringBuilder insertText = new StringBuilder(bField.getName().get() + ": ");
         if (fieldType.typeKind() == TypeDescKind.RECORD) {
             List<RecordFieldSymbol> requiredFields = getMandatoryRecordFields((RecordTypeSymbol) fieldType);
             if (requiredFields.isEmpty()) {
-                insertText.append("{").append("${1}}");
+                insertText.append("{").append("${").append(fieldId).append("}}");
                 return insertText.toString();
             }
             insertText.append("{").append(LINE_SEPARATOR);
             List<String> requiredFieldInsertTexts = new ArrayList<>();
-            for (RecordFieldSymbol field : requiredFields) {
+
+            for (int i = 0; i < requiredFields.size(); i++) {
                 // If the field refers to the same type as bField or a parent of bField, 
                 // it results in a stack overflow error. Avoiding that using the following check
+                RecordFieldSymbol field = requiredFields.get(i);
                 if (!parents.contains(field)) {
                     List<RecordFieldSymbol> newParentsList = new ArrayList<>(parents);
                     newParentsList.add(field);
                     String fieldText = String.join("", Collections.nCopies(tabOffset + 1, "\t")) +
-                            getRecordFieldCompletionInsertText(field, newParentsList, tabOffset + 1);
+                            getRecordFieldCompletionInsertText(field, newParentsList, tabOffset + 1, i + 1);
                     requiredFieldInsertTexts.add(fieldText);
                 }
             }
@@ -517,11 +577,12 @@ public class CommonUtil {
                     .append(String.join("", Collections.nCopies(tabOffset, "\t")))
                     .append("}");
         } else if (fieldType.typeKind() == TypeDescKind.ARRAY) {
-            insertText.append("[").append("${1}").append("]");
+            insertText.append("[").append("${").append(fieldId).append("}").append("]");
         } else if (fieldType.typeKind().isStringType()) {
-            insertText.append("\"").append("${1}").append("\"");
+            insertText.append("\"").append("${").append(fieldId).append("}").append("\"");
         } else {
-            insertText.append("${1:").append(getDefaultValueForType(bField.typeDescriptor())).append("}");
+            insertText.append("${").append(fieldId).append(":")
+                    .append(getDefaultValueForType(bField.typeDescriptor())).append("}");
         }
 
         return insertText.toString();
@@ -644,7 +705,7 @@ public class CommonUtil {
     public static boolean isLangLib(ModuleID moduleID) {
         return isLangLib(moduleID.orgName(), moduleID.moduleName());
     }
-    
+
     public static boolean isLangLib(String orgName, String moduleName) {
         return orgName.equals("ballerina") && moduleName.startsWith("lang.");
     }
@@ -993,7 +1054,7 @@ public class CommonUtil {
         return "ballerina".equals(pkg.packageOrg().value())
                 && CommonUtil.PRE_DECLARED_LANG_LIBS.contains(pkg.packageName().value());
     }
-    
+
     public static String getModifiedTypeName(DocumentServiceContext context, TypeSymbol typeSymbol) {
         Pattern pattern = Pattern.compile("([\\w_.]*)/([\\w._]*):([\\w.-]*)");
         String typeSignature = typeSymbol.signature();
@@ -1006,55 +1067,10 @@ public class CommonUtil {
             String replaceText = modulePrefix.isEmpty() ? matchedString + Names.VERSION_SEPARATOR : matchedString;
             typeSignature = typeSignature.replace(replaceText, modulePrefix);
         }
-        
+
         return typeSignature;
     }
 
-    /**
-     * Get the file uri of the symbol within the current project.
-     * This API assumes the symbol is in the same project
-     * 
-     * @param context document service context
-     * @param symbol to be located
-     * @return {@link Optional} URI is empty if the symbol is not located within the current project
-     */
-    public static Optional<String> getSymbolUriInProject(DocumentServiceContext context, Symbol symbol) {
-        Path projectRoot = context.workspace().projectRoot(context.filePath());
-        Optional<Project> project = context.workspace().project(context.filePath());
-        Optional<Location> symbolLocation = symbol.getLocation();
-        ModuleID moduleID = symbol.getModule().get().id();
-        
-        if (project.isEmpty() || symbolLocation.isEmpty() || symbol.getModule().isEmpty()) {
-            return Optional.empty();
-        }
-        
-        String uri;
-        String packageName = project.get().currentPackage().packageName().value();
-        if (project.get().kind() == ProjectKind.SINGLE_FILE_PROJECT && moduleID.moduleName().equals(".")) {
-            // Project is a single file project and also the symbol resides in a single file project
-            uri = projectRoot.toUri().toString();
-        } else if (!project.get().currentPackage().packageOrg().value().equals(moduleID.orgName())) {
-            // in orgname mismatch, we return empty
-            return Optional.empty();
-        } else if (packageName.equals(moduleID.moduleName())) {
-            // Symbol is within the default module
-            uri = projectRoot.resolve(symbolLocation.get().lineRange().filePath()).toUri().toString();
-        } else {
-            /*
-            The hierarchical module names have the following format. Hence replace the package name part
-            packageName.component1.component2 => module name is component1.component2
-             */
-            String moduleName = moduleID.moduleName().replace(packageName + ".", "");
-            String fileName = symbolLocation.get().lineRange().filePath();
-            uri = projectRoot.resolve(ProjectConstants.MODULES_ROOT)
-                    .resolve(moduleName)
-                    .resolve(fileName)
-                    .toUri().toString();
-        }
-        
-        return Optional.ofNullable(uri);
-    }
-    
     public static String getModulePrefix(DocumentServiceContext context, String orgName, String modName) {
         Project project = context.workspace().project(context.filePath()).orElseThrow();
         String currentProjectOrg = project.currentPackage().packageOrg().value();
@@ -1062,7 +1078,7 @@ public class CommonUtil {
         Optional<Module> currentModule = context.currentModule();
         String evalOrgName = isCurrentOrg ? "" : orgName;
         Optional<ImportDeclarationNode> matchedImport = matchingImportedModule(context, evalOrgName, modName);
-        
+
         if (currentModule.isPresent() && modName.equals(getQualifiedModuleName(currentModule.get()))) {
             // If the module name is same as the current module, then return empty
             return "";
@@ -1078,6 +1094,56 @@ public class CommonUtil {
 
         String[] modNameComponents = modName.split("\\.");
         return modNameComponents[modNameComponents.length - 1];
+    }
+    /**
+     * Get the validated symbol name against the visible symbols.
+     * This method can be used to auto generate the symbol names without conflicting with the existing symbol names
+     *
+     * @param context completion context
+     * @param symbolName raw symbol name to modify with the numbered suffix
+     * @return {@link String} modified symbol name
+     */
+    public static String getValidatedSymbolName(PositionedOperationContext context, String symbolName) {
+        List<Symbol> symbols = context.visibleSymbols(context.getCursorPosition());
+        List<Integer> variableNumbers = symbols.parallelStream().map(symbol -> {
+            if (symbol.getName().isEmpty()) {
+                return -2;
+            }
+            String sName = symbol.getName().get();
+            if (sName.equals(symbolName)) {
+                return 0;
+            }
+            String modifiedName = sName.replaceFirst(symbolName, "");
+
+            if (!modifiedName.isEmpty() && modifiedName.chars().allMatch(Character::isDigit)) {
+                return Integer.parseInt(modifiedName);
+            }
+
+            return -3;
+        }).filter(integer -> integer >= 0).sorted().collect(Collectors.toList());
+
+        for (int i = 0; i < variableNumbers.size(); i++) {
+            Integer intVal = variableNumbers.get(i);
+            if (i == variableNumbers.size() - 1 || (intVal + 1) != variableNumbers.get(i + 1)) {
+                return symbolName + (intVal + 1);
+            }
+        }
+
+        return symbolName;
+    }
+
+    /**
+     * Escape a given value.
+     * 
+     * @param value to be escape
+     * @return {@link String}
+     */
+    public static String escapeReservedKeyword(String value) {
+        if (CommonUtil.BALLERINA_KEYWORDS.contains(value)) {
+            return "'" + value;
+        }
+
+        return value;
     }
 
     private static String getQualifiedModuleName(Module module) {

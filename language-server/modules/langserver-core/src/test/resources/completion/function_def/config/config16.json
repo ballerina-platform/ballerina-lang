@@ -6,6 +6,20 @@
   "source": "function_def/source/source16.bal",
   "items": [
     {
+      "label": "ENUM1_FIELD1",
+      "kind": "EnumMember",
+      "detail": "ENUM1_FIELD1",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": ""
+        }
+      },
+      "sortText": "H",
+      "insertText": "ENUM1_FIELD1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "TEST_INT_CONST1",
       "kind": "Variable",
       "detail": "1",
@@ -31,36 +45,6 @@
       },
       "sortText": "B",
       "insertText": "TEST_STRING_CONST1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "AnnotationType",
-      "kind": "Struct",
-      "detail": "Record",
-      "sortText": "L",
-      "insertText": "AnnotationType",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ResponseMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
-      },
-      "sortText": "I",
-      "insertText": "ResponseMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "RequestMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
-      },
-      "sortText": "I",
-      "insertText": "RequestMessage",
       "insertTextFormat": "Snippet"
     },
     {
@@ -120,6 +104,44 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ResponseMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+      },
+      "sortText": "I",
+      "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+      },
+      "sortText": "I",
+      "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "AnnotationType",
+      "kind": "Struct",
+      "detail": "Record",
+      "sortText": "L",
+      "insertText": "AnnotationType",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "TestClass1",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "TestClass1",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "Client",
       "kind": "Interface",
       "detail": "Class",
@@ -150,14 +172,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "TestClass1",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "TestClass1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "listener1",
       "kind": "Variable",
       "detail": "module1:Listener",
@@ -176,6 +190,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
     },
@@ -190,6 +205,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
     },
@@ -204,6 +220,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -222,6 +239,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",
       "command": {

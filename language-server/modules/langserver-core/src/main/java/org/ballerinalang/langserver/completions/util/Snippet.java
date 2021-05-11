@@ -258,8 +258,6 @@ public enum Snippet {
 
     KW_TYPEOF(SnippetGenerator.getTypeofKeywordSnippet()),
 
-    KW_COMMIT(SnippetGenerator.getCommitKeywordSnippet()),
-
     KW_IS(SnippetGenerator.getIsKeywordSnippet()),
 
     KW_ASCENDING(SnippetGenerator.getAscendingKeywordSnippet()),
@@ -303,9 +301,13 @@ public enum Snippet {
 
     STMT_ROLLBACK(SnippetGenerator.getRollbackStatementSnippet()),
 
+    STMT_COMMIT(SnippetGenerator.getCommitStatementSnippet()),
+
     STMT_CONTINUE(SnippetGenerator.getContinueStatmentSnippet()),
 
     STMT_FOREACH(SnippetGenerator.getForeachSnippet()),
+
+    STMT_FOREACH_RANGE_EXP(SnippetGenerator.getForeachRangeExpressionSnippet()),
 
     STMT_FORK(SnippetGenerator.getForkStatementSnippet()),
 
@@ -327,6 +329,8 @@ public enum Snippet {
 
     STMT_TRANSACTION(SnippetGenerator.getTransactionStatementSnippet()),
 
+    STMT_RETRY(SnippetGenerator.getRetryStatementSnippet()),
+
     STMT_RETRY_TRANSACTION(SnippetGenerator.getRetryTransactionStatementSnippet()),
 
     STMT_TRAP(SnippetGenerator.getTrapSnippet()),
@@ -337,15 +341,17 @@ public enum Snippet {
 
     // Snippets related to various clauses such as from, where and etc
     CLAUSE_FROM(SnippetGenerator.getFromClauseSnippet()),
-    
+
+    CLAUSE_DO(SnippetGenerator.getDoClauseSnippet()),
+
     CLAUSE_LET(SnippetGenerator.getLetClauseSnippet()),
-    
+
     CLAUSE_JOIN(SnippetGenerator.getJoinClauseSnippet()),
-    
+
     CLAUSE_ON_FAIL(SnippetGenerator.getOnFailClauseSnippet()),
-    
+
     CLAUSE_ON_CONFLICT(SnippetGenerator.getOnConflictClauseSnippet()),
-    
+
     TYPE_MAP(SnippetGenerator.getMapTypeSnippet());
 
     private final String snippetName;

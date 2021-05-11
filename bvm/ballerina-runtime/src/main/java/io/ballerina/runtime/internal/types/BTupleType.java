@@ -54,11 +54,16 @@ public class BTupleType extends BType implements TupleType {
         this.restType = null;
 
         boolean isAllMembersPure = true;
+        boolean isAllMembersAnydata = true;
         for (Type memberType : tupleTypes) {
             isAllMembersPure &= memberType.isPureType();
+            isAllMembersAnydata &= memberType.isAnydata();
         }
 
         if (isAllMembersPure) {
+            this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.PURETYPE);
+        }
+        if (isAllMembersAnydata) {
             this.typeFlags = TypeFlags.addToMask(this.typeFlags, TypeFlags.ANYDATA, TypeFlags.PURETYPE);
         }
         this.readonly = false;
@@ -128,11 +133,6 @@ public class BTupleType extends BType implements TupleType {
                 ((restType != null) ? (tupleTypes.size() > 0 ? "," : "") + restType.toString() + "...]" : "]");
 
         return readonly ? toString + " & readonly" : toString;
-    }
-
-    @Override
-    public String getName() {
-        return toString();
     }
 
     @Override

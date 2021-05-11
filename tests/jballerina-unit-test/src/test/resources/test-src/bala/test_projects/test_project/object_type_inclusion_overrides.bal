@@ -19,7 +19,7 @@ public class ManagingDirector {
     *Employee3;
 
     int shares = 2000;
-    float salary;
+    public float salary;
 
     public function init(int age, string name) {
         self.age = age;
@@ -28,7 +28,7 @@ public class ManagingDirector {
     }
 
     public function getBonus(float ratio, int months=8) returns float {
-        return <float>(self.salary) * ratio * months * self.shares;
+        return <float>(self.salary) * ratio * <float>months * <float>self.shares;
     }
 
     public function getName(string greeting = "Hello Director,") returns string {

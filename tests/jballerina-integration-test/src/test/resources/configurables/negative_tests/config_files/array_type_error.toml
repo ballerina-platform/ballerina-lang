@@ -1,4 +1,0 @@
-[testOrg.main]
-intVar = 4
-stringVar = "string"
-intArr = "array"

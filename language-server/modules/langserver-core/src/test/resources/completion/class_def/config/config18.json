@@ -6,14 +6,6 @@
   "source": "class_def/source/source18.bal",
   "items": [
     {
-      "label": "testClass",
-      "kind": "Interface",
-      "detail": "Class",
-      "sortText": "K",
-      "insertText": "testClass",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "testClassWithReadOnly",
       "kind": "Interface",
       "detail": "Class",
@@ -27,6 +19,14 @@
       "detail": "Object",
       "sortText": "K",
       "insertText": "testObject",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testClass",
+      "kind": "Interface",
+      "detail": "Class",
+      "sortText": "K",
+      "insertText": "testClass",
       "insertTextFormat": "Snippet"
     },
     {
@@ -134,29 +134,6 @@
             }
           },
           "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.query",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "query",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.query;\n"
         }
       ]
     },

@@ -50,7 +50,7 @@ function testFinalNestedRecordVariableWithoutType() {
 }
 
 function testFinalNestedRecordVariableWithType() {
-    final Data2 { a, s: { p, q } } = getNestedRecord();
+    final Data2 { a, d: { p, q } } = getNestedRecord();
     a = 2;
     p = "B";
     q = 2.3;

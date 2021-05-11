@@ -33,6 +33,7 @@ import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.directory.BuildProject;
 import io.ballerina.projects.directory.SingleFileProject;
 import io.ballerina.projects.util.ProjectConstants;
+import org.ballerinalang.toml.exceptions.SettingsTomlException;
 import picocli.CommandLine;
 
 import java.io.PrintStream;
@@ -40,6 +41,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 import static io.ballerina.cli.cmd.Constants.BUILD_COMMAND;
+import static io.ballerina.cli.utils.CentralUtils.readSettings;
 import static io.ballerina.runtime.api.constants.RuntimeConstants.SYSTEM_PROP_BAL_DEBUG;
 
 /**
@@ -80,11 +82,11 @@ public class BuildCommand implements BLauncherCmd {
         this.errStream = errStream;
         this.exitWhenFinish = exitWhenFinish;
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
-        this.compile = true;
+        this.compile = compile;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
-                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport) {
+                        boolean skipCopyLibsFromDist, Boolean skipTests, Boolean testReport, Boolean coverage) {
         this.projectPath = projectPath;
         this.outStream = outStream;
         this.errStream = errStream;
@@ -92,6 +94,7 @@ public class BuildCommand implements BLauncherCmd {
         this.skipCopyLibsFromDist = skipCopyLibsFromDist;
         this.skipTests = skipTests;
         this.testReport = testReport;
+        this.coverage = coverage;
     }
 
     public BuildCommand(Path projectPath, PrintStream outStream, PrintStream errStream, boolean exitWhenFinish,
@@ -165,6 +168,9 @@ public class BuildCommand implements BLauncherCmd {
             description = "list conflicted classes when generating executable")
     private Boolean listConflictedClasses;
 
+//    @CommandLine.Option(names = "--show-all-warnings", description = "show warnings of dependencies")
+    private Boolean showAllWarnings;
+
     public void execute() {
         if (this.helpFlag) {
             String commandUsageInfo = BLauncherCmd.getCommandUsageInfo(BUILD_COMMAND);
@@ -189,7 +195,7 @@ public class BuildCommand implements BLauncherCmd {
         if (FileUtils.hasExtension(this.projectPath)) {
             if (this.compile) {
                 CommandUtil.printError(this.errStream,
-                        "'-c' or '--compile' can only be used with modules.", null, false);
+                        "'-c' or '--compile' can only be used with a Ballerina package.", null, false);
                 CommandUtil.exitError(this.exitWhenFinish);
                 return;
             }
@@ -221,6 +227,17 @@ public class BuildCommand implements BLauncherCmd {
             }
         }
 
+        if (this.compile && project.currentPackage().ballerinaToml().get().tomlDocument().toml()
+                .getTable("package").isEmpty()) {
+            CommandUtil.printError(this.errStream,
+                    "'package' information not found in " + ProjectConstants.BALLERINA_TOML,
+                    null,
+                    true);
+            CommandUtil.exitError(this.exitWhenFinish);
+            return;
+
+        }
+
         // Sets the debug port as a system property, which will be used when setting up debug args before running tests.
         if (!project.buildOptions().skipTests() && this.debugPort != null) {
             System.setProperty(SYSTEM_PROP_BAL_DEBUG, this.debugPort);
@@ -229,6 +246,13 @@ public class BuildCommand implements BLauncherCmd {
         // Skip --includes flag if it is set without code coverage
         if (!project.buildOptions().codeCoverage() && includes != null) {
             this.outStream.println("warning: ignoring --includes flag since code coverage is not enabled");
+        }
+
+        // Validate Settings.toml file
+        try {
+            readSettings();
+        } catch (SettingsTomlException e) {
+            this.outStream.println("warning: " + e.getMessage());
         }
 
         TaskExecutor taskExecutor = new TaskExecutor.TaskBuilder()
@@ -267,6 +291,7 @@ public class BuildCommand implements BLauncherCmd {
                 .dumpBir(dumpBIR)
                 .dumpBirFile(dumpBIRFile)
                 .listConflictedClasses(listConflictedClasses)
+                .showAllWarnings(showAllWarnings)
                 .build();
     }
 

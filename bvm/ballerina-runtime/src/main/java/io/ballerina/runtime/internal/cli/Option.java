@@ -25,7 +25,6 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.Type;
-import io.ballerina.runtime.api.types.UnionType;
 import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BArray;
 import io.ballerina.runtime.api.values.BMap;
@@ -43,7 +42,7 @@ public class Option {
     private static final String NAMED_ARG_DELIMITER = "=";
 
     private final RecordType recordType;
-    private final BMap<BString, Object> record;
+    private final BMap<BString, Object> recordVal;
     private final List<String> operandArgs;
     private final Set<BString> recordKeysFound;
 
@@ -52,15 +51,14 @@ public class Option {
              ValueCreator.createRecordValue(recordType.getPackage(), recordType.getName()));
     }
 
-    public Option(RecordType recordType, BMap<BString, Object> record) {
+    public Option(RecordType recordType, BMap<BString, Object> recordVal) {
         this.recordType = recordType;
-        this.record = record;
+        this.recordVal = recordVal;
         operandArgs = new ArrayList<>();
         recordKeysFound = new HashSet<>();
     }
 
     public BMap<BString, Object> parseRecord(String[] args) {
-        // Todo: Improve error messages
         int index = 0;
         while (index < args.length) {
             String arg = args[index++];
@@ -73,7 +71,7 @@ public class Option {
             }
         }
         validateRecordKeys();
-        return record;
+        return recordVal;
     }
 
     private boolean isShortOption(String arg) {
@@ -96,7 +94,6 @@ public class Option {
         }
         BString optionName = StringUtils.fromString(getOptionName(optionStr));
         validateFieldExists(optionName);
-        recordKeysFound.add(optionName);
         if (isNamedArg(optionStr)) {
             processNamedArg(optionStr, optionName);
         } else {
@@ -109,6 +106,7 @@ public class Option {
                 }
             }
         }
+        recordKeysFound.add(optionName);
         return index;
     }
 
@@ -118,7 +116,15 @@ public class Option {
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             handleArrayParameter(optionName, val, (ArrayType) fieldType);
         } else {
-            record.put(optionName, CliUtil.getBValueWithUnionValue(fieldType, val));
+            validateRepeatingOptions(optionName);
+            recordVal.put(optionName, CliUtil.getBValueWithUnionValue(fieldType, val, optionName.getValue()));
+        }
+    }
+
+    private void validateRepeatingOptions(BString optionName) {
+        if (recordKeysFound.contains(optionName)) {
+            throw ErrorCreator.createError(
+                    StringUtils.fromString("The option '" + optionName + "' cannot be repeated"));
         }
     }
 
@@ -132,7 +138,8 @@ public class Option {
     private boolean handleBooleanTrue(BString paramName) {
         Type fieldType = recordType.getFields().get(paramName.getValue()).getFieldType();
         if (isABoolean(fieldType)) {
-            record.put(paramName, true);
+            validateRepeatingOptions(paramName);
+            recordVal.put(paramName, true);
             return true;
         } else if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(paramName, (ArrayType) fieldType);
@@ -146,11 +153,10 @@ public class Option {
     }
 
     private void validateRecordKeys() {
-        // Todo: test this as a unit test
-        for (BString key : record.getKeys()) {
+        for (BString key : recordVal.getKeys()) {
             if (!recordKeysFound.contains(key) && isRequired(recordType, key.getValue())) {
                 Type fieldType = recordType.getFields().get(key.getValue()).getFieldType();
-                if (isUnionWithNil(fieldType) || isSupportedArrayType(key, fieldType) ||
+                if (CliUtil.isUnionWithNil(fieldType) || isSupportedArrayType(key, fieldType) ||
                         handleBooleanFalse(key, fieldType)) {
                     continue;
                 }
@@ -162,7 +168,7 @@ public class Option {
 
     private boolean handleBooleanFalse(BString key, Type fieldType) {
         if (isABoolean(fieldType)) {
-            record.put(key, false);
+            recordVal.put(key, false);
             return true;
         }
         return false;
@@ -172,31 +178,15 @@ public class Option {
         if (fieldType.getTag() == TypeTags.ARRAY_TAG) {
             BArray bArray = getBArray(key, (ArrayType) fieldType);
             Type elementType = bArray.getElementType();
-            if (isSupported(elementType.getTag())) {
-                if (record.get(key) == null) {
-                    record.put(key, bArray);
+            if (CliUtil.isSupportedType(elementType.getTag())) {
+                if (recordVal.get(key) == null) {
+                    recordVal.put(key, bArray);
                 }
                 return true;
             }
             throw CliUtil.getUnsupportedTypeException(fieldType);
         }
         return false;
-    }
-
-    private boolean isUnionWithNil(Type fieldType) {
-        if (fieldType.getTag() == TypeTags.UNION_TAG) {
-            List<Type> unionMemberTypes = ((UnionType) fieldType).getMemberTypes();
-            if (CliUtil.isUnionWithNil(unionMemberTypes)) {
-                return true;
-            }
-            throw CliUtil.getUnsupportedTypeException(fieldType);
-        }
-        return false;
-    }
-
-    private boolean isSupported(int tag) {
-        return tag == TypeTags.STRING_TAG || tag == TypeTags.INT_TAG || tag == TypeTags.FLOAT_TAG ||
-                tag == TypeTags.DECIMAL_TAG || tag == TypeTags.BOOLEAN_TAG;
     }
 
     private boolean isRequired(RecordType recordType, String fieldName) {
@@ -210,10 +200,10 @@ public class Option {
     }
 
     private BArray getBArray(BString paramName, ArrayType fieldType) {
-        BArray bArray = (BArray) record.get(paramName);
+        BArray bArray = (BArray) recordVal.get(paramName);
         if (bArray == null) {
             bArray = ValueCreator.createArrayValue(fieldType, -1);
-            record.put(paramName, bArray);
+            recordVal.put(paramName, bArray);
         }
         return bArray;
     }
@@ -229,17 +219,18 @@ public class Option {
             handleArrayParameter(paramName, val, (ArrayType) fieldType);
             return;
         }
-        record.put(paramName, CliUtil.getBValueWithUnionValue(fieldType, val));
+        validateRepeatingOptions(paramName);
+        recordVal.put(paramName, CliUtil.getBValueWithUnionValue(fieldType, val, paramName.getValue()));
     }
 
     private void handleArrayParameter(BString paramName, String val, ArrayType fieldType) {
         BArray bArray = getBArray(paramName, fieldType);
         Type arrayType = bArray.getElementType();
-        bArray.append(CliUtil.getBValue(arrayType, val));
+        bArray.append(CliUtil.getBValue(arrayType, val, paramName.getValue()));
     }
 
     private void validateFieldExists(BString recordKey) {
-        if (!(record.containsKey(recordKey) || recordType.getFields().containsKey(recordKey.getValue()))) {
+        if (!(recordVal.containsKey(recordKey) || recordType.getFields().containsKey(recordKey.getValue()))) {
             throw ErrorCreator.createError(
                     StringUtils.fromString("undefined option: '" + recordKey + "'"));
         }

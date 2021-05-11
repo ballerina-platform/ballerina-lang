@@ -52,7 +52,7 @@ public class BallerinaStreamTypeSymbol extends AbstractTypeSymbol implements Str
     @Override
     public TypeSymbol completionValueTypeParameter() {
         if (this.completionValueTypeParameter == null) {
-            BType completionType = ((BStreamType) this.getBType()).error;
+            BType completionType = ((BStreamType) this.getBType()).completionType;
             TypesFactory typesFactory = TypesFactory.getInstance(this.context);
             this.completionValueTypeParameter = typesFactory.getTypeDescriptor(completionType);
         }

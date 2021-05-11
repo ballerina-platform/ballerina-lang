@@ -365,11 +365,6 @@ public class BUnionType extends BType implements UnionType {
     }
 
     @Override
-    public String getName() {
-        return toString();
-    }
-
-    @Override
     public int hashCode() {
 
         return Objects.hash(super.hashCode(), memberTypes);

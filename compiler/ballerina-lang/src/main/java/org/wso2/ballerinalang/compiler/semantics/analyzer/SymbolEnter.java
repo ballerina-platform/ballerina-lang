@@ -111,6 +111,9 @@ import org.wso2.ballerinalang.compiler.tree.expressions.BLangConstant;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangExpression;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLambdaFunction;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangLiteral;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecatedParametersDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkDownDeprecationDocumentation;
+import org.wso2.ballerinalang.compiler.tree.expressions.BLangMarkdownParameterDocumentation;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangSimpleVarRef;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLAttribute;
 import org.wso2.ballerinalang.compiler.tree.expressions.BLangXMLQName;
@@ -185,9 +188,11 @@ import static org.ballerinalang.model.symbols.SymbolOrigin.BUILTIN;
 import static org.ballerinalang.model.symbols.SymbolOrigin.SOURCE;
 import static org.ballerinalang.model.symbols.SymbolOrigin.VIRTUAL;
 import static org.ballerinalang.model.tree.NodeKind.IMPORT;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.EXPECTED_RECORD_TYPE_AS_INCLUDED_PARAMETER;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REDECLARED_SYMBOL;
 import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM;
+import static org.ballerinalang.util.diagnostic.DiagnosticErrorCode.REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM;
 import static org.wso2.ballerinalang.compiler.semantics.model.Scope.NOT_FOUND_ENTRY;
 
 /**
@@ -294,6 +299,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             populateLangLibInSymTable(pkgSymbol);
         }
 
+        if (pkgNode.moduleContextDataHolder != null) {
+            pkgSymbol.exported = pkgNode.moduleContextDataHolder.isExported();
+            pkgSymbol.descriptor = pkgNode.moduleContextDataHolder.descriptor();
+        }
+
         pkgNode.symbol = pkgSymbol;
         SymbolEnv pkgEnv = SymbolEnv.createPkgEnv(pkgNode, pkgSymbol.scope, this.env);
         this.symTable.pkgEnvMap.put(pkgSymbol, pkgEnv);
@@ -393,11 +403,11 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Define error details.
         defineErrorDetails(pkgNode.typeDefinitions, pkgEnv);
 
-        // Define type def members (if any)
-        defineMembers(typeAndClassDefs, pkgEnv);
-
         // Add distinct type information
         defineDistinctClassAndObjectDefinitions(typeAndClassDefs);
+
+        // Define type def members (if any)
+        defineMembers(typeAndClassDefs, pkgEnv);
 
         // Intersection type nodes need to look at the member fields of a structure too.
         // Once all the fields and members of other types are set revisit intersection type definitions to validate
@@ -695,6 +705,14 @@ public class SymbolEnter extends BLangNodeVisitor {
             for (BField field : ((BStructureType) effectiveIncludedType).fields.values()) {
                 if (fieldNames.containsKey(field.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(field.name.value);
+                    if ((existingVariable.flagSet.contains(Flag.PUBLIC) !=
+                            Symbols.isFlagOn(field.symbol.flags, Flags.PUBLIC)) ||
+                            (existingVariable.flagSet.contains(Flag.PRIVATE) !=
+                                    Symbols.isFlagOn(field.symbol.flags, Flags.PRIVATE))) {
+                        dlog.error(existingVariable.pos,
+                                DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
+                                existingVariable.name.value);
+                    }
                     if (types.isAssignable(existingVariable.type, field.type)) {
                         continue;
                     }
@@ -800,7 +818,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         BAnnotationSymbol annotationSymbol = Symbols.createAnnotationSymbol(Flags.asMask(annotationNode.flagSet),
                                                                             annotationNode.getAttachPoints(),
                                                                             annotName, env.enclPkg.symbol.pkgID, null,
-                                                                            env.scope.owner, annotationNode.pos,
+                                                                            env.scope.owner, annotationNode.name.pos,
                                                                             getOrigin(annotName));
         annotationSymbol.markdownDocumentation =
                 getMarkdownDocAttachment(annotationNode.markdownDocumentationAttachment);
@@ -893,6 +911,20 @@ public class SymbolEnter extends BLangNodeVisitor {
                 .collect(Collectors.toList());
 
         PackageID pkgId = new PackageID(orgName, nameComps, version);
+
+        // Un-exported modules not inside current package is not allowed to import.
+        BPackageSymbol bPackageSymbol = this.packageCache.getSymbol(pkgId);
+        if (bPackageSymbol != null && this.env.enclPkg.moduleContextDataHolder != null) {
+            boolean isCurrentPackageModuleImport =
+                this.env.enclPkg.moduleContextDataHolder.descriptor().org() == bPackageSymbol.descriptor.org()
+                    && this.env.enclPkg.moduleContextDataHolder.descriptor().packageName() ==
+                        bPackageSymbol.descriptor.packageName();
+            if (!isCurrentPackageModuleImport && !bPackageSymbol.exported) {
+                dlog.error(importPkgNode.pos, DiagnosticErrorCode.MODULE_NOT_FOUND,
+                           bPackageSymbol.toString() + " is not exported");
+                           return;
+            }
+        }
 
         // Built-in Annotation module is not allowed to import.
         if (pkgId.equals(PackageID.ANNOTATIONS) || pkgId.equals(PackageID.INTERNAL) || pkgId.equals(PackageID.QUERY)) {
@@ -1031,8 +1063,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         Name prefix = names.fromIdNode(xmlnsNode.prefix);
+        Location nsSymbolPos = prefix.value.isEmpty() ? xmlnsNode.pos : xmlnsNode.prefix.pos;
         BXMLNSSymbol xmlnsSymbol = Symbols.createXMLNSSymbol(prefix, nsURI, env.enclPkg.symbol.pkgID, env.scope.owner,
-                                                             xmlnsNode.pos, getOrigin(prefix));
+                                                             nsSymbolPos, getOrigin(prefix));
         xmlnsNode.symbol = xmlnsSymbol;
 
         // First check for package-imports with the same alias.
@@ -1331,7 +1364,7 @@ public class SymbolEnter extends BLangNodeVisitor {
     public void visit(BLangTypeDefinition typeDefinition) {
         BType definedType;
         if (typeDefinition.hasCyclicReference) {
-            definedType = getCyclicDefinedType(typeDefinition);
+            definedType = getCyclicDefinedType(typeDefinition, env);
         } else {
             definedType = symResolver.resolveTypeNode(typeDefinition.typeNode, env);
         }
@@ -1364,6 +1397,20 @@ public class SymbolEnter extends BLangNodeVisitor {
             // If not, then that type should get a higher precedence.
             for (BLangType typeRef : structureTypeNode.typeRefs) {
                 BType referencedType = symResolver.resolveTypeNode(typeRef, env);
+                if (referencedType == symTable.noType) {
+                    if (!this.unresolvedTypes.contains(typeDefinition)) {
+                        this.unresolvedTypes.add(typeDefinition);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // check for unresolved fields. This record may be referencing another record
+        if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
+            for (BLangSimpleVariable variable : structureTypeNode.fields) {
+                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
                 if (referencedType == symTable.noType) {
                     if (!this.unresolvedTypes.contains(typeDefinition)) {
                         this.unresolvedTypes.add(typeDefinition);
@@ -1448,8 +1495,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         definedType.flags |= typeDefSymbol.flags;
 
         typeDefinition.symbol = typeDefSymbol;
-
-        if (!typeDefinition.hasCyclicReference) {
+        if (typeDefinition.hasCyclicReference) {
+            // Workaround for https://github.com/ballerina-platform/ballerina-lang/issues/29742
+            typeDefinition.type.tsymbol = typeDefSymbol;
+        } else {
             boolean isLanglibModule = PackageID.isLangLibPackageID(this.env.enclPkg.packageID);
             if (isLanglibModule) {
                 handleLangLibTypes(typeDefinition);
@@ -1463,8 +1512,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
     private void invalidateAlreadyDefinedErrorType(BLangTypeDefinition typeDefinition) {
         // We need to invalidate the already defined type as we don't have a way to undefine it.
-        BTypeSymbol alreadyDefinedTypeSymbol =
-                (BTypeSymbol) symResolver.lookupSymbolInMainSpace(env, names.fromString(typeDefinition.name.value));
+        BSymbol alreadyDefinedTypeSymbol =
+                                symResolver.lookupSymbolInMainSpace(env, names.fromString(typeDefinition.name.value));
         if (alreadyDefinedTypeSymbol.type.tag == TypeTags.ERROR) {
             alreadyDefinedTypeSymbol.type = symTable.errorType;
         }
@@ -1543,18 +1592,18 @@ public class SymbolEnter extends BLangNodeVisitor {
         return definedObjType;
     }
 
-    private BType getCyclicDefinedType(BLangTypeDefinition typeDef) {
+    private BType getCyclicDefinedType(BLangTypeDefinition typeDef, SymbolEnv env) {
         BUnionType unionType = BUnionType.create(null, new LinkedHashSet<>());
         unionType.isCyclic = true;
+        Name typeDefName = names.fromIdNode(typeDef.name);
 
-        var typeDefName = names.fromIdNode(typeDef.name);
-
-        BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.TYPE_DEF, Flags.asMask(typeDef.flagSet),
+        BTypeSymbol typeDefSymbol = Symbols.createTypeSymbol(SymTag.UNION_TYPE, Flags.asMask(typeDef.flagSet),
                 typeDefName, env.enclPkg.symbol.pkgID, unionType, env.scope.owner,
-                typeDef.pos, SOURCE);
-        typeDef.symbol = typeDefSymbol;
+                typeDef.name.pos, SOURCE);
 
+        typeDef.symbol = typeDefSymbol;
         unionType.tsymbol = typeDefSymbol;
+
         // We define the unionType in the main scope here
         if (PackageID.isLangLibPackageID(this.env.enclPkg.packageID)) {
             typeDefSymbol.origin = BUILTIN;
@@ -1562,12 +1611,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         } else {
             defineSymbol(typeDef.name.pos, typeDefSymbol);
         }
+
+        // resolvedUnionWrapper is not the union we need. Resolver tries to create a union for us but only manages to
+        // resolve members as they are defined as user defined types. Since we define the symbol user defined types
+        // gets resolved. We also expect becaue we are calling this API we dont have to call
+        // `markParameterizedType(unionType, memberTypes);` again for resolved members
         BType resolvedUnionWrapper = symResolver.resolveTypeNode(typeDef.typeNode, env);
         // Transform all members from union wrapper to defined union type
         if (resolvedUnionWrapper.tag == TypeTags.UNION) {
             BUnionType definedUnionType = (BUnionType) resolvedUnionWrapper;
-            unionType.tsymbol = definedUnionType.tsymbol;
-            unionType.tsymbol.name = names.fromIdNode(typeDef.name);
+            definedUnionType.tsymbol = typeDefSymbol;
             unionType.flags |= typeDefSymbol.flags;
             for (BType member : definedUnionType.getMemberTypes()) {
                 unionType.add(member);
@@ -1576,6 +1629,7 @@ public class SymbolEnter extends BLangNodeVisitor {
         typeDef.typeNode.type = unionType;
         typeDef.typeNode.type.tsymbol.type = unionType;
         typeDef.symbol.type = unionType;
+        typeDef.type = unionType;
         return unionType;
     }
 
@@ -1923,7 +1977,11 @@ public class SymbolEnter extends BLangNodeVisitor {
             if (varNode.flagSet.contains(Flag.REQUIRED_PARAM) || varNode.flagSet.contains(Flag.DEFAULTABLE_PARAM)) {
                 dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPE_NOT_ALLOWED_FOR_REQUIRED_DEFAULTABLE_PARAMS);
             } else {
-                dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED);
+                if ((env.scope.owner.tag & SymTag.OBJECT) == SymTag.OBJECT) {
+                    dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED);
+                } else {
+                    dlog.error(varNode.pos, DiagnosticErrorCode.NEVER_TYPED_VAR_DEF_NOT_ALLOWED);
+                }
             }
         }
     }
@@ -2225,10 +2283,6 @@ public class SymbolEnter extends BLangNodeVisitor {
                 break;
             case TypeTags.MAP:
                 recordVarType = createSameTypedFieldsRecordType(recordVar, ((BMapType) recordVar.type).constraint, env);
-                break;
-            case TypeTags.ANY:
-            case TypeTags.ANYDATA:
-                recordVarType = createSameTypedFieldsRecordType(recordVar, recordVar.type, env);
                 break;
             default:
                 dlog.error(recordVar.pos, DiagnosticErrorCode.INVALID_RECORD_BINDING_PATTERN, recordVar.type);
@@ -3202,6 +3256,7 @@ public class SymbolEnter extends BLangNodeVisitor {
             return;
         }
 
+        // analyze restFieldType for open records
         for (BLangType typeRef : recordTypeNode.typeRefs) {
             if (typeRef.type.tag != TypeTags.RECORD) {
                 continue;
@@ -3238,23 +3293,29 @@ public class SymbolEnter extends BLangNodeVisitor {
                 })
                 .collect(getFieldCollector());
 
-        List<BType> list = new ArrayList<>();
-        for (BLangType tRef : structureTypeNode.typeRefs) {
-            BType type = tRef.type;
-            list.add(type);
-        }
-        structureType.typeInclusions = list;
-
-        // Resolve and add the fields of the referenced types to this object.
+        // Resolve referenced types and their fields of structural type
         resolveReferencedFields(structureTypeNode, typeDefEnv);
 
+        // collect resolved type refs from structural type
+        structureType.typeInclusions = new ArrayList<>();
+        for (BLangType tRef : structureTypeNode.typeRefs) {
+            BType type = tRef.type;
+            structureType.typeInclusions.add(type);
+        }
+
+        // Add referenced fields of structural type
+        defineReferencedFields(structureType, structureTypeNode, typeDefEnv);
+    }
+
+    private void defineReferencedFields(BStructureType structureType, BLangStructureTypeNode structureTypeNode,
+                                        SymbolEnv typeDefEnv) {
         for (BLangSimpleVariable field : structureTypeNode.referencedFields) {
             defineNode(field, typeDefEnv);
             if (field.symbol.type == symTable.semanticError) {
                 continue;
             }
             structureType.fields.put(field.name.value, new BField(names.fromIdNode(field.name), field.pos,
-                                                                  field.symbol));
+                    field.symbol));
         }
     }
 
@@ -3593,16 +3654,30 @@ public class SymbolEnter extends BLangNodeVisitor {
     private void defineInvokableSymbolParams(BLangInvokableNode invokableNode, BInvokableSymbol invokableSymbol,
                                              SymbolEnv invokableEnv) {
         boolean foundDefaultableParam = false;
+        boolean foundIncludedRecordParam = false;
         List<BVarSymbol> paramSymbols = new ArrayList<>();
         Set<String> requiredParamNames = new HashSet<>();
         invokableNode.clonedEnv = invokableEnv.shallowClone();
         for (BLangSimpleVariable varNode : invokableNode.requiredParams) {
+            boolean isDefaultableParam = varNode.expr != null;
+            boolean isIncludedRecordParam = varNode.flagSet.contains(Flag.INCLUDED);
             defineNode(varNode, invokableEnv);
-            if (varNode.expr != null) {
+            if (isDefaultableParam) {
                 foundDefaultableParam = true;
+            } else if (isIncludedRecordParam) {
+                foundIncludedRecordParam = true;
             }
-            if (varNode.expr == null && foundDefaultableParam) {
-                dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+
+            if (isDefaultableParam) {
+                if (foundIncludedRecordParam) {
+                    dlog.error(varNode.pos, DEFAULTABLE_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM);
+                }
+            } else if (!isIncludedRecordParam) {
+                if (foundDefaultableParam) {
+                    dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_DEFAULTABLE_PARAM);
+                } else if (foundIncludedRecordParam) {
+                    dlog.error(varNode.pos, REQUIRED_PARAM_DEFINED_AFTER_INCLUDED_RECORD_PARAM);
+                }
             }
             BVarSymbol symbol = varNode.symbol;
             if (varNode.expr != null) {
@@ -3730,14 +3805,16 @@ public class SymbolEnter extends BLangNodeVisitor {
         // Create variable symbol
         Scope enclScope = env.scope;
         BVarSymbol varSymbol = createVarSymbol(flagSet, varType, varName, env, pos, isInternal);
-        if (flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
-                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM)) {
-            if (!symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
-                varSymbol.type = symTable.semanticError;
-            }
-        } else if (!symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
+        boolean considerAsMemberSymbol = flagSet.contains(Flag.FIELD) || flagSet.contains(Flag.REQUIRED_PARAM) ||
+                flagSet.contains(Flag.DEFAULTABLE_PARAM) || flagSet.contains(Flag.REST_PARAM) ||
+                flagSet.contains(Flag.INCLUDED);
+
+        if (considerAsMemberSymbol && !symResolver.checkForUniqueMemberSymbol(pos, env, varSymbol)) {
+            varSymbol.type = symTable.semanticError;
+        } else if (!considerAsMemberSymbol && !symResolver.checkForUniqueSymbol(pos, env, varSymbol)) {
             varSymbol.type = symTable.semanticError;
         }
+
         enclScope.define(varSymbol.name, varSymbol);
         return varSymbol;
     }
@@ -3975,11 +4052,32 @@ public class SymbolEnter extends BLangNodeVisitor {
         MarkdownDocAttachment docAttachment = new MarkdownDocAttachment(docNode.getParameters().size());
         docAttachment.description = docNode.getDocumentation();
 
-        docNode.getParameters().forEach(p ->
-                docAttachment.parameters.add(new MarkdownDocAttachment.Parameter(p.parameterName.value,
-                        p.getParameterDocumentation())));
+        for (BLangMarkdownParameterDocumentation p : docNode.getParameters()) {
+            docAttachment.parameters.add(new MarkdownDocAttachment.Parameter(p.parameterName.value,
+                                                                             p.getParameterDocumentation()));
+        }
 
         docAttachment.returnValueDescription = docNode.getReturnParameterDocumentation();
+        BLangMarkDownDeprecationDocumentation deprecatedDocs = docNode.getDeprecationDocumentation();
+
+        if (deprecatedDocs == null) {
+            return docAttachment;
+        }
+
+        docAttachment.deprecatedDocumentation = deprecatedDocs.getDocumentation();
+
+        BLangMarkDownDeprecatedParametersDocumentation deprecatedParamsDocs =
+                docNode.getDeprecatedParametersDocumentation();
+
+        if (deprecatedParamsDocs == null) {
+            return docAttachment;
+        }
+
+        for (BLangMarkdownParameterDocumentation param : deprecatedParamsDocs.getParameters()) {
+            docAttachment.deprecatedParams.add(
+                    new MarkdownDocAttachment.Parameter(param.parameterName.value, param.getParameterDocumentation()));
+        }
+
         return docAttachment;
     }
 
@@ -4055,6 +4153,12 @@ public class SymbolEnter extends BLangNodeVisitor {
             return ((BStructureType) referredType).fields.values().stream().filter(f -> {
                 if (fieldNames.containsKey(f.name.value)) {
                     BLangSimpleVariable existingVariable = fieldNames.get(f.name.value);
+                    if (existingVariable.flagSet.contains(Flag.PUBLIC) !=
+                            Symbols.isFlagOn(f.symbol.flags, Flags.PUBLIC)) {
+                        dlog.error(existingVariable.pos,
+                                DiagnosticErrorCode.MISMATCHED_VISIBILITY_QUALIFIERS_IN_OBJECT_FIELD,
+                                existingVariable.name.value);
+                    }
                     return !types.isAssignable(existingVariable.type, f.type);
                 }
                 return true;

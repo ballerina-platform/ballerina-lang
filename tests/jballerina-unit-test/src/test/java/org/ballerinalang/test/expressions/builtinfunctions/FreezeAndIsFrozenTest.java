@@ -241,7 +241,7 @@ public class FreezeAndIsFrozenTest {
 
     @Test(expectedExceptions = BLangRuntimeException.class,
             expectedExceptionsMessageRegExp = "error: \\{ballerina/lang.xml}XMLOperationError \\{\"message\":" +
-                    "\"Failed to set children to xml element: modification not allowed on readonly value\".*")
+            "\"Failed to set children to xml element: modification not allowed on readonly value\".*")
     public void testFrozenXmlSetChildrenDeep() {
         BRunUtil.invoke(result, "testFrozenXmlSetChildrenDeep", new BValue[0]);
     }
@@ -443,15 +443,10 @@ public class FreezeAndIsFrozenTest {
 
     @Test
     public void testFreezeAndIsFrozenSemanticsNegativeCases() {
-        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 22);
+        Assert.assertEquals(semanticsNegativeResult.getErrorCount(), 20);
         int index = 0;
         validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'PersonObj', found '(ballerina/lang.value:1.0.0:Cloneable & readonly)'"
-                , 19, 19);
-        validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'PersonObj'", 19, 19);
-        validateError(semanticsNegativeResult, index++,
-                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'PersonObj'", 19, 19);
+                "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'PersonObj'", 19, 39);
         validateError(semanticsNegativeResult, index++,
                 "incompatible types: expected 'ballerina/lang.value:1.0.0:Cloneable', found 'map<PersonObj>'", 24, 9);
         validateError(semanticsNegativeResult, index++,

@@ -205,11 +205,8 @@ types:
     seq:
       - id: constraint_type_cp_index
         type: s4
-      - id: has_error_type
-        type: u1
-      - id: error_type_cp_index
+      - id: completion_type_cp_index
         type: s4
-        if: has_error_type == 1
   type_typedesc:
     seq:
       - id: constraint_type_cp_index
@@ -691,6 +688,14 @@ types:
         type: markdown_parameter
         repeat: expr
         repeat-expr: parameters_count
+      - id: deprecated_docs_cp_index
+        type: s4
+      - id: deprecated_params_count
+        type: s4
+      - id: deprecated_params
+        type: markdown_parameter
+        repeat: expr
+        repeat-expr: deprecated_params_count
   markdown_parameter:
     seq:
       - id: name_cp_index
@@ -712,6 +717,8 @@ types:
       - id: type_cp_index
         type: s4
       - id: annotation_attachments_content
+        type: annotation_attachments_content
+      - id: return_type_annotations
         type: annotation_attachments_content
       - id: required_param_count
         type: s4
@@ -1066,6 +1073,7 @@ types:
             'instruction_kind_enum::instruction_kind_new_xml_text': instruction_new_xml_text
             'instruction_kind_enum::instruction_kind_new_xml_comment': instruction_new_xml_comment
             'instruction_kind_enum::instruction_kind_new_xml_pi': instruction_new_xml_process_ins
+            'instruction_kind_enum::instruction_kind_new_xml_sequence': instruction_new_xml_sequence
             'instruction_kind_enum::instruction_kind_new_xml_qname': instruction_new_xml_qname
             'instruction_kind_enum::instruction_kind_new_string_xml_qname': instruction_new_string_xml_qname
             'instruction_kind_enum::instruction_kind_xml_seq_store': instruction_xml_seq_store
@@ -1143,7 +1151,7 @@ types:
         39: instruction_kind_new_xml_text
         40: instruction_kind_new_xml_comment
         41: instruction_kind_new_xml_pi
-        42: instruction_kind_new_xml_seq
+        42: instruction_kind_new_xml_sequence
         43: instruction_kind_new_xml_qname
         44: instruction_kind_new_string_xml_qname
         45: instruction_kind_xml_seq_store
@@ -1563,6 +1571,10 @@ types:
       - id: start_tag_operand
         type: operand
       - id: default_ns_uri_operand
+        type: operand
+  instruction_new_xml_sequence:
+    seq:
+      - id: lhs_operand
         type: operand
   instruction_new_xml_text:
     seq:

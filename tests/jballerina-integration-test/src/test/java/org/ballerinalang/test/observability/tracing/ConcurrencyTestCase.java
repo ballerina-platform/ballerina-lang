@@ -41,7 +41,7 @@ import java.util.stream.Collectors;
 public class ConcurrencyTestCase extends TracingBaseTestCase {
     private static final String FILE_NAME = "05_concurrency.bal";
     private static final String BASE_PATH = "/";
-    private static final String BASE_URL = "http://localhost:9095";
+    private static final String BASE_URL = "http://localhost:19095";
 
     @DataProvider(name = "async-call-data-provider")
     public Object[][] getAsyncCallData() {
@@ -65,7 +65,7 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
         Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, resourceFunctionPosition);
+        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, "/" + resourceName);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
@@ -91,7 +91,9 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.object.name", BASE_PATH),
                     new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
                     new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
@@ -115,7 +117,9 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", asyncCallPosition),
                     asyncCallActionName == null ? null : new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     asyncCallConnectorName == null
                             ? null
                             : new AbstractMap.SimpleEntry<>("src.object.name", asyncCallConnectorName),
@@ -145,7 +149,9 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", callerRespondPosition),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));
@@ -175,7 +181,7 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
         Assert.assertEquals(httpResponse.getData(), "Invocation Successful");
         Thread.sleep(1000);
 
-        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, resourceFunctionPosition);
+        List<BMockSpan> spans = this.getFinishedSpans(BASE_PATH, DEFAULT_MODULE_ID, "/" + resourceName);
         Assert.assertEquals(spans.stream()
                         .map(span -> span.getTags().get("src.position"))
                         .collect(Collectors.toSet()),
@@ -202,7 +208,9 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("http.method", "POST"),
                     new AbstractMap.SimpleEntry<>("protocol", "http"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.object.name", BASE_PATH),
                     new AbstractMap.SimpleEntry<>("listener.name", SERVER_CONNECTOR_NAME),
                     new AbstractMap.SimpleEntry<>("src.resource.accessor", "post"),
@@ -224,7 +232,9 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", workerAPosition),
                     new AbstractMap.SimpleEntry<>("src.worker", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.function.name", workerAName)
             ));
         });
@@ -243,7 +253,9 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", workerBPosition),
                     new AbstractMap.SimpleEntry<>("src.worker", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.function.name", workerBName)
             ));
         });
@@ -262,7 +274,9 @@ public class ConcurrencyTestCase extends TracingBaseTestCase {
                     new AbstractMap.SimpleEntry<>("src.position", callerRespondPosition),
                     new AbstractMap.SimpleEntry<>("src.client.remote", "true"),
                     new AbstractMap.SimpleEntry<>("entrypoint.function.module", DEFAULT_MODULE_ID),
-                    new AbstractMap.SimpleEntry<>("entrypoint.function.position", resourceFunctionPosition),
+                    new AbstractMap.SimpleEntry<>("entrypoint.service.name", BASE_PATH),
+                    new AbstractMap.SimpleEntry<>("entrypoint.function.name", "/" + resourceName),
+                    new AbstractMap.SimpleEntry<>("entrypoint.resource.accessor", "post"),
                     new AbstractMap.SimpleEntry<>("src.object.name", "ballerina/testobserve/Caller"),
                     new AbstractMap.SimpleEntry<>("src.function.name", "respond")
             ));

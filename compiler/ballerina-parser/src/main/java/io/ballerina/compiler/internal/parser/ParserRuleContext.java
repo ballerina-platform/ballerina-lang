@@ -77,6 +77,7 @@ public enum ParserRuleContext {
     RECORD_TYPE_DESCRIPTOR("record-type-desc"),
     TYPE_REFERENCE("type-reference"),
     TYPE_REFERENCE_IN_TYPE_INCLUSION("type-reference-in-type-inclusion"),
+    SIMPLE_TYPE_DESC_IDENTIFIER("simple-type-desc-identifier"),
     ARG_LIST_OPEN_PAREN("("),
     ARG_LIST("arguments"),
     ARG_START("argument-start"),
@@ -213,6 +214,7 @@ public enum ParserRuleContext {
     WORKER_NAME_OR_METHOD_NAME("worker-name-or-method-name"),
     PEER_WORKER_NAME("peer-worker-name"),
     TYPE_DESC_IN_TUPLE_RHS("type-desc-in-tuple-rhs"),
+    TUPLE_TYPE_MEMBER_RHS("tuple-type-member-rhs"),
     NIL_OR_PARENTHESISED_TYPE_DESC_RHS("nil-or-parenthesised-tpe-desc-rhs"),
     REMOTE_CALL_OR_ASYNC_SEND_RHS("remote-call-or-async-send-rhs"),
     REMOTE_CALL_OR_ASYNC_SEND_END("remote-call-or-async-send-end"),
@@ -513,8 +515,8 @@ public enum ParserRuleContext {
     ELVIS("?:"),
 
     // Other terminals
-    FUNC_NAME("function-name"),
-    VARIABLE_NAME("variable"),
+    FUNC_NAME("func-name"),
+    VARIABLE_NAME("variable-name"),
     SIMPLE_TYPE_DESCRIPTOR("simple-type-desc"),
     BINARY_OPERATOR("binary-operator"),
     TYPE_NAME("type-name"),

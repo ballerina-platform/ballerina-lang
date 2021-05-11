@@ -72,7 +72,8 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
 
     private List<LSCompletionItem> getClassBodyCompletions(BallerinaCompletionContext context, ObjectFieldNode node) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
-        
+        NonTerminalNode nodeAtCursor = context.getNodeAtCursor();
+
         if (this.onResourceMethodDef(context, node)) {
             /*
             Covers the following when the cursor is within a service body
@@ -83,6 +84,13 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
             completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
             
             return completionItems;
+        }
+        
+        if (QNameReferenceUtil.onQualifiedNameIdentifier(context, nodeAtCursor)) {
+            QualifiedNameReferenceNode qNameRef = (QualifiedNameReferenceNode) nodeAtCursor;
+            List<Symbol> typesInModule = QNameReferenceUtil.getTypesInModule(context, qNameRef);
+            
+            return this.getCompletionItemList(typesInModule, context);
         }
 
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_PRIVATE.get()));
@@ -100,6 +108,9 @@ public class ObjectFieldNodeContext extends AbstractCompletionProvider<ObjectFie
         }
         if (ClassDefinitionNodeContextUtil.onSuggestResourceSnippet(node.parent())) {
             completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_RESOURCE_FUNCTION_SIGNATURE.get()));
+        }
+        if (ClassDefinitionNodeContextUtil.onSuggestInitFunction(node.parent())) {
+            completionItems.add(new SnippetCompletionItem(context, Snippet.DEF_INIT_FUNCTION.get()));
         }
         // We need to add the function keyword also. That is being covered with #getTypeItems
         completionItems.add(new SnippetCompletionItem(context, Snippet.KW_ISOLATED.get()));

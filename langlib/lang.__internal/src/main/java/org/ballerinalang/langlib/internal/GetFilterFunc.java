@@ -30,11 +30,6 @@ import java.util.List;
  *
  * @since 1.2.0
  */
-//@BallerinaFunction(
-//        orgName = "ballerina", packageName = "lang.__internal", functionName = "getFilterFunc",
-//        args = {@Argument(name = "func", type = TypeKind.ANY)},
-//        returnType = {@ReturnType(type = TypeKind.FUNCTION)}
-//)
 public class GetFilterFunc {
 
     public static BFunctionPointer getFilterFunc(Object obj) {

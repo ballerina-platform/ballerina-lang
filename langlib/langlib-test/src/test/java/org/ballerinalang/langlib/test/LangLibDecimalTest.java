@@ -296,4 +296,9 @@ public class LangLibDecimalTest {
                 { "-504023030303030303030.3030303", "-504023030303030303030.3030303"}
         };
     }
+
+    @Test
+    public void testFromStringWithStringArg() {
+        BRunUtil.invoke(compileResult, "testFromStringWithStringArg");
+    }
 }

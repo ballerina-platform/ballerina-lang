@@ -486,14 +486,17 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     private BVarSymbol getMapSymbol(BLangNode node) {
-        if (node.getKind() == NodeKind.BLOCK_FUNCTION_BODY) {
-            return ((BLangBlockFunctionBody) node).mapSymbol;
-        } else if (node.getKind() == NodeKind.BLOCK) {
-            return ((BLangBlockStmt) node).mapSymbol;
-        } else if (node.getKind() == NodeKind.FUNCTION) {
-            return ((BLangFunction) node).mapSymbol;
+        switch (node.getKind()) {
+            case BLOCK_FUNCTION_BODY:
+                return ((BLangBlockFunctionBody) node).mapSymbol;
+            case BLOCK:
+                return ((BLangBlockStmt) node).mapSymbol;
+            case FUNCTION:
+            case RESOURCE_FUNC:
+                return ((BLangFunction) node).mapSymbol;
+            default:
+                return CLOSURE_MAP_NOT_FOUND;
         }
-        return CLOSURE_MAP_NOT_FOUND;
     }
 
     @Override
@@ -814,7 +817,7 @@ public class ClosureDesugar extends BLangNodeVisitor {
     @Override
     public void visit(BLangErrorConstructorExpr errorConstructorExpr) {
         rewriteExprs(errorConstructorExpr.positionalArgs);
-        rewriteExprs(errorConstructorExpr.namedArgs);
+        rewriteExpr(errorConstructorExpr.errorDetail);
         result = errorConstructorExpr;
     }
 
@@ -1491,8 +1494,9 @@ public class ClosureDesugar extends BLangNodeVisitor {
     }
 
     @Override
-    public void visit(BLangXMLSequenceLiteral bLangXMLSequenceLiteral) {
-        result = bLangXMLSequenceLiteral;
+    public void visit(BLangXMLSequenceLiteral xmlSequenceLiteral) {
+        xmlSequenceLiteral.xmlItems.forEach(this::rewriteExpr);
+        result = xmlSequenceLiteral;
     }
 
     @Override

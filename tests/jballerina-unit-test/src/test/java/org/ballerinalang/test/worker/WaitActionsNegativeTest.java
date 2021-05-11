@@ -20,8 +20,6 @@ import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.CompileResult;
 import org.testng.Assert;
-import org.testng.annotations.AfterClass;
-import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 /**
@@ -31,15 +29,9 @@ import org.testng.annotations.Test;
  */
 public class WaitActionsNegativeTest {
 
-    private CompileResult resultNegative;
-
-    @BeforeClass
-    public void setup() {
-        this.resultNegative = BCompileUtil.compile("test-src/workers/wait-actions-negative.bal");
-    }
-
     @Test(description = "Test negative scenarios of worker actions")
     public void testNegativeWorkerActions() {
+        CompileResult resultNegative = BCompileUtil.compile("test-src/workers/wait-actions-negative.bal");
         int index = 0;
         Assert.assertEquals(resultNegative.getErrorCount(), 20, "Wait actions negative test error count");
         BAssertUtil.validateError(resultNegative, index++,
@@ -90,8 +82,33 @@ public class WaitActionsNegativeTest {
                 "incompatible types: expected 'future<string>', found 'future<int>'", 90, 54);
     }
 
-    @AfterClass
-    public void tearDown() {
-        resultNegative = null;
+    @Test
+    public void testWorkerMessagePassingAfterWaitNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/after-wait-action-negative.bal");
+        int index = 0;
+        String expectedErrMsg = "invalid worker message passing after waiting for the same worker";
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 22, 13);
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 33, 17);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 41, 13);
+        BAssertUtil.validateError(result, index++, "worker interactions are only allowed between peers", 44, 13);
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 50, 17);
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 51, 13);
+        BAssertUtil.validateError(result, index++, expectedErrMsg, 61, 25);
+
+        Assert.assertEquals(result.getErrorCount(), index);
+    }
+
+    @Test
+    public void testWaitCausingADeadlockNegative() {
+        CompileResult result = BCompileUtil.compile("test-src/workers/wait-deadlock-negative.bal");
+        int index = 0;
+        String msg = "worker send/receive interactions are invalid; worker(s) cannot move onwards from the state: '%s'";
+        BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, FINISHED]"), 19, 14);
+        BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, wait x, FINISHED]"), 29, 14);
+        BAssertUtil.validateError(result, index++, String.format(msg, "[wait w2,  <- w, wait w1, FINISHED]"), 43, 14);
+        BAssertUtil.validateError(result, index++, String.format(msg, "[wait v, wait w, wait x, FINISHED]"), 61, 18);
+        BAssertUtil.validateError(result, index++,
+                String.format(msg, "[wait vi, wait wi, wait xi, FINISHED, FINISHED]"), 78, 23);
+        Assert.assertEquals(result.getErrorCount(), index);
     }
 }

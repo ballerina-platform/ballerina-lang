@@ -18,23 +18,36 @@ type HelloWorld service object {
     remote function sayHello() returns string;
 };
 
-service HelloWorld /foo/bar on new Listener() {
+@v1 {
+    foo: "annot on service"
+}
+service HelloWorld /foo/bar on new Listener({
+                                                host: "pop.example.com",
+                                                username: "abc@example.com",
+                                                password: "pass123",
+                                                pollingInterval: 2,
+                                                port: 995
+                                            }) {
 
     public string greeting = "Hello World!";
 
     resource function get greet/[int x]/hello/[float y]/[string... rest] () returns json => { output: self.greeting };
 
     resource function delete pets () returns record{|Error body;|} {
+        return {body:{id: 10, code: "FailedToDelete"}};
     }
 
-    remote function sayHello() return string => self.greeting;
+    remote function sayHello() returns string => self.greeting;
 
     function createError() returns @tainted error? => ();
 }
 
 public class Listener {
 
-    public function start() returns error? {
+    public function init(PopListenerConfiguration config) {
+    }
+
+    public function 'start() returns error? {
     }
 
     public function gracefulStop() returns error? {
@@ -54,3 +67,18 @@ type Error record {
     int id;
     string code;
 };
+
+type Annot record {
+    string foo;
+    int bar?;
+};
+
+public const annotation Annot v1 on source service;
+
+public type PopListenerConfiguration record {|
+    string host;
+    string username;
+    string password;
+    decimal pollingInterval = 60;
+    int port = 995;
+|};

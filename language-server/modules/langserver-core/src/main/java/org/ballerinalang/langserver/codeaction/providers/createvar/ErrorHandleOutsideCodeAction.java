@@ -36,8 +36,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import static org.ballerinalang.langserver.codeaction.CodeActionUtil.getAddCheckTextEdits;
-
 /**
  * Code Action for error type handle.
  *
@@ -45,6 +43,9 @@ import static org.ballerinalang.langserver.codeaction.CodeActionUtil.getAddCheck
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
+
+    public static final String NAME = "Error Handle Outside";
+
     /**
      * {@inheritDoc}
      */
@@ -80,12 +81,18 @@ public class ErrorHandleOutsideCodeAction extends CreateVariableCodeAction {
         }
         List<TextEdit> edits = new ArrayList<>();
         edits.addAll(getModifiedCreateVarTextEdits(diagnostic, unionTypeDesc, positionDetails,
-                                                   typeSymbol.get(), context));
-        edits.addAll(getAddCheckTextEdits(CommonUtil.toRange(diagnostic.location().lineRange()).getStart(),
-                                          positionDetails.matchedNode(), context));
+                typeSymbol.get(), context));
+        edits.addAll(CodeActionUtil.getAddCheckTextEdits(
+                CommonUtil.toRange(diagnostic.location().lineRange()).getStart(),
+                positionDetails.matchedNode(), context));
 
         String commandTitle = CommandConstants.CREATE_VAR_ADD_CHECK_TITLE;
         return Collections.singletonList(AbstractCodeActionProvider.createQuickFixCodeAction(commandTitle, edits, uri));
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     private List<TextEdit> getModifiedCreateVarTextEdits(Diagnostic diagnostic,

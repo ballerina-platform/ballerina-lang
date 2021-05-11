@@ -35,7 +35,7 @@ public class QueryNegativeTests {
     @Test
     public void testFromClauseWithInvalidType() {
         CompileResult compileResult = BCompileUtil.compile("test-src/query/query-negative.bal");
-        Assert.assertEquals(compileResult.getErrorCount(), 26);
+        Assert.assertEquals(compileResult.getErrorCount(), 31);
         int index = 0;
 
         validateError(compileResult, index++, "incompatible types: expected 'Person', found 'Teacher'",
@@ -71,8 +71,14 @@ public class QueryNegativeTests {
                 "but found 'int'", 401, 22);
         validateError(compileResult, index++, "invalid constraint type. expected subtype of 'map<any|error>' " +
                 "but found 'int'", 411, 22);
-        validateError(compileResult, index, "incompatible types: expected 'error?', found 'stream<record {| int a; " +
-                "|},error>'", 415, 12);
+        validateError(compileResult, index++, "incompatible types: 'int' is not an iterable collection",
+                416, 29);
+        validateError(compileResult, index++, "incompatible types: expected 'error?', " +
+                        "found 'stream<record {| int a; |},error>'", 421, 12);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'anydata'", 426, 22);
+        validateError(compileResult, index++, "undefined symbol 'k'", 427, 25);
+        validateError(compileResult, index++, "invalid record binding pattern with type 'any'", 432, 22);
+        validateError(compileResult, index, "undefined symbol 'k'", 433, 25);
     }
 
     @Test

@@ -23,5 +23,5 @@ package io.ballerina.compiler.api.symbols;
  * @since 2.0.0
  */
 public enum ParameterKind {
-    REQUIRED, DEFAULTABLE, REST
+    REQUIRED, DEFAULTABLE, INCLUDED_RECORD, REST
 }

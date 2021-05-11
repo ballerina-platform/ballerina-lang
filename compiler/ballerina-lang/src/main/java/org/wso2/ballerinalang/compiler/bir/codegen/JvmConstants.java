@@ -17,6 +17,12 @@
  */
 package org.wso2.ballerinalang.compiler.bir.codegen;
 
+import org.ballerinalang.model.elements.PackageID;
+import org.wso2.ballerinalang.compiler.util.Name;
+import org.wso2.ballerinalang.compiler.util.Names;
+
+import static org.wso2.ballerinalang.compiler.util.Names.DEFAULT_VERSION;
+
 /**
  * JVM bytecode generation related constants.
  *
@@ -162,6 +168,7 @@ public class JvmConstants {
     public static final String STRAND_STATE = "io/ballerina/runtime/internal/scheduling/State";
     public static final String VALUE_CREATOR = "io/ballerina/runtime/internal/values/ValueCreator";
     public static final String XML_FACTORY = "io/ballerina/runtime/internal/XmlFactory";
+    public static final String XML_SEQUENCE = "io/ballerina/runtime/internal/values/XmlSequence";
     public static final String WD_CHANNELS = "io/ballerina/runtime/internal/scheduling/WDChannels";
     public static final String WORKER_DATA_CHANNEL = "io/ballerina/runtime/internal/scheduling/WorkerDataChannel";
     public static final String CHANNEL_DETAILS = "io/ballerina/runtime/internal/values/ChannelDetails";
@@ -265,6 +272,8 @@ public class JvmConstants {
     public static final String TYPEDESC_CLASS_PREFIX = "$typedesc$";
     public static final String BALLERINA = "ballerina";
     public static final String ENCODED_DOT_CHARACTER = "$0046";
+    public static final PackageID DEFAULT = new PackageID(Names.ANON_ORG, new Name(ENCODED_DOT_CHARACTER),
+                                                          DEFAULT_VERSION);
     public static final String BUILT_IN_PACKAGE_NAME = "lang" + ENCODED_DOT_CHARACTER + "annotations";
     public static final String MODULE_START_ATTEMPTED = "$moduleStartAttempted";
     public static final String MODULE_STARTED = "$moduleStarted";
@@ -302,6 +311,7 @@ public class JvmConstants {
     public static final String CREATE_RECORD_VALUE = "createRecordValue";
     public static final String CREATE_OBJECT_VALUE = "createObjectValue";
     public static final String CREATE_ERROR_VALUE = "createErrorValue";
+    public static final String GET_ANON_TYPE = "getAnonType";
 
     // strand data related constants
     public static final String STRAND = "strand";

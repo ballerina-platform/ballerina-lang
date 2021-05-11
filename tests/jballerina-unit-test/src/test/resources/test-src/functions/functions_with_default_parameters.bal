@@ -122,18 +122,21 @@ function testCombinedExprAsDefaultValue() returns [[int, string, float], [int, s
     return [a, b, c];
 }
 
-function foo2(int a = getInt() + 5 + getInt(), string b = "def" + getString(), float c = getFloat() + getInt()) returns [int, string, float] {
+function foo2(int a = getInt() + 5 + getInt(), string b = "def" + getString(), float c = getFloat() + <float>getInt())
+returns [int, string, float] {
     return [a, b, c];
 }
 
 // Test 5
-function testDefaultValueWithError() returns [error, error, error] {
+function testDefaultValueWithError() {
     GLB = 0;
     error e1 = foo3();
     GLB = 1;
     error e2 = foo3();
     error e3 = foo3(a = 2);
-    return [e1, e2, e3];
+    assertEquality(e1.message(), "Generated Error");
+    assertEquality(e2.message(), "Not Error 100");
+    assertEquality(e3.message(), "Not Error 2");
 }
 
 function foo3(int|error a = getIntOrError(GLB)) returns error {
@@ -237,18 +240,6 @@ function testUsingParamValuesInAttachedFunc() returns string {
 public function sleep(int millis) = @java:Method {
     'class: "org.ballerinalang.test.utils.interop.Utils"
 } external;
-
-function getError() returns error {
-    return error("Generated Error");
-}
-
-public function functionWithErrorNamedDefaultArgument(error 'error = getError()) {
-    assertEquality('error.toString(), "error(\"Generated Error\")");
-}
-
-public function testErrorNamedDefaultArgument() {
-    functionWithErrorNamedDefaultArgument();
-}
 
 const ASSERTION_ERROR_REASON = "AssertionError";
 

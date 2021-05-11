@@ -20,14 +20,15 @@ import io.ballerina.compiler.api.symbols.Qualifier;
 import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.syntax.tree.ActionNode;
 import io.ballerina.compiler.syntax.tree.ExpressionNode;
-import io.ballerina.compiler.syntax.tree.Node;
 import org.ballerinalang.langserver.common.utils.CommonUtil;
 import org.ballerinalang.langserver.common.utils.SymbolUtil;
 import org.ballerinalang.langserver.commons.BallerinaCompletionContext;
 import org.ballerinalang.langserver.commons.completion.LSCompletionItem;
 import org.ballerinalang.langserver.completions.SnippetCompletionItem;
 import org.ballerinalang.langserver.completions.providers.AbstractCompletionProvider;
+import org.ballerinalang.langserver.completions.util.ContextTypeResolver;
 import org.ballerinalang.langserver.completions.util.Snippet;
 
 import java.util.ArrayList;
@@ -41,17 +42,18 @@ import java.util.stream.Collectors;
  * @param <T> Action node type
  * @since 2.0.0
  */
-public abstract class RightArrowActionNodeContext<T extends Node> extends AbstractCompletionProvider<T> {
+public abstract class RightArrowActionNodeContext<T extends ActionNode> extends AbstractCompletionProvider<T> {
 
     public RightArrowActionNodeContext(Class<T> attachmentPoint) {
         super(attachmentPoint);
     }
 
-    protected List<LSCompletionItem> getFilteredItems(BallerinaCompletionContext context, ExpressionNode node) {
+    protected List<LSCompletionItem> getFilteredItems(BallerinaCompletionContext context, T node,
+                                                      ExpressionNode expressionNode) {
         List<LSCompletionItem> completionItems = new ArrayList<>();
         List<Symbol> visibleSymbols = context.visibleSymbols(context.getCursorPosition());
-        Optional<TypeSymbol> expressionType = context.currentSemanticModel()
-                .flatMap(semanticModel -> semanticModel.type(node));
+        ContextTypeResolver resolver = new ContextTypeResolver(context);
+        Optional<TypeSymbol> expressionType = expressionNode.apply(resolver);
 
         if (expressionType.isPresent() && SymbolUtil.isClient(expressionType.get())) {
             /*
@@ -70,7 +72,7 @@ public abstract class RightArrowActionNodeContext<T extends Node> extends Abstra
                     .filter(symbol -> symbol.kind() == SymbolKind.WORKER)
                     .collect(Collectors.toList());
             completionItems.addAll(this.getCompletionItemList(filteredWorkers, context));
-            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_DEFAULT.get()));
+            completionItems.add(new SnippetCompletionItem(context, Snippet.KW_FUNCTION.get()));
         }
 
         return completionItems;

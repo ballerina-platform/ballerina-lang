@@ -1,3 +1,2 @@
-[myOrg.test_module]
 intVar = 12
 stringVar = "this gets overridden"

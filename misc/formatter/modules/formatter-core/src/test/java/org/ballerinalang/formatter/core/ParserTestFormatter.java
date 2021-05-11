@@ -70,6 +70,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "doc_source_21.bal", // issue #28172
 
                 "service_decl_source_02.bal", "service_decl_source_05.bal", "service_decl_source_17.bal",
+                "service_decl_source_20.bal",
 
                 // parser tests with syntax errors that cannot be handled by the formatter
                 "worker_decl_source_03.bal", "worker_decl_source_05.bal", "invalid_identifier_source_01.bal",
@@ -133,6 +134,7 @@ public class ParserTestFormatter extends FormatterTest {
                 "assignment_stmt_source_11.bal", "assignment_stmt_source_10.bal", "assignment_stmt_source_14.bal",
                 "match_stmt_source_09.bal", "match_stmt_source_13.bal", "match_stmt_source_04.bal",
                 "match_stmt_source_15.bal", "match_stmt_source_03.bal", "match_stmt_source_16.bal",
+                "match_stmt_source_06.bal", "match_stmt_source_07.bal", "match_stmt_source_11.bal",
                 "object_constructor_source_09.bal", "object-constructor-with-methods.bal",
                 "object_constructor_source_05.bal", "object_constructor_source_04.bal",
                 "object_constructor_source_06.bal", "object_constructor_source_07.bal",
@@ -152,7 +154,6 @@ public class ParserTestFormatter extends FormatterTest {
                 "send_action_source_03.bal", "send_action_source_04.bal", "start_action_source_02.bal",
                 "flush_action_source_02.bal", "ambiguity_source_06.bal", "typed_binding_patterns_source_22.bal",
                 "resiliency_source_03.bal", "module_var_decl_source_10.bal", "error_binding_pattern_source_03.bal",
-                "match_stmt_source_06.bal", "match_stmt_source_07.bal", "match_stmt_source_11.bal",
                 "receive_action_source_02.bal", "receive_action_source_03.bal", "module_var_decl_source_15.bal",
                 "annot_decl_source_02.bal", "do_stmt_source_08.bal", "func_params_source_11.bal",
                 "predeclared-module-prefix_02.bal", "object_type_def_source_44.bal", "record_type_def_source_27.bal",

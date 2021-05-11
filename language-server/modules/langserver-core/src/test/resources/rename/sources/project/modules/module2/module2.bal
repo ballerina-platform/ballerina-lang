@@ -47,3 +47,6 @@ public function getPeople() returns Person[] {
 public function addPerson(Person p) {
     people.push(p);
 }
+
+# Directory path
+public string directoryPath = "/";

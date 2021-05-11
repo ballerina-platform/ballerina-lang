@@ -22,7 +22,6 @@ import io.ballerina.compiler.api.SemanticModel;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
 import io.ballerina.compiler.api.symbols.FunctionTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
-import io.ballerina.compiler.api.symbols.SymbolKind;
 import io.ballerina.compiler.syntax.tree.FunctionCallExpressionNode;
 import io.ballerina.runtime.api.utils.IdentifierUtils;
 import org.ballerinalang.debugadapter.DebugSourceType;
@@ -31,6 +30,7 @@ import org.ballerinalang.debugadapter.evaluation.BExpressionValue;
 import org.ballerinalang.debugadapter.evaluation.EvaluationException;
 import org.ballerinalang.debugadapter.evaluation.EvaluationExceptionKind;
 import org.ballerinalang.debugadapter.evaluation.IdentifierModifier;
+import org.ballerinalang.debugadapter.evaluation.engine.invokable.GeneratedStaticMethod;
 import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
 import java.util.List;
@@ -39,6 +39,7 @@ import java.util.Optional;
 import java.util.StringJoiner;
 import java.util.stream.Collectors;
 
+import static io.ballerina.compiler.api.symbols.SymbolKind.FUNCTION;
 import static org.ballerinalang.debugadapter.evaluation.IdentifierModifier.encodeModuleName;
 import static org.ballerinalang.debugadapter.evaluation.engine.InvocationArgProcessor.generateNamedArgs;
 import static org.ballerinalang.debugadapter.utils.PackageUtils.BAL_FILE_EXT;
@@ -77,7 +78,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
             FunctionTypeSymbol functionTypeDesc = functionDef.get().typeDescriptor();
             Map<String, Value> argValueMap = generateNamedArgs(context, functionName, functionTypeDesc, argEvaluators);
             jvmMethod.setNamedArgValues(argValueMap);
-            Value result = jvmMethod.invoke();
+            Value result = jvmMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } catch (EvaluationException e) {
             throw e;
@@ -91,7 +92,7 @@ public class FunctionInvocationExpressionEvaluator extends Evaluator {
         SemanticModel semanticContext = context.getDebugCompiler().getSemanticInfo();
         List<Symbol> functionMatches = semanticContext.moduleSymbols()
                 .stream()
-                .filter(symbol -> symbol.kind() == SymbolKind.FUNCTION
+                .filter(symbol -> symbol.kind() == FUNCTION && symbol.getName().isPresent()
                         && modifyName(symbol.getName().get()).equals(functionName))
                 .collect(Collectors.toList());
         if (functionMatches.isEmpty()) {

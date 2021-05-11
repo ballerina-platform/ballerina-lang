@@ -147,8 +147,8 @@ function testSimpleTypeAccessOnFunctionPointer() {
     var updateVariables = function () {
         booleanVar = true;
         intVar += 1;
-        floatVar += 2;
-        decimalVar += 3;
+        floatVar += 2.0;
+        decimalVar += 3d;
         stringVar = "updated_test_string";
     };
 
@@ -172,4 +172,48 @@ function assertEquality(any|error expected, any|error actual) {
     string actualValAsString = actual is error ? actual.toString() : actual.toString();
     panic error(ASSERTION_ERR_REASON,
                 message = "expected '" + expectedValAsString + "', found '" + actualValAsString + "'");
+}
+
+type R record {| int x; |};
+
+public function testAccessOnGroupedExpressions() returns error|boolean {
+    boolean result = true;
+
+    // access on checked, cast expressions
+    R a = {x: 3};
+    R|error b = a;
+    any c = a;
+    R d = (check b);
+    int e = (check b).x;
+    int f = (<R>c).x;
+    int g = castAndGetX(c);
+    result = result && e == 3;
+    result = result && f == 3;
+    result = result && g == 3;
+
+    // access on int range expressions
+    record {| int value; |}? h = (1 ..< 5).iterator().next();
+    if (!(h is ())) {
+        int val = h.value;
+        result = result && val == 1;
+    } else {
+        result = false;
+    }
+
+    // access on unary, binary, ternary expressions
+    string s = (!false).toString();
+    s = (s == "true" && !false).toString();
+    s = (s == "true" ? true : false).toString();
+    result = result && s == "true";
+
+    // access on raw template expressions
+    string name = "john";
+    int l = (`Hello ${name}!`).strings.length();
+    result = result && l == 2;
+    return result;
+}
+
+function castAndGetX(any a) returns int {
+    // access on cast expressions
+    return (<R>a).x;
 }

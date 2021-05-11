@@ -170,9 +170,18 @@ public class LangLibXMLTest {
     @Test
     public void testGetContent() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGetContent");
-        assertEquals((returns[0]).stringValue(), "hello world");
-        assertEquals((returns[1]).stringValue(), "type=\"cont\"");
-        assertEquals((returns[2]).stringValue(), " this is a comment text ");
+        assertEquals((returns[0]).stringValue(), "type=\"cont\"");
+        assertEquals((returns[1]).stringValue(), " this is a comment text ");
+    }
+
+    @Test
+    public void xmlGetContentOverACommentSequence() {
+        BRunUtil.invoke(compileResult, "testXmlGetContentOverACommentSequence");
+    }
+
+    @Test
+    public void xmlGetContentOverAProcessingInstructionSequence() {
+        BRunUtil.invoke(compileResult, "testXmlGetContentOverAProcInstructionSequence");
     }
 
     @Test
@@ -232,6 +241,11 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXMLStrip() {
+        BRunUtil.invoke(compileResult, "testXMLStrip");
+    }
+
+    @Test
     public void testGet() {
         BValue[] returns = BRunUtil.invoke(compileResult, "testGet");
         assertEquals(returns[0].stringValue(), "<elem/>");
@@ -282,8 +296,23 @@ public class LangLibXMLTest {
     }
 
     @Test
+    public void testXmlFilter() {
+        BRunUtil.invoke(compileResult, "testXmlFilter");
+    }
+
+    @Test
     public void testGetDescendants() {
         BRunUtil.invoke(compileResult, "testGetDescendants");
+    }
+
+    @Test
+    public void testData() {
+        BRunUtil.invoke(compileResult, "testData");
+    }
+
+    @Test
+    public void fromStringTest() {
+        BRunUtil.invoke(compileResult, "fromStringTest");
     }
 
     @Test
@@ -298,8 +327,10 @@ public class LangLibXMLTest {
         validateError(negativeResult, i++, "incompatible types: expected 'xml:ProcessingInstruction', found 'xml'",
                 56, 8);
         validateError(negativeResult, i++, "incompatible types: expected " +
-                "'(xml:Text|xml:ProcessingInstruction|xml:Comment)', found 'xml:Element'", 61, 12);
+                "'(xml:ProcessingInstruction|xml:Comment)', found 'xml:Element'", 61, 12);
         validateError(negativeResult, i++, "incompatible types: expected 'xml:Element', found 'xml'", 69, 13);
+        validateError(negativeResult, i++, "incompatible types: expected 'xml<xml:Element>', found 'xml'",
+                75, 28);
         assertEquals(negativeResult.getErrorCount(), i);
     }
 

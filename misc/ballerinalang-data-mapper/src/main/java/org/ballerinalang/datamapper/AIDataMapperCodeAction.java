@@ -42,13 +42,15 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
 
-import static org.ballerinalang.datamapper.AIDataMapperCodeActionUtil.getAIDataMapperCodeActionEdits;
 
 /**
  * Code Action provider for automatic data mapping.
  */
 @JavaSPIService("org.ballerinalang.langserver.commons.codeaction.spi.LSCodeActionProvider")
 public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
+
+    public static final String NAME = "AI Data Mapper";
+
     /**
      * {@inheritDoc}
      */
@@ -61,6 +63,11 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
             getAIDataMapperCommand(diagnostic, positionDetails, context).map(actions::add);
         }
         return actions;
+    }
+
+    @Override
+    public String getName() {
+        return NAME;
     }
 
     /**
@@ -97,7 +104,9 @@ public class AIDataMapperCodeAction extends AbstractCodeActionProvider {
                 action.setKind(CodeActionKind.QuickFix);
 
                 String uri = context.fileUri();
-                List<TextEdit> fEdits = getAIDataMapperCodeActionEdits(positionDetails, context, diagnostic);
+                AIDataMapperCodeActionUtil dataMapperUtil = AIDataMapperCodeActionUtil.getInstance();
+                List<TextEdit> fEdits = dataMapperUtil.getAIDataMapperCodeActionEdits(positionDetails, context,
+                        diagnostic);
                 if (fEdits.isEmpty()) {
                     return Optional.empty();
                 }

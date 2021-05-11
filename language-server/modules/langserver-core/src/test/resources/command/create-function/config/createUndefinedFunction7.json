@@ -28,7 +28,7 @@
                     "character": 0
                   }
                 },
-                "newText": "\n\nfunction partition(string a, string b, function (string) returns boolean c) returns string[][][] {\n    \n    return [[[]]];\n}\n"
+                "newText": "\n\nfunction partition(string a, string b, function (string) returns boolean c) returns string[][][] {\n    return [[[]]];\n}\n"
               }
             ]
           }

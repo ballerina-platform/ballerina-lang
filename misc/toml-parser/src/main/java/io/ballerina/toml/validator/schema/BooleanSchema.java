@@ -25,10 +25,10 @@ import java.util.Map;
  *
  * @since 2.0.0
  */
-public class BooleanSchema extends AbstractSchema {
+public class BooleanSchema extends PrimitiveValueSchema<Boolean> {
 
-    public BooleanSchema(Type type, Map<String, String> message) {
-        super(type, message);
+    public BooleanSchema(Type type, Map<String, String> message, Boolean defaultValue) {
+        super(type, message, defaultValue);
     }
 
     @Override

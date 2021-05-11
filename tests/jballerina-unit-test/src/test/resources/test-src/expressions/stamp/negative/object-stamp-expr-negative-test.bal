@@ -13,7 +13,7 @@
 // KIND, either express or implied.  See the License for the
 // specific language governing permissions and limitations
 // under the License.
-
+import ballerina/lang.value;
 class PersonObj {
     public int age = 10;
     public string name = "mohan";
@@ -82,42 +82,42 @@ type Teacher record {
 
 function stampObjectsToRecord() returns Employee|error {
     PersonObj p = new PersonObj();
-    Employee|error employee = p.cloneWithType(Employee);
+    Employee|error employee = value:cloneWithType(p, Employee);
 
     return employee;
 }
 
 function stampObjectsToJSON() returns json|error {
     PersonObj p = new PersonObj();
-    json|error jsonValue = p.cloneWithType(json);
+    json|error jsonValue = value:cloneWithType(p, json);
 
     return jsonValue;
 }
 
 function stampObjectsToXML() returns xml|error {
     PersonObj p = new PersonObj();
-    xml|error xmlValue = p.cloneWithType(xml);
+    xml|error xmlValue = value:cloneWithType(p, XmlType);
 
     return xmlValue;
 }
 
 function stampObjectsToMap() returns map<any>|error {
     PersonObj p = new PersonObj();
-    map<any>|error mapValue = p.cloneWithType(AnyMap);
+    map<any>|error mapValue = value:cloneWithType(p, AnyMap);
 
     return mapValue;
 }
 
 function stampObjectsToArray() returns any[]|error {
     PersonObj p = new PersonObj();
-    any[]|error anyValue = p.cloneWithType(AnyArray);
+    any[]|error anyValue = value:cloneWithType(p, AnyArray);
 
     return anyValue;
 }
 
 function stampObjectsToTuple() returns [int,string]|error {
     PersonObj p = new PersonObj();
-    [int, string]|error tupleValue = p.cloneWithType(IntString);
+    [int, string]|error tupleValue = value:cloneWithType(p, IntString);
 
     return tupleValue;
 }
@@ -178,3 +178,4 @@ function stampTupleToObject() returns EmployeeObj|error {
 type AnyMap map<any>;
 type IntString [int, string];
 type AnyArray any[];
+type XmlType xml;

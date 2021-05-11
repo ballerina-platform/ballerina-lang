@@ -25,7 +25,7 @@ import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 
 import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -55,6 +55,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     public static final String MINIMUM = "minimum";
     public static final String MAXIMUM = "maximum";
     public static final String MESSAGE = "message";
+    public static final String DEFAULT_VALUE = "default";
 
     @Override
     public AbstractSchema deserialize(JsonElement jsonElement, java.lang.reflect.Type refType,
@@ -74,7 +75,8 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
                 return getStringSchema(jsonObj);
             case BOOLEAN:
                 Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
-                return new BooleanSchema(Type.BOOLEAN, customMessages);
+                Boolean defaultValue = parseOptionalBooleanFromJson(jsonObj, DEFAULT_VALUE);
+                return new BooleanSchema(Type.BOOLEAN, customMessages, defaultValue);
             default:
                 throw new JsonSchemaException(type + " is not supported type in json schema");
         }
@@ -90,7 +92,7 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
         boolean additionalProperties = parseOptionalBooleanFromJson(jsonObj, ADDITIONAL_PROPERTIES);
         JsonObject properties = jsonObj.get(PROPERTIES).getAsJsonObject();
         Set<Map.Entry<String, JsonElement>> entries = properties.entrySet();
-        Map<String, AbstractSchema> propertiesList = new HashMap<>();
+        Map<String, AbstractSchema> propertiesList = new LinkedHashMap<>();
         for (Map.Entry<String, JsonElement> entry : entries) {
             String key = entry.getKey();
             AbstractSchema
@@ -112,15 +114,17 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
 
     private StringSchema getStringSchema(JsonObject jsonObj) {
         String pattern = parseOptionalStringFromJson(jsonObj, PATTERN);
+        String defaultValue = parseOptionalStringFromJson(jsonObj, DEFAULT_VALUE);
         Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
-        return new StringSchema(Type.STRING, customMessages, pattern);
+        return new StringSchema(Type.STRING, customMessages, pattern, defaultValue);
     }
 
     private NumericSchema getNumericSchema(JsonObject jsonObj, Type type) {
         Double minimum = parseOptionalDoubleFromJson(jsonObj, MINIMUM);
         Double maximum = parseOptionalDoubleFromJson(jsonObj, MAXIMUM);
+        Double defaultValue = parseOptionalDoubleFromJson(jsonObj, DEFAULT_VALUE);
         Map<String, String> customMessages = parseOptionalMapFromMessageJson(jsonObj);
-        return new NumericSchema(type, customMessages, minimum, maximum);
+        return new NumericSchema(type, customMessages, minimum, maximum, defaultValue);
     }
 
     private Double parseOptionalDoubleFromJson(JsonObject jsonObject, String key) {
@@ -177,10 +181,10 @@ public class SchemaDeserializer implements JsonDeserializer<AbstractSchema> {
     }
 
     private Map<String, String> parseOptionalMapFromMessageJson(JsonObject jsonObject) {
-        Map<String, String> customMessages = new HashMap<>();
+        Map<String, String> customMessages = new LinkedHashMap<>();
         JsonObject customMessageJson = jsonObject.getAsJsonObject(SchemaDeserializer.MESSAGE);
         if (customMessageJson == null) {
-            return new HashMap<>();
+            return new LinkedHashMap<>();
         }
 
         addFieldToCustomMessagesMap(customMessages, customMessageJson, TYPE);

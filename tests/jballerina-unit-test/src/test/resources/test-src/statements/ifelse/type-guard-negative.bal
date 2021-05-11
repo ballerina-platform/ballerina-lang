@@ -85,15 +85,6 @@ function testMultipleTypeGuardsWithAndOperator_2() returns int {
     return -1;
 }
 
-function typeGuardInMatch([string, int]|[int, boolean]|int|float x) returns string {
-    match x {
-        var [s, i] if s is string => {return "Matched with string";}
-        var [s, i] if s is float => {return "Matched with float";}
-        var [s, i] if i is boolean => {return "Matched with boolean";}
-        var y => {return "Matched with default type - float";}
-    }
-}
-
 function testTypeGuardsWithBinaryOps_1() {
     int|string|boolean|float x = 5;
     if (((x is int|string && x is int) || (x is boolean)) && (x is float)) {
@@ -151,14 +142,6 @@ function testTypeGuardsWithBinaryOps_6() {
     }
 }
 
-function testTypeGuardsWithErrorInmatch() returns string {
-    any a = 5;
-    match a {
-        var p if p is error => {return string `${p.message()}`;}
-        var p => {return "Internal server error";}
-    }
-}
-
 function testTypeGuardWithRecordNegative() {
     Foo|Baz|int val = 10;
 
@@ -192,4 +175,50 @@ type Qux record {
 
 readonly class Class {
 
+}
+
+type ClosedRec record {|
+    int i;
+    string s?;
+|};
+
+function testRecordIntersectionNegative() {
+    record {| int i; boolean b; |} y = {i: 1, b: true};
+    if y is ClosedRec {
+    }
+    
+    record {| int i; boolean s; boolean...; |} z = {i: 1, s: true, "b": true};
+    if z is ClosedRec {
+    }
+}
+
+type RecordWithDefaultValue record {|
+    int i = 10;
+    boolean b?;
+|};
+
+type RecordWithNoDefaultValue record {|
+    string i;
+    boolean b?;
+|};
+
+function testRecordIntersectionWithDefaultValues() {
+    RecordWithDefaultValue e = {};
+    if e is RecordWithNoDefaultValue {
+    }
+}
+
+function testClosedRecordAndMapIntersectionNegative() {
+    map<int|string> m = {};
+
+    if m is record {| int i; float f; |} {
+    }
+}
+
+function testMapIntersectionNegative() {
+    map<int|string> m = {};
+
+    if m is map<boolean> {
+        map<int> x = m;
+    }
 }
