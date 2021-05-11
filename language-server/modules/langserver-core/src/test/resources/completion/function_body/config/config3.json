@@ -582,6 +582,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },

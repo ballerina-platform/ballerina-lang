@@ -89,6 +89,6 @@ function testMultipleSelectClausesWithSimpleVariable() {
     start testAsync();
 }
 
-public function testAsync() {
+public function testAsync() returns int {
     // do something
 }

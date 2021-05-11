@@ -16,6 +16,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "cloneReadOnly",
       "insertText": "cloneReadOnly()",
       "insertTextFormat": "Snippet"
     },
@@ -30,6 +31,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "clone",
       "insertText": "clone()",
       "insertTextFormat": "Snippet"
     },
@@ -44,6 +46,7 @@
         }
       },
       "sortText": "D",
+      "filterText": "ensureType",
       "insertText": "ensureType(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -53,4 +56,3 @@
     }
   ]
 }
-

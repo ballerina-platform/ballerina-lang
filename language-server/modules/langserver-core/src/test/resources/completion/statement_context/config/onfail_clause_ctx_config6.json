@@ -588,14 +588,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "animals",
-      "kind": "Variable",
-      "detail": "string[]",
-      "sortText": "B",
-      "insertText": "animals",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "varToMatch",
       "kind": "Variable",
       "detail": "$CompilationError$",
@@ -614,12 +606,21 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction(${1})",
       "insertTextFormat": "Snippet",
       "command": {
         "title": "editor.action.triggerParameterHints",
         "command": "editor.action.triggerParameterHints"
       }
+    },
+    {
+      "label": "animals",
+      "kind": "Variable",
+      "detail": "string[]",
+      "sortText": "B",
+      "insertText": "animals",
+      "insertTextFormat": "Snippet"
     },
     {
       "label": "worker",

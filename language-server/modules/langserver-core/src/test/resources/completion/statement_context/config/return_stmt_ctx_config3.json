@@ -580,6 +580,14 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "testVar",
+      "kind": "Variable",
+      "detail": "int",
+      "sortText": "C",
+      "insertText": "testVar",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "testFunction()(int)",
       "kind": "Function",
       "detail": "Function",
@@ -590,15 +598,8 @@
         }
       },
       "sortText": "D",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "testVar",
-      "kind": "Variable",
-      "detail": "int",
-      "sortText": "C",
-      "insertText": "testVar",
       "insertTextFormat": "Snippet"
     }
   ]

@@ -433,14 +433,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "l1",
-      "kind": "Variable",
-      "detail": "module1:Listener",
-      "sortText": "C",
-      "insertText": "l1",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -459,7 +451,16 @@
         }
       },
       "sortText": "D",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "l1",
+      "kind": "Variable",
+      "detail": "module1:Listener",
+      "sortText": "C",
+      "insertText": "l1",
       "insertTextFormat": "Snippet"
     },
     {
