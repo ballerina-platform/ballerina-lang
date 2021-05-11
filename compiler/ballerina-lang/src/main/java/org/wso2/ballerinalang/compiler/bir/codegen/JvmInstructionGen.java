@@ -1574,7 +1574,7 @@ public class JvmInstructionGen {
         asyncDataCollector.incrementLambdaIndex();
         String pkgName = JvmCodeGenUtil.getPackageName(inst.pkgId);
 
-        BType returnType = inst.lhsOp.variableDcl.type;
+        BType returnType = inst.retType;
         if (returnType.tag != TypeTags.INVOKABLE) {
             throw new BLangCompilerException("Expected BInvokableType, found " + String.format("%s", returnType));
         }
