@@ -167,6 +167,7 @@ public class TypesFactory {
             Optional<BIntersectionType> intersectionType = ((IntersectableReferenceType) bType).getIntersectionType();
             if (intersectionType.isPresent()) {
                 bType = intersectionType.get();
+                tSymbol = bType.tsymbol;
             }
         }
 

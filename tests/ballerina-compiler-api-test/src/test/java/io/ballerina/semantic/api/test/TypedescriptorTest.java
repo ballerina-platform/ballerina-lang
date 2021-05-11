@@ -529,6 +529,7 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(167, 6);
         TypeSymbol type = ((TypeDefinitionSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), INTERSECTION);
+        assertEquals(type.signature(), "Foo & readonly");
 
         List<TypeSymbol> members = ((IntersectionTypeSymbol) type).memberTypeDescriptors();
 
@@ -544,6 +545,7 @@ public class TypedescriptorTest {
         Symbol symbol = getSymbol(170, 25);
         TypeSymbol type = ((VariableSymbol) symbol).typeDescriptor();
         assertEquals(type.typeKind(), INTERSECTION);
+        assertEquals(type.signature(), "map<json> & readonly");
 
         List<TypeSymbol> members = ((IntersectionTypeSymbol) type).memberTypeDescriptors();
         assertEquals(members.get(0).typeKind(), MAP);
