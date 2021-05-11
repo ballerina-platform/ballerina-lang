@@ -1,0 +1,28 @@
+{
+  "line": 5,
+  "character": 27,
+  "expected": [
+    {
+      "title": "Create function 'testAsync(...)'",
+      "command": {
+        "title": "Create function 'testAsync(...)'",
+        "command": "CREATE_FUNC",
+        "arguments": [
+          {
+            "key": "node.range",
+            "value": {
+              "start": {
+                "line": 5,
+                "character": 21
+              },
+              "end": {
+                "line": 5,
+                "character": 38
+              }
+            }
+          }
+        ]
+      }
+    }
+  ]
+}
