@@ -834,3 +834,34 @@ function testXmlGetContentOverAProcInstructionSequence() {
             "`is xml:ProcessingInstruction` type test");
     }
 }
+
+function fromStringTest() {
+    var a = xml:fromString("hello");
+    if !(a is xml:Text) {
+        panic error("Assertion error: not a text");
+    }
+
+    var b = xml:fromString("<!-- hello -->");
+    if !(b is xml:Comment) {
+        panic error("Assertion error: not a comment");
+    }
+
+    var c = xml:fromString("<?pi data ?>");
+    if !(c is xml:ProcessingInstruction) {
+        panic error("Assertion error: not a PI");
+    }
+
+    var d = checkpanic xml:fromString("<hello/>world<?pi data ?><!-- comment -->");
+    if !(d[0] is xml:Element) {
+        panic error("Assertion error: not an element");
+    }
+    if !(d[1] is xml:Text) {
+        panic error("Assertion error: not a text");
+    }
+    if !(d[2] is xml:ProcessingInstruction) {
+        panic error("Assertion error: not a pi");
+    }
+    if !(d[3] is xml:Comment) {
+        panic error("Assertion error: not a comment");
+    }
+}
