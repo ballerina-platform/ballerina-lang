@@ -57,7 +57,8 @@ public class CreateVarCodeAction implements CodeActionProvider {
     }
 
     @Override
-    public List<DocumentEdit> execute(ToolingCodeActionContext context, List<CodeActionArgument> arguments) {
+    public List<DocumentEdit> execute(ToolingCodeActionContext context, String codeActionId,
+                                      List<CodeActionArgument> arguments) {
         AddGenericVarExecutor executor = new AddGenericVarExecutor();
         return executor.execute(context, arguments);
     }

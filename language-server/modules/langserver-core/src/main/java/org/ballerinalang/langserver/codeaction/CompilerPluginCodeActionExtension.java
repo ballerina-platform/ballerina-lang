@@ -16,8 +16,8 @@
 package org.ballerinalang.langserver.codeaction;
 
 import io.ballerina.compiler.syntax.tree.NonTerminalNode;
-import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.CodeActionManager;
+import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContextImpl;
 import io.ballerina.tools.text.LinePosition;
@@ -85,7 +85,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                 ToolingCodeActionContextImpl.from(context.fileUri(), context.filePath(), linePosition,
                         context.currentDocument().get(), context.currentSemanticModel().get());
 
-        CodeActionManager codeActionManager = packageCompilation.get().getToolingManager();
+        CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
 
         List<CodeAction> codeActions = new LinkedList<>();
 
@@ -94,13 +94,13 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
                         CommonUtil.toRange(diag.location().lineRange())))
                 .forEach(diagnostic -> {
                     codeActionManager.codeActions(toolingCodeActionContext, diagnostic).stream()
-                            .map(codeAction -> {
-                                CodeAction action = new CodeAction(codeAction.getTitle());
+                            .map(compilerPluginCodeAction -> {
+                                CodeAction action = new CodeAction(compilerPluginCodeAction.getTitle());
 
                                 List<Object> arguments = new LinkedList<>();
                                 arguments.add(CommandArgument.from(CommandConstants.ARG_KEY_DOC_URI, context.fileUri()));
-                                arguments.addAll(codeAction.getArguments());
-                                action.setCommand(new Command(codeAction.getTitle(), codeAction.getId(), arguments));
+                                arguments.addAll(compilerPluginCodeAction.getArguments());
+                                action.setCommand(new Command(compilerPluginCodeAction.getTitle(), compilerPluginCodeAction.getProviderName(), arguments));
                                 return action;
                             })
                             .forEach(codeActions::add);
@@ -124,8 +124,7 @@ public class CompilerPluginCodeActionExtension implements CodeActionExtension {
             return false;
         }
 
-        Set<String> supportedCommands = new HashSet<>();
-        supportedCommands.addAll(serverCapabilities.getExecuteCommandProvider().getCommands());
+        Set<String> supportedCommands = new HashSet<>(serverCapabilities.getExecuteCommandProvider().getCommands());
         boolean shouldReRegister = commands.stream().anyMatch(command -> !supportedCommands.contains(command));
 
         if (shouldReRegister) {

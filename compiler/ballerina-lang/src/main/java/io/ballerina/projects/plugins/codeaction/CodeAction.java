@@ -24,6 +24,7 @@ public class CodeAction {
 
     private String id;
     private String title;
+    private String providerName;
     private List<CodeActionArgument> arguments;
 
     private CodeAction(String id, String title, List<CodeActionArgument> arguments) {
@@ -54,6 +55,14 @@ public class CodeAction {
 
     public void setArguments(List<CodeActionArgument> arguments) {
         this.arguments = arguments;
+    }
+
+    public String getProviderName() {
+        return providerName;
+    }
+     
+    public void setProviderName(String providerName) {
+        this.providerName = providerName;
     }
 
     public static CodeAction from(String id, String title, List<CodeActionArgument> arguments) {

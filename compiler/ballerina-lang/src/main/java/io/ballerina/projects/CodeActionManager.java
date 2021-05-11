@@ -22,16 +22,20 @@ import io.ballerina.projects.plugins.codeaction.DocumentEdit;
 import io.ballerina.projects.plugins.codeaction.ToolingCodeActionContext;
 import io.ballerina.tools.diagnostics.Diagnostic;
 
-import java.util.Collection;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Optional;
 
 /**
- * Tooling manager.
+ * Manages code actions.
+ *
+ * @since 2.0.0
  */
 public class CodeActionManager {
+
+    private static final String ARG_KEY_CODE_ACTION_ID = "plugin.codeActionId";
 
     private List<CompilerPluginContextIml> compilerPluginContexts;
 
@@ -42,44 +46,55 @@ public class CodeActionManager {
     public List<CodeAction> codeActions(ToolingCodeActionContext context, Diagnostic diagnostic) {
         List<CodeAction> codeActions = new LinkedList<>();
         for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
-            compilerPluginContext.codeActionProviders().stream()
-                    .map(provider -> provider.getCodeActions(context, diagnostic))
-                    .flatMap(Collection::stream)
-                    .peek(codeAction -> {
-                        codeAction.setId(getPackagePrefixedCommand(compilerPluginContext.compilerPluginInfo(),
-                                codeAction.getId()));
-                    })
-                    .forEach(codeActions::add);
+            compilerPluginContext.codeActionProviders()
+                    .forEach(provider -> provider.getCodeActions(context, diagnostic).stream()
+                            .peek(codeAction -> {
+                                // We change the provider name with package prefix
+                                codeAction.setProviderName(getPackagePrefixedProviderName(
+                                        compilerPluginContext.compilerPluginInfo(), provider.name()));
+                                // Then, add code action ID as an argument
+                                List<CodeActionArgument> arguments = new ArrayList<>(codeAction.getArguments());
+                                arguments.add(CodeActionArgument.from(ARG_KEY_CODE_ACTION_ID, codeAction.getId()));
+                                codeAction.setArguments(arguments);
+                            })
+                            .forEach(codeActions::add));
         }
 
         return codeActions;
     }
 
-    public List<DocumentEdit> executeCodeAction(String codeActionId, ToolingCodeActionContext context,
+    public List<DocumentEdit> executeCodeAction(String providerName, ToolingCodeActionContext context,
                                                 List<CodeActionArgument> arguments) {
         for (CompilerPluginContextIml compilerPluginContext : compilerPluginContexts) {
             String prefix = getPackagePrefix(compilerPluginContext.compilerPluginInfo());
-            if (!codeActionId.startsWith(prefix)) {
+            if (!providerName.startsWith(prefix)) {
                 continue;
             }
 
-            if (codeActionId.length() == prefix.length()) {
+            if (providerName.length() == prefix.length()) {
                 continue;
             }
 
             // Get command name. Substring excluding the "_"
-            codeActionId = codeActionId.substring(prefix.length() + 1);
-            if (codeActionId.isEmpty()) {
+            providerName = providerName.substring(prefix.length() + 1);
+            if (providerName.isEmpty()) {
                 continue;
             }
 
-            String finalCodeActionId = codeActionId;
+            String finalProviderName = providerName;
             Optional<CodeActionProvider> codeActionProvider = compilerPluginContext.codeActionProviders().stream()
-                    .filter(provider -> finalCodeActionId.equals(provider.name()))
+                    .filter(provider -> finalProviderName.equals(provider.name()))
                     .findFirst();
 
             if (codeActionProvider.isPresent()) {
-                return codeActionProvider.get().execute(context, arguments);
+                Optional<String> codeActionId = arguments.stream()
+                        .filter(codeActionArgument -> ARG_KEY_CODE_ACTION_ID.equals(codeActionArgument.key()))
+                        .findFirst()
+                        .flatMap(codeActionArgument -> Optional.of(codeActionArgument.valueAs(String.class)));
+
+                if (codeActionId.isPresent()) {
+                    return codeActionProvider.get().execute(context, codeActionId.get(), arguments);
+                }
             }
         }
 
@@ -96,7 +111,7 @@ public class CodeActionManager {
                 packageDescriptor.name().value().replaceAll("\\.", "_");
     }
 
-    private static String getPackagePrefixedCommand(CompilerPluginInfo compilerPluginInfo, String command) {
-        return getPackagePrefix(compilerPluginInfo) + "_" + command;
+    private static String getPackagePrefixedProviderName(CompilerPluginInfo compilerPluginInfo, String providerName) {
+        return getPackagePrefix(compilerPluginInfo) + "_" + providerName;
     }
 }

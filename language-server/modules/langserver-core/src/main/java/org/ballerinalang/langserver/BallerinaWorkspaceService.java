@@ -226,11 +226,9 @@ public class BallerinaWorkspaceService implements WorkspaceService {
         ToolingCodeActionContext toolingCodeActionContext = ToolingCodeActionContextImpl.from(uri, filePath.get(), 
                 null, document.get(), semanticModel.get());
 
-        String codeActionId = params.getCommand();
-        List<CommandArgument> arguments = context.getArguments();
-        CodeActionManager codeActionManager = packageCompilation.get().getToolingManager();
-
-        List<DocumentEdit> docEdits = codeActionManager.executeCodeAction(codeActionId, toolingCodeActionContext, args);
+        String providerName = params.getCommand();
+        CodeActionManager codeActionManager = packageCompilation.get().getCodeActionManager();
+        List<DocumentEdit> docEdits = codeActionManager.executeCodeAction(providerName, toolingCodeActionContext, args);
 
         List<Either<TextDocumentEdit, ResourceOperation>> edits = docEdits.stream()
                 .map(docEdit -> {

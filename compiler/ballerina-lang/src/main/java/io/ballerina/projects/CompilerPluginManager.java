@@ -71,7 +71,7 @@ class CompilerPluginManager {
         return codeAnalyzerManager;
     }
 
-    CodeActionManager getToolingManager() {
+    CodeActionManager getCodeActionManager() {
         if (codeActionManager != null) {
             return codeActionManager;
         }

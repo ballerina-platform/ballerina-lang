@@ -137,8 +137,8 @@ public class PackageCompilation {
         return new BallerinaSemanticModel(moduleContext.bLangPackage(), this.compilerContext);
     }
 
-    public CodeActionManager getToolingManager() {
-        return compilerPluginManager.getToolingManager();
+    public CodeActionManager getCodeActionManager() {
+        return compilerPluginManager.getCodeActionManager();
     }
 
     CompilerPluginManager compilerPluginManager() {

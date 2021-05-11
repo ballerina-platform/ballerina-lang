@@ -26,7 +26,9 @@ public interface CodeActionProvider {
 
     List<CodeAction> getCodeActions(ToolingCodeActionContext context, Diagnostic diagnostic);
 
-    List<DocumentEdit> execute(ToolingCodeActionContext context, List<CodeActionArgument> arguments);
+    List<DocumentEdit> execute(ToolingCodeActionContext context,
+                               String codeActionId,
+                               List<CodeActionArgument> arguments);
     
     String name();
 }
