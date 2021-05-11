@@ -30,9 +30,17 @@ import org.testng.Assert;
 import org.testng.annotations.BeforeSuite;
 import org.testng.annotations.Test;
 
+import java.io.IOException;
 import java.io.PrintStream;
+import java.net.MalformedURLException;
+import java.net.URL;
+import java.net.URLClassLoader;
+import java.nio.charset.Charset;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
 import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -126,6 +134,24 @@ public class CompilerPluginTests {
         BAssertUtil.validateWarning(result, 0, "End of codegen", 1, 1);
     }
 
+    @Test
+    public void testInBuiltCompilerPlugin() throws IOException {
+        Package currentPackage = loadPackage("package_test_inbuilt_plugin");
+        Thread.currentThread().setContextClassLoader(createClassLoader());
+        // Check whether there are any diagnostics
+        DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 2,
+                "Unexpected number of compilation diagnostics");
+        Assert.assertEquals(diagnosticResult.errorCount(), 1);
+        Assert.assertEquals(diagnosticResult.warningCount(), 1);
+
+        Path logFilePath = Paths.get("build/logs/diagnostics.log");
+        Assert.assertTrue(Files.exists(logFilePath));
+        String logFileContent = Files.readString(logFilePath, Charset.defaultCharset());
+        Assert.assertTrue(logFileContent.contains(diagnosticResult.warnings().stream().findFirst().get().toString()));
+        Assert.assertTrue(logFileContent.contains(diagnosticResult.errors().stream().findFirst().get().toString()));
+    }
+
     public void assertDiagnostics(Package currentPackage) {
         // Check whether there are any diagnostics
         DiagnosticResult diagnosticResult = currentPackage.getCompilation().diagnosticResult();
@@ -150,5 +176,12 @@ public class CompilerPluginTests {
         Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
         BuildProject buildProject = BuildProject.load(projectDirPath);
         return buildProject.currentPackage();
+    }
+
+    private static ClassLoader createClassLoader() throws MalformedURLException {
+        URL[] pluginJarUrl = new URL[] {Paths.get("build/bre/lib/logging-file-appender-plugin-1.0.0.jar").toUri().toURL()};
+        return AccessController.doPrivileged(
+                (PrivilegedAction<URLClassLoader>) () -> new URLClassLoader(pluginJarUrl)
+        );
     }
 }
