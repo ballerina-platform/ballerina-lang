@@ -644,6 +644,7 @@ class NodeFinder extends BaseVisitor {
         lookupNodes(actionInvocationExpr.requiredArgs);
         lookupNodes(actionInvocationExpr.restArgs);
         lookupNode(actionInvocationExpr.expr);
+        lookupNodes(actionInvocationExpr.argExprs);
     }
 
     @Override
