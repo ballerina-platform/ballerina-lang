@@ -34,7 +34,6 @@ import io.ballerina.runtime.api.values.BValue;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.internal.commons.TypeValuePair;
 import io.ballerina.runtime.internal.types.BAnnotatableType;
-import io.ballerina.runtime.internal.types.BAnydataType;
 import io.ballerina.runtime.internal.types.BArrayType;
 import io.ballerina.runtime.internal.types.BErrorType;
 import io.ballerina.runtime.internal.types.BField;
@@ -2746,35 +2745,15 @@ public class TypeChecker {
         boolean isRhsKeyedTable = ((BTableType) rhsTable.getType()).getFieldNames() != null &&
                 ((BTableType) rhsTable.getType()).getFieldNames().length > 0;
 
-        // check equality for keyed tables
-        if (isLhsKeyedTable && isRhsKeyedTable) {
-            for (Map.Entry<BAnydataType, Object> lhsTableEntry :
-                    (Iterable<Map.Entry<BAnydataType, Object>>) lhsTable.entrySet()) {
-                if (!isEqual(lhsTableEntry.getValue(), rhsTable.get(lhsTableEntry.getKey()), checkedValues)) {
+        Object[] lhsTableValues = lhsTable.values().toArray();
+        Object[] rhsTableValues = rhsTable.values().toArray();
+
+        if (isLhsKeyedTable == isRhsKeyedTable) {
+            for (int i = 0; i < lhsTableValues.length; i++) {
+                if (!isEqual(lhsTableValues[i], rhsTableValues[i], checkedValues)) {
                     return false;
                 }
             }
-
-            return true;
-        }
-
-        // check equality for keyless tables
-        if (!isLhsKeyedTable && !isRhsKeyedTable) {
-            for (Map.Entry<BAnydataType, Object> lhsTableEntry :
-                    (Iterable<Map.Entry<BAnydataType, Object>>) lhsTable.entrySet()) {
-                boolean recordFound = false;
-                for (Map.Entry<BAnydataType, Object> rhsTableEntry :
-                        (Iterable<Map.Entry<BAnydataType, Object>>) rhsTable.entrySet()) {
-                    if (isEqual(lhsTableEntry.getValue(), rhsTableEntry.getValue())) {
-                        recordFound = true;
-                        break;
-                    }
-                }
-                if (!recordFound) {
-                    return false;
-                }
-            }
-
             return true;
         }
 
