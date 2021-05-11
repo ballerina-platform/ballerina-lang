@@ -121,3 +121,12 @@ function panicOnNonErrorMemberUnion() {
 function errorDefinitionNegative() {
     error<record { string message?; error cause?; int i;}> e  = 1;
 }
+
+type Detail record {|
+    int code;
+|};
+
+function errorDetailNegative() {
+    error<Detail> err1 = error("Error!", code = 404); // valid
+    error<string, Detail> err2 = error("Error!", code = 404); // invalid
+}

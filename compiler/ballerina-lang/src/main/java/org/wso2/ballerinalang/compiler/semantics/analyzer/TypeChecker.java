@@ -5451,6 +5451,10 @@ public class TypeChecker extends BLangNodeVisitor {
             return ((BMapType) expectedType).constraint;
         }
 
+        if (expectedType.tag != TypeTags.RECORD) {
+            return symTable.semanticError;
+        }
+
         BRecordType recordType = (BRecordType) expectedType;
         BField targetField = recordType.fields.get(namedArgsExpression.name.value);
         if (targetField != null) {

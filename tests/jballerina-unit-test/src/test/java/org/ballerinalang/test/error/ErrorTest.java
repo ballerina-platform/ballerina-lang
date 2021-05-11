@@ -250,6 +250,10 @@ public class ErrorTest {
         BAssertUtil.validateError(negativeCompileResult, i++,
                 "incompatible types: expected 'error<record {| " +
                         "string message?; error cause?; int i; anydata...; |}>', found 'int'", 122, 65);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid error detail type 'string', expected a subtype" +
+                " of 'map<ballerina/lang.value:1.0.0:Cloneable>'", 131, 11);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token ','", 131, 25);
+        BAssertUtil.validateError(negativeCompileResult, i++, "invalid token 'Detail'", 131, 25);
         Assert.assertEquals(negativeCompileResult.getErrorCount(), i);
     }
 
