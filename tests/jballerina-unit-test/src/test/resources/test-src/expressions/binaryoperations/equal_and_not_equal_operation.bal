@@ -1293,6 +1293,7 @@ function testTableEquality() {
     var tbl11 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
     table<record {| string name; int id; |}> tbl12 = table [{name: "Amy", id: 1234}, {name: "John", id: 4567}];
     var tbl13 = table [{name: "Amber", id: 1234}, {name: "John", id: 4567}];
+    TeacherTable tbl14 = table [{name: "John", id: 4567}, {name: "Amber", id: 1234}];
 
     assert(tbl1 == tbl2, true);
     assert(tbl1 == tbl3, true);
@@ -1315,6 +1316,8 @@ function testTableEquality() {
     assert(tbl2 != tbl10, true);
     assert(a1["a"] != tbl12, true);
     assert(tbl11 != tbl13, true);
+    assert(tbl10 != tbl14, true);
+    assert(table key(id) [{"id": 4567}, {"id": 1234}] != tbl6, true);
 }
 
 function isEqual(anydata a, anydata b) returns boolean {
