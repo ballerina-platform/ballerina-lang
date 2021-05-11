@@ -21,6 +21,7 @@ import io.ballerina.projects.internal.model.CompilerPluginDescriptor;
 import io.ballerina.projects.plugins.CompilerPlugin;
 
 import java.util.Objects;
+import java.util.Optional;
 
 /**
  * This class holds a {@code CompilerPlugin} instance with additional details such the
@@ -34,6 +35,12 @@ class CompilerPluginInfo {
     private final PackageDescriptor packageDesc;
     private final CompilerPluginDescriptor compilerPluginDesc;
 
+    CompilerPluginInfo(CompilerPlugin compilerPlugin) {
+        this.compilerPlugin = compilerPlugin;
+        this.packageDesc = null;
+        this.compilerPluginDesc = null;
+    }
+
     CompilerPluginInfo(CompilerPlugin compilerPlugin,
                        PackageDescriptor packageDesc,
                        CompilerPluginDescriptor compilerPluginDesc) {
@@ -46,12 +53,12 @@ class CompilerPluginInfo {
         return compilerPlugin;
     }
 
-    PackageDescriptor packageDesc() {
-        return packageDesc;
+    Optional<PackageDescriptor> packageDesc() {
+        return Optional.ofNullable(packageDesc);
     }
 
-    CompilerPluginDescriptor compilerPluginDesc() {
-        return compilerPluginDesc;
+    Optional<CompilerPluginDescriptor> compilerPluginDesc() {
+        return Optional.ofNullable(compilerPluginDesc);
     }
 
     @Override
