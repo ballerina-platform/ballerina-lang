@@ -48,6 +48,28 @@
       "insertTextFormat": "Snippet"
     },
     {
+      "label": "ResponseMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
+      },
+      "sortText": "I",
+      "insertText": "ResponseMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "RequestMessage",
+      "kind": "Enum",
+      "detail": "Union",
+      "documentation": {
+        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
+      },
+      "sortText": "I",
+      "insertText": "RequestMessage",
+      "insertTextFormat": "Snippet"
+    },
+    {
       "label": "AnnotationType",
       "kind": "Struct",
       "detail": "Record",
@@ -112,33 +134,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "ResponseMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `listener` when sending out the outbound response."
-      },
-      "sortText": "I",
-      "insertText": "ResponseMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "RequestMessage",
-      "kind": "Enum",
-      "detail": "Union",
-      "documentation": {
-        "left": "The types of messages that are accepted by HTTP `client` when sending out the outbound request."
-      },
-      "sortText": "I",
-      "insertText": "RequestMessage",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "TestClass1",
+      "label": "Listener",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
-      "insertText": "TestClass1",
+      "insertText": "Listener",
       "insertTextFormat": "Snippet"
     },
     {
@@ -164,11 +164,11 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "Listener",
+      "label": "TestClass1",
       "kind": "Interface",
       "detail": "Class",
       "sortText": "K",
-      "insertText": "Listener",
+      "insertText": "TestClass1",
       "insertTextFormat": "Snippet"
     },
     {
@@ -190,6 +190,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function1",
       "insertText": "function1()",
       "insertTextFormat": "Snippet"
     },
@@ -204,6 +205,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function2",
       "insertText": "function2()",
       "insertTextFormat": "Snippet"
     },
@@ -218,6 +220,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function3",
       "insertText": "function3(${1})",
       "insertTextFormat": "Snippet",
       "command": {
@@ -236,6 +239,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "function4",
       "insertText": "function4(${1})",
       "insertTextFormat": "Snippet",
       "command": {
