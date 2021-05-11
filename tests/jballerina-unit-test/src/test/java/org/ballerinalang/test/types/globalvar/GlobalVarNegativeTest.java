@@ -87,6 +87,17 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "invalid token '}'", 31, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
                 "'(json & readonly)'", 31, 14);
+        BAssertUtil.validateError(result, i++, "only simple variables are allowed to be configurable", 34, 1);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test
+    public void testConfigurableFinalVar() {
+        CompileResult result = BCompileUtil.compile
+                ("test-src/statements/variabledef/configurable_global_var_decl_negative2.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "cannot assign a value to final 'discountRate'",
+                21, 5);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
