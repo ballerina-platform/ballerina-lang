@@ -1337,6 +1337,9 @@ class NodeFinder extends BaseVisitor {
     public void visit(BLangOnFailClause onFailClause) {
         lookupNode((BLangNode) onFailClause.variableDefinitionNode);
         lookupNode(onFailClause.body);
+
+        // Adding this as the last stmt to ensure that var define in on fail clause will also be considered.
+        this.enclosingContainer = onFailClause;
     }
 
     private boolean setEnclosingNode(BLangNode node, Location pos) {
