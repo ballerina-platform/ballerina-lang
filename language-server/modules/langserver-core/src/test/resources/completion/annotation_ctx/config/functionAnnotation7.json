@@ -1,24 +1,16 @@
 {
   "position": {
-    "line": 12,
-    "character": 13
+    "line": 6,
+    "character": 1
   },
-  "source": "annotation_ctx/source/startActionAnnotation2.bal",
+  "source": "annotation_ctx/source/functionAnnotation7.bal",
   "items": [
     {
-      "label": "module1",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "N",
-      "insertText": "module1",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "ballerina/lang.test",
+      "label": "ballerina/lang.runtime",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "test",
+      "insertText": "runtime",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -32,7 +24,53 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.test;\n"
+          "newText": "import ballerina/lang.runtime;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/lang.value",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "value",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/lang.value;\n"
+        }
+      ]
+    },
+    {
+      "label": "ballerina/module1",
+      "kind": "Module",
+      "detail": "Module",
+      "sortText": "Q",
+      "insertText": "module1",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": [
+        {
+          "range": {
+            "start": {
+              "line": 0,
+              "character": 0
+            },
+            "end": {
+              "line": 0,
+              "character": 0
+            }
+          },
+          "newText": "import ballerina/module1;\n"
         }
       ]
     },
@@ -83,11 +121,11 @@
       ]
     },
     {
-      "label": "ballerina/lang.value",
+      "label": "ballerina/lang.test",
       "kind": "Module",
       "detail": "Module",
       "sortText": "Q",
-      "insertText": "value",
+      "insertText": "test",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": [
         {
@@ -101,30 +139,7 @@
               "character": 0
             }
           },
-          "newText": "import ballerina/lang.value;\n"
-        }
-      ]
-    },
-    {
-      "label": "ballerina/lang.runtime",
-      "kind": "Module",
-      "detail": "Module",
-      "sortText": "Q",
-      "insertText": "runtime",
-      "insertTextFormat": "Snippet",
-      "additionalTextEdits": [
-        {
-          "range": {
-            "start": {
-              "line": 0,
-              "character": 0
-            },
-            "end": {
-              "line": 0,
-              "character": 0
-            }
-          },
-          "newText": "import ballerina/lang.runtime;\n"
+          "newText": "import ballerina/lang.test;\n"
         }
       ]
     },
@@ -241,29 +256,47 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "sourceWorkerAnnotation1",
+      "label": "deprecated",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "sourceWorkerAnnotation1 {\n\tfoo: \"${1}\"\n}",
+      "insertText": "deprecated",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "sourceWorkerAnnotation2",
+      "label": "AnnonType3",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "sourceWorkerAnnotation2",
+      "insertText": "AnnonType3 {\n\ti: ${1:0}\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     },
     {
-      "label": "strand",
+      "label": "AnnonType2",
       "kind": "Property",
       "detail": "Annotation",
       "sortText": "Q",
-      "insertText": "strand",
+      "insertText": "AnnonType2",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "AnnonType1",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "AnnonType1 {\n\tm: \"${1}\"\n}",
+      "insertTextFormat": "Snippet",
+      "additionalTextEdits": []
+    },
+    {
+      "label": "display",
+      "kind": "Property",
+      "detail": "Annotation",
+      "sortText": "Q",
+      "insertText": "display {\n\tlabel: \"${1}\"\n}",
       "insertTextFormat": "Snippet",
       "additionalTextEdits": []
     }
