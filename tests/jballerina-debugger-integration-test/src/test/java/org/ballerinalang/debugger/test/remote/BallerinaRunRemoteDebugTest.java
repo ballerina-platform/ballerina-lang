@@ -36,12 +36,13 @@ import static org.ballerinalang.debugger.test.utils.DebugUtils.findFreePort;
 public class BallerinaRunRemoteDebugTest extends BaseTestCase {
 
     private BMainInstance balClient;
+    private String testProjectName;
     DebugTestRunner debugTestRunner;
     private static final String REMOTE_DEBUG_LISTENING = "Listening for transport dt_socket at address: ";
 
     @BeforeClass
     public void setup() throws BallerinaTestException {
-        String testProjectName = "basic-project";
+        testProjectName = "basic-project";
         String testSingleFileName = "hello_world.bal";
         debugTestRunner = new DebugTestRunner(testProjectName, testSingleFileName, false);
         balClient = new BMainInstance(debugTestRunner.getBalServer());
@@ -70,13 +71,8 @@ public class BallerinaRunRemoteDebugTest extends BaseTestCase {
 
     @Test
     public void testSuspendOnBallerinaJarRun() throws BallerinaTestException {
-        String testProjectName = "executable-breakpoint-tests";
-        String testSingleFileName = "main.bal";
-        debugTestRunner = new DebugTestRunner(testProjectName, testSingleFileName, true);
-        balClient = new BMainInstance(debugTestRunner.getBalServer());
         String executablePath = Paths.get("target", "bin", testProjectName.replaceAll("-", "_") + ".jar")
             .toFile().getPath();
-
         LogLeecher clientLeecher = new LogLeecher(executablePath);
         balClient.runMain("build", new String[]{}, null, new String[]{},
             new LogLeecher[]{clientLeecher}, debugTestRunner.testProjectPath);
