@@ -98,4 +98,9 @@ public class LangLibErrorTest {
                 "[\"getError:errorlib_test.bal\",\"stack2:errorlib_test.bal\",\"stack1:errorlib_test.bal\"," +
                         "\"stack0:errorlib_test.bal\",\"testErrorStackTrace:errorlib_test.bal\"]");
     }
+
+    @Test
+    public void testErrorCallStack() {
+        BRunUtil.invoke(compileResult, "testErrorCallStack");
+    }
 }
