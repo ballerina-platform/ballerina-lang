@@ -3,7 +3,7 @@
     "line": 4,
     "character": 9
   },
-  "source": "statement_context/source/remote_action_source1.bal",
+  "source": "action_node_context/source/remote_action_source1.bal",
   "items": [
     {
       "label": "post(string path, string|xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>|json|byte[] message, string targetType)(module1:Response)",
