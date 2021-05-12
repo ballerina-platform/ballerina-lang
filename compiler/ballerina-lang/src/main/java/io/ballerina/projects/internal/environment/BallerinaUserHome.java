@@ -37,7 +37,8 @@ public final class BallerinaUserHome {
         try {
             Files.createDirectories(remotePackageRepositoryPath);
         } catch (IOException exception) {
-            throw new ProjectException("unable to create the file system cache of Ballerina Central repository");
+            throw new ProjectException("unable to create the file system cache of Ballerina Central repository: " +
+                    remotePackageRepositoryPath);
         }
 
         this.remotePackageRepository = RemotePackageRepository

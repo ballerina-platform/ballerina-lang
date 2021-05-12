@@ -25,6 +25,9 @@ dependencies {
     implementation project(':ballerina-runtime')
     implementation project(':metrics-extensions:ballerina-metrics-extension')
     implementation 'io.opentelemetry:opentelemetry-api'
+    implementation 'io.opentelemetry:opentelemetry-sdk-trace'
+    implementation 'io.opentelemetry:opentelemetry-sdk-testing'
+    implementation 'com.google.code.gson:gson'
 
     testRuntime 'org.slf4j:slf4j-jdk14'
 

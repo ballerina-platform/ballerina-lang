@@ -18,7 +18,7 @@
 
 package org.ballerinalang.test.observability.tracing;
 
-import org.ballerina.testobserve.tracing.extension.BMockSpan;
+import org.ballerinalang.observe.mockextension.BMockSpan;
 import org.ballerinalang.test.util.HttpClientRequest;
 import org.ballerinalang.test.util.HttpResponse;
 import org.testng.Assert;
@@ -52,25 +52,25 @@ public class MainFunctionTestCase extends TracingBaseTestCase {
         final String span6Position = FILE_NAME + ":38:16";
         final String entryPointFunctionModule = "intg_tests/tracing_tests:0.0.1";
         final String entryPointFunctionName = "main";
-        final List<BMockSpan.BMockSpanEvent> expectedCheckpoints = Arrays.asList(
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":20:5"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":22:13"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":25:23"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":32:16"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":32:21"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":33:11"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":38:16"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":39:11"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":44:43"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":44:43"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":54:31"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":55:5"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":55:5"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":56:11"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":56:5"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":56:5"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":57:1"),
-                new BMockSpan.BMockSpanEvent(entryPointFunctionModule, FILE_NAME + ":29:9")
+        final List<BMockSpan.CheckPoint> expectedCheckpoints = Arrays.asList(
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":20:5"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":22:13"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":25:23"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":32:16"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":32:21"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":33:11"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":38:16"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":39:11"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":44:43"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":44:43"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":54:31"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":55:5"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":55:5"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":56:11"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":56:5"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":56:5"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":57:1"),
+                new BMockSpan.CheckPoint(entryPointFunctionModule, FILE_NAME + ":29:9")
         );
         List<BMockSpan> spans = this.getFinishedSpans(DEFAULT_SERVICE_NAME);
         Assert.assertEquals(spans.stream()
