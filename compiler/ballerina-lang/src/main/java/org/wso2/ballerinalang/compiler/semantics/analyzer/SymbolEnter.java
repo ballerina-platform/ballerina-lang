@@ -2474,7 +2474,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         if (recordVar.restParam != null) {
             BType restType = getRestParamType(recordVarType);
-            BType restConstraint = createAnonRecordForRes(env, recordVarType, recordVar, ((BMapType)restType).constraint);
+            BType restConstraint = createRecordTypeForRestField(env, recordVarType, recordVar,
+                    ((BMapType)restType).constraint);
             defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, restConstraint);
         }
 
@@ -2554,8 +2555,8 @@ public class SymbolEnter extends BLangNodeVisitor {
         return this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
     }
 
-    BType createAnonRecordForRes(SymbolEnv env, BRecordType recordType, BLangRecordVariable recordVariable,
-                                 BType resConstaint) {
+    BType createRecordTypeForRestField(SymbolEnv env, BRecordType recordType, BLangRecordVariable recordVariable,
+                                       BType restConstraint) {
         Location pos = recordVariable.pos;
         BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
         recordSymbol.scope = new Scope(recordSymbol);
@@ -2576,8 +2577,8 @@ public class SymbolEnter extends BLangNodeVisitor {
 
         BRecordType recordVarType = new BRecordType(recordSymbol);
         recordVarType.fields = fields;
-        BType res = getRestMatchPatternConstraintType(recordType, unMappedFields, resConstaint);
-        recordVarType.restFieldType = res;
+        BType restType = getRestMatchPatternConstraintType(recordType, unMappedFields, restConstraint);
+        recordVarType.restFieldType = restType;
         return recordVarType;
     }
 
@@ -2597,10 +2598,6 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         return recordType.sealed || isPureTypeUniqueVisitor.visit(recordType);
     }
-//
-//    private BType getUnmatchedFields(BRecordType recordType) {
-//
-//    }
 
     private boolean hasErrorTypedField(BRecordType recordType) {
         for (BField field : recordType.fields.values()) {
