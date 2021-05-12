@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerina.testobserve.metrics.extension.model;
+package org.ballerinalang.observe.mockextension.model;
 
 import java.util.ArrayList;
 import java.util.List;
