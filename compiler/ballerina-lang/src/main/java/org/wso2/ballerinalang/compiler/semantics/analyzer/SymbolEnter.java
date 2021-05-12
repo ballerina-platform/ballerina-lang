@@ -2473,7 +2473,9 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         if (recordVar.restParam != null) {
-            defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, getRestParamType(recordVarType));
+            BType restType = getRestParamType(recordVarType);
+            BType restConstraint = createAnonRecordForRes(env, recordVarType, recordVar, ((BMapType)restType).constraint);
+            defineMemberNode(((BLangSimpleVariable) recordVar.restParam), env, restConstraint);
         }
 
         return validRecord;
@@ -2504,10 +2506,19 @@ public class SymbolEnter extends BLangNodeVisitor {
         return !recordVarType.sealed;
     }
 
-    BMapType getRestParamType(BRecordType recordType)  {
-        BType memberType;
+    BRecordTypeSymbol createAnonRecordSymbol (SymbolEnv env, Location pos) {
+        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
+        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
+                env.enclPkg.packageID, null, env.scope.owner, pos, VIRTUAL);
+        recordSymbol.name = names.fromString(anonymousModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        return recordSymbol;
+    }
 
-        if (hasErrorTypedField(recordType)) {
+    BType getRestParamType(BRecordType recordType)  {
+        BType memberType;
+        if (recordType.restFieldType != null && recordType.restFieldType.tag != TypeTags.ANYDATA) {
+            memberType = recordType.restFieldType;
+        } else if (hasErrorTypedField(recordType)) {
             memberType = hasOnlyPureTypedFields(recordType) ? symTable.pureType :
                     BUnionType.create(null, symTable.anyType, symTable.errorType);
         } else {
@@ -2515,6 +2526,59 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
 
         return new BMapType(TypeTags.MAP, memberType, null);
+    }
+
+    BType getRestMatchPatternConstraintType(BRecordType recordType,
+                                           LinkedHashMap<String, BField> remainingFields,
+                                           BType restVarSymbolMapType) {
+        LinkedHashSet<BType> constraintTypes = new LinkedHashSet<>();
+        for (BField field : remainingFields.values()) {
+            constraintTypes.add(field.type);
+        }
+
+        if (!recordType.sealed) {
+            BType restFieldType = recordType.restFieldType;
+            if (!this.types.isNeverTypeOrStructureTypeWithARequiredNeverMember(restFieldType)) {
+                constraintTypes.add(restFieldType);
+            }
+        }
+
+        BType restConstraintType;
+        if (constraintTypes.isEmpty()) {
+            restConstraintType = symTable.neverType;
+        } else if (constraintTypes.size() == 1) {
+            restConstraintType = constraintTypes.iterator().next();
+        } else {
+            restConstraintType = BUnionType.create(null, constraintTypes);
+        }
+        return this.types.mergeTypes(restVarSymbolMapType, restConstraintType);
+    }
+
+    BType createAnonRecordForRes(SymbolEnv env, BRecordType recordType, BLangRecordVariable recordVariable,
+                                 BType resConstaint) {
+        Location pos = recordVariable.pos;
+        BRecordTypeSymbol recordSymbol = createAnonRecordSymbol(env, pos);
+        recordSymbol.scope = new Scope(recordSymbol);
+        LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
+
+        LinkedHashMap<String, BField> unMappedFields = new LinkedHashMap<>() {{
+            putAll(recordType.fields);
+        }};
+
+        for (BLangRecordVariable.BLangRecordVariableKeyValue recordVariableKeyValue : recordVariable.variableList) {
+            String fieldName = recordVariableKeyValue.key.value;
+            unMappedFields.remove(fieldName);
+            BField newField = new BField(names.fromString(fieldName), pos,
+                    new BVarSymbol(Flags.OPTIONAL, names.fromString(fieldName), env.enclPkg.symbol.pkgID,
+                            symTable.neverType, recordSymbol, pos, VIRTUAL));
+            fields.put(fieldName, newField);
+        }
+
+        BRecordType recordVarType = new BRecordType(recordSymbol);
+        recordVarType.fields = fields;
+        BType res = getRestMatchPatternConstraintType(recordType, unMappedFields, resConstaint);
+        recordVarType.restFieldType = res;
+        return recordVarType;
     }
 
     private boolean hasOnlyAnyDataTypedFields(BRecordType recordType) {
@@ -2533,6 +2597,10 @@ public class SymbolEnter extends BLangNodeVisitor {
         }
         return recordType.sealed || isPureTypeUniqueVisitor.visit(recordType);
     }
+//
+//    private BType getUnmatchedFields(BRecordType recordType) {
+//
+//    }
 
     private boolean hasErrorTypedField(BRecordType recordType) {
         for (BField field : recordType.fields.values()) {

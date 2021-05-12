@@ -1650,9 +1650,16 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         }
 
         if (lhsVarRef.restParam != null) {
+            BLangSimpleVarRef varRefRest = (BLangSimpleVarRef) lhsVarRef.restParam;
+            BType lhsRefType;
+            if (varRefRest.type.tag == TypeTags.RECORD) {
+                lhsRefType = ((BRecordType) varRefRest.type).restFieldType;
+            } else {
+                lhsRefType = ((BLangSimpleVarRef) lhsVarRef.restParam).type;
+            }
             types.checkType(((BLangSimpleVarRef) lhsVarRef.restParam).pos,
                     this.symbolEnter.getRestParamType(rhsRecordType),
-                    ((BLangSimpleVarRef) lhsVarRef.restParam).type, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
+                    lhsRefType, DiagnosticErrorCode.INCOMPATIBLE_TYPES);
         }
     }
 
@@ -2134,10 +2141,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMappingMatchPattern mappingMatchPattern) {
-        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
-                env.enclPkg.packageID, null, env.scope.owner, mappingMatchPattern.pos, VIRTUAL);
-        recordSymbol.name = names.fromString(anonModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        BRecordTypeSymbol recordSymbol = symbolEnter.createAnonRecordSymbol(env, mappingMatchPattern.pos);
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         for (BLangFieldMatchPattern fieldMatchPattern : mappingMatchPattern.fieldMatchPatterns) {
@@ -2540,10 +2544,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
 
     @Override
     public void visit(BLangMappingBindingPattern mappingBindingPattern) {
-        EnumSet<Flag> flags = EnumSet.of(Flag.PUBLIC, Flag.ANONYMOUS);
-        BRecordTypeSymbol recordSymbol = Symbols.createRecordSymbol(Flags.asMask(flags), Names.EMPTY,
-                env.enclPkg.symbol.pkgID, null, env.scope.owner, mappingBindingPattern.pos, VIRTUAL);
-        recordSymbol.name = names.fromString(anonModelHelper.getNextAnonymousTypeKey(env.enclPkg.packageID));
+        BRecordTypeSymbol recordSymbol = symbolEnter.createAnonRecordSymbol(env, mappingBindingPattern.pos);
         LinkedHashMap<String, BField> fields = new LinkedHashMap<>();
 
         for (BLangFieldBindingPattern fieldBindingPattern : mappingBindingPattern.fieldBindingPatterns) {
