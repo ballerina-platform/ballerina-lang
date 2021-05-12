@@ -16,7 +16,7 @@
                             "character": 4
                         }
                     },
-                    "newText": "var a \u003d "
+                    "newText": "future<int> futureResult = "
                 }
             ]
         }

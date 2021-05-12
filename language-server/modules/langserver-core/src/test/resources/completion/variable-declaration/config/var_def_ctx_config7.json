@@ -433,20 +433,6 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "doTask()(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "sortText": "C",
-      "insertText": "doTask()",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
@@ -465,15 +451,23 @@
         }
       },
       "sortText": "C",
+      "filterText": "testFunction",
       "insertText": "testFunction()",
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "c1",
-      "kind": "Variable",
-      "detail": "module1:TestClass1",
-      "sortText": "B",
-      "insertText": "c1",
+      "label": "doTask()(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "sortText": "C",
+      "filterText": "doTask",
+      "insertText": "doTask()",
       "insertTextFormat": "Snippet"
     },
     {
@@ -485,6 +479,14 @@
       },
       "sortText": "L",
       "insertText": "StrandData",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "c1",
+      "kind": "Variable",
+      "detail": "module1:TestClass1",
+      "sortText": "B",
+      "insertText": "c1",
       "insertTextFormat": "Snippet"
     },
     {

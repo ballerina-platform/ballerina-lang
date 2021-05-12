@@ -389,41 +389,10 @@
       "insertTextFormat": "Snippet"
     },
     {
-      "label": "testFunctionWithParams(int a, int b)(int)",
-      "kind": "Function",
-      "detail": "Function",
-      "documentation": {
-        "right": {
-          "kind": "markdown",
-          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `int`   \n  \n"
-        }
-      },
-      "insertText": "testFunctionWithParams(${1})",
-      "insertTextFormat": "Snippet",
-      "command": {
-        "title": "editor.action.triggerParameterHints",
-        "command": "editor.action.triggerParameterHints"
-      }
-    },
-    {
-      "label": "valueB",
-      "kind": "Variable",
-      "detail": "int",
-      "insertText": "valueB",
-      "insertTextFormat": "Snippet"
-    },
-    {
       "label": "Thread",
       "kind": "TypeParameter",
       "detail": "Union",
       "insertText": "Thread",
-      "insertTextFormat": "Snippet"
-    },
-    {
-      "label": "valueA",
-      "kind": "Variable",
-      "detail": "int",
-      "insertText": "valueA",
       "insertTextFormat": "Snippet"
     },
     {
@@ -436,7 +405,22 @@
           "value": "**Package:** _._  \n  \n  \n"
         }
       },
+      "filterText": "testFunction",
       "insertText": "testFunction()",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "valueA",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "valueA",
+      "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "valueB",
+      "kind": "Variable",
+      "detail": "int",
+      "insertText": "valueB",
       "insertTextFormat": "Snippet"
     },
     {
@@ -448,6 +432,24 @@
       },
       "insertText": "StrandData",
       "insertTextFormat": "Snippet"
+    },
+    {
+      "label": "testFunctionWithParams(int a, int b)(int)",
+      "kind": "Function",
+      "detail": "Function",
+      "documentation": {
+        "right": {
+          "kind": "markdown",
+          "value": "**Package:** _._  \n  \n  \n**Params**  \n- `int` a  \n- `int` b  \n  \n**Returns** `int`   \n  \n"
+        }
+      },
+      "filterText": "testFunctionWithParams",
+      "insertText": "testFunctionWithParams(${1})",
+      "insertTextFormat": "Snippet",
+      "command": {
+        "title": "editor.action.triggerParameterHints",
+        "command": "editor.action.triggerParameterHints"
+      }
     },
     {
       "label": "readonly",

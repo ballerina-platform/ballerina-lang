@@ -3256,11 +3256,13 @@ public class TypeChecker extends BLangNodeVisitor {
                 if (!cIExpr.initInvocation.argExprs.isEmpty()) {
                     BLangExpression iteratorExpr = cIExpr.initInvocation.argExprs.get(0);
                     BType constructType = checkExpr(iteratorExpr, env, symTable.noType);
+                    BUnionType expectedNextReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
                     if (constructType.tag != TypeTags.OBJECT) {
+                        dlog.error(iteratorExpr.pos, DiagnosticErrorCode.INVALID_STREAM_CONSTRUCTOR_ITERATOR,
+                                expectedNextReturnType, constructType);
                         resultType = symTable.semanticError;
                         return;
                     }
-                    BUnionType expectedNextReturnType = createNextReturnType(cIExpr.pos, (BStreamType) actualType);
                     BAttachedFunction closeFunc = types.getAttachedFuncFromObject((BObjectType) constructType,
                             BLangCompilerConstants.CLOSE_FUNC);
                     if (closeFunc != null) {
@@ -4336,23 +4338,13 @@ public class TypeChecker extends BLangNodeVisitor {
         }
 
         List<BType> xmlTypesInSequence = new ArrayList<>();
-        boolean prevNonErrorLoggingCheck = this.nonErrorLoggingCheck;
-        int errorCount = this.dlog.errorCount();
-        muteErrorLog();
 
         for (BLangExpression expressionItem : bLangXMLSequenceLiteral.xmlItems) {
             resultType = checkExpr(expressionItem, env, expType);
-            if (resultType == symTable.semanticError) {
-                unMuteErrorLog(prevNonErrorLoggingCheck, errorCount);
-                dlog.error(bLangXMLSequenceLiteral.pos, DiagnosticErrorCode.INCOMPATIBLE_TYPES, expType,
-                        getXMLTypeFromLiteralKind(expressionItem));
-                return;
-            }
             if (!xmlTypesInSequence.contains(resultType)) {
                 xmlTypesInSequence.add(resultType);
             }
         }
-        unMuteErrorLog(prevNonErrorLoggingCheck, errorCount);
 
         // Set type according to items in xml sequence and expected type
         if (expType.tag == TypeTags.XML || expType == symTable.noType) {

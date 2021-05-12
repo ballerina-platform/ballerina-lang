@@ -28,7 +28,7 @@
                                         "character": 0
                                     }
                                 },
-                                "newText": "\n\nfunction createTeacher(string a) returns mod2:Teacher {\n    \n    return {name: \"\"};\n}\n"
+                                "newText": "\n\nfunction createTeacher(string a) returns mod2:Teacher {\n    return {name: \"\"};\n}\n"
                             }
                         ]
                     }

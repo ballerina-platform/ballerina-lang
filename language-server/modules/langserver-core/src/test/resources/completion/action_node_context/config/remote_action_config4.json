@@ -3,7 +3,7 @@
     "line": 11,
     "character": 26
   },
-  "source": "statement_context/source/remote_action_source4.bal",
+  "source": "action_node_context/source/remote_action_source4.bal",
   "items": [
     {
       "label": "post(string path, string|xml<xml:Element|xml:Comment|xml:ProcessingInstruction|xml:Text>|json|byte[] message, string targetType)(mod:Response)",
@@ -16,6 +16,7 @@
         }
       },
       "sortText": "C",
+      "filterText": "post",
       "insertText": "post(${1})",
       "insertTextFormat": "Snippet",
       "command": {

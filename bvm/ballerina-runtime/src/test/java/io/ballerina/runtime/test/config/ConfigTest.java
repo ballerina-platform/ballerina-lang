@@ -22,9 +22,9 @@ import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.PredefinedTypes;
 import io.ballerina.runtime.api.types.Type;
 import io.ballerina.runtime.api.utils.StringUtils;
-import io.ballerina.runtime.api.utils.XmlUtils;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
+import io.ballerina.runtime.internal.TypeConverter;
 import io.ballerina.runtime.internal.configurable.ConfigProvider;
 import io.ballerina.runtime.internal.configurable.ConfigResolver;
 import io.ballerina.runtime.internal.configurable.VariableKey;
@@ -116,7 +116,7 @@ public class ConfigTest {
                 {new VariableKey(module, "xmlVar",
                                  new BIntersectionType(module, new Type[]{}, PredefinedTypes.TYPE_XML, 0, true),
                                  true),
-                        BXml.class, XmlUtils.parse("<book>The Lost World</book>\n<!--I am a comment-->"),
+                        BXml.class, TypeConverter.stringToXml("<book>The Lost World</book>\n<!--I am a comment-->"),
                         new CliProvider(ROOT_MODULE, "-CmyOrg.test_module.xmlVar=<book>The Lost World</book>\n<!--I " +
                                 "am a comment-->")},
                 // Multiple provider but use the first registered provider ( CLI arg as final value)

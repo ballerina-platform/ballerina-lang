@@ -160,6 +160,14 @@ function nilableIntersection1() returns (int[] & readonly)? => ();
 
 function nilableIntersection2() returns ()|(int[] & readonly) => [1, 2];
 
+function testExprsInDoAndOnFail() {
+    do {
+        Foo f = {i: 10};
+    } on fail error e {
+        _ = testParameterizedType1(string);
+    }
+}
+
 // utils
 
 class PersonObj {
