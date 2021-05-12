@@ -38,7 +38,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
 
     private List<BAnnotationSymbol> annots;
     public boolean isDefaultable = false;
-    public boolean isIgnorable = false;
+    public boolean isWildcard = false;
 
     // Only used for type-narrowing. Cache of the original symbol.
     public BVarSymbol originalSymbol;
@@ -58,7 +58,7 @@ public class BVarSymbol extends BSymbol implements VariableSymbol, Annotatable {
                       Location pos,
                       SymbolOrigin origin) {
         this(flags, name, pkgID, type, owner, pos, origin);
-        this.isIgnorable = isIgnorable;
+        this.isWildcard = isIgnorable;
     }
 
     @Override

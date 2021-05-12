@@ -166,7 +166,7 @@ public class SymbolFactory {
             }
 
             // If the symbol is a wildcard('_'), a variable symbol will not be created.
-            if (((BVarSymbol) symbol).isIgnorable) {
+            if (((BVarSymbol) symbol).isWildcard) {
                 return null;
             }
 
