@@ -1911,7 +1911,8 @@ public class SymbolResolver extends BLangNodeVisitor {
             isErrorIntersection = true;
         }
 
-        if (typeOne.tag == typeTwo.tag && typeOne.tag != TypeTags.ERROR) {
+        if ((typeOne.tag == typeTwo.tag && typeOne.tag != TypeTags.ERROR)
+            || (!hasReadOnlyType && (typeOne.tag != TypeTags.ERROR || typeTwo.tag != TypeTags.ERROR))) {
             dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.UNSUPPORTED_INTERSECTION, intersectionTypeNode);
             return symTable.noType;
         }
@@ -1989,12 +1990,6 @@ public class SymbolResolver extends BLangNodeVisitor {
 
             return defineIntersectionType((BErrorType) potentialIntersectionType, intersectionTypeNode.pos,
                                           constituentBTypes, existingErrorDetailType, env);
-        }
-
-        if (!hasReadOnlyType) {
-            dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.INVALID_NON_READONLY_INTERSECTION_TYPE,
-                       intersectionTypeNode);
-            return symTable.semanticError;
         }
 
         if (types.isInherentlyImmutableType(potentialIntersectionType)) {

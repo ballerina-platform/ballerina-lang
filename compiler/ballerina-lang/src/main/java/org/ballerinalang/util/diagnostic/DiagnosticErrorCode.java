@@ -55,7 +55,7 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     UNDEFINED_STRUCTURE_FIELD("BCE2024", "undefined.field.in.structure"),
     TYPE_NOT_ALLOWED_WITH_NEW("BCE2025", "type.not.allowed.with.new"),
     INVALID_INTERSECTION_TYPE("BCE2026", "invalid.intersection.type"),
-    INVALID_NON_READONLY_INTERSECTION_TYPE("BCE2027", "invalid.non.readonly.intersection.type"),
+    UNSUPPORTED_INTERSECTION("BCE2027", "unsupported.type.intersection"),
     INVALID_READONLY_INTERSECTION_TYPE("BCE2028", "invalid.readonly.intersection.type"),
     INVALID_READONLY_OBJECT_INTERSECTION_TYPE("BCE2029", "invalid.readonly.object.intersection.type"),
     INVALID_READONLY_OBJECT_TYPE("BCE2030", "invalid.readonly.object.type"),
@@ -715,7 +715,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     INVALID_MAIN_OPTION_PARAMS_TYPE("BCE4003", "invalid.main.option.params.type"),
     WORKER_INTERACTION_AFTER_WAIT_ACTION("BCE4005", "invalid.worker.message.passing.after.wait.action"),
     OPTIONAL_OPERAND_PRECEDES_OPERAND("BCE4006", "optional.operand.precedes.operand"),
-    UNSUPPORTED_INTERSECTION("BCE4007", "unsupported.type.intersection")
             ;
 
     private String diagnosticId;
