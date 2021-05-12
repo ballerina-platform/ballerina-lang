@@ -21,7 +21,6 @@ package io.ballerina.cli.task;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.ProjectException;
 import io.ballerina.projects.internal.model.Target;
-import io.ballerina.projects.util.ProjectUtils;
 
 import java.io.IOException;
 
@@ -36,7 +35,6 @@ public class CleanTargetDirTask implements Task {
     @Override
     public void execute(Project project) {
         try {
-            ProjectUtils.checkWritePermission(project.sourceRoot());
             Target target = new Target(project.sourceRoot());
             target.clean();
         } catch (IOException | ProjectException e) {
