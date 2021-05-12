@@ -54,6 +54,7 @@ public class BLangInvocation extends BLangExpression implements InvocationNode {
     public Set<Flag> flagSet;
     public List<BLangAnnotationAttachment> annAttachments = new ArrayList<>();
     public BLangExpression expr;
+    public BSymbol symbol;
 
     /*
      * Below expressions are used by typechecker, desugar and codegen phases.

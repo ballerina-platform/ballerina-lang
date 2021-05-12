@@ -17,12 +17,15 @@
  */
 package org.wso2.ballerinalang.compiler.tree.expressions;
 
+import org.wso2.ballerinalang.compiler.semantics.model.symbols.BSymbol;
+
 /**
  * {@code BLangValueExpression} represents a value access expression.
  * i.e: field access, index-based access & variable refs.
  * y = 1;
- * x.y = 1;
+ * x.y = 1; // isLValue = true;
  * x["y"] = 1;
+ * z = x.y; // isLValue = false;
  *
  * @since 2.0.0
  */
@@ -30,5 +33,6 @@ public abstract class BLangValueExpression extends BLangExpression {
 
     public boolean isLValue = false;
     public boolean isCompoundAssignmentLValue = false;
+    public BSymbol symbol;
 
 }
