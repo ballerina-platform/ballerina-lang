@@ -2070,8 +2070,7 @@ public class SymbolResolver extends BLangNodeVisitor {
 
         BTypeSymbol intersectionTypeSymbol = Symbols.createTypeSymbol(SymTag.INTERSECTION_TYPE,
                                                                       Flags.asMask(EnumSet.of(Flag.PUBLIC)),
-                                                                      null,
-                                                                      pkgId, null, owner,
+                                                                      Names.EMPTY, pkgId, null, owner,
                                                                       symTable.builtinPos, VIRTUAL);
 
         BIntersectionType intersectionType = new BIntersectionType(intersectionTypeSymbol, constituentBTypes,
