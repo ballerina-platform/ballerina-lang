@@ -14,9 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-// configurable var is implicitly final and readonly
-configurable int discountRate = 5;
+// configurable var is implicitly  readonly
+int[] nonReadOnlyArray = [];
 
-function foo2() {
-    discountRate = 9;
-}
+configurable int[][] x = [nonReadOnlyArray];

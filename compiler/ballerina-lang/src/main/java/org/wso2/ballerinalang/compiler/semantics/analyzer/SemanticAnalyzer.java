@@ -809,24 +809,30 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         BType lhsType = varNode.symbol.type;
         varNode.type = lhsType;
 
-        // Configurable variable type must be a subtype of anydata&readonly.
+        // Configurable variable type must be a subtype of anydata.
         if (configurable && varNode.typeNode != null) {
-            if (!(types.isAssignable(lhsType, symTable.anydataType) &&
-                    types.isAssignable(lhsType, symTable.readonlyType))) {
-                dlog.error(varNode.typeNode.pos,
-                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA_AND_READONLY);
-            } else if (!(types.isAssignable(lhsType, symTable.intType) ||
-                    types.isAssignable(lhsType, symTable.floatType) ||
-                    types.isAssignable(lhsType, symTable.stringType) ||
-                    types.isAssignable(lhsType, symTable.booleanType) ||
-                    types.isAssignable(lhsType, symTable.decimalType) ||
-                    types.isAssignable(lhsType, symTable.xmlType) ||
-                    types.isAssignable(lhsType, symTable.arrayType) ||
-                    types.isAssignable(lhsType, symTable.mapAnydataType) ||
-                    types.isAssignable(lhsType, symTable.tableType))) {
-                // TODO: remove this check once runtime support all configurable types
-                dlog.error(varNode.typeNode.pos,
-                        DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
+            lhsType = getReadOnlyFieldType(varNode.typeNode.pos, lhsType);
+            if (lhsType == symTable.semanticError) {
+                dlog.error(varNode.pos, DiagnosticErrorCode.INVALID_CONFIGURABLE_TYPE, lhsType);
+            } else {
+                varNode.type = lhsType;
+                varNode.symbol.type = lhsType;
+                if (!types.isAssignable(lhsType, symTable.anydataType)) {
+                    dlog.error(varNode.typeNode.pos,
+                            DiagnosticErrorCode.CONFIGURABLE_VARIABLE_MUST_BE_ANYDATA);
+                } else if (!(types.isAssignable(lhsType, symTable.intType) ||
+                        types.isAssignable(lhsType, symTable.floatType) ||
+                        types.isAssignable(lhsType, symTable.stringType) ||
+                        types.isAssignable(lhsType, symTable.booleanType) ||
+                        types.isAssignable(lhsType, symTable.decimalType) ||
+                        types.isAssignable(lhsType, symTable.xmlType) ||
+                        types.isAssignable(lhsType, symTable.arrayType) ||
+                        types.isAssignable(lhsType, symTable.mapAnydataType) ||
+                        types.isAssignable(lhsType, symTable.tableType))) {
+                    // TODO: remove this check once runtime support all configurable types
+                    dlog.error(varNode.typeNode.pos,
+                            DiagnosticErrorCode.CONFIGURABLE_VARIABLE_CURRENTLY_NOT_SUPPORTED, lhsType);
+                }
             }
         }
         // Analyze the init expression

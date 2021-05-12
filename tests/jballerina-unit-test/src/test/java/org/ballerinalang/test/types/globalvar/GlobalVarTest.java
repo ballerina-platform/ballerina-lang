@@ -41,4 +41,9 @@ public class GlobalVarTest {
                 "/global_variable_init_in_reverse_order.bal");
         BRunUtil.invoke(result, "testReverseOrderInitialization");
     }
+
+    @Test
+    public void testConfigurableVar() {
+        BCompileUtil.compile("test-src/statements/variabledef/configurable_var_decl.bal");
+    }
 }

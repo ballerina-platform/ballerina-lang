@@ -81,8 +81,7 @@ public class GlobalVarNegativeTest {
         BAssertUtil.validateError(result, i++, "configurable variable must be initialized or be marked as required",
                 18, 19);
         BAssertUtil.validateError(result, i++, "configurable variable cannot be declared with var", 20, 1);
-        BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 22, 22);
-        BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata&readonly", 24, 14);
+        BAssertUtil.validateError(result, i++, "type of configurable variable must be anydata", 22, 22);
         BAssertUtil.validateError(result, i++, "missing close brace token", 27, 1);
         BAssertUtil.validateError(result, i++, "invalid token '}'", 31, 1);
         BAssertUtil.validateError(result, i++, "configurable variable currently not supported for " +
@@ -92,12 +91,22 @@ public class GlobalVarNegativeTest {
     }
 
     @Test
-    public void testConfigurableFinalVar() {
+    public void testConfigurableImplicitFinal() {
         CompileResult result = BCompileUtil.compile
-                ("test-src/statements/variabledef/configurable_global_var_decl_negative2.bal");
+                ("test-src/statements/variabledef/configurable_global_var_decl_negative_02.bal");
         int i = 0;
         BAssertUtil.validateError(result, i++, "cannot assign a value to final 'discountRate'",
                 21, 5);
+        Assert.assertEquals(result.getErrorCount(), i);
+    }
+
+    @Test
+    public void testConfigurableImplicitReadOnly() {
+        CompileResult result = BCompileUtil.compile
+                ("test-src/statements/variabledef/configurable_global_var_decl_negative_03.bal");
+        int i = 0;
+        BAssertUtil.validateError(result, i++, "incompatible types: expected 'int[] & readonly', found 'int[]'",
+                20, 27);
         Assert.assertEquals(result.getErrorCount(), i);
     }
 }
