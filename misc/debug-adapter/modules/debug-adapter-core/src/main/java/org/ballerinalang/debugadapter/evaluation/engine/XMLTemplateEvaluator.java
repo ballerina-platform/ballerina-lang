@@ -56,10 +56,10 @@ public class XMLTemplateEvaluator extends Evaluator {
                 xmlStrBuilder.append(memberNode.toSourceCode());
             }
             Value xmlStrValue = EvaluationUtils.getAsJString(context, xmlStrBuilder.toString());
-            RuntimeStaticMethod fromStringMethod = getRuntimeMethod(context, B_TYPE_CONVERTER_CLASS,
+            RuntimeStaticMethod strToXmlMethod = getRuntimeMethod(context, B_TYPE_CONVERTER_CLASS,
                     STRING_TO_XML_METHOD, Collections.singletonList(JAVA_STRING_CLASS));
-            fromStringMethod.setArgValues(Collections.singletonList(xmlStrValue));
-            Value result = fromStringMethod.invokeSafely();
+            strToXmlMethod.setArgValues(Collections.singletonList(xmlStrValue));
+            Value result = strToXmlMethod.invokeSafely();
             return new BExpressionValue(context, result);
         } catch (EvaluationException e) {
             throw e;

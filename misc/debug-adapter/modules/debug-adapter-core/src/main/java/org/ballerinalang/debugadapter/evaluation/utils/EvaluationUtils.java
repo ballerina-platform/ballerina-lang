@@ -79,7 +79,6 @@ public class EvaluationUtils {
     private static final String B_LINK_CLASS = RUNTIME_HELPER_PREFIX + "api.values.BLink";
     private static final String B_ERROR_VALUE_CLASS = RUNTIME_HELPER_PREFIX + "internal.values.ErrorValue";
 
-
     // Java runtime helper classes
     public static final String JAVA_OBJECT_CLASS = "java.lang.Object";
     public static final String JAVA_STRING_CLASS = "java.lang.String";
