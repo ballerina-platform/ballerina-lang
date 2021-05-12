@@ -17,16 +17,40 @@
  */
 package org.ballerinalang.test.record;
 
+import org.ballerinalang.test.BAssertUtil;
 import org.ballerinalang.test.BCompileUtil;
 import org.ballerinalang.test.BRunUtil;
 import org.ballerinalang.test.CompileResult;
+import org.testng.Assert;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
 
 public class RecordDestructuringTest {
 
+    private CompileResult compileResult, negativeResult;
+
+    @BeforeClass
+    public void setup() {
+        compileResult = BCompileUtil.compile("test-src/record/record_destructuring.bal");
+        negativeResult = BCompileUtil.compile("test-src/record/record_destructuring_negative.bal");
+    }
+
     @Test(description = "Test resolving the rest field type during record restructuring")
     public void testResolvingRestField() {
-        CompileResult compileResult = BCompileUtil.compile("test-src/record/record_destructuring.bal");
         BRunUtil.invoke(compileResult, "testRestFieldResolving");
+    }
+
+    @Test(description = "Test rest field resolving negative cases")
+    public void testResolvingRestFieldNegative() {
+        Assert.assertEquals(negativeResult.getErrorCount(), 1);
+        int i = 0;
+        BAssertUtil.validateError(negativeResult, i++, "incompatible types: expected 'XY', " +
+                "found 'record {| never x?; never y?; anydata...; |}'", 30, 12);
+    }
+
+    @AfterClass
+    public void tearDown() {
+        compileResult = negativeResult = null;
     }
 }
