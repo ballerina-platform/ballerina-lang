@@ -65,9 +65,9 @@ public type PolledGauge record {
 };
 
 public type Metrics record {
-  Counter [] counters;
-  Gauge [] gauges;
-  PolledGauge [] polledGauges;
+  Counter[] counters;
+  Gauge[] gauges;
+  PolledGauge[] polledGauges;
 };
 
 # Get all the current metrics
