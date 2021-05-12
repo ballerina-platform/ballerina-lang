@@ -542,7 +542,7 @@ public class ImmutableTypeCloner {
 
     private static String getPackageAlias(SymbolEnv env, String compUnitName, PackageID typePkgId) {
         for (BLangImportPackage importStmt : env.enclPkg.imports) {
-            if (!typePkgId.equals(importStmt.symbol.pkgID)) {
+            if (importStmt.symbol == null || !typePkgId.equals(importStmt.symbol.pkgID)) {
                 continue;
             }
 
