@@ -164,8 +164,8 @@ function testSpreadFieldWithRecordTypeHavingNeverField() {
     assertEquality(75, john["physics"]);
 
     map<anydata> someMap = { name: "John Doe", ...grades };
-    assertEquality("John Doe", john["name"]);
-    assertEquality(75, john["physics"]);
+    assertEquality("John Doe", someMap["name"]);
+    assertEquality(75, someMap["physics"]);
 
     map<anydata> location = { country: "SL", ...address};
     assertEquality("SL", location["country"]);
