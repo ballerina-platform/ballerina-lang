@@ -43,4 +43,26 @@ public class NonCatProperty implements DiagnosticProperty<Object> {
     public Object value() {
         return value;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+
+        NonCatProperty that = (NonCatProperty) o;
+
+        if (kind != that.kind) {
+            return false;
+        }
+        return value != null ? value.equals(that.value) : that.value == null;
+    }
+
+    @Override
+    public int hashCode() {
+        return 31 * kind.hashCode() + (value != null ? value.hashCode() : 0);
+    }
 }

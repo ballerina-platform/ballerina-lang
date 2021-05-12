@@ -1911,6 +1911,11 @@ public class SymbolResolver extends BLangNodeVisitor {
             isErrorIntersection = true;
         }
 
+        if (typeOne.tag == typeTwo.tag && typeOne.tag != TypeTags.ERROR) {
+            dlog.error(intersectionTypeNode.pos, DiagnosticErrorCode.UNSUPPORTED_INTERSECTION, intersectionTypeNode);
+            return symTable.noType;
+        }
+
         BType potentialIntersectionType = getPotentialIntersection(
                 Types.IntersectionContext.from(dlog, bLangTypeOne.pos, bLangTypeTwo.pos),
                 typeOne, typeTwo, this.env);
