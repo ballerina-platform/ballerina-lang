@@ -17,7 +17,11 @@
  */
 package org.ballerinalang.langserver.extensions.ballerina.document.visitor;
 
+import io.ballerina.compiler.api.ModuleID;
 import io.ballerina.compiler.api.SemanticModel;
+import io.ballerina.compiler.api.symbols.ModuleSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.IdentifierToken;
 import io.ballerina.compiler.syntax.tree.ImportDeclarationNode;
 import io.ballerina.compiler.syntax.tree.ImportOrgNameNode;
@@ -86,11 +90,13 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     private LineRange getDeleteRange(LineRange lineRange) {
         if (lineRange != null) {
             for (LineRange aPosition : deleteRanges.keySet()) {
-                if (aPosition.startLine().line() <= lineRange.startLine().line() &&
-                        aPosition.endLine().line() >= lineRange.endLine().line() &&
-                        aPosition.startLine().offset() <= lineRange.startLine().offset() &&
-                        aPosition.endLine().offset() >= lineRange.endLine().offset()) {
-                    return aPosition;
+                if (aPosition.startLine().line() <= lineRange.startLine().line()
+                        && aPosition.startLine().offset() <= lineRange.startLine().offset()) {
+                    if (aPosition.endLine().line() == lineRange.endLine().line()
+                            && aPosition.endLine().offset() >= lineRange.endLine().offset()
+                            || aPosition.endLine().line() > lineRange.endLine().line()) {
+                        return aPosition;
+                    }
                 }
             }
         }
@@ -105,24 +111,29 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
     }
 
     private void moveUnusedtoUsedImport(LineRange lineRange, ImportDeclarationNode importDeclarationNode) {
-        List<Location> locations = this.semanticModel.references(srcFile, lineRange.startLine());
-        boolean availableOutSideDeleteRange = false;
-        for (Location location : locations) {
-            if (isWithinLineRange(importDeclarationNode.lineRange(), location.lineRange())) {
-                continue;
+        Optional<Symbol> symbol = semanticModel.symbol(importDeclarationNode);
+
+        if (symbol.isPresent()) {
+            List<Location> locations = this.semanticModel.references(symbol.get());
+            boolean availableOutSideDeleteRange = false;
+            for (Location location : locations) {
+                if (isWithinLineRange(importDeclarationNode.lineRange(), location.lineRange())) {
+                    continue;
+                }
+                LineRange deleteRange = getDeleteRange(location.lineRange());
+                if (deleteRange == null) {
+                    availableOutSideDeleteRange = true;
+                }
             }
-            LineRange deleteRange = getDeleteRange(location.lineRange());
-            if (deleteRange == null) {
-                availableOutSideDeleteRange = true;
+            if (availableOutSideDeleteRange) {
+                this.unusedImports.remove(getImportModuleName(importDeclarationNode.orgName().isPresent()
+                        ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()));
+                this.usedImports.put(getImportModuleName(importDeclarationNode.orgName().isPresent()
+                                ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()),
+                        importDeclarationNode);
             }
         }
-        if (availableOutSideDeleteRange) {
-            this.unusedImports.remove(getImportModuleName(importDeclarationNode.orgName().isPresent()
-                    ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()));
-            this.usedImports.put(getImportModuleName(importDeclarationNode.orgName().isPresent()
-                            ? importDeclarationNode.orgName().get() : null, importDeclarationNode.moduleName()),
-                    importDeclarationNode);
-        }
+
     }
 
     private void decideVariablesToBeDeleted(LineRange lineRange) {
@@ -188,6 +199,26 @@ public class UnusedSymbolsVisitor extends NodeVisitor {
                 && variableDeclarationNode.typedBindingPattern().bindingPattern() != null
                 && variableDeclarationNode.typedBindingPattern().bindingPattern().lineRange() != null) {
             decideVariablesToBeDeleted(variableDeclarationNode.typedBindingPattern().bindingPattern().lineRange());
+        }
+    }
+
+    @Override
+    public void visit(AnnotationNode annotationNode) {
+        super.visit(annotationNode);
+        Optional<Symbol> annotationNodeSymbol = semanticModel.symbol(annotationNode);
+
+        if (annotationNodeSymbol.isPresent()) {
+            Optional<ModuleSymbol> moduleSymbol = annotationNodeSymbol.get().getModule();
+
+            if (moduleSymbol.isPresent()) {
+                ModuleID moduleID = moduleSymbol.get().id();
+                String importKey = String.format("%s/%s",
+                        moduleID.orgName(), moduleID.moduleName());
+                if (unusedImports.containsKey(importKey)) {
+                    this.usedImports.put(importKey, this.unusedImports.get(importKey));
+                    this.unusedImports.remove(importKey);
+                }
+            }
         }
     }
 }
