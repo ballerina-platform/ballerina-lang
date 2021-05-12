@@ -17,7 +17,7 @@
  *
  */
 
-package org.ballerina.testobserve.tracing.extension;
+package org.ballerinalang.observe.mockextension;
 
 import com.google.gson.Gson;
 import io.ballerina.runtime.api.utils.JsonUtils;

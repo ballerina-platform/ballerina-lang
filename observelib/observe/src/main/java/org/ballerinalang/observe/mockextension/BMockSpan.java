@@ -16,7 +16,7 @@
  * under the License.
  *
  */
-package org.ballerina.testobserve.tracing.extension;
+package org.ballerinalang.observe.mockextension;
 
 import io.opentelemetry.api.common.Attributes;
 import io.opentelemetry.sdk.trace.data.EventData;
@@ -63,11 +63,9 @@ public class BMockSpan {
         attributes.forEach((attributeKey, o) -> tags.put(attributeKey.getKey(), o));
         this.events = new ArrayList<>();
         for (EventData eventData : eventDataList) {
-            HashMap<String, HashMap<String, Object>> fields = new HashMap<>();
-            HashMap<String, Object> field = new HashMap<>();
-            eventData.getAttributes().forEach((attributeKey, o) -> field.put(attributeKey.getKey(), o));
-            fields.put(eventData.getName(), field);
-            this.events.add(new BMockEvent(eventData.getEpochNanos(), fields));
+            HashMap<String, Object> tags = new HashMap<>();
+            eventData.getAttributes().forEach((attributeKey, o) -> tags.put(attributeKey.getKey(), o));
+            this.events.add(new BMockEvent(eventData.getName(), eventData.getEpochNanos(), tags));
         }
     }
 
@@ -115,33 +113,30 @@ public class BMockSpan {
         return events;
     }
 
-    public List<BMockSpanEvent> getCheckpoints() {
-        List<BMockSpanEvent> checkpoints;
+    public List<CheckPoint> getCheckpoints() {
+        List<CheckPoint> checkpoints = null;
         if (getEvents() != null) {
             checkpoints = new ArrayList<>(getEvents().size());
             for (BMockEvent mockEvent : getEvents()) {
-                BMockSpan.BMockSpanEvent checkpoint = new BMockSpan.BMockSpanEvent(
-                        (((Map) mockEvent.fields().get(CHECKPOINT_EVENT_NAME)).
-                                get(TAG_KEY_SRC_MODULE)).toString(),
-                        (((Map) mockEvent.fields().get(CHECKPOINT_EVENT_NAME)).
-                                get(TAG_KEY_SRC_POSITION)).toString()
-                );
-                checkpoints.add(checkpoint);
+                if (mockEvent.getName().equals(CHECKPOINT_EVENT_NAME)) {
+                    BMockSpan.CheckPoint checkpoint = new BMockSpan.CheckPoint(
+                            mockEvent.getTags().get(TAG_KEY_SRC_MODULE).toString(),
+                            mockEvent.getTags().get(TAG_KEY_SRC_POSITION).toString());
+                    checkpoints.add(checkpoint);
+                }
             }
-        } else {
-            checkpoints = null;
         }
         return checkpoints;
     }
 
     /**
-     * Trace Span Event.
+     * Control flow checkpoint.
      */
-    public static class BMockSpanEvent {
-        private String moduleID;
-        private String positionID;
+    public static class CheckPoint {
+        private final String moduleID;
+        private final String positionID;
 
-        public BMockSpanEvent(String moduleID, String positionID) {
+        public CheckPoint(String moduleID, String positionID) {
             this.moduleID = moduleID;
             this.positionID = positionID;
         }
@@ -154,7 +149,7 @@ public class BMockSpan {
             if (object == null || getClass() != object.getClass()) {
                 return false;
             }
-            BMockSpanEvent that = (BMockSpanEvent) object;
+            CheckPoint that = (CheckPoint) object;
             return Objects.equals(moduleID, that.moduleID) &&
                     Objects.equals(positionID, that.positionID);
         }
@@ -166,23 +161,29 @@ public class BMockSpan {
     }
 
     /**
-     * This holds mock events.
+     * This holds mock event.
      */
     public static final class BMockEvent {
+        private final String name;
         private final long timestampMicros;
-        private final Map<String, ?> fields;
+        private final Map<String, ?> tags;
 
-        public BMockEvent(long timestampMicros, Map<String, ?> fields) {
+        public BMockEvent(String name, long timestampMicros, Map<String, ?> tags) {
+            this.name = name;
             this.timestampMicros = timestampMicros;
-            this.fields = fields;
+            this.tags = tags;
         }
 
-        public long timestampMicros() {
+        public String getName() {
+            return name;
+        }
+
+        public long getTimestampMicros() {
             return timestampMicros;
         }
 
-        public Map<String, ?> fields() {
-            return fields;
+        public Map<String, ?> getTags() {
+            return tags;
         }
     }
 }

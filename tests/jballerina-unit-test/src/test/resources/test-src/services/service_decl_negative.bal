@@ -209,3 +209,7 @@ listener Listener x = new;
 service on x {
 
 }
+
+service ServType / on new ServTypeListener() {
+
+}

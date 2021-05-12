@@ -16,7 +16,7 @@
  * under the License.
  */
 
-package org.ballerina.testobserve.metrics.extension;
+package org.ballerinalang.observe.mockextension;
 
 import com.google.gson.Gson;
 import io.ballerina.runtime.api.utils.JsonUtils;
@@ -25,10 +25,10 @@ import io.ballerina.runtime.observability.metrics.DefaultMetricRegistry;
 import io.ballerina.runtime.observability.metrics.Gauge;
 import io.ballerina.runtime.observability.metrics.Metric;
 import io.ballerina.runtime.observability.metrics.PolledGauge;
-import org.ballerina.testobserve.metrics.extension.model.Metrics;
-import org.ballerina.testobserve.metrics.extension.model.MockCounter;
-import org.ballerina.testobserve.metrics.extension.model.MockGauge;
-import org.ballerina.testobserve.metrics.extension.model.MockPolledGauge;
+import org.ballerinalang.observe.mockextension.model.Metrics;
+import org.ballerinalang.observe.mockextension.model.MockCounter;
+import org.ballerinalang.observe.mockextension.model.MockGauge;
+import org.ballerinalang.observe.mockextension.model.MockPolledGauge;
 
 /**
  * Java functions called from Ballerina related to metrics.

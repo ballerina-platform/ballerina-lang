@@ -16,13 +16,34 @@
 
 import ballerina/jballerina.java;
 
+public type Event record {
+    string name;
+    int timestampMicros;
+    map<string> tags;
+};
+
+public type Span record {
+  string operationName;
+  string traceId;
+  string spanId;
+  string parentId;
+  map<string> tags;
+  Event[] events;
+};
+
 # Get all the finished spans.
 #
 # + serviceName - The name of the service of which the finished spans should be fetched
-# + return - The finished spans as a json
-public isolated function getFinishedSpans(string serviceName) returns json {
+# + return - The finished spans
+public isolated function getFinishedSpans(string serviceName) returns Span[] {
     handle serviceNameHandle = java:fromString(serviceName);
-    return externGetFinishedSpans(serviceNameHandle);
+    json spansJson = externGetFinishedSpans(serviceNameHandle);
+    Span[] | error spans = spansJson.cloneWithType();
+    if (spans is error) {
+        panic error("cannot convert to Span record array; json string: " + spansJson.toJsonString(), spans);
+    } else {
+        return spans;
+    }
 }
 
 # Get all the finished spans.
@@ -31,5 +52,5 @@ public isolated function getFinishedSpans(string serviceName) returns json {
 # + return - The finished spans as a json
 isolated function externGetFinishedSpans(handle serviceName) returns json = @java:Method {
     name: "getFinishedSpans",
-    'class: "org.ballerina.testobserve.tracing.extension.MockTracerUtils"
+    'class: "org.ballerinalang.observe.mockextension.MockTracerUtils"
 } external;

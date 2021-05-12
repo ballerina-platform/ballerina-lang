@@ -16,19 +16,19 @@
  * under the License.
  */
 
-package org.ballerina.testobserve.metrics.extension.model;
+package org.ballerinalang.observe.mockextension.model;
 
 /**
- * Class for holding counter related metrics data.
+ * Class for holding polled gauge related metrics data.
  */
-public class MockCounter extends MockMetric {
-    private long value;
+public class MockPolledGauge extends MockMetric {
+    private double value;
 
-    public long getValue() {
+    public double getValue() {
         return value;
     }
 
-    public void setValue(long value) {
+    public void setValue(double value) {
         this.value = value;
     }
 }
