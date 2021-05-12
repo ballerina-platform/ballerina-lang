@@ -389,8 +389,6 @@ public enum DiagnosticErrorCode implements DiagnosticCode {
     NEVER_TYPED_VAR_DEF_NOT_ALLOWED("BCE2646", "never.typed.var.def.not.allowed"),
     NEVER_TYPED_OBJECT_FIELD_NOT_ALLOWED("BCE2647", "never.typed.object.field.not.allowed"),
 
-    EXPRESSION_DOES_NOT_SUPPORT_MEMBER_ACCESS("BCE2648", "expression.does.not.support.member.access"),
-    EXPRESSION_DOES_NOT_SUPPORT_FIELD_ACCESS("BCE2649", "expression.does.not.support.field.access"),
     CANNOT_USE_TYPE_INCLUSION_WITH_MORE_THAN_ONE_OPEN_RECORD_WITH_DIFFERENT_REST_DESCRIPTOR_TYPES("BCE2650",
             "cannot.use.type.inclusion.with.more.than.one.open.record.with.different.rest.descriptor.types"),
     INVALID_METHOD_CALL_EXPR_ON_FIELD("BCE2651", "invalid.method.call.expr.on.field"),
