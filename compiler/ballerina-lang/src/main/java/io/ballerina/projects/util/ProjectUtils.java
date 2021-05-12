@@ -514,19 +514,19 @@ public class ProjectUtils {
 
     public static void checkWritePermission(Path path) {
         if (!path.toFile().canWrite()) {
-            throw new ProjectException("'" + path + "' does not have write permissions");
+            throw new ProjectException("'" + path.normalize() + "' does not have write permissions");
         }
     }
 
     public static void checkReadPermission(Path path) {
         if (!path.toFile().canRead()) {
-            throw new ProjectException("'" + path + "' does not have read permissions");
+            throw new ProjectException("'" + path.normalize() + "' does not have read permissions");
         }
     }
 
     public static void checkExecutePermission(Path path) {
         if (!path.toFile().canRead()) {
-            throw new ProjectException("'" + path + "' does not have execute permissions");
+            throw new ProjectException("'" + path.normalize() + "' does not have execute permissions");
         }
     }
 

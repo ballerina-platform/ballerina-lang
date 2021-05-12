@@ -22,6 +22,7 @@ import io.ballerina.projects.environment.ProjectEnvironment;
 import io.ballerina.projects.internal.DefaultDiagnosticResult;
 import io.ballerina.projects.internal.PackageDiagnostic;
 import io.ballerina.projects.internal.jballerina.JarWriter;
+import io.ballerina.projects.internal.model.Target;
 import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
@@ -69,7 +70,6 @@ import java.util.jar.Manifest;
 import java.util.stream.Collectors;
 
 import static io.ballerina.projects.util.FileUtils.getFileNameWithoutExtension;
-import static io.ballerina.projects.util.ProjectUtils.checkWritePermission;
 import static org.ballerinalang.compiler.CompilerOptionName.SKIP_TESTS;
 
 /**
@@ -103,7 +103,13 @@ public class JBallerinaBackend extends CompilerBackend {
 
     public static JBallerinaBackend from(PackageCompilation packageCompilation, JvmTarget jdkVersion) {
         // Check if the project has write permissions
-        checkWritePermission(packageCompilation.packageContext().project().sourceRoot());
+        if (packageCompilation.packageContext().project().kind().equals(ProjectKind.BUILD_PROJECT)) {
+            try {
+                new Target(packageCompilation.packageContext().project().sourceRoot());
+            } catch (IOException e) {
+                throw new ProjectException("error while checking permissions of target directory", e);
+            }
+        }
         return packageCompilation.getCompilerBackend(jdkVersion,
                 (targetPlatform -> new JBallerinaBackend(packageCompilation, jdkVersion)));
     }
@@ -149,13 +155,9 @@ public class JBallerinaBackend extends CompilerBackend {
             if (hasNoErrors(diagnostics)) {
                 moduleContext.generatePlatformSpecificCode(compilerContext, this);
             }
-            if (!packageContext.compilationOptions().showAllWarnings()) {
-                if (!moduleContext.moduleName().packageName().equals(packageContext.packageName())) {
-                    continue;
-                }
+            for (Diagnostic diagnostic : moduleContext.diagnostics()) {
+                diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.descriptor(), moduleContext.project()));
             }
-            moduleContext.diagnostics().forEach(diagnostic ->
-                    diagnostics.add(new PackageDiagnostic(diagnostic, moduleContext.moduleName())));
         }
 
         // add plugin diagnostics

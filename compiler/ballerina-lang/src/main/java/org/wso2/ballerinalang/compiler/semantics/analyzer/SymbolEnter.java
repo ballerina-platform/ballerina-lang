@@ -1406,19 +1406,19 @@ public class SymbolEnter extends BLangNodeVisitor {
             }
         }
 
-        // check for unresolved fields. This record may be referencing another record
-        if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
-            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
-            for (BLangSimpleVariable variable : structureTypeNode.fields) {
-                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
-                if (referencedType == symTable.noType) {
-                    if (!this.unresolvedTypes.contains(typeDefinition)) {
-                        this.unresolvedTypes.add(typeDefinition);
-                        return;
-                    }
-                }
-            }
-        }
+//        // check for unresolved fields. This record may be referencing another record
+//        if (typeDefinition.typeNode.getKind() == NodeKind.RECORD_TYPE) {
+//            BLangStructureTypeNode structureTypeNode = (BLangStructureTypeNode) typeDefinition.typeNode;
+//            for (BLangSimpleVariable variable : structureTypeNode.fields) {
+//                BType referencedType = symResolver.resolveTypeNode(variable.typeNode, env);
+//                if (referencedType == symTable.noType) {
+//                    if (!this.unresolvedTypes.contains(typeDefinition)) {
+//                        this.unresolvedTypes.add(typeDefinition);
+//                        return;
+//                    }
+//                }
+//            }
+//        }
 
         if (typeDefinition.typeNode.getKind() == NodeKind.FUNCTION_TYPE && definedType.tsymbol == null) {
             definedType.tsymbol = Symbols.createTypeSymbol(SymTag.FUNCTION_TYPE, Flags.asMask(typeDefinition.flagSet),

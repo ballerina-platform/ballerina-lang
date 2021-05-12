@@ -34,7 +34,6 @@ class CompilationOptionsBuilder {
     private String cloud;
     private Boolean taintCheck;
     private Boolean listConflictedClasses;
-    private Boolean showAllWarnings;
 
     public CompilationOptionsBuilder() {
     }
@@ -84,13 +83,8 @@ class CompilationOptionsBuilder {
         return this;
     }
 
-    public CompilationOptionsBuilder showAllWarnings(Boolean value) {
-        showAllWarnings = value;
-        return this;
-    }
-
     public CompilationOptions build() {
         return new CompilationOptions(skipTests, buildOffline, experimental, observabilityIncluded, dumpBir,
-                dumpBirFile, cloud, taintCheck, listConflictedClasses, showAllWarnings);
+                dumpBirFile, cloud, taintCheck, listConflictedClasses);
     }
 }
