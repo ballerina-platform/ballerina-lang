@@ -1683,7 +1683,7 @@ public class Desugar extends BLangNodeVisitor {
             // map<any> restParam = $map$_0.filter($lambdaArg$_0);
 
             Location pos = parentBlockStmt.pos;
-            BMapType restParamType = (BMapType) ((BLangVariable) parentRecordVariable.restParam).type;
+            BType restParamType = ((BLangVariable) parentRecordVariable.restParam).type;
             BLangSimpleVarRef variableReference;
 
             if (parentIndexAccessExpr != null) {
@@ -1858,8 +1858,14 @@ public class Desugar extends BLangNodeVisitor {
         BLangInvocation entriesInvocation = generateMapEntriesInvocation(
                 ASTBuilderUtil.createVariableRef(pos, mapVariable.symbol), typeCastExpr.type);
         String entriesVarName = "$map$ref$entries$" + UNDERSCORE + restNum;
+        BType constraintType;
+        if (targetType.tag == TypeTags.RECORD) {
+            constraintType = ((BRecordType) targetType).restFieldType;
+        } else {
+            constraintType = ((BMapType) targetType).constraint;
+        }
         BType entriesType = new BMapType(TypeTags.MAP,
-                new BTupleType(Arrays.asList(symTable.stringType, ((BMapType) targetType).constraint)), null);
+                new BTupleType(Arrays.asList(symTable.stringType, constraintType)), null);
         BLangSimpleVariable entriesInvocationVar = defVariable(pos, entriesType, parentBlockStmt,
                 addConversionExprIfRequired(entriesInvocation, entriesType),
                 entriesVarName);
@@ -1872,7 +1878,7 @@ public class Desugar extends BLangNodeVisitor {
                 filteredEntriesName);
 
         String filteredVarName = "$detail$filtered" + restNum;
-        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(pos, ((BMapType) targetType).constraint);
+        BLangLambdaFunction backToMapLambda = generateEntriesToMapLambda(pos, constraintType);
         BLangInvocation mapInvocation = generateMapMapInvocation(pos, filteredVar, backToMapLambda);
         BLangSimpleVariable filtered = defVariable(pos, targetType, parentBlockStmt,
                 mapInvocation,
@@ -2635,7 +2641,15 @@ public class Desugar extends BLangNodeVisitor {
             // map<any> restParam = $map$_0.filter($lambdaArg$_0);
 
             Location pos = parentBlockStmt.pos;
-            BMapType restParamType = (BMapType) ((BLangSimpleVarRef) parentRecordVarRef.restParam).type;
+            BLangSimpleVarRef restParamRef = (BLangSimpleVarRef) parentRecordVarRef.restParam;
+
+            BMapType restParamType;
+            if (restParamRef.type.tag == TypeTags.RECORD) {
+                restParamType = new BMapType(TypeTags.MAP,
+                        ((BRecordType) restParamRef.type).restFieldType, null);
+            } else {
+                restParamType = (BMapType) restParamRef.type;
+            }
             BLangSimpleVarRef variableReference;
 
             if (parentIndexAccessExpr != null) {
