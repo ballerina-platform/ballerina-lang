@@ -81,6 +81,7 @@ public class Utils {
                 return TomlType.STRING;
             case TypeTags.ARRAY_TAG:
                 return TomlType.ARRAY;
+            case TypeTags.MAP_TAG:
             case TypeTags.RECORD_TYPE_TAG:
                 return TomlType.TABLE;
             case TypeTags.TABLE_TAG:

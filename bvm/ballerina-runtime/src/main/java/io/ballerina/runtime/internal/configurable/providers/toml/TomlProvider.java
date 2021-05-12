@@ -26,6 +26,7 @@ import io.ballerina.runtime.api.flags.SymbolFlags;
 import io.ballerina.runtime.api.types.ArrayType;
 import io.ballerina.runtime.api.types.Field;
 import io.ballerina.runtime.api.types.IntersectionType;
+import io.ballerina.runtime.api.types.MapType;
 import io.ballerina.runtime.api.types.RecordType;
 import io.ballerina.runtime.api.types.TableType;
 import io.ballerina.runtime.api.types.Type;
@@ -81,7 +82,6 @@ import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_INVALID_BYTE_RANGE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_CONSTRAINT_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_DEFAULT_FILED_NOT_SUPPORTED;
-import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_FIELD_INCOMPATIBLE_TYPE;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_FIELD_TYPE_NOT_SUPPORTED;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_ADDTIONAL_RECORD_FIELD;
 import static io.ballerina.runtime.internal.util.exceptions.RuntimeErrors.CONFIG_TOML_INVALID_MODULE_STRUCTURE;
@@ -249,7 +249,7 @@ public class TomlProvider implements ConfigProvider {
         TomlTableNode moduleNode = getModuleTomlNode(module, key);
         if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
             TomlNode tomlValue = moduleNode.entries().get(key.variable);
-            return Optional.of(retrieveArrayValues(tomlValue, key.variable, (ArrayType) effectiveType));
+            return Optional.of(retrieveArrayValue(tomlValue, key.variable, (ArrayType) effectiveType));
         }
         return Optional.empty();
     }
@@ -259,9 +259,70 @@ public class TomlProvider implements ConfigProvider {
         TomlTableNode moduleNode = getModuleTomlNode(module, key);
         if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
             TomlNode tomlValue = moduleNode.entries().get(key.variable);
-            return Optional.of(retrieveRecordValues(tomlValue, key.variable, key.type));
+            return Optional.of(retrieveRecordValue(tomlValue, key.variable, key.type));
         }
         return Optional.empty();
+    }
+
+    @Override
+    public Optional<BMap<BString, Object>> getAsMapAndMark(Module module, VariableKey key) {
+        String variableName = key.variable;
+        MapType effectiveType = (MapType) ((IntersectionType) key.type).getEffectiveType();
+        TomlTableNode moduleNode = getModuleTomlNode(module, key);
+        if (moduleNode != null && moduleNode.entries().containsKey(variableName)) {
+            TomlNode tomlValue = moduleNode.entries().get(variableName);
+            return Optional.of(retrieveMapValue(tomlValue, variableName, effectiveType));
+        }
+        return Optional.empty();
+    }
+
+    private BMap<BString, Object> retrieveMapValue(TomlNode tomlValue, String variableName, MapType mapType) {
+        if (tomlValue.kind() != getEffectiveTomlType(mapType, variableName)) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, mapType,
+                    getTomlTypeString(tomlValue));
+        }
+        if (!isSupportedType(mapType)) {
+            invalidTomlLines.add(tomlValue.location().lineRange());
+            throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, mapType.toString());
+        }
+        visitedNodes.add(tomlValue);
+        TomlTableNode tomlTableValue = (TomlTableNode) tomlValue;
+        MappingInitialValueEntry.KeyValueEntry[] keyValueEntries =
+                new MappingInitialValueEntry.KeyValueEntry[tomlTableValue.entries().size()];
+        int count = 0;
+        for (Map.Entry<String, TopLevelNode> field : tomlTableValue.entries().entrySet()) {
+            String fieldName = field.getKey();
+            Object value =
+                    retrieveTypedValue(field.getValue(), variableName + "." + fieldName, mapType.getConstrainedType());
+            keyValueEntries[count] =
+                    new MappingInitialValueEntry.KeyValueEntry(StringUtils.fromString(fieldName), value);
+            count++;
+
+        }
+        return ValueCreator.createMapValue(mapType, keyValueEntries);
+    }
+
+    private Object retrieveTypedValue(TomlNode tomlValue, String variableName, Type type) {
+        if (isPrimitiveType(type.getTag())) {
+            return retrievePrimitiveValue(tomlValue, variableName, type);
+        }
+        switch (type.getTag()) {
+            case TypeTags.ARRAY_TAG:
+                return retrieveArrayValue(tomlValue, variableName, (ArrayType) type);
+            case TypeTags.RECORD_TYPE_TAG:
+                return retrieveRecordValue(tomlValue, variableName, type);
+            case TypeTags.MAP_TAG:
+                return retrieveMapValue(tomlValue, variableName, (MapType) type);
+            case TypeTags.TABLE_TAG:
+                return retrieveTableValue(tomlValue, variableName, (TableType) type);
+            case TypeTags.INTERSECTION_TAG:
+                Type effectiveType = ((IntersectionType) type).getEffectiveType();
+                return retrieveTypedValue(tomlValue, variableName, effectiveType);
+            default:
+                invalidTomlLines.add(tomlValue.location().lineRange());
+                throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, type.toString());
+        }
     }
 
     @Override
@@ -270,7 +331,7 @@ public class TomlProvider implements ConfigProvider {
         TomlTableNode moduleNode = getModuleTomlNode(module, key);
         if (moduleNode != null && moduleNode.entries().containsKey(key.variable)) {
             TomlNode tomlValue = moduleNode.entries().get(key.variable);
-            return Optional.of(retrieveTableValues(tomlValue, key.variable, (TableType) effectiveType));
+            return Optional.of(retrieveTableValue(tomlValue, key.variable, (TableType) effectiveType));
         }
         return Optional.empty();
     }
@@ -317,7 +378,7 @@ public class TomlProvider implements ConfigProvider {
         TomlTableNode moduleNode = getModuleTomlNode(module, key);
         if (moduleNode != null && moduleNode.entries().containsKey(variableName)) {
             TomlNode tomlValue = moduleNode.entries().get(variableName);
-            return getTomlNode(tomlValue, key.variable, key.type);
+            return getTomlNode(tomlValue, variableName, key.type);
         }
         return null;
     }
@@ -469,31 +530,30 @@ public class TomlProvider implements ConfigProvider {
         return table.map(Toml::rootNode).orElse(null);
     }
 
-    private Object retrievePrimitiveValue(TomlNode tomlValue, String variableName, Type type, String fieldName) {
+    private Object retrievePrimitiveValue(TomlNode tomlValue, String variableName, Type type) {
         TomlType tomlType = tomlValue.kind();
         if (tomlType != TomlType.KEY_VALUE) {
             invalidTomlLines.add(tomlValue.location().lineRange());
-            throw new ConfigException(CONFIG_TOML_FIELD_INCOMPATIBLE_TYPE, getLineRange(tomlValue), fieldName,
-                                      variableName, type, getTomlTypeString(tomlValue));
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(tomlValue), variableName, type,
+                    getTomlTypeString(tomlValue));
         }
         TomlValueNode value = ((TomlKeyValueNode) tomlValue).value();
         tomlType = value.kind();
         if (tomlType != getEffectiveTomlType(type, variableName)) {
             invalidTomlLines.add(value.location().lineRange());
-            throw new ConfigException(CONFIG_TOML_FIELD_INCOMPATIBLE_TYPE, getLineRange(value), fieldName, variableName,
-                                      type, getTomlTypeString(tomlValue));
+            throw new ConfigException(CONFIG_INCOMPATIBLE_TYPE, getLineRange(value), variableName, type,
+                    getTomlTypeString(tomlValue));
         }
         visitedNodes.add(tomlValue);
         return getBalValue(variableName, type.getTag(), value);
     }
 
 
-    private BArray retrieveArrayValues(TomlNode tomlValue, String variableName, ArrayType arrayType) {
+    private BArray retrieveArrayValue(TomlNode tomlValue, String variableName, ArrayType arrayType) {
         Type elementType = arrayType.getElementType();
         if (!isSupportedType(elementType)) {
             invalidTomlLines.add(tomlValue.location().lineRange());
-            throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, getLineRange(tomlValue), variableName,
-                                      arrayType.toString());
+            throw new ConfigException(CONFIG_TYPE_NOT_SUPPORTED, variableName, arrayType.toString());
         }
         if (isPrimitiveType(elementType.getTag())) {
             if (tomlValue.kind() != TomlType.KEY_VALUE) {
@@ -563,7 +623,7 @@ public class TomlProvider implements ConfigProvider {
         int arraySize = tableNodeList.size();
         ListInitialValueEntry.ExpressionEntry[] entries = new ListInitialValueEntry.ExpressionEntry[arraySize];
         for (int i = 0; i < arraySize; i++) {
-            Object value = retrieveRecordValues(tableNodeList.get(i), variableName, elementType);
+            Object value = retrieveRecordValue(tableNodeList.get(i), variableName, elementType);
             entries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         return new ArrayValueImpl(arrayType, entries.length, entries);
@@ -594,7 +654,7 @@ public class TomlProvider implements ConfigProvider {
         return arrayEntries;
     }
 
-    private BMap<BString, Object> retrieveRecordValues(TomlNode tomlNode, String variableName, Type type) {
+    private BMap<BString, Object> retrieveRecordValue(TomlNode tomlNode, String variableName, Type type) {
         RecordType recordType;
         String recordName;
         if (type.getTag() == TypeTags.RECORD_TYPE_TAG) {
@@ -628,7 +688,7 @@ public class TomlProvider implements ConfigProvider {
                 throw new ConfigException(CONFIG_TOML_FIELD_TYPE_NOT_SUPPORTED, getLineRange(value), fieldType,
                                           variableName);
             }
-            Object objectValue = getRecordField(variableName, fieldName, value, fieldType);
+            Object objectValue = retrieveTypedValue(value, variableName + "." + fieldName, fieldType);
             initialValueEntries.put(fieldName, objectValue);
         }
         validateRequiredField(initialValueEntries, recordType, variableName, tomlValue);
@@ -636,29 +696,6 @@ public class TomlProvider implements ConfigProvider {
             return createReadOnlyFieldRecord(initialValueEntries, recordType, variableName, tomlValue);
         }
         return ValueCreator.createReadonlyRecordValue(recordType.getPackage(), recordName, initialValueEntries);
-    }
-
-    private Object getRecordField(String variableName, String fieldName, TomlNode value, Type fieldType) {
-        Object objectValue;
-        switch (fieldType.getTag()) {
-            case TypeTags.ARRAY_TAG:
-                objectValue = retrieveArrayValues(value, variableName,  (ArrayType) fieldType);
-                break;
-            case TypeTags.RECORD_TYPE_TAG:
-                objectValue = retrieveRecordValues(value, variableName, fieldType);
-                break;
-            case TypeTags.INTERSECTION_TAG:
-                Type effectiveType = ((IntersectionType) fieldType).getEffectiveType();
-                if (effectiveType.getTag() == TypeTags.ARRAY_TAG) {
-                    objectValue = retrieveArrayValues(value, variableName, (ArrayType) effectiveType);
-                } else {
-                    objectValue = retrieveRecordValues(value, variableName, effectiveType);
-                }
-                break;
-            default:
-                objectValue = retrievePrimitiveValue(value, variableName, fieldType, fieldName);
-        }
-        return objectValue;
     }
 
     private BMap<BString, Object> createReadOnlyFieldRecord(Map<String, Object> initialValueEntries,
@@ -714,13 +751,29 @@ public class TomlProvider implements ConfigProvider {
             case TypeTags.ARRAY_TAG:
                 return isSupportedType(((ArrayType) type).getElementType());
             case TypeTags.RECORD_TYPE_TAG:
+                RecordType recordType = (RecordType) type;
+                for (Field field :recordType.getFields().values()) {
+                    if (!isSupportedType(field.getFieldType())) {
+                        return false;
+                    }
+                }
                 return true;
+            case TypeTags.MAP_TAG:
+                Type constraintType = ((MapType) type).getConstrainedType();
+                if (constraintType.getTag() == TypeTags.INTERSECTION_TAG) {
+                    constraintType = ((IntersectionType) constraintType).getEffectiveType();
+                }
+                if (constraintType.getTag() == TypeTags.TABLE_TAG) {
+                    return true;
+                } else {
+                    return isSupportedType(constraintType);
+                }
             default:
         }
         return false;
     }
 
-    private BTable<BString, Object> retrieveTableValues(TomlNode tomlValue, String variableName, TableType tableType) {
+    private BTable<BString, Object> retrieveTableValue(TomlNode tomlValue, String variableName, TableType tableType) {
         Type constraintType = tableType.getConstrainedType();
         int tag = constraintType.getTag();
         if (tag != TypeTags.INTERSECTION_TAG && tag != TypeTags.RECORD_TYPE_TAG) {
@@ -748,7 +801,7 @@ public class TomlProvider implements ConfigProvider {
             if (keys != null) {
                 validateKeyField(tableNodeList.get(i), keys, tableType, variableName);
             }
-            Object value = retrieveRecordValues(tableNodeList.get(i), variableName, constraintType);
+            Object value = retrieveRecordValue(tableNodeList.get(i), variableName, constraintType);
             tableEntries[i] = new ListInitialValueEntry.ExpressionEntry(value);
         }
         ArrayValue tableData =

@@ -175,7 +175,8 @@ public class ConfigNegativeTest {
                                 new VariableKey(MODULE, "myMap",
                                                 new BIntersectionType(MODULE, new BType[]{}, PredefinedTypes.TYPE_MAP
                                                         , 0, true), null, true)}, 1
-                        , 1, new String[]{"error: configurable variable 'myMap' with type 'map' is not supported"}},
+                        , 1, new String[]{"error: value for configurable variable 'myMap' with type 'map' is not " +
+                "supported as a command line argument"}},
                 // not supported union type
                 {new String[]{""}, null, new VariableKey[]{
                         new VariableKey(MODULE, "myUnion", UNION_TYPE, null, true)}, 1, 0,

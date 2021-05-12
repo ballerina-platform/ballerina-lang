@@ -209,11 +209,10 @@ public class TomlProviderNegativeTest {
         return new Object[][]{
                 {"RecordTypeError", "[RecordTypeError.toml:(2:1,2:40)] configurable variable 'recordVar' " +
                         "is expected to be of type 'test_module:Person', but found 'string'", 0},
-                {"RecordFieldTypeError", "[RecordFieldTypeError.toml:(2:8,2:12)] field 'name' from configurable " +
-                        "variable 'recordVar' is expected to be of type 'string', but found 'int'", 1},
-                {"RecordFieldStructureError", "[RecordFieldStructureError.toml:(2:1,2:24)] field 'name' from " +
-                        "configurable variable 'recordVar' is expected to be of type 'string', but found " +
-                        "'record'", 0},
+                {"RecordFieldTypeError", "[RecordFieldTypeError.toml:(2:8,2:12)] configurable variable 'recordVar" +
+                        ".name' is expected to be of type 'string', but found 'int'", 1},
+                {"RecordFieldStructureError", "[RecordFieldStructureError.toml:(2:1,2:24)] configurable variable " +
+                        "'recordVar.name' is expected to be of type 'string', but found 'record'", 0},
                 {"AdditionalFieldRecord", "[AdditionalFieldRecord.toml:(3:1,3:9)] additional field 'age' provided for" +
                         " configurable variable 'recordVar' of record 'test_module:Person' is not " +
                         "supported", 0},
@@ -269,12 +268,10 @@ public class TomlProviderNegativeTest {
                 {"TableTypeError", "[TableTypeError.toml:(1:1,3:9)] configurable variable 'tableVar'" +
                         " is expected to be of type 'table<test_module:Person> key(name) & readonly'," +
                         " but found 'record'", 2},
-                {"TableFieldTypeError", "[TableFieldTypeError.toml:(2:8,2:11)] field 'name' " +
-                        "from configurable variable 'tableVar' is expected to be of type 'string'," +
-                        " but found 'int'", 2},
-                {"TableFieldStructureError", "[TableFieldStructureError.toml:(2:1,2:24)] field 'name' " +
-                        "from configurable variable 'tableVar' is expected to be of type 'string'," +
-                        " but found 'record'", 1},
+                {"TableFieldTypeError", "[TableFieldTypeError.toml:(2:8,2:11)] configurable variable 'tableVar.name' " +
+                        "is expected to be of type 'string', but found 'int'", 2},
+                {"TableFieldStructureError", "[TableFieldStructureError.toml:(2:1,2:24)] configurable variable " +
+                        "'tableVar.name' is expected to be of type 'string', but found 'record'", 1},
                 {"AdditionalField", "[AdditionalField.toml:(4:1,4:17)] additional field 'city' provided for" +
                         " configurable variable 'tableVar' of record 'test_module:Person'" +
                         " is not supported", 0},
