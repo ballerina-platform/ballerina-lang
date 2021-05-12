@@ -2122,8 +2122,11 @@ public class TypeChecker extends BLangNodeVisitor {
                 varRefExpr.type = this.symTable.semanticError;
                 dlog.error(varRefExpr.pos, DiagnosticErrorCode.UNDERSCORE_NOT_ALLOWED);
             }
-            varRefExpr.symbol = new BVarSymbol(0, varName, env.enclPkg.symbol.pkgID, varRefExpr.type, env.scope.owner,
-                                               varRefExpr.pos, VIRTUAL);
+
+            // If the variable name is a wildcard('_'), the symbol should be ignorable.
+            varRefExpr.symbol = new BVarSymbol(0, true, varName, env.enclPkg.symbol.pkgID, varRefExpr.type,
+                    env.scope.owner, varRefExpr.pos, VIRTUAL);
+
             resultType = varRefExpr.type;
             return;
         }
