@@ -28,7 +28,6 @@ import org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils;
 
 import java.util.Collections;
 
-import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_STRING_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.B_TYPE_CONVERTER_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.JAVA_STRING_CLASS;
 import static org.ballerinalang.debugadapter.evaluation.utils.EvaluationUtils.STRING_TO_XML_METHOD;
