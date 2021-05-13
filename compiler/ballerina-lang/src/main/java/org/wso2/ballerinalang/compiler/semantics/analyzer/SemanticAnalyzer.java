@@ -35,6 +35,7 @@ import org.ballerinalang.model.tree.types.BuiltInReferenceTypeNode;
 import org.ballerinalang.model.types.SelectivelyImmutableReferenceType;
 import org.ballerinalang.model.types.TypeKind;
 import org.ballerinalang.util.diagnostic.DiagnosticErrorCode;
+import org.wso2.ballerinalang.compiler.desugar.ASTBuilderUtil;
 import org.wso2.ballerinalang.compiler.diagnostic.BLangDiagnosticLog;
 import org.wso2.ballerinalang.compiler.parser.BLangAnonymousModelHelper;
 import org.wso2.ballerinalang.compiler.semantics.model.SymbolEnv;
@@ -1424,7 +1425,7 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
     }
 
     public void visit(BLangCompoundAssignment compoundAssignment) {
-        List<BType> expTypes = new ArrayList<>();
+        BType expType;
         BLangAccessExpression varRef = compoundAssignment.varRef;
 
         // Check whether the variable reference is an function invocation or not.
@@ -1432,46 +1433,55 @@ public class SemanticAnalyzer extends BLangNodeVisitor {
         if (isValidVarRef) {
             varRef.compoundAssignmentLhsVar = true;
             this.typeChecker.checkExpr(varRef, env);
-
-            // If this is an update of a type narrowed variable, the assignment should allow assigning
-            // values of its original type. Therefore treat all lhs simpleVarRefs in their original type.
-            if (isSimpleVarRef(varRef)) {
-                BVarSymbol originSymbol = ((BVarSymbol) varRef.symbol).originalSymbol;
-                if (originSymbol != null) {
-                    varRef.type = originSymbol.type;
-                }
-            }
-            expTypes.add(varRef.type);
+            expType = varRef.type;
         } else {
-            expTypes.add(symTable.semanticError);
+            expType = symTable.semanticError;
         }
 
         this.typeChecker.checkExpr(compoundAssignment.expr, env);
 
         checkConstantAssignment(varRef);
 
-        if (expTypes.get(0) != symTable.semanticError && compoundAssignment.expr.type != symTable.semanticError) {
-            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expTypes.get(0),
+        if (expType != symTable.semanticError && compoundAssignment.expr.type != symTable.semanticError) {
+            BSymbol opSymbol = this.symResolver.resolveBinaryOperator(compoundAssignment.opKind, expType,
                     compoundAssignment.expr.type);
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expTypes.get(0),
+                opSymbol = symResolver.getArithmeticOpsForTypeSets(compoundAssignment.opKind, expType,
                         compoundAssignment.expr.type);
             }
             if (opSymbol == symTable.notFoundSymbol) {
-                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expTypes.get(0),
+                opSymbol = symResolver.getBitwiseShiftOpsForTypeSets(compoundAssignment.opKind, expType,
                         compoundAssignment.expr.type);
             }
             if (opSymbol == symTable.notFoundSymbol) {
                 dlog.error(compoundAssignment.pos, DiagnosticErrorCode.BINARY_OP_INCOMPATIBLE_TYPES,
-                        compoundAssignment.opKind, expTypes.get(0), compoundAssignment.expr.type);
+                        compoundAssignment.opKind, expType, compoundAssignment.expr.type);
             } else {
                 compoundAssignment.modifiedExpr = getBinaryExpr(varRef,
                         compoundAssignment.expr,
                         compoundAssignment.opKind,
                         opSymbol);
+
+                // If this is an update of a type narrowed variable, the assignment should allow assigning
+                // values of its original type. Therefore treat all lhs simpleVarRefs in their original type.
+                // For that create a new varRef with original type
+                if (isSimpleVarRef(varRef)) {
+                    BVarSymbol originSymbol = ((BVarSymbol) varRef.symbol).originalSymbol;
+                    if (originSymbol != null) {
+                        BLangSimpleVarRef simpleVarRef =
+                                (BLangSimpleVarRef) TreeBuilder.createSimpleVariableReferenceNode();
+                        simpleVarRef.pos = varRef.pos;
+                        simpleVarRef.variableName = ((BLangSimpleVarRef) varRef). variableName;
+                        simpleVarRef.symbol = varRef.symbol;
+                        simpleVarRef.lhsVar = true;
+                        simpleVarRef.type = originSymbol.type;
+                        compoundAssignment.varRef = simpleVarRef;
+                    }
+                }
+
                 compoundAssignment.modifiedExpr.parent = compoundAssignment;
-                this.types.checkTypes(compoundAssignment.modifiedExpr,
-                        Lists.of(compoundAssignment.modifiedExpr.type), expTypes);
+                this.types.checkType(compoundAssignment.modifiedExpr,
+                        compoundAssignment.modifiedExpr.type, compoundAssignment.varRef.type);
             }
         }
 

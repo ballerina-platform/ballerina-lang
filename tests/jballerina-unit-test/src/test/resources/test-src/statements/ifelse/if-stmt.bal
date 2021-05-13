@@ -191,6 +191,13 @@ function testTypeNarrowingWithClosure() {
     };
 }
 
+function testResetTypeNarrowingForConditionalExpr() {
+    int a = 5;
+    if a == 5 {
+        a += 1;
+    }
+}
+
 function assertTrue(any|error actual) {
     assertEquality(true, actual);
 }

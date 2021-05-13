@@ -3187,14 +3187,6 @@ public class Desugar extends BLangNodeVisitor {
 
         BLangAccessExpression varRef = compoundAssignment.varRef;
         if (compoundAssignment.varRef.getKind() != NodeKind.INDEX_BASED_ACCESS_EXPR) {
-            // Create a new varRef if this is a simpleVarRef. Because this can be a
-            // narrowed type var. In that case, lhs and rhs must be visited in two
-            // different manners.
-            if (varRef.getKind() == NodeKind.SIMPLE_VARIABLE_REF) {
-                varRef = ASTBuilderUtil.createVariableRef(compoundAssignment.varRef.pos, varRef.symbol);
-                varRef.lhsVar = true;
-            }
-
             result = ASTBuilderUtil.createAssignmentStmt(compoundAssignment.pos, rewriteExpr(varRef),
                     rewriteExpr(compoundAssignment.modifiedExpr));
             return;
@@ -3209,7 +3201,7 @@ public class Desugar extends BLangNodeVisitor {
         List<BLangSimpleVarRef> varRefs = new ArrayList<>();
         List<BType> types = new ArrayList<>();
 
-        // Extract the index Expressions from compound assignment and create variable definitions. ex:
+        // Extract the index Expressions f/rom compound assignment and create variable definitions. ex:
         // var $temp3$ = a[f(1, foo)];
         // var $temp2$ = 3;
         // var $temp1$ = 2;
