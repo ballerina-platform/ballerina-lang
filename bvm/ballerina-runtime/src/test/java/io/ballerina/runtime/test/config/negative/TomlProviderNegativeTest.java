@@ -283,7 +283,7 @@ public class TomlProviderNegativeTest {
 
     @Test()
     public void testInvalidTableConstraint() {
-        MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_STRING, true);
+        MapType mapType = TypeCreator.createMapType(PredefinedTypes.TYPE_ANYDATA, true);
         TableType tableType = TypeCreator.createTableType(mapType, true);
         IntersectionType intersectionType = new BIntersectionType(ROOT_MODULE, new Type[]{tableType,
                 PredefinedTypes.TYPE_READONLY}, tableType, 1, true);
@@ -291,8 +291,8 @@ public class TomlProviderNegativeTest {
         VariableKey tableVar = new VariableKey(ROOT_MODULE, "tableVar", intersectionType, true);
 
         Map<Module, VariableKey[]> configVarMap = Map.ofEntries(Map.entry(ROOT_MODULE, new VariableKey[]{tableVar}));
-        String errorMsg = "[InvalidTableConstraint.toml:(1:1,2:16)] table constraint type 'map<string> & readonly'" +
-                " in configurable variable 'tableVar' is not supported";
+        String errorMsg = "[InvalidTableConstraint.toml:(1:1,2:16)] table constraint type 'map<anydata & readonly> & " +
+                "readonly' in configurable variable 'tableVar' is not supported";
         validateTomlProviderErrors("InvalidTableConstraint", errorMsg, configVarMap, 1, 1);
     }
 

@@ -192,15 +192,15 @@ public function testTables() {
 }
 
 public function testArrays() {
-    test:assertEquals(personArray.toString(), "[{\"address\":{\"country\":{\"name\":\"USA\"},\"city\":\"New York\"}," +
-        "\"name\":\"manu\",\"id\":11},{\"address\":{\"country\":{\"name\":\"UK\"},\"city\":\"London\"}," +
-        "\"name\":\"hinduja\",\"id\":12}]");
-    test:assertEquals(personArray1.toString(), "[{\"address\":{\"country\":{\"name\":\"UAE\"}," +
-        "\"city\":\"Abu Dhabi\"},\"name\":\"waruna\",\"id\":700},{\"address\":{\"country\":{\"name\":\"India\"}," +
-        "\"city\":\"Mumbai\"},\"name\":\"manu\",\"id\":701}]");
-    test:assertEquals(personArray2.toString(), "[{\"address\":{\"country\":{\"name\":\"UAE\"}," +
-        "\"city\":\"Abu Dhabi\"},\"name\":\"gabilan\",\"id\":900},{\"address\":{\"country\":{\"name\":\"India\"}," +
-        "\"city\":\"Mumbai\"},\"name\":\"hinduja\",\"id\":901}]");
+    test:assertEquals(personArray.toString(), "[{\"address\":{\"city\":\"New York\",\"country\":" +
+    "{\"name\":\"USA\"}},\"name\":\"manu\",\"id\":11},{\"address\":{\"city\":\"London\",\"country\":" +
+    "{\"name\":\"UK\"}},\"name\":\"hinduja\",\"id\":12}]");
+    test:assertEquals(personArray1.toString(), "[{\"address\":{\"city\":\"Abu Dhabi\",\"country\":" +
+    "{\"name\":\"UAE\"}}"+",\"name\":\"waruna\",\"id\":700},{\"address\":{\"city\":\"Mumbai\"," +
+    "\"country\":{\"name\":\"India\"}},\"name\":\"manu\",\"id\":701}]");
+    test:assertEquals(personArray2.toString(), "[{\"address\":{\"city\":\"Abu Dhabi\",\"country\":" +
+    "{\"name\":\"UAE\"}},\"name\":\"gabilan\",\"id\":900},{\"address\":{\"city\":\"Mumbai\"," +
+    "\"country\":{\"name\":\"India\"}},\"name\":\"hinduja\",\"id\":901}]");
 }
 
 public function testMaps() {
@@ -214,10 +214,10 @@ public function testMaps() {
     + "\"dd\"]],\"set3\":[[\"e\",\"ee\"],[\"f\",\"ff\"]]}");
     test:assertEquals(engineerMap.toString(), "{\"engineer1\":{\"name\":\"Anne\",\"id\":11},"
     + "\"engineer2\":{\"name\":\"Bob\",\"id\":22},\"engineer3\":{\"name\":\"Charles\",\"id\":33}}");
-    test:assertEquals(lecturerMap.toString(), "{\"lecturer1\":{\"department1\":{\"name\":\"Physics\"},"
-    + "\"name\":\"Richard Feynman\",\"department3\":{\"name\":\"Science\"}},"
-    + "\"lecturer2\":{\"department1\":{\"name\":\"Justice\"},\"name\":\"Michael Sandel\","
-    + "\"department2\":{\"name\":\"Ethics\"},\"department3\":{\"name\":\"Law\"}}}");
+    test:assertEquals(lecturerMap.toString(), "{\"lecturer1\":{\"name\":\"Richard Feynman\",\"department1\":" +
+    "{\"name\":\"Physics\"},\"department3\":{\"name\":\"Science\"}}," +
+    "\"lecturer2\":{\"name\":\"Michael Sandel\",\"department1\":{\"name\":\"Justice\"}," +
+    "\"department2\":{\"name\":\"Ethics\"},\"department3\":{\"name\":\"Law\"}}}");
     test:assertEquals(subjects.toString(), "{\"Maths\":{\"name\":\"Mathematics\",\"grade\":\"grade 8\","
     + "\"instructor\":\"Jane Doe\"},\"Science\":{\"name\":\"Science & Technology\",\"grade\":\"grade 9\","
     + "\"instructor\":\"John Doe\"},\"English\":{\"name\":\"English Language\",\"grade\":\"grade 11\","
