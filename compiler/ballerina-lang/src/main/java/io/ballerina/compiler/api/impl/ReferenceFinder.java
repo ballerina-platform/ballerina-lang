@@ -1033,7 +1033,6 @@ public class ReferenceFinder extends BaseVisitor {
 
     @Override
     public void visit(BLangTableMultiKeyExpr tableMultiKeyExpr) {
-        find(tableMultiKeyExpr.expr);
         find(tableMultiKeyExpr.multiKeyIndexExprs);
     }
 
