@@ -168,7 +168,6 @@ address.country.name="France"
 [configStructuredTypes.mod2.doctor]
 name="waruna"
 
-
 [[configStructuredTypes.mod2.doctorTable]]
 name="hinduja"
 id=100
@@ -390,3 +389,70 @@ place3.city="Galle"
 name="riyafa"
 place1.city="Matara"
 place3.city="Jaffna"
+
+[configStructuredTypes.user]
+name = "Hinduja"
+occupation = "Software Engineer"
+city = "Colombo"
+
+[configStructuredTypes.numbers]
+one = 1
+two = 2
+three = 3
+four = 4
+
+[configStructuredTypes.fractions]
+quarter = 0.25
+half = 0.5
+three_quarter = 0.75
+
+[configStructuredTypes.bits]
+on = true
+off = false
+
+[configStructuredTypes.numberSet]
+set1 = [1,11,111]
+set2 = [2,22,222]
+set3 = [3,33,333]
+
+[configStructuredTypes.stringSet]
+set1 = [["a","aa"],["b","bb"]]
+set2 = [["c","cc"],["d","dd"]]
+set3 = [["e","ee"],["f","ff"]]
+
+[configStructuredTypes.engineerMap]
+engineer1.id = 11
+engineer1.name = "Anne"
+engineer2.id = 22
+engineer2.name = "Bob"
+engineer3.id = 33
+engineer3.name = "Charles"
+
+[configStructuredTypes.lecturerMap]
+lecturer1.name = "Richard Feynman"
+lecturer1.department1.name = "Physics"
+lecturer1.department3.name = "Science"
+lecturer2.name = "Michael Sandel"
+lecturer2.department1.name = "Justice"
+lecturer2.department2.name = "Ethics"
+lecturer2.department3.name = "Law"
+
+[configStructuredTypes.subjects]
+Maths.name = "Mathematics"
+Maths.grade = "grade 8"
+Maths.instructor = "Jane Doe"
+Science.name = "Science & Technology"
+Science.grade = "grade 9"
+Science.instructor = "John Doe"
+English.name = "English Language"
+English.grade = "grade 11"
+English.instructor = "Jane Doe"
+
+[[configStructuredTypes.departments.department1]]
+name = "Civil Engineering"
+
+[[configStructuredTypes.departments.department2]]
+name = "Computer Science"
+
+[[configStructuredTypes.departments.department3]]
+name = "Electronical Engineering"

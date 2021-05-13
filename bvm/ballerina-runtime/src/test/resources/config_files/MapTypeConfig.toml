@@ -1,0 +1,10 @@
+[intMap]
+int1 = 12
+int2 = 34
+
+[decimalMap]
+d1 = 56.78
+d2 = 32.94
+
+[byteArrayMap]
+arr1 = [6,2,5]

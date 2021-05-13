@@ -48,6 +48,8 @@ type Address record {|
     string city;
 |};
 
+type Subject map<string>;
+
 configurable Engineer & readonly 'engineer = ?;
 configurable configLib:Manager & readonly manager = ?;
 configurable configLib:Teacher & readonly teacher = ?;
@@ -94,6 +96,22 @@ type PersonArray mod1:Person;
 
 configurable PersonArray[] & readonly personArray2 = ?;
 
+// Maps
+configurable map<string> & readonly user = ?;
+configurable map<int> & readonly numbers = ?;
+configurable map<float> & readonly fractions = ?;
+configurable map<boolean> & readonly bits = ?;
+
+configurable map<int[]> & readonly numberSet = ?;
+configurable map<string[][]> & readonly stringSet = ?;
+// Map of records
+configurable map<Engineer> & readonly engineerMap = ?;
+configurable map<Lecturer> & readonly lecturerMap = ?;
+// Map of map
+configurable map<Subject> & readonly subjects = ?;
+// Map of table
+configurable map<table<Department> key(name)> & readonly departments = ?;
+
 public function main() {
     testRecords();
     testTables();
@@ -102,6 +120,7 @@ public function main() {
     mod2:testTables();
     mod2:testArrays();
     testComplexRecords();
+    testMaps();
     print("Tests passed");
 }
 
@@ -182,6 +201,29 @@ public function testArrays() {
     test:assertEquals(personArray2.toString(), "[{\"address\":{\"country\":{\"name\":\"UAE\"}," +
         "\"city\":\"Abu Dhabi\"},\"name\":\"gabilan\",\"id\":900},{\"address\":{\"country\":{\"name\":\"India\"}," +
         "\"city\":\"Mumbai\"},\"name\":\"hinduja\",\"id\":901}]");
+}
+
+public function testMaps() {
+    test:assertEquals(user.toString(), "{\"name\":\"Hinduja\",\"occupation\":\"Software Engineer\","
+    + "\"city\":\"Colombo\"}");
+    test:assertEquals(numbers.toString(), "{\"one\":1,\"two\":2,\"three\":3,\"four\":4}");
+    test:assertEquals(fractions.toString(), "{\"quarter\":0.25,\"half\":0.5,\"three_quarter\":0.75}");
+    test:assertEquals(bits.toString(), "{\"on\":true,\"off\":false}");
+    test:assertEquals(numberSet.toString(), "{\"set1\":[1,11,111],\"set2\":[2,22,222],\"set3\":[3,33,333]}");
+    test:assertEquals(stringSet.toString(), "{\"set1\":[[\"a\",\"aa\"],[\"b\",\"bb\"]],\"set2\":[[\"c\",\"cc\"],[\"d\","
+    + "\"dd\"]],\"set3\":[[\"e\",\"ee\"],[\"f\",\"ff\"]]}");
+    test:assertEquals(engineerMap.toString(), "{\"engineer1\":{\"name\":\"Anne\",\"id\":11},"
+    + "\"engineer2\":{\"name\":\"Bob\",\"id\":22},\"engineer3\":{\"name\":\"Charles\",\"id\":33}}");
+    test:assertEquals(lecturerMap.toString(), "{\"lecturer1\":{\"department1\":{\"name\":\"Physics\"},"
+    + "\"name\":\"Richard Feynman\",\"department3\":{\"name\":\"Science\"}},"
+    + "\"lecturer2\":{\"department1\":{\"name\":\"Justice\"},\"name\":\"Michael Sandel\","
+    + "\"department2\":{\"name\":\"Ethics\"},\"department3\":{\"name\":\"Law\"}}}");
+    test:assertEquals(subjects.toString(), "{\"Maths\":{\"name\":\"Mathematics\",\"grade\":\"grade 8\","
+    + "\"instructor\":\"Jane Doe\"},\"Science\":{\"name\":\"Science & Technology\",\"grade\":\"grade 9\","
+    + "\"instructor\":\"John Doe\"},\"English\":{\"name\":\"English Language\",\"grade\":\"grade 11\","
+    + "\"instructor\":\"Jane Doe\"}}");
+    test:assertEquals(departments.toString(), "{\"department1\":[{\"name\":\"Civil Engineering\"}],"
+    + "\"department2\":[{\"name\":\"Computer Science\"}],\"department3\":[{\"name\":\"Electronical Engineering\"}]}");
 }
 
 function print(string value) {
