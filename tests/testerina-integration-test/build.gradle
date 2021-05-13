@@ -32,6 +32,7 @@ dependencies {
     implementation 'info.picocli:picocli'
 
     implementation project(path: ':ballerina-test-utils')
+    implementation project(':ballerina-runtime')
 }
 
 task extractDistribution(type: Copy) {

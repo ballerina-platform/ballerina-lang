@@ -16,6 +16,7 @@
 
 import ballerina/test;
 import object_mocking.TestHttpClient;
+import ballerina/jballerina.java;
 
 // Mock Object definition
 public client class MockHttpClient {
@@ -108,9 +109,9 @@ public class MockPersonObj {
     function name() returns string => self.fname + " " + self.lname;
 
     // Pass a new mock class
-    //public function getObjectValue(typedesc<int|float|decimal|string|boolean> td) returns td | error = @java:Method {
-    //   'class: "org.ballerinalang.testerina.utils.VariableReturnType"
-    //} external;
+    public function getObjectValue(typedesc<int|float|decimal|string|boolean> td) returns td | error = @java:Method {
+       'class: "org.ballerinalang.testerina.utils.VariableReturnType"
+    } external;
 }
 
 @test:Config {enable : false}

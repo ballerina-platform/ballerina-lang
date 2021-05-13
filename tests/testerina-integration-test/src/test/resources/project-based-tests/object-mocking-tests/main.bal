@@ -49,7 +49,7 @@ public class PersonObj {
 
     function name() returns string => self.fname + " " + self.lname;
 
-    //public function getObjectValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
-    //    'class: "org.ballerinalang.testerina.utils.VariableReturnType"
-    //} external;
+    public function getObjectValue(typedesc<int|float|decimal|string|boolean> td) returns td = @java:Method {
+        'class: "org.ballerinalang.testerina.utils.VariableReturnType"
+    } external;
 }
