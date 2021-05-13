@@ -125,8 +125,8 @@ public class ClientObjectTest {
                 " for remote method calls", 146, 5);
         BAssertUtil.validateError(compileResult, errIdx++, "invalid method call '->bar()': '->' can only be used" +
                 " with remote methods", 147, 5);
-        String doubleDeclMessage = "declaration of remote method '%s' " +
-                "while non remote method with the same name exist in the object type is not supported";
+        String doubleDeclMessage =
+                "unsupported remote method name, '%s' already exists as a method or field name in the object type";
         BAssertUtil.validateError(compileResult, errIdx++,
                 String.format(doubleDeclMessage, "DoubleMethod.a"), 155, 14);
         BAssertUtil.validateError(compileResult, errIdx++,
